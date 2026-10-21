@@ -123,8 +123,7 @@ for p in PARTS:
     f.Reference().SetTextSize(pos(.8,.8));f.Reference().SetTextThickness(mm(.12))
     if ref == 'U13': f.Reference().SetPosition(pos(80,135))
     if ref == 'U7': f.Reference().SetPosition(pos(170.2,105.6))  # Rev D: clear of R94
-    if ref in ('U8','U9'): f.Reference().SetPosition(pos(151.5,p['pcb'][1]+5.2))
-    if ref == 'U10': f.Reference().SetPosition(pos(145.0,104.8))  # audit fix: clear of the pin-adjacent REF/AVDD caps
+    if ref == 'U14': f.Reference().SetPosition(pos(141,104.2))  # Rev E: clear of the decoupling pads
     if not ref.startswith('U'):
         f.Reference().SetLayer(k.F_Fab)
     for name,value in {'MPN':p['mpn'],'Manufacturer':p['manufacturer'],'LCSC':p['lcsc'],'Unit_USD':str(p['unit_usd']),'Assembly':p['assembly']}.items():
@@ -148,7 +147,7 @@ for a,c in [((50,50),(190,50)),((190,50),(190,150)),((190,150),(50,150)),((50,15
     s=k.PCB_SHAPE();s.SetShape(k.SHAPE_T_SEGMENT);s.SetStart(pos(*a));s.SetEnd(pos(*c));s.SetLayer(k.Edge_Cuts);s.SetWidth(mm(.05));b.Add(s)
 for i,(x,y) in enumerate([(54,54),(186,54),(54,146),(186,146)],1):
     f=k.FootprintLoad(str(LIBS/'MountingHole.pretty'),'MountingHole_3.2mm_M3');f.SetReference('H'+str(i));f.SetPosition(pos(x,y));f.Reference().SetLayer(k.F_Fab);f.SetAttributes(k.FP_EXCLUDE_FROM_BOM|k.FP_EXCLUDE_FROM_POS_FILES|k.FP_BOARD_ONLY);b.Add(f)
-for text,x,y,size in [('TEMPER LCR / REV D / TIDA-060029',121,54,1.5),('USB DATA',62,64,1),('DISCHARGED DUT ONLY',174,95,1),('HI',179,98,1),('LO',179,100.54,1),('JP1 100R',171,74,.8),('JP2 5k',177,74,.8),('JP3 100k',183,74,.8),('JP6 100k',155,111.5,.8),('JP4 100R',155,109,.8),('JP5 5k',155,121,.8),('BOOTSEL',60,84,.8),('RESET',60,95,.8),('J4 CLK/DIO',64,105,.8),('J5 GND/3V3',60,115,.8),('J6 TX/RX',77,111,.8),('MATCH RG AND RF JUMPERS',162,132,1),('5V 1A / CENTER +',69,140,1),('USB GND REFERENCED',111,147,1)]:
+for text,x,y,size in [('TEMPER LCR / REV E / TIDA-060029 + TAC5112',121,54,1.5),('USB DATA',62,64,1),('DISCHARGED DUT ONLY',174,95,1),('HI',179,98,1),('LO',179,100.54,1),('K2 5k',152.5,128,.8),('K1 100R',167.5,128,.8),('K3 100k',182.3,128,.8),('BOOTSEL',60,84,.8),('RESET',60,95,.8),('J4 CLK/DIO',64,105,.8),('J5 GND/3V3',60,115,.8),('J6 TX/RX',77,111,.8),('5V 1A / CENTER +',69,140,1),('USB GND REFERENCED',111,147,1)]:
     t=k.PCB_TEXT(b);t.SetText(text);t.SetPosition(pos(x,y));t.SetTextSize(pos(size,size));t.SetTextThickness(mm(.15));t.SetLayer(k.F_SilkS);b.Add(t)
 # Explicit human-authored track list. All segments are in board millimetres.
 routing=ROOT/'routing.json'
@@ -184,8 +183,9 @@ k.SaveBoard(str(ROOT/'temper-lcr.kicad_pcb'),b)
 board_path=ROOT/'temper-lcr.kicad_pcb'
 item_index=iter(range(100000))
 board_path.write_text(re.sub(r'\(uuid "[^"]+"\)',lambda _:f'(uuid "{uid("pcb-item-"+str(next(item_index)))}")',board_path.read_text()))
-# Project settings carry explicit common fabrication minima.
-pro={'meta':{'filename':'temper-lcr.kicad_pro','version':1},'board':{'design_settings':{'rules':{'min_clearance':.15,'min_track_width':.15,'min_via_diameter':.45,'min_through_hole_diameter':.2,'min_copper_edge_clearance':.3,'min_hole_clearance':.2,'min_hole_to_hole':.25,'min_silk_clearance':.1,'min_text_height':.8,'min_text_thickness':.12},'defaults':{'copper_line_width':.2},'rule_severities':{}},'layer_presets':[]},'net_settings':{'classes':[{'name':'Default','clearance':.15,'track_width':.2,'via_diameter':.6,'via_drill':.3,'microvia_diameter':.3,'microvia_drill':.1,'diff_pair_width':.2,'diff_pair_gap':.2,'diff_pair_via_gap':.25}], 'meta':{'version':3}},'erc':{'erc_exclusions':[],'meta':{'version':0},'pin_map':[],'rule_severities':{}},'schematic':{'drawing':{'default_text_size':50}}}
+# Project settings carry explicit common fabrication minima.  Rev E: every via is 0.30 mm drill; JLC's
+# standard 4-layer via option reads "0.3mm/(0.4/0.45mm)" (hole/diameter), so a 0.45 mm via has 0.075 mm ring.
+pro={'meta':{'filename':'temper-lcr.kicad_pro','version':1},'board':{'design_settings':{'rules':{'min_clearance':.15,'min_track_width':.15,'min_via_diameter':.45,'min_via_annular_width':.075,'min_through_hole_diameter':.3,'min_copper_edge_clearance':.3,'min_hole_clearance':.2,'min_hole_to_hole':.25,'min_silk_clearance':.1,'min_text_height':.8,'min_text_thickness':.12},'defaults':{'copper_line_width':.2},'rule_severities':{}},'layer_presets':[]},'net_settings':{'classes':[{'name':'Default','clearance':.15,'track_width':.2,'via_diameter':.6,'via_drill':.3,'microvia_diameter':.3,'microvia_drill':.1,'diff_pair_width':.2,'diff_pair_gap':.2,'diff_pair_via_gap':.25}], 'meta':{'version':3}},'erc':{'erc_exclusions':[],'meta':{'version':0},'pin_map':[],'rule_severities':{}},'schematic':{'drawing':{'default_text_size':50}}}
 (ROOT/'temper-lcr.kicad_pro').write_text(json.dumps(pro,indent=2)+'\n')
 # Native pad coordinates are the routing oracle; avoid hand-written rotation math.
 out={p['ref']:{pad.GetNumber():[k.ToMM(pad.GetPosition().x),k.ToMM(pad.GetPosition().y),pad.GetNetname()] for pad in fps[p['ref']].Pads() if pad.GetNumber()} for p in PARTS}

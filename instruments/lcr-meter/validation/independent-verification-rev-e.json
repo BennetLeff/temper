@@ -1,0 +1,170 @@
+{
+ "revision": "E",
+ "board_sha256": "2f6486c41e1c31ee98b6e5974b572ce1046d7b3a2058d379371e3b1d69574bd8",
+ "kicad_version": "10.0.4",
+ "method": "Independent post-build audit of the native board against cad/design.json (read-only).",
+ "source_pins_checked": 575,
+ "native_pads": 575,
+ "netlist_nodes": 575,
+ "plane_relief": [
+  {
+   "pin": "U6.1",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.2",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.3",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.5",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.6",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.7",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U7.1",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U7.2",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U7.3",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U7.5",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U7.6",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U7.7",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  }
+ ],
+ "opa_bypass": [
+  {
+   "pin": "U6.8",
+   "net": "12V",
+   "capacitor": "C50",
+   "distance_mm": 2.05
+  },
+  {
+   "pin": "U6.4",
+   "net": "-12V",
+   "capacitor": "C51",
+   "distance_mm": 2.031
+  },
+  {
+   "pin": "U7.8",
+   "net": "12V",
+   "capacitor": "C52",
+   "distance_mm": 2.05
+  },
+  {
+   "pin": "U7.4",
+   "net": "-12V",
+   "capacitor": "C53",
+   "distance_mm": 2.032
+  }
+ ],
+ "r_iso_topology": {
+  "J3.2": "DUT_LO",
+  "U7.5": "DUT_LO",
+  "R94.1": "DUT_LO",
+  "R94.2": "TIA_SUM",
+  "U7.2": "TIA_SUM",
+  "C104.1": "TIA_SUM",
+  "C104.2": "TIA_OUT",
+  "R43.1": "TIA_SUM",
+  "R44.1": "TIA_SUM",
+  "R45.1": "TIA_SUM",
+  "TIA_SUM_pads": [
+   "C104.1",
+   "R43.1",
+   "R44.1",
+   "R45.1",
+   "R94.2",
+   "U7.2"
+  ]
+ },
+ "findings": [],
+ "pass": true,
+ "limits": "Pad-centre and net checks on native data; not electromagnetic extraction or physical qualification.",
+ "files_sha256": {
+  "cad/temper-lcr.kicad_pcb": "2f6486c41e1c31ee98b6e5974b572ce1046d7b3a2058d379371e3b1d69574bd8",
+  "cad/temper-lcr.kicad_pro": "2a88c5d30f3031b6fbcea98ba304bcf75032400ac3bee7344b46b61517301a33",
+  "cad/design.json": "71462f5e41303a1ba7cb6b287cee78b437d5fd3d1c0fa3d37f281eb687c41354",
+  "cad/routing.json": "dff2c962dcb631cbca47747725030ab8ef445d733e88eb958dea39ba6f4f7ac5",
+  "cad/temper-lcr.kicad_sch": "846d49be1efd5758c78c4a923d3c04813f4cfeeebeee0a9fa492c7a2360bfcea",
+  "cad/adc.kicad_sch": "6d6360129cf91d93a9535f7501e108cccc343f8c19bdd4b8a9c4a114016a7aa8",
+  "cad/afe.kicad_sch": "7636539733ae1aa19c4e0451d2894669e5a1de4516f2ae5eafaad7b7933b0148",
+  "cad/codec.kicad_sch": "a0bde33135ff6b33cad79ef202d6188fff9ac0ca5b8bc707d8f3c5fc1b3be959",
+  "cad/digital.kicad_sch": "0be7f4a6b91c955d850d142ecbf10a671d899dfe4839aacfaa14b7a0155bb3d5",
+  "cad/power.kicad_sch": "31617616be658a5657a6872692c95ba41c8f149bc8589319366ffc361f95ba4b",
+  "cad/range.kicad_sch": "dbd5f00d90140d1eefe825ee36585621152a7b4329932f85a8ac6b981a1b409f",
+  "cad/source.kicad_sch": "ca2b5f2fc89165127feba013d74965c01cada4e42a8baec2bdb74e9c958d6994"
+ }
+}

@@ -1,4 +1,4 @@
-"""Layout audit numbers quoted in docs/rev-d-audit.md (read-only).
+"""Layout audit numbers quoted in docs/rev-d-audit.md and the Rev E notes (read-only).
 
 Run with KiCad's bundled Python:  <kicad-python> cad/tools/audit_layout.py [OUT.json]
 Reports, from the native board:
@@ -21,9 +21,11 @@ MM = 1e-6
 board = k.LoadBoard(str(ROOT / 'temper-lcr.kicad_pcb'))
 design = json.loads((ROOT / 'design.json').read_text())
 routing = json.loads((ROOT / 'routing.json').read_text())
+REV = 'e'
 SUPPLY = {'3V3', '1V1', '5V', '5VA', '12V', '-12V', '3V3_DDS', 'ADC_REFA', 'ADC_REFB', 'ADC_CM',
-          'ADC_REFOUT', 'LDOIN_P', 'LDOIN_N', 'RAW_P', 'RAW_N', 'CONV_VIN', 'DDS_CAP'}
-ICS = ['U1', 'U2', 'U3', 'U4', 'U5', 'U6', 'U7', 'U8', 'U9', 'U10', 'U11', 'U12', 'U13']
+          'ADC_REFOUT', 'LDOIN_P', 'LDOIN_N', 'RAW_P', 'RAW_N', 'CONV_VIN', 'DDS_CAP',
+          '3V3A', 'CODEC_VREF', 'CODEC_DREG', 'VRLY'}
+ICS = sorted((p['ref'] for p in design['parts'] if p['ref'].startswith('U')), key=lambda r: int(r[1:]))
 
 pads = [(f.GetReference(), p.GetNumber(), p.GetNetname(), p.GetPosition().x * MM, p.GetPosition().y * MM)
         for f in board.GetFootprints() for p in f.Pads()]
@@ -95,9 +97,9 @@ for net in ('REGP_FB', 'REGN_FB', 'REGN_DIV', 'REGP_NR', 'REGN_NR', 'CONV_FBP', 
             total += sum(math.dist(a, b) for a, b in zip(pts, pts[1:]))
     fb_len[net] = round(total, 1)
 
-out = {'board_sha256_hint': 'see validation/independent-verification-rev-d.json',
+out = {'board_sha256_hint': f'see validation/independent-verification-rev-{REV}.json',
        'decoupling': decoupling, 'exposed_pads': exposed, 'placement': placement,
        'support_part_distance_mm': support, 'feedback_trace_mm': fb_len}
-dest = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT.parent / 'validation/layout-audit-rev-d.json'
+dest = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT.parent / f'validation/layout-audit-rev-{REV}.json'
 dest.write_text(json.dumps(out, indent=1) + '\n')
 print(f'{len(decoupling)} supply pins, {len(exposed)} exposed pads -> {dest}')

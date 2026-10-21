@@ -1,0 +1,7108 @@
+{
+ "title": "JLC basic/preferred swap survey for Rev E",
+ "date": "2026-10-20",
+ "generated_by": "research task (no design edits)",
+ "method": {
+  "endpoint": "POST https://jlcpcb.com/api/overseas-pcb-order/v1/shoppingCart/smtGood/selectSmtComponentList",
+  "body": {
+   "keyword": "<text or LCSC code>",
+   "currentPage": 1,
+   "pageSize": 25,
+   "searchSource": "search",
+   "optional_filters": {
+    "componentLibraryType": "base (basic only)",
+    "preferredComponentFlag": true
+   }
+  },
+  "notes": [
+   "library: componentLibraryType 'base' = basic, 'expand' = extended; preferredComponentFlag true = preferred extended (treated as free of the extended-line fee per the task brief).",
+   "The two optional request fields componentLibraryType='base' and preferredComponentFlag=true filter server-side and were used to enumerate free parts (an empty result means none exists for that keyword). Each record lists found_by_queries.",
+   "Price = first break (qty 1-9 unless stated); stock = JLC stockCount on 2026-10-20.",
+   "Only exact componentCode matches were used to confirm known codes.",
+   "Datasheet PDFs on lcsc.com returned HTML and could not be read; pinout statements marked unverified rely on standard parts or docs/rev-d-audit.md."
+  ]
+ },
+ "regulator_variants": {
+  "source": "validation/power-spurs/regulator_check.py imported read-only (boost_vpos, inverter_vneg, ldo_vout, ohms); no tracked file edited, regulator_check.json not rewritten. Corners: TPS65131 VFBP/VREF/VFBN limits with 1% resistors; headroom = raw rail min corner - LDO max output (design limit >= 1 V).",
+  "baseline_check_values": "nominal VPOS 14.313 V, VNEG -14.071 V; VPOS corners 13.776/14.866; VNEG corners -13.347/-14.805",
+  "cff_rule": "Cff[pF] = 6.8/R81[MOhm] (boost), 7.5/R83[MOhm] (inverter); script passes within 10 %",
+  "variants": [
+   {
+    "name": "baseline",
+    "overrides": {},
+    "VPOS_min_nom_max": [
+     13.776,
+     14.313,
+     14.866
+    ],
+    "VPOS_nom_change_pct": 0.0,
+    "VNEG_min_nom_max": [
+     -13.347,
+     -14.071,
+     -14.805
+    ],
+    "VNEG_nom_change_pct": -0.0,
+    "U11_headroom_V": 1.484,
+    "U12_headroom_V": 1.028,
+    "U11_U12_design_limit_V": 1.0
+   },
+   {
+    "name": "R81 1M + R82 91k",
+    "overrides": {
+     "R81": "1M",
+     "R82": "91k"
+    },
+    "VPOS_min_nom_max": [
+     13.996,
+     14.543,
+     15.105
+    ],
+    "VPOS_nom_change_pct": 1.6,
+    "VNEG_min_nom_max": [
+     -13.347,
+     -14.071,
+     -14.805
+    ],
+    "VNEG_nom_change_pct": -0.0,
+    "U11_headroom_V": 1.704,
+    "U12_headroom_V": 1.028,
+    "U11_U12_design_limit_V": 1.0
+   },
+   {
+    "name": "R81 1.5M only (R82 150k)",
+    "overrides": {
+     "R81": "1.5M"
+    },
+    "VPOS_min_nom_max": [
+     12.844,
+     13.343,
+     13.857
+    ],
+    "VPOS_nom_change_pct": -6.78,
+    "VNEG_min_nom_max": [
+     -13.347,
+     -14.071,
+     -14.805
+    ],
+    "VNEG_nom_change_pct": -0.0,
+    "U11_headroom_V": 0.551,
+    "U12_headroom_V": 1.028,
+    "U11_U12_design_limit_V": 1.0
+   },
+   {
+    "name": "R83 1.5M + R84 130k",
+    "overrides": {
+     "R83": "1.5M",
+     "R84": "130k"
+    },
+    "VPOS_min_nom_max": [
+     13.776,
+     14.313,
+     14.866
+    ],
+    "VPOS_nom_change_pct": 0.0,
+    "VNEG_min_nom_max": [
+     -13.277,
+     -13.996,
+     -14.727
+    ],
+    "VNEG_nom_change_pct": -0.53,
+    "U11_headroom_V": 1.484,
+    "U12_headroom_V": 0.957,
+    "U11_U12_design_limit_V": 1.0
+   },
+   {
+    "name": "R83 1.5M only (R84 150k)",
+    "overrides": {
+     "R83": "1.5M"
+    },
+    "VPOS_min_nom_max": [
+     13.776,
+     14.313,
+     14.866
+    ],
+    "VPOS_nom_change_pct": 0.0,
+    "VNEG_min_nom_max": [
+     -11.503,
+     -12.13,
+     -12.766
+    ],
+    "VNEG_nom_change_pct": -13.79,
+    "U11_headroom_V": 1.484,
+    "U12_headroom_V": -0.817,
+    "U11_U12_design_limit_V": 1.0
+   },
+   {
+    "name": "R83 1M+750k series = 1.75M",
+    "overrides": {
+     "R83": "1.75M"
+    },
+    "VPOS_min_nom_max": [
+     13.776,
+     14.313,
+     14.866
+    ],
+    "VPOS_nom_change_pct": 0.0,
+    "VNEG_min_nom_max": [
+     -13.424,
+     -14.152,
+     -14.89
+    ],
+    "VNEG_nom_change_pct": 0.57,
+    "U11_headroom_V": 1.484,
+    "U12_headroom_V": 1.105,
+    "U11_U12_design_limit_V": 1.0
+   },
+   {
+    "name": "R83 1.5M+220k series = 1.72M",
+    "overrides": {
+     "R83": "1.72M"
+    },
+    "VPOS_min_nom_max": [
+     13.776,
+     14.313,
+     14.866
+    ],
+    "VPOS_nom_change_pct": 0.0,
+    "VNEG_min_nom_max": [
+     -13.194,
+     -13.909,
+     -14.635
+    ],
+    "VNEG_nom_change_pct": -1.15,
+    "U11_headroom_V": 1.484,
+    "U12_headroom_V": 0.874,
+    "U11_U12_design_limit_V": 1.0
+   },
+   {
+    "name": "R83 2.2M + R84 200k",
+    "overrides": {
+     "R83": "2.2M",
+     "R84": "200k"
+    },
+    "VPOS_min_nom_max": [
+     13.776,
+     14.313,
+     14.866
+    ],
+    "VPOS_nom_change_pct": 0.0,
+    "VNEG_min_nom_max": [
+     -12.656,
+     -13.343,
+     -14.041
+    ],
+    "VNEG_nom_change_pct": -5.17,
+    "U11_headroom_V": 1.484,
+    "U12_headroom_V": 0.336,
+    "U11_U12_design_limit_V": 1.0
+   },
+   {
+    "name": "R83 1M + R84 82k",
+    "overrides": {
+     "R83": "1M",
+     "R84": "82k"
+    },
+    "VPOS_min_nom_max": [
+     13.776,
+     14.313,
+     14.866
+    ],
+    "VPOS_nom_change_pct": 0.0,
+    "VNEG_min_nom_max": [
+     -14.033,
+     -14.793,
+     -15.563
+    ],
+    "VNEG_nom_change_pct": 5.13,
+    "U11_headroom_V": 1.484,
+    "U12_headroom_V": 1.714,
+    "U11_U12_design_limit_V": 1.0
+   },
+   {
+    "name": "R81 1.5M+120k series = 1.62M (exact)",
+    "overrides": {
+     "R81": "1.62M"
+    },
+    "VPOS_min_nom_max": [
+     13.776,
+     14.313,
+     14.866
+    ],
+    "VPOS_nom_change_pct": 0.0,
+    "VNEG_min_nom_max": [
+     -13.347,
+     -14.071,
+     -14.805
+    ],
+    "VNEG_nom_change_pct": -0.0,
+    "U11_headroom_V": 1.484,
+    "U12_headroom_V": 1.028,
+    "U11_U12_design_limit_V": 1.0
+   },
+   {
+    "name": "R83 1.5M+240k series = 1.74M (exact)",
+    "overrides": {
+     "R83": "1.74M"
+    },
+    "VPOS_min_nom_max": [
+     13.776,
+     14.313,
+     14.866
+    ],
+    "VPOS_nom_change_pct": 0.0,
+    "VNEG_min_nom_max": [
+     -13.347,
+     -14.071,
+     -14.805
+    ],
+    "VNEG_nom_change_pct": -0.0,
+    "U11_headroom_V": 1.484,
+    "U12_headroom_V": 1.028,
+    "U11_U12_design_limit_V": 1.0
+   },
+   {
+    "name": "R81 1M/91k + R83 1.5M/130k (both option X)",
+    "overrides": {
+     "R81": "1M",
+     "R82": "91k",
+     "R83": "1.5M",
+     "R84": "130k"
+    },
+    "VPOS_min_nom_max": [
+     13.996,
+     14.543,
+     15.105
+    ],
+    "VPOS_nom_change_pct": 1.6,
+    "VNEG_min_nom_max": [
+     -13.277,
+     -13.996,
+     -14.727
+    ],
+    "VNEG_nom_change_pct": -0.53,
+    "U11_headroom_V": 1.704,
+    "U12_headroom_V": 0.957,
+    "U11_U12_design_limit_V": 1.0
+   }
+  ]
+ },
+ "items": [
+  {
+   "id": "A1",
+   "title": "R81 1.62M / R83 1.74M feedback dividers (TPS65131)",
+   "recommendation": "Option X (single-resistor swaps, same pads): R81 1M C22935 (basic) + R82 91k C23265 (pref) + C87 6.8pF C1679 (pref); R83 1.5M C4172 (pref) + R84 130k C22795 (pref) + C88 4.7pF C1669 (pref). Option Y (exact values, extra 0603 each): R81 = 1.5M C4172 + 120k C25808 in series (=1.62M); R83 = 1.5M C4172 + 240k C4197 in series (=1.74M).",
+   "verdict": "swap possible",
+   "designer_checks": [
+    "No basic/preferred 1.62M or 1.74M exists; no basic 1.1-1.3M/1.6M/1.8M/620k/820k/910k 0603 either.",
+    "Variants computed with validation/power-spurs/regulator_check.py functions (imported read-only, nothing written); see regulator_variants block."
+   ],
+   "records": [
+    {
+     "componentCode": "C482643",
+     "componentModelEn": "RC0603FR-071M62L",
+     "componentBrandEn": "YAGEO",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 2912,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0018,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0018
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0014
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0012
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0011
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.001
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.001
+      }
+     ],
+     "describe": "-55℃~+155℃ 1.62MΩ 100mW 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "1.62MΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2007151213_YAGEO-RC0603FR-071M62L_C482643.pdf",
+     "note": "current R81 (extended)",
+     "found_by_queries": [
+      {
+       "keyword": "1.62Mohm 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "C482643",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C422975",
+     "componentModelEn": "0603WAF1744T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 3931,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0012,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0012
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.001
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0008
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0008
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0007
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0007
+      }
+     ],
+     "describe": "-55℃~+155℃ 1.74MΩ 100mW 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "1.74MΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2205312216_UNI-ROYAL-Uniroyal-Elec-0603WAF1744T5E_C422975.pdf",
+     "note": "current R83 (extended)",
+     "found_by_queries": [
+      {
+       "keyword": "C422975",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C22935",
+     "componentModelEn": "0603WAF1004T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 5401939,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0021,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0021
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0016
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0013
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0012
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.001
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.001
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 1MΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "1MΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010130_UNI-ROYAL-Uniroyal-Elec-0603WAF1004T5E_C22935.pdf",
+     "note": "1M basic",
+     "found_by_queries": [
+      {
+       "keyword": "1Mohm 1% 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "C22935",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C23265",
+     "componentModelEn": "0603WAF9102T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 129971,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0022,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0022
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0017
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0014
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0013
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0011
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0011
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 75V 91kΩ Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "91kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010100_UNI-ROYAL-Uniroyal-Elec-0603WAF9102T5E_C23265.pdf",
+     "note": "91k preferred",
+     "found_by_queries": [
+      {
+       "keyword": "91kohm 1% 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "C23265",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C4172",
+     "componentModelEn": "0603WAF1504T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 100357,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0019,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0019
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0015
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0012
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0011
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.001
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.001
+      }
+     ],
+     "describe": "-55℃~+155℃ 1.5MΩ 100mW 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "1.5MΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010230_UNI-ROYAL-Uniroyal-Elec-0603WAF1504T5E_C4172.pdf",
+     "note": "1.5M preferred",
+     "found_by_queries": [
+      {
+       "keyword": "1.5Mohm 1% 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "C4172",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C22795",
+     "componentModelEn": "0603WAF1303T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 528807,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0014,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0014
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0011
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0009
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0008
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0007
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0007
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 130kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "130kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010130_UNI-ROYAL-Uniroyal-Elec-0603WAF1303T5E_C22795.pdf",
+     "note": "130k preferred",
+     "found_by_queries": [
+      {
+       "keyword": "130kohm 1% 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "C22795",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C25808",
+     "componentModelEn": "0603WAF1203T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 1014150,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0015,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0015
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0012
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.001
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0009
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0008
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0008
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 120kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "120kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010045_UNI-ROYAL-Uniroyal-Elec-0603WAF1203T5E_C25808.pdf",
+     "note": "120k basic",
+     "found_by_queries": [
+      {
+       "keyword": "120kohm 1% 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "C25808",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C4197",
+     "componentModelEn": "0603WAF2403T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 127703,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0036,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0036
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0027
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0023
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0021
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0019
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0019
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 240kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "240kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010230_UNI-ROYAL-Uniroyal-Elec-0603WAF2403T5E_C4197.pdf",
+     "note": "240k preferred",
+     "found_by_queries": [
+      {
+       "keyword": "240kohm 1% 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "C4197",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C22807",
+     "componentModelEn": "0603WAF1503T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 1003621,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0017,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0017
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0013
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0011
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0009
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0008
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0008
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 150kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "150kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010130_UNI-ROYAL-Uniroyal-Elec-0603WAF1503T5E_C22807.pdf",
+     "note": "150k basic (R82/R84 today)",
+     "found_by_queries": [
+      {
+       "keyword": "150kohm 1% 0603",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C1679",
+     "componentModelEn": "0603CG6R8C500NT",
+     "componentBrandEn": "FH (Guangdong Fenghua Advanced Tech)",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 138553,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0044,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.0044
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.0034
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.0028
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.0025
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0022
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.002
+      }
+     ],
+     "describe": "50V 6.8pF C0G 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Capacitance": "6.8pF",
+      "Temperature Coefficient": "C0G"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_FH--Guangdong-Fenghua-Advanced-Tech-0603CG6R8C500NT_C1679.pdf",
+     "note": "6.8pF C0G preferred",
+     "found_by_queries": [
+      {
+       "keyword": "6.8pF 0603",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "C1679",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C1669",
+     "componentModelEn": "0603CG4R7C500NT",
+     "componentBrandEn": "FH (Guangdong Fenghua Advanced Tech)",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 314060,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0062,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0062
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 3999,
+       "productPrice": 0.0049
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.004
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": 47999,
+       "productPrice": 0.0035
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": 99999,
+       "productPrice": 0.0032
+      },
+      {
+       "startNumber": 100000,
+       "endNumber": -1,
+       "productPrice": 0.003
+      }
+     ],
+     "describe": "4.7pF 50V C0G 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Capacitance": "4.7pF",
+      "Temperature Coefficient": "C0G"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_FH--Guangdong-Fenghua-Advanced-Tech-0603CG4R7C500NT_C1669.pdf",
+     "note": "4.7pF C0G preferred",
+     "found_by_queries": [
+      {
+       "keyword": "4.7pF 0603",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "C1669",
+       "extra_request_fields": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A2",
+   "title": "C87/C88 4.3pF C0G 0603",
+   "recommendation": "4.7pF C0G 50V 0603 FH 0603CG4R7C500NT C1669 (preferred, 314k stock, $0.0062) for C88 (or C87 if 1.62M kept); 6.8pF C1679 (preferred) if R81 becomes 1M. 3.9pF/4pF/4.3pF have no basic/preferred part.",
+   "verdict": "swap possible",
+   "designer_checks": [
+    "TI rule used by regulator_check: Cff = 6.8 pF/R_up(MOhm) boost, 7.5 pF/R_up inverter. With R_up unchanged (1.62M/1.74M) 4.7pF is +12% / +9% vs rule (script tolerance is 10%: the boost check would FLAG at +12%). With 1M -> 6.80 pF (0%); with 1.5M inverter -> 5.00 pF, 4.7pF is -6%."
+   ],
+   "records": [
+    {
+     "componentCode": "C519375",
+     "componentModelEn": "CC0603CRNPO9BN4R3",
+     "componentBrandEn": "YAGEO",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 20276,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0072,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0072
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 3999,
+       "productPrice": 0.006
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.0053
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": 47999,
+       "productPrice": 0.0049
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": 99999,
+       "productPrice": 0.0045
+      },
+      {
+       "startNumber": 100000,
+       "endNumber": -1,
+       "productPrice": 0.0044
+      }
+     ],
+     "describe": "4.3pF 50V NP0 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Capacitance": "4.3pF",
+      "Temperature Coefficient": "NP0"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2008031233_YAGEO-CC0603CRNPO9BN4R3_C519375.pdf",
+     "note": "current 4.3pF (extended)",
+     "found_by_queries": [
+      {
+       "keyword": "4.3pF C0G 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "C519375",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C1669",
+     "componentModelEn": "0603CG4R7C500NT",
+     "componentBrandEn": "FH (Guangdong Fenghua Advanced Tech)",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 314060,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0062,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0062
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 3999,
+       "productPrice": 0.0049
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.004
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": 47999,
+       "productPrice": 0.0035
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": 99999,
+       "productPrice": 0.0032
+      },
+      {
+       "startNumber": 100000,
+       "endNumber": -1,
+       "productPrice": 0.003
+      }
+     ],
+     "describe": "4.7pF 50V C0G 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Capacitance": "4.7pF",
+      "Temperature Coefficient": "C0G"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_FH--Guangdong-Fenghua-Advanced-Tech-0603CG4R7C500NT_C1669.pdf",
+     "note": "4.7pF preferred",
+     "found_by_queries": [
+      {
+       "keyword": "4.7pF 0603",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "C1669",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C1679",
+     "componentModelEn": "0603CG6R8C500NT",
+     "componentBrandEn": "FH (Guangdong Fenghua Advanced Tech)",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 138553,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0044,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.0044
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.0034
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.0028
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.0025
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.0022
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.002
+      }
+     ],
+     "describe": "50V 6.8pF C0G 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Capacitance": "6.8pF",
+      "Temperature Coefficient": "C0G"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_FH--Guangdong-Fenghua-Advanced-Tech-0603CG6R8C500NT_C1679.pdf",
+     "note": "6.8pF preferred",
+     "found_by_queries": [
+      {
+       "keyword": "6.8pF 0603",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "C1679",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C1662",
+     "componentModelEn": "0603CG3R9C500NT",
+     "componentBrandEn": "FH (Guangdong Fenghua Advanced Tech)",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 35429,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0067,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0067
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 3999,
+       "productPrice": 0.0055
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.0044
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": 47999,
+       "productPrice": 0.004
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": 99999,
+       "productPrice": 0.0036
+      },
+      {
+       "startNumber": 100000,
+       "endNumber": -1,
+       "productPrice": 0.0034
+      }
+     ],
+     "describe": "3.9pF 50V C0G 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Capacitance": "3.9pF",
+      "Temperature Coefficient": "C0G"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_FH--Guangdong-Fenghua-Advanced-Tech-0603CG3R9C500NT_C1662.pdf",
+     "note": "3.9pF FH extended, 35k stock (not free)",
+     "found_by_queries": [
+      {
+       "keyword": "3.9pF 0603",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C282250",
+     "componentModelEn": "CC0603CRNPO9BN3R9",
+     "componentBrandEn": "YAGEO",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 35971,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0069,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0069
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 3999,
+       "productPrice": 0.0056
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.0049
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": 47999,
+       "productPrice": 0.0045
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": 99999,
+       "productPrice": 0.0041
+      },
+      {
+       "startNumber": 100000,
+       "endNumber": -1,
+       "productPrice": 0.0039
+      }
+     ],
+     "describe": "3.9pF 50V NP0 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Capacitance": "3.9pF",
+      "Temperature Coefficient": "NP0"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_YAGEO-CC0603CRNPO9BN3R9_C282250.pdf",
+     "note": "3.9pF Yageo extended",
+     "found_by_queries": [
+      {
+       "keyword": "3.9pF 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "3.9pF C0G 0603",
+       "extra_request_fields": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A3",
+   "title": "SW1/SW2 B3U-1000P tactile switches",
+   "recommendation": "XUNPU TS-1088-AR02016 C720477 (basic, 574k stock, $0.0527, 4x3x2.0 mm, 1.6 N, 2-pad) -> KiCad Button_Switch_SMD:SW_SPST_TS-1088-xR020 (its descr cites C720477's datasheet; pads 1.05x2 mm at x=+-2.225). Bigger alternative: XKB TS-1187A-B-A-B C318884 (basic, 271k, $0.0206, 5.1x5.1 mm 4-pad) -> Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A (pads 1 at (+-3,-1.875), pads 2 at (+-3,+1.875), 1.0x0.75 mm).",
+   "verdict": "swap possible (footprint change)",
+   "designer_checks": [
+    "Current footprint SW_SPST_B3U-1000P has 2 pads at +-1.7 mm (0.9x1.7). TS-1088 pads are 4.45 mm apart centre-to-centre and 1.05x2 mm: re-place and re-route, and check enclosure/button access (3.9x3x2.0 body vs 3x2.5x1.6).",
+    "Contacts rated 12 V 50 mA, SPST-NO, adequate for BOOTSEL/RUN pull-downs."
+   ],
+   "records": [
+    {
+     "componentCode": "C231329",
+     "componentModelEn": "B3U-1000P",
+     "componentBrandEn": "Omron Electronics",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 111386,
+     "componentSpecificationEn": "SMD,3x2.5mm",
+     "price_usd_qty1": 0.1876,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1876
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1472
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1276
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 3499,
+       "productPrice": 0.1099
+      },
+      {
+       "startNumber": 3500,
+       "endNumber": 6999,
+       "productPrice": 0.1052
+      },
+      {
+       "startNumber": 7000,
+       "endNumber": -1,
+       "productPrice": 0.1022
+      }
+     ],
+     "describe": "-25℃~+70℃ 1.53N 1.6mm 12V 2.5mm 3mm 50mA Round Button SMD(SMT) Tab SPST Surface Mount,Vertical SMD,3x2.5mm Tactile Switches ROHS",
+     "attributes": {
+      "Operating Temperature": "-25℃~+70℃",
+      "Operating Force": "1.53N",
+      "Contact Current": "50mA",
+      "Length": "3mm",
+      "Termination Style": "SMD(SMT) Tab",
+      "Voltage Rating": "12V",
+      "Life": "-",
+      "Actuator Style": "Round Button",
+      "Switch Height": "1.6mm",
+      "Circuit": "SPST",
+      "Mounting Type": "Surface Mount,Vertical",
+      "With Lamp": "-",
+      "Width": "2.5mm"
+     },
+     "dataManualUrl": "",
+     "note": "current B3U-1000P (extended)",
+     "found_by_queries": [
+      {
+       "keyword": "B3U-1000P",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "C231329",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "Omron B3U",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C720477",
+     "componentModelEn": "TS-1088-AR02016",
+     "componentBrandEn": "XUNPU",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 574749,
+     "componentSpecificationEn": "SMD,4x3mm",
+     "price_usd_qty1": 0.0527,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0527
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0426
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 999,
+       "productPrice": 0.0373
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 3999,
+       "productPrice": 0.0331
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.0308
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": -1,
+       "productPrice": 0.0298
+      }
+     ],
+     "describe": "-30℃~+80℃ 1.6N 100,000 cycles 12V 2mm 3.9mm 3mm 50mA Black Round Button SMD(SMT) Tab SPST Surface Mount,Vertical Without Bracket SMD,4x3mm Tactile Switches ROHS",
+     "attributes": {
+      "Operating Temperature": "-30℃~+80℃",
+      "Contact Current": "50mA",
+      "Termination Style": "SMD(SMT) Tab",
+      "Voltage Rating": "12V",
+      "Actuator Style": "Round Button",
+      "with Bracket": "Without Bracket",
+      "Switch Height": "2mm",
+      "Circuit": "SPST",
+      "Mounting Type": "Surface Mount,Vertical",
+      "Actuator/Cap Color": "Black",
+      "Operating Force": "1.6N",
+      "IP Rating": "-",
+      "Length": "3.9mm",
+      "Life": "100,000 cycles",
+      "With Lamp": "-",
+      "Width": "3mm"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_XUNPU-TS-1088-AR02016_C720477.pdf",
+     "note": "TS-1088-AR02016 basic",
+     "found_by_queries": [
+      {
+       "keyword": "C720477",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "TS-1088",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "TS-1088",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C318884",
+     "componentModelEn": "TS-1187A-B-A-B",
+     "componentBrandEn": "XKB Connection",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 271788,
+     "componentSpecificationEn": "SMD-4P,5.1x5.1mm",
+     "price_usd_qty1": 0.0206,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 199,
+       "productPrice": 0.0206
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.0159
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 3999,
+       "productPrice": 0.0139
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.0121
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": 19999,
+       "productPrice": 0.0115
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": -1,
+       "productPrice": 0.0111
+      }
+     ],
+     "describe": "-30℃~+85℃ 1.5mm 1.6N 100,000 cycles 12V 5.1mm 5.1mm 50mA Gold No Round Button SPST Surface Mount,Vertical Without Bracket SMD-4P,5.1x5.1mm Tactile Switches ROHS",
+     "attributes": {
+      "Operating Temperature": "-30℃~+85℃",
+      "Contact Current": "50mA",
+      "Voltage Rating": "12V",
+      "Actuator Style": "Round Button",
+      "with Bracket": "Without Bracket",
+      "Switch Height": "1.5mm",
+      "Circuit": "SPST",
+      "Mounting Type": "Surface Mount,Vertical",
+      "Actuator/Cap Color": "Gold",
+      "Operating Force": "1.6N",
+      "Length": "5.1mm",
+      "Life": "100,000 cycles",
+      "With Lamp": "No",
+      "Width": "5.1mm"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_XKB-Connection-TS-1187A-B-A-B_C318884.pdf",
+     "note": "TS-1187A-B-A-B basic",
+     "found_by_queries": [
+      {
+       "keyword": "C318884",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "TS-1187",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "TS-1187A",
+       "extra_request_fields": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A4",
+   "title": "Y1 ABM8-272-T3 12 MHz 3225",
+   "recommendation": "Do not swap. Only basic 12 MHz crystal is YXC X322512MSB4SI C9002 (SMD3225-4P, 208k stock, $0.0954): CL 20 pF, ESR 80 ohm, +-10 ppm initial/+-20 ppm. No preferred 12 MHz crystal exists.",
+   "verdict": "swap possible but not recommended",
+   "designer_checks": [
+    "RP2040 reference (ABM8-272-T3) is CL 10 pF, ESR <= 50 ohm with 15 pF load caps and 1k series (R10). C9002 would need C ~ 2*(20-Cstray) ~ 30-34 pF (33 pF C0G C1663 and 22 pF C0G C1653 are both basic) and has 60 % more ESR.",
+    "Negative-resistance margin scales ~ gm/(w^2 C1 C2): 33/33 pF vs 15/15 pF is ~4.8x lower margin, on top of ESR 80 vs 50 ohm -> real start-up risk, needs a start-up test over temperature (agrees with docs/rev-d-audit.md).",
+    "If C9002 were fitted with the existing 15 pF caps it would be under-loaded (frequency high); the DDS tuning-word frequency depends on the PLL from this crystal."
+   ],
+   "records": [
+    {
+     "componentCode": "C20625731",
+     "componentModelEn": "ABM8-272-T3",
+     "componentBrandEn": "Abracon LLC",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 4842,
+     "componentSpecificationEn": "SMD3225-4P",
+     "price_usd_qty1": 0.6474,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.6474
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.533
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.484
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4235
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3957
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3793
+      }
+     ],
+     "describe": "-40℃~+85℃ 10pF 12MHz 50Ω Crystal Oscillator ±30ppm ±30ppm SMD3225-4P Crystals ROHS",
+     "attributes": {
+      "Load Capacitance": "10pF",
+      "Operating Temperature": "-40℃~+85℃",
+      "Type": "SMD crystal oscillator",
+      "Normal temperature Frequency Tolerance": "±30ppm",
+      "Equivalent Series Resistance(ESR)": "50Ω",
+      "Frequency Stability": "±30ppm",
+      "Frequency": "12MHz"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410121909_Abracon-LLC-ABM8-272-T3_C20625731.pdf",
+     "note": "current ABM8-272-T3: JLC lists 10pF, 50 ohm, +-30ppm",
+     "found_by_queries": [
+      {
+       "keyword": "C20625731",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C9002",
+     "componentModelEn": "X322512MSB4SI",
+     "componentBrandEn": "YXC Crystal Oscillators",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 208308,
+     "componentSpecificationEn": "SMD3225-4P",
+     "price_usd_qty1": 0.0954,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0954
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0764
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0666
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0586
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0499
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.048
+      }
+     ],
+     "describe": "-40℃~+85℃ 12MHz 20pF 80Ω Crystal Oscillator ±10ppm ±20ppm SMD3225-4P Crystals ROHS",
+     "attributes": {
+      "Load Capacitance": "20pF",
+      "Operating Temperature": "-40℃~+85℃",
+      "Type": "SMD crystal oscillator",
+      "Normal temperature Frequency Tolerance": "±10ppm",
+      "Equivalent Series Resistance(ESR)": "80Ω",
+      "Frequency Stability": "±20ppm",
+      "Frequency": "12MHz"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2403291504_YXC-Crystal-Oscillators-X322512MSB4SI_C9002.pdf",
+     "note": "basic 12MHz 20pF 80ohm",
+     "found_by_queries": [
+      {
+       "keyword": "12MHz",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "12MHz 3225",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "12MHz crystal",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "12MHz crystal 3225",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "C9002",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "Crystals 12MHz",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A5",
+   "title": "D1 USBLC6-2SC6 (SOT-23-6)",
+   "recommendation": "Hongjiacheng SRV05-4 C7420376 (SOT-23-6L, preferred, 34.6k stock, $0.0851, 1 pF/ch, Vrwm 5 V, Vbr 6 V, Vclamp 15 V, 4 A) - same pin roles as USBLC6 (1,3,4,6 I/O; 2 GND; 5 rail). Alternative C85364 SRV05-4-P-T7 (ProTek, preferred, 35k, $0.2039, 3.5 pF). No basic ESD part in SOT-23-6.",
+   "verdict": "swap possible",
+   "designer_checks": [
+    "Pinout confirmed from the vendor datasheet (see followup_checks_2026_10_21).",
+    "SRV05-4 is four steering-diode channels to the rail pin: on this board pins 1&6 = USB_DP and 3&4 = USB_DM (same nets, so no re-route) but they put two channels in parallel per line (~2 pF).",
+    "Vrwm 5.0 V vs USB VBUS up to 5.25 V: leakage 5 uA max at 5 V rating; USBLC6 is 5.25 V. Rail pin only sees VBUS."
+   ],
+   "records": [
+    {
+     "componentCode": "C7519",
+     "componentModelEn": "USBLC6-2SC6",
+     "componentBrandEn": "STMicroelectronics",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 43185,
+     "componentSpecificationEn": "SOT-23-6L",
+     "price_usd_qty1": 0.1777,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1777
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1367
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1168
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.099
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0941
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0911
+      }
+     ],
+     "describe": "-40℃~+125℃ 150nA 17V 2 3.5pF 5.25V 5A 6V ESD IEC 61000-4-2 Unidirectional SOT-23-6L ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": {
+      "Operating Temperature": "-40℃~+125℃@(Tj)",
+      "Type": "ESD",
+      "Junction Capacitance": "3.5pF",
+      "Number of Channels": "2",
+      "level of protection": "IEC 61000-4-2",
+      "Clamping Voltage": "17V",
+      "Polarity": "Unidirectional",
+      "Peak Pulse Current (Ipp)": "5A",
+      "Voltage - Breakdown": "6V",
+      "Reverse Stand-Off Voltage (Vrwm)": "5.25V",
+      "Reverse Leakage Current (Ir)": "150nA"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410121836_STMicroelectronics-USBLC6-2SC6_C7519.pdf",
+     "note": "current USBLC6-2SC6 extended: 3.5pF, Vrwm 5.25V, 17V clamp",
+     "found_by_queries": [
+      {
+       "keyword": "C7519",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C7420376",
+     "componentModelEn": "SRV05-4",
+     "componentBrandEn": "hongjiacheng",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 34562,
+     "componentSpecificationEn": "SOT-23-6L",
+     "price_usd_qty1": 0.0851,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0851
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0749
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.0699
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0565
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.055
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.054
+      }
+     ],
+     "describe": "-55℃~+150℃ 15V 1pF 4A 5V 5uA 6V 80W ESD Four channels IEC 61000-4-2、IEC 61000-4-5 Unidirectional SOT-23-6L ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": {
+      "Operating Temperature": "-55℃~+125℃",
+      "Type": "ESD",
+      "Junction Capacitance": "1pF",
+      "Number of Channels": "Four channels",
+      "Peak Pulse Power Dissipation (Ppp)": "80W",
+      "level of protection": "IEC 61000-4-2、IEC 61000-4-5",
+      "Clamping Voltage": "15V",
+      "Polarity": "Unidirectional",
+      "Peak Pulse Current (Ipp)": "4A",
+      "Voltage - Breakdown": "6V",
+      "Reverse Stand-Off Voltage (Vrwm)": "5V",
+      "Reverse Leakage Current (Ir)": "5uA"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2407101112_hongjiacheng-SRV05-4_C7420376.pdf",
+     "note": "SRV05-4 preferred",
+     "found_by_queries": [
+      {
+       "keyword": "C7420376",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "SOT-23-6 ESD",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "SRV05-4",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C85364",
+     "componentModelEn": "SRV05-4-P-T7",
+     "componentBrandEn": "ProTek Devices",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 34954,
+     "componentSpecificationEn": "SOT-23-6",
+     "price_usd_qty1": 0.2039,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2039
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1669
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1511
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1313
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1125
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1073
+      }
+     ],
+     "describe": "12V 1A@8/20us 3.5pF 500W@8/20us 5V 5uA 6V ESD Four channels IEC 61000-4-2、IEC 61000-4-5、IEC 61000-4-4 SOT-23-6 ESD and Surge Protection (TVS/ESD) ROHS",
+     "attributes": {
+      "Type": "ESD",
+      "Junction Capacitance": "3.5pF",
+      "Number of Channels": "Four channels",
+      "Peak Pulse Power Dissipation (Ppp)": "500W@8/20us",
+      "level of protection": "IEC 61000-4-2、IEC 61000-4-5、IEC 61000-4-4",
+      "Clamping Voltage": "12V",
+      "Peak Pulse Current (Ipp)": "1A@8/20us",
+      "Voltage - Breakdown": "6V",
+      "Reverse Stand-Off Voltage (Vrwm)": "5V",
+      "Reverse Leakage Current (Ir)": "5uA"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809192313_ProTek-Devices-SRV05-4-P-T7_C85364.pdf",
+     "note": "SRV05-4-P-T7 preferred",
+     "found_by_queries": [
+      {
+       "keyword": "C85364",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "SOT-23-6 ESD",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "SRV05-4",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "SRV05-4-P-T7",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      }
+     ]
+    }
+   ],
+   "followup": "See followup_checks_2026_10_21.srv05_4_C7420376: pinout confirmed from datasheet Rev 2.1 (pin 2 GND, pin 5 rail, 1/3/4/6 I/O)."
+  },
+  {
+   "id": "A6",
+   "title": "C138687 CL32B106KBJNNNE 10uF 50V X7R 1210 (x10)",
+   "recommendation": "Basic: Samsung CL31A106KBHNNNE C13585 (10uF 50V X5R 1206, 2.31M stock, $0.2507; current part $0.3367). Also basic: Murata GRM21BR61H106KE43L C440198 (10uF 50V X5R 0805, 1.04M, $0.2077), Samsung CL21A106KAYNNNE C15850 (10uF 25V X5R 0805, $0.0426) for the two 5 V input caps C80/C82. No basic or preferred 10uF >=35V X7R and none in 1210.",
+   "verdict": "swap possible with DC-bias check",
+   "designer_checks": [
+    "Refs on C138687: C80, C82 (5 V input, not 14 V), C89, C90, C94 (RAW_P), C91, C92, C99 (RAW_N), C95, C100 (LDO outputs at ~12 V). Only 8 are on ~14 V rails.",
+    "X5R 1206 loses more capacitance under bias than X7R 1210; the repo has no Samsung curve for CL31A106KBHNNNE (docs cite ~7.3 uF for CL32B at 14 V) - pull Samsung SimSurfing data first. regulator_check break-even retentions: RAW_P 0.168, RAW_N 0.209 of nominal (3 caps), LDO COUT 0.288 each alone, 5 V inputs 0.61.",
+    "Footprint changes C_1210 -> C_1206 (or 0805 for C15850/C440198; 0805 50V X5R retains even less). Line only disappears if ALL ten move off C138687."
+   ],
+   "records": [
+    {
+     "componentCode": "C138687",
+     "componentModelEn": "CL32B106KBJNNNE",
+     "componentBrandEn": "Samsung Electro-Mechanics",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 128845,
+     "componentSpecificationEn": "1210",
+     "price_usd_qty1": 0.3367,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3367
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.2672
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.2332
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.2029
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1946
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1637
+      }
+     ],
+     "describe": "10uF 50V X7R ±10% 1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±10%",
+      "Capacitance": "10uF",
+      "Temperature Coefficient": "X7R"
+     },
+     "dataManualUrl": "https://datasheet.lcsc.com/lcsc/1912112237_Samsung-Electro-Mechanics-CL32B106KBJNNNE_C138687.pdf",
+     "note": "current (extended)",
+     "found_by_queries": [
+      {
+       "keyword": "C138687",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C13585",
+     "componentModelEn": "CL31A106KBHNNNE",
+     "componentBrandEn": "Samsung Electro-Mechanics",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 2310664,
+     "componentSpecificationEn": "1206",
+     "price_usd_qty1": 0.2507,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.2507
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.1988
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 1999,
+       "productPrice": 0.1736
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 3999,
+       "productPrice": 0.1511
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 9999,
+       "productPrice": 0.1449
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": -1,
+       "productPrice": 0.1411
+      }
+     ],
+     "describe": "10uF 50V X5R ±10% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±10%",
+      "Capacitance": "10uF",
+      "Temperature Coefficient": "X5R"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL31A106KBHNNNE_C13585.pdf",
+     "note": "basic 1206 X5R 50V",
+     "found_by_queries": [
+      {
+       "keyword": "10uF 1206",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "10uF 1210",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "10uF 50V 1206",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "10uF 50V 1210",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "10uF 50V X7R",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "C13585",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C440198",
+     "componentModelEn": "GRM21BR61H106KE43L",
+     "componentBrandEn": "Murata Electronics",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 1043281,
+     "componentSpecificationEn": "0805",
+     "price_usd_qty1": 0.2077,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2077
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1733
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1565
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1415
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.1333
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.1308
+      }
+     ],
+     "describe": "10uF 50V X5R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±10%",
+      "Capacitance": "10uF",
+      "Temperature Coefficient": "X5R"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2411041759_Murata-Electronics-GRM21BR61H106KE43L_C440198.pdf",
+     "note": "basic 0805 X5R 50V",
+     "found_by_queries": [
+      {
+       "keyword": "10uF 1206",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "10uF 1210",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "10uF 50V 1206",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "10uF 50V 1210",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "10uF 50V X7R",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C15850",
+     "componentModelEn": "CL21A106KAYNNNE",
+     "componentBrandEn": "Samsung Electro-Mechanics",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 9640648,
+     "componentSpecificationEn": "0805",
+     "price_usd_qty1": 0.0426,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 199,
+       "productPrice": 0.0426
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.0342
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 1999,
+       "productPrice": 0.0301
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 9999,
+       "productPrice": 0.0267
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 19999,
+       "productPrice": 0.0254
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": -1,
+       "productPrice": 0.0246
+      }
+     ],
+     "describe": "10uF 25V X5R ±10% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "25V",
+      "Tolerance": "±10%",
+      "Capacitance": "10uF",
+      "Temperature Coefficient": "X5R"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL21A106KAYNNNE_C15850.pdf",
+     "note": "basic 25V 0805 X5R",
+     "found_by_queries": [
+      {
+       "keyword": "10uF 1206",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "10uF 1210",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "10uF 25V 1206",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C29823",
+     "componentModelEn": "1206B475K500NT",
+     "componentBrandEn": "FH (Guangdong Fenghua Advanced Tech)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 607829,
+     "componentSpecificationEn": "1206",
+     "price_usd_qty1": 0.0941,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0941
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0736
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 1999,
+       "productPrice": 0.0633
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 3999,
+       "productPrice": 0.0556
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 9999,
+       "productPrice": 0.0494
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": -1,
+       "productPrice": 0.0465
+      }
+     ],
+     "describe": "4.7uF 50V X7R ±10% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±10%",
+      "Capacitance": "4.7uF",
+      "Temperature Coefficient": "X7R"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_FH--Guangdong-Fenghua-Advanced-Tech-1206B475K500NT_C29823.pdf",
+     "note": "4.7uF 50V X7R 1206 basic (FH)",
+     "found_by_queries": [
+      {
+       "keyword": "4.7uF 50V 1206",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "4.7uF 50V 1210",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    }
+   ],
+   "followup": "See followup_checks_2026_10_21.dc_bias_C13585: exact-part Samsung DC-bias curve meets all four break-even thresholds, with thin margin at the 12 V COUT and the 5 V input."
+  },
+  {
+   "id": "A7",
+   "title": "L1/L2 FNR5040S4R7MT 4.7uH shielded 5040",
+   "recommendation": "None. No basic or preferred power inductor of any value exists in the JLC library (only basic parts are 10uH multilayer SDFL1608S100KTF C1035 / SDFL2012S100KTF C1046, and preferred multilayer 4.7uH 15-25 mA C1034/C1049). Keep C167963 (32k stock, $0.0622).",
+   "verdict": "no free alternative",
+   "designer_checks": [
+    "Well-stocked extended alternatives if ever needed: C520348 CR5040-4R7M (5x5, 3 A Isat 3.5 A heat, 30 mohm, 60k), C167828 FNR4020S4R7MT (4x4, 2.5 A, 98 mohm, 80k) - none removes a line."
+   ],
+   "records": [
+    {
+     "componentCode": "C167963",
+     "componentModelEn": "FNR5040S4R7MT",
+     "componentBrandEn": "cjiang (Changjiang Microelectronics Tech)",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 32121,
+     "componentSpecificationEn": "SMD,5x5mm",
+     "price_usd_qty1": 0.0622,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0622
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0491
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 1499,
+       "productPrice": 0.0426
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": 4499,
+       "productPrice": 0.0337
+      },
+      {
+       "startNumber": 4500,
+       "endNumber": 10499,
+       "productPrice": 0.0298
+      },
+      {
+       "startNumber": 10500,
+       "endNumber": -1,
+       "productPrice": 0.0278
+      }
+     ],
+     "describe": "3.3A 3.8A 39mΩ 4.7uH Magnetic Shielded Inductor ±20% SMD,5x5mm Power Inductors ROHS",
+     "attributes": {
+      "Current - Saturation(Isat)": "3.8A",
+      "Inductance": "4.7uH",
+      "Type": "Magnetic Shielded Inductor",
+      "Tolerance": "±20%",
+      "Current Rating": "3.3A",
+      "DC Resistance(DCR)": "39mΩ"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_cjiang--Changjiang-Microelectronics-Tech-FNR5040S4R7MT_C167963.pdf",
+     "note": "current (extended)",
+     "found_by_queries": [
+      {
+       "keyword": "4.7uH 3.8A",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "C167963",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C1035",
+     "componentModelEn": "SDFL1608S100KTF",
+     "componentBrandEn": "Sunlord",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 529897,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0278,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 199,
+       "productPrice": 0.0278
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.022
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 3999,
+       "productPrice": 0.0193
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.0175
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": 19999,
+       "productPrice": 0.0167
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": -1,
+       "productPrice": 0.0162
+      }
+     ],
+     "describe": "1.85Ω 10uH 17MHz 30@2MHz 3mA ±10% 0603 Inductors (SMD) ROHS",
+     "attributes": {
+      "Inductance": "10uH",
+      "Current - Saturation (Isat)": "-",
+      "Q @ Frequency": "30@2MHz",
+      "Frequency - Self Resonant": "17MHz",
+      "Tolerance": "±10%",
+      "Current Rating": "3mA",
+      "DC Resistance(DCR)": "1.85Ω"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2310301641_Sunlord-SDFL1608S100KTF_C1035.pdf",
+     "note": "only basic inductor family: 10uH multilayer 3 mA",
+     "found_by_queries": [
+      {
+       "keyword": "Inductors",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "Inductors (SMD)",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "inductor",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C1034",
+     "componentModelEn": "SDFL1608Q4R7KTF",
+     "componentBrandEn": "Sunlord",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 96300,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0251,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 199,
+       "productPrice": 0.0251
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.0198
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 3999,
+       "productPrice": 0.0169
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.0152
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": 19999,
+       "productPrice": 0.0136
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": -1,
+       "productPrice": 0.0128
+      }
+     ],
+     "describe": "15mA 2.1Ω 33MHz 35@10MHz 4.7uH ±10% 0603 Inductors (SMD) ROHS",
+     "attributes": {
+      "Inductance": "4.7uH",
+      "Current - Saturation (Isat)": "-",
+      "Q @ Frequency": "35@10MHz",
+      "Frequency - Self Resonant": "33MHz",
+      "Tolerance": "±10%",
+      "Current Rating": "15mA",
+      "DC Resistance(DCR)": "2.1Ω"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2310301641_Sunlord-SDFL1608Q4R7KTF_C1034.pdf",
+     "note": "preferred 4.7uH multilayer 15 mA",
+     "found_by_queries": [
+      {
+       "keyword": "4.7uH",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "4.7uH 4020",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "4.7uH 4020",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "4.7uH 5040",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "4.7uH inductor",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "4.7uH shielded",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C167828",
+     "componentModelEn": "FNR4020S4R7MT",
+     "componentBrandEn": "cjiang (Changjiang Microelectronics Tech)",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 80173,
+     "componentSpecificationEn": "SMD,4x4mm",
+     "price_usd_qty1": 0.0535,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0535
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0426
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.0372
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0295
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.0262
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.0246
+      }
+     ],
+     "describe": "2.5A 2A 4.7uH 98mΩ Magnetic Shielded Inductor ±20% SMD,4x4mm Power Inductors ROHS",
+     "attributes": {
+      "Current - Saturation(Isat)": "2.5A",
+      "Inductance": "4.7uH",
+      "Type": "Magnetic Shielded Inductor",
+      "Tolerance": "±20%",
+      "Current Rating": "2A",
+      "DC Resistance(DCR)": "98mΩ"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_cjiang--Changjiang-Microelectronics-Tech-FNR4020S4R7MT_C167828.pdf",
+     "note": "FNR4020S4R7MT 2.5A 4x4 extended 80k stock",
+     "found_by_queries": [
+      {
+       "keyword": "4.7uH 2.5A",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C520348",
+     "componentModelEn": "CR5040-4R7M",
+     "componentBrandEn": "Ceaiya",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 60495,
+     "componentSpecificationEn": "SMD,5x5mm",
+     "price_usd_qty1": 0.0589,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0589
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0462
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 1499,
+       "productPrice": 0.0396
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": 4499,
+       "productPrice": 0.0349
+      },
+      {
+       "startNumber": 4500,
+       "endNumber": 10499,
+       "productPrice": 0.0309
+      },
+      {
+       "startNumber": 10500,
+       "endNumber": -1,
+       "productPrice": 0.0292
+      }
+     ],
+     "describe": "3.5A 30mΩ 3A 4.7uH ±20% SMD,5x5mm Power Inductors ROHS",
+     "attributes": {
+      "Current - Saturation(Isat)": "3.5A",
+      "Inductance": "4.7uH",
+      "Tolerance": "±20%",
+      "Current Rating": "3A",
+      "DC Resistance(DCR)": "30mΩ"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Ceaiya-CR5040-4R7M_C520348.pdf",
+     "note": "CR5040-4R7M 5x5 3A extended 60k stock",
+     "found_by_queries": [
+      {
+       "keyword": "4.7uH 3A",
+       "extra_request_fields": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A8",
+   "title": "U3 AP2112K-3.3TRG1 SOT-23-5 LDO (x2 in Rev E)",
+   "recommendation": "None. There is no basic or preferred SOT-23-5 LDO. Basic 3.3 V regulators: XC6206P332MR-G C5446 (SOT-23-3L, 200 mA, no EN, no noise/PSRR on JLC record), AMS1117-3.3 C6186 (SOT-223, 1 A), HT7533-1 C14289 (SOT-89, 100 mA). Both U3 and the codec LDO use the same LCSC code, so they are ONE extended line.",
+   "verdict": "no free alternative",
+   "designer_checks": [
+    "XC6206P332MR is SOT-23-3 (different footprint/pinout, no EN pin, 200 mA) and has no published noise/PSRR in the JLC record (docs/rev-d-audit.md quotes 50 dB vs 65 dB at 1 kHz): unsuitable for the codec AVDD.",
+    "Not a pin-compatible swap for any of the basic parts. Dissipation 5 V -> 3.3 V at 100 mA = 0.17 W in SOT-23."
+   ],
+   "records": [
+    {
+     "componentCode": "C51118",
+     "componentModelEn": "AP2112K-3.3TRG1",
+     "componentBrandEn": "Diodes Incorporated",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 17738,
+     "componentSpecificationEn": "SOT-25-5",
+     "price_usd_qty1": 0.1773,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1773
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1406
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1227
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.1066
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0975
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0949
+      }
+     ],
+     "describe": "-40℃~+85℃@(Ta) 1 250mV@(600mA) 3.3V 50uVrms 55uA 600mA 65dB@(1kHz) 6V Fixed Over Current Protection、Thermal Shutdown、Enable control Positive SOT-25-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": {
+      "Power Supply Rejection Ratio (PSRR)": "65dB@(1kHz)",
+      "Operating Temperature": "-40℃~+85℃@(Ta)",
+      "standby current": "55uA",
+      "Noise": "50uVrms",
+      "Voltage - Supply": "6V",
+      "Output Type": "Fixed",
+      "Output Current": "600mA",
+      "Output Configuration": "Positive",
+      "Features": "Over Current Protection、Short Circuit Protection、Thermal shutdown、Enable control、Output discharge",
+      "Voltage Dropout": "250mV@(600mA)",
+      "Output Voltage": "3.3V",
+      "Number of Outputs": "1"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Diodes-Incorporated-AP2112K-3-3TRG1_C51118.pdf",
+     "note": "current AP2112K: 600mA, 50 uVrms, 65 dB @1kHz, 250 mV @600 mA",
+     "found_by_queries": [
+      {
+       "keyword": "C51118",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C5446",
+     "componentModelEn": "XC6206P332MR-G",
+     "componentBrandEn": "Torex Semicon",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 418568,
+     "componentSpecificationEn": "SOT-23-3L",
+     "price_usd_qty1": 0.1444,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1444
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1186
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1053
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0944
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0905
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0878
+      }
+     ],
+     "describe": "-40℃~+85℃@(Ta) 1 1uA 200mA 3.3V 6V Fixed Over Current Protection Positive SOT-23-3L Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": {
+      "Power Supply Rejection Ratio (PSRR)": "-",
+      "Operating Temperature": "-40℃~+85℃@(Ta)",
+      "standby current": "1uA",
+      "Noise": "-",
+      "Voltage - Supply": "6V",
+      "Output Type": "Fixed",
+      "Output Current": "200mA",
+      "Output Configuration": "Positive",
+      "Features": "Over Current Protection、Short Circuit Protection",
+      "Output Voltage": "3.3V",
+      "Voltage Dropout": "-",
+      "Number of Outputs": "1"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Torex-Semicon-XC6206P332MR-G_C5446.pdf",
+     "note": "XC6206P332MR-G basic SOT-23-3L",
+     "found_by_queries": [
+      {
+       "keyword": "3.3V",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "3.3V LDO SOT-23-5",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "C5446",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "LDO",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "SOT-23-5 3.3V",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C6186",
+     "componentModelEn": "AMS1117-3.3",
+     "componentBrandEn": "Advanced Monolithic Systems",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 1027379,
+     "componentSpecificationEn": "SOT-223",
+     "price_usd_qty1": 0.2088,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.2088
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1629
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.1403
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2499,
+       "productPrice": 0.1202
+      },
+      {
+       "startNumber": 2500,
+       "endNumber": 4999,
+       "productPrice": 0.1148
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.1114
+      }
+     ],
+     "describe": "-40℃~+125℃ 0.003%Vout 1 1.1V@(800mA) 15V 1A 3.3V 5mA 72dB@(120Hz) Fixed Over Current Protection、Short Circuit Protection、Thermal shutdown Positive SOT-223 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": {
+      "Power Supply Rejection Ratio (PSRR)": "72dB@(120Hz)",
+      "Operating Temperature": "-40℃~+125℃",
+      "standby current": "5mA",
+      "Noise": "0.003%Vout",
+      "Voltage - Supply": "15V",
+      "Output Type": "Fixed",
+      "Output Current": "1A",
+      "Output Configuration": "Positive",
+      "Features": "Over Current Protection、Short Circuit Protection、Thermal shutdown",
+      "Output Voltage": "3.3V",
+      "Voltage Dropout": "1.1V@(800mA)",
+      "Number of Outputs": "1"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410121508_Advanced-Monolithic-Systems-AMS1117-3-3_C6186.pdf",
+     "note": "AMS1117-3.3 basic SOT-223",
+     "found_by_queries": [
+      {
+       "keyword": "3.3V",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "3.3V 1A",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "3.3V LDO SOT-23-5",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "AMS1117-3.3",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "LDO",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "LDO 3.3V 1A",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C14289",
+     "componentModelEn": "HT7533-1",
+     "componentBrandEn": "Holtek Semicon",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 121142,
+     "componentSpecificationEn": "SOT-89-3",
+     "price_usd_qty1": 0.1449,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.1449
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.1181
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 999,
+       "productPrice": 0.1044
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 1999,
+       "productPrice": 0.0898
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 4999,
+       "productPrice": 0.0859
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": -1,
+       "productPrice": 0.0833
+      }
+     ],
+     "describe": "-40℃~+85℃@(Ta) 1 100mA 2.5uA 25mV@(1mA) 3.3V 30V Fixed Positive SOT-89-3 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": {
+      "Power Supply Rejection Ratio (PSRR)": "-",
+      "Operating Temperature": "-40℃~+85℃@(Ta)",
+      "standby current": "2.5uA",
+      "Voltage - Supply": "30V",
+      "Output Type": "Fixed",
+      "Output Current": "100mA",
+      "Output Configuration": "Positive",
+      "Output Voltage": "3.3V",
+      "Voltage Dropout": "25mV@(1mA)",
+      "Number of Outputs": "1"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2312191111_Holtek-Semicon-HT7533-1_C14289.pdf",
+     "note": "HT7533-1 basic SOT-89",
+     "found_by_queries": [
+      {
+       "keyword": "3.3V",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "3.3V LDO SOT-23-5",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "LDO",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "SOT-23-5 3.3V",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C19268156",
+     "componentModelEn": "RT9193-33GB",
+     "componentBrandEn": "TECH PUBLIC",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 11528,
+     "componentSpecificationEn": "SOT-23-5",
+     "price_usd_qty1": 0.0672,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0672
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0524
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.045
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0394
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.0349
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.0327
+      }
+     ],
+     "describe": "-25℃~+85℃@(Ta) 1 3.3V 300mA 50uVrms 6V 70dB@(1KHz) 70uA Enable Fixed Positive SOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": {
+      "Power Supply Rejection Ratio (PSRR)": "70dB@(1KHz)",
+      "Operating Temperature": "-25℃~+85℃@(Ta)",
+      "standby current": "70uA",
+      "Noise": "50uVrms",
+      "Output Type": "Fixed",
+      "Voltage - Supply": "6V",
+      "Output Current": "300mA",
+      "Features": "Enable control",
+      "Output Configuration": "Positive",
+      "Output Voltage": "3.3V",
+      "Voltage Dropout": "90mV@(100mA)、230mV@(200mA)",
+      "Number of Outputs": "1"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312011958_TECH-PUBLIC-RT9193-33GB_C19268156.pdf",
+     "note": "RT9193-33GB extended 300mA 50uVrms 70dB",
+     "found_by_queries": [
+      {
+       "keyword": "RT9193-33GB",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C19268157",
+     "componentModelEn": "RT9013-33GB",
+     "componentBrandEn": "TECH PUBLIC",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 23816,
+     "componentSpecificationEn": "SOT-23-5",
+     "price_usd_qty1": 0.0821,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0821
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0641
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 2999,
+       "productPrice": 0.0553
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0486
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 8999,
+       "productPrice": 0.0432
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": -1,
+       "productPrice": 0.0404
+      }
+     ],
+     "describe": "-40℃~+85℃ 1 3.3V 500mA 50uVrms 60uA 70dB@(1kHz) 7V Enable Fixed Positive SOT-23-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+     "attributes": {
+      "Power Supply Rejection Ratio (PSRR)": "70dB@(1kHz)",
+      "Operating Temperature": "-40℃~+85℃",
+      "standby current": "60uA",
+      "Noise": "50uVrms",
+      "Output Type": "Fixed",
+      "Voltage - Supply": "7V",
+      "Output Current": "500mA",
+      "Features": "Enable control",
+      "Output Configuration": "Positive",
+      "Output Voltage": "3.3V",
+      "Voltage Dropout": "100mV@(100mA)、300mV@(200mA)",
+      "Number of Outputs": "1"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312011958_TECH-PUBLIC-RT9013-33GB_C19268157.pdf",
+     "note": "RT9013-33GB extended 500mA 50uVrms 70dB",
+     "found_by_queries": [
+      {
+       "keyword": "RT9013-33GB",
+       "extra_request_fields": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "B9",
+   "title": "BAT54S SOT-23 series dual Schottky",
+   "recommendation": "Hongjiacheng BAT54S C7420333 (SOT-23, preferred-extended, 863k stock, $0.0129). Basic alternative is not available (no basic BAT54S). Brand-name option: Nexperia BAT54S,215 C47546 (extended, 307k, $0.0283).",
+   "verdict": "preferred available",
+   "designer_checks": [
+    "Vf quoted 400 mV @10 mA by the vendor (Nexperia 800 mV @100 mA); the clamp leakage on the 40 kohm codec input is 2 uA @25-30 V max in all listings. Check clamp Vf vs AVDD+0.4 V assumption in rev-e-front-end.md with the HJC datasheet curve.",
+    "BAV99 C2500 is basic but silicon (Vf ~0.7-1.25 V): not equivalent for a +-0.4 V clamp."
+   ],
+   "records": [
+    {
+     "componentCode": "C7420333",
+     "componentModelEn": "BAT54S",
+     "componentBrandEn": "hongjiacheng",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 863375,
+     "componentSpecificationEn": "SOT-23",
+     "price_usd_qty1": 0.0129,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 499,
+       "productPrice": 0.0129
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0103
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0092
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 23999,
+       "productPrice": 0.0083
+      },
+      {
+       "startNumber": 24000,
+       "endNumber": 50999,
+       "productPrice": 0.008
+      },
+      {
+       "startNumber": 51000,
+       "endNumber": -1,
+       "productPrice": 0.0077
+      }
+     ],
+     "describe": "1 Pair Series Connection 200mA 2uA@30V 30V 400mV@10mA 600mA SOT-23 Schottky Diodes ROHS",
+     "attributes": {
+      "Voltage - Forward(Vf@If)": "400mV@10mA",
+      "Power Dissipation": "200mW",
+      "Non-Repetitive Peak Forward Surge Current": "600mA",
+      "Voltage - DC Reverse(Vr)": "30V",
+      "Operating Junction Temperature Range": "-",
+      "Diode Configuration": "1 Pair Series Connection",
+      "Current - Rectified": "200mA",
+      "Reverse Leakage Current (Ir)": "2uA@30V"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2310171613_hongjiacheng-BAT54S_C7420333.pdf",
+     "note": "preferred",
+     "found_by_queries": [
+      {
+       "keyword": "BAT54",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "BAT54S",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "BAT54S SOT-23",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "C7420333",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C47546",
+     "componentModelEn": "BAT54S,215",
+     "componentBrandEn": "Nexperia",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 306755,
+     "componentSpecificationEn": "SOT-23",
+     "price_usd_qty1": 0.0283,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 199,
+       "productPrice": 0.0283
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.0215
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2999,
+       "productPrice": 0.0185
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 8999,
+       "productPrice": 0.0163
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": 20999,
+       "productPrice": 0.0154
+      },
+      {
+       "startNumber": 21000,
+       "endNumber": -1,
+       "productPrice": 0.0148
+      }
+     ],
+     "describe": "1 Pair Series Connection 200mA 2uA@25V 30V 600mA 800mV@100mA SOT-23 Schottky Diodes ROHS",
+     "attributes": {
+      "Voltage - Forward(Vf@If)": "800mV@100mA",
+      "Non-Repetitive Peak Forward Surge Current": "600mA",
+      "Voltage - DC Reverse(Vr)": "30V",
+      "Diode Configuration": "1 Pair Series Connection",
+      "Current - Rectified": "200mA",
+      "Reverse Leakage Current (Ir)": "2uA@25V"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410121943_Nexperia-BAT54S-215_C47546.pdf",
+     "note": "Nexperia extended",
+     "found_by_queries": [
+      {
+       "keyword": "BAT54",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "BAT54S",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "BAT54S,215",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C8592",
+     "componentModelEn": "BAT54S KL4",
+     "componentBrandEn": "Jiangsu Changjing Electronics Technology Co., Ltd.",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 281902,
+     "componentSpecificationEn": "SOT-23",
+     "price_usd_qty1": 0.0229,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 199,
+       "productPrice": 0.0229
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.0182
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 2999,
+       "productPrice": 0.0156
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 8999,
+       "productPrice": 0.0141
+      },
+      {
+       "startNumber": 9000,
+       "endNumber": 20999,
+       "productPrice": 0.0127
+      },
+      {
+       "startNumber": 21000,
+       "endNumber": -1,
+       "productPrice": 0.012
+      }
+     ],
+     "describe": "1 Pair Series Connection 1V@100mA 200mA 2uA@25V 30V 600mA SOT-23 Schottky Diodes ROHS",
+     "attributes": {
+      "Voltage - Forward(Vf@If)": "1V@100mA",
+      "Non-Repetitive Peak Forward Surge Current": "600mA",
+      "Voltage - DC Reverse(Vr)": "30V",
+      "Diode Configuration": "1 Pair Series Connection",
+      "Current - Rectified": "200mA",
+      "Reverse Leakage Current (Ir)": "2uA@25V"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Jiangsu-Changjing-Electronics-Technology-Co---Ltd--BAT54S-KL4_C8592.pdf",
+     "note": "Changjing BAT54S extended",
+     "found_by_queries": [
+      {
+       "keyword": "BAT54",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "BAT54S",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C2500",
+     "componentModelEn": "BAV99,215",
+     "componentBrandEn": "Nexperia",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 1268764,
+     "componentSpecificationEn": "SOT-23",
+     "price_usd_qty1": 0.0118,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 499,
+       "productPrice": 0.0118
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0089
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0076
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 23999,
+       "productPrice": 0.0066
+      },
+      {
+       "startNumber": 24000,
+       "endNumber": 50999,
+       "productPrice": 0.0062
+      },
+      {
+       "startNumber": 51000,
+       "endNumber": -1,
+       "productPrice": 0.006
+      }
+     ],
+     "describe": "1 Pair Series Connection 1.25V@150mA 100V 215mA 250mW 4A 4ns 500nA@80V SOT-23 Switching Diodes ROHS",
+     "attributes": {
+      "Voltage - Forward(Vf@If)": "1.25V@150mA",
+      "Non-Repetitive Peak Forward Surge Current": "4A",
+      "Voltage - DC Reverse(Vr)": "100V",
+      "Operating Junction Temperature Range": "-",
+      "Reverse Recovery Time (trr)": "4ns",
+      "Diode Configuration": "1 Pair Series Connection",
+      "Current - Rectified": "125mA",
+      "Pd - Power Dissipation": "250mW",
+      "Reverse Leakage Current (Ir)": "500nA@80V"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2407250951_Nexperia-BAV99-215_C2500.pdf",
+     "note": "BAV99 basic (silicon, not Schottky)",
+     "found_by_queries": [
+      {
+       "keyword": "BAV99",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "BAV99",
+       "extra_request_fields": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "B10",
+   "title": "AO3400A SOT-23 and 1N4148WS SOD-323",
+   "recommendation": "Confirmed basic: AO3400A C20917 (Alpha & Omega, 1.03M stock, $0.0973) and 1N4148WS C2128 (Jiangsu Changjing, 2.93M, $0.0143, Vf 1.25 V @150 mA, 100 V, 4 ns).",
+   "verdict": "confirmed basic",
+   "designer_checks": [
+    "AO3400A: Rds(on) 48 mohm @2.5 V per JLC record, Vgs(th) 1.45 V; logic drive 3.3 V OK for 28 mA coils."
+   ],
+   "records": [
+    {
+     "componentCode": "C20917",
+     "componentModelEn": "AO3400A",
+     "componentBrandEn": "Alpha & Omega Semicon",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 1030002,
+     "componentSpecificationEn": "SOT-23",
+     "price_usd_qty1": 0.0973,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0973
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0775
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0677
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0604
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0545
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": -1,
+       "productPrice": 0.0514
+      }
+     ],
+     "describe": "-55℃~+150℃ 1 N-channel 1.45V 1.4W 30V 48mΩ@2.5V 5.7A 50pF 630pF 75pF 7nC@10V N-Channel SOT-23 MOSFETs ROHS",
+     "attributes": {
+      "Operating Temperature": "-55℃~+150℃",
+      "Vgs": "±12V",
+      "Configuration": "-",
+      "Gate Charge(Qg)": "7nC@10V",
+      "Reverse Transfer Capacitance (Crss@Vds)": "50pF",
+      "Current - Continuous Drain(Id)": "5.7A",
+      "Drain to Source Voltage": "30V",
+      "Output Capacitance(Coss)": "75pF",
+      "RDS(on)": "48mΩ@2.5V",
+      "Input Capacitance(Ciss)": "630pF",
+      "Type": "N-Channel",
+      "Gate Threshold Voltage (Vgs(th))": "1.45V",
+      "Number": "1 N-channel",
+      "Pd - Power Dissipation": "1.4W"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1811081213_Alpha---Omega-Semicon-AO3400A_C20917.pdf",
+     "note": "AO3400A basic",
+     "found_by_queries": [
+      {
+       "keyword": "AO3400A",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "AO3400A",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "C20917",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "C20917",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C2128",
+     "componentModelEn": "1N4148WS",
+     "componentBrandEn": "Jiangsu Changjing Electronics Technology Co., Ltd.",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 2925195,
+     "componentSpecificationEn": "SOD-323",
+     "price_usd_qty1": 0.0143,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 499,
+       "productPrice": 0.0143
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 2999,
+       "productPrice": 0.0112
+      },
+      {
+       "startNumber": 3000,
+       "endNumber": 5999,
+       "productPrice": 0.0101
+      },
+      {
+       "startNumber": 6000,
+       "endNumber": 23999,
+       "productPrice": 0.009
+      },
+      {
+       "startNumber": 24000,
+       "endNumber": 50999,
+       "productPrice": 0.0086
+      },
+      {
+       "startNumber": 51000,
+       "endNumber": -1,
+       "productPrice": 0.0083
+      }
+     ],
+     "describe": "1.25V@150mA 100V 150mA 1uA@75V 200mW 2A 4ns Independent SOD-323 Switching Diodes ROHS",
+     "attributes": {
+      "Voltage - Forward(Vf@If)": "1.25V@150mA",
+      "Non-Repetitive Peak Forward Surge Current": "2A",
+      "Voltage - DC Reverse(Vr)": "100V",
+      "Operating Junction Temperature Range": "-",
+      "Reverse Recovery Time (trr)": "4ns",
+      "Diode Configuration": "Standalone",
+      "Current - Rectified": "150mA",
+      "Pd - Power Dissipation": "200mW",
+      "Reverse Leakage Current (Ir)": "1uA@75V"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1810101110_Jiangsu-Changjing-Electronics-Technology-Co---Ltd--1N4148WS_C2128.pdf",
+     "note": "1N4148WS basic",
+     "found_by_queries": [
+      {
+       "keyword": "1N4148WS",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "1N4148WS",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "C2128",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "C2128",
+       "extra_request_fields": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "B11",
+   "title": "560pF and 270pF C0G 0603 50V",
+   "recommendation": "No basic/preferred 560pF or 270pF in any dielectric. Best stocked extended: Yageo CC0603JRNPO9BN561 C107054 (560pF NP0 5%, 193k, $0.0066) and CC0603JRNPO9BN271 C107046 (270pF NP0 5%, 146k, $0.0092). Free-line workarounds: 270pF ~ 330pF C0G C1664 (basic; pole 295 -> 241 kHz) or 2x100pF C14858 + 68pF C28262 (268 pF, 3 parts); 560pF ~ 470pF X7R C1620 (basic, 568 -> 677 kHz) or 330pF C1664 + 2x100pF + 33pF C1663 (563 pF, 4 parts, all C0G).",
+   "verdict": "no direct free part",
+   "designer_checks": [
+    "X7R in a signal path adds voltage-coefficient distortion; keep C0G. 150/180/220/390/560/820pF C0G are not basic or preferred. 10pF, 15pF, 22pF, 33pF, 47pF, 100pF, 330pF C0G 0603 are basic."
+   ],
+   "records": [
+    {
+     "componentCode": "C107054",
+     "componentModelEn": "CC0603JRNPO9BN561",
+     "componentBrandEn": "YAGEO",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 192856,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0066,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0066
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 3999,
+       "productPrice": 0.0053
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.0044
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": 47999,
+       "productPrice": 0.004
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": 99999,
+       "productPrice": 0.0036
+      },
+      {
+       "startNumber": 100000,
+       "endNumber": -1,
+       "productPrice": 0.0034
+      }
+     ],
+     "describe": "50V 560pF NP0 ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±5%",
+      "Capacitance": "560pF",
+      "Temperature Coefficient": "NP0"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_YAGEO-CC0603JRNPO9BN561_C107054.pdf",
+     "note": "560pF NP0 Yageo extended",
+     "found_by_queries": [
+      {
+       "keyword": "560pF 0603 C0G",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C107046",
+     "componentModelEn": "CC0603JRNPO9BN271",
+     "componentBrandEn": "YAGEO",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 145536,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0092,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 499,
+       "productPrice": 0.0092
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 0.0072
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": 3999,
+       "productPrice": 0.0061
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 23999,
+       "productPrice": 0.0053
+      },
+      {
+       "startNumber": 24000,
+       "endNumber": 47999,
+       "productPrice": 0.0047
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": -1,
+       "productPrice": 0.0044
+      }
+     ],
+     "describe": "270pF 50V NP0 ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±5%",
+      "Capacitance": "270pF",
+      "Temperature Coefficient": "NP0"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_YAGEO-CC0603JRNPO9BN271_C107046.pdf",
+     "note": "270pF NP0 Yageo extended",
+     "found_by_queries": [
+      {
+       "keyword": "270pF 0603 C0G",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C1664",
+     "componentModelEn": "CL10C331JB8NNNC",
+     "componentBrandEn": "Samsung Electro-Mechanics",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 849342,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.018,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 499,
+       "productPrice": 0.018
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 0.0143
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": 3999,
+       "productPrice": 0.0122
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 23999,
+       "productPrice": 0.0099
+      },
+      {
+       "startNumber": 24000,
+       "endNumber": 47999,
+       "productPrice": 0.0088
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": -1,
+       "productPrice": 0.0082
+      }
+     ],
+     "describe": "330pF 50V C0G ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±5%",
+      "Capacitance": "330pF",
+      "Temperature Coefficient": "C0G"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL10C331JB8NNNC_C1664.pdf",
+     "note": "330pF C0G basic",
+     "found_by_queries": [
+      {
+       "keyword": "330pF 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C14858",
+     "componentModelEn": "CL10C101JB8NNNC",
+     "componentBrandEn": "Samsung Electro-Mechanics",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 3867823,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0086,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 499,
+       "productPrice": 0.0086
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 0.0065
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": 3999,
+       "productPrice": 0.0055
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 23999,
+       "productPrice": 0.0048
+      },
+      {
+       "startNumber": 24000,
+       "endNumber": 47999,
+       "productPrice": 0.0045
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": -1,
+       "productPrice": 0.0043
+      }
+     ],
+     "describe": "100pF 50V C0G ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±5%",
+      "Capacitance": "100pF",
+      "Temperature Coefficient": "C0G"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL10C101JB8NNNC_C14858.pdf",
+     "note": "100pF C0G basic",
+     "found_by_queries": [
+      {
+       "keyword": "100pF 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C28262",
+     "componentModelEn": "CL10C680JB8NNNC",
+     "componentBrandEn": "Samsung Electro-Mechanics",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 148078,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0155,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 499,
+       "productPrice": 0.0155
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 0.0128
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": 3999,
+       "productPrice": 0.0113
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 23999,
+       "productPrice": 0.0104
+      },
+      {
+       "startNumber": 24000,
+       "endNumber": 47999,
+       "productPrice": 0.0096
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": -1,
+       "productPrice": 0.0092
+      }
+     ],
+     "describe": "50V 68pF C0G ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±5%",
+      "Capacitance": "68pF",
+      "Temperature Coefficient": "C0G"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL10C680JB8NNNC_C28262.pdf",
+     "note": "68pF C0G preferred",
+     "found_by_queries": [
+      {
+       "keyword": "68pF 0603",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C1663",
+     "componentModelEn": "CL10C330JB8NNNC",
+     "componentBrandEn": "Samsung Electro-Mechanics",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 1276471,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.009,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 499,
+       "productPrice": 0.009
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 0.0069
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": 3999,
+       "productPrice": 0.0059
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 23999,
+       "productPrice": 0.0052
+      },
+      {
+       "startNumber": 24000,
+       "endNumber": 47999,
+       "productPrice": 0.0049
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": -1,
+       "productPrice": 0.0047
+      }
+     ],
+     "describe": "33pF 50V C0G ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±5%",
+      "Capacitance": "33pF",
+      "Temperature Coefficient": "C0G"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL10C330JB8NNNC_C1663.pdf",
+     "note": "33pF C0G basic",
+     "found_by_queries": [
+      {
+       "keyword": "33pF 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C1620",
+     "componentModelEn": "0603B471K500NT",
+     "componentBrandEn": "FH (Guangdong Fenghua Advanced Tech)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 900185,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0079,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0079
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 3999,
+       "productPrice": 0.0062
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.005
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": 47999,
+       "productPrice": 0.0044
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": 99999,
+       "productPrice": 0.004
+      },
+      {
+       "startNumber": 100000,
+       "endNumber": -1,
+       "productPrice": 0.0037
+      }
+     ],
+     "describe": "470pF 50V X7R ±10% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±10%",
+      "Capacitance": "470pF",
+      "Temperature Coefficient": "X7R"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_FH--Guangdong-Fenghua-Advanced-Tech-0603B471K500NT_C1620.pdf",
+     "note": "470pF X7R basic",
+     "found_by_queries": [
+      {
+       "keyword": "470pF 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C1603",
+     "componentModelEn": "CL10B221KB8NNNC",
+     "componentBrandEn": "Samsung Electro-Mechanics",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 1141852,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0072,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0072
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 3999,
+       "productPrice": 0.0056
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.0045
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": 47999,
+       "productPrice": 0.0039
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": 99999,
+       "productPrice": 0.0037
+      },
+      {
+       "startNumber": 100000,
+       "endNumber": -1,
+       "productPrice": 0.0036
+      }
+     ],
+     "describe": "220pF 50V X7R ±10% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±10%",
+      "Capacitance": "220pF",
+      "Temperature Coefficient": "X7R"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL10B221KB8NNNC_C1603.pdf",
+     "note": "220pF X7R basic",
+     "found_by_queries": [
+      {
+       "keyword": "220pF 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C1630",
+     "componentModelEn": "0603B681K500NT",
+     "componentBrandEn": "FH (Guangdong Fenghua Advanced Tech)",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 175294,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0052,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0052
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 3999,
+       "productPrice": 0.0042
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": 7999,
+       "productPrice": 0.0034
+      },
+      {
+       "startNumber": 8000,
+       "endNumber": 47999,
+       "productPrice": 0.003
+      },
+      {
+       "startNumber": 48000,
+       "endNumber": 99999,
+       "productPrice": 0.0027
+      },
+      {
+       "startNumber": 100000,
+       "endNumber": -1,
+       "productPrice": 0.0026
+      }
+     ],
+     "describe": "50V 680pF X7R ±10% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "50V",
+      "Tolerance": "±10%",
+      "Capacitance": "680pF",
+      "Temperature Coefficient": "X7R"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_FH--Guangdong-Fenghua-Advanced-Tech-0603B681K500NT_C1630.pdf",
+     "note": "680pF X7R preferred",
+     "found_by_queries": [
+      {
+       "keyword": "680pF 0603",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "B12",
+   "title": "2.2R, 470R, 4.7k, 100R 1% 0603",
+   "recommendation": "All basic (UNI-ROYAL thick film): 2.2R 0603WAF220KT5E C22939 (0603, 131k stock, +-400ppm, $0.0034; 0805 option C17521 212k); 470R C23179 (5.33M); 4.7k C23162 (18.0M); 100R C22775 (10.5M, already used). Also confirmed basic: 1k C21190, 2k C22975 (1%), 2.2k C4190 (1%).",
+   "verdict": "confirmed basic",
+   "designer_checks": [
+    "2.2R at 100 mW: 3 coils x ~28 mA = 84 mA x 2.2R = 15 mW, fine; tempco 400 ppm irrelevant for a supply filter."
+   ],
+   "records": [
+    {
+     "componentCode": "C22939",
+     "componentModelEn": "0603WAF220KT5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 131092,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0034,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0034
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0026
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0022
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.002
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0017
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0017
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 2.2Ω 75V Thick Film Resistor ±1% ±400ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "2.2Ω",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±400ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010130_UNI-ROYAL-Uniroyal-Elec-0603WAF220KT5E_C22939.pdf",
+     "note": "2.2R 0603 basic",
+     "found_by_queries": [
+      {
+       "keyword": "2.2R 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "2.2ohm 0402",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "2.2ohm 1% 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "2.2ohm 1% 0805",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "2.2ohm 1% 1206",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "2.2ohm 1% 2010",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C17521",
+     "componentModelEn": "0805W8F220KT5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 212727,
+     "componentSpecificationEn": "0805",
+     "price_usd_qty1": 0.0057,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0057
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0046
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0038
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0035
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 99999,
+       "productPrice": 0.0032
+      },
+      {
+       "startNumber": 100000,
+       "endNumber": -1,
+       "productPrice": 0.003
+      }
+     ],
+     "describe": "-55℃~+155℃ 125mW 150V 2.2Ω Thick Film Resistor ±1% ±200ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "2.2Ω",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "125mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "150V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±200ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010200_UNI-ROYAL-Uniroyal-Elec-0805W8F220KT5E_C17521.pdf",
+     "note": "2.2R 0805 basic",
+     "found_by_queries": [
+      {
+       "keyword": "2.2R 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "2.2ohm 0402",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "2.2ohm 1% 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "2.2ohm 1% 0805",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "2.2ohm 1% 1206",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "2.2ohm 1% 2010",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C23179",
+     "componentModelEn": "0603WAF4700T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 5327796,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0023,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0023
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0018
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0015
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0012
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0011
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0011
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 470Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "470Ω",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010116_UNI-ROYAL-Uniroyal-Elec-0603WAF4700T5E_C23179.pdf",
+     "note": "470R basic",
+     "found_by_queries": [
+      {
+       "keyword": "470ohm 1% 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C23162",
+     "componentModelEn": "0603WAF4701T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 17975661,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0028,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0028
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0022
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0019
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0016
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0015
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0015
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 4.7kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "4.7kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010116_UNI-ROYAL-Uniroyal-Elec-0603WAF4701T5E_C23162.pdf",
+     "note": "4.7k basic",
+     "found_by_queries": [
+      {
+       "keyword": "4.7kohm 1% 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "4.7kohm 1% 0603",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C22775",
+     "componentModelEn": "0603WAF1000T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 10529375,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0026,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0026
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.002
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0018
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0014
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0013
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0013
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 100Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "100Ω",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2411221126_UNI-ROYAL-Uniroyal-Elec-0603WAF1000T5E_C22775.pdf",
+     "note": "100R basic",
+     "found_by_queries": [
+      {
+       "keyword": "100ohm 1% 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C21190",
+     "componentModelEn": "0603WAF1001T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 21898587,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.002,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.002
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0016
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0014
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0011
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.001
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.001
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 1kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "1kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010130_UNI-ROYAL-Uniroyal-Elec-0603WAF1001T5E_C21190.pdf",
+     "note": "1k basic",
+     "found_by_queries": [
+      {
+       "keyword": "1kohm 1% 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "1kohm 1% 0603",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C4190",
+     "componentModelEn": "0603WAF2201T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 6286411,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0018,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0018
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0014
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0012
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0011
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0009
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0009
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 2.2kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "2.2kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010230_UNI-ROYAL-Uniroyal-Elec-0603WAF2201T5E_C4190.pdf",
+     "note": "2.2k 1% basic",
+     "found_by_queries": [
+      {
+       "keyword": "2.2kohm 1% 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "2.2kohm 1% 0603",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C22975",
+     "componentModelEn": "0603WAF2001T5E",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 11125694,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0024,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 999,
+       "productPrice": 0.0024
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0018
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0016
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 49999,
+       "productPrice": 0.0014
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": 50199,
+       "productPrice": 0.0013
+      },
+      {
+       "startNumber": 50200,
+       "endNumber": -1,
+       "productPrice": 0.0013
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 2kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "2kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thick Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±1%",
+      "Temperature Coefficient": "±100ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010116_UNI-ROYAL-Uniroyal-Elec-0603WAF2001T5E_C22975.pdf",
+     "note": "2k 1% basic",
+     "found_by_queries": [
+      {
+       "keyword": "2kohm 1% 0603",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "2kohm 1% 0603",
+       "extra_request_fields": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "B13",
+   "title": "2.2k and 2.0k 0.1% thin film 0603",
+   "recommendation": "Stay extended; keep Yageo RT0603BRD07 family (+-0.1%, +-25ppm, 75 V): 2.2k RT0603BRD072K2L C861295 (12.7k stock, $0.0363) and 2k RT0603BRD072KL C728588 (6.1k, $0.035). Better stocked equal-spec alternates if stock matters: 2k Viking ARG03BTC2001 C335077 (169k, $0.026, 25 ppm) / RESI PTFR0603B2K00P9 C328425 (210k, $0.0427); 2.2k UNI-ROYAL TC0325B2201T5F C2989139 (13.8k, $0.0226, 25 ppm). Mixing makers loses same-lot ratio tracking; prefer one maker for both.",
+   "verdict": "extended (as expected)",
+   "designer_checks": [
+    "Line-saving trick: 2.0k = 2 x 1k 0.1% from the 1k RT0603BRD071KL C110776 line already on the BOM (R88), removing the 2k line at the cost of one extra placement; there is no 2.2k equivalent from existing lines.",
+    "cad/design.json already lists R31 2.2k = RT0603BRD072K2L and R33 2k = RT0603BRD072KL with LCSC 'TBD': fill in C861295 / C728588."
+   ],
+   "records": [
+    {
+     "componentCode": "C861295",
+     "componentModelEn": "RT0603BRD072K2L",
+     "componentBrandEn": "YAGEO",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 12747,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0363,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 199,
+       "productPrice": 0.0363
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.0311
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 4999,
+       "productPrice": 0.0282
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0256
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 19999,
+       "productPrice": 0.0241
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": -1,
+       "productPrice": 0.0233
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 2.2kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "2.2kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thin Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±0.1%",
+      "Temperature Coefficient": "±25ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2202281730_YAGEO-RT0603BRD072K2L_C861295.pdf",
+     "note": "2.2k Yageo RT0603BRD072K2L",
+     "found_by_queries": [
+      {
+       "keyword": "2.2kohm 0.1% 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "2.2kohm 0.1% 0603 thin film",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "RT0603BRD072K",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "RT0603BRD072K2L",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C728588",
+     "componentModelEn": "RT0603BRD072KL",
+     "componentBrandEn": "YAGEO",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 6079,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.035,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 199,
+       "productPrice": 0.035
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.0303
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 4999,
+       "productPrice": 0.0275
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0254
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 19999,
+       "productPrice": 0.0241
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": -1,
+       "productPrice": 0.0233
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 2kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "2kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thin Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±0.1%",
+      "Temperature Coefficient": "±25ppm/℃"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_YAGEO-RT0603BRD072KL_C728588.pdf",
+     "note": "2k Yageo RT0603BRD072KL",
+     "found_by_queries": [
+      {
+       "keyword": "2kohm 0.1% 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "2kohm 0.1% 0603 25ppm",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "RT0603BRD072K",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "RT0603BRD072KL",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C335077",
+     "componentModelEn": "ARG03BTC2001",
+     "componentBrandEn": "Viking Tech",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 169492,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.026,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 199,
+       "productPrice": 0.026
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.0208
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 4999,
+       "productPrice": 0.0179
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0161
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 19999,
+       "productPrice": 0.0146
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": -1,
+       "productPrice": 0.0138
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 2kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "2kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thin Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±0.1%",
+      "Temperature Coefficient": "±25ppm/℃"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Viking-Tech-ARG03BTC2001_C335077.pdf",
+     "note": "2k Viking",
+     "found_by_queries": [
+      {
+       "keyword": "2kohm 0.1% 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "2kohm 0.1% 0603 25ppm",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C328425",
+     "componentModelEn": "PTFR0603B2K00P9",
+     "componentBrandEn": "RESI",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 210385,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0427,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0427
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0349
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 999,
+       "productPrice": 0.0308
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0278
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0221
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": -1,
+       "productPrice": 0.021
+      }
+     ],
+     "describe": "-55℃~+125℃ 100V 100mW 2kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "2kΩ",
+      "Operating Temperature": "-55℃~+125℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thin Film Resistor",
+      "Voltage-Supply(Max)": "100V",
+      "Tolerance": "±0.1%",
+      "Temperature Coefficient": "±25ppm/℃"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2405061536_RESI-PTFR0603B2K00P9_C328425.pdf",
+     "note": "2k RESI",
+     "found_by_queries": [
+      {
+       "keyword": "2kohm 0.1% 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "2kohm 0.1% 0603 25ppm",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C2989139",
+     "componentModelEn": "TC0325B2201T5F",
+     "componentBrandEn": "UNI-ROYAL(Uniroyal Elec)",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 13827,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0226,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 499,
+       "productPrice": 0.0226
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1499,
+       "productPrice": 0.0184
+      },
+      {
+       "startNumber": 1500,
+       "endNumber": 4999,
+       "productPrice": 0.016
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 24999,
+       "productPrice": 0.0141
+      },
+      {
+       "startNumber": 25000,
+       "endNumber": 49999,
+       "productPrice": 0.0129
+      },
+      {
+       "startNumber": 50000,
+       "endNumber": -1,
+       "productPrice": 0.0122
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 2.2kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "2.2kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thin Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±0.1%",
+      "Temperature Coefficient": "±25ppm/℃"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2208170930_UNI-ROYAL-Uniroyal-Elec-TC0325B2201T5F_C2989139.pdf",
+     "note": "2.2k Uniroyal thin film",
+     "found_by_queries": [
+      {
+       "keyword": "2.2kohm 0.1% 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "2.2kohm 0.1% 0603 thin film",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C855775",
+     "componentModelEn": "AT0603BRD072K2L",
+     "componentBrandEn": "YAGEO",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 3318,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0782,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 99,
+       "productPrice": 0.0782
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 299,
+       "productPrice": 0.0651
+      },
+      {
+       "startNumber": 300,
+       "endNumber": 999,
+       "productPrice": 0.0584
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": 4999,
+       "productPrice": 0.0535
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0496
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": -1,
+       "productPrice": 0.0476
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 2.2kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "2.2kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thin Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±0.1%",
+      "Temperature Coefficient": "±25ppm/℃"
+     },
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2210190300_YAGEO-AT0603BRD072K2L_C855775.pdf",
+     "note": "2.2k AT0603 Yageo",
+     "found_by_queries": [
+      {
+       "keyword": "2.2kohm 0.1% 0603",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "2.2kohm 0.1% 0603 thin film",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C110776",
+     "componentModelEn": "RT0603BRD071KL",
+     "componentBrandEn": "YAGEO",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 1730363,
+     "componentSpecificationEn": "0603",
+     "price_usd_qty1": 0.0313,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 199,
+       "productPrice": 0.0313
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.0265
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 4999,
+       "productPrice": 0.0238
+      },
+      {
+       "startNumber": 5000,
+       "endNumber": 9999,
+       "productPrice": 0.0221
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 19999,
+       "productPrice": 0.0208
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": -1,
+       "productPrice": 0.02
+      }
+     ],
+     "describe": "-55℃~+155℃ 100mW 1kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+     "attributes": {
+      "Resistance": "1kΩ",
+      "Operating Temperature": "-55℃~+155℃",
+      "Power(Watts)": "100mW",
+      "Type": "Thin Film Resistor",
+      "Voltage-Supply(Max)": "75V",
+      "Tolerance": "±0.1%",
+      "Temperature Coefficient": "±25ppm/℃"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1811082117_YAGEO-RT0603BRD071KL_C110776.pdf",
+     "note": "1k 0.1% already on board",
+     "found_by_queries": [
+      {
+       "keyword": "C110776",
+       "extra_request_fields": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "B14",
+   "title": "22uF 0805/1206 >=10V",
+   "recommendation": "Confirmed: C12891 Samsung CL31A226KAHNNNE 22uF 25V X5R 1206 is basic (1.39M stock, $0.1706) - already on board as C103. 0805 options: CL21A226MAQNNNE C45783 (25V X5R +-20%, basic, 4.48M, $0.1907); preferred 10V 1206 CL31A226KPHNNNE C5672 ($0.0856).",
+   "verdict": "confirmed basic",
+   "designer_checks": [
+    "X5R DC-bias at 5 V on 25 V part is modest; for the 5 V relay coil filter use C12891 (or C45783 in 0805)."
+   ],
+   "records": [
+    {
+     "componentCode": "C12891",
+     "componentModelEn": "CL31A226KAHNNNE",
+     "componentBrandEn": "Samsung Electro-Mechanics",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 1391052,
+     "componentSpecificationEn": "1206",
+     "price_usd_qty1": 0.1706,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 199,
+       "productPrice": 0.1706
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.1354
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 1999,
+       "productPrice": 0.1182
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 9999,
+       "productPrice": 0.1029
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 19999,
+       "productPrice": 0.0986
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": -1,
+       "productPrice": 0.096
+      }
+     ],
+     "describe": "22uF 25V X5R ±10% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "25V",
+      "Tolerance": "±10%",
+      "Capacitance": "22uF",
+      "Temperature Coefficient": "X5R"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL31A226KAHNNNE_C12891.pdf",
+     "note": "22uF 25V 1206 basic",
+     "found_by_queries": [
+      {
+       "keyword": "22uF 0805",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "22uF 1206",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "C12891",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C45783",
+     "componentModelEn": "CL21A226MAQNNNE",
+     "componentBrandEn": "Samsung Electro-Mechanics",
+     "componentLibraryType": "base",
+     "library": "basic",
+     "preferredComponentFlag": false,
+     "stockCount": 4481575,
+     "componentSpecificationEn": "0805",
+     "price_usd_qty1": 0.1907,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 199,
+       "productPrice": 0.1907
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 599,
+       "productPrice": 0.1503
+      },
+      {
+       "startNumber": 600,
+       "endNumber": 1999,
+       "productPrice": 0.1305
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 9999,
+       "productPrice": 0.113
+      },
+      {
+       "startNumber": 10000,
+       "endNumber": 19999,
+       "productPrice": 0.1081
+      },
+      {
+       "startNumber": 20000,
+       "endNumber": -1,
+       "productPrice": 0.1053
+      }
+     ],
+     "describe": "22uF 25V X5R ±20% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "25V",
+      "Tolerance": "±20%",
+      "Capacitance": "22uF",
+      "Temperature Coefficient": "X5R"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL21A226MAQNNNE_C45783.pdf",
+     "note": "22uF 25V 0805 basic",
+     "found_by_queries": [
+      {
+       "keyword": "22uF 0805",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      },
+      {
+       "keyword": "22uF 1206",
+       "extra_request_fields": {
+        "componentLibraryType": "base"
+       }
+      }
+     ]
+    },
+    {
+     "componentCode": "C5672",
+     "componentModelEn": "CL31A226KPHNNNE",
+     "componentBrandEn": "Samsung Electro-Mechanics",
+     "componentLibraryType": "expand",
+     "library": "preferred-extended",
+     "preferredComponentFlag": true,
+     "stockCount": 100627,
+     "componentSpecificationEn": "1206",
+     "price_usd_qty1": 0.0856,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 49,
+       "productPrice": 0.0856
+      },
+      {
+       "startNumber": 50,
+       "endNumber": 149,
+       "productPrice": 0.0703
+      },
+      {
+       "startNumber": 150,
+       "endNumber": 499,
+       "productPrice": 0.0627
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 1999,
+       "productPrice": 0.0563
+      },
+      {
+       "startNumber": 2000,
+       "endNumber": 3999,
+       "productPrice": 0.044
+      },
+      {
+       "startNumber": 4000,
+       "endNumber": -1,
+       "productPrice": 0.0426
+      }
+     ],
+     "describe": "10V 22uF X5R ±10% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+     "attributes": {
+      "Voltage Rating": "10V",
+      "Tolerance": "±10%",
+      "Capacitance": "22uF",
+      "Temperature Coefficient": "X5R"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1810221121_Samsung-Electro-Mechanics-CL31A226KPHNNNE_C5672.pdf",
+     "note": "22uF 10V 1206 preferred",
+     "found_by_queries": [
+      {
+       "keyword": "22uF 0805",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      },
+      {
+       "keyword": "22uF 1206",
+       "extra_request_fields": {
+        "preferredComponentFlag": true
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "B15",
+   "title": "TAC5112 and TQ2SA-L2-5V-Z",
+   "recommendation": "TAC5112IRGER C44853692: extended, not preferred, 181 in stock (177 presale-able), $5.928 (1-9), $5.1286 (10-29), $4.643 (30-99), $4.2343 (100+). Package per JLC VQFN-24(4x4), reel 3000; TI datasheet in sources/rev-e/TAC5112.txt: RGE VQFN 24 pins 4.00 x 4.00 mm, 0.5 mm pitch, exposed pad (KiCad Package_DFN_QFN:VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm family; confirm EP size against TI RGE drawing). TQ2SA-L2-5V-Z C2684450: extended, 1,756 in stock, $2.2692 (1-9), $2.0207 (10-29), $1.867 (30-99); SMD 14x9 mm. Single-coil sibling TQ2SA-5V-Z C22686: 4,491 stock, $1.5891.",
+   "verdict": "extended (as expected)",
+   "designer_checks": [
+    "TAC5112 stock is thin (181): order for more than ~100 boards is not possible; a 5-board build is fine but stock can vanish."
+   ],
+   "records": [
+    {
+     "componentCode": "C44853692",
+     "componentModelEn": "TAC5112IRGER",
+     "componentBrandEn": "Texas Instruments",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 181,
+     "componentSpecificationEn": "VQFN-24(4x4)",
+     "price_usd_qty1": 5.928,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 5.928
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 5.1286
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 4.643
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 4.2343
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 4.2343
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 4.2343
+      }
+     ],
+     "describe": "Built-in phase-locked loop、On-chip digital gain VQFN-24(4x4) Audio Interface ICs ROHS",
+     "attributes": {
+      "Operating Temperature": "-40℃~+125℃",
+      "Type": "Encoder/decoder",
+      "Voltage - Supply": "1.2V、1.8V、3.3V",
+      "Sampling Rate": "4kHz~768kHz",
+      "Features": "Built-in phase-locked loop、On-chip digital gain",
+      "Interface": "I2S、I2C、SPI"
+     },
+     "dataManualUrl": null,
+     "note": "TAC5112IRGER",
+     "found_by_queries": [
+      {
+       "keyword": "C44853692",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "TAC5112",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C47149069",
+     "componentModelEn": "TAC5112WQRTVRQ1",
+     "componentBrandEn": "Texas Instruments",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 10,
+     "componentSpecificationEn": "WQFN-32(5x5)",
+     "price_usd_qty1": 6.4005,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 6.4005
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 6.2566
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 6.1618
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 101,
+       "productPrice": 6.067
+      },
+      {
+       "startNumber": 102,
+       "endNumber": 103,
+       "productPrice": 6.067
+      },
+      {
+       "startNumber": 104,
+       "endNumber": -1,
+       "productPrice": 6.067
+      }
+     ],
+     "describe": "WQFN-32(5x5) ADCs/DACs - Special Purpose ROHS",
+     "attributes": {},
+     "dataManualUrl": null,
+     "note": "TAC5112WQRTVRQ1 WQFN-32 automotive variant, 10 in stock",
+     "found_by_queries": [
+      {
+       "keyword": "TAC5112",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C2684450",
+     "componentModelEn": "TQ2SA-L2-5V-Z",
+     "componentBrandEn": "PANASONIC",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 1756,
+     "componentSpecificationEn": "SMD,14x9mm",
+     "price_usd_qty1": 2.2692,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 2.2692
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 2.0207
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.867
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.7363
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.6512
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.6136
+      }
+     ],
+     "describe": "-40℃~+85℃ 125V@AC、220V@DC 2 Form C: 2C (DPDT-CO) 2A 4ms 4ms 5V AgNi + Gold plated Dual Coil SMD,14x9mm Magnetic Latching Relays ROHS",
+     "attributes": {
+      "Operating Temperature": "-40℃~+85℃",
+      "Switching Voltage(Max)": "125V@AC、220V@DC",
+      "Coil Resistance": "-",
+      "Contact Form": "2 Form C: 2C (DPDT-CO)",
+      "Coil Rated Power": "-",
+      "Length": "14mm",
+      "Operate Time": "4ms",
+      "Switching Current(Max)": "2A",
+      "Contact Material": "AgNi + Gold plated",
+      "Number of Pins": "-",
+      "Coil Voltage": "5V",
+      "Release Time": "4ms",
+      "Coil Type": "Dual coil",
+      "Contact Resistance": "-",
+      "Contact Rating": "-",
+      "Width": "9mm"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2106070334_PANASONIC-TQ2SA-L2-5V-Z_C2684450.pdf",
+     "note": "TQ2SA-L2-5V-Z",
+     "found_by_queries": [
+      {
+       "keyword": "C2684450",
+       "extra_request_fields": {}
+      },
+      {
+       "keyword": "TQ2SA-L2-5V-Z",
+       "extra_request_fields": {}
+      }
+     ]
+    },
+    {
+     "componentCode": "C22686",
+     "componentModelEn": "TQ2SA-5V-Z",
+     "componentBrandEn": "PANASONIC",
+     "componentLibraryType": "expand",
+     "library": "extended",
+     "preferredComponentFlag": false,
+     "stockCount": 4491,
+     "componentSpecificationEn": "SMD,14x9mm",
+     "price_usd_qty1": 1.5891,
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.5891
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.3929
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.2867
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 1.0954
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 1.03
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 1.0006
+      }
+     ],
+     "describe": "-40℃~+85℃ 125V@AC、220V@DC 140mW 178Ω 2A 4ms 4ms 500mA@125VAC、2A@30VDC 5V 75mΩ AgNi + Gold plated Two groups of conversions: 2C(Double-pole double-throw conversion) SMD,14x9mm Signal Relays ROHS",
+     "attributes": {
+      "Operating Temperature": "-40℃~+85℃",
+      "Switching Voltage(Max)": "125V@AC、220V@DC",
+      "Coil Resistance": "178Ω",
+      "Contact Form": "Two sets of changeover: 2C (DPDT)",
+      "Coil Rated Power": "140mW",
+      "Length": "14mm",
+      "Operate Time": "4ms",
+      "Switching Current(Max)": "2A",
+      "Coil Voltage": "5V",
+      "Contact Material": "AgNi + Gold plated",
+      "Number of Pins": "-",
+      "Release Time": "4ms",
+      "Height": "6mm",
+      "Coil Type": "-",
+      "Contact Rating": "500mA@125VAC、2A@30VDC",
+      "Contact Resistance": "75mΩ",
+      "Width": "9mm"
+     },
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1806060512_PANASONIC-TQ2SA-5V-Z_C22686.pdf",
+     "note": "TQ2SA-5V-Z (single coil)",
+     "found_by_queries": [
+      {
+       "keyword": "C22686",
+       "extra_request_fields": {}
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "followup_checks_2026_10_21": {
+  "retrieved": "2026-10-21",
+  "dc_bias_C13585": {
+   "part": "Samsung CL31A106KBHNNNE (C13585) 10uF 50V X5R 1206 (page lists X5R -55..+85C, 10uF +-10%, 50Vdc)",
+   "source_url": "https://product.samsungsem.com/mlcc/CL31A106KBHNNN.do",
+   "source_note": "Samsung SEM product page for family CL31A106KBHNNN# (packaging suffixes E/F listed on the same page; curve labelled partsName CL31A106KBHNNN). Curve is the DCBias entry of the page's embedded `var datasheetData` JSON (graphType DCBias, axis DeltaC in %). Page disclaimer: typical data for design reference only. Read by linear interpolation of 141 sorted (V, dC%) points; retained fraction = 1 + dC/100. No CSV/KSIM file downloaded (S2P/SPICE sit behind the page's Download links).",
+   "measurement_conditions_in_json": {
+    "frequency_Hz": 1000,
+    "temperature_C": 25,
+    "dsDcSign": 1.0,
+    "note": "dsDcSign=1.0 is the AC-level field in Samsung's data; unit (Vrms) not stated on the page - assumed 1 Vrms class."
+   },
+   "retained_capacitance_fraction": {
+    "3.3V": 0.8724,
+    "5V": 0.7276,
+    "10V": 0.4063,
+    "12V": 0.3386,
+    "14V": 0.2794,
+    "14.8V": 0.2594,
+    "15V": 0.2548,
+    "16V": 0.2338
+   },
+   "effective_uF_per_cap_nominal": {
+    "5V": 7.28,
+    "12V": 3.39,
+    "15V": 2.55,
+    "16V": 2.34
+   },
+   "vs_break_even_thresholds": {
+    "5V_input_C80_C82": {
+     "voltage_V": 5.0,
+     "C13585_retained": 0.7276,
+     "break_even_needed": 0.61,
+     "margin_ratio": 1.19,
+     "pass": true,
+     "CL32B106KBJNNNE_retained_current_part": 0.9393
+    },
+    "LDO_COUT_C95_C100": {
+     "voltage_V": 12.0,
+     "C13585_retained": 0.3386,
+     "break_even_needed": 0.288,
+     "margin_ratio": 1.18,
+     "pass": true,
+     "CL32B106KBJNNNE_retained_current_part": 0.7413
+    },
+    "RAW_N_C91_C92_C99": {
+     "voltage_V": 14.8,
+     "C13585_retained": 0.2594,
+     "break_even_needed": 0.209,
+     "margin_ratio": 1.24,
+     "pass": true,
+     "CL32B106KBJNNNE_retained_current_part": 0.6609
+    },
+    "RAW_P_C89_C90_C94": {
+     "voltage_V": 15.0,
+     "C13585_retained": 0.2548,
+     "break_even_needed": 0.168,
+     "margin_ratio": 1.52,
+     "pass": true,
+     "CL32B106KBJNNNE_retained_current_part": 0.6553
+    }
+   },
+   "comparison_current_part": {
+    "part": "Samsung CL32B106KBJNNNE (C138687) 10uF 50V X7R 1210",
+    "source_url": "https://product.samsungsem.com/mlcc/CL32B106KBJNNN.do",
+    "retained": {
+     "5V": 0.9393,
+     "12V": 0.7413,
+     "14.8V": 0.6609,
+     "15V": 0.6553,
+     "16V": 0.6275
+    }
+   },
+   "reading": "All four regulator_check break-even thresholds (which already include -10% tolerance and -15% temperature) are met by C13585, but margins are thin at the 12 V LDO COUT (0.339 vs 0.288, +18%; about 0.33 at the 12.3 V max output) and the 5 V input (0.728 vs 0.61, +19%). C13585 keeps about 2.5x less capacitance than the current CL32B part at ~15 V (0.255 vs 0.655). The script's assumed retention (0.4 for <=35% of rating, 0.25 above) is not what this curve gives at 12 V (0.339 < 0.4), so regulator_check needs re-baselining with this curve before a swap is called a pass. Effective COUT per LDO at 12 V, one 10uF part alone: 10*0.339*0.9*0.85 = 2.6 uF vs 2.2 uF minimum (plus the 3x1uF and 100 nF at the amplifiers). Curve is 25 C, 1 kHz typical, not worst-case; X5R also loses capacitance at 85 C.",
+   "Murata_fallback": "not needed - exact-part Samsung data found",
+   "curve_points_V_vs_dC_percent_C13585": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.05,
+     0.031
+    ],
+    [
+     0.1,
+     0.065
+    ],
+    [
+     0.15,
+     0.101
+    ],
+    [
+     0.2,
+     0.138
+    ],
+    [
+     0.25,
+     0.174
+    ],
+    [
+     0.3,
+     0.207
+    ],
+    [
+     0.35,
+     0.236
+    ],
+    [
+     0.4,
+     0.26
+    ],
+    [
+     0.45,
+     0.276
+    ],
+    [
+     0.5,
+     0.285
+    ],
+    [
+     0.5478,
+     0.296
+    ],
+    [
+     0.592,
+     0.321
+    ],
+    [
+     0.6343,
+     0.35
+    ],
+    [
+     0.676,
+     0.377
+    ],
+    [
+     0.7188,
+     0.393
+    ],
+    [
+     0.764,
+     0.393
+    ],
+    [
+     0.8133,
+     0.367
+    ],
+    [
+     0.868,
+     0.309
+    ],
+    [
+     0.9297,
+     0.211
+    ],
+    [
+     1.0,
+     0.066
+    ],
+    [
+     1.0791,
+     -0.111
+    ],
+    [
+     1.1656,
+     -0.302
+    ],
+    [
+     1.2585,
+     -0.514
+    ],
+    [
+     1.3568,
+     -0.754
+    ],
+    [
+     1.4594,
+     -1.028
+    ],
+    [
+     1.5652,
+     -1.344
+    ],
+    [
+     1.6732,
+     -1.706
+    ],
+    [
+     1.7824,
+     -2.123
+    ],
+    [
+     1.8917,
+     -2.6
+    ],
+    [
+     2.0,
+     -3.145
+    ],
+    [
+     2.1103,
+     -3.779
+    ],
+    [
+     2.2252,
+     -4.509
+    ],
+    [
+     2.3434,
+     -5.316
+    ],
+    [
+     2.4636,
+     -6.181
+    ],
+    [
+     2.5844,
+     -7.085
+    ],
+    [
+     2.7044,
+     -8.01
+    ],
+    [
+     2.8223,
+     -8.937
+    ],
+    [
+     2.9368,
+     -9.847
+    ],
+    [
+     3.0465,
+     -10.722
+    ],
+    [
+     3.15,
+     -11.542
+    ],
+    [
+     3.2465,
+     -12.313
+    ],
+    [
+     3.3368,
+     -13.06
+    ],
+    [
+     3.4223,
+     -13.787
+    ],
+    [
+     3.5044,
+     -14.502
+    ],
+    [
+     3.5844,
+     -15.21
+    ],
+    [
+     3.6636,
+     -15.918
+    ],
+    [
+     3.7434,
+     -16.632
+    ],
+    [
+     3.8252,
+     -17.359
+    ],
+    [
+     3.9103,
+     -18.105
+    ],
+    [
+     4.0,
+     -18.875
+    ],
+    [
+     4.0926,
+     -19.658
+    ],
+    [
+     4.1856,
+     -20.44
+    ],
+    [
+     4.2795,
+     -21.227
+    ],
+    [
+     4.3748,
+     -22.022
+    ],
+    [
+     4.4719,
+     -22.83
+    ],
+    [
+     4.5712,
+     -23.657
+    ],
+    [
+     4.6732,
+     -24.507
+    ],
+    [
+     4.7784,
+     -25.385
+    ],
+    [
+     4.8872,
+     -26.295
+    ],
+    [
+     5.0,
+     -27.243
+    ],
+    [
+     5.1161,
+     -28.234
+    ],
+    [
+     5.2344,
+     -29.267
+    ],
+    [
+     5.3554,
+     -30.333
+    ],
+    [
+     5.4792,
+     -31.429
+    ],
+    [
+     5.6062,
+     -32.546
+    ],
+    [
+     5.7368,
+     -33.679
+    ],
+    [
+     5.8711,
+     -34.822
+    ],
+    [
+     6.0096,
+     -35.968
+    ],
+    [
+     6.1524,
+     -37.11
+    ],
+    [
+     6.3,
+     -38.244
+    ],
+    [
+     6.4525,
+     -39.384
+    ],
+    [
+     6.6096,
+     -40.547
+    ],
+    [
+     6.7711,
+     -41.725
+    ],
+    [
+     6.9368,
+     -42.911
+    ],
+    [
+     7.1062,
+     -44.097
+    ],
+    [
+     7.2792,
+     -45.277
+    ],
+    [
+     7.4553,
+     -46.442
+    ],
+    [
+     7.6344,
+     -47.585
+    ],
+    [
+     7.816,
+     -48.699
+    ],
+    [
+     8.0,
+     -49.776
+    ],
+    [
+     8.1699,
+     -50.78
+    ],
+    [
+     8.3168,
+     -51.697
+    ],
+    [
+     8.452,
+     -52.557
+    ],
+    [
+     8.5864,
+     -53.387
+    ],
+    [
+     8.7312,
+     -54.218
+    ],
+    [
+     8.8976,
+     -55.077
+    ],
+    [
+     9.0965,
+     -55.994
+    ],
+    [
+     9.3392,
+     -56.996
+    ],
+    [
+     9.6366,
+     -58.114
+    ],
+    [
+     10.0,
+     -59.374
+    ],
+    [
+     10.4245,
+     -60.819
+    ],
+    [
+     10.896,
+     -62.439
+    ],
+    [
+     11.4115,
+     -64.192
+    ],
+    [
+     11.968,
+     -66.036
+    ],
+    [
+     12.5625,
+     -67.928
+    ],
+    [
+     13.192,
+     -69.825
+    ],
+    [
+     13.8535,
+     -71.686
+    ],
+    [
+     14.544,
+     -73.467
+    ],
+    [
+     15.2605,
+     -75.126
+    ],
+    [
+     16.0,
+     -76.62
+    ],
+    [
+     16.774,
+     -77.982
+    ],
+    [
+     17.592,
+     -79.274
+    ],
+    [
+     18.448,
+     -80.499
+    ],
+    [
+     19.336,
+     -81.657
+    ],
+    [
+     20.25,
+     -82.751
+    ],
+    [
+     21.184,
+     -83.783
+    ],
+    [
+     22.132,
+     -84.755
+    ],
+    [
+     23.088,
+     -85.668
+    ],
+    [
+     24.046,
+     -86.524
+    ],
+    [
+     25.0,
+     -87.325
+    ],
+    [
+     25.982,
+     -88.058
+    ],
+    [
+     27.016,
+     -88.712
+    ],
+    [
+     28.084,
+     -89.296
+    ],
+    [
+     29.168,
+     -89.818
+    ],
+    [
+     30.25,
+     -90.286
+    ],
+    [
+     31.312,
+     -90.709
+    ],
+    [
+     32.336,
+     -91.094
+    ],
+    [
+     33.304,
+     -91.45
+    ],
+    [
+     34.198,
+     -91.785
+    ],
+    [
+     35.0,
+     -92.106
+    ],
+    [
+     35.68,
+     -92.393
+    ],
+    [
+     36.24,
+     -92.625
+    ],
+    [
+     36.71,
+     -92.811
+    ],
+    [
+     37.12,
+     -92.961
+    ],
+    [
+     37.5,
+     -93.087
+    ],
+    [
+     37.88,
+     -93.197
+    ],
+    [
+     38.29,
+     -93.302
+    ],
+    [
+     38.76,
+     -93.412
+    ],
+    [
+     39.32,
+     -93.538
+    ],
+    [
+     40.0,
+     -93.688
+    ],
+    [
+     40.7975,
+     -93.856
+    ],
+    [
+     41.68,
+     -94.027
+    ],
+    [
+     42.6325,
+     -94.2
+    ],
+    [
+     43.64,
+     -94.375
+    ],
+    [
+     44.6875,
+     -94.551
+    ],
+    [
+     45.76,
+     -94.728
+    ],
+    [
+     46.8425,
+     -94.906
+    ],
+    [
+     47.92,
+     -95.083
+    ],
+    [
+     48.9775,
+     -95.26
+    ],
+    [
+     50.0,
+     -95.435
+    ]
+   ],
+   "curve_points_V_vs_dC_percent_CL32B106KBJNNN": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.05,
+     0.045
+    ],
+    [
+     0.1,
+     0.091
+    ],
+    [
+     0.15,
+     0.139
+    ],
+    [
+     0.2,
+     0.186
+    ],
+    [
+     0.25,
+     0.233
+    ],
+    [
+     0.3,
+     0.279
+    ],
+    [
+     0.35,
+     0.324
+    ],
+    [
+     0.4,
+     0.366
+    ],
+    [
+     0.45,
+     0.405
+    ],
+    [
+     0.5,
+     0.44
+    ],
+    [
+     0.5478,
+     0.475
+    ],
+    [
+     0.592,
+     0.513
+    ],
+    [
+     0.6343,
+     0.551
+    ],
+    [
+     0.676,
+     0.588
+    ],
+    [
+     0.7188,
+     0.621
+    ],
+    [
+     0.764,
+     0.649
+    ],
+    [
+     0.8133,
+     0.669
+    ],
+    [
+     0.868,
+     0.681
+    ],
+    [
+     0.9297,
+     0.681
+    ],
+    [
+     1.0,
+     0.668
+    ],
+    [
+     1.0791,
+     0.645
+    ],
+    [
+     1.1656,
+     0.616
+    ],
+    [
+     1.2585,
+     0.58
+    ],
+    [
+     1.3568,
+     0.536
+    ],
+    [
+     1.4594,
+     0.482
+    ],
+    [
+     1.5652,
+     0.418
+    ],
+    [
+     1.6732,
+     0.342
+    ],
+    [
+     1.7824,
+     0.254
+    ],
+    [
+     1.8917,
+     0.153
+    ],
+    [
+     2.0,
+     0.036
+    ],
+    [
+     2.1103,
+     -0.1
+    ],
+    [
+     2.2252,
+     -0.256
+    ],
+    [
+     2.3434,
+     -0.43
+    ],
+    [
+     2.4636,
+     -0.617
+    ],
+    [
+     2.5844,
+     -0.814
+    ],
+    [
+     2.7044,
+     -1.017
+    ],
+    [
+     2.8223,
+     -1.222
+    ],
+    [
+     2.9368,
+     -1.426
+    ],
+    [
+     3.0465,
+     -1.625
+    ],
+    [
+     3.15,
+     -1.815
+    ],
+    [
+     3.2465,
+     -1.997
+    ],
+    [
+     3.3368,
+     -2.175
+    ],
+    [
+     3.4223,
+     -2.35
+    ],
+    [
+     3.5044,
+     -2.524
+    ],
+    [
+     3.5844,
+     -2.7
+    ],
+    [
+     3.6636,
+     -2.878
+    ],
+    [
+     3.7434,
+     -3.061
+    ],
+    [
+     3.8252,
+     -3.25
+    ],
+    [
+     3.9103,
+     -3.448
+    ],
+    [
+     4.0,
+     -3.655
+    ],
+    [
+     4.0926,
+     -3.869
+    ],
+    [
+     4.1856,
+     -4.085
+    ],
+    [
+     4.2795,
+     -4.306
+    ],
+    [
+     4.3748,
+     -4.532
+    ],
+    [
+     4.4719,
+     -4.765
+    ],
+    [
+     4.5712,
+     -5.006
+    ],
+    [
+     4.6732,
+     -5.255
+    ],
+    [
+     4.7784,
+     -5.516
+    ],
+    [
+     4.8872,
+     -5.788
+    ],
+    [
+     5.0,
+     -6.073
+    ],
+    [
+     5.1161,
+     -6.369
+    ],
+    [
+     5.2344,
+     -6.672
+    ],
+    [
+     5.3554,
+     -6.985
+    ],
+    [
+     5.4792,
+     -7.307
+    ],
+    [
+     5.6062,
+     -7.639
+    ],
+    [
+     5.7368,
+     -7.984
+    ],
+    [
+     5.8711,
+     -8.341
+    ],
+    [
+     6.0096,
+     -8.712
+    ],
+    [
+     6.1524,
+     -9.098
+    ],
+    [
+     6.3,
+     -9.5
+    ],
+    [
+     6.4525,
+     -9.918
+    ],
+    [
+     6.6096,
+     -10.352
+    ],
+    [
+     6.7711,
+     -10.801
+    ],
+    [
+     6.9368,
+     -11.264
+    ],
+    [
+     7.1062,
+     -11.739
+    ],
+    [
+     7.2792,
+     -12.227
+    ],
+    [
+     7.4553,
+     -12.725
+    ],
+    [
+     7.6344,
+     -13.233
+    ],
+    [
+     7.816,
+     -13.751
+    ],
+    [
+     8.0,
+     -14.276
+    ],
+    [
+     8.1699,
+     -14.764
+    ],
+    [
+     8.3168,
+     -15.19
+    ],
+    [
+     8.452,
+     -15.584
+    ],
+    [
+     8.5864,
+     -15.979
+    ],
+    [
+     8.7312,
+     -16.405
+    ],
+    [
+     8.8976,
+     -16.893
+    ],
+    [
+     9.0965,
+     -17.473
+    ],
+    [
+     9.3392,
+     -18.178
+    ],
+    [
+     9.6366,
+     -19.037
+    ],
+    [
+     10.0,
+     -20.083
+    ],
+    [
+     10.447,
+     -21.371
+    ],
+    [
+     10.976,
+     -22.902
+    ],
+    [
+     11.569,
+     -24.621
+    ],
+    [
+     12.208,
+     -26.471
+    ],
+    [
+     12.875,
+     -28.398
+    ],
+    [
+     13.552,
+     -30.347
+    ],
+    [
+     14.221,
+     -32.262
+    ],
+    [
+     14.864,
+     -34.088
+    ],
+    [
+     15.463,
+     -35.769
+    ],
+    [
+     16.0,
+     -37.251
+    ],
+    [
+     16.4765,
+     -38.546
+    ],
+    [
+     16.912,
+     -39.719
+    ],
+    [
+     17.3155,
+     -40.793
+    ],
+    [
+     17.696,
+     -41.788
+    ],
+    [
+     18.0625,
+     -42.727
+    ],
+    [
+     18.424,
+     -43.633
+    ],
+    [
+     18.7895,
+     -44.525
+    ],
+    [
+     19.168,
+     -45.428
+    ],
+    [
+     19.5685,
+     -46.361
+    ],
+    [
+     20.0,
+     -47.348
+    ],
+    [
+     20.4595,
+     -48.382
+    ],
+    [
+     20.936,
+     -49.436
+    ],
+    [
+     21.4265,
+     -50.502
+    ],
+    [
+     21.928,
+     -51.574
+    ],
+    [
+     22.4375,
+     -52.642
+    ],
+    [
+     22.952,
+     -53.699
+    ],
+    [
+     23.4685,
+     -54.739
+    ],
+    [
+     23.984,
+     -55.752
+    ],
+    [
+     24.4955,
+     -56.731
+    ],
+    [
+     25.0,
+     -57.669
+    ],
+    [
+     25.5,
+     -58.57
+    ],
+    [
+     26.0,
+     -59.444
+    ],
+    [
+     26.5,
+     -60.293
+    ],
+    [
+     27.0,
+     -61.118
+    ],
+    [
+     27.5,
+     -61.921
+    ],
+    [
+     28.0,
+     -62.702
+    ],
+    [
+     28.5,
+     -63.463
+    ],
+    [
+     29.0,
+     -64.206
+    ],
+    [
+     29.5,
+     -64.931
+    ],
+    [
+     30.0,
+     -65.641
+    ],
+    [
+     30.5,
+     -66.331
+    ],
+    [
+     31.0,
+     -66.997
+    ],
+    [
+     31.5,
+     -67.642
+    ],
+    [
+     32.0,
+     -68.267
+    ],
+    [
+     32.5,
+     -68.875
+    ],
+    [
+     33.0,
+     -69.466
+    ],
+    [
+     33.5,
+     -70.044
+    ],
+    [
+     34.0,
+     -70.609
+    ],
+    [
+     34.5,
+     -71.164
+    ],
+    [
+     35.0,
+     -71.711
+    ],
+    [
+     35.4775,
+     -72.234
+    ],
+    [
+     35.92,
+     -72.723
+    ],
+    [
+     36.3425,
+     -73.186
+    ],
+    [
+     36.76,
+     -73.634
+    ],
+    [
+     37.1875,
+     -74.076
+    ],
+    [
+     37.64,
+     -74.519
+    ],
+    [
+     38.1325,
+     -74.974
+    ],
+    [
+     38.68,
+     -75.45
+    ],
+    [
+     39.2975,
+     -75.956
+    ],
+    [
+     40.0,
+     -76.501
+    ],
+    [
+     40.7975,
+     -77.085
+    ],
+    [
+     41.68,
+     -77.699
+    ],
+    [
+     42.6325,
+     -78.338
+    ],
+    [
+     43.64,
+     -78.996
+    ],
+    [
+     44.6875,
+     -79.668
+    ],
+    [
+     45.76,
+     -80.35
+    ],
+    [
+     46.8425,
+     -81.034
+    ],
+    [
+     47.92,
+     -81.717
+    ],
+    [
+     48.9775,
+     -82.393
+    ],
+    [
+     50.0,
+     -83.057
+    ]
+   ]
+  },
+  "srv05_4_C7420376": {
+   "datasheet": "Zhuhai Hongjiacheng (R+O) SRV05-4 Rev 2.1, 3 pages",
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/c94a8eedc13753364c00c764db36d52a.pdf?productCode=C7420376",
+   "how_obtained": "The wmsc.lcsc.com URL in the JLC record answers with a JS redirect to this datasheet.lcsc.com path; fetched with a browser User-Agent and Referer https://www.lcsc.com/; text via pdftotext and page 1 rendered to read the function diagram.",
+   "pinout": {
+    "confirmed": true,
+    "pin_2": "GND",
+    "pin_5": "V05 rail pin (diode-steering rail with an internal Zener to GND; connect to VBUS)",
+    "pins_1_3_4_6": "I/O channels (four, unidirectional)",
+    "basis": "Function Diagram on page 1 (package top view: bottom row 1-2-3, top row 6-5-4, dot at pin 1; schematic shows pin 5 as the top rail, pin 2 as ground, I/O at 1, 3, 4, 6). The datasheet has no separate pin-description table. Same roles as USBLC6-2SC6, so no remap; on this board 1&6 = USB_DP and 3&4 = USB_DM."
+   },
+   "electrical": {
+    "Vrwm_max_V": 5.0,
+    "Vbr_min_V": 6.0,
+    "Vbr_test": "IR=1 mA, 25C",
+    "leakage_IR_max_uA": 5.0,
+    "leakage_condition": "VRWM=5.0 V, 25C",
+    "Vclamp_typ_V": 13.5,
+    "Vclamp_max_V": 15,
+    "Vclamp_condition": "IPP=4.0 A, tp=8/20 us",
+    "Ppp_W": 80,
+    "Ipp_A": 4.0,
+    "VF_typ_max_V": [
+     0.8,
+     1.0
+    ],
+    "VF_condition": "IF=10 mA",
+    "Cj_pin_to_GND_pF_typ": 1.0,
+    "Cj_IO_to_IO_pF_typ": 0.5,
+    "Cj_condition": "VR=0 V, 1 MHz",
+    "ESD_IEC61000-4-2_air_contact_kV": 30,
+    "Tj_range_C": [
+     -55,
+     125
+    ]
+   },
+   "designer_notes": [
+    "VBUS may reach 5.25 V (> Vrwm 5.0 V but < Vbr 6.0 V min): leakage is specified only at 5.0 V, expect slightly more at 5.25 V; harmless for USB.",
+    "Datasheet markets it for CAN/automotive and gives no USB-specific data; 1.0 pF to GND / 0.5 pF I/O-I/O is far below what USB 2.0 full-speed needs.",
+    "Clamp is 13.5 V typ / 15 V max at 4 A 8/20 us; compare against the USBLC6's own clamp figure when judging RP2040 pin stress."
+   ]
+  }
+ }
+}

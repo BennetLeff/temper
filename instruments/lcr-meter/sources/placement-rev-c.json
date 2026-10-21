@@ -56,7 +56,24 @@
     "R90": 0,
     "R91": 0,
     "R92": 0,
-    "R93": 0
+    "R93": 0,
+    "U14": 0,
+    "U15": 270,
+    "K1": 0,
+    "K2": 0,
+    "K3": 0,
+    "Q2": 180,
+    "Q3": 180,
+    "Q4": 180,
+    "Q5": 180,
+    "D5": 0,
+    "D6": 0,
+    "D7": 0,
+    "D8": 0,
+    "D11": 180,
+    "D12": 180,
+    "D13": 180,
+    "D14": 180
   },
   "parts": [
     {
@@ -1310,6 +1327,7 @@
       "lcsc": "C51118",
       "mpn": "AP2112K-3.3TRG1",
       "references": [
+        "U15",
         "U3"
       ],
       "native_footprint": "Package_TO_SOT_SMD:SOT-23-5",
@@ -5438,6 +5456,256 @@
         "note": "Exactpartlinked1210libraryhasleft/rightpadaxisat0degmatchingnative;180degelectricallyequivalent. Manufacturerterminaldimensionreviewnotpartofthiskeyedpartaudit."
       },
       "native_source_sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f"
+    },
+    {
+      "lcsc": "C44853692",
+      "mpn": "TAC5112IRGER",
+      "references": [
+        "U14"
+      ],
+      "native_footprint": "LCR:TI_RGE0024R_VQFN-24-1EP_4x4mm_P0.5mm_EP2.1mm_CornerPads",
+      "source_url": "https://lceda.cn/api/products/C44853692/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C44853692-product.json",
+      "source_sha256": "2a7bad595583caa3c07bf906d9bfb9d3f4de93b256d105aa8b947da543f6b2cf",
+      "library_title": "VQFN-24_L4.0-W4.0-P0.50-BL-EP2.1_1",
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 29,
+      "pad_center_fit_rms_mm": 0.00011194864630944718,
+      "pad_center_fit_max_mm": 0.00019774291176329555,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.00011194864630944718
+        },
+        {
+          "offset": 270,
+          "rms": 2.9705034622819553
+        },
+        {
+          "offset": 90,
+          "rms": 2.9705034622819553
+        },
+        {
+          "offset": 180,
+          "rms": 4.200926281943741
+        }
+      ]
+    },
+    {
+      "lcsc": "C2684450",
+      "mpn": "TQ2SA-L2-5V-Z",
+      "references": [
+        "K1",
+        "K2",
+        "K3"
+      ],
+      "native_footprint": "LCR:Relay_DPDT_Panasonic_TQ2SA_SMD",
+      "source_url": "https://lceda.cn/api/products/C2684450/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C2684450-product.json",
+      "source_sha256": "e1c3e6ae2925a7b6dabd20596d80d516c7ac8317b79f99f99e14e3b3682478b3",
+      "library_title": "RELAY-SMD_TQ2SA-3V",
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 10,
+      "pad_center_fit_rms_mm": 0.29999999999999716,
+      "pad_center_fit_max_mm": 0.29999999999999716,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.29999999999999716
+        },
+        {
+          "offset": 90,
+          "rms": 8.629090334444298
+        },
+        {
+          "offset": 270,
+          "rms": 8.629090334444298
+        },
+        {
+          "offset": 180,
+          "rms": 12.19968852061396
+        }
+      ]
+    },
+    {
+      "lcsc": "C20917",
+      "mpn": "AO3400A",
+      "references": [
+        "Q2",
+        "Q3",
+        "Q4",
+        "Q5"
+      ],
+      "native_footprint": "Package_TO_SOT_SMD:SOT-23",
+      "source_url": "https://lceda.cn/api/products/C20917/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C20917-product.json",
+      "source_sha256": "e41f8743537b5bed6dc26d09b166676bdbf08229afefda523fd8911597d4cc6f",
+      "library_title": "SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR",
+      "cpl_offset_ccw_deg": 180,
+      "matched_numbered_pads": 3,
+      "pad_center_fit_rms_mm": 0.05892368853205636,
+      "pad_center_fit_max_mm": 0.0833306666667113,
+      "candidate_rms_mm": [
+        {
+          "offset": 180,
+          "rms": 0.05892368853205636
+        },
+        {
+          "offset": 90,
+          "rms": 1.6951159255550006
+        },
+        {
+          "offset": 270,
+          "rms": 1.6951159255550006
+        },
+        {
+          "offset": 0,
+          "rms": 2.3965316607694023
+        }
+      ]
+    },
+    {
+      "lcsc": "C2128",
+      "mpn": "1N4148WS",
+      "references": [
+        "D5",
+        "D6",
+        "D7",
+        "D8"
+      ],
+      "native_footprint": "Diode_SMD:D_SOD-323",
+      "source_url": "https://lceda.cn/api/products/C2128/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C2128-product.json",
+      "source_sha256": "80610ef6150f5fa487aaec1813e8f13d731ca047d47051692fbd4cbb6456722d",
+      "library_title": "SOD-323_L1.8-W1.3-LS2.5-RD",
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.12246400000003632,
+      "pad_center_fit_max_mm": 0.12246400000003632,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.12246400000003632
+        },
+        {
+          "offset": 90,
+          "rms": 1.5739033741929278
+        },
+        {
+          "offset": 270,
+          "rms": 1.5739033741929278
+        },
+        {
+          "offset": 180,
+          "rms": 2.2224639999999454
+        }
+      ]
+    },
+    {
+      "lcsc": "C7420333",
+      "mpn": "BAT54S",
+      "references": [
+        "D11",
+        "D12",
+        "D13",
+        "D14"
+      ],
+      "native_footprint": "Package_TO_SOT_SMD:SOT-23",
+      "source_url": "https://lceda.cn/api/products/C7420333/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C7420333-product.json",
+      "source_sha256": "1cd05ae2551a76a685aee7418adaf347c6fb68a6825c88f45a8509f3ed30ddac",
+      "library_title": "SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR",
+      "cpl_offset_ccw_deg": 180,
+      "matched_numbered_pads": 3,
+      "pad_center_fit_rms_mm": 0.05892368853205636,
+      "pad_center_fit_max_mm": 0.0833306666667113,
+      "candidate_rms_mm": [
+        {
+          "offset": 180,
+          "rms": 0.05892368853205636
+        },
+        {
+          "offset": 90,
+          "rms": 1.6951159255550006
+        },
+        {
+          "offset": 270,
+          "rms": 1.6951159255550006
+        },
+        {
+          "offset": 0,
+          "rms": 2.3965316607694023
+        }
+      ]
+    },
+    {
+      "lcsc": "C7420376",
+      "mpn": "SRV05-4",
+      "references": [
+        "D1"
+      ],
+      "native_footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "source_url": "https://lceda.cn/api/products/C7420376/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C7420376-product.json",
+      "source_sha256": "5a0638faa40838e7d071d8a4d02e65d0df2ca145ba43d8766bdd1247002c8b7b",
+      "library_title": "SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BL-1",
+      "cpl_offset_ccw_deg": 270,
+      "matched_numbered_pads": 6,
+      "pad_center_fit_rms_mm": 0.06239600854753424,
+      "pad_center_fit_max_mm": 0.06239601282136859,
+      "candidate_rms_mm": [
+        {
+          "offset": 270,
+          "rms": 0.06239600854753424
+        },
+        {
+          "offset": 0,
+          "rms": 1.9841722023427284
+        },
+        {
+          "offset": 180,
+          "rms": 1.9841722023427284
+        },
+        {
+          "offset": 90,
+          "rms": 2.805349424798366
+        }
+      ]
+    },
+    {
+      "lcsc": "C720477",
+      "mpn": "TS-1088-AR02016",
+      "references": [
+        "SW1",
+        "SW2"
+      ],
+      "native_footprint": "Button_Switch_SMD:SW_SPST_TS-1088-xR020",
+      "source_url": "https://lceda.cn/api/products/C720477/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C720477-product.json",
+      "source_sha256": "858a0cb84d1ab727485421054d2d3fb72254c5d326b42f58c2e654c49283776c",
+      "library_title": "SW-SMD_L3.9-W3.0-P4.45",
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.0400920000000724,
+      "pad_center_fit_max_mm": 0.0400920000000724,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.0400920000000724
+        },
+        {
+          "offset": 90,
+          "rms": 3.1184047153093974
+        },
+        {
+          "offset": 270,
+          "rms": 3.1184047153093974
+        },
+        {
+          "offset": 180,
+          "rms": 4.409907999999973
+        }
+      ]
     }
   ],
   "unresolved_primary_mechanical_reviews": [],

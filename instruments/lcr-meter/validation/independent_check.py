@@ -96,9 +96,9 @@ for ref in ('U6', 'U7'):
         if best[1] > 2.54:
             findings.append(f'{ref}.{num} bypass {best[0]} at {best[1]:.2f} mm')
 
-# 5. R_iso topology (Rev D).
+# 5. R_iso topology (Rev D on; Rev E adds the range relays, which leave TIA_SUM unchanged).
 topology = {}
-if REV == 'd':
+if REV in ('d', 'e'):
     expect = {('J3', '2'): 'DUT_LO', ('U7', '5'): 'DUT_LO', ('R94', '1'): 'DUT_LO', ('R94', '2'): 'TIA_SUM',
               ('U7', '2'): 'TIA_SUM', ('C104', '1'): 'TIA_SUM', ('C104', '2'): 'TIA_OUT',
               ('R43', '1'): 'TIA_SUM', ('R44', '1'): 'TIA_SUM', ('R45', '1'): 'TIA_SUM'}
