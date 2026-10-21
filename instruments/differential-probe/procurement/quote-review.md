@@ -1,4 +1,6 @@
-# JLCPCB live quote review — 2026-10-20
+# JLCPCB live quote review — 2026-10-20 (Rev B, historical)
+
+> This record describes the **Rev B** board (commit `ca79d882f`). Rev C has not been uploaded or quoted with an account; see [README.md](README.md). The R12/R32 and D4–D8 identity corrections listed below are applied in Rev C.
 
 Status: incomplete engineering-prototype quote. Five PCBs, two populated. No order or payment submitted. The user explicitly authorized acceptance of JLC's assembly terms; that acceptance completed and BOM/CPL processing succeeded. The assembly draft was saved by JLC. Private contact details and checkout session URLs are excluded from this repository.
 

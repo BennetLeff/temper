@@ -1,50 +1,67 @@
-# Rev B procurement preparation — 2026-10-20
+# Rev C procurement preparation — 2026-10-20
 
-**Status: files prepared and Gerbers uploaded to JLCPCB; order not placed.** The user selected **five PCBs, two populated**, after the quote form required at least two assembled boards. Destination is Austin, Texas; street address and account details are intentionally excluded from this repository.
+**Status:** draft files only. Nothing has been uploaded, quoted with an account, ordered or paid for.
 
-The unchanged Rev B board is the engineering prototype to build, with the existing 0.1% resistor BOM, batteries and both gain ranges. See [build decision and operating restrictions](../docs/revb-build-decision.md). Pods and lumped dividers are Rev C candidates; there is no dedicated resistor-comparison experiment.
+Rev C is the compacted Rev B. Its reasoning and the before/after table are in [`../docs/revc.md`](../docs/revc.md).
+
+The Rev B procurement record covers the JLC upload, the rejected automatic matches and the partial sourcing cart. It is preserved in [`quote-review.md`](quote-review.md) and in git at `ca79d882f`. Its `validation/jlc-*.json`, `validation/renders/`, `catalog-check.json` and `exact-part-search.json` files are Rev B evidence and do not describe this board.
 
 ## Prepared files
 
-- [Gerber/drill ZIP](revb-gerbers.zip): four copper layers, masks, paste, silk and routed outline.
-- [JLC BOM](bom-jlc.csv): exact manufacturer parts exported from the schematic, one row per onboard reference.
-- [JLC placement file](cpl-jlc.csv): 135 references, matching the onboard BOM exactly.
-- [Native position export](positions-raw.csv) and [component export](components-raw.csv): source data for formatting.
-- [Checksums](validation/sha256.txt), [ERC](validation/erc.rpt), [DRC](validation/pcb-drc.json), and [assembly parity](validation/assembly-parity.json).
-- [Gerber review](validation/renders/gerber-review.png): copper, routed outline and top paste rendered with PyGerber's API V2. The older `raster-2d` renderer omitted rounded pads and thin outlines; those images were rejected and replaced, not treated as evidence of missing copper.
+- [Gerber/drill ZIP](revc-gerbers.zip), from [`gerbers/`](gerbers/): four copper layers, masks, paste, silk, and the routed outline with ten capacitor slots and the inter-leg notch.
+- [JLC BOM](bom-jlc.csv) and [placement](cpl-jlc.csv): 105 references, matching the BOM exactly. BT1/BT2 are bottom-side THT.
+- [Native position export](positions-raw.csv) and [component export](components-raw.csv).
+- [Checksums](validation/sha256.txt), [ERC](validation/erc.rpt), [DRC](validation/pcb-drc.json) (0 violations, 0 unconnected) and [assembly parity](validation/assembly-parity.json).
 
-Run `sh procurement/export.sh` from the probe directory (or invoke the script by path). ERC and DRC must pass before exports. The script derives BOM/placement data; it does not edit parts or the PCB. Native KiCad rotations have not yet been approved against JLC's component-placement preview. The [part map](jlc-part-map.json) supplies verified catalog IDs without changing schematic part identities. The Comment field carries the MPN because JLC ignored the separate MPN column when matching generic values. Blank LCSC entries require exact-MPN sourcing; do not accept automatic substitutions. The 50 Ω resistance trimmers and capacitance trimmers are included in the 135 onboard references; battery clips, panel switches and BNC are separate offboard purchases.
+Run `sh procurement/export.sh` from the probe directory. It re-runs ERC and DRC, clears `gerbers/` and rebuilds every file above. It does not edit parts or the PCB.
 
-The board SHA-256 is `b0c15add2b69967cee0593962e1b3b22795725ed36ccbfc408b05c3fb4002b65`. Fresh KiCad 10.0.4 ERC and DRC returned zero violations and zero PCB unconnected items. The rendered copper preserves both straight ladders and no underlying planes; the outline contains ten capacitor slots. The top paste render includes the divided exposed-pad apertures. These checks do not qualify the completed instrument at high voltage.
+The JLC Comment field carries the MPN, because JLC matched generic values when this was not done for Rev B.
 
-## JLC quote state
+## Part identities
 
-Uploaded ZIP parsed as 240 × 84 mm, four layers. Configured five PCBs, Standard top-side assembly, two populated, ENIG, and explicit layer sequence F.Cu / In1.Cu / In2.Cu / B.Cu. Production-file and parts-placement confirmation were enabled with automatic confirmation disabled. JLC added two 5 mm assembly rails and displayed 240 × 94 mm for the panel envelope. Require the production drawing to preserve the original finished outline and slots.
+[`jlc-part-map.json`](jlc-part-map.json) is pruned to the Rev C BOM. It adds the identities checked on 2026-10-20:
 
-The displayed PCB/options subtotal was **USD 59.25**, before assembly and components. The page also displayed a USD 33.03 shipping estimate, but the Austin destination had not yet been entered, so that is **not a destination-qualified freight quote**. No final total, payment or shipping commitment exists. The user explicitly approved assembly-terms acceptance, and both BOM and CPL were uploaded. The assembly project is saved in JLC. Automatic matches included incorrect dielectric, tolerance and manufacturer choices; the uploaded BOM now uses MPN comments and verified catalog IDs. Eighty of 135 references are selected with matching MPNs; the rest remain unresolved or unselected. Seven exact-part global-sourcing lines have been added to a separate cart, with a displayed subtotal of USD 692.89; sourcing checkout adds USD 7.00 handling for USD 699.89. This is a partial component quote, not the completed-board total. No payment has been authorized or submitted. See [live quote review](quote-review.md).
+| MPN | LCSC part | LCSC stock |
+|---|---|---|
+| HVCB2512BDE2M00 | C4553702 | 0 |
+| OPA2810IDR | C1849413 | 4,074 |
+| MDD SS14 | C2480 | — |
+| Vishay 1N4148W-E3-18 | C191428 | — |
+| Amphenol 031-5431-10RFX | C6956217 | 33 |
 
-Saved assembly remark:
+These Rev C MPNs have **no reviewed LCSC identity**:
 
-> Rev B engineering prototype. Exact MPNs only; no substitutions. Preserve all ten non-plated 1.2 x 8 mm capacitor slots; no solder, adhesive or coating across slots. No added copper/fiducials in the HV ladder area. Preserve the two matched divider geometries. Please quote external/global sourcing for unmatched parts. Provide placement and routed-slot drawings for manual review before production. No conformal coating.
+- KEMET C1812C330JHGACTU (also unmapped in Rev B), C0805C302F5GACTU and C0805C161F5GACTU.
+- Stackpole RNCF0603TKY499R, RNCF0603TKY1K00 and RNCF0603TKY2K00.
+- Yageo RT0805BRD07220RL and RT0805BRD0766K5L.
+- The PCB-mount C&K 7101SDAV2BE and 7201P3DAV2QE, and the MPD BH9VPC.
 
-## Sourcing evidence
+Source these by exact MPN, through global sourcing or consignment. Do not accept automatic substitutions.
 
-[Raw catalog and live JLC results](catalog-check.json) distinguish local-index results from live stock calls. The BOM has been processed by JLC; exact-part mapping and global sourcing remain incomplete. See [live quote review](quote-review.md).
+The S1/S2 select-on-test positions also need small kits of neighbouring E24 1% C0G values, chosen at calibration (see [`../docs/design.md`](../docs/design.md)).
 
-| Exact MPN | Quantity for two populated boards, before attrition | Current evidence / action |
-|---|---:|---|
-| HVCB2512BDE1M00 | 40 | Live JLC C2482550: zero stock. [DigiKey listing](https://www.digikey.com/en/products/detail/stackpole-electronics-inc/HVCB2512BDE1M00/5824166) reports stock; web data is not a reservation. Request exact-part global sourcing/consignment. |
-| GKG60015 | 4 | Live JLC C3273413: zero stock. [DigiKey listing](https://www.digikey.com/en/products/detail/ew-electronics/GKG60015/11689267) reports stock. Preserve EW part and existing footprint. |
-| C1812C330JHGACTU | 20 | No exact live JLC result. [DigiKey listing](https://www.digikey.com/en/products/detail/kemet/C1812C330JHGACTU/9923023) reports stock. Exact 33 pF / 3 kV C0G required. |
-| RNCF0603TKY499R | 22 | No exact live JLC result. [DigiKey listing](https://www.digikey.com/en/products/detail/stackpole-electronics-inc/RNCF0603TKY499R/4072346) reports stock. Preserve 0.01% grade. |
-| RNCF0603TKY4K99 | 4 | Live JLC C3942722 reports 1000 available. Reconfirm at allocation. |
-| ADA4817-1ARDZ-R7 / OPA810IDR | 4 / 6 | Exact local catalog matches C207502 / C1852077; not yet live allocated. |
-| ADP7142AUJZ-R7 / ADP7182AUJZ-R7 | 2 / 2 | Exact local catalog matches C514356 / C514358. Do not match fixed-output suffix variants. |
+**Stock risk.** On 2026-10-20 DigiKey had 9 × HVCB2512BDE2M00 against the 20 needed for two boards, with an 18-week lead time. This is an owner decision; see [`../docs/revc.md`](../docs/revc.md#1-2-mω-hv-resistors-10-instead-of-20).
 
-Order attrition, minimum cut-tape quantities, consignment fees, tax and freight remain quote inputs. There is no completed all-parts cost estimate. No parts have been purchased.
+## Fabrication quote reference
 
-## Enclosure and leads in parallel
+These are public JLC quote-page prices, not logged in, for 5 pcs, 1.6 mm, 1 oz, standard build:
 
-The PCB can proceed as a prototype while its assembly is developed. The complete instrument still needs a fixed conductive enclosure, 20 mm HV-to-shield setback in three dimensions, insulating supports at H5/H6, a bonded panel BNC, paired captive HV leads, rated tip/termination insulation and strain relief. Fit two 9 V batteries in the LV compartment and align the two trim-access holes. Record the final geometry before compensation and CMRR measurements. A 240 × 84 mm PCB does not imply a 240 × 84 mm metal box.
+| 150 × 70 mm | HASL lead-free | ENIG |
+|---|---:|---:|
+| 4 layers (includes $25 engineering fee) | $36.80 | $49.30 |
+| 2 layers (not adopted) | $10.40 | $26.90 |
 
-Do not substitute ordinary 1 kV DMM leads, or infer a 3 kV working rating from a wire's hipot test. Lead/tip/feedthrough parts and the housing are not yet selected or included in the JLC quote. Their drawings, ratings and assembled clearances must be checked before HV use; board fabrication itself does not resolve those selections.
+Assembly was not quoted, because that needs an account upload. Slots of at least 1.0 mm are within JLC's standard routing; the slot path is far below the length that triggers a fee.
+
+## Enclosure and leads
+
+The enclosure is a Hammond 1455N2201. Mounting, standoff height and lid holes are in [`../docs/layout.md`](../docs/layout.md#enclosure-shield-and-mounting).
+
+Still to select:
+
+- Rated HV input leads.
+- Tip assemblies.
+- Feedthroughs at the tip-end plate.
+- Strain relief.
+
+Do not substitute ordinary 1 kV DMM leads.
