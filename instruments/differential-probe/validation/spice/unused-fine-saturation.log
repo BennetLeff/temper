@@ -536,12 +536,12 @@ xon.xu3a.n55050                        17.5206
 xon.xu3a.n56119                        17.5206
 xon.xu3a.vsense                    0.000569085
 xon.xu3a.claw_clamp                0.000569085
-xon.xu3a.cmrr_2                    0.000101553
+xon.xu3a.cmrr_2                    0.000101552
 xon.xu3a.n10561                    0.000101534
 xon.xu3a.vcc_b                             4.8
 xon.xu3a.vee_b                         -4.8068
 xon.xu3a.n25816                    0.000143693
-xon.xu3a.n11984                    0.000101553
+xon.xu3a.n11984                    0.000101552
 xon.xu3a.n851538                   0.000143689
 xon.xu3a.n964495                     0.0356053
 xon.xu3a.vcc_clp                       4.78212
@@ -931,7 +931,7 @@ xoff.xu3b.olp                      -0.00340002
 xoff.xu3b.n69264                       -0.0034
 xoff.xu3b.aolnet                    -0.0033996
 xoff.xu3b.n110431                  -0.00334643
-xoff.xu3b.x_aol_1_opa2810.g1_int1     3.98741e-13
+xoff.xu3b.x_aol_1_opa2810.g1_int1      3.9874e-13
 xoff.xu3b.x_aol_2.g1_int1           3.9874e-09
 xoff.xu3b.x_clawn.g1_int1          0.000128104
 xoff.xu3b.x_clawn.g1_int2         -5.35727e-05
@@ -1124,12 +1124,12 @@ xoff.xu3a.n55050                       17.5206
 xoff.xu3a.n56119                       17.5206
 xoff.xu3a.vsense                   0.000569085
 xoff.xu3a.claw_clamp               0.000569085
-xoff.xu3a.cmrr_2                   0.000101553
+xoff.xu3a.cmrr_2                   0.000101552
 xoff.xu3a.n10561                   0.000101534
 xoff.xu3a.vcc_b                            4.8
 xoff.xu3a.vee_b                        -4.8068
 xoff.xu3a.n25816                   0.000143693
-xoff.xu3a.n11984                   0.000101553
+xoff.xu3a.n11984                   0.000101552
 xoff.xu3a.n851538                  0.000143689
 xoff.xu3a.n964495                    0.0356053
 xoff.xu3a.vcc_clp                      4.78212
@@ -1388,11 +1388,11 @@ h.xoff.xu3a.x_h2.h_h2#branch        7.0777e-22
 v.xoff.xu3a.x_h2.vh_h2#branch      1.75375e-08
 h.xoff.xu3a.x_h1.h_h1#branch      -1.46063e-21
 v.xoff.xu3a.x_h1.vh_h1#branch     -1.75375e-08
-h.xoff.xu12.x_h3.h_h3#branch      -1.48465e-13
+h.xoff.xu12.x_h3.h_h3#branch      -1.48474e-13
 v.xoff.xu12.x_h3.vh_h3#branch     -1.48475e-07
-h.xoff.xu12.x_h2.h_h2#branch       7.07778e-22
+h.xoff.xu12.x_h2.h_h2#branch      -3.08693e-21
 v.xoff.xu12.x_h2.vh_h2#branch      5.28678e-08
-h.xoff.xu12.x_h1.h_h1#branch      -2.27378e-21
+h.xoff.xu12.x_h1.h_h1#branch       1.52093e-21
 v.xoff.xu12.x_h1.vh_h1#branch     -5.28678e-08
 h.xoff.xu3b.x_h3.h_h3#branch      -5.35727e-14
 v.xoff.xu3b.x_h3.vh_h3#branch     -5.35727e-08
@@ -1418,17 +1418,17 @@ h.xon.xu3a.x_h2.h_h2#branch       -1.18958e-21
 v.xon.xu3a.x_h2.vh_h2#branch       1.75375e-08
 h.xon.xu3a.x_h1.h_h1#branch         4.3672e-22
 v.xon.xu3a.x_h1.vh_h1#branch      -1.75375e-08
-h.xon.xu12.x_h3.h_h3#branch       -3.68933e-13
+h.xon.xu12.x_h3.h_h3#branch        -3.6898e-13
 v.xon.xu12.x_h3.vh_h3#branch      -3.68936e-07
-h.xon.xu12.x_h2.h_h2#branch        1.05374e-22
+h.xon.xu12.x_h2.h_h2#branch        2.54483e-21
 v.xon.xu12.x_h2.vh_h2#branch       5.28678e-08
-h.xon.xu12.x_h1.h_h1#branch       -3.14723e-21
+h.xon.xu12.x_h1.h_h1#branch        1.18958e-21
 v.xon.xu12.x_h1.vh_h1#branch      -5.28678e-08
 h.xon.xu3b.x_h3.h_h3#branch       -5.35747e-14
 v.xon.xu3b.x_h3.vh_h3#branch      -5.35747e-08
-h.xon.xu3b.x_h2.h_h2#branch        3.14723e-21
+h.xon.xu3b.x_h2.h_h2#branch       -2.00273e-21
 v.xon.xu3b.x_h2.vh_h2#branch       1.75375e-08
-h.xon.xu3b.x_h1.h_h1#branch       -1.05381e-22
+h.xon.xu3b.x_h1.h_h1#branch        2.06302e-21
 v.xon.xu3b.x_h1.vh_h1#branch      -1.75375e-08
 h.xon.xu1b.x_h3.h_h3#branch        4.80733e-14
 v.xon.xu1b.x_h3.vh_h3#branch       4.80733e-08
@@ -1442,24 +1442,24 @@ h.xon.xu1a.x_h2.h_h2#branch       -2.00273e-21
 v.xon.xu1a.x_h2.vh_h2#branch       1.75375e-08
 h.xon.xu1a.x_h1.h_h1#branch        1.65669e-22
 v.xon.xu1a.x_h1.vh_h1#branch      -1.75375e-08
-e.xoff.xu3a.x_vos_vs_vcm.e1#branch    -2.66346e-18
-e.xoff.xu3a.x_vos_drift.e1#branch    -2.66346e-18
+e.xoff.xu3a.x_vos_vs_vcm.e1#branch    -2.66389e-18
+e.xoff.xu3a.x_vos_drift.e1#branch    -2.66389e-18
 e.xoff.xu3a.x_i_np.e1#branch                 0
 e.xoff.xu3a.x_i_nn.e1#branch                 0
 e.xoff.xu3a.x_e_n.e3#branch              2e-12
 e.xoff.xu3a.x_e_n.e2#branch        4.08652e-26
 e.xoff.xu3a.x_e_n.e1#branch        6.53844e-26
-e.xoff.xu3a.e_e6#branch             3.5863e-12
+e.xoff.xu3a.e_e6#branch            3.58705e-12
 e.xoff.xu3a.e_e3#branch           -3.54369e-12
-e.xoff.xu3a.e_e2#branch            2.87871e-22
+e.xoff.xu3a.e_e2#branch            5.07019e-23
 e.xoff.xu12.x_vos_vs_vcm.e1#branch    -1.94329e-18
 e.xoff.xu12.x_vos_drift.e1#branch    -1.94329e-18
 e.xoff.xu12.x_e_n.e3#branch              2e-12
 e.xoff.xu12.x_e_n.e2#branch       -8.92822e-27
 e.xoff.xu12.x_e_n.e1#branch       -1.42852e-26
-e.xoff.xu12.e_e6#branch            -5.8957e-11
+e.xoff.xu12.e_e6#branch           -5.89569e-11
 e.xoff.xu12.e_e3#branch           -3.77107e-12
-e.xoff.xu12.e_e2#branch            1.59146e-21
+e.xoff.xu12.e_e2#branch            1.18488e-21
 e.xoff.xu3b.x_vos_vs_vcm.e1#branch    -4.66725e-19
 e.xoff.xu3b.x_vos_drift.e1#branch    -4.66725e-19
 e.xoff.xu3b.x_i_np.e1#branch                 0
@@ -1467,7 +1467,7 @@ e.xoff.xu3b.x_i_nn.e1#branch                 0
 e.xoff.xu3b.x_e_n.e3#branch              2e-12
 e.xoff.xu3b.x_e_n.e2#branch        4.08652e-26
 e.xoff.xu3b.x_e_n.e1#branch        6.53844e-26
-e.xoff.xu3b.e_e6#branch            3.57453e-12
+e.xoff.xu3b.e_e6#branch            3.57409e-12
 e.xoff.xu3b.e_e3#branch           -3.50801e-12
 e.xoff.xu3b.e_e2#branch           -1.82653e-22
 e.xoff.xu1b.x_vos_vs_vcm.e1#branch    -3.38809e-20
@@ -1490,34 +1490,34 @@ e.xoff.xu1a.x_e_n.e1#branch        6.53844e-26
 e.xoff.xu1a.e_e6#branch             3.5713e-12
 e.xoff.xu1a.e_e3#branch           -3.43594e-12
 e.xoff.xu1a.e_e2#branch           -2.06175e-22
-e.xon.xu3a.x_vos_vs_vcm.e1#branch    -2.66401e-18
-e.xon.xu3a.x_vos_drift.e1#branch    -2.66401e-18
+e.xon.xu3a.x_vos_vs_vcm.e1#branch    -2.66411e-18
+e.xon.xu3a.x_vos_drift.e1#branch    -2.66411e-18
 e.xon.xu3a.x_i_np.e1#branch                  0
 e.xon.xu3a.x_i_nn.e1#branch                  0
 e.xon.xu3a.x_e_n.e3#branch               2e-12
 e.xon.xu3a.x_e_n.e2#branch         4.08652e-26
 e.xon.xu3a.x_e_n.e1#branch         6.53844e-26
-e.xon.xu3a.e_e6#branch             3.57924e-12
+e.xon.xu3a.e_e6#branch             3.57954e-12
 e.xon.xu3a.e_e3#branch            -3.54369e-12
-e.xon.xu3a.e_e2#branch            -3.21992e-22
-e.xon.xu12.x_vos_vs_vcm.e1#branch    -4.82908e-18
-e.xon.xu12.x_vos_drift.e1#branch    -4.82908e-18
+e.xon.xu3a.e_e2#branch             3.55634e-22
+e.xon.xu12.x_vos_vs_vcm.e1#branch     -4.8293e-18
+e.xon.xu12.x_vos_drift.e1#branch     -4.8293e-18
 e.xon.xu12.x_e_n.e3#branch               2e-12
 e.xon.xu12.x_e_n.e2#branch        -8.92822e-27
 e.xon.xu12.x_e_n.e1#branch        -1.42852e-26
-e.xon.xu12.e_e6#branch            -5.78513e-11
+e.xon.xu12.e_e6#branch            -5.78515e-11
 e.xon.xu12.e_e3#branch              -4.322e-12
-e.xon.xu12.e_e2#branch            -3.22926e-21
-e.xon.xu3b.x_vos_vs_vcm.e1#branch    -4.66441e-19
-e.xon.xu3b.x_vos_drift.e1#branch    -4.66441e-19
+e.xon.xu12.e_e2#branch              1.9207e-21
+e.xon.xu3b.x_vos_vs_vcm.e1#branch    -4.66461e-19
+e.xon.xu3b.x_vos_drift.e1#branch    -4.66461e-19
 e.xon.xu3b.x_i_np.e1#branch                  0
 e.xon.xu3b.x_i_nn.e1#branch                  0
 e.xon.xu3b.x_e_n.e3#branch               2e-12
 e.xon.xu3b.x_e_n.e2#branch         4.08652e-26
 e.xon.xu3b.x_e_n.e1#branch         6.53844e-26
-e.xon.xu3b.e_e6#branch              3.5756e-12
+e.xon.xu3b.e_e6#branch             3.57576e-12
 e.xon.xu3b.e_e3#branch            -3.50801e-12
-e.xon.xu3b.e_e2#branch             1.90042e-22
+e.xon.xu3b.e_e2#branch            -8.10089e-23
 e.xon.xu1b.x_vos_vs_vcm.e1#branch    -3.38809e-20
 e.xon.xu1b.x_vos_drift.e1#branch    -3.38809e-20
 e.xon.xu1b.x_i_np.e1#branch                  0
@@ -1538,7 +1538,7 @@ e.xon.xu1a.x_e_n.e1#branch         6.53844e-26
 e.xon.xu1a.e_e6#branch             3.57086e-12
 e.xon.xu1a.e_e3#branch            -3.43594e-12
 e.xon.xu1a.e_e2#branch            -2.06175e-22
-v.xoff.xu3a.x_vos_vs_vcm.v1#branch    -2.66346e-18
+v.xoff.xu3a.x_vos_vs_vcm.v1#branch    -2.66389e-18
 v.xoff.xu3a.v_v_orp#branch                   0
 v.xoff.xu3a.v_v_orn#branch                   0
 v.xoff.xu3a.v_v_iscp#branch             -7e-08
@@ -1581,7 +1581,7 @@ v.xoff.xu1a.v_v_grp#branch           -1.25e-07
 v.xoff.xu1a.v_v_grn#branch            1.25e-07
 v.xoff.xu1a.v_vcm_min#branch        5.1034e-09
 v.xoff.xu1a.v_vcm_max#branch       -5.1034e-09
-v.xon.xu3a.x_vos_vs_vcm.v1#branch    -2.66401e-18
+v.xon.xu3a.x_vos_vs_vcm.v1#branch    -2.66411e-18
 v.xon.xu3a.v_v_orp#branch                    0
 v.xon.xu3a.v_v_orn#branch                    0
 v.xon.xu3a.v_v_iscp#branch              -7e-08
@@ -1590,14 +1590,14 @@ v.xon.xu3a.v_v_grp#branch            -1.25e-07
 v.xon.xu3a.v_v_grn#branch             1.25e-07
 v.xon.xu3a.v_vcm_min#branch         5.1034e-09
 v.xon.xu3a.v_vcm_max#branch        -5.1034e-09
-v.xon.xu12.x_vos_vs_vcm.v1#branch    -4.82908e-18
+v.xon.xu12.x_vos_vs_vcm.v1#branch     -4.8293e-18
 v.xon.xu12.v_v_orp#branch                    0
 v.xon.xu12.v_v_orn#branch                    0
 v.xon.xu12.v_v_iscp#branch            -1.2e-07
 v.xon.xu12.v_v_iscn#branch             1.2e-07
 v.xon.xu12.v_vcm_min#branch         5.0034e-09
 v.xon.xu12.v_vcm_max#branch        -4.9534e-09
-v.xon.xu3b.x_vos_vs_vcm.v1#branch    -4.66441e-19
+v.xon.xu3b.x_vos_vs_vcm.v1#branch    -4.66461e-19
 v.xon.xu3b.v_v_orp#branch                    0
 v.xon.xu3b.v_v_orn#branch                    0
 v.xon.xu3b.v_v_iscp#branch              -7e-08
@@ -1659,10 +1659,10 @@ a.xon.xu1a.x_vos_vs_vcm.ae1#branch_1_0               0
 a.xon.xu1a.x_clawp.ag1#branch_1_0               0
 a.xon.xu1a.x_clawn.ag1#branch_1_0               0
 
- Reference value :  2.75765e-06 Reference value :  6.53265e-06 Reference value :  1.04426e-05 Reference value :  1.41526e-05 Reference value :  1.80576e-05 Reference value :  2.18276e-05 Reference value :  2.55876e-05 Reference value :  2.93276e-05 Reference value :  3.30326e-05 Reference value :  3.63976e-05 Reference value :  4.01476e-05 Reference value :  4.40726e-05 Reference value :  4.78376e-05 Reference value :  5.17626e-05 Reference value :  5.54476e-05 Reference value :  5.91926e-05
-No. of Data Rows : 12020
-worst_difference    =  1.670421e-08 at=  4.342765e-05
-least_difference    =  -1.667118e-08 at=  3.509765e-05
-fine_max            =  4.925987e+00 at=  2.084265e-05
-fine_min            =  -4.915413e+00 at=  4.584265e-05
+ Reference value :  2.68512e-06 Reference value :  6.32012e-06 Reference value :  1.02951e-05 Reference value :  1.38751e-05 Reference value :  1.74451e-05 Reference value :  2.09351e-05 Reference value :  2.45201e-05 Reference value :  2.81251e-05 Reference value :  3.16801e-05 Reference value :  3.55951e-05 Reference value :  3.90401e-05 Reference value :  4.23951e-05 Reference value :  4.57851e-05 Reference value :  4.91251e-05 Reference value :  5.27601e-05 Reference value :  5.63351e-05
+No. of Data Rows : 12019
+worst_difference    =  1.660003e-08 at=  2.676012e-05
+least_difference    =  -1.657508e-08 at=  5.176512e-05
+fine_max            =  4.925987e+00 at=  2.084512e-05
+fine_min            =  -4.915412e+00 at=  4.584512e-05
 ngspice-45.2 done

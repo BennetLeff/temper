@@ -27,7 +27,7 @@ The JLC Comment field carries the MPN, because JLC matched generic values when t
 | MDD SS14 | C2480 | — |
 | Amphenol 031-5431-10RFX | C6956217 | 33 |
 
-The [cost-down](../docs/cost-down.md) adds the identities of every substituted part (HV121WF2004T4E C2779442, CC1812JKNPOEBN330 C2359543, CC1206FKNPO9BN103 C541597, RT0603BRD074K87L C861446, 3296W-1-501LF C69564, the Basic 0805 parts and the E-Switch toggles). Library class, stock and price breaks for every BOM MPN are in [`jlc-catalog-2026-10-20.json`](jlc-catalog-2026-10-20.json), written by [`jlc_catalog.py`](jlc_catalog.py).
+The [cost-down](../docs/cost-down.md) adds the identities of every substituted part (HV121WF2004T4E C2779442, CC1812JKNPOEBN330 C2359543, CC1206FKNPO9BN103 C541597, RT0603BRD074K87L C861446, 3296W-1-501LF C69564, the Basic 0805 parts and the E-Switch toggles). The [fee consolidation](../docs/fee-consolidation.md) adds Samsung CL21C101JBANNNC (C1790). Library class, stock and price breaks for every BOM MPN are in [`jlc-catalog-2026-10-20.json`](jlc-catalog-2026-10-20.json), written by [`jlc_catalog.py`](jlc_catalog.py).
 
 These Rev C MPNs have **no reviewed LCSC identity**:
 
@@ -46,7 +46,7 @@ The S1/S2 select-on-test positions also need small kits of neighbouring E24 1% C
 
 ## Component prices
 
-Public DigiKey/LCSC prices checked on 2026-10-20 are in [`prices-2026-10-20.csv`](prices-2026-10-20.csv). `python3 procurement/cost.py` gives $148.39 in components for two Rev C boards after the [cost-down](../docs/cost-down.md) ($535.81 before), against $768.27 for Rev B. The caveats are in [`../docs/revc.md`](../docs/revc.md#cost-dated-2026-10-20).
+Public DigiKey/LCSC prices checked on 2026-10-20 are in [`prices-2026-10-20.csv`](prices-2026-10-20.csv). `python3 procurement/cost.py` gives $148.15 in components for two Rev C boards after the [cost-down](../docs/cost-down.md) and [fee consolidation](../docs/fee-consolidation.md) ($535.81 before), against $768.27 for Rev B. The caveats are in [`../docs/revc.md`](../docs/revc.md#cost-dated-2026-10-20).
 
 Out of stock at DigiKey on that date, with LCSC stock: OPA2810IDR (C1849413), BAV199 (C40919), and RT0805BRD0730KL. C0805C302F5GACTU and C0805C161F5GACTU were not in stock anywhere checked.
 

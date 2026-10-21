@@ -27,7 +27,7 @@ Rev B is kept unchanged at commit `ca79d882f` (branch `codex/differential-probe-
 | Mounting holes | 6 | **4** |
 | LV courtyard fill, top side | 14.4% of the 9,399 mm² LV region | **32.8%** of the 6,361 mm² LV region (bottom side 53.8%; both sides 43.3%; `validation/pcb-checks.txt`) |
 | Supply current, typical (amplifiers) | ~50 mA per rail (2 × ADA4817 + 3 × OPA810 + TL431 bias) | **~18 mA per rail** (4 OPA2810 channels + 1 OPA810) |
-| Component cost, 2 boards, dated 2026-10-20 | $768.27 | $535.81 (−30%); see [cost](#cost-dated-2026-10-20). **$148.39 after the [cost-down](cost-down.md)** |
+| Component cost, 2 boards, dated 2026-10-20 | $768.27 | $535.81 (−30%); see [cost](#cost-dated-2026-10-20). **$148.15 after the [cost-down](cost-down.md) and [fee consolidation](fee-consolidation.md)** |
 | JLC bare-PCB quote, 5 pcs, 4 layers (HASL lead-free / ENIG) | $43.00 / $56.40 | **$36.80 / $49.30** |
 
 **Tolerance-bearing parts** are the parts whose value tolerance enters a stated ratio, gain, pole or warning-threshold budget:
@@ -139,8 +139,10 @@ Vendor PSpice model results (TI SBOMB66, `opa2810_a.lib` sha256 `b451809e…`) i
 
 | Range | −3 dB | Peaking | Phase at 60 kHz |
 |---|---|---|---|
-| Wide | 5.786 MHz | None | −0.938° |
-| Fine | 5.252 MHz | None | −1.180° |
+| Wide | 5.628 MHz | None | −0.953° |
+| Fine | 5.131 MHz | None | −1.195° |
+
+The filter is R69 220 Ω / C61 100 pF since the [fee consolidation](fee-consolidation.md); the earlier 97.6 Ω / 180 pF gave 5.786 / 5.252 MHz (`validation/spice/candidates.cir`).
 
 Saturating the unused ×5 stage moves the wide output by 16.7 nV. These are nominal model results, not stability or bandwidth qualification.
 
@@ -296,7 +298,7 @@ Prices were read from public DigiKey and LCSC product pages on 2026-10-20, witho
 | HV leads, tips, glands and FR4 parts ([HV leads](hv-leads.md#parts-and-prices-2026-10-20)) | none selected | $234.72, of which the 50 ft wire spool is $127.89 |
 | **Total with HV leads** | — | **$807.33** |
 
-The [cost-down](cost-down.md) (2026-10-20) brings the Rev C components to $148.39 at the same ledger prices and adds a JLC assembly-fee model (`validation/cost.txt`).
+The [cost-down](cost-down.md) (2026-10-20) brings the Rev C components to $148.15 at the same ledger prices (with the [fee consolidation](fee-consolidation.md)) and adds a JLC assembly-fee model (`validation/cost.txt`).
 
 Of the $232.46 component saving, the HV resistors account for $166.53 and removing the ADA4817s for $46.00. The PCB-mount switches ($71.46) cost about the same as Rev B's panel switches ($76.41).
 

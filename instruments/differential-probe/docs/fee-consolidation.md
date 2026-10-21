@@ -48,7 +48,7 @@ Savings are for two boards, strategy E, from `validation/cost.txt` (fees plus pa
 
 | Id | Swap | Saving | Parts added | Layout | Trade | Decision |
 |---|---|---:|---:|---|---|---|
-| **F3** | R69 97.6 Ω → **0805W8F2200T5E** 220 Ω (already on board as R12/R32); C61 180 pF → **Samsung CL21C101JBANNNC** 100 pF C0G | **$6.17** | 0 | None (0805 → 0805) | Pole 6.000 → 5.900 MHz (−1.7 %). Phase at 60 kHz −0.573° → −0.583°; drift after calibration ±0.0045° either way. SPICE −3 dB 5.786 → 5.628 MHz wide, 5.252 → 5.131 MHz fine, no peaking; still above the 5 MHz target. kT/C noise 4.80 → 6.44 µVrms at the output. | **Adopt** |
+| **F3** | R69 97.6 Ω → **0805W8F2200T5E** 220 Ω (already on board as R12/R32); C61 180 pF → **Samsung CL21C101JBANNNC** 100 pF C0G | **$6.17** | 0 | None (0805 → 0805) | Pole 6.000 → 5.900 MHz (−1.7 %). Phase at 60 kHz −0.573° → −0.583°; drift after calibration ±0.0045° either way. SPICE −3 dB 5.786 → 5.628 MHz wide, 5.252 → 5.131 MHz fine, no peaking; the nominal model stays above the 5 MHz target. Pole tolerance corners move from 5.61–6.43 to 5.52–6.32 MHz. kT/C noise 4.80 → 6.44 µVrms at the output. | **Adopt** |
 | F1 | R69 → 220 Ω only | $3.09 | 0 | None | Pole 3.28 MHz. Loses bandwidth. | Reject |
 | F2 | C61 → 100 pF only | $3.08 | 0 | None | Pole 10.8 MHz. Loses filtering. | Reject |
 | F4 | R69 → 100 Ω Basic, C61 kept | $3.05 | 0 | None | Pole 5.904 MHz, same as F3 but saves one fee, not two. | Superseded by F3 |

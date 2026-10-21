@@ -2,14 +2,14 @@ TI OPA2810 Rev A (U1A/U1B buffers, U3B subtractor, U3A driver) and OPA810 Rev A 
 Ideal lumped 2000:1 compensated dividers and R12/R32 included; supplies +4.8000 / -4.8068 V; fixed switch positions; 1M scope plus lumped 120pF cable/input.
 Gains are output per volt of tip differential input.
 
-1000:1: LF gain 9.99412321e-4 V/V (ratio 1000.588:1); normalized -3dB bandwidth 5.7858 MHz; maximum response 0.0000 dB above LF (checked < 0.09 dB).
-  35000 Hz: relative amplitude -0.001461 dB, phase -0.547738 deg.
-  60000 Hz: relative amplitude -0.001766 dB, phase -0.938302 deg.
-  5000000 Hz: relative amplitude -2.411758 dB, phase -69.983597 deg.
-200:1: LF gain 5.00509988e-3 V/V (ratio 199.796:1); normalized -3dB bandwidth 5.2519 MHz; maximum response 0.0000 dB above LF (checked < 0.09 dB).
-  35000 Hz: relative amplitude -0.001481 dB, phase -0.688532 deg.
-  60000 Hz: relative amplitude -0.001823 dB, phase -1.179663 deg.
-  5000000 Hz: relative amplitude -2.783265 dB, phase -89.619423 deg.
+1000:1: LF gain 9.99412311e-4 V/V (ratio 1000.588:1); normalized -3dB bandwidth 5.6278 MHz; maximum response 0.0000 dB above LF (checked < 0.09 dB).
+  35000 Hz: relative amplitude -0.001469 dB, phase -0.556481 deg.
+  60000 Hz: relative amplitude -0.001791 dB, phase -0.953288 deg.
+  5000000 Hz: relative amplitude -2.516758 dB, phase -70.695782 deg.
+200:1: LF gain 5.00509983e-3 V/V (ratio 199.796:1); normalized -3dB bandwidth 5.1306 MHz; maximum response 0.0000 dB above LF (checked < 0.09 dB).
+  35000 Hz: relative amplitude -0.001489 dB, phase -0.697278 deg.
+  60000 Hz: relative amplitude -0.001848 dB, phase -1.194655 deg.
+  5000000 Hz: relative amplitude -2.889568 dB, phase -90.328658 deg.
 
 Output-filter candidates (validation/spice/candidates.cir; R69 / C61):
   A 97.6 R / 180 pF, 1000:1: -3dB 5.7858 MHz; max 0.0000 dB above LF; 35 kHz phase -0.5477 deg; 60 kHz -0.001766 dB, phase -0.9383 deg; 5 MHz -2.412 dB.
@@ -19,8 +19,8 @@ Output-filter candidates (validation/spice/candidates.cir; R69 / C61):
   C 100 R / 180 pF, 1000:1: -3dB 5.6969 MHz; max 0.0000 dB above LF; 35 kHz phase -0.5532 deg; 60 kHz -0.001780 dB, phase -0.9477 deg; 5 MHz -2.471 dB.
   C 100 R / 180 pF, 200:1: -3dB 5.1839 MHz; max 0.0000 dB above LF; 35 kHz phase -0.6940 deg; 60 kHz -0.001837 dB, phase -1.1891 deg; 5 MHz -2.842 dB.
 
-60kHz, 1500Vpk differential at the tips, wide range: fine-stage model spans -4.915413 to 4.925987 V.
-Max wide-output difference with fine branch connected versus disconnected (20..60us): 16.704 nV.
+60kHz, 1500Vpk differential at the tips, wide range: fine-stage model spans -4.915412 to 4.925987 V.
+Max wide-output difference with fine branch connected versus disconnected (20..60us): 16.600 nV.
 The fine-stage model clip levels extend about 0.12V outside the ideal supply rails; they are not physical clip-voltage predictions.
 This comparison supports only nominal branch isolation within the vendor model. It excludes real supply coupling, OPA2810 inter-channel coupling (the model is one channel per instance), layout/lead parasitics, distributed divider strays, temperature/tolerances, switch transitions/bounce and clamp references.
 No bench stability, CMRR, bandwidth, clip level or recovery rating is established.

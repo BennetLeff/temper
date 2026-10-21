@@ -224,6 +224,9 @@ def assembly(rows, boards, owner_tht, offlib):
 
 # Fee consolidation (docs/fee-consolidation.md), applied after SUBS, by reference.
 FEE_SUBS = {
+    # F3: output filter 220 R / 100 pF, pole 5.90 MHz (docs/fee-consolidation.md).
+    "R69": "0805W8F2200T5E",
+    "C61": "CL21C101JBANNNC",
 }
 
 base_rows = rows_of(base_text)

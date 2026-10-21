@@ -58,14 +58,14 @@ Range selection does not open any feedback loop, but the changeover is not a val
 
 ### Output filter and driver
 
-The common filter is R69 = 97.6 Ω and C61 = 180 pF. Including the selector's 49.9 Ω and the warning divider load, the effective source resistance is 147.37 Ω and the pole is 6.000 MHz.
+The common filter is R69 = 220 Ω and C61 = 100 pF C0G, both JLC Basic parts ([fee consolidation](fee-consolidation.md), F3). Including the selector's 49.9 Ω and the warning divider load, the effective source resistance is 269.77 Ω and the pole is 5.900 MHz (6.000 MHz with the earlier 97.6 Ω / 180 pF).
 
 The TI vendor model (full chain with a lumped divider, 1 MΩ ‖ 120 pF scope load) gives:
 
 | Range | −3 dB | Phase at 60 kHz |
 |---|---|---|
-| Wide | 5.786 MHz | −0.94° |
-| Fine | 5.252 MHz | −1.18° |
+| Wide | 5.628 MHz | −0.95° |
+| Fine | 5.131 MHz | −1.19° |
 
 Neither range peaks. Calibrate each range separately.
 

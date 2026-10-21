@@ -3,7 +3,7 @@
 * 5.0025 kR || 13.1934 nF), R12/R32 220 R, OPA2810 unity buffer (U1A/U1B).
 * U3 channel 2 (U3B) is the x2 subtractor, channel 1 (U3A) the output driver; U12 is OPA810.
 * TI's OPA2810 model is one channel per instance: no inter-channel coupling.
-.subckt PROBE_LV TP TN OUT RAW FINE SELECTED VP VN params: FINE_RANGE=0 BRANCH=1 R69=97.6 C61=180p
+.subckt PROBE_LV TP TN OUT RAW FINE SELECTED VP VN params: FINE_RANGE=0 BRANCH=1 R69=220 C61=100p
 RTOPP TP TAP_P 10Meg
 CTOPP TP TAP_P 6.6p
 RBOTP TAP_P 0 5002.501

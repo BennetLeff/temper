@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>/Users/bennet/Desktop/temper/worktrees/probe-revc/instruments/differential-probe/cad/differential-probe.kicad_sch</source>
-    <date>2026-10-20T21:56:59</date>
+    <date>2026-10-20T22:27:53</date>
     <tool>Eeschema 10.0.4</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -1206,21 +1206,21 @@
       </units>
     </comp>
     <comp ref="C61">
-      <value>180 pF</value>
+      <value>100 pF</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://www.lcsc.com/product-detail/C113826.html</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C1790.html</datasheet>
       <fields>
-        <field name="MPN">CC0805JRNPO9BN181</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC">C113826</field>
+        <field name="MPN">CL21C101JBANNNC</field>
+        <field name="Manufacturer">Samsung Electro-Mechanics</field>
+        <field name="LCSC">C1790</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://www.lcsc.com/product-detail/C113826.html</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C1790.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="CC0805JRNPO9BN181"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value="C113826"/>
+      <property name="MPN" value="CL21C101JBANNNC"/>
+      <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
+      <property name="LCSC" value="C1790"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
@@ -1512,21 +1512,21 @@
       </units>
     </comp>
     <comp ref="R69">
-      <value>97.6 R / 1%</value>
+      <value>220 R</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/upload/media/product/productsearch/datasheet/rchip/PYu-RC_Group_51_RoHS_L.pdf</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C17557.html</datasheet>
       <fields>
-        <field name="MPN">RC0805FR-0797R6L</field>
-        <field name="Manufacturer">YAGEO</field>
-        <field name="LCSC">C483266</field>
+        <field name="MPN">0805W8F2200T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17557</field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/upload/media/product/productsearch/datasheet/rchip/PYu-RC_Group_51_RoHS_L.pdf</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17557.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RC0805FR-0797R6L"/>
-      <property name="Manufacturer" value="YAGEO"/>
-      <property name="LCSC" value="C483266"/>
+      <property name="MPN" value="0805W8F2200T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17557"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>

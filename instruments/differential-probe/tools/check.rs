@@ -234,8 +234,8 @@ fn main() {
     let tau = 2e6 * 33e-12;
     let cap = 1999. * 33e-12 / 5.;
     for (r, m) in [
-        ("C61", "CC0805JRNPO9BN181"),
-        ("R69", "RC0805FR-0797R6L"),
+        ("C61", "CL21C101JBANNNC"),
+        ("R69", "0805W8F2200T5E"),
         ("R101", "0805W8F499JT5E"),
         ("R102", "0805W8F499JT5E"),
         ("CT1", "GKG60015"),
@@ -280,8 +280,8 @@ fn main() {
     let fine_stage = 1. + 2000. / 499.;
     let load = 1. / (1. / 20_000. + 1. / 1_000_000.);
     let selection_gain = load / (load + 49.9);
-    let source_r = 97.6 + 1. / (1. / 49.9 + 1. / load);
-    let cutoff = 1. / (2. * std::f64::consts::PI * source_r * 180e-12);
+    let source_r = 220. + 1. / (1. / 49.9 + 1. / load);
+    let cutoff = 1. / (2. * std::f64::consts::PI * source_r * 100e-12);
     report+=&format!("\nIdeal circuit calculations (not measurements):\nRbottom = {bottom:.6} ohm; nominal trim = {:.6} ohm.\nCbottom TOTAL incl parasitics = {:.4} nF; input series C = 6.6 pF.\nDivider crossover = {:.2} Hz.\nShared filter pole including 49.9-ohm selector source resistance and loading = {:.6} MHz.\n",bottom-4870.,cap*1e9,1./(2.*std::f64::consts::PI*tau),cutoff/1e6);
     // Cost-down DC trim (docs/cost-down.md section 2): 1 % upper string (HV121WF2004T4E),
     // 4.87 k 0.1 % fixed part (RT0603BRD074K87L), 500-ohm 3296 trimmer at +/-10 %,
