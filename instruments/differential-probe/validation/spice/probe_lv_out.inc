@@ -1,0 +1,46 @@
+* Output-filter study variant of probe_lv.inc (tools/output_filter_study.py): adds CMIS (leg-N top-C mismatch) and COUT (shunt C after R70).
+* Rev C signal path. Values/reference numbers mirror the KiCad netlist.
+* Each leg: ideal lumped 2000:1 compensated divider (5 x 2 MR || 33 pF over
+* 5.0025 kR || 13.1934 nF), R12/R32 220 R, OPA2810 unity buffer (U1A/U1B).
+* U3 channel 2 (U3B) is the x2 subtractor, channel 1 (U3A) the output driver; U12 is OPA810.
+* TI's OPA2810 model is one channel per instance: no inter-channel coupling.
+.subckt PROBE_LV TP TN OUT RAW FINE SELECTED VP VN params: FINE_RANGE=0 BRANCH=1 R69=220 C61=100p CMIS=0 COUT=1f
+RTOPP TP TAP_P 10Meg
+CTOPP TP TAP_P 6.6p
+RBOTP TAP_P 0 5002.501
+CBOTP TAP_P 0 13.1934n
+RTOPN TN TAP_N 10Meg
+CTOPN TN TAP_N {6.6p*(1+CMIS)}
+RBOTN TAP_N 0 5002.501
+CBOTN TAP_N 0 13.1934n
+R12 TAP_P IN_P 220
+R32 TAP_N IN_N 220
+XU1A IN_P BUF_P BUF_P VP VN OPA2810
+XU1B IN_N BUF_N BUF_N VP VN OPA2810
+R61 BUF_P SUM_P 499
+R62 BUF_N SUM_N 499
+R63 SUM_P 0 1k
+R65 SUM_N RAW 1k
+XU3B SUM_P SUM_N RAW VP VN OPA2810
+R100 RAW GAIN5_IN {49.9+(1-BRANCH)*1e12}
+RTEST_BLEED GAIN5_IN 0 {BRANCH*1e12+(1-BRANCH)*1e6}
+R67 GAIN5_FB 0 499
+R68 GAIN5_FB FINE 2k
+XU12 GAIN5_IN GAIN5_FB FINE VP VN OPA810
+R101 RAW WIDE_SEL 49.9
+R102 FINE FINE_SEL 49.9
+* Fixed switch position represented by contact resistances, not a transition model.
+RSELW WIDE_SEL SELECTED {.01+FINE_RANGE*1e12}
+RSELF FINE_SEL SELECTED {.01+(1-FINE_RANGE)*1e12}
+R103 SELECTED 0 1Meg
+R71 SELECTED OUT_HALF 10k
+R72 OUT_HALF 0 10k
+R69 SELECTED FILTER {R69}
+C61 FILTER 0 {C61}
+XU3A FILTER DRIVE DRIVE VP VN OPA2810
+R70 DRIVE OUT 49.9
+COUT OUT 0 {COUT}
+R_SCOPE OUT 0 1Meg
+* Representative 1m coax + scope input capacitance, lumped; not a transmission line.
+C_SCOPE OUT 0 120p
+.ends PROBE_LV

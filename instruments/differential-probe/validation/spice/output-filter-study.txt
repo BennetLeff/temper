@@ -1,0 +1,21 @@
+Output-filter / bandwidth-jumper study for Rev C (TI vendor macromodels, ideal lumped divider).
+
+A. Candidates (input-referred noise in mV rms; CM feedthrough in dB relative to the DC differential gain)
+case                     range -3dB MHz peak dB  60k deg | noise full  to 20M  to 5M |  CM 1M     5M    10M    20M
+now: C61 100p            wide      5.63    0.00   -0.957 |        373     143     72 |  -39.3  -34.5  -33.2  -34.2
+now: C61 100p            fine      5.14    0.00   -1.199 |        141     114     70 |  -39.3  -34.9  -34.5  -38.2
+jumper: C61 47p          wide     10.86    0.00   -0.647 |        438     198     77 |  -39.2  -32.8  -29.4  -28.8
+jumper: C61 47p          fine      8.53    0.00   -0.889 |        198     158     76 |  -39.2  -33.2  -30.8  -32.8
+C61 47p + COUT 330p      wide      5.83    0.00   -1.004 |        172     127     72 |  -39.3  -34.4  -33.6  -36.3
+C61 47p + COUT 330p      fine      5.32    0.00   -1.246 |        116     109     71 |  -39.3  -34.8  -34.9  -40.2
+C61 33p + COUT 330p      wide      6.39    0.00   -0.922 |        191     138     73 |  -39.3  -34.1  -32.6  -34.3
+C61 33p + COUT 330p      fine      5.70    0.00   -1.164 |        128     118     72 |  -39.3  -34.4  -33.9  -38.3
+C61 100p + COUT 470p     wide      3.64    0.00   -1.465 |        116      89     65 |  -39.4  -37.1  -39.0  -43.8
+C61 100p + COUT 470p     fine      3.51    0.00   -1.707 |         82      79     64 |  -39.5  -37.4  -40.3  -47.8
+
+B. Noise decomposition, wide range, C61 100p, no COUT (stages replaced by ideal VCVS)
+  ideal none        : full-band   373 mV rms, density at 316 kHz  32.5 uV/rtHz input-referred
+  ideal U3A         : full-band   157 mV rms, density at 316 kHz  31.7 uV/rtHz input-referred
+  ideal U3B         : full-band   363 mV rms, density at 316 kHz  24.4 uV/rtHz input-referred
+  ideal U1          : full-band   355 mV rms, density at 316 kHz  25.4 uV/rtHz input-referred
+  ideal U1+U3B+U3A  : full-band    32 mV rms, density at 316 kHz  11.5 uV/rtHz input-referred
