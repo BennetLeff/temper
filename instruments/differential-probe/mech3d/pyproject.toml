@@ -1,0 +1,9 @@
+[project]
+name = "probe-mech3d"
+version = "0.1.0"
+description = "CadQuery printed parts for the Rev C differential probe (lead bridge, spine, stage-53 dock, shield fit)"
+requires-python = "==3.12.*"
+dependencies = ["cadquery"]
+
+[tool.uv]
+package = false
