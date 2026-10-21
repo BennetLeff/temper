@@ -14,9 +14,10 @@ Changes for the codec chain:
     unbalanced drive keeps the per-channel common-mode swing under the 1 Vpp of CM_TOL = 01
     (TAC5112 Table 7-10). CM_TOL = 01 costs "a few dB" of noise: CM_TOL_DB = 3 (ASSUMED);
   - the source is limited to SOURCE_PK = 1.7 V peak at SOURCE_BUF (Rev D: about 1.8 V);
-  - firmware channel gain: 12 dB when the channel's peak at the pin stays under 0.8 of full
-    scale, else 0 dB. 12 dB costs 2 dB of SNR (TAC5112 6.x, 104 -> 102 dB A-weighted), so the
-    input-referred noise falls 10 dB;
+  - no channel gain: the TAC5112 register map (SLASF24A 8.1.1) has no analog PGA field, only
+    digital volume, which does not lower input-referred noise. (An earlier version credited
+    a 12 dB firmware gain from the "12dB channel gain" rows of the SNR table; that gain is not
+    reachable through any documented register.);
   - codec ADC noise from the wideband SNR integrated to 85 kHz against 2 Vrms differential full scale
     (TAC5112 91 dB, TAC5212 89 dB; sources/rev-e/TAC5112.txt, TAC5212.txt "Wideband Mode");
   - analog noise is not folded at the output rate (the decimation filter removes > 90 dB, survey
@@ -65,8 +66,7 @@ def codec_phasor_noise(dut, hz, codec, T, o=vm.NoiseOpts()):
     amp = o.dds_amp_v * abs(Hd_a[0, 0] / Hx_a[0, 0])
     amp *= SOURCE_PK / 1.8
     A0, B0 = K_A * amp * Hx_a[0, 0], K_B * amp * Hx_b[0, 0]
-    # Open-circuit peaks at the pins set the clipping limit; the firmware gain uses the actual peak.
-    gain = {ch: (4.0 if 4.0 * abs(v) <= 0.8 * FS_PK else 1.0) for ch, v in (("A", A0), ("B", B0))}
+    gain = {"A": 1.0, "B": 1.0}  # no analog channel gain (see header)
     # DAC + level stage noise referred to the U6A input, scaled with the signal from full scale.
     dac_density = DAC_FS_RMS / 10 ** (c["dac_dr_db"] / 20) / math.sqrt(20e3) * WIDEBAND_DAC
     dac_density *= amp / (DAC_FS_RMS * math.sqrt(2))
@@ -89,7 +89,7 @@ def codec_phasor_noise(dut, hz, codec, T, o=vm.NoiseOpts()):
             key = "source (DAC + level stage + U6A)" if n == "en_x6a" else n
             var[key] = var.get(key, 0.0) + float(v)
     adc_rms = 2.0 / 10 ** ((c["adc_snr_db"] - CM_TOL_DB) / 20)
-    s_in = {ch: (adc_rms * (10 ** (2 / 20) if g > 1 else 1.0) / g) ** 2 / 85e3 for ch, g in gain.items()}
+    s_in = {ch: (adc_rms / g) ** 2 / 85e3 for ch, g in gain.items()}
     var["codec ADC"] = (2 / T) * (s_in["A"] / abs(A0) ** 2 + s_in["B"] / abs(B0) ** 2)
     tot = sum(var.values())
     sig = abs(z0) * math.sqrt(tot / 2)

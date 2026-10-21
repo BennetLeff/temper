@@ -27,7 +27,7 @@ Each of the four legs is identical:
 4. BAT54S clamp to AVDD and ground on the codec side of the coupling capacitor.
 5. 470 Ω in series to the pin.
 
-**Why the attenuation.** The followers and the TIA swing around ground, so each channel is driven unbalanced. Its common mode moves by half its signal. The TAC5112's default AC-coupled mode tolerates 100 mVpp of common-mode variation. ADC_CHx_CM_TOL = 01 tolerates 1 Vpp (Table 7-10) at "a few dB" of noise. With K = 0.5 and the 1.7 V source cap, the worst common-mode swing is 0.85 Vpp and the worst differential peak is 0.85 V, 30 % of the 2.83 V peak full scale. Firmware raises channel gain to 12 dB when the signal leaves room. That costs 2 dB of SNR, so the input-referred noise falls by 10 dB. The resulting noise is in [rev-e-codec](../validation/rev-e-codec/README.md): worst 5.2 % of a tolerance.
+**Why the attenuation.** The followers and the TIA swing around ground, so each channel is driven unbalanced. Its common mode moves by half its signal. The TAC5112's default AC-coupled mode tolerates 100 mVpp of common-mode variation. ADC_CHx_CM_TOL = 01 tolerates 1 Vpp (Table 7-10) at "a few dB" of noise. With K = 0.5 and the 1.7 V source cap, the worst common-mode swing is 0.85 Vpp and the worst differential peak is 0.85 V, 30 % of the 2.83 V peak full scale. The TAC5112 has no analog channel gain (no PGA field in the register map, only digital volume), so small signals use the converter at 0 dB. The resulting noise is in [rev-e-codec](../validation/rev-e-codec/README.md): worst 12.9 % of a tolerance at Rev D's capture time, about 4 % with the 10× longer captures that on-device averaging allows.
 
 **Codec settings.**
 - ADC_CHx_INSRC = 00 (differential).
@@ -57,7 +57,12 @@ Details and the rejected alternatives are in [stability-full-chain](../validatio
 - **IOVDD.** The digital 3V3 rail.
 - **VREF.** 2.75 V default, decoupled per the datasheet.
 - **ADDR.** Pin strap.
-- **RP2040 pins.** BCLK, FSYNC, DIN and DOUT on one PIO state machine (full duplex, 10 system clocks per BCLK), plus I2C SCL/SDA. That is six GPIOs, from the eleven freed by removing the ADS9224R and AD9833. The relays take four more (shared RESET, three SET).
+- **RP2040 pins** ([firmware wiring contract](../firmware-rev-e/README.md#wiring-contract)):
+  - DOUT GPIO2, DIN GPIO3, BCLK GPIO4 and FSYNC GPIO5 on one PIO state machine (full duplex, 10 system clocks per BCLK);
+  - I2C0 on GPIO8/9, with the codec at 0x50 (ADDR to ground);
+  - relay drive on GPIO14–17 (shared RESET, then SET for 100 Ω, 5 kΩ and 100 kΩ).
+
+  All of these come from the pins freed by removing the ADS9224R and AD9833.
 
 ## Open items
 
