@@ -90,3 +90,13 @@ Against the design: the fry hold (230 °C) sits at the smoke point and 97 K unde
 Reading, with low confidence: the fry hold is probably not the problem, but 230 °C is a smoke-point temperature, so expect visible smoke in any test. The runaway trip is the number to examine, for three reasons. (1) The sensor reads the pan or glass, not the oil, and the oil film in a thin-oil test (CPSC staff discussed 1/8 inch for coil units) can run hotter than the pan reading when the pan is hot-spotted. (2) 19 K below flash point leaves little for sensor error and overshoot after the trip. (3) The test is a hold of 15 minutes at the unit's maximum power, so whether the limiter acts before ignition depends on trip latency, thermal lag of the sensor (the sensor contact h_c is still unmeasured, SNS rows) and the pan.
 
 What would settle it: the 60A.3 text (Q2 in `CERTIFIER-EMAILS-A1-A6.md`), then a bench run with a cast-iron pan, thin canola film and the real sensor (adds a TST row).
+
+## 8. Inlet relay: the respin design already exists (2026-10-20)
+No new note is needed. `zapote/power-stage-120v/validation-results/11-candidates/c53-stuck-on/README.md` (option (a)) and `S53-SCOPE.md` item 3 specify it and recommend it as a DNP provision:
+- Two Omron G2RL-1A-E DC24 (JLC C231362, UL file 41643, 16 A 250 VAC general use at 40 °C), one in L and one in N between `l_filt`/`n_filt` and BR1, because no 2-pole 15 A relay is at JLC. About $2.7–2.9 per board at JLC pricing.
+- Coil from PS2's V24_RAW, so the TCO that already opens PS2 also opens the relays and becomes a real series mains cut. A HOT-side NFET, flyback and opto footprint drive it.
+- On the prototype the pads are bridged with a hand-fitted 14 AWG link, so DNP means "wire", not "open".
+- Open risks recorded there: closing into BR1 and the bus capacitance (about 350–570 A for tens of µs, no inrush rating in the datasheet; welding on close is the top unknown) and the shorted-FET case, where contacts could weld.
+- s53 did not build it (DECISIONS item 75). For bench units the doc says to run behind an external, hand-operable series mains cut and do the stuck-on injection.
+
+So the decision for the production freeze is: spend a layout respin on this footprint, or wait for the certifier's answer to Q4. Both costs are already estimated in that README.

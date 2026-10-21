@@ -717,7 +717,7 @@ The ordered list of what unblocks what. Items in parallel share a number.
 | C8 | Laminate | KB-6164 settled, hard order condition (NAT/fab/FAB-NOTE.md; PS/FAB-JLCPCB.md:20-26) | UL row stops at 35 µm inner Cu, board has 61 µm (PS/OPEN-ITEMS.md:42; OI/JLC-LAMINATE-QUESTION.md) |
 | C9 | BR1 gap pad | 0.5 mm / 0.020" (PS/DECISIONS.md:275, 301) | 1.0 mm / 0.040" (PS/DECISIONS.md:421, 476; SINK-DRAWING-NOTES.md:34) |
 | C10 | Clamp force | 60–80 N/device (PS/DECISIONS.md:276) | ≥ 60 N target 80 (OI/m11/RECOMMENDATION.md:235); acceptance 45–102 N (PS/DECISIONS.md:474) |
-| C11 | FET soldering | Seat-before-solder fixture, coplanar 0.05 mm (PS/DECISIONS.md:473) | JLC hand-solders on lead shoulders (NAT/fab/FAB-NOTE.md remarks) |
+| C11 | FET soldering | Seat-before-solder fixture, coplanar 0.05 mm (PS/DECISIONS.md:473) | JLC hand-solders on lead shoulders (NAT/fab/FAB-NOTE.md remarks) — **Real gap (AUDIT-7): order remark has no fixture or 0.05 mm figure** |
 | C12 | PS3 part | MPM-65-15ST (PS/DECISIONS.md:1504; FW/README.md:79) | IRM-60-15ST (R43/BOM.csv:206; CJ/README.md:135) |
 | C13 | J13 merge status | Landed on controller-j13-merge (PS/DECISIONS.md:3049-3050) | "Not done on any controller branch" (NAT/PROTOTYPE-LOT.md:156-158) |
 | C14 | Watchdog timeout | 1.6 s (FW/README.md:327); 0.9–1.6 s (COMMISSIONING.md step 1) | 0.9–2.5 s (CJ/DECISIONS.md:600, C42) |
@@ -731,7 +731,7 @@ The ordered list of what unblocks what. Items in parallel share a number.
 | C22 | Expander GP3–GP5 | Encoder A/B/switch (FW/main/platform/ui_board_map.h:32-34) | Sensor CS / ALERT / spare (UIB/README.md:65) |
 | C23 | Rim cross-check threshold | 15 K (SR3/HANDOFF.md:339-340) | 25 K (SR3/pcb/DECISIONS.md:170-171; firmware/DECISIONS.md:136 {OM}) |
 | C24 | Rim ADC | ADS1115 (SR3/HANDOFF.md:230-232) | GPIO9, ADS1115 rejected (SR3/pcb/DECISIONS.md:150-162) |
-| C25 | CR-5 resistor | Lower to 76.8 k, ≤ 244.5 °C (firmware/DECISIONS.md:1270-1276 {OM}) | Unchanged 86.6 k, ≤ 252 °C (D-BARRIER, firmware/DECISIONS.md:2361 {OM}) |
+| C25 | CR-5 resistor | Lower to 76.8 k, ≤ 244.5 °C (firmware/DECISIONS.md:1270-1276 {OM}) | Unchanged 86.6 k, ≤ 252 °C (D-BARRIER, firmware/DECISIONS.md:2361 {OM}) — **Stale; D-BARRIER keeps 86.6 k (AUDIT-7)** |
 | C26 | Native-21 mounting holes | H1, H3–H8 used; H2/H9/H10 empty (PS/DECISIONS.md:3013-3020) | Nylon H2–H7, metal H1 (NAT/PROTOTYPE-LOT.md "Fixings"; R43 r32 BENCH-PLAN.md:19) |
 | C27 | Inlet fuse | "No inlet fuse" (R43/design/r32/CERTIFICATION-QUESTIONS.md:10) | "30 A inlet fuse" (same file :40) |
 | C28 | Coil spec stale note | Rows 1–7 "stale … 88 µH" (SPEC line 59) | Rows 1 and 7 updated to 70/80 µH and 76 A (SPEC lines 36, 43) |
@@ -740,8 +740,8 @@ The ordered list of what unblocks what. Items in parallel share a number.
 | C31 | Power-stage README | UCC21550, ISO7710, PS1, MDA-25-R, CT 1:100, 39 kΩ, 0.54 µF, 240 × 160 mm (PS/README.md) | 2EDR8259X, CA-IS3720HW, PS1 deleted, KLDR025.TXP, 1:200, 49.9 kΩ, 0.50 µF, 290 × 190 mm (DECISIONS and BOM) |
 | C32 | Sink cut-off | ≈ 120 °C G4A (PS/README.md:134) | Hardware 98.3–104.6 °C, firmware 95 °C (thermal_mgmt.h:152-159); bench TCO Tf 110 °C |
 | C33 | Firmware state count | 8 states (FW/README.md:9-20) | 9 states (FW/main/state_machine.h:30-39) |
-| C34 | Plan 09 | "Not started" (00-MASTER-PLAN.md:239) | pass: true (enclosure-fit/plan-result.json) |
-| C35 | Aux allowance at mid blower | 0.60 A (PS/OPEN-ITEMS.md:64) | 0.65 A (FW/README.md:78-86), research-pass reading, verify |
+| C34 | Plan 09 | "Not started" (00-MASTER-PLAN.md:239) | pass: true (enclosure-fit/plan-result.json) — **Stale; plan 09 passes in plan-result.json (AUDIT-7)** |
+| C35 | Aux allowance at mid blower | 0.60 A (PS/OPEN-ITEMS.md:64) | 0.65 A (FW/README.md:78-86), research-pass reading, verify — **Not a contradiction; both on one duty curve (AUDIT-7)** |
 
 ## Gaps I could not assess
 

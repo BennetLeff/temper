@@ -236,7 +236,7 @@ Update this table when a task finishes (link the result README).
 | 06 | partial (CT check done; fixed in native-11) | [CT burden](../validation-results/06-controller-interface/README.md) | CT: FAIL on native-09 → fixed in native-11 (source change; renewed D4 review needed) |
 | 07 | round 3 model and fixtures complete; margins blocked | [EMI round three](../validation-results/07-conducted-emi/round3/README.md) | Floating-bus/PE return and opposed legs checked; component fits and assumed 35/60 kHz peak spectra saved; qualified edges, DM bus-current source and physical parasitics missing |
 | 08 | native-17 candidate package generated and independently reviewed; not released | [fab package](../validation-results/08-manufacturing-package/native-17/README.md) | Gerbers/drill/BOM/CPL/fab note; gerbv review: 293/293 plated holes with outer copper both sides, masks, silk; negative control on native-15 fails as expected; [50 catalog identity candidates](../validation-results/round5-coordination/sourcing/README.md) for 57 BOM lines, assembly/stock qualification and clip entries still open |
-| 09 | not started | — | — |
+| 09 | enclosure-fit check passes (six collision boxes, no hits; sink thermal at 20 and 30 CFM); rubric review s19b exists | [plan result](enclosure-fit/plan-result.json) | Read, not re-run (output/temper-checklist AUDIT-7) |
 
 ## 6. What this plan does not do
 

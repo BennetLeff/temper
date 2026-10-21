@@ -81,7 +81,7 @@ used (GPIO35 is the J4.1 BIAS_GOOD input on the J13-merge controller; see "BIAS_
   s38; PS1 is deleted), so the inlet estimate's auxiliary allowance is PS2 +
   PS3 logic (0.26 A) + the PS3 blower term scheduled from the commanded drive
   (`components/power/blower_aux.h`), each counted by its worst-corner increment
-  to the inlet RMS: 0.31 A off, 0.65 A typical, 0.887 A at full speed or
+  to the inlet RMS: 0.31 A off, 0.60-0.66 A at blower duty 0.5-0.4 (a curve; 0.597 / 0.663 A), 0.887 A at full speed or
   whenever the drive is unknown. A speed-up takes the allowance first
   and moves the blower 300 ms later; a fault goes to full speed at once. The
   regulated inlet total stays 13.5 A (COMMISSIONING.md step 8c).
