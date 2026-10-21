@@ -1,0 +1,88 @@
+(footprint "KelvinTab_9.5x8"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Kelvin clip land on both faces of a card edge; faces are separate copper joined only at the standard. Origin = land centre.")
+	(property "Reference" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "36ef985c-c004-40bd-8ce1-a971fc09d961")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Value" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "45d2a4d9-1b93-4979-9af7-3cf2e96efd95")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "f74de59d-ce3d-4bab-af1b-81921532ae52")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "71c484af-1dd4-49ba-9deb-62110c9c87f7")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(attr smd exclude_from_pos_files exclude_from_bom)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_rect
+		(start -5 -4.25)
+		(end 5 4.25)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(fill no)
+		(layer "B.CrtYd")
+		(uuid "f0de5bfe-eca9-4c5c-9976-956c9868f1a9")
+	)
+	(fp_rect
+		(start -5 -4.25)
+		(end 5 4.25)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "bbd7da2f-d70b-43f6-b008-2e1b7544e221")
+	)
+	(pad "1" smd rect
+		(at 0 0)
+		(size 9.5 8)
+		(layers "F.Cu" "F.Mask")
+		(thermal_bridge_angle 45)
+		(uuid "f14f8aab-f48e-45df-af1e-411676be754c")
+	)
+	(pad "2" smd rect
+		(at 0 0)
+		(size 9.5 8)
+		(layers "B.Cu" "B.Mask")
+		(thermal_bridge_angle 45)
+		(uuid "ecacfbad-3792-4e5a-8b10-66f9f8d20886")
+	)
+	(embedded_fonts no)
+)

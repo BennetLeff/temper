@@ -1,0 +1,168 @@
+{
+ "boards": 5,
+ "parts_snapshot": "jlc-parts-2026-10-21.json",
+ "placements_per_board": 16,
+ "smt_joints_per_board": 32,
+ "extended_lines": 11,
+ "lines": [
+  {
+   "lcsc": "C1864297",
+   "mpn": "GCM31C5C1H104FA16L",
+   "refs": "C1,C2,C3,C4,C5,C6",
+   "library": "expand",
+   "preferred": false,
+   "need": 30,
+   "buy": 30,
+   "unit": 0.4938,
+   "cost": 14.814,
+   "stock": 2433
+  },
+  {
+   "lcsc": "C81468",
+   "mpn": "SLF12575T-470M2R7-PF",
+   "refs": "L1",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 5,
+   "unit": 0.6017,
+   "cost": 3.0085,
+   "stock": 899
+  },
+  {
+   "lcsc": "C723660",
+   "mpn": "RT0805BRB0720RL",
+   "refs": "R1",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 7,
+   "unit": 0.4184,
+   "cost": 2.9288,
+   "stock": 4904
+  },
+  {
+   "lcsc": "C52677567",
+   "mpn": "PTFR0805Q51R0N9",
+   "refs": "R2",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 5,
+   "unit": 0.5706,
+   "cost": 2.853,
+   "stock": 4906
+  },
+  {
+   "lcsc": "C7603205",
+   "mpn": "PTFR0805Q100RN9",
+   "refs": "R3",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 5,
+   "unit": 0.5706,
+   "cost": 2.853,
+   "stock": 2641
+  },
+  {
+   "lcsc": "C7603207",
+   "mpn": "PTFR0805Q1K00N9",
+   "refs": "R4",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 5,
+   "unit": 0.5772,
+   "cost": 2.886,
+   "stock": 11721
+  },
+  {
+   "lcsc": "C7603208",
+   "mpn": "PTFR0805Q2K00N9",
+   "refs": "R5",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 5,
+   "unit": 0.5739,
+   "cost": 2.8695,
+   "stock": 293
+  },
+  {
+   "lcsc": "C7603209",
+   "mpn": "PTFR0805Q4K99N9",
+   "refs": "R6",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 5,
+   "unit": 0.5673,
+   "cost": 2.8365,
+   "stock": 2671
+  },
+  {
+   "lcsc": "C7603210",
+   "mpn": "PTFR0805Q20K0N9",
+   "refs": "R7",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 5,
+   "unit": 0.5821,
+   "cost": 2.9105,
+   "stock": 4833
+  },
+  {
+   "lcsc": "C47116076",
+   "mpn": "PTFR0805Q49K9N9",
+   "refs": "R8",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 5,
+   "unit": 0.5853,
+   "cost": 2.9265,
+   "stock": 5122
+  },
+  {
+   "lcsc": "C23067433",
+   "mpn": "PTFR0805Q100KN9",
+   "refs": "R9",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 5,
+   "unit": 0.7145,
+   "cost": 3.5725,
+   "stock": 3810
+  }
+ ],
+ "stock_findings": [],
+ "fab_quote": {
+  "qty": 5,
+  "date": "2026-10-21",
+  "lines": {
+   "Engineering fee": 4.0,
+   "Surface finish (ENIG 1u\")": 17.4,
+   "Board": 3.6
+  }
+ },
+ "economic": {
+  "PCB fabrication (quote)": 25.0,
+  "SMT parts": 44.46,
+  "Setup (Economic)": 8.18,
+  "Stencil": 1.53,
+  "Extended-part fee": 33.77,
+  "SMT joints": 0.26,
+  "Confirm placement": 0.45
+ },
+ "total_usd": 113.64,
+ "per_card_usd": 22.73,
+ "excluded": [
+  "shipping",
+  "sales tax / VAT / import duty",
+  "coupons",
+  "Kelvin clip leads"
+ ]
+}

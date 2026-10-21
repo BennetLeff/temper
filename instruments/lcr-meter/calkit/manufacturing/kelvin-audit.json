@@ -1,0 +1,130 @@
+{
+ "pass": true,
+ "standards": {
+  "C1": {
+   "nets": [
+    "C1_H",
+    "C1_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
+  "C2_6": {
+   "nets": [
+    "C2_6_H",
+    "C2_6_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 12,
+   "four_separate_paths": true
+  },
+  "L1": {
+   "nets": [
+    "L1_H",
+    "L1_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
+  "OPEN": {
+   "nets": [
+    "OPEN_H",
+    "OPEN_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
+  "R1": {
+   "nets": [
+    "R1_H",
+    "R1_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
+  "R2": {
+   "nets": [
+    "R2_H",
+    "R2_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
+  "R3": {
+   "nets": [
+    "R3_H",
+    "R3_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
+  "R4": {
+   "nets": [
+    "R4_H",
+    "R4_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
+  "R5": {
+   "nets": [
+    "R5_H",
+    "R5_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
+  "R6": {
+   "nets": [
+    "R6_H",
+    "R6_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
+  "R7": {
+   "nets": [
+    "R7_H",
+    "R7_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
+  "R8": {
+   "nets": [
+    "R8_H",
+    "R8_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
+  "R9": {
+   "nets": [
+    "R9_H",
+    "R9_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
+  "SHORT": {
+   "nets": [
+    "SHORT"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 1,
+   "four_separate_paths": true
+  }
+ }
+}

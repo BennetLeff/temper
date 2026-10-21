@@ -1,0 +1,22 @@
+Drill report for calkit.kicad_pcb
+Created on 2026-10-21T09:35:36
+
+Copper Layer Stackup:
+    =============================================================
+    L1 :  F.Cu                      front
+    L2 :  B.Cu                      back
+
+
+Drill file 'calkit-PTH.drl' contains
+    plated through holes:
+    =============================================================
+    T1  0.300mm  0.0118"  (28 holes))
+
+    Total plated holes count 28
+
+
+Drill file 'calkit-NPTH.drl' contains
+    unplated through holes:
+    =============================================================
+
+    Total unplated holes count 0

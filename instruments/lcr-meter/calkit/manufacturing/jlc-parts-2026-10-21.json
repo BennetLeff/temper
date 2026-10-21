@@ -1,0 +1,413 @@
+{
+ "source": "POST https://jlcpcb.com/api/overseas-pcb-order/v1/shoppingCart/smtGood/selectSmtComponentList {\"keyword\": <LCSC>}, exact componentCode match",
+ "fetched": "2026-10-21",
+ "parts": {
+  "C1864297": {
+   "model": "GCM31C5C1H104FA16L",
+   "brand": "Murata Electronics",
+   "describe": "100nF 50V C0G ±1% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "library": "expand",
+   "preferred": false,
+   "stock": 2433,
+   "least": 0,
+   "loss": 0,
+   "datasheet": "",
+   "tiers": [
+    [
+     1,
+     0.6801
+    ],
+    [
+     10,
+     0.5559
+    ],
+    [
+     30,
+     0.4938
+    ],
+    [
+     100,
+     0.4316
+    ],
+    [
+     500,
+     0.3957
+    ],
+    [
+     1000,
+     0.3761
+    ]
+   ]
+  },
+  "C23067433": {
+   "model": "PTFR0805Q100KN9",
+   "brand": "RESI",
+   "describe": "-55℃~+155℃ 100kΩ 130mW 150V Thin Film Resistor ±0.02% ±10ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "library": "expand",
+   "preferred": false,
+   "stock": 3810,
+   "least": 5,
+   "loss": 0,
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2406281433_RESI-PTFR0805Q100KN9_C23067433.pdf",
+   "tiers": [
+    [
+     1,
+     0.7145
+    ],
+    [
+     10,
+     0.5788
+    ],
+    [
+     30,
+     0.5101
+    ],
+    [
+     100,
+     0.4431
+    ],
+    [
+     500,
+     0.4039
+    ],
+    [
+     1000,
+     0.3826
+    ]
+   ]
+  },
+  "C47116076": {
+   "model": "PTFR0805Q49K9N9",
+   "brand": "RESI",
+   "describe": "-55℃~+155℃ 130mW 150V 49.9kΩ Thin Film Resistor ±0.02% ±10ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "library": "expand",
+   "preferred": false,
+   "stock": 5122,
+   "least": 2,
+   "loss": 0,
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2504101957_RESI-PTFR0805Q49K9N9_C47116076.pdf",
+   "tiers": [
+    [
+     1,
+     0.5853
+    ],
+    [
+     10,
+     0.4774
+    ],
+    [
+     30,
+     0.4235
+    ],
+    [
+     100,
+     0.3695
+    ],
+    [
+     500,
+     0.3385
+    ],
+    [
+     1000,
+     0.3221
+    ]
+   ]
+  },
+  "C52677567": {
+   "model": "PTFR0805Q51R0N9",
+   "brand": "RESI",
+   "describe": "-55℃~+155℃ 130mW 150V 51Ω Thin Film Resistor ±0.02% ±10ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "library": "expand",
+   "preferred": false,
+   "stock": 4906,
+   "least": 2,
+   "loss": 0,
+   "datasheet": null,
+   "tiers": [
+    [
+     1,
+     0.5706
+    ],
+    [
+     10,
+     0.4611
+    ],
+    [
+     30,
+     0.4071
+    ],
+    [
+     100,
+     0.3548
+    ],
+    [
+     500,
+     0.3221
+    ],
+    [
+     1000,
+     0.3058
+    ]
+   ]
+  },
+  "C723660": {
+   "model": "RT0805BRB0720RL",
+   "brand": "YAGEO",
+   "describe": "-55℃~+155℃ 125mW 150V 20Ω Thin Film Resistor ±0.1% ±10ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "library": "expand",
+   "preferred": false,
+   "stock": 4904,
+   "least": 5,
+   "loss": 2,
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2008171336_YAGEO-RT0805BRB0720RL_C723660.pdf",
+   "tiers": [
+    [
+     1,
+     0.4184
+    ],
+    [
+     50,
+     0.3607
+    ],
+    [
+     150,
+     0.336
+    ],
+    [
+     500,
+     0.3051
+    ],
+    [
+     2500,
+     0.2914
+    ],
+    [
+     5000,
+     0.2762
+    ]
+   ]
+  },
+  "C7603205": {
+   "model": "PTFR0805Q100RN9",
+   "brand": "RESI",
+   "describe": "-55℃~+155℃ 100Ω 130mW 150V Thin Film Resistor ±0.02% ±10ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "library": "expand",
+   "preferred": false,
+   "stock": 2641,
+   "least": 5,
+   "loss": 0,
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2405061538_RESI-PTFR0805Q100RN9_C7603205.pdf",
+   "tiers": [
+    [
+     1,
+     0.5706
+    ],
+    [
+     10,
+     0.4611
+    ],
+    [
+     30,
+     0.4071
+    ],
+    [
+     100,
+     0.3548
+    ],
+    [
+     500,
+     0.3221
+    ],
+    [
+     1000,
+     0.3058
+    ]
+   ]
+  },
+  "C7603207": {
+   "model": "PTFR0805Q1K00N9",
+   "brand": "RESI",
+   "describe": "-55℃~+155℃ 130mW 150V 1kΩ Thin Film Resistor ±0.02% ±10ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "library": "expand",
+   "preferred": false,
+   "stock": 11721,
+   "least": 2,
+   "loss": 0,
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2405061538_RESI-PTFR0805Q1K00N9_C7603207.pdf",
+   "tiers": [
+    [
+     1,
+     0.5772
+    ],
+    [
+     10,
+     0.4693
+    ],
+    [
+     30,
+     0.4153
+    ],
+    [
+     100,
+     0.3614
+    ],
+    [
+     500,
+     0.3303
+    ],
+    [
+     1000,
+     0.3139
+    ]
+   ]
+  },
+  "C7603208": {
+   "model": "PTFR0805Q2K00N9",
+   "brand": "RESI",
+   "describe": "-55℃~+155℃ 130mW 150V 2kΩ Thin Film Resistor ±0.02% ±10ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "library": "expand",
+   "preferred": false,
+   "stock": 293,
+   "least": 5,
+   "loss": 0,
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2405061538_RESI-PTFR0805Q2K00N9_C7603208.pdf",
+   "tiers": [
+    [
+     1,
+     0.5739
+    ],
+    [
+     10,
+     0.466
+    ],
+    [
+     30,
+     0.412
+    ],
+    [
+     100,
+     0.3581
+    ],
+    [
+     500,
+     0.3254
+    ],
+    [
+     1000,
+     0.309
+    ]
+   ]
+  },
+  "C7603209": {
+   "model": "PTFR0805Q4K99N9",
+   "brand": "RESI",
+   "describe": "-55℃~+155℃ 130mW 150V 4.99kΩ Thin Film Resistor ±0.02% ±10ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "library": "expand",
+   "preferred": false,
+   "stock": 2671,
+   "least": 5,
+   "loss": 0,
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2409280131_RESI-PTFR0805Q4K99N9_C7603209.pdf",
+   "tiers": [
+    [
+     1,
+     0.5673
+    ],
+    [
+     10,
+     0.4594
+    ],
+    [
+     30,
+     0.4055
+    ],
+    [
+     100,
+     0.3515
+    ],
+    [
+     500,
+     0.3205
+    ],
+    [
+     1000,
+     0.3025
+    ]
+   ]
+  },
+  "C7603210": {
+   "model": "PTFR0805Q20K0N9",
+   "brand": "RESI",
+   "describe": "-55℃~+155℃ 130mW 150V 20kΩ Thin Film Resistor ±0.02% ±10ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "library": "expand",
+   "preferred": false,
+   "stock": 4833,
+   "least": 5,
+   "loss": 0,
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2405061538_RESI-PTFR0805Q20K0N9_C7603210.pdf",
+   "tiers": [
+    [
+     1,
+     0.5821
+    ],
+    [
+     10,
+     0.4742
+    ],
+    [
+     30,
+     0.4202
+    ],
+    [
+     100,
+     0.3663
+    ],
+    [
+     500,
+     0.3352
+    ],
+    [
+     1000,
+     0.3188
+    ]
+   ]
+  },
+  "C81468": {
+   "model": "SLF12575T-470M2R7-PF",
+   "brand": "TDK",
+   "describe": "2.7A 2.7A 47uH 63.4mΩ ±20% SMD,12.5x12.5mm Power Inductors ROHS",
+   "library": "expand",
+   "preferred": false,
+   "stock": 899,
+   "least": 2,
+   "loss": 0,
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_TDK-SLF12575T-470M2R7-PF_C81468.pdf",
+   "tiers": [
+    [
+     1,
+     0.6017
+    ],
+    [
+     10,
+     0.4921
+    ],
+    [
+     30,
+     0.4382
+    ],
+    [
+     100,
+     0.3842
+    ],
+    [
+     500,
+     0.3532
+    ],
+    [
+     1000,
+     0.3368
+    ]
+   ]
+  }
+ }
+}
