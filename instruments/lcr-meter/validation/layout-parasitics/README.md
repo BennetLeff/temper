@@ -201,3 +201,4 @@ Every value is within 1 % of the proposed candidate above. Loop inductances are 
 | `assemble.py` → **`extracted.json`** | Harness values (`harness`), per-range matrices, Rev D proposed variant and `rev_d_board` |
 | `report.py` | Prints the tables above |
 | `plot_layout.py` → `layout.png` | Figure |
+| `run_reve.sh`, `inductance_reve.py`, `assemble_reve.py` → `extracted_reve.json` | Rev E (relay) board: see **`README-rev-e.md`** |

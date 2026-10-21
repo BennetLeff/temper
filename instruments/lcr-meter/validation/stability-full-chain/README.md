@@ -22,7 +22,70 @@
   - Isolating the relay bus behind a resistor (`fixedrelayrout<R>`): the bus capacitance then loads the RF path instead, which only buys 3°.
   - Spot checks of other C104 values and a larger R_iso, not committed, did not restore 45° either.
 
-**Still guessed.** The stress values of Ccc, Cpp, L_rel and dC are estimates (range-switching §6). Re-extract after the relay layout and rerun `fixedrelaycng100` with extracted values.
+**Still guessed.** The stress values of Ccc, Cpp, L_rel and dC are estimates (range-switching §6). Re-extract after the relay layout and rerun `fixedrelaycng100` with extracted values. Done: see `reverelaycng100` below; the board part is now extracted, the relay-internal values are still estimates.
+
+## Rev E extracted board (`reverelaycng100`)
+
+`reverelaycng100` is `fixedrelaycng100` re-run on the Rev E layout extraction (`../layout-parasitics/README-rev-e.md`, board `2f6486c4…`) instead of the Rev D board and its leads.
+
+- **Board model.** Every extracted board capacitance of 1 fF or more is a SPICE element on the harness nodes: sum, low, tia, hi, lowbuf, highbuf, source, and the unselected-branch nodes ru{k} and rgu{k}. They come from `reve_extracted.rs`, which `assemble_reve.py` generates.
+  - TIA_OUT carries all of its copper, relay pads included, so `dc = 0`.
+  - SOURCE_BUF board copper to GND and to DUT_HI is new. It was not modelled before.
+- **Inductance.** The RF lead is the extracted free-space value (64.93 / 64.41 / 92.44 nH) plus the unchanged L_rel. The C104 lead is 5.04 nH, plus a 10 nH stress case.
+- **Relay-internal estimates.** Coc, Ccc, Cpp, L_rel and Rc keep their NOMINAL/STRESS values.
+- **Corners.** The nominal relay set runs on the nominal board (`_bnom`). The stress set runs on the high board (`_bhigh`).
+- **Unchanged elements.** The 100 pF DUT_LO capacitor and R_iso 22 Ω are kept.
+- **Reproduce.** `matrix final_reverelaycng100`, then `python3 reve_summary.py matrix-final_reverelaycng100.md`. 257 rows. All crossings are downward.
+- **Baseline.** `fixedrelaycng100` was re-run in the same session and reproduced its committed table exactly.
+
+| Loop (worst case) | `fixedrelaycng100` (estimates) | **`reverelaycng100` (extracted)** | Verdict |
+|---|---|---|---|
+| TIA, nominal set, 64 cases | 59.95° / 0.665 | **60.88° / 0.673** | passes |
+| TIA, stress set, 64 cases | 55.97° / 0.608 | **58.10° / 0.628** | passes; extracted TIA_OUT ≤ 14.6 pF < 10.53 + 10 pF allowance |
+| TIA, weld (two relays closed) | 59.78° / 0.665 | 60.69° / 0.675 | passes |
+| `high` follower, stress, 6 cases | 57.23° / 0.704 | 56.34° / 0.695 | passes |
+| `low` follower, stress, 6 cases | 57.87° / 0.718 | 56.35° / 0.691 | passes |
+| **`drive` (source driver X6A), stress, 6 cases** | 48.29° / 0.563 | **38.46° / 0.451** (100 Ω, open, stray 0; 5 k / 100 k: 41.6–42.2°) | **FAILS 45°** |
+| `drive`, nominal relay set + nominal board | — | 47.87° (100 Ω) / 51.40–51.46° (5 k, 100 k) | passes; 100 Ω is below the 51.3° Rev D floor |
+
+**Attribution, `drive` loop, 100 Ω, open DUT, stray 0** (`reverelay_loops_drv*` rows):
+
+| Relay set / board | Margin |
+|---|---|
+| stress / high | 38.46° |
+| nominal / high | 45.06° |
+| stress / nominal | 41.38° |
+| nominal / nominal | 47.87° |
+| stress / high, with every board capacitor on SOURCE_BUF removed | 46.39° |
+
+Two things together pull the loop below 45°:
+
+- **SOURCE_BUF board copper costs 7.9°** at the stress corner: 13.2 pF to GND and 3.0 pF to DUT_HI at the high corner. It is an 80 mm route: U6 → In2 down x 188.8 → a 36 mm bus at y 129.6. It also runs broadside over DUT_HI on B.Cu.
+- **The relay stress capacitances on SOURCE_BUF cost 6.6°**: Ccsel_s 5 pF, Cpp 2 pF and Cocs 2 pF. These are unverified estimates.
+
+Neither alone fails. The 100 Ω range is worst because DUT_HI (10 pF to GND) loads the driver through only 100 Ω of RG. Even with all the board copper removed, the stress set gives only 46.4°. Shortening the route alone therefore cannot restore the old 48°.
+
+**Proposed fix (not implemented in CAD).** Fit a 0603 isolation resistor of **47 Ω** between U6A's output/feedback node and the SOURCE_BUF route:
+
+- U6.1 and U6.2 stay tied at the pin.
+- The resistor goes before the via at (169.66, 88.96).
+
+Results with the resistor (`_srciso47` rows):
+
+- **`drive` at stress / high: 47.33° / 47.38° / 47.24°** (100 Ω / 5 k / 100 k).
+- With 1000 pF stray: 51.65° / 47.38° / 47.24°.
+- Nominal / nominal: 50.29°.
+- The TIA loop is unchanged at 58.16°, and the followers are unchanged.
+
+Smaller resistors are not enough: 22 Ω gives 43.1°, and 10 Ω gives 40.6°.
+
+**Cost of the fix.** The resistor adds 47 Ω in series with RG:
+
+- On the 100 Ω range the source resistance rises from 100 to 147 Ω.
+- That lowers the maximum DUT current and the drive headroom.
+- Accuracy is unaffected, because DUT_HI is sensed by HIGH_BUF and the current by the TIA.
+
+**Better long-term fix.** Bench-measure the TQ2SA Ccc and Cpp, which are the stress values driving the other 6.6°. Also shorten SOURCE_BUF by placing U6A's output near the relay row, or un-stacking it from DUT_HI.
 
 Run one mode with `$LCR_LOOP_BUILD/matrix final_<mode>`. Set `SHARD=i/n` to split it across processes; each shard writes `matrix-final_<mode>-shard{i}of{n}.md`. Concatenate the table rows in shard order to get `matrix-final_<mode>.md`.
 

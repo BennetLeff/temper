@@ -1,0 +1,135 @@
+RevE codec front end: TAC5112 DAC -> OPA810 difference stage -> TIDA core -> 1k/1k attenuators -> AC coupling -> codec inputs
+.include ../../sources/ti/models/opa2810_a.lib
+.include ../../sources/ti/models/opa810_a.lib
+.options reltol=1e-5 abstol=1e-12 vntol=1e-7 method=gear
+.include codec-seed.inc
+* TAC5112 line outputs: 1.65 V common mode (datasheet 6.x), 10 ohm output resistance ASSUMED
+* Difference stage, gain 2.0k/2.2k, pole 295 kHz; DC coupled (no settle), rejects the 1.65 V common mode
+* Codec inputs (AC-coupled differential, 40 kOhm wideband setting, CM_TOL 01): CH1 = highbuf - lowbuf,
+* CH2 = tia - lowbuf. Each leg: 1k/1k divider, 560 pF anti-alias, 1 uF coupling, BAT54S clamp (10 pF),
+* 470 ohm series, pin = 40 kOhm to the internal common mode plus 10 pF (pin capacitance ASSUMED).
+.nodeset v(probe_f)=0.000654719
+Lfeedback rf_end tia 0.00000008493000000000001
+Llocal local_cf_out tia 0.00000001
+Clocal sum local_cf_out 0.0000000001
+Iinj2 0 probe_f DC 0 AC 0
+Iinj 0 highbuf DC 0 AC 1
+Rbridge highbuf probe_f 0.01
+Cstrayhi hi 0 0.000000000000000000000001
+Cstraylo low 0 0.000000000000000000000001
+Risolo low sum 22
+Cb2pin b2pin 0 10p
+Rb2in b2pin vcm 40k
+Rb2p b2c b2pin 470
+Cb2cl b2c 0 10p
+Cb2c b2 b2c 1u
+Cb2aa b2 0 560p
+Rb2g b2 0 1k
+Rb2s lowbuf b2 1k
+Cb1pin b1pin 0 10p
+Rb1in b1pin vcm 40k
+Rb1p b1c b1pin 470
+Cb1cl b1c 0 10p
+Cb1c b1 b1c 1u
+Cb1aa b1 0 560p
+Rb1g b1 0 1k
+Rb1s tia b1 1k
+Ca2pin a2pin 0 10p
+Ra2in a2pin vcm 40k
+Ra2p a2c a2pin 470
+Ca2cl a2c 0 10p
+Ca2c a2 a2c 1u
+Ca2aa a2 0 560p
+Ra2g a2 0 1k
+Ra2s lowbuf a2 1k
+Ca1pin a1pin 0 10p
+Ra1in a1pin vcm 40k
+Ra1p a1c a1pin 470
+Ca1cl a1c 0 10p
+Ca1c a1 a1c 1u
+Ca1aa a1 0 560p
+Ra1g a1 0 1k
+Ra1s highbuf a1 1k
+Vvcm vcm 0 1.375
+X7A 0 sum tia vp vn OPA2810
+X7B low lowbuf lowbuf vp vn OPA2810
+X6B hi highbuf probe_f vp vn OPA2810
+CF sum rf_end 0.000000000000000000000001
+RF sum rf_end 100.075
+RDUT hi low 1e12
+Cppsel source tia 2p
+Ccsel_s source 0 5p
+Ccsel_t tia 0 5p
+Cppx2 rgu2 tia 2p
+Cpp2 source ru2 2p
+Ccs2 rgu2 0 5p
+Cocs2 rgu2 source 2p
+Rgu2 hi rgu2 100000
+Ccf2 ru2 0 5p
+Cocf2 ru2 tia 2p
+Ru2 sum ru2 100000
+Cppx1 rgu1 tia 2p
+Cpp1 source ru1 2p
+Ccs1 rgu1 0 5p
+Cocs1 rgu1 source 2p
+Rgu1 hi rgu1 5000
+Ccf1 ru1 0 5p
+Cocf1 ru1 tia 2p
+Ru1 sum ru1 5000
+Cxm_lowbuf_highbuf lowbuf highbuf 0.0471p
+Cxm_ru1_ru2 ru1 ru2 0.0191p
+Cxm_hi_rgu2 hi rgu2 0.1013p
+Cxm_hi_rgu1 hi rgu1 0.1010p
+Cxm_hi_highbuf hi highbuf 0.0749p
+Cxm_hi_ru2 hi ru2 0.0031p
+Cxm_tia_highbuf tia highbuf 0.1725p
+Cxm_tia_lowbuf tia lowbuf 0.0101p
+Cxm_tia_ru2 tia ru2 0.6723p
+Cxm_tia_ru1 tia ru1 0.0095p
+Cxm_tia_hi tia hi 0.0019p
+Cxm_low_highbuf low highbuf 0.0015p
+Cxm_low_lowbuf low lowbuf 0.1422p
+Cxm_low_hi low hi 0.1624p
+Cxm_low_tia low tia 0.0139p
+Cxm_sum_lowbuf sum lowbuf 0.0239p
+Cxm_sum_ru2 sum ru2 0.1516p
+Cxm_sum_ru1 sum ru1 0.1261p
+Cxm_sum_tia sum tia 0.3135p
+Cxm_sum_low sum low 0.1176p
+Cxg_rgu2 rgu2 0 2.2748p
+Cxg_rgu1 rgu1 0 2.2747p
+Cxg_highbuf highbuf 0 2.0843p
+Cxg_lowbuf lowbuf 0 3.6023p
+Cxg_ru2 ru2 0 3.6349p
+Cxg_ru1 ru1 0 3.1810p
+Cxg_hi hi 0 10.2339p
+Cxg_tia tia 0 14.0407p
+Cxg_low low 0 6.3345p
+Cxg_sum sum 0 1.0608p
+Cng low 0 100p
+RG source hi 100.075
+X6A excite source source vp vn OPA2810
+X5 acin srcfb excite vp vn OPA810
+Csf excite srcfb 270p
+Rsf excite srcfb 2.0k
+Rsc dacm srcfb 2.2k
+Csb acin 0 270p
+Rsb acin 0 2.0k
+Rsa dacp acin 2.2k
+Rdacm dacm0 dacm 10
+Rdacp dacp0 dacp 10
+Vdacm dacm0 0 DC 1.65 AC 0
+Vdacp dacp0 0 DC 1.65 AC 0
+V5 v5 0 5
+Vn vn 0 -12
+Vp vp 0 12
+.control
+set klu
+optran 1 0 0 0 0 0
+set filetype=ascii
+set numdgt=17
+op
+write final_reverelay_loops_drvstrhighnosrcboard_r100_open_stray0_risolo22_cng100_caplead10_local100_lead84.93_high-order1.raw all
+quit
+.endc
+.end

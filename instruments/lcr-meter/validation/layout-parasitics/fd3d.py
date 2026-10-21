@@ -35,7 +35,30 @@ WINDOWS = {
     'afe': (152.0, 181.5, 81.5, 127.0),
     # zoom on U7 / C104 / R43-45 / JP4 for grid-convergence study
     'zoom': (157.0, 172.0, 104.0, 119.5),
+    # Rev E whole front end incl. the K1-K3 relay row (geometry_reve.json): conductor copper
+    # bbox is x 152.00-189.03, y 88.18-138.05 mm; check_window() enforces the >= 1.4 mm margin.
+    'reve': (150.5, 190.5, 86.7, 139.5),
+    # Rev E zoom on K1 (pins 3/4/7/8), the In2 TIA_OUT/RF100/RF100K/SOURCE_BUF buses: grid convergence
+    'reve_relay': (158.0, 176.0, 119.5, 136.0),
+    # Rev E zoom on the broadside-coupled SOURCE_BUF (In2, x 188.8) / DUT_HI (B.Cu, x 188.9) run
+    'reve_hiside': (185.0, 192.0, 105.0, 120.0),
 }
+ZOOM_WINDOWS = {'zoom', 'reve_relay', 'reve_hiside'}
+MARGIN_MM = 1.4
+
+
+def check_window(window):
+    """Whole-board windows must contain all copper of every conductor with MARGIN_MM to spare."""
+    if window in ZOOM_WINDOWS:
+        return
+    from shapely.ops import unary_union
+    shapes = [s for it in geometry()['items'] if it['net'] in CONDUCTORS
+              for s in (item_shape(it, l) for l in LAYERS) if s is not None]
+    bx = unary_union(shapes).bounds
+    x0, x1, y0, y1 = WINDOWS[window]
+    m = min(bx[0] - x0, x1 - bx[2], bx[1] - y0, y1 - bx[3])
+    if m < MARGIN_MM:
+        raise SystemExit(f'window {window} {WINDOWS[window]} misses conductor bbox {bx} (margin {m:.2f} mm)')
 
 
 def graded(total, h0, hmax, ratio=1.45):
@@ -188,6 +211,7 @@ def build(dx, window, stackup, bc):
 
 def solve(dx, bc, stackup=NOMINAL_STACKUP, window='afe'):
     t0 = time.time()
+    check_window(window)
     m = build(dx, window, stackup, bc)
     A, lab = m['A'], m['lab']
     free = np.flatnonzero(lab < 0)
