@@ -276,22 +276,32 @@ def main():
         v[f'l_rf_branch_nh[{r}]'] = verdict(ASSUMED['l_rf_branch_nh'], lr['low'], lr['nom'], lr['high'])
     harness['verdict_vs_simulation'] = v
     ext['harness'] = harness
-    # Rev D R_ISO variant
-    dv = best_afe(NOMINAL_STACKUP, 'riso')
-    if dv is not None:
+    # Rev D: 'riso' is the proposed placement synthesised on the Rev C board (riso_variant.py);
+    # 'revd' is the as-built Rev D board (geometry_revd.json, run_revd.sh).
+    for variant, key in (('riso', 'rev_d_riso_variant'), ('revd', 'rev_d_board')):
+        dv = best_afe(NOMINAL_STACKUP, variant)
+        if dv is None:
+            continue
         vn = ['TIA_SUM', 'DUT_LO', 'TIA_OUT', 'DUT_HI', 'LOW_BUF', 'HIGH_BUF', 'RF100', 'RF5K', 'RF100K']
-        mv, mmeta = corner_matrices(vn, dv, best_afe(THIN_STACKUP, 'riso'))
+        mv, mmeta = corner_matrices(vn, dv, best_afe(THIN_STACKUP, variant))
         riso = {}
         for rng in RANGES:
             riso[rng] = {c: per_range(mv[c], vn, c, rng, sum_name='TIA_SUM', j3_name='DUT_LO') for c in ('low', 'nom', 'high')}
             for c in ('low', 'nom', 'high'):
                 riso[rng][c]['c_sum_j3side_pf'] += EXTRA['res_body'][c]   # R_ISO body
-        ext['rev_d_riso_variant'] = {'fd': mmeta['fd_nominal'], 'fd_thin': mmeta['fd_thin'], 'ranges': riso}
+        ext[key] = {'fd': mmeta['fd_nominal'], 'fd_thin': mmeta['fd_thin'], 'ranges': riso}
+        if variant == 'revd':
+            ext[key]['board_sha256'] = json.loads((HERE / 'geometry_revd.json').read_text())['board_sha256']
+            ind = HERE / 'inductance_revd.json'
+            if ind.exists():
+                ext[key]['inductance_nh'] = {n: {c: round(v[c]['with_package_nH'], 2) for c in ('low', 'nom', 'high')}
+                                             for n, v in json.loads(ind.read_text())['loops'].items()}
     (HERE / 'extracted.json').write_text(json.dumps(ext, indent=1, default=float))
     print(json.dumps(harness, indent=1, default=float)[:6000])
-    if dv is not None:
+    for key in ('rev_d_riso_variant', 'rev_d_board'):
         for c in ('low', 'nom', 'high'):
-            print('R_ISO', c, {k: round(x, 3) for k, x in ext['rev_d_riso_variant']['ranges']['100R'][c].items()})
+            if key in ext:
+                print(key, c, {k: round(x, 3) for k, x in ext[key]['ranges']['100R'][c].items()})
 
 
 if __name__ == '__main__':

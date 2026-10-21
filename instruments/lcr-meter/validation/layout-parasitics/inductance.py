@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import heapq
 import json
+import os
 from itertools import product
 
 import numpy as np
@@ -353,7 +354,7 @@ def main():
             for rng in RF_NETS:
                 m = mutual_L(loops['C104']['pkg'], loops[f'RF_{rng}']['pkg'])
                 results['loops'][f'RF_{rng}']['mutual_with_C104_loop_free_space_nH'] = m
-    (HERE / 'inductance.json').write_text(json.dumps(results, indent=1, default=float))
+    (HERE / os.environ.get('LP_INDUCTANCE', 'inductance.json')).write_text(json.dumps(results, indent=1, default=float))
     print(json.dumps(results['validation'], indent=1, default=float))
     for k, v in results['loops'].items():
         print(k, {c: (round(v[c]['with_package_nH'], 2), round(v[c]['board_and_part_only_nH'], 2))

@@ -58,8 +58,9 @@ def main():
             "| Variant | Range | 0 pF | 100 pF | 220 pF | 470 pF | 1000 pF |", "|---|---|---:|---:|---:|---:|---:|"]
     table = defaultdict(lambda: defaultdict(list))
     for name, angle, _ in rows("fixedextracted"):
-        m = re.match(r"final_extracted_(\w+?)_\w+?_stray([\d.]+)(_risolo22)?_caplead", name)
-        table[("22 Ω R_iso" if m[3] else "Rev C", m[1])][float(m[2])].append(angle)
+        m = re.match(r"final_extracted_(\w+?)_\w+?_stray([\d.]+)(_revd)?(_risolo22)?_caplead", name)
+        variant = "Rev D as built" if m[3] else "22 Ω R_iso (proposed)" if m[4] else "Rev C"
+        table[(variant, m[1])][float(m[2])].append(angle)
     for (variant, rng), v in sorted(table.items(), key=lambda kv: (kv[0][0], ["r100", "r5k", "r100k"].index(kv[0][1]))):
         out.append(f"| {variant} | {rng} | " + " | ".join(f"{min(v[s]):.1f}°" if s in v else "—" for s in [0, 100, 220, 470, 1000]) + " |")
     (HERE / "fixture-envelope-tables.md").write_text("\n".join(out) + "\n")

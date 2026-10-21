@@ -19,6 +19,7 @@ Rev D is the Rev C board plus R94 (22 Ω R_iso), R95/R96 (1 Ω LDO inputs), R83 
 | Manufacturing exports and visual review | Four copper layers, masks, paste, silk, outline, PTH/NPTH drills and six schematic pages | `visual-review.json` |
 | Firmware and host | D-riso22 identity; feedback 22 Ω + RF‖100 pF; calibration schema 5; RAILS gross-fault check; firmware build, PIO and boxcar checks, hot loop 88/120 cycles; 29 Rust tests and Clippy pass | `../firmware/verification/`, `../host/verification/` |
 | Coupled amplifier simulation (*Rev C*) | True DC, AC and transient data, exact models, negative false-OP regression and declaration-order identity checks | `solver-resolution-fixed-local/README.md` |
+| Rev D stability, as built | Extracted Rev D parasitics + 0–1000 pF cable on each DUT terminal: minimum TIA margin 51.3°, |1+T| ≥ 0.573 over 64 cases (Rev C: 29.5°, 0.498) | `stability-full-chain/fixture-envelope.md`, `layout-parasitics/` (`rev_d_board`) |
 | Return-ratio method | Bilateral matrix de-embedding, analytic stable/unstable controls, complete crossing enumeration, independent controlled-source cuts | `stability-full-chain/` |
 | FDA model/corner cross-check (*Rev C*) | Current and original TI models,134 standalone cases; selected-network minimum59.19° | `fda-independent/README.md` |
 | Bounded switched ADC load (*Rev C*) |640ns acquisition recovery below half-LSB comparison threshold;140ns negative control fails; actual input/CM windows checked | `adc-switched-load/README.md` |

@@ -34,7 +34,7 @@ NOMINAL_STACKUP = 'JLC04161H-7628'
 THIN_STACKUP = 'JLC04161H-1080'
 
 # Nets of interest.
-SUM = 'DUT_LO'          # summing node: U7A -IN, C104.1, R43-45.1, U7B +IN, J3.2
+SUM = os.environ.get('LP_SUM', 'DUT_LO')  # summing node (TIA_SUM on Rev D): U7A -IN, C104.1, R43-45.1, U7B +IN, J3.2
 TIA = 'TIA_OUT'
 HI = 'DUT_HI'
 RF_NETS = {'100R': 'RF100', '5k': 'RF5K', '100k': 'RF100K'}

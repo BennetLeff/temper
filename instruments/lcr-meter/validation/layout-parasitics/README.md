@@ -108,6 +108,22 @@ All of these are hand edits as explicit segments. No autorouter is involved.
 
 The In1 changes in this candidate are edits to the exported fill, not a KiCad refill: the keepout plus a 0.5 mm antipad at the new via. Stability with R_ISO is not assessed here.
 
+## Rev D as built
+
+`run_revd.sh` extracts the routed Rev D board (`eb2b4cf8…`, R94 fitted, net TIA_SUM) into `geometry_revd.json`, `inductance_revd.json` and `fd_results/*_revd.json`; `assemble.py` adds `rev_d_board` to `extracted.json`. The Rev C entries are unchanged. `LP_GEOMETRY`, `LP_SUM` and `LP_INDUCTANCE` select the variant.
+
+| Rev D as built (worst over ranges) | low / nom / high |
+|---|---|
+| Summing side to ground | 0.89 / 1.06 / 1.27 pF |
+| Summing side to TIA_OUT | 0.19 / 0.27 / 0.40 pF |
+| Across R94 (board + body) | 0.03 / 0.07 / 0.12 pF |
+| J3 side to ground | 3.09 / 3.78 / 5.67 pF |
+| J3 side to LOW_BUF | 0.07 / 0.10 / 0.15 pF |
+| DUT_HI to J3 side / to summing side | 0.10 / 0.14 / 0.16 pF / 0.00 |
+| TIA_OUT to ground | 6.68 / 8.87 / 10.53 pF |
+
+Every value is within 1 % of the proposed candidate above. Loop inductances are unchanged from Rev C (C104 4.87 nH, RF 21.65 / 50.46 / 33.14 nH at the high corner), as predicted. Stability with these values: `../stability-full-chain/fixture-envelope.md` (minimum 51.3°).
+
 ## Method
 
 - **Geometry** (`export_geometry.py`, KiCad 10.0.4 pcbnew).
@@ -181,6 +197,7 @@ The In1 changes in this candidate are edits to the exported fill, not a KiCad re
 | `headers.py` → `headers.json` | Header posts |
 | `inductance.py` → `inductance.json` | Loop inductance |
 | `proximity.py` → `proximity.json` | Noisy copper and neighbours |
-| `assemble.py` → **`extracted.json`** | Harness values (`harness`), per-range matrices, Rev D variant |
+| `run_revd.sh` | As-built Rev D extraction, about 40 min |
+| `assemble.py` → **`extracted.json`** | Harness values (`harness`), per-range matrices, Rev D proposed variant and `rev_d_board` |
 | `report.py` | Prints the tables above |
 | `plot_layout.py` → `layout.png` | Figure |

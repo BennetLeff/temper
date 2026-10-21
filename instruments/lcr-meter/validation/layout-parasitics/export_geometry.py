@@ -9,6 +9,7 @@ Usage:  <kicad-python> export_geometry.py [board.kicad_pcb]
 from pathlib import Path
 import hashlib
 import json
+import os
 import sys
 
 import pcbnew as k
@@ -107,5 +108,5 @@ out = {'board': str(board_path.name),
        'kicad_version': k.Version(),
        'items': items, 'zones': zones, 'zone_refill_check': refill_check,
        'rule_areas': rule_areas}
-(HERE / 'geometry.json').write_text(json.dumps(out, separators=(',', ':')))
+(HERE / os.environ.get('LP_GEOMETRY', 'geometry.json')).write_text(json.dumps(out, separators=(',', ':')))
 print('items', len(items), 'zones', len(zones), 'refill', refill_check)

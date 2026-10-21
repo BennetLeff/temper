@@ -35,7 +35,10 @@ For the R_iso variant the summing side keeps 1.28 pF and the J3 side 3.8 pF, fro
 | Rev C, 100 Ω | 51.3° | 46.9° | 46.5° | **39.9°** | **29.5°** |
 | 22 Ω R_iso, 100 Ω | 51.7° | 60.7° | 72.1° | 83.5° | 94.2° |
 | 22 Ω R_iso, 5 kΩ / 100 kΩ | 52.5° / 52.3° | — | — | — | 130.8° / 131.9° |
+| **Rev D as built**, 100 Ω | **51.3°** | 60.9° | 72.2° | 83.5° | 94.2° |
+| Rev D as built, 5 kΩ / 100 kΩ | 52.5° / 52.3° | — | — | — | 130.8° / 131.9° |
 
+- **The as-built Rev D board** (`rev_d_board` in `extracted.json`, board `eb2b4cf8…`) reproduces the proposed placement: every capacitance is within 1 % of `geometry_riso.json`. Its rows use the high corner, worst over ranges: J3 side 5.67 pF, summing side 1.27 pF, 0.12 pF across R94, TIA out 10.53 pF. The proposed rows above used the J3-side nominal (3.8 pF). Minimum over all 64 as-built cases: **51.3°**, |1+T| ≥ 0.573 (Rev C 0.498).
 - **The board's own copper costs about 6° on every range at zero cable.** Almost all of it comes from the 10.5 pF on the TIA output trace: dropping that element alone restores 56.4°, while every other element moves the margin by under 1° (`extracted-attribution.md`).
 - **The minimum with R_iso and extracted parasitics is 51.7°.** That passes the 45° criterion but is below the 60° preferred nominal. It sits at zero cable, the condition R_iso does not help.
 - **Shortening the TIA-output copper is the lever for recovering margin there.** The TIA output runs to RF, the jumpers, C104 and the FDA input resistor.

@@ -922,11 +922,14 @@ fn main() {
                 duts.push(("coil50u", "RDUT hi coil 0.5\nLDUT coil low 50u".into()));
             }
             let strays = if range == "r100" { vec![0., 100., 220., 470., 1000.] } else { vec![0., 1000.] };
-            for riso in ["", "_risolo22"] {
+            // _revd: the as-built Rev D board, extracted.json rev_d_board high corner, worst over ranges.
+            for riso in ["", "_risolo22", "_revd_risolo22"] {
                 let board = if riso.is_empty() {
                     "Cbsum low 0 5.62p\nCbhi hi 0 5.234p\nCbhisum hi low 0.156p\nCbsumtia low tia 0.395p\nCbsumlbuf low lowbuf 0.166p\nCbtiao tia 0 10.547p\n"
-                } else {
+                } else if riso == "_risolo22" {
                     "Cbj3 low 0 3.8p\nCbsum sum 0 1.28p\nCbhi hi 0 5.234p\nCbhisum hi low 0.156p\nCbsumtia sum tia 0.395p\nCbtiao tia 0 10.547p\n"
+                } else {
+                    "Cbj3 low 0 5.666p\nCbsum sum 0 1.274p\nCbriso sum low 0.118p\nCbhi hi 0 5.232p\nCbhisum hi low 0.158p\nCbj3lbuf low lowbuf 0.15p\nCbsumtia sum tia 0.399p\nCbtiao tia 0 10.53p\n"
                 };
                 // EXTRACT_DROP=<element> removes one board parasitic to attribute its effect.
                 let drop = std::env::var("EXTRACT_DROP").unwrap_or_default();
