@@ -1561,7 +1561,7 @@ fn main() {
     d.place(1, "J4", "BNC", &edge_parts::bnc(), (306., 214.), 0, false, true);
     d.link("J4", "1", "TRIG");
     d.link("J4", "2", "GND");
-    d.text(1, (203., 225.), "Scope trigger, not a peak-capture guarantee. Edge <= 1.35 us after the comparator output (validation/checks.txt).", 1.27);
+    d.text(1, (203., 225.), "Scope trigger, not a peak-capture guarantee. Edge estimated ~1.6 us after the comparator output, not a bound (validation/checks.txt).", 1.27);
     // Sheet 3: battery supply, decoupling, rail-referenced thresholds, latch UI.
     d.text(
         2,
