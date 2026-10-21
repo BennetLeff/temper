@@ -13,13 +13,22 @@
 #include "hardware/pio.h"
 #include "tusb.h"
 #include "pins.h"
+#include "relay.h"
 #include "syncavg.h"
 #include "tac5112.h"
 #include "wave.h"
+#if LCR_FS_375K
+#include "tdm375.pio.h"
+#define TDM_PROGRAM tdm375_program
+#define TDM_DEFAULT_CONFIG tdm375_program_get_default_config
+#else
 #include "tdm.pio.h"
+#define TDM_PROGRAM tdm_program
+#define TDM_DEFAULT_CONFIG tdm_program_get_default_config
+#endif
 
-/* RX DMA ring: two words per frame, 8192 words = 4096 frames = 21.8 ms. Size and alignment
-   are equal so the DMA write-address ring wrap works. */
+/* RX DMA ring: two words per frame, 8192 words = 4096 frames (21.8 ms at 187.5 kHz, 10.9 ms
+   at 375 kHz). Size and alignment are equal so the DMA write-address ring wrap works. */
 #define RING_WORDS 8192u
 #define RING_SIZE_BITS 15u
 static uint32_t ring[RING_WORDS] __attribute__((aligned(RING_WORDS * 4u)));
@@ -101,8 +110,8 @@ static void stream_start(void) {
     tx_source = wave_buffer[0];
     const uint tdm_pins[] = {PIN_I2S_DIN, PIN_I2S_DOUT, PIN_I2S_BCLK, PIN_I2S_FSYNC};
     for (unsigned i = 0; i < 4; ++i) pio_gpio_init(tdm_pio, tdm_pins[i]);
-    uint offset = pio_add_program(tdm_pio, &tdm_program);
-    pio_sm_config config = tdm_program_get_default_config(offset);
+    uint offset = pio_add_program(tdm_pio, &TDM_PROGRAM);
+    pio_sm_config config = TDM_DEFAULT_CONFIG(offset);
     sm_config_set_out_pins(&config, PIN_I2S_DIN, 1);
     sm_config_set_in_pins(&config, PIN_I2S_DOUT);
     sm_config_set_sideset_pins(&config, PIN_I2S_BCLK);
@@ -115,7 +124,8 @@ static void stream_start(void) {
     pio_sm_set_consecutive_pindirs(tdm_pio, tdm_sm, PIN_I2S_BCLK, 2, true);
     /* DOUT is synchronous to our own BCLK and stable for the whole bit around the sampling
        edge, so the input synchronizer only costs margin: without it the falling-edge sample
-       sees the pad 41.7 ns after the codec's launch edge (td <= 14 ns + pad and rise). */
+       sees the pad half a BCLK (41.7 ns at 187.5 kHz, 27.8 ns at 375 kHz) after the codec's
+       launch edge (td <= 14 ns + pad and rise). */
     tdm_pio->input_sync_bypass |= 1u << PIN_I2S_DOUT;
 
     dma_channel_config c = dma_channel_get_default_config(ch_snap);
@@ -143,7 +153,7 @@ static void stream_start(void) {
     pio_sm_set_enabled(tdm_pio, tdm_sm, true);
 }
 /* Make wave_buffer[next] (already written) the waveform from the next wrap on. The swap
-   happens right after a wrap, at least 16 frames (85 us) before the next one, with
+   happens right after a wrap, at least 16 frames (43 us at 375 kHz) before the next one, with
    interrupts off so the two writes stay together; the call returns once the new waveform
    has started. Both buffers only ever hold words within the source limit (a rejected
    upload is zeroed), so even a swap split by a wrap could only play one period of
@@ -247,28 +257,32 @@ static const char *selftest(void) {
 }
 
 /* ---------------------------------------------------------------- range relays */
-/* TQ2SA-L2 dual-coil latching relays (docs/rev-e-range-switching.md 3.2): source silent,
-   RESET all three for 20 ms, SET the chosen one for 20 ms, wait 10 ms, restore the source. */
-static bool select_range(int ohm) {
-    uint set_pin = ohm == 100 ? PIN_RNG_SET_LO : ohm == 5000 ? PIN_RNG_SET_MED : PIN_RNG_SET_HI;
+static void relay_put(void *context, unsigned pin, bool on) {
+    (void)context;
+    gpio_put(pin, on);
+}
+static const relay_io relays = {0, relay_put, io_sleep};
+/* TQ2SA-L2 dual-coil latching relays (docs/rev-e-range-switching.md 3.2, src/relay.c): source
+   silent, RESET all four for 20 ms, SET the range relay for 20 ms, SET K4 for 20 ms if
+   `reference`, wait 10 ms, restore the source. Without `force` nothing switches if the source
+   cannot be silenced; with it the relays switch anyway (boot and the end of REFCAPTURE, which
+   must leave K4 open whatever else failed). */
+static bool select_relays(int ohm, bool reference, bool force) {
     uint keep = wave_active;
     uint32_t keep_period = wave_period, keep_cycles = wave_cycles, keep_mv = wave_mv;
-    if (!wave_silence()) return false;
+    bool silent = wave_silence();
+    if (!silent && !force) return false;
     sleep_ms(5); /* codec filter delay and analog settling: contacts switch dry */
-    gpio_put(PIN_RNG_RESET, true);
-    sleep_ms(20);
-    gpio_put(PIN_RNG_RESET, false);
-    gpio_put(set_pin, true);
-    sleep_ms(20);
-    gpio_put(set_pin, false);
+    if (!relay_select(&relays, (uint32_t)ohm, reference)) return false;
     sleep_ms(10);
     range_ohm = ohm;
     /* wave_silence wrote the other buffer, so the previous waveform is intact. */
     if (!wave_activate(keep, keep_period)) return false;
     wave_cycles = keep_cycles;
     wave_mv = keep_mv;
-    return true;
+    return silent;
 }
+static bool select_range(int ohm) { return select_relays(ohm, false, false); }
 
 /* ---------------------------------------------------------------- protocol 3 */
 static uint32_t rail_sum(uint input) {
@@ -404,8 +418,15 @@ static void process_command(const char *line) {
     }
     bool raw = sscanf(line, "RAW %" SCNu32 " %c", &a, &trailing) == 1;
     bool avg = !raw && sscanf(line, "CAPTURE %" SCNu32 " %" SCNu32 " %c", &a, &b, &trailing) == 2;
-    if (!raw && !avg) {
+    /* REFCAPTURE RANGE SKIP PERIODS: CAPTURE of the internal 1 kOhm reference (K4) on RANGE. */
+    bool ref = !raw && !avg &&
+               sscanf(line, "REFCAPTURE %" SCNu32 " %" SCNu32 " %" SCNu32 " %c", &c, &a, &b, &trailing) == 3;
+    if (!raw && !avg && !ref) {
         puts("ERR command");
+        return;
+    }
+    if (ref && relay_set_pin(c) == 0u) {
+        puts("ERR range");
         return;
     }
     /* RAW COUNT: COUNT consecutive frames. CAPTURE SKIP PERIODS: skip SKIP whole periods,
@@ -417,6 +438,14 @@ static void process_command(const char *line) {
         puts("ERR limits_or_selftest");
         return;
     }
+    /* The reference relay is closed only here, together with one range relay, and opened
+       again (RESET, then the range that was selected before) before the reply. */
+    int restore = range_ohm ? range_ohm : (int)c;
+    if (ref && !select_relays((int)c, true, false)) {
+        select_relays(restore, false, true);
+        puts("ERR stream_sync");
+        return;
+    }
     syncavg_t s;
     if (raw) syncavg_init_raw(&s, out.raw, (uint32_t)frames);
     else syncavg_init_average(&s, out.sum, wave_period, (uint32_t)frames);
@@ -424,6 +453,7 @@ static void process_command(const char *line) {
     capture_result r = capture(&s, (uint32_t)skip, TAC_POWER_ALL,
                                (uint32_t)((skip + frames) * 1000u / FS_HZ) + 100u);
     gpio_put(PIN_LED, false);
+    if (ref && !select_relays(restore, false, true) && r == CAPTURE_OK) r = CAPTURE_SYNC;
     if (r != CAPTURE_OK) {
         codec_ok = false;
         printf("ERR %s\n", capture_error(r));
@@ -437,8 +467,8 @@ int main(void) {
     set_sys_clock_khz(SYSTEM_CLOCK_HZ / 1000u, true);
     gpio_init(PIN_LED);
     gpio_set_dir(PIN_LED, GPIO_OUT);
-    const uint relay_pins[] = {PIN_RNG_RESET, PIN_RNG_SET_LO, PIN_RNG_SET_MED, PIN_RNG_SET_HI};
-    for (unsigned i = 0; i < 4; ++i) {
+    const uint relay_pins[] = {PIN_RNG_RESET, PIN_RNG_SET_LO, PIN_RNG_SET_MED, PIN_RNG_SET_HI, PIN_RNG_SET_REF};
+    for (unsigned i = 0; i < sizeof relay_pins / sizeof relay_pins[0]; ++i) {
         gpio_init(relay_pins[i]);
         gpio_put(relay_pins[i], false);
         gpio_set_dir(relay_pins[i], GPIO_OUT);
@@ -463,8 +493,9 @@ int main(void) {
     stream_start(); /* silent waveform, clocks running before the codec is configured */
     sleep_ms(5);    /* codec POR: 2 ms after the supplies */
     codec_ok = tac5112_start(&codec) == TAC_OK && selftest() == NULL;
-    /* Relays keep their state through power-off: always start on the 100 kOhm range. */
-    if (!select_range(100000)) codec_ok = false;
+    /* Relays keep their state through power-off (K4 too, if power failed during a
+       REFCAPTURE): always RESET all four and start on the 100 kOhm range, K4 open. */
+    if (!select_relays(100000, false, true)) codec_ok = false;
     while (!gpio_get(PIN_USB_VBUS)) tight_loop_contents();
     stdio_init_all();
     stdio_set_translate_crlf(&stdio_usb, false);

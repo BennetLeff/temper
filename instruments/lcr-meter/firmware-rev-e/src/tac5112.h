@@ -40,8 +40,32 @@
 #define TAC_CHANNELS 0xC8u
 #define TAC_POWER_ALL 0xC0u     /* PWR_CFG: ADC_PDZ | DAC_PDZ */
 #define TAC_POWER_ADC 0x80u     /* PWR_CFG: ADC only (SELFTEST loopback, DAC silent) */
-/* CLK_DET_STS0[7:2] = 10: the 167.58-197.76 kHz sample-rate bin that holds 187.5 kHz. */
+/* Per sample-rate build (pins.h LCR_FS_375K; README "Sample rate"):
+   - PASI_CFG0: TDM, standard polarities, bus-error detection and auto resume on, word
+     length 32 bits (0x30) or 24 bits (0x20) to match the 64- or 48-BCLK frame (Table 8-25).
+   - DSP_CFG0/1 [7:6]: decimation / interpolation filter (Tables 8-102, 8-103). 187.5 kHz is
+     in the 192 kHz class, where the linear-phase filters pass only 0.223 fs (ADC, Table 7-31)
+     and 0.258 fs (DAC, Table 7-57) and the ADC stop band (>= 80 dB) starts at 0.391 fs =
+     73 kHz; the low-latency filters pass 0.456 fs (ADC, Table 7-38) and 0.452 fs (DAC,
+     Table 7-64). 375 kHz is in the 384 kHz class, which has only linear-phase specifications:
+     0.227 fs ADC (Table 7-32) and 0.258 fs DAC (Table 7-58). Low-latency phase deviation is
+     a fixed property of the filter, identical in both ADC channels, so it cancels in A/B.
+     Bits [5:0] = 0x02: HPF = programmable IIR at its all-pass default, no biquads, no
+     soft-stepping.
+   - CLK_DET_STS0[7:2]: the detected sample-rate bin (Table 8-59): 10 = 167.58-197.76 kHz
+     holds 187.5 kHz; 5 = 335.16-395.52 kHz holds 375 kHz. */
+#ifndef LCR_FS_375K
+#define LCR_FS_375K 0
+#endif
+#if !LCR_FS_375K
+#define TAC_PASI_FORMAT 0x30u
+#define TAC_DSP_FILTERS 0x42u /* low-latency */
 #define TAC_RATE_BIN 10u
+#else
+#define TAC_PASI_FORMAT 0x20u
+#define TAC_DSP_FILTERS 0x02u /* linear-phase */
+#define TAC_RATE_BIN 5u
+#endif
 
 typedef struct {
     void *context;
@@ -55,7 +79,7 @@ typedef enum {
     TAC_ERR_BUS,     /* no I2C acknowledge */
     TAC_ERR_POWER,   /* DEV_STS0 does not show both ADC channels and DAC channel 1 up */
     TAC_ERR_MODE,    /* DEV_STS1 mode is not "active with a channel on" */
-    TAC_ERR_CLOCK,   /* detected sample rate is not the 187.5 kHz bin */
+    TAC_ERR_CLOCK,   /* detected sample rate is not the build's bin (TAC_RATE_BIN) */
 } tac5112_status;
 
 /* Software reset, wake, configure and power up. BCLK and FSYNC must already run. */

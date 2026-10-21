@@ -20,6 +20,10 @@ pub const HARDWARE_REVISION_E: &str = "E-codec";
 /// Frame rate: 120 MHz / 10 = 12 MHz BCLK, 64 BCLK per frame. Exact.
 pub const SAMPLE_RATE_HZ: u32 = 187_500;
 pub const SYSTEM_CLOCK_HZ_E: u32 = 120_000_000;
+/// The firmware's opt-in 375 kHz build (`LCR_FS_375K`): 108 MHz / 6, 48 BCLK per frame. This
+/// host's tone, settling and length rules assume 187.5 kHz, so it refuses that build by name.
+pub const SAMPLE_RATE_375K_HZ: u32 = 375_000;
+pub const SYSTEM_CLOCK_375K_HZ: u32 = 108_000_000;
 pub const MIN_PERIOD: u32 = 16;
 pub const MAX_PERIOD: u32 = 4096;
 /// Highest tone the firmware accepts (wideband-mode passband, 0.454 fs).
@@ -84,6 +88,11 @@ pub fn parse_info_e(line: &str) -> Result<InfoE> {
         ));
     }
     let number = |i: usize| w[i].parse::<u32>().map_err(|_| bad());
+    if (number(4)?, number(5)?) == (SYSTEM_CLOCK_375K_HZ, SAMPLE_RATE_375K_HZ) {
+        return Err(format!(
+            "this is the firmware's 375 kHz build (temper-lcr-rev-e-375k.uf2); this host speaks the default {SAMPLE_RATE_HZ} Hz build only: flash temper-lcr-rev-e.uf2 ({line})"
+        ));
+    }
     let info = InfoE {
         unit_id: w[3].into(),
         system_clock_hz: number(4)?,
@@ -363,6 +372,26 @@ pub fn check_capture(skip: u32, periods: u32, period: u32) -> Result<()> {
 }
 pub fn capture_seconds(skip: u32, periods: u32, period: u32) -> f64 {
     (f64::from(skip) + f64::from(periods)) * f64::from(period) / f64::from(SAMPLE_RATE_HZ)
+}
+
+// ------------------------------------------------------------------ internal reference (K4)
+/// The internal reference K4 switches across HCUR-LCUR for `REFCAPTURE`: 1 kOhm, 0.1 %.
+pub const REFERENCE_OHM: f64 = 1000.0;
+pub const REFERENCE_TOLERANCE: f64 = 1e-3;
+/// Fixture name of `refcheck` captures: the reference bypasses the external fixture.
+pub const REFERENCE_FIXTURE: &str = "internal-reference-1k";
+/// Current-channel peak at the TIA output that reaches ADC full scale: 2 Vrms differential
+/// (2.828 V peak) behind the 1k/1k divider (`CHANNEL_DIVIDER_K`).
+pub const TIA_FULL_SCALE_PEAK_V: f64 = 2.0 * std::f64::consts::SQRT_2 / CHANNEL_DIVIDER_K;
+/// Default `refcheck` level on `range`: the current channel at 75 % of full scale with the
+/// reference (plus R_iso) as the DUT at DC, capped at the source limit. 100 ohm: 1700 mV;
+/// 5 kOhm: 863 mV; 100 kOhm: 43 mV.
+pub fn reference_default_mv(range: u32) -> Result<u32> {
+    feedback(range, 1000.0)?;
+    let iso = ISOLATION_RESISTOR_OHM;
+    let mv =
+        0.75 * TIA_FULL_SCALE_PEAK_V * 1000.0 * (REFERENCE_OHM + iso) / (f64::from(range) + iso);
+    Ok((mv.floor() as u32).clamp(1, TONE_MAX_MV))
 }
 
 /// What the capture commands will do for one frequency on one range, without a device.

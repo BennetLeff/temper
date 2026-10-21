@@ -17,6 +17,7 @@ const USAGE: &str = "Usage (the board, Rev D protocol 2 or Rev E protocol 3, is 
   temper-lcr noise PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard]   (Rev D)
   temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E; sets the range relay, FREQ_HZ must be exact)
   temper-lcr capture-wave PORT RANGE_OHM FIXTURE WAVE.txt BIN[,BIN...] OUT.json [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E multitone)
+  temper-lcr refcheck PORT RANGE_OHM FREQ_HZ[,FREQ_HZ...] OUT.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E; internal 1 kOhm reference via K4, DUT terminals open)
   temper-lcr range PORT 100|5000|100000   (Rev E)
   temper-lcr off PORT   (Rev E)
   temper-lcr codec PORT   (Rev E)
@@ -177,6 +178,47 @@ fn capture_e(d: &mut DeviceE, freqs: &[f64], out: &str, o: &EOptions) -> Result<
         },
     )
 }
+/// `REFCAPTURE` per frequency: the internal 1 kOhm reference on `range`, for a drift or self
+/// check. The file is an ordinary Rev E capture with fixture `internal-reference-1k`.
+fn refcheck_e(d: &mut DeviceE, range: u32, freqs: &[f64], out: &str, o: &EOptions) -> Result<()> {
+    for &hz in freqs {
+        rev_e::tone_for_hz(hz)?;
+    }
+    let mv = match o.mv {
+        Some(mv) => mv,
+        None => rev_e::reference_default_mv(range)?,
+    };
+    rev_e::check_tone(1, rev_e::MAX_PERIOD, mv)?;
+    d.selftest()?;
+    d.rails()?;
+    let mut records = Vec::new();
+    for &hz in freqs {
+        let (_, period) = rev_e::tone_for_hz(hz)?;
+        let record = d.reference_tone(range, hz, mv, o.skip, o.periods_for(period)?)?;
+        records.push(record);
+    }
+    d.off()?;
+    let mut setup = d.setup.clone();
+    setup.range_ohm = range;
+    setup.fixture = rev_e::REFERENCE_FIXTURE.into();
+    for record in &records {
+        for m in rev_e::analyze_e(record, range)? {
+            println!(
+                "{} Hz, {range} ohm range, {mv} mV: |Z| {:.4} ohm ({:+.4} % from 1 kOhm), phase {:.4} deg, uncalibrated{}",
+                m.frequency_hz,
+                m.magnitude_ohm,
+                (m.magnitude_ohm / rev_e::REFERENCE_OHM - 1.0) * 100.0,
+                m.phase_degrees,
+                if m.issues.is_empty() {
+                    String::new()
+                } else {
+                    format!(" ({})", m.issues.join("; "))
+                }
+            );
+        }
+    }
+    write(out, &SweepE { setup, records })
+}
 fn capture_wave_e(
     d: &mut DeviceE,
     words_file: &str,
@@ -313,6 +355,7 @@ fn run(args: &[String]) -> Result<()> {
     let valued: &[&str] = match command {
         "capture" => &E_VALUE_FLAGS,
         "capture-wave" => &["--skip", "--periods", "--seconds"],
+        "refcheck" => &E_VALUE_FLAGS,
         _ => &[],
     };
     if let Some(bad) = flags.iter().find(|f| {
@@ -352,6 +395,12 @@ fn run(args: &[String]) -> Result<()> {
                 Board::E(mut d) => d.boot()?,
             }
             println!("rebooted into the USB bootloader: copy the UF2 to the RPI-RP2 drive");
+        }
+        ("refcheck", 5) => {
+            let range: u32 = number(a[2])?;
+            let freqs = frequencies(a[3])?;
+            let mut d = rev_e_only(Board::open(a[1], range, rev_e::REFERENCE_FIXTURE)?, command)?;
+            refcheck_e(&mut d, range, &freqs, a[4], &e_options(&flags)?)?;
         }
         ("range", 3) => {
             let mut d = rev_e_only(Board::open(a[1], number(a[2])?, "diagnostic")?, command)?;

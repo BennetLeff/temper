@@ -904,6 +904,9 @@ const INFO_E: &str = "INFO 3 E-codec e66052 120000000 187500 4096 100000 16 0 0 
 const INFO_D: &str = "INFO 2 D-riso22 device 120000000 24000000 120 16384 PASS";
 #[test]
 fn identity_is_parsed_and_the_protocol_selected_from_info() {
+    let fast =
+        parse_info_e("INFO 3 E-codec u 108000000 375000 4096 100000 16 0 0 PASS").unwrap_err();
+    assert!(fast.contains("375 kHz build"), "{fast}");
     let info = parse_info_e(INFO_E).unwrap();
     assert_eq!(
         (info.range_ohm, info.period, info.cycles, info.mv),
@@ -1353,6 +1356,23 @@ fn spawn_fake_e(state: Shared) -> Fake {
                 let payload = st.model.data_payload(&st.words, skip, periods);
                 framed("DATA", st.words.len(), periods as usize, payload, &st)
             }
+            ("REFCAPTURE", 4) => {
+                // K4 puts the 1 kOhm reference on the requested range; the previous range is
+                // re-selected afterwards, so the model's range does not change.
+                let (range, skip, periods) =
+                    (n(1).unwrap_or(0), n(2).unwrap_or(0), n(3).unwrap_or(0));
+                if ![100, 5000, 100_000].contains(&range) {
+                    return reply("ERR range");
+                }
+                if let Some(e) = st.capture_error {
+                    return reply(&format!("ERR {e}"));
+                }
+                let mut reference = st.model.clone();
+                reference.range = range;
+                reference.dut = resistor(REFERENCE_OHM);
+                let payload = reference.data_payload(&st.words, skip, periods);
+                framed("DATA", st.words.len(), periods as usize, payload, &st)
+            }
             ("RAW", 2) => {
                 let count = n(1).unwrap_or(0) as usize;
                 let payload = st.model.raw_payload(&st.words, count);
@@ -1441,6 +1461,88 @@ fn client_speaks_every_protocol_3_command() {
         assert!(all.contains(&expected.to_owned()), "{expected} in {all:?}");
     }
     assert!(all.iter().any(|c| c.starts_with("WAVE 125 ")));
+}
+#[test]
+fn reference_capture_measures_the_internal_1k_and_keeps_the_range() {
+    // Defaults: the current channel at 75 % of full scale with 1 kOhm + R_iso as the DUT.
+    assert_eq!(reference_default_mv(100).unwrap(), 1700);
+    assert_eq!(reference_default_mv(5000).unwrap(), 863);
+    assert_eq!(reference_default_mv(100_000).unwrap(), 43);
+    assert!(reference_default_mv(7).is_err());
+    let state = fake_e_state(Virtual::new(100, coil(0.5, 100e-6)));
+    let fake = spawn_fake_e(state.clone());
+    let Board::E(mut d) = Board::open(&fake.path, 100, "fixture-1").unwrap() else {
+        panic!("Rev E expected");
+    };
+    for range in [100, 5000, 100_000] {
+        let mv = reference_default_mv(range).unwrap();
+        let record = d.reference_tone(range, 27_000.0, mv, None, None).unwrap();
+        assert!(!record.clipped(0) && !record.clipped(1), "range {range}");
+        let m = &analyze_e(&record, range).unwrap()[0];
+        assert!(m.valid, "range {range}: {:?}", m.issues);
+        assert_close(m.impedance_ohm, cx(REFERENCE_OHM, 0.0), 2e-3, "reference");
+    }
+    // Full level clips the current channel on 5 kOhm: the reason for the default.
+    let clipped = d.reference_tone(5000, 27_000.0, 1700, None, None).unwrap();
+    assert!(clipped.clipped(1));
+    // The coil on the DUT terminals was never measured, and the range is unchanged.
+    assert_eq!(d.refresh_info().unwrap().range_ohm, 100);
+    assert_eq!(d.setup.range_ohm, 100);
+    let sent = commands(&state);
+    let skip = default_skip_periods(5000, 27_000.0, 125).unwrap();
+    assert!(sent.contains(&format!("REFCAPTURE 5000 {skip} {}", default_periods(125))));
+    assert!(!sent.iter().any(|c| c.starts_with("RANGE")));
+    // A bad range is refused on the host; the firmware's ERR range is reported too.
+    assert!(d.reference_capture(1000, 1, 1).is_err());
+    assert_eq!(commands(&state).len(), sent.len());
+    state.lock().unwrap().capture_error = Some("stream_sync");
+    let err = d.reference_capture(100, 1, 1).unwrap_err();
+    assert!(err.contains("stream_sync"), "{err}");
+}
+#[test]
+fn cli_refcheck_reports_and_saves_the_reference() {
+    let state = fake_e_state(Virtual::new(5000, resistor(10.0)));
+    let fake = spawn_fake_e(state.clone());
+    let folder = scratch("refcheck");
+    let out_file = folder.join("reference.json");
+    let out = run_cli(&[
+        "refcheck",
+        &fake.path,
+        "5000",
+        "1000,27000",
+        out_file.to_str().unwrap(),
+        "--skip=2",
+        "--periods=40",
+    ]);
+    assert!(out.status.success(), "{}", stderr(&out));
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert_eq!(
+        stdout.matches("|Z| 1000.").count() + stdout.matches("|Z| 999.").count(),
+        2,
+        "{stdout}"
+    );
+    let sent = commands(&state);
+    for expected in [
+        "SELFTEST",
+        "TONE 2 375 863",
+        "REFCAPTURE 5000 2 40",
+        "TONE 18 125 863",
+        "OFF",
+    ] {
+        assert!(
+            sent.contains(&expected.to_owned()),
+            "{expected} in {sent:?}"
+        );
+    }
+    let sweep = parse_sweep_e(&std::fs::read_to_string(&out_file).unwrap()).unwrap();
+    assert_eq!(sweep.setup.fixture, REFERENCE_FIXTURE);
+    assert_eq!((sweep.setup.range_ohm, sweep.records.len()), (5000, 2));
+    let analyzed = run_cli(&["analyze", out_file.to_str().unwrap()]);
+    assert!(analyzed.status.success(), "{}", stderr(&analyzed));
+    assert!(!run_cli(&["refcheck", &fake.path, "7", "1000", "x.json"])
+        .status
+        .success());
+    std::fs::remove_dir_all(folder).unwrap();
 }
 #[test]
 fn client_reports_device_errors_and_damaged_payloads() {
@@ -1790,6 +1892,12 @@ fn firmware_host_contract_rev_e() {
     }
     // The firmware's range set and its error replies.
     assert!(main.contains("a != 100u && a != 5000u && a != 100000u"));
+    // REFCAPTURE and the K4 driver on GPIO14 (RP2040 pin 17; GPIO12 has no escape).
+    assert!(main.contains("\"REFCAPTURE %"));
+    assert_eq!(constant(pins, "PIN_RNG_SET_REF"), 14);
+    // The firmware's 375 kHz build, which this host refuses by name.
+    assert!(pins.contains(&format!("#define SYSTEM_CLOCK_HZ {SYSTEM_CLOCK_375K_HZ}u")));
+    assert!(wave.contains(&format!("#define FS_HZ {SAMPLE_RATE_375K_HZ}u")));
     for reply in [
         "ERR period",
         "ERR frequency",

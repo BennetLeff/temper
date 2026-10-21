@@ -6,14 +6,19 @@ include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 project(temper_lcr_rev_e C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 pico_sdk_init()
-add_executable(temper_lcr src/main.c src/syncavg.c src/wave.c src/tac5112.c)
+# 0: 187.5 kHz (default); 1: 375 kHz (README "Sample rate"). Both PIO programs are always
+# assembled so tools/verify_tdm.rs checks both from either build.
+set(LCR_FS_375K 0 CACHE STRING "1 builds the 375 kHz sample-rate variant")
+add_executable(temper_lcr src/main.c src/syncavg.c src/wave.c src/tac5112.c src/relay.c)
 pico_generate_pio_header(temper_lcr ${CMAKE_CURRENT_LIST_DIR}/src/tdm.pio)
+pico_generate_pio_header(temper_lcr ${CMAKE_CURRENT_LIST_DIR}/src/tdm375.pio)
 target_include_directories(temper_lcr PRIVATE src)
 target_link_libraries(temper_lcr pico_stdlib pico_bootrom pico_unique_id hardware_pio hardware_dma
                       hardware_clocks hardware_adc hardware_i2c)
 target_compile_options(temper_lcr PRIVATE -Wall -Wextra -Werror)
 target_compile_definitions(temper_lcr PRIVATE
     SYNCAVG_IN_RAM=1
+    LCR_FS_375K=${LCR_FS_375K}
     PICO_DEFAULT_UART_TX_PIN=28
     PICO_DEFAULT_UART_RX_PIN=29
     PICO_STDIO_USB_DEVICE_SELF_POWERED=1

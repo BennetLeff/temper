@@ -1,0 +1,50 @@
+; 375 kHz build (LCR_FS_375K, README "Sample rate"). TAC5112 primary ASI, TDM, 24-bit slots,
+; TX_OFFSET 0, default polarities; RP2040 is the clock controller. side bits [1:0] = FSYNC,
+; BCLK on consecutive GPIO 5, 4.
+; 6 cycles per BCLK at clock divider 1 (108 MHz -> 18 MHz), 48 BCLK per frame (375 kHz).
+; Every bit: rising edge launches DIN and FSYNC (3 cycles high, 27.8 ns), falling edge samples
+; DOUT (3 cycles low). The codec launches DOUT on the rising edge (<= 14 ns) and latches DIN
+; and FSYNC on the falling edge (SLASF24A 7.3.1.2.1, 6.10, 6.11). Sampling on the opposite
+; edge needs BCLK high and low above 25 ns (6.10 note 1): 27.8 ns here.
+; Slot 0: DAC channel 1 out (the top 24 bits of the DAC word), ADC channel 1 in. Slot 1: zeros
+; out, ADC channel 2 in. Each ADC word is left-justified (8 zero bits shifted in) before its
+; push, so the RX words have the 32-bit-slot layout and src/syncavg.c is unchanged.
+; The next DAC word is pulled at slot 1 bit 12, mid-way between the pushes (frame cycles 143
+; and 287), so the DMA chain that fires on a TX refill (src/main.c) lands between them.
+; A TX underflow stalls on the blocking pull (FDEBUG TXSTALL); a full RX FIFO drops the
+; word on the non-blocking push (FDEBUG RXSTALL). The firmware treats either as a fault.
+.program tdm375
+.side_set 2
+    pull block           side 0b00      ; first DAC word
+.wrap_target
+    out pins, 1          side 0b11 [2]  ; slot 0 bit 23, FSYNC high
+    in pins, 1           side 0b10
+    set x, 21            side 0b10 [1]
+slot0:
+    out pins, 1          side 0b01 [2]  ; bits 22..1
+    in pins, 1           side 0b00
+    jmp x-- slot0        side 0b00 [1]
+    out pins, 1          side 0b01 [2]  ; bit 0
+    in pins, 1           side 0b00
+    in null, 8           side 0b00
+    push noblock         side 0b00      ; ADC channel 1 (frame cycle 143)
+    mov pins, null       side 0b01 [2]  ; slot 1 bit 23
+    in pins, 1           side 0b00
+    set x, 9             side 0b00 [1]
+slot1a:
+    mov pins, null       side 0b01 [2]  ; bits 22..13
+    in pins, 1           side 0b00
+    jmp x-- slot1a       side 0b00 [1]
+    mov pins, null       side 0b01 [2]  ; bit 12
+    in pins, 1           side 0b00
+    pull block           side 0b00      ; next DAC word (frame cycle 214)
+    set x, 10            side 0b00
+slot1b:
+    mov pins, null       side 0b01 [2]  ; bits 11..1
+    in pins, 1           side 0b00
+    jmp x-- slot1b       side 0b00 [1]
+    mov pins, null       side 0b01 [2]  ; bit 0
+    in pins, 1           side 0b00
+    in null, 8           side 0b00
+    push noblock         side 0b00      ; ADC channel 2 (frame cycle 287)
+.wrap

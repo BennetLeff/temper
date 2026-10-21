@@ -10,12 +10,24 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/* Frame rate of the build (pins.h): exact, SYSTEM_CLOCK_HZ / BCLK_CYCLES / FRAME_BCLKS. The
+   default build comes first: the host's contract test reads the first FS_HZ. */
+#ifndef LCR_FS_375K
+#define LCR_FS_375K 0
+#endif
+#if !LCR_FS_375K
 #define FS_HZ 187500u
+#else
+#define FS_HZ 375000u
+#endif
 #define WAVE_MIN_PERIOD 16u
 #define WAVE_MAX_PERIOD 4096u
 #define SOURCE_LIMIT_MV 1700u
 #define SOURCE_LIMIT_CODE 1419797733
-#define TONE_MAX_HZ 85000u /* wideband-mode passband, 0.454 fs */
+/* Both builds: the ADC filter passband (187.5 kHz, low-latency filters: 0.456 fs = 85.5 kHz,
+   SLASF24A Table 7-38; 375 kHz, linear-phase filters: 0.227 fs = 85.1 kHz, Table 7-32) under
+   the 90 kHz wideband analog bandwidth (SLASF24A 7.3.9.1, 7.3.9.2). */
+#define TONE_MAX_HZ 85000u
 
 typedef enum {
     WAVE_OK = 0,

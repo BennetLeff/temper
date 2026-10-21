@@ -462,9 +462,38 @@ impl DeviceE {
     }
     /// `CAPTURE skip periods`: the decoded payload and the device's CRC of it.
     pub fn capture(&mut self, skip: u32, periods: u32) -> Result<(rev_e::DataPayload, u32)> {
+        self.data_capture(&format!("CAPTURE {skip} {periods}"), skip, periods, 0.0)
+    }
+    /// `REFCAPTURE range skip periods`: as [`DeviceE::capture`], of the internal 1 kOhm
+    /// reference on `range`. The firmware closes K4 with `range`, captures, then RESETs and
+    /// re-selects the range that was selected before, so the setup's range is unchanged.
+    pub fn reference_capture(
+        &mut self,
+        range: u32,
+        skip: u32,
+        periods: u32,
+    ) -> Result<(rev_e::DataPayload, u32)> {
+        if ![100, 5000, 100_000].contains(&range) {
+            return Err("range must be 100, 5000 or 100000 ohms".into());
+        }
+        // Two relay sequences (silence, 5 ms, three 20 ms pulses at most, 10 ms, restore).
+        self.data_capture(
+            &format!("REFCAPTURE {range} {skip} {periods}"),
+            skip,
+            periods,
+            0.5,
+        )
+    }
+    fn data_capture(
+        &mut self,
+        command: &str,
+        skip: u32,
+        periods: u32,
+        extra_seconds: f64,
+    ) -> Result<(rev_e::DataPayload, u32)> {
         rev_e::check_capture(skip, periods, self.period)?;
-        self.command(&format!("CAPTURE {skip} {periods}"))?;
-        let seconds = rev_e::capture_seconds(skip, periods, self.period);
+        self.command(command)?;
+        let seconds = rev_e::capture_seconds(skip, periods, self.period) + extra_seconds;
         let line = self.line_within(seconds + 10.0)?;
         let (period, echoed, crc) = rev_e::parse_reply_header(&line, "DATA")?;
         if period != self.period || echoed != periods {
@@ -509,6 +538,34 @@ impl DeviceE {
         };
         let periods = periods.unwrap_or_else(|| rev_e::default_periods(period));
         let (payload, crc) = self.capture(skip, periods)?;
+        let record = RecordE::from_capture(
+            SourceE::Tone { cycles, mv },
+            vec![cycles],
+            skip,
+            periods,
+            payload,
+            crc,
+        );
+        record.validate()?;
+        Ok(record)
+    }
+    /// Plays `hz` at `mv` and captures the internal reference on `range` (`REFCAPTURE`): the
+    /// same defaults as [`DeviceE::capture_tone`], settling for `range`.
+    pub fn reference_tone(
+        &mut self,
+        range: u32,
+        hz: f64,
+        mv: u32,
+        skip: Option<u32>,
+        periods: Option<u32>,
+    ) -> Result<RecordE> {
+        let (cycles, period) = self.tone_hz(hz, mv)?;
+        let skip = match skip {
+            Some(s) => s,
+            None => rev_e::default_skip_periods(range, hz, period)?,
+        };
+        let periods = periods.unwrap_or_else(|| rev_e::default_periods(period));
+        let (payload, crc) = self.reference_capture(range, skip, periods)?;
         let record = RecordE::from_capture(
             SourceE::Tone { cycles, mv },
             vec![cycles],

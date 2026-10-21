@@ -5,11 +5,12 @@ typedef struct {
 } reg_value;
 
 /* Written after the wake-up wait, in this order. Channel enables and power come last
-   (SLASF24A 7.4.2). Defaults kept: TDM, 32-bit slots, ADC channel 1 on slot 0 and channel 2
-   on slot 1, DAC channel 1 from slot 0, 2.75 V VREF, 0 dB digital volume, VCOM 1.65 V. */
+   (SLASF24A 7.4.2). Defaults kept: ADC channel 1 on slot 0 and channel 2 on slot 1, DAC
+   channel 1 from slot 0, 2.75 V VREF, 0 dB digital volume, VCOM 1.65 V. Word length and
+   filters depend on the sample-rate build (tac5112.h). */
 static const reg_value config[] = {
     {TAC_INTF_CFG1, TAC_DOUT_ASI},
-    {TAC_PASI_CFG0, 0x30u},       /* TDM, 32-bit, standard polarities, bus-error recovery on */
+    {TAC_PASI_CFG0, TAC_PASI_FORMAT}, /* TDM, 32- or 24-bit, standard polarities, bus-error recovery on */
     {TAC_PASI_TX_CH1_CFG, 0x20u}, /* ADC channel 1 -> slot 0 */
     {TAC_PASI_TX_CH2_CFG, 0x21u}, /* ADC channel 2 -> slot 1 */
     {TAC_PASI_RX_CH1_CFG, 0x20u}, /* slot 0 -> DAC channel 1 */
@@ -17,10 +18,10 @@ static const reg_value config[] = {
     {TAC_ADC_CH1_CFG0, TAC_ADC_CFG},
     {TAC_ADC_CH2_CFG0, TAC_ADC_CFG},
     {TAC_OUT1X_CFG1, 0x21u},      /* line out, 0 dB, DAC_CH1_BW_MODE wideband */
-    /* Linear-phase filters, HPF = programmable IIR at its all-pass default, no biquads,
-       no soft-stepping: nothing in the path depends on the data. */
-    {TAC_DSP_CFG0, 0x02u},
-    {TAC_DSP_CFG1, 0x02u},
+    /* Filters for the build's rate (tac5112.h), HPF = programmable IIR at its all-pass
+       default, no biquads, no soft-stepping: nothing in the path depends on the data. */
+    {TAC_DSP_CFG0, TAC_DSP_FILTERS},
+    {TAC_DSP_CFG1, TAC_DSP_FILTERS},
     {TAC_CH_EN, TAC_CHANNELS},
 };
 

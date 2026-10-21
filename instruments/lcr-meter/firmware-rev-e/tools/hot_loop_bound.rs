@@ -1,5 +1,7 @@
 //! Static worst-case cycle bound for the synchronous-averaging hot loop (`syncavg_feed`).
-//! Input: `arm-none-eabi-objdump -d --no-show-raw-insn` of the firmware ELF.
+//! Input: `arm-none-eabi-objdump -d --no-show-raw-insn` of the firmware ELF, and the build's
+//! budget in system clocks per frame (SYSTEM_CLOCK_HZ / FS_HZ: 640 for the 187.5 kHz build at
+//! 120 MHz, 288 for the 375 kHz build at 108 MHz; default 640).
 //! The function holds two loop bodies (averaging and raw) and a bin-wrap path. The bound
 //! charges every instruction from the lowest backward-branch target to the highest
 //! backward-branch source once, with every branch taken: one frame executes a subset of
@@ -7,7 +9,6 @@
 //! the sum bounds a frame in either mode. Cortex-M0+ timings with zero-wait-state SRAM
 //! (ARM DDI 0484C, table 3-1); DMA bus-arbitration stalls are not modelled.
 use std::{env, fs};
-const BUDGET: u32 = 640; // sys clocks per 187.5 kHz frame at 120 MHz
 fn is_call(m: &str) -> bool {
     matches!(m.split('.').next(), Some("bl" | "blx" | "bx"))
 }
@@ -30,7 +31,8 @@ fn cycles(mnemonic: &str, operands: &str) -> u32 {
 }
 fn main() {
     let a: Vec<_> = env::args().collect();
-    assert_eq!(a.len(), 2, "usage: hot_loop_bound OBJDUMP.txt");
+    assert!(a.len() == 2 || a.len() == 3, "usage: hot_loop_bound OBJDUMP.txt [CYCLES_PER_FRAME]");
+    let budget: u32 = a.get(2).map_or(640, |b| b.parse().expect("budget"));
     let text = fs::read_to_string(&a[1]).unwrap();
     let body: Vec<(u32, String, String)> = text
         .lines()
@@ -67,10 +69,10 @@ fn main() {
             count += 1;
         }
     }
-    assert!(total < BUDGET, "hot loop bound {total} >= {BUDGET} cycles");
+    assert!(total < budget, "hot loop bound {total} >= {budget} cycles");
     println!(
         "PASS: syncavg_feed loops {head:#010x}..{tail:#010x} in SRAM, {count} instructions, \
-         worst-case bound {total} cycles per frame (budget {BUDGET}, {}% of core 0)",
-        total * 100 / BUDGET
+         worst-case bound {total} cycles per frame (budget {budget}, {}% of core 0)",
+        total * 100 / budget
     );
 }
