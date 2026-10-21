@@ -146,6 +146,38 @@ STAGE_FACTS = {
         # bench OVP supply limit: must sit above the OVP band top and below the D3 / D17 string stand-off
         "ovp_supply_limit_v": 295.0, "ovp_supply_current_ma": 50,
     },
+    "55": {
+        # kelvin_budget.py s55 note (U47 Schmitt buffer + C179 on the SELV side, C167 moved; no OCP part or OCP-net
+        # copper change); DECISIONS 82. The OCP band record is still s52's own solve, carried.
+        "band_record": "11-candidates/s52-proto-bom/results/bands-s52.json",
+        "band_basis_key": "band_basis_s52",
+        "band_record_cite": "s52 solve carried to s55 (kelvin_budget.py s53–s55 notes, DECISIONS 75 / 81 / 82)",
+        # DECISIONS 23 (stage 20): CST3015-200ED is 1:200 (was -100ED 1:100).
+        "ct_ratio": {"CST3015-200ED": 200, "CST3015-100ED": 100},
+        # DECISIONS 73 / 74, OPEN-ITEMS S28: bank part -> (fit mark, ladder stop A, basis).
+        "bank": {
+            "B32643H8104J000": ("H", 24.0, "vendor ratio 0.844 and strict gate 0.862 at 24 A; 26 A fails the 85 % rule "
+                                "(0.915); pre-build gate S25 on C22: ΔT ≤ 20 K × F_T(T_A)² and T_A + ΔT ≤ 125 °C "
+                                "(DECISIONS 74, OPEN-ITEMS S25 / S28)"),
+            "B32643B8104J000": ("B", 28.0, "26 / 28 A bench-gated per step; the mark raises nothing (DECISIONS 74)"),
+            "MMK104J3DF1KN208G2": ("none (27.5 mm hole)", 22.0, "24 A only with the bench gap-flow credit, S25 "
+                                   "(DECISIONS 73)"),
+        },
+        # DECISIONS 71 (c50 option P, SPICE 96 corners; review section 6 bench bounds).
+        "bias_good_timing": [
+            ("B15a", "PERMIT ↑ → DIS ↓", "≤ 13.6 µs, plus the 2EDR8259X DIS-to-output delay (unpublished; C39)"),
+            ("B15b", "PERMIT ↑ → GPIO35 ≥ VIH", "≤ 0.53 ms"),
+            ("B15c", "PERMIT ↓ → TP19 ↓ (hold node below U40 VT− min)", "≤ 90.3 µs; ≤ 122.9 µs with one pump cap shorted"),
+            ("B15d", "PERMIT ↓ → GPIO35 ≤ VIL", "≤ 0.36 ms"),
+        ],
+        # OPEN-ITEMS S18 residual (1): "the firmware's 60 kHz window top is a PS2 rating constraint".
+        "ps2_window_top_hz": 60000,
+        # DECISIONS 61 / 56: the ladder steps; DECISIONS 9 / kelvin_budget FLOOR: 3.0 A pickup + 2 A margin.
+        "ladder": [17.5, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0],
+        "floor_pickup_a": 3.0, "floor_margin_a": 2.0,
+        # bench OVP supply limit: must sit above the OVP band top and below the D3 / D17 string stand-off
+        "ovp_supply_limit_v": 295.0, "ovp_supply_current_ma": 50,
+    },
 }
 
 # role (ato address) -> designator the procedure and the threshold engine assume

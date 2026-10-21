@@ -1,7 +1,7 @@
 {
  "purpose": "SELV-spine contract between WS4 (drive / bias / monitor / protect islands) and WS5 (SELV side), validation-results/13-coupling/README.md section 8 and section 10 item 1. Checked by gates/spine_lock.py.",
- "baseline": "native-21/verification/spine-baseline-native21s48-all-copper.json.gz",
- "baseline_board_sha256": "596ba3bf17e47b2328e148e0ff53eb3b614439bf2c51f01b4cf34dda69e65591",
+ "baseline": "native-21/verification/spine-baseline-native21s55-all-copper.json.gz",
+ "baseline_board_sha256": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d",
  "region": [30.0, 130.0, 110.0, 180.0],
  "contract_nets": ["pwm_ha", "pwm_la", "pwm_hb", "pwm_lb", "permit", "vbus_p", "vbus_n", "bus_fault_iso", "bias_good", "sw_a"],
  "plane_nets": ["selv_gnd", "v3v3"],
@@ -30,6 +30,13 @@
    "previous_baseline": "native-21/verification/spine-baseline-native21s44-all-copper.json.gz",
    "previous_board_sha256": "f27d5bba7a7848942150308e547176090d18e18f3397feca74cbe010f6315a27",
    "why": "BIAS_GOOD read back on J4 pin 1 through R146 220 k (1206, at (33.0, 173.5)): J4.1 moves from the single-pin net j4_nc1 to bias_good_j4 (4 pad keys), and the contract net bias_good gains a hand-laid path from U40 to R146.1 in the owner scope (F.Cu / B.Cu tracks and plane-crossing vias at (68.463, 133.0), (60.6, 140.838), (43.6, 153.238) and (37.0, 172.0)). Each crossing has a SELV return-path transfer cap within 3 mm (C176 at (66.06, 133.4), C177 at (61.7, 141.94), C178 at (44.3, 152.14), all CC0603KRX7R9BB104 selv_gnd-to-v3v3 with their plane vias and 0.3 mm F.Cu stubs; the last via sits beside C174), so selv_gnd In2.Cu and v3v3 In1.Cu fill less (the antipads). C176-C178 join frozen_refs. Nothing removed but the j4_nc1 pad keys; no other contract-net track or via, no J4 pad position and no earlier transfer cap moved. In the full scope a lane also sees R146's pads and the bias_good_j4 F.Cu run to J4.1. The baseline is the stage-48 chain-run-3 board 596ba3bf."
+  },
+  {
+   "date": "2026-10-20",
+   "by": "stage 55 (c55-findings, OPEN-ITEMS S30, DECISIONS 82); reissue approved by the owner on 2026-10-20",
+   "previous_baseline": "native-21/verification/spine-baseline-native21s48-all-copper.json.gz",
+   "previous_board_sha256": "596ba3bf17e47b2328e148e0ff53eb3b614439bf2c51f01b4cf34dda69e65591",
+   "why": "U13.A Schmitt buffer: U47 (SN74LVC1G17, u_bf_st) takes C167's place under U13, C167 moves 3.25 mm south, C179 (U47's 100 nF) sits west of U47 outside the region (validation-results/11-candidates/c55-findings/scripts/edit55.py). In the owner scope (contract nets, selv_gnd / v3v3, frozen refs) the only differences are U47 / C167's selv_gnd stubs and C179's v3v3 run to U47.5: 1 selv_gnd F.Cu track key out (C167.2's old run), 5 selv_gnd and 2 v3v3 F.Cu track keys in; no zone-fill difference (the new v3v3 via at (29.9, 132.03) is outside the region), no contract-net track or via, no J4 pad and no frozen transfer cap moved. In the full scope a lane also sees C167's two pads move, U47's five pads, bus_fault_flt re-laid (5 track keys out, 5 in: R134.2 under U47's body to U47.2 and on to C167.1) and the new net bus_fault_st (3 track keys, U47.4 to U13.1 on the old run's path). The baseline is the stage-55 board of record d9ee93a8 (chain run 3, default mode). Run 1 (340def6f) laid U47.3's east selv_gnd run from the pad centre, a 90 degree corner with the south run (right_angle_corners 51 -> 52); run 2 (b7881862, owner mode) started it at the south run's first bend instead (the same two track keys moved, nothing else); run 3 rebuilt that copper.json and passes against run 2 with no difference (KiCad rebuilds of one copper.json differ in board hash, not in gated copper)."
   }
  ]
 }

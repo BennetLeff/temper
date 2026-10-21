@@ -571,6 +571,13 @@ POSE.update(S49_BANK)
 S51_BANK = {f"c_res{i}": (176.75, y, 0.0) for i, y in enumerate((53.2, 68.2, 83.2, 98.2, 113.2), 1)}
 POSE.update(S51_BANK)
 
+# Stage 55 (DECISIONS 82, OPEN-ITEMS S30): U47 (SN74LVC1G17, u_bf_st) between the BUS_FAULT RC and U13.A takes C167's
+# place below U13, turned 90 deg so its Y pin (4) sits under U13's west column and joins U13.1 on the old RC run, its VCC
+# pin (5) faces C179 (its decoupler, west of it, pad 1 = v3v3 north) and its A pin (2) takes R134.2 under the body; C167
+# moves 3.25 mm south, pad 1 under A. Copper: validation-results/11-candidates/c55-findings/scripts/edit55.py.
+STAGE55 = {"u_bf_st": (31.4, 133.7, 90.0), "c_bf_st_vcc": (28.75, 133.55, 270.0), "c_bf": (32.175, 136.75, 0.0)}
+POSE.update(STAGE55)
+
 missing = sorted(set(PARTS) - set(POSE))
 if missing:
     raise SystemExit(f"{len(missing)} unplaced: {missing}")

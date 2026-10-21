@@ -29,6 +29,12 @@ the entry in the same commit or the gate fails.
 
 ## Current findings (stage 53, c54 desk pass 2026-10-18: 95 BOM lines, 3 VERIFIED / 92 PARTIAL / 0 UNAUDITED / 0 VIOLATION; the gate PASSES)
 Record of the pass: `validation-results/11-candidates/c54-ledger-desk/README.md` (scripts, run order, datasheet records).
+- **Stage 55 (c55, DECISIONS 82): both gap-severity findings below are resolved; counts unchanged at 3 / 92 / 0 / 0.**
+  - U13.A slow edge: U47 SN74LVC1G17 (Schmitt input, no transition limit; hysteresis 0.51-0.83 V at 3 V, SCES351Y p.6) now
+    buffers the R134 / C167 node, so U13.A sees U47's output edge: <= 0.83 ns/V (24 mA into <= 20 pF), ratio 0.083 of
+    10 ns/V. The SN74LVC1G332 check is now violation severity and passes (`11-candidates/c55-findings/results/u13-edge.md`).
+  - C2 ripple: the 1 uF trace of KEMET's 22.5 mm graph is 1.97 A, not 1.5 A; the release case holds at the L1-body Th bound
+    (0.874). 28 A stays open with the airflow route (`results/c2-ripple.md`). The text below is the c54 record.
 - **Every SIGNAL line now has electrical ratings.** The 51 lines that carried 'Not audited' or 'only the temperature
   rating is audited' got datasheet-page ratings and worst-case stresses from the pin_absmax net model (resistor V / P,
   capacitor V, IC supply / input / output current, diode VR / IF): 102 gaps closed, checks 387 -> 522, ratings 366 -> 493.

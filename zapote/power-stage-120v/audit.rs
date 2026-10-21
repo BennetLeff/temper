@@ -248,6 +248,8 @@ const SELV_NETS: &[&str] = &[
     "bus_fault", "vbus_p", "vbus_n", "ct_s1", "ct_s2",
     "ct_sense_mon", "ct_ref_hi", "ct_ref_lo", "ct_oc_pos", "ct_oc_neg", "ct_zc", "ct_mon",
     "bus_fault_iso", "bus_fault_flt", "bias_good",
+    // stage 55 (DECISIONS 82): the U13.A Schmitt buffer's output
+    "bus_fault_st",
     // stage 30 (DECISIONS 33): heartbeat SELV side
     "hb_rx", "hb_bufo", "hb_s", "hb_m", "hb_x", "hb_hold", "hsb_good",
     "line_zc", "line_zc_raw", "leg_a-driver_dis", "leg_b-driver_dis",
@@ -414,6 +416,9 @@ const IDENTITY: &[(&str, &str)] = &[
     ("u_ct_neg", "TLV3201AIDBVR"),
     ("u_ct_zc", "TLV3201AIDBVR"),
     ("u_fault_or", "SN74LVC1G332DBVR"),
+    // stage 55 (DECISIONS 82, OPEN-ITEMS S30): Schmitt buffer between the BUS_FAULT RC and U13.A, and its decoupler
+    ("u_bf_st", "SN74LVC1G17DBVR"),
+    ("c_bf_st_vcc", "CC0603KRX7R9BB104"),
     // Fast PERMIT -> DIS path (validation-results/02-protection-timing).
     ("leg_a.r_permit", "0603WAF1000T5E"),
     ("leg_b.r_permit", "0603WAF1000T5E"),
@@ -1395,10 +1400,29 @@ fn audit(m: &Model) -> Vec<String> {
     expect(&mut e, m, "c_bf", "1", "bus_fault_flt");
     expect(&mut e, m, "c_bf", "2", "selv_gnd");
     let flt = members(m, "bus_fault_flt");
-    let want: BTreeSet<(String, String)> = [("r_bf", "2"), ("c_bf", "1"), ("u_fault_or", "1")]
+    // stage 55 (DECISIONS 82): the RC node drives only the Schmitt buffer (u_bf_st, SN74LVC1G17); its output, not the
+    // slow RC edge, reaches the LVC1G332's non-Schmitt input (10 ns/V, SCES489E p.3)
+    let want: BTreeSet<(String, String)> = [("r_bf", "2"), ("c_bf", "1"), ("u_bf_st", "2")]
         .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
     if flt != want {
-        e.push(format!("bus_fault_flt must join only r_bf, c_bf and the fault OR input, found {:?}", flt));
+        e.push(format!("bus_fault_flt must join only r_bf, c_bf and the Schmitt buffer input, found {:?}", flt));
+    }
+    // LVC1G17 DBV: 1 NC, 2 A, 3 GND, 4 Y, 5 VCC.
+    expect(&mut e, m, "u_bf_st", "4", "bus_fault_st");
+    expect(&mut e, m, "u_bf_st", "5", "v3v3");
+    expect(&mut e, m, "u_bf_st", "3", "selv_gnd");
+    expect(&mut e, m, "u_bf_st", "1", "u_bf_st-nc");
+    let want: BTreeSet<(String, String)> = [("u_bf_st", "1")].iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if members(m, "u_bf_st-nc") != want {
+        e.push(format!("u_bf_st-nc has unexpected members: {:?}", members(m, "u_bf_st-nc")));
+    }
+    expect(&mut e, m, "c_bf_st_vcc", "1", "v3v3");
+    expect(&mut e, m, "c_bf_st_vcc", "2", "selv_gnd");
+    let st = members(m, "bus_fault_st");
+    let want: BTreeSet<(String, String)> = [("u_bf_st", "4"), ("u_fault_or", "1")]
+        .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
+    if st != want {
+        e.push(format!("bus_fault_st must join only the Schmitt buffer output and the fault OR input, found {:?}", st));
     }
     // BUS_FAULT = OR(isolated bus fault, CT over-current either polarity).
     // The receiving pullup is off-board. Added local loads or another driver
@@ -1539,7 +1563,7 @@ fn audit(m: &Model) -> Vec<String> {
         expect(&mut e, m, u, "2", "selv_gnd");
     }
     // LVC1G332 DBV: 1 A, 2 GND, 3 B, 4 Y, 5 VCC, 6 C.
-    expect(&mut e, m, "u_fault_or", "1", "bus_fault_flt");
+    expect(&mut e, m, "u_fault_or", "1", "bus_fault_st");   // stage 55: behind the Schmitt buffer
     expect(&mut e, m, "u_fault_or", "3", "ct_oc_pos");
     expect(&mut e, m, "u_fault_or", "6", "ct_oc_neg");
     expect(&mut e, m, "u_fault_or", "5", "v3v3");
@@ -2325,6 +2349,26 @@ mod tests {
         let r = m.reff("leg_a.r_gl").unwrap().to_string();
         m.comps.get_mut(&r).unwrap().footprint = "Resistor_SMD:R_1206_3216Metric".into();
         fails(&m, "stage54: leg_a.r_gl footprint");
+    }
+
+    #[test]
+    fn stage55_schmitt_before_fault_or() {
+        // DECISIONS 82 (OPEN-ITEMS S30): the R134 / C167 node reaches U13.A only through the LVC1G17 Schmitt buffer
+        let m = built();
+        assert!(audit(&m).is_empty(), "{:#?}", audit(&m));
+        let mut m = built();
+        m.rewire("u_fault_or", "1", "bus_fault_flt");       // the s54 wiring: the slow RC edge straight into U13.A
+        fails(&m, "u_fault_or.1 on bus_fault_flt");
+        fails(&m, "bus_fault_flt must join only");
+        let mut m = built();
+        m.rewire("u_bf_st", "2", "bus_fault_iso");          // buffer bypasses the filter
+        fails(&m, "bus_fault_iso must join only");
+        let mut m = built();
+        m.set_part("u_bf_st", "SN74LVC1G07DBVR");           // open-drain, non-Schmitt
+        fails(&m, "u_bf_st is SN74LVC1G07DBVR");
+        let mut m = built();
+        m.rewire("c_bf_st_vcc", "1", "bus_fault_st");
+        fails(&m, "c_bf_st_vcc.1 on bus_fault_st");
     }
 
     #[test]

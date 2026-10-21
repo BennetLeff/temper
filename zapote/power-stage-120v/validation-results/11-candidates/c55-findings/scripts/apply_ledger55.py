@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""S31 ledger edit: C1 / C2 (R463N410050N1K) ripple rating on the attributed 1 uF trace and a bounded Th.
+"""Stage 55 ledger edits. S31: C1 / C2 (R463N410050N1K) ripple rating on the attributed 1 uF trace and a bounded Th.
+S30: U13.A behind the U47 Schmitt buffer (SN74LVC1G332DBVR edge check; U47 / C179 on their lines).
 
     python3 -I validation-results/11-candidates/c55-findings/scripts/r46_irms_digitize.py
     python3 -I validation-results/11-candidates/c55-findings/scripts/c2_ripple.py
+    python3 -I validation-results/11-candidates/c55-findings/scripts/u13_edge.py
     python3 -I validation-results/11-candidates/c55-findings/scripts/apply_ledger55.py   -> ledger.json (in place)
 
 Replaces the c54 desk's 1.5 A reading (the 0.68 uF trace) by the 1 uF trace (results/r46-irms.md), rates the release
@@ -127,8 +129,49 @@ def main():
                     f"{th_rel} C L1-body bound ({rel['ratio_at_l1_body']:.2f} of the derated rating; "
                     f"{md_line('c2-ripple.md', 'release:')}). The 28 A case needs Th <= {c28['th_max_C']} C and stays with "
                     f"the airflow route. The stress is a model estimate (bench gap).")
-    LEDGER.write_text(json.dumps(led, indent=1) + "\n")
     print(f"{MPN}: {len(e['ratings'])} ratings, {len(e['stresses'])} stresses, {len(e['checks'])} checks, {len(e['gaps'])} gaps")
+    s30(led["entries"])
+    LEDGER.write_text(json.dumps(led, indent=1) + "\n")
+
+
+def s30(E):
+    edge = json.loads((LANE / "results/u13-edge.json").read_text())
+    ev = md_line("u13-edge.md", "U13.A edge")
+    u = E["SN74LVC1G332DBVR"]
+    st = next(x for x in u["stresses"] if x["parameter"] == "Input transition rate, U13.A")
+    st.update({"worst_case_value": edge["u13a_edge_ns_per_V_bound"],
+               "condition": "stage 55: U13.A is driven by U47.Y (SN74LVC1G17 push-pull), not the R134 / C167 RC; across U13's "
+                            "0.8-2.0 V band U47 sources / sinks >= 24 mA (SCES351Y p.6, VOH 2.3 V / VOL 0.55 V test points at "
+                            "3 V) into <= 20 pF (U13 Ci 3.5 pF typical, SCES489E p.4, plus a 4 mm trace)",
+               "evidence": [ev, f"{REL}/scripts/u13_edge.py"]})
+    ck = next(c for c in u["checks"] if c["id"] == "dt/dv U13.A")
+    ck.update({"severity": "violation",
+               "rule": f"{edge['u13a_edge_ns_per_V_bound']} ns/V <= 10 ns/V (stage 55: behind the U47 Schmitt buffer; was 133 ns/V "
+                       f"from the RC at s54, OPEN-ITEMS S30)",
+               "ratio": round(edge["u13a_edge_ns_per_V_bound"] / 10.0, 4)})
+    u["gaps"] = [g for g in u["gaps"] if not g.startswith("finding (c54, recommended-operating-condition exceedance")]
+    u["finding"] = (f"c55 (stage 55, DECISIONS 82): resolved. The c54 finding (the RC edge, 93-133 ns/V, into the non-Schmitt "
+                    f"U13.A) is closed by U47 SN74LVC1G17 between C167 and U13.A: U13.A now sees a driven edge <= "
+                    f"{edge['u13a_edge_ns_per_V_bound']} ns/V ({ev}); the RC edge lands on U47's Schmitt input, which has no "
+                    f"transition limit (SCES351Y p.5) and 0.51-0.83 V hysteresis (p.6). Bench: scope U13.Y on BUS_FAULT edges "
+                    f"(DECISIONS.md:1128 item 4).")
+    g = E["SN74LVC1G17DBVR"]
+    if "U47" not in g["designators"]:
+        g["designators"].append("U47")
+    if not any(r["parameter"] == "Input hysteresis at VCC 3 V, min" for r in g["ratings"]):
+        g["ratings"].append({"parameter": "Input hysteresis at VCC 3 V, min", "datasheet_limit": 0.51, "unit": "V",
+                             "basis": "dVT = VT+ - VT- 0.51-0.83 V at VCC 3 V (VT+ 1.48-1.92 V, VT- 0.89-1.20 V); a Schmitt input: "
+                                      "Recommended Operating Conditions carry no input-transition limit (p.5) and 8.1 names "
+                                      "slow or noisy inputs as the use (p.11)",
+                             "source": "TI SCES351Y (rev. Oct 2025) p.6 Table 5-1; p.5; p.11"})
+    gap0 = "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate"
+    add = (" U47 (stage 55) was placed after the temp-ratings study and has no row of its own: it sits 4 mm from U13 on the "
+           "same SELV copper (U13 62.5 C at the release case, SN74LVC1G332DBVR entry)")
+    g["gaps"] = [x + add if x.startswith(gap0) and add not in x else x for x in g["gaps"]]
+    c = E["CC0603KRX7R9BB104"]
+    if "C179" not in c["designators"]:
+        c["designators"].append("C179")
+    print(f"S30: U13.A dt/dv {ck['ratio']}; U47 on SN74LVC1G17DBVR, C179 on CC0603KRX7R9BB104")
 
 
 if __name__ == "__main__":

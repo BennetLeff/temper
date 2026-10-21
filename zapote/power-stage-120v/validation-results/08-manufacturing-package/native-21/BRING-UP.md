@@ -1,6 +1,6 @@
 # Prototype bring-up: home-lab overview (2026-10-18; prepared, NOT run)
 
-The order of work for the first native-21 boards, **stage 54** (the board of record, `fab/FAB-NOTE.md`; DECISIONS 81 lists what changed from the previous board), with the C49
+The order of work for the first native-21 boards, **stage 55** (the board of record, `fab/FAB-NOTE.md`; DECISIONS 82 lists what changed from the previous board), with the C49
 (J13-merge) controller, on a home bench that solders through-hole only. It is an overview. The procedure, its numbers
 and its pass levels are in `firmware/components/power/COMMISSIONING.md` ("COMMISSIONING" below), and this file only points
 to its steps. Where the two disagree, COMMISSIONING wins and this file is wrong. `firmware/tools/commissioning_board_table.py

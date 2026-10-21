@@ -7,7 +7,7 @@ import json
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     resolved = json.loads((root / 'frozen/resolved-components.json').read_text())
-    assert len(resolved["components"]) == 372   # stage 48: + 8 LDO EN dividers R136-R143 (S19), + REF25 watchdog R144 / R145 (B13 H1), + BIAS_GOOD readback R146 and its three transfer caps c_ref_xfer_13..15 (C176-C178) (B13 H2); stage 44: + c_ref_xfer_6..12 (C169-C175, SELV return-path transfer caps, candidate 44); stage 40: + hb.vote_b (D20), + hb.rgate (R135), + c_ref_xfer_5 (C168, pwm_hb transfer cap in place of the old verdict isolator's SELV decoupler) (candidate 30a; U44 / C159 / C160 become the HS-B link and its caps); stage 38: - ps_selv (PS1, candidate 23); stage 30: -22 / +21 (candidate 24 heartbeat, HS-A link ISO6721FB, HS-B verdict ISO7710F, U9 RC); stage 28: + r_blw (F2 fault-current limiter); stage 22: - Q1 / Q4 PERMIT FETs and R8 / R16 330 ohm (DIS NAND); stage 21: - link_pos / link_neg studs J7-J10 (BR1 feeds the bus); stage 19b: + c_ref_xfer_1..4 (pwm_hb reference-transfer caps C153-C156); stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
+    assert len(resolved["components"]) == 374   # stage 55: + u_bf_st (U47, the U13.A Schmitt buffer) and c_bf_st_vcc (C179) (DECISIONS 82); stage 48: + 8 LDO EN dividers R136-R143 (S19), + REF25 watchdog R144 / R145 (B13 H1), + BIAS_GOOD readback R146 and its three transfer caps c_ref_xfer_13..15 (C176-C178) (B13 H2); stage 44: + c_ref_xfer_6..12 (C169-C175, SELV return-path transfer caps, candidate 44); stage 40: + hb.vote_b (D20), + hb.rgate (R135), + c_ref_xfer_5 (C168, pwm_hb transfer cap in place of the old verdict isolator's SELV decoupler) (candidate 30a; U44 / C159 / C160 become the HS-B link and its caps); stage 38: - ps_selv (PS1, candidate 23); stage 30: -22 / +21 (candidate 24 heartbeat, HS-A link ISO6721FB, HS-B verdict ISO7710F, U9 RC); stage 28: + r_blw (F2 fault-current limiter); stage 22: - Q1 / Q4 PERMIT FETs and R8 / R16 330 ohm (DIS NAND); stage 21: - link_pos / link_neg studs J7-J10 (BR1 feeds the bus); stage 19b: + c_ref_xfer_1..4 (pwm_hb reference-transfer caps C153-C156); stage 16: + f_blw / j_blw_ac (blower-supply tap); stage 14: -8 (bias modules replace SN6507/T2/T3 path; +1 bus TVS); + c_hs / c_hs_bulk per leg (review B1), + c_hs_1u / c_ls_1u per leg (stage 9), + c_vs1_1u / c_vs2_1u (stage 10), + c_res4 / c_res5 (stage 13)
     for filename, expected in resolved['source_sha256'].items():
         assert hashlib.sha256((root / filename).read_bytes()).hexdigest() == expected, filename
     for filename in ('default.csv', 'default.net', 'resolved-components.json',
@@ -90,6 +90,10 @@ def main() -> None:
     assert 'bias_or' not in parts and 'r_bias_flt' not in parts and 'c_bias_flt' not in parts
     assert sum(part.get('mpn') == 'CL32B106KBJNNNE' for part in parts.values()) == 24 and not any(part.get('mpn') == 'UMK325AB7106KM-T' for part in parts.values())
     assert parts['r_bf']['mpn'] == '0603WAF1001T5E' and parts['c_bf']['mpn'] == 'CL10C101JB8NNNC'
+    # stage 55 (DECISIONS 82, OPEN-ITEMS S30): the RC node enters U13.A through an LVC1G17 Schmitt buffer (the U15 / U24 / U40
+    # line) with its own decoupler (the C47 line); audit.rs checks the pins
+    assert parts['u_bf_st']['mpn'] == parts['u_bias_flt']['mpn'] == 'SN74LVC1G17DBVR'
+    assert parts['c_bf_st_vcc']['mpn'] == 'CC0603KRX7R9BB104'
     # stage 45 (OPEN-ITEMS S16, DECISIONS 59, option 1c-4420): TL431B reference, halfref 4.42 k / 10 k, re-centred taps
     # (validation-results/11-candidates/c45-s16-monitor; bands re-derived there from these exports)
     # stage 46 (S17 hot copper; c46-monitor-grades): the 125 C grades of the same pinouts, TL431BQDBZR and LM2901BIDR

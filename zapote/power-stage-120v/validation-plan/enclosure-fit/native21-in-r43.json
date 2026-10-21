@@ -1,12 +1,12 @@
 {
- "step_sha256": "bf1a8ffbc32b415682658a47647326e62770b01be0e70b8dff5873aefbabc034",
+ "step_sha256": "8a921c818f8528075de0927f2597407b498375a3b5e6a07d9102055160b67f59",
  "revision": "R43",
  "catalog_sha256": "aca70907b7c8f45467a8abb1de5fad460410ad626cdc3493231c13981e9ddf6e",
  "pose": "translate (x - 141, 236 - y, 26 + z)",
  "gap_mm": 1.0,
  "lead_trim_mm": 2.5,
- "bodies": 425,
- "exact_pairs_checked": 80,
+ "bodies": 427,
+ "exact_pairs_checked": 81,
  "interfaces": [
   [
    "BOARD",

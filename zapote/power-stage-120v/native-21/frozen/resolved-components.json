@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "7c8f8de96f765840022ef9953bb8e2520092955ebe21c3a7511aa74d00ff4743",
+    "build/default.csv": "0a7bdc732730c9aa8f075d1b991d36a8cf1488f9869ded5eb1a0cbacd0d9c6a4",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "efc4094b8f4b16c130efbeaeb71da6dd40bdc21e8401969893fae45ac6682891",
+    "build/default.net": "1a277794bf6ea236811f4dfd139af36b55dbd37742134f385085c1a0c515ffb1",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -2146,6 +2146,27 @@
       }
     },
     {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_bf_st",
+      "attributes": {
+        "designator": "U47",
+        "designator_prefix": "U",
+        "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+        "manufacturer": "Texas Instruments",
+        "mpn": "SN74LVC1G17DBVR"
+      }
+    },
+    {
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bf_st_vcc",
+      "attributes": {
+        "designator": "C179",
+        "designator_prefix": "C",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "manufacturer": "YAGEO",
+        "mpn": "CC0603KRX7R9BB104",
+        "value": "100nF"
+      }
+    },
+    {
       "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_fault_or",
       "attributes": {
         "designator": "C47",
@@ -4016,7 +4037,7 @@
     "elec/src/f6_bias.ato": "8996f6daa5ec90f8c359e3effbe0af55dc646f20730e27dbefc74885b080960d",
     "elec/src/f6_parts.ato": "9942dbf3afdcb74a8269661ebe7b719f763881c3d4ed13c7b71c709a63bc9018",
     "elec/src/parts.ato": "0324ec34f83003f654dcca91b928bff464e59bd8d1cebad13dbde845a1c1c056",
-    "elec/src/power_stage_120v.ato": "1e6aeb03841421cd55f15c3522ecf6e2637bfe26b0d4c0b120bc11276712ada3",
+    "elec/src/power_stage_120v.ato": "6c5177e99ce241c3fb0f6a70031a883f8b742630a5ce3de32462e3041ac86016",
     "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
   }
 }

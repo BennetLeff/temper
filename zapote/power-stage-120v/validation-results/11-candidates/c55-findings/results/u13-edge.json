@@ -1,0 +1,17 @@
+{
+ "u13a_edge_ns_per_V_bound": 0.833,
+ "u13a_limit_ns_per_V": 10.0,
+ "u13a_ratio": 0.0833,
+ "u47a_rc_edge_ns_per_V": {
+  "at VT- min 0.89 V falling": 119.2,
+  "at VT+ max 1.92 V rising": 87.3
+ },
+ "trip_delay_ns": {
+  "s54 (U13.A at VIH 2.0 V)": 107.7,
+  "s55 (U47 at VT+ 1.92 V + tpd)": 107.0
+ },
+ "glitch_rejected_below_ns": {
+  "s54 (U13.A could switch at VIL 0.8 V)": 24.7,
+  "s55 (U47 VT+ min 1.48 V)": 52.4
+ }
+}

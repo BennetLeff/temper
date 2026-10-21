@@ -35,6 +35,7 @@ CHECKS = [
     ("U13", "5", "2", 3.0, 4.0, SELV, "SN74LVC1G332 (fault OR): mid-column supply pin"),
     ("U24", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G17 s.8.3: 0.1 uF 'as close to the power pin as possible'"),
     ("U40", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G17 s.8.3 (heartbeat hold-node Schmitt, stage 30)"),
+    ("U47", "5", "3", 2.0, 4.0, SELV, "SN74LVC1G17 s.8.3 (U13.A Schmitt buffer, stage 55; C179 west of pin 5)"),
     # stage 30 (DECISIONS 33): the heartbeat NAND and oscillator, both sides of the HS-A link and (stage 40, candidate
     # 30a) of HS-B's ISO6721FB link, U44, which replaced the HS-B -> SELV verdict isolator.
     # Limits are the stage-30 placement (validation-results/08-manufacturing-package/native-21/stage30-heartbeat/

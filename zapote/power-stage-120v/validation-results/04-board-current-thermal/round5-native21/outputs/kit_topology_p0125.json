@@ -1,5 +1,5 @@
 {
-  "board_sha256": "9c639732ea84dc9682ea95b35c14c40c3d7ec0fda06d3d9fb0a748958bc9a7c0",
+  "board_sha256": "b7881862fa05d7bd6af4c6dad2139e3aa98be932ea55ed073c6e2fc6f289dc28",
   "pitch_mm": 0.125,
   "kit": "sheet_solver.py",
   "layers": {
@@ -284,7 +284,7 @@
       "grid_components_spanning_two_physical": 0
     },
     "sw_a/B.Cu": {
-      "grid_nodes": 13901,
+      "grid_nodes": 13902,
       "grid_components": 10,
       "physical_components": 6,
       "dropped_edges": 2,

@@ -91,7 +91,7 @@ wr.SELV_NC = wr.SELV_NC | {n for n in nets if re.search(r"\.(iso|verdict)-nc(10|
     {"line_zc.buffer-nc", "leg_a.driver-nc_7", "leg_b.driver-nc_7"}
 groups["LOW"] |= {n for n in nets if n in ("outb", "u_hot5_schmitt-nc", "u_ldo-nc", "u_ref-nc")
                   or re.fullmatch(r"u_iso-nc(2|5|6|8)", n)}
-wr.SELV_NC |= {n for n in nets if n == "u_bias_flt-nc" or re.fullmatch(r"u_iso-nc(10|11|12|15)", n)}
+wr.SELV_NC |= {n for n in nets if n in ("u_bias_flt-nc", "u_bf_st-nc") or re.fullmatch(r"u_iso-nc(10|11|12|15)", n)}
 hot_all = set().union(*groups.values())
 for n in nets:
     if side1_nc(n) and n not in hot_all:

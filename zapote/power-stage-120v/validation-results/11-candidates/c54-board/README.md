@@ -11,7 +11,7 @@ the thin margins from the s53 professional-handoff assessment.
 | Chain | `runs-native21/s54/chain1.out`, CHAIN_DONE, no spine owner |
 | Gerber zip | `132ef91251f6c31fe6e2e99929942d9293b2ab3e9ef0fa8ac52e14322bd1881c` |
 | Card vs s53 | **ACCEPT**: cheaper `hand_or_consign_lines`, `consign_lines`; better `b3_rated_part_margin_K`, `b3_release_margin_K`, `track_right_angle_corners`, `track_any_angle_mm` |
-| Snapshot | `08-manufacturing-package/native-21/board-of-record-s54/` (routed board, schematic, rules, STEP, `SHA256SUMS`) |
+| Snapshot | `08-manufacturing-package/native-21/board-of-record-s54/` at 688f32b01 (replaced by `board-of-record-s55/` at stage 55; routed board, schematic, rules, STEP, `SHA256SUMS`) |
 
 ## 1. What changed
 

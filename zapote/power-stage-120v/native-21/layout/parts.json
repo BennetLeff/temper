@@ -3420,6 +3420,26 @@
 "group": "other:c_bf"
 },
 {
+"ref": "U47",
+"path": "u_bf_st",
+"fp": "Package_TO_SOT_SMD:SOT-23-5",
+"w": 4.19,
+"h": 3.49,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
+"ref": "C179",
+"path": "c_bf_st_vcc",
+"fp": "Capacitor_SMD:C_0603_1608Metric",
+"w": 3.05,
+"h": 1.55,
+"ox": 0.0,
+"oy": 0.0,
+"group": "ct_selv"
+},
+{
 "ref": "U46",
 "path": "hb.buf",
 "fp": "Package_TO_SOT_SMD:SOT-23-5",

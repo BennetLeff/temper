@@ -469,7 +469,17 @@
     "R134"
    ],
    "cite": "series resistor from the source net",
-   "derive": "R134 (series) from the U9 output into the U13 input; C167 to ground is DC-open"
+   "derive": "R134 (series) from the U9 output into the U47 (Schmitt buffer) input; C167 to ground is DC-open"
+  },
+  "bus_fault_st": {
+   "kind": "logic",
+   "ref": "selv_gnd",
+   "supply": "v3v3",
+   "sources": [
+    "U47.4"
+   ],
+   "cite": "part registry `out` function + netlist (sources checked)",
+   "derive": "push-pull output of the driver IC swings within [its GND pin, its supply pin] (registry: the pin is an `out` function and the supply / ground pins are checked against the netlist)"
   },
   "hb_rc": {
    "kind": "follow",

@@ -8,6 +8,13 @@ HOT5_OK_HOT). The HOT5_OK_HOT input comes from a Schmitt-buffered TPS3700
 undervoltage detector powered independently from V15_LS. The
 tank-CT comparators (`u_ct_pos` and `u_ct_neg`) trip at ≈55 A either
 polarity; see tools/ct_detector/README.md.
+Since stage 30 the isolated bus fault (U9.13) reaches the OR through R134 1 kΩ / C167 100 pF,
+which filters ns-wide CMTI upsets (DECISIONS 33). Since stage 55 the RC node drives U47
+(SN74LVC1G17 Schmitt buffer, C179 decoupling), and U47.Y drives U13.A. The LVC1G332 input is
+not a Schmitt input and is limited to 10 ns/V (SCES489E p.3); the RC edge is 93–133 ns/V.
+The buffer switches at VT+ ≤ 1.92 V plus tpd ≤ 6.5 ns, so the slow-corner trip delay through
+the RC is 107.0 ns (107.7 ns at stage 54). A full-swing upset shorter than 52 ns is rejected
+(25 ns at stage 54). Source: DECISIONS 82, `validation-results/11-candidates/c55-findings/results/u13-edge.md`.
 isolator retains its 8.1 mm high-voltage land pattern. The NAND is now a
 six-pin part; its DBV pins are A1, GND2, B3, Y4, VCC5, C6.
 

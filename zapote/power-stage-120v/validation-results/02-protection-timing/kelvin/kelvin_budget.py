@@ -89,10 +89,12 @@ BAND_BEFORE = {"native21s13": (49.53, 97.77), "native21s13b": (49.53, 97.77), "n
                # s53 (ovp_ok_hot In1 -> In2; no OCP part or OCP-net copper change): s52's band, re-checked by this board's own Kelvin run
                "native21s53": (71.59, 114.57),
                # s54 (c54: R_on / split-bleed / R44-R45 swaps, J1 strip; no OCP part or OCP-net copper change): s53's band
-               "native21s54": (71.59, 114.57)}   # 12.6 k / 11.7 k (stage 15; scratchpad stage15/ocp_bands.py -> task 02); s17: R5 CSS2H 75 ppm (round5-native21/stage17-r5/ocp_band17.py)
+               "native21s54": (71.59, 114.57),
+               # s55 (c55: U47 Schmitt buffer + C179 on the SELV side, C167 moved; no OCP part or OCP-net copper change): s54's band
+               "native21s55": (71.59, 114.57)}   # 12.6 k / 11.7 k (stage 15; scratchpad stage15/ocp_bands.py -> task 02); s17: R5 CSS2H 75 ppm (round5-native21/stage17-r5/ocp_band17.py)
 # Low-corner floor after the shift. 44 A until stage 14; stage 15 (28 A ceiling): 59.17 A envelope peak + 3.0 A
 # coil-pickup stack (DECISIONS item 9) + 2 A margin = 64.17 A (round 6 rule; basis A of the stage-15 plan).
-FLOOR = {"native21s15": 64.17, "native21s15b": 64.17, "native21s16": 64.17, "native21s17": 64.17, "native21s17b": 64.17, "native21s18": 64.17, "native21s19": 64.17, "native21s19b": 64.17, "native21s19c": 64.17, "native21s20": 64.17, "native21s21": 64.17, "native21s21b": 64.17, "native21s22": 64.17, "native21s26": 64.17, "native21s27": 64.17, "native21s28": 64.17, "native21s29": 64.17, "native21s30": 64.17, "native21s31": 64.17, "native21s32": 64.17, "native21s33": 64.17, "native21s35": 64.17, "native21s38": 64.17, "native21s40": 64.17, "native21s41": 64.17, "native21s42": 64.17, "native21s43": 64.17, "native21s44": 64.17, "native21s45": 64.17, "native21s46": 64.17, "native21s47": 64.17, "native21s48": 64.17, "native21s49": 64.17, "native21s50": 64.17, "native21s51": 64.17, "native21s52": 64.17, "native21s53": 64.17, "native21s54": 64.17}
+FLOOR = {"native21s15": 64.17, "native21s15b": 64.17, "native21s16": 64.17, "native21s17": 64.17, "native21s17b": 64.17, "native21s18": 64.17, "native21s19": 64.17, "native21s19b": 64.17, "native21s19c": 64.17, "native21s20": 64.17, "native21s21": 64.17, "native21s21b": 64.17, "native21s22": 64.17, "native21s26": 64.17, "native21s27": 64.17, "native21s28": 64.17, "native21s29": 64.17, "native21s30": 64.17, "native21s31": 64.17, "native21s32": 64.17, "native21s33": 64.17, "native21s35": 64.17, "native21s38": 64.17, "native21s40": 64.17, "native21s41": 64.17, "native21s42": 64.17, "native21s43": 64.17, "native21s44": 64.17, "native21s45": 64.17, "native21s46": 64.17, "native21s47": 64.17, "native21s48": 64.17, "native21s49": 64.17, "native21s50": 64.17, "native21s51": 64.17, "native21s52": 64.17, "native21s53": 64.17, "native21s54": 64.17, "native21s55": 64.17}
 
 
 def main():

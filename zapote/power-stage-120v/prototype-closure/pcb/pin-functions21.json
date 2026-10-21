@@ -1,8 +1,8 @@
 {
  "basis": "Native-21: native-19 reviewed annotations by MPN and pin set; ECO.md manufacturer pin tables for parts added in D-33; remaining parts passive (named after Atopile signals). Connectivity authority: native-21/frozen/default.net. Not datasheet or powered verification.",
  "basis_counts": {
-  "passive-two-terminal": 254,
-  "native19-reviewed": 81,
+  "passive-two-terminal": 255,
+  "native19-reviewed": 82,
   "passive-untyped": 23,
   "eco-pin-table": 14
  },
@@ -1271,6 +1271,21 @@
   "C167": {
    "mpn": "CL10C101JB8NNNC",
    "source_instance": "c_bf",
+   "basis": "passive-two-terminal",
+   "pins": {
+    "1": {
+     "function": "p1",
+     "type": "passive"
+    },
+    "2": {
+     "function": "p2",
+     "type": "passive"
+    }
+   }
+  },
+  "C179": {
+   "mpn": "CC0603KRX7R9BB104",
+   "source_instance": "c_bf_st_vcc",
    "basis": "passive-two-terminal",
    "pins": {
     "1": {
@@ -4702,6 +4717,33 @@
     "4": {
      "function": "INN",
      "type": "input"
+    },
+    "5": {
+     "function": "VCC",
+     "type": "power_in"
+    }
+   }
+  },
+  "U47": {
+   "mpn": "SN74LVC1G17DBVR",
+   "source_instance": "u_bf_st",
+   "basis": "native19-reviewed",
+   "pins": {
+    "1": {
+     "function": "NC",
+     "type": "passive"
+    },
+    "2": {
+     "function": "A",
+     "type": "input"
+    },
+    "3": {
+     "function": "GND",
+     "type": "power_in"
+    },
+    "4": {
+     "function": "Y",
+     "type": "output"
     },
     "5": {
      "function": "VCC",

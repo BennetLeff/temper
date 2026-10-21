@@ -299,6 +299,7 @@ module PowerStage120V:
     signal CT_MON
     signal BUS_FAULT_ISO
     signal BUS_FAULT_FLT
+    signal BUS_FAULT_ST
 
     # ---------------- mains entry and EMI filter
     j_mains = new MainsTerminal2
@@ -828,7 +829,9 @@ module PowerStage120V:
     c_ct_zc.p1 ~ V3V3
     c_ct_zc.p2 ~ SELV_GND
     u_fault_or = new Or3Lvc1g332
-    u_fault_or.A ~ BUS_FAULT_FLT
+    # Stage 55 (DECISIONS 82, OPEN-ITEMS S30): the RC edge (93-133 ns/V) breaks the LVC1G332's 10 ns/V input-transition
+    # limit (non-Schmitt inputs, SCES489E p.3), so the filtered node enters a Schmitt buffer first and U13.A sees its edge.
+    u_fault_or.A ~ BUS_FAULT_ST
     # Stage 30 (DECISIONS 32/33): 1 k / 100 pF between U9 and U13.A. U9's CMTI upset (ns-wide) can no longer
     # reach the controller's asynchronous permit-latch CLR as a nuisance trip; it adds ~0.1 us to a ~1 us OCP chain.
     r_bf = new R1k0603
@@ -839,6 +842,15 @@ module PowerStage120V:
     c_bf.value = 100pF
     c_bf.p1 ~ BUS_FAULT_FLT
     c_bf.p2 ~ SELV_GND
+    u_bf_st = new SchmittBuf17
+    u_bf_st.A ~ BUS_FAULT_FLT
+    u_bf_st.Y ~ BUS_FAULT_ST
+    u_bf_st.VCC ~ V3V3
+    u_bf_st.GND ~ SELV_GND
+    c_bf_st_vcc = new C100n0603
+    c_bf_st_vcc.value = 100nF
+    c_bf_st_vcc.p1 ~ V3V3
+    c_bf_st_vcc.p2 ~ SELV_GND
     u_fault_or.B ~ CT_OC_POS
     u_fault_or.C ~ CT_OC_NEG
     u_fault_or.Y ~ BUS_FAULT
@@ -1419,3 +1431,6 @@ module PowerStage120V:
     hb.cp2.designator = "C165"
     hb.chold.designator = "C166"
     c_bf.designator = "C167"
+    # stage 55 (DECISIONS 82): the U13.A Schmitt buffer and its decoupler
+    u_bf_st.designator = "U47"
+    c_bf_st_vcc.designator = "C179"

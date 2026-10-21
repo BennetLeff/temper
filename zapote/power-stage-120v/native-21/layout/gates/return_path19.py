@@ -67,6 +67,8 @@ SIGNALS = {
     # SELV verdict (U44 -> U46) and the RC-filtered BUS_FAULT; HS-A's verdict crosses to the LS domain (ISO6721FB) and
     # runs the LS corridor to the vote
     "hb_rx": SELV_REF, "bus_fault_flt": SELV_REF, "hsb_good": SELV_REF,
+    # stage 55 (DECISIONS 82): the U47 Schmitt buffer's output, U47.4 -> U13.1 (reported, not asserted, as bus_fault_flt)
+    "bus_fault_st": SELV_REF,
     "mon_good_ha": LS_REF,
     # stage 40 (candidate 30a): HS-B's verdict crosses to the LS domain too (U44, ISO6721FB), and the vote (D18 / D20)
     # sits beside U43, so the GOOD node is the line that runs the LS corridor to the protection block

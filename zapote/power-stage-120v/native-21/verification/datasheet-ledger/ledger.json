@@ -2291,7 +2291,8 @@
     "C175",
     "C176",
     "C177",
-    "C178"
+    "C178",
+    "C179"
    ],
    "class": "SIGNAL",
    "function": "100 nF X7R 0603 decoupling/filter; stage 48: C176 / C177 / C178 are v3v3 - selv_gnd transfer caps beside BIAS_GOOD's J4.1 branch vias (3.3 V)",
@@ -7475,7 +7476,7 @@
     "long-term drift (120 ppm / 1000 h typical) and thermal hysteresis are typical-only and outside the band model"
    ],
    "finding": null,
-   "notes": "JLC C2156518, extended, 50 in stock 2026-10-15 against 500 for 500 boards (LM4050QAEM3-2.5 C2157745 43, C2157326 3): the 500-board lot is an owner pre-order (>= 550 incl. attrition) consigned to JLC; $3.4228 at 500+. The JLC listing's -40..85 C is wrong for the E suffix (TI 5.3 p.5, addendum p.25). Replaces LM4040A25IDBZR (C9421) on the same DBZ pads: at the c17.5 @ 61 release case the A25I read 89.1 C against 85 C (-4.1 K). Bands: validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md. S20 closed by ledger286.py: the bus-OVP rows now cite the s47 band top 287.62 V. S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row)."
+   "notes": "JLC C2156518, extended, 50 in stock 2026-10-15 against 500 for 500 boards (LM4050QAEM3-2.5 C2157745 43, C2157326 3): the 500-board lot is an owner pre-order (>= 550 incl. attrition) consigned to JLC; $3.4228 at 500+. The JLC listing's -40..85 C is wrong for the E suffix (TI 5.3 p.5, addendum p.25). Replaces LM4040A25IDBZR (C9421) on the same DBZ pads: at the c17.5 @ 61 release case the A25I read 89.1 C against 85 C (-4.1 K). Bands: validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md. S20 closed by ledger286.py: the bus-OVP rows now cite the s47 band top 287.62 V. S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change)."
   },
   "RT0603BRD0710KL": {
    "mpn": "RT0603BRD0710KL",
@@ -10423,12 +10424,12 @@
     },
     {
      "parameter": "Input transition rate, U13.A",
-     "worst_case_value": 132.5625,
+     "worst_case_value": 0.833,
      "unit": "ns/V",
-     "condition": "R134 / C167 RC edge (tau 106 ns) at the VIL band edge; 64-71 ns/V at the ~1.5 V switching point",
+     "condition": "stage 55: U13.A is driven by U47.Y (SN74LVC1G17 push-pull), not the R134 / C167 RC; across U13's 0.8-2.0 V band U47 sources / sinks >= 24 mA (SCES351Y p.6, VOH 2.3 V / VOL 0.55 V test points at 3 V) into <= 20 pF (U13 Ci 3.5 pF typical, SCES489E p.4, plus a 4 mm trace)",
      "evidence": [
-      "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:91",
-      "DECISIONS.md:1108"
+      "validation-results/11-candidates/c55-findings/results/u13-edge.md:3",
+      "validation-results/11-candidates/c55-findings/scripts/u13_edge.py"
      ]
     }
    ],
@@ -10502,17 +10503,16 @@
      "rating": "Input transition rate, recommended max",
      "stress": "Input transition rate, U13.A",
      "max_ratio": 1.0,
-     "severity": "gap",
-     "rule": "133 ns/V against the 10 ns/V recommended maximum (functional, not an abs-max overstress)",
-     "ratio": 13.2562
+     "severity": "violation",
+     "rule": "0.833 ns/V <= 10 ns/V (stage 55: behind the U47 Schmitt buffer; was 133 ns/V from the RC at s54, OPEN-ITEMS S30)",
+     "ratio": 0.0833
     }
    ],
    "layout_guidance": [],
    "gaps": [
-    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
-    "finding (c54, recommended-operating-condition exceedance, not an abs-max overstress): U13.A is a non-Schmitt LVC1G332 input fed through the R134 1 k / C167 100 pF CMTI filter (DECISIONS.md:1108); its edge crosses the input band at 93-133 ns/V against TI's 10 ns/V recommended maximum (SCES489E p.3), so the output may chatter while BUS_FAULT crosses threshold (a fault-direction level into the controller latch: nuisance double edges, not a missed trip). Owner: accept with the bench probe of DECISIONS.md:1128 item 4, or move the RC behind a Schmitt input (e.g. an LVC1G17 or a Schmitt OR) at the next spin; bench: scope U13.Y on BUS_FAULT edges with R134 / C167 fitted"
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
-   "finding": "finding (c54, recommended-operating-condition exceedance, not an abs-max overstress): U13.A is a non-Schmitt LVC1G332 input fed through the R134 1 k / C167 100 pF CMTI filter (DECISIONS.md:1108); its edge crosses the input band at 93-133 ns/V against TI's 10 ns/V recommended maximum (SCES489E p.3), so the output may chatter while BUS_FAULT crosses threshold (a fault-direction level into the controller latch: nuisance double edges, not a missed trip). Owner: accept with the bench probe of DECISIONS.md:1128 item 4, or move the RC behind a Schmitt input (e.g. an LVC1G17 or a Schmitt OR) at the next spin; bench: scope U13.Y on BUS_FAULT edges with R134 / C167 fitted",
+   "finding": "c55 (stage 55, DECISIONS 82): resolved. The c54 finding (the RC edge, 93-133 ns/V, into the non-Schmitt U13.A) is closed by U47 SN74LVC1G17 between C167 and U13.A: U13.A now sees a driven edge <= 0.833 ns/V (validation-results/11-candidates/c55-findings/results/u13-edge.md:3); the RC edge lands on U47's Schmitt input, which has no transition limit (SCES351Y p.5) and 0.51-0.83 V hysteresis (p.6). Bench: scope U13.Y on BUS_FAULT edges (DECISIONS.md:1128 item 4).",
    "notes": "c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): electrical ratings and worst-case stresses added (signal_audit.md; stresses from the pin_absmax net model, scripts/net_stress.py); the 'Not audited' / 'only the temperature rating is audited' gaps are closed by them."
   },
   "0603WAF1001T5E": {
@@ -10975,7 +10975,8 @@
    "designators": [
     "U15",
     "U24",
-    "U40"
+    "U40",
+    "U47"
    ],
    "class": "SIGNAL",
    "function": "Schmitt buffer",
@@ -11037,6 +11038,13 @@
      "unit": "mA",
      "basis": "IOL / -IOH 24 mA at VCC = 3 V (16 mA at 2.3 V, 32 mA at 4.5 V)",
      "source": "p.5 5.3 Recommended Operating Conditions"
+    },
+    {
+     "parameter": "Input hysteresis at VCC 3 V, min",
+     "datasheet_limit": 0.51,
+     "unit": "V",
+     "basis": "dVT = VT+ - VT- 0.51-0.83 V at VCC 3 V (VT+ 1.48-1.92 V, VT- 0.89-1.20 V); a Schmitt input: Recommended Operating Conditions carry no input-transition limit (p.5) and 8.1 names slow or noisy inputs as the use (p.11)",
+     "source": "TI SCES351Y (rev. Oct 2025) p.6 Table 5-1; p.5; p.11"
     }
    ],
    "stresses": [
@@ -11156,7 +11164,7 @@
    ],
    "layout_guidance": [],
    "gaps": [
-    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement U47 (stage 55) was placed after the temp-ratings study and has no row of its own: it sits 4 mm from U13 on the same SELV copper (U13 62.5 C at the release case, SN74LVC1G332DBVR entry)",
     "owner (interface contract): the controller-side load on J4.16 (LINE_ZC from U24) is not in the repo; the check covers the board side only. The J4 logic contract (FAULT-INTERFACE.md:28-33) states ~350 uA for BUS_FAULT; record the LINE_ZC / CT_ZC input loads in the controller's interface document"
    ],
    "finding": null,
@@ -12890,7 +12898,7 @@
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "finding": null,
-   "notes": "JLC C861070, extended, 8,450 in stock 2026-10-15; $0.0212 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row)."
+   "notes": "JLC C861070, extended, 8,450 in stock 2026-10-15; $0.0212 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change)."
   },
   "LM2901BIDR": {
    "mpn": "LM2901BIDR",
@@ -13163,7 +13171,7 @@
     },
     {
      "parameter": "Tj U42 c28",
-     "worst_case_value": 137.4,
+     "worst_case_value": 137.5,
      "unit": "C",
      "condition": "context: c28_h10 (28 A Kconfig ceiling), still air, bay 55 C",
      "evidence": [
@@ -13173,7 +13181,7 @@
         "case": "c28_h10",
         "item": "U42: Tj abs"
        },
-       "est_c": 137.4
+       "est_c": 137.5
       }
      ]
     }
@@ -13250,7 +13258,7 @@
      "max_ratio": 1.0,
      "severity": "gap",
      "rule": "context: 135.4 <= 150 C",
-     "ratio": 0.916
+     "ratio": 0.9167
     }
    ],
    "layout_guidance": [
@@ -13269,7 +13277,7 @@
     "bench: start-up (6-13 ms vs 16 ms timeout) and 11-16 MHz switching emissions (DECISIONS.md:442-448)."
    ],
    "finding": "Isolation claim resolved: elec/src/f6_parts.ato:354 ('reinforced 5 kVAC / 1.4 kVDC working') matches the current R24C2T25/R Rev. 1-2024 sheet (p.1; p.8: 1.4 kVp repetitive, 1000 Vrms TDDB, 1.4 kVDC). The 'preliminary 850 Vrms / 1.2 kVp functional' copy was the different non-/R R24C2T25 series. Barrier check now 520/1400 = 37 % (was 43 % against the wrong part).",
-   "notes": "2026-10-15 batch B: 'Tj converged 105 C' (DECISIONS.md:824, old model) replaced by B3's s41 body rows. The UL file E542996 (p.1 logo) could not be read (UL Product iQ 403); not relied on: the barrier is HOT-to-HOT functional. The 1.5x CMTI rule moved from violation to gap severity because the CMTI README scopes it to gate-command crossings; the absolute CMTI check stays violation severity and passes. Merged 2026-10-15 onto s42 (DECISIONS 55/56): CMTI re-cited to s42 (49.7 V/ns, 3.0x); Tj to the release case (133.7 C, 0.89 of 150 C). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. U42 Tj 133.7 -> 133.6 C (release). S50 (2026-10-16, 11-candidates/c50-permit-gate): B3 rows re-cited to the s50 margins.json. S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row)."
+   "notes": "2026-10-15 batch B: 'Tj converged 105 C' (DECISIONS.md:824, old model) replaced by B3's s41 body rows. The UL file E542996 (p.1 logo) could not be read (UL Product iQ 403); not relied on: the barrier is HOT-to-HOT functional. The 1.5x CMTI rule moved from violation to gap severity because the CMTI README scopes it to gate-command crossings; the absolute CMTI check stays violation severity and passes. Merged 2026-10-15 onto s42 (DECISIONS 55/56): CMTI re-cited to s42 (49.7 V/ns, 3.0x); Tj to the release case (133.7 C, 0.89 of 150 C). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. U42 Tj 133.7 -> 133.6 C (release). S50 (2026-10-16, 11-candidates/c50-permit-gate): B3 rows re-cited to the s50 margins.json. S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change)."
   },
   "0603WAF2702T5E": {
    "mpn": "0603WAF2702T5E",

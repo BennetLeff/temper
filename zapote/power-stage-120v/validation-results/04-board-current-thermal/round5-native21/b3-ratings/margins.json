@@ -1975,8 +1975,8 @@
     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
     "gated": true,
     "limit_c": 150.0,
-    "est_c": 137.4,
-    "margin_k": 12.6
+    "est_c": 137.5,
+    "margin_k": 12.5
    },
    {
     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
@@ -2615,9 +2615,9 @@
   ]
  },
  "board_sha256": {
-  "c17.5_h10": "9c639732ea84dc9682ea95b35c14c40c3d7ec0fda06d3d9fb0a748958bc9a7c0",
-  "c22_h10": "9c639732ea84dc9682ea95b35c14c40c3d7ec0fda06d3d9fb0a748958bc9a7c0",
-  "c28_h10": "9c639732ea84dc9682ea95b35c14c40c3d7ec0fda06d3d9fb0a748958bc9a7c0"
+  "c17.5_h10": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d",
+  "c22_h10": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d",
+  "c28_h10": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d"
  },
  "metrics": {
   "b3_laminate_margin_K": -50.8,

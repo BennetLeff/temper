@@ -24,7 +24,7 @@ MAINS_PREFIX = ("ac_l_in", "ac_n_in", "l_f", "n_f", "l_filt", "n_filt", "tco_l",
 
 def domain(net: str) -> str:
     if net in SELV or net.endswith(("-nc10", "-nc11", "-nc12", "-nc15")) or \
-            net in ("line_zc.buffer-nc", "u_bias_flt-nc", "leg_a.driver-nc_7", "leg_b.driver-nc_7"):
+            net in ("line_zc.buffer-nc", "u_bias_flt-nc", "u_bf_st-nc", "leg_a.driver-nc_7", "leg_b.driver-nc_7"):
         return "SELV"
     if net == "pe":
         return "PE"

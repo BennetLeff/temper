@@ -2315,6 +2315,7 @@
     "C176",
     "C177",
     "C178",
+    "C179",
     "C25",
     "C28",
     "C29",
@@ -3974,7 +3975,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Tj abs max",
-     "ratio": 0.916,
+     "ratio": 0.9167,
      "severity": "gap",
      "stress": "Tj U42 c28"
     }
@@ -5805,12 +5806,13 @@
    "designators": [
     "U15",
     "U24",
-    "U40"
+    "U40",
+    "U47"
    ],
    "finding": null,
    "function": "Schmitt buffer",
    "gaps": [
-    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement U47 (stage 55) was placed after the temp-ratings study and has no row of its own: it sits 4 mm from U13 on the same SELV copper (U13 62.5 C at the release case, SN74LVC1G332DBVR entry)",
     "owner (interface contract): the controller-side load on J4.16 (LINE_ZC from U24) is not in the repo; the check covers the board side only. The J4 logic contract (FAULT-INTERFACE.md:28-33) states ~350 uA for BUS_FAULT; record the LINE_ZC / CT_ZC input loads in the controller's interface document"
    ],
    "status": "PARTIAL",
@@ -5884,10 +5886,10 @@
     {
      "id": "dt/dv U13.A",
      "max_ratio": 1.0,
-     "ok": false,
+     "ok": true,
      "rating": "Input transition rate, recommended max",
-     "ratio": 13.2562,
-     "severity": "gap",
+     "ratio": 0.0833,
+     "severity": "violation",
      "stress": "Input transition rate, U13.A"
     }
    ],
@@ -5895,11 +5897,10 @@
    "designators": [
     "U13"
    ],
-   "finding": "finding (c54, recommended-operating-condition exceedance, not an abs-max overstress): U13.A is a non-Schmitt LVC1G332 input fed through the R134 1 k / C167 100 pF CMTI filter (DECISIONS.md:1108); its edge crosses the input band at 93-133 ns/V against TI's 10 ns/V recommended maximum (SCES489E p.3), so the output may chatter while BUS_FAULT crosses threshold (a fault-direction level into the controller latch: nuisance double edges, not a missed trip). Owner: accept with the bench probe of DECISIONS.md:1128 item 4, or move the RC behind a Schmitt input (e.g. an LVC1G17 or a Schmitt OR) at the next spin; bench: scope U13.Y on BUS_FAULT edges with R134 / C167 fitted",
+   "finding": "c55 (stage 55, DECISIONS 82): resolved. The c54 finding (the RC edge, 93-133 ns/V, into the non-Schmitt U13.A) is closed by U47 SN74LVC1G17 between C167 and U13.A: U13.A now sees a driven edge <= 0.833 ns/V (validation-results/11-candidates/c55-findings/results/u13-edge.md:3); the RC edge lands on U47's Schmitt input, which has no transition limit (SCES351Y p.5) and 0.51-0.83 V hysteresis (p.6). Bench: scope U13.Y on BUS_FAULT edges (DECISIONS.md:1128 item 4).",
    "function": "OR gate",
    "gaps": [
-    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement",
-    "finding (c54, recommended-operating-condition exceedance, not an abs-max overstress): U13.A is a non-Schmitt LVC1G332 input fed through the R134 1 k / C167 100 pF CMTI filter (DECISIONS.md:1108); its edge crosses the input band at 93-133 ns/V against TI's 10 ns/V recommended maximum (SCES489E p.3), so the output may chatter while BUS_FAULT crosses threshold (a fault-direction level into the controller latch: nuisance double edges, not a missed trip). Owner: accept with the bench probe of DECISIONS.md:1128 item 4, or move the RC behind a Schmitt input (e.g. an LVC1G17 or a Schmitt OR) at the next spin; bench: scope U13.Y on BUS_FAULT edges with R134 / C167 fitted"
+    "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "status": "PARTIAL",
    "unchecked_layout": []

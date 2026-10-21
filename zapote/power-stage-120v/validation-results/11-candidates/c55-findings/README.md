@@ -1,6 +1,7 @@
 # c55: the two c54 ledger-desk findings (S30 U13.A slow edge, S31 C2 ripple)
 
-Lane `claude/native21-s54-geometry` (worktree `ps-c54`), 2026-10-20, on the s54 board of record (9c639732). DECISIONS 82.
+Lane `claude/native21-s54-geometry` (worktree `ps-c54`), 2026-10-20. S31 is a desk result on the s54 board (9c639732);
+S30 is fixed in copper as **stage 55, board of record d9ee93a8**. DECISIONS 82.
 
 ## S31: C2 ripple current: release case closed at the desk
 
@@ -38,10 +39,10 @@ even at that bound, with no part change. The ledger (`scripts/apply_ledger55.py`
 28 A stays with the airflow route (S24): it passes at C2's own copper and bay air but not at the L1-body bound. The
 stress is still a model estimate, so the bench gap (current probe and thermocouple on C2) stays.
 
-## S30: U13.A slow input edge: not resolved here
+## S30: U13.A slow input edge: fixed at stage 55
 
-U13.A sees an edge of 93–133 ns/V. The ledger gives TI's limit as 10 ns/V at VCC 3.3 V (SCES489E p.3). The edge comes
-from the R134 1 k / C167 100 pF CMTI filter (DECISIONS 33).
+U13.A (SN74LVC1G332, non-Schmitt) saw the R134 1 k / C167 100 pF CMTI-filter edge (DECISIONS 33): 93–133 ns/V against
+TI's 10 ns/V recommended maximum at VCC 3.3 V (SCES489E p.3).
 
 Checked and rejected:
 - **Nexperia 74LVC1G332GV** (C548340, SOT457, same pinout 1 A / 2 GND / 3 B / 4 Y / 5 VCC / 6 C, JLC 1,112). Its
@@ -51,30 +52,56 @@ Checked and rejected:
 - **Nexperia 74AUP1G332** (Δt/ΔV per AUP family). SOT363 only (a footprint change) and 6–100 at JLC.
 - **No other 3-input OR** with specified Schmitt inputs exists in SOT-23-6. Configurable Schmitt gates (LVC1G57 / 58 /
   97 / 98) implement 2-input functions only.
+- **Retuning R134 / C167 to τ ≤ 8 ns** (BOM only). It meets 10 ns/V but cuts the glitch filter from tens of ns to a
+  few, on a U9 crossing already 1.06× over the 1.5× CMTI rule at maximum Qrr (`c54-ledger-desk/results/gap-classes.md`).
 
-The fix that holds on paper is a Schmitt buffer between the RC and U13.A. That means U47 SN74LVC1G17DBVR (the U15 / U24
-/ U40 line) plus C179 100 nF CC0603KRX7R9BB104 (the C47 line): no new BOM line, about 4 ns added to the OCP chain.
+**Fix (stage 55):** U47 SN74LVC1G17DBVR (`u_bf_st`, the U15 / U24 / U40 line) buffers the RC node, and U47.Y drives
+U13.A on the new net `bus_fault_st`. C179 CC0603KRX7R9BB104 100 nF (`c_bf_st_vcc`, the C47 line) decouples it. No new
+BOM line. `scripts/u13_edge.py` gives:
 
-It cannot be done inside the current locks. The SELV-spine lock (`native-21/layout/selv_spine_lock.json`, region x
-30–110, y 130–180) holds:
-- R134 and C167 (pad centres y 133.5);
-- U13 pins 3 and 4 (y 130.7);
-- the `bus_fault_flt` copper between them.
+| | stage 54 | stage 55 |
+|---|---|---|
+| U13.A input edge | 93–133 ns/V (RC) | ≤ 0.83 ns/V (U47: ≥ 24 mA into ≤ 20 pF), ratio 0.083 |
+| trip delay through the RC, slow corner | 107.7 ns (U13 at VIH 2.0 V) | 107.0 ns (U47 VT+ ≤ 1.92 V + tpd ≤ 6.5 ns) |
+| full-swing upset rejected if shorter than (fast corner) | 24.7 ns (U13 could switch at VIL 0.8 V) | 52.4 ns (VT+ min 1.48 V) |
 
-In the chain's default mode the gate compares every track of a net that touches the region, so rewiring U13.A fails it.
-The documented route is the spine owner's (`SPINE_OWNER=selv`, contract nets and planes still exact) plus a lock reissue
-on the new board. That is the owner's call, the one left pending in DECISIONS 81.
+U47's Schmitt input has no transition limit (SCES351Y p.5, p.11 "where the input is slow or noisy"). Its hysteresis is
+0.51–0.83 V at 3 V (p.6).
 
-A BOM-only alternative exists: retune R134 / C167 to τ ≤ 8 ns so the edge meets 10 ns/V. It drops the glitch rejection
-from about 64 ns to about 5 ns. The U9 crossing's CMTI is already 1.06× over the 1.5× rule at maximum Qrr
-(`c54-ledger-desk/results/gap-classes.md`, CA-IS3720HW), so that trade is rejected.
+**FMEA.** If U47 sticks low (output or input), it masks the isolated bus-fault path, just as U9 or U13 stuck low
+already would. That is a dormant fault of the same class. Commissioning step 3 finds it: items 2 and 3 (shunt OCP,
+bus OVP) record BUS_FAULT for a fault whose path runs U9 → R134 / C167 → U47 → U13.A. On board, DIS = NAND(permit_gate,
+bias_good), so a bus fault acts only through BUS_FAULT to the controller. If U47 sticks high, it latches a fault and
+fails safe. If C179 opens, U47 still gets its supply from the v3v3 plane via stubbed into its VCC pad. If C179 shorts,
+it pulls v3v3 down, and RAIL_OK (P02) trips (COMMISSIONING step 2 brown-out item).
+
+**Copper** (`scripts/edit55.py`, idempotent, every corner 135°): U47 at (31.4, 133.7, 90) takes C167's old place under
+U13; C167 moves 3.25 mm south; C179 sits west of U47. The edit lies inside the SELV-spine lock region (x 30–110,
+y 130–180), so it ran as the spine owner. The owner approved the reissue on 2026-10-20. `native-21/layout/selv_spine_lock.json`
+now has baseline d9ee93a8 and a fourth `reissued` entry listing every key that moved. The first chain run (340def6f)
+laid U47.3's east selv_gnd run from the pad centre: a 90° corner with the south run, right angles 51 → 52. The board of
+record starts that run at the south run's first bend instead.
+
+**Gates touched:** `audit.rs` (`stage55_schmitt_before_fault_or`; SELV / identity tables), `verify_source.py` (374
+components), `bypass_check.py` (U47 ≤ 2 mm: C179 1.71 mm), `pin_absmax_registry.json` (`bus_fault_st`, logic, source
+U47.4), `return_path19.py` (`bus_fault_st` on SELV_REF: 0 wrong-reference samples), `write_rules21.py` / `domains.py`
+(`u_bf_st-nc` SELV NC), Kelvin s55 entries (s54's band: no OCP part or OCP-net copper change).
+
+**Ledger** (`scripts/apply_ledger55.py`): the SN74LVC1G332DBVR transition check is violation severity and passes at
+0.083; the finding gap is closed. U47 joins SN74LVC1G17DBVR with its hysteresis rating; its temperature row is a gap
+note: it sits 4 mm from U13 and dissipates microwatts. C179 joins CC0603KRX7R9BB104.
 
 ## Reproduce
 
 ```
+# stage 55 copper (already in native-21/layout/copper.json; idempotent), then the chain:
+python3 -I validation-results/11-candidates/c55-findings/scripts/edit55.py native-21/layout/copper.json
+sh native-21/layout/gates/chain.sh native21s55 PASSDIR BUILDDIR
 python3 -I validation-results/11-candidates/c55-findings/scripts/r46_irms_digitize.py
 python3 -I validation-results/11-candidates/c55-findings/scripts/c2_ripple.py
+python3 -I validation-results/11-candidates/c55-findings/scripts/u13_edge.py
 python3 -I validation-results/11-candidates/c55-findings/scripts/apply_ledger55.py   # idempotent
+python3 -I validation-results/11-candidates/c55-findings/scripts/recite55.py        # after the chain
 python3 -I native-21/verification/datasheet-ledger/gate.py                          # PASS
 python3 -I native-21/verification/datasheet-ledger/tests/test_gate.py               # 0 failures
 ```
