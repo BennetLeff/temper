@@ -42,6 +42,12 @@ The S1/S2 select-on-test positions also need small kits of neighbouring E24 1% C
 
 **Stock risk.** On 2026-10-20 DigiKey had 9 × HVCB2512BDE2M00 against the 20 needed for two boards, with an 18-week lead time. This is an owner decision; see [`../docs/revc.md`](../docs/revc.md#1-2-mω-hv-resistors-10-instead-of-20).
 
+## Component prices
+
+Public DigiKey/LCSC prices checked on 2026-10-20 are in [`prices-2026-10-20.csv`](prices-2026-10-20.csv). `python3 procurement/cost.py` gives $535.81 in components for two Rev C boards, against $768.27 for Rev B. The caveats are in [`../docs/revc.md`](../docs/revc.md#cost-dated-2026-10-20).
+
+Out of stock at DigiKey on that date, with LCSC stock: OPA2810IDR (C1849413), BAV199 (C40919), MMBT3906 (C75549), and RT0805BRD0749R9L, RT0805BRD0747KL and RT0805BRD0730KL. C0805C302F5GACTU and C0805C161F5GACTU were not in stock anywhere checked.
+
 ## Fabrication quote reference
 
 These are public JLC quote-page prices, not logged in, for 5 pcs, 1.6 mm, 1 oz, standard build:

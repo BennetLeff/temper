@@ -27,7 +27,7 @@ Rev B is kept unchanged at commit `ca79d882f` (branch `codex/differential-probe-
 | Mounting holes | 6 | **4** |
 | LV courtyard fill, top side | 14.4% of the 9,399 mm² LV region | **32.7%** of the 6,361 mm² LV region (bottom side 52.8%; both sides 42.7%) |
 | Supply current, typical (amplifiers) | ~50 mA per rail (2 × ADA4817 + 3 × OPA810 + TL431 bias) | **~18 mA per rail** (4 OPA2810 channels + 1 OPA810) |
-| BOM cost, 2 boards, dated 2026-10-20 | see [cost](#cost-dated-2026-10-20) | see [cost](#cost-dated-2026-10-20) |
+| Component cost, 2 boards, dated 2026-10-20 | $768.27 | $535.81 (−30%); see [cost](#cost-dated-2026-10-20) |
 | JLC bare-PCB quote, 5 pcs, 4 layers (HASL lead-free / ENIG) | $43.00 / $56.40 | **$36.80 / $49.30** |
 
 **Tolerance-bearing parts** are the parts whose value tolerance enters a stated ratio, gain, pole or warning-threshold budget:
@@ -262,7 +262,27 @@ These were open identity problems in [`procurement/quote-review.md`](../procurem
 
 ## Cost (dated 2026-10-20)
 
-Filled in from distributor pages checked on 2026-10-20; see the table at the end of this section.
+Prices were read from public DigiKey and LCSC product pages on 2026-10-20, without logging in or adding anything to a cart. Mouser was not checked. Each unit price is the tier that covers two boards, from DigiKey where it had stock and from LCSC otherwise, with LCSC minimum quantities applied. The ledger is [`procurement/prices-2026-10-20.csv`](../procurement/prices-2026-10-20.csv); `python3 procurement/cost.py` reproduces the totals.
+
+| Two prototype boards | Rev B | Rev C |
+|---|---:|---:|
+| Components (Rev B includes its 5 off-board parts) | $768.27 | $535.81 |
+| HV divider resistors | $406.43 (40 × 1 MΩ) | $239.90 (20 × 2 MΩ) |
+| Bare PCB, JLC 5 pcs, 4-layer HASL | $43.00 | $36.80 |
+| Enclosure, 2 × Hammond 1455N2201 | none selected | $76.86 |
+| **Total** | **$811.27** | **$649.47** |
+| Total without the enclosure | $811.27 | $572.61 (−29%) |
+
+Of the $232.46 component saving, the HV resistors account for $166.53 and removing the ADA4817s for $46.00. The PCB-mount switches ($71.46) cost about the same as Rev B's panel switches ($76.41).
+
+Not included: shipping, tax, Digi-Reel fees, JLC assembly (needs an account upload), the S1/S2 select-on-test capacitor kits, HV leads and feedthroughs.
+
+Caveats on the prices:
+
+- **HVCB2512BDE2M00** is priced at DigiKey's 10+ tier, but DigiKey had only 9 of the 20 needed and LCSC had none. See risk 1.
+- **C0805C302F5GACTU and C0805C161F5GACTU** had no stock at either distributor; DigiKey sells them only as 4,000/8,000-piece reels. They are priced at LCSC's list price.
+- **OPA2810IDR, BAV199, MMBT3906 and three RT0805 values** were out of stock at DigiKey until November–December 2026. They are priced at LCSC, which had stock.
+- **Rev B's 1N4148W,115** was not found at either distributor, and its RT0805BRD07220L is not an orderable MPN. Both are priced as their Rev C replacements.
 
 ## Risks and open owner decisions
 
