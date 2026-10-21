@@ -1,0 +1,132 @@
+# G6J: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Omron G6J-Y datasheet via LCSC C308989
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-40 ----
+  G6J-Y
+  Surface-mounting Relay
+
+Ultra-compact and Slim DPDT
+Relay
+• Suitable for high-density mounting.(5.7 mm (W) × 10.6 mm (L) ×
+  9 mm (H)).
+• Dielectric strength of 1,500 VAC and an impulse withstand voltage
+  of 2,500 V for 2 × 10 μs (conforms to Telcordia specifications
+  (formerly Bellcore)).
+• Conforms to FCC Part 68 (1,500 V, 10 × 160 μs).
+• Single-winding latching models to save energy.
+• Standard models conforms to UL/C-UL standards.
+
+ RoHS Compliant
+
+■Model Number Legend                                                                                            ■Application Examples
+G 6 J@ - @ @- @                                                                                                  • Communication equipment
+      1 2 3 4                                                                                                    • Test & measurement equipment
+                                                                                                                 • Office automation equipment                     G
+1. Relay function                              3. Terminal Shape                                                                                                   6
+None : Single-side stable relay                P : PCB terminals                                                 • Audio-visual products                           J
+
+
+
+
+                                                                                                                                                                   -
+  U : Single-winding latching relay            FS: Surface-mounting terminals, short                             • Security equipment                              Y
+                                               FL : Surface-mounting terminals, long                             • Building automation equipment
+2. Number of contact poles/
+                                                                                                                 • Industrial equipment
+    Contact form                               4. Special function
+                                                                                                                 • Amusement equipment
+2: 2-pole/DPDT (2c)                            Y: Improved product for soldering heat resistance
+
+■Ordering Information
+                                    Packing                   Tube Packing                                              Tape Packing
+                                                                                                                                                     Minimum
+                  Protective                                      Rated coil     Minimun                            Rated coil      Minimum        ordering unit
+Relay Function    Structure     Contact form       Model           voltage      packing unit         Model           voltage       packing unit   (tape packing)
+---- lines 80-165 ----
+                                                                                                                                                               1
+    G6J-Y                                                                                                                              Surface-mounting Relay
+
+    ■Ratings
+    ●Coil: Single-side Stable Relays (G6J-2P-Y, G6J-2FS-Y, G6J-2FL-Y)
+                                  Item                                                     Must operate voltage Must release voltage      Max. voltage
+                                           Rated current           Coil resistance                 (V)                   (V)                  (V)           Power consumption
+                                               (mA)                      (Ω)                                                                                      (mW)
+    Rated voltage                                                                                                % of rated voltage
+                   3 VDC                          48.0                      62.5
+                 4.5 VDC                          32.6                     137.9
+                                                                                                                                                               Approx. 140
+                   5 VDC                          28.9                     173.1                75% max.             10% min.                150%
+                 12 VDC                           12.3                     976.8
+                 24 VDC                            9.2                    2,600.5                                                                              Approx. 230
+    Note 1. The rated current and coil resistance are measured at a coil temperature of 23°C with a tolerance of ±10%.
+    Note 2. The operating characteristics are measured at a coil temperature of 23°C.
+    Note 3. The maximum voltage is the highest voltage that can be imposed on the Relay coil instantaneously.
+
+    ●Coil: Single-winding Latching Relays (G6JU-2P-Y, G6JU-2FS-Y, G6JU-2FL-Y)
+                                  Item                                                       Must set voltage    Must reset voltage       Max. voltage
+                                           Rated current           Coil resistance                 (V)                  (V)                   (V)           Power consumption
+    Rated voltage                              (mA)                      (Ω)                                     % of rated voltage                               (mW)
+                   3 VDC                          33.7                      89.0
+                 4.5 VDC                          22.0                     204.3
+                                                                                                75% max.             75% max.                150%              Approx. 100
+                   5 VDC                          20.4                     245.5
+                 12 VDC                            9.0                1,329.2
+    Note 1. The rated current and coil resistance are measured at a coil temperature of 23°C with a tolerance of ±10%.
+    Note 2. The operating characteristics are measured at a coil temperature of 23°C.
+G   Note 3. The maximum voltage is the highest voltage that can be imposed on the Relay coil instantaneously.
+6
+J
+  ●Contacts
+-
+
+
+
+
+Y
+    Item                   Load                      Resistive load
+    Contact type                   Bifurcated crossbar
+    Contact material               Ag (Au-Alloy)
+                                   0.3 A at 125 VAC,
+    Rated load
+                                   1 A at 30 VDC
+    Rated carry current            1A
+    Max. switching voltage         125 VAC, 110 VDC
+    Max. switching current         1A
+
+
+    ■Characteristics
+                                                         Classification                     Single-side stable                              Single-winding latching
+    Item                                                        Model               G6J-2P-Y, G6J-2FS-Y, G6J-2FL-Y                    G6JU-2P-Y, G6JU-2FS-Y, G6JU-2FL-Y
+    Contact resistance *1                                                  100 mΩ max.
+    Operating (set) time                                                   3 ms max.
+    Release (reset) time                                                   3 ms max.
+    Min. set/reset signal width                                                                     −                           10 ms
+    Insulation resistance *2                                               1,000 MΩ min. (at 500 VDC)
+                             Between coil and contacts                     1,500 VAC, 50/60 Hz for 1 min
+    Dielectric strength      Between contacts of different polarity        1,000 VAC, 50/60 Hz for 1 min
+                             Between contacts of the same polarity 750 VAC, 50/60 Hz for 1 min
+                             Between coil and contacts                     2,500 VAC, 2 × 10 μs
+    Impulse withstand
+                             Between contacts of different polarity
+    voltage                                                                1,500 VAC, 10 × 160 μs
+                             Between contacts of the same polarity
+                             Destruction                                   10 to 55 to 10 Hz 2.5 mm single amplitude (5 mm double amplitude)
+    Vibration resistance
+                             Malfunction                                   10 to 55 to 10 Hz 1.65 mm single amplitude (3.3 mm double amplitude)
+                             Destruction                                   1,000 m/s2
+    Shock resistance
+                             Malfunction                                   750 m/s2
+                             Mechanical                                    50,000,000 operations min. (at 36,000 operations/hour)
+    Durability
+                             Electrical                                    100,000 operations min. (with a rated load at 1,800 operations/hour)
+    Failure rate (P level) (reference value) *3                            10 μA at 10 mVDC
+    Ambient operating temperature                                          -40 to 85°C (with no icing or condensation)
+    Ambient operating humidity                                             5% to 85%
+    Weight                                                                 Approx. 1.0 g
+    Note: The above values are initial values.
+    *1. The contact resistance was measured with 10 mA at 1 VDC with a fall-of-potential method.
+    *2. The insulation resistance was measured with a 500 VDC Megger Tester applied to the same parts as those for checking the dielectric strength.
+    *3. This value was measured at a switching frequency of 120 operations/min and the criterion of contact resistance is 50 Ω. This value may vary depending on the
+          operating frequency, operating conditions, expected reliability level of the relay, etc. Always double-check relay suitability under actual load conditions.
+

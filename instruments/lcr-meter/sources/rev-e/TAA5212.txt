@@ -1,0 +1,492 @@
+# TI TAA5212 datasheet
+# Source: https://www.ti.com/lit/ds/symlink/taa5212.pdf
+# Retrieved 2026-10-20; PDF sha256 7f733bae3385ca5f0aa730decc37fb13bc43191ec4fe7ec3cfe3a137a13fdec7
+# Extracted with `pdftotext -layout`; only the listed PDF pages are kept (register maps etc. dropped).
+# Each page starts with a line "=== PDF page N ===" ; citations in docs/rev-e-acquisition-survey.md use these page numbers.
+# Pages kept: 1,6-10
+
+=== PDF page 1 ===
+                                                                                                                                                    TAA5212
+                                                                                     SLASF30A – JANUARY 2022 – REVISED DECEMBER 2024
+
+      TAA5212 High-performance stereo audio ADC with 119dB dynamic range and
+                            configurable digital filters
+1 Features                                                             3 Description
+•   Stereo high performance audio ADC                                  The TAA5212 is a high-performance stereo audio
+    – Performance:                                                     ADC with 2VRMS differential input and 119dB dynamic
+       • Line/Microphone differential input dynamic                    range. The TAA5212 supports both differential
+          range: 119dB                                                 and single-ended line/microphone input signals with
+       • Differential input THD+N: –98dB                               options for AC or DC coupling configurations.
+       • Channel summing mode supports high                            The TAA5212 integrates programable channel gain,
+          SNR: 122dB                                                   digital volume control, a low-jitter phase-locked loop
+    – Input voltage:                                                   (PLL), a programmable digital high-pass filter (HPF),
+       • Differential, 2VRMS full-scale inputs                         programmable EQ and biquad filters, decimation
+       • Single-ended, 1VRMS full-scale inputs                         filters with low-latency and ultra low-latency options,
+    – Input mix/mux options                                            and supports sample rates up to 768kHz. The
+    – Sample rate (fS) = 4kHz to 768kHz                                TAA5212 supports time-division multiplexing (TDM),
+    – Programmable microphone bias (up to 3V)                          I2S, or left-justified (LJ) audio formats in controller
+                                                                       and target modes, and can be controlled with I2C
+•   Key Features                                                       or SPI. These integrated high-performance features,
+    – Up to 4 Record Channels                                          along with a single supply operation, make TAA5212
+      • 2 Channel Analog + 2 Channel Digital                           an excellent choice for space-constrained audio
+      • 1 Channel Analog + 3 Channel Digital                           applications.
+      • 4 Channel Digital                                                                    Device Information
+    – Voice activity detection
+                                                                       PART NUMBER              PACKAGE(1)                       PACKAGE SIZE
+    – Ultrasonic activity detection                                                                                              (NOM)(2)
+    – Low-latency and Ultra low-latency decimation                     TAA5212                  VQFN (24)                        4mm x 4mm with
+      filter selection options                                                                                                   0.5mm pitch
+    – Programmable HPF and Biquad filters
+    – I2C or SPI Control Interface                                     (1)   For all available packages, see the orderable addendum at
+                                                                             the end of the data sheet.
+    – Audio Serial Interface                                           (2)   The package size (length × width) is a nominal value and
+      • Format: TDM, I2S or Left Justified (LJ)                              includes pins, where applicable.
+      • Bus Controller and Target Modes
+      • Daisy chain in TDM Mode
+      • Word Length: 16, 20, 24 or 32 Bits                                                    MICBIAS
+
+    – Programmable PLL for flexible clocking
+    – Auto clock and sample rate detection                                                                                PLL, Clock Generation
+                                                                                                                                                       GPIO2
+                                                                                                                                                       GPIO1
+    – Low power modes                                                                       Microphone Bias
+                                                                                                                          and Multi-function pins
+                                                                                                                                                       GPI1
+
+      • 5mW for 1-Ch and 8mW for 2-Ch recording                                                                                                        GPO1
+
+           (1.8V Supply)
+      • Differential input dynamic range: 105dB                               IN1P
+                                                                                                                                                       FSYNC
+
+    – Single Supply Operation AVDD: 1.8V or 3.3V                             IN1M
+                                                                                                              Programmable          Audio Serial       BCLK
+
+    – I/O Supply Operation: 1.2V or 1.8V or 3.3V                                       2-Channel ADC           Digital Filters
+                                                                                                               and Biquads
+                                                                                                                                     Interface
+                                                                                                                                   (TDM, I2S, LJ)      DOUT
+    – Temperature grade 1: –40°C ≤ TA ≤ +125°C                                IN2P                                                                     DIN
+                                                                             IN2M
+2 Applications
+•   Video Conference System                                                                                                                            ADDR
+
+•   IP Network Camera                                                                    Regulators and Voltage
+                                                                                               Reference
+                                                                                                                               I2C or SPI
+                                                                                                                             Control Interface
+                                                                                                                                                       SCL
+
+•   IP Telephone                                                                                                                                       SDA
+•   Smart Speakers
+•   Professional microphones & wireless systems                                          VREF      DREG           VSS     VSSD     AVDD IOVDD
+•   Professional audio mixer/control surface
+                                                                                       Simplified Block Diagram
+
+     An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+     intellectual property matters and other important disclaimers. PRODUCTION DATA.
+
+
+=== PDF page 6 ===
+TAA5212
+SLASF30A – JANUARY 2022 – REVISED DECEMBER 2024                                                                                           www.ti.com
+
+over operating free-air temperature range (unless otherwise noted)
+                                                                                                        MIN         NOM           MAX       UNIT
+    OTHERS
+    CCLK          GPIOx or GPIx controller mode clock frequency (CCLK)                                                        36.864(4)     MHz
+                  SCL and SDA bus capacitance for I2C interface supporting standard-mode
+                                                                                                                                   400
+    Cb            and fast-mode                                                                                                              pF
+                  SCL and SDA bus capacitance for I2C interface supporting fast-mode plus                                          550
+    CL            Digital output load capacitance                                                                        20         50       pF
+
+(1)        VSSD and VSS (thermal pad); all ground pins must be tied together and must not differ in voltage by more than 0.2V.
+(2)        Set the AVDD_MODE bit correctly for AVDD 1.8V Operation. Refer Section 7.3 for more details.
+(3)        Set the IOVDD_IO_MODE bit correctly for IOVDD 1.8V and 1.2V Operation. Refer Section 7.3 for more details.
+(4)        CCLK input rise time (VIL to VIH) and fall time (VIH to VIL) must be less than 5ns. For better audio noise performance, CCLK input must
+           be used with low jitter.
+
+5.4 Thermal Information
+                                                                                                               TAA5212
+                                         THERMAL METRIC(1)                                                    RGE (VQFN)                    UNIT
+                                                                                                               24 PINS
+    RθJA          Junction-to-ambient thermal resistance                                                         38.4                       °C/W
+    RθJC(top)     Junction-to-case (top) thermal resistance                                                      26.3                       °C/W
+    RθJB          Junction-to-board thermal resistance                                                           15.9                       °C/W
+    ψJT           Junction-to-top characterization parameter                                                     0.5                        °C/W
+    ψJB           Junction-to-board characterization parameter                                                   15.8                       °C/W
+    RθJC(bot)     Junction-to-case (bottom) thermal resistance                                                   13.8                       °C/W
+
+(1)        For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+           report.
+
+5.5 Electrical Characteristics
+At TA = 25°C, AVDD = 3.3V, IOVDD = 3.3V, fIN = 1kHz sinusoidal signal, fS = 48kHz, 32-bit audio data, BCLK =
+256×fS, TDM target mode, linear phase decimation filter, 5kΩ input impedance setting, AC-coupled differential input with
+ADC_CHx_CM_TOL = 2'b00 or DC-coupled differential input with ADC_CHx_CM_TOL = 2'b10 as applicable, PLL on,
+channel gain = 0dB, MICBIAS programmed to VREF and other default configurations; measured filter free with an Audio
+Precision with a 20Hz to 20kHz un-weighted banwidth, unless otherwise noted
+                 PARAMETER                                    TEST CONDITIONS                          MIN         NOM           MAX        UNIT
+    ADC PERFORMANCE FOR INPUT RECORDING
+                  Differential input full-
+                                           AC-coupled or DC-coupled input                                                2                  VRMS
+                  scale AC signal voltage
+                  Differential input full-
+                                           DC-coupled input (High Swing Mode)(3)                                         4                  VRMS
+                  scale AC signal voltage
+                  Single-ended input full-
+                                           AC-coupled or DC-coupled input                                                1                  VRMS
+                  scale AC signal voltage
+                  Single-ended input full-
+                                           DC-coupled input (High Swing Mode)(3)                                         2                  VRMS
+                  scale AC signal voltage
+                                            INxx differential AC-coupled input and AC signal
+                                                                                                                        119
+                  Signal-to-noise ratio, A- shorted to ground, 0dB channel gain
+    SNR                                                                                                                                      dB
+                  weighted(1) (2)           INxx differential AC-coupled input and AC signal
+                                                                                                                       107
+                                            shorted to ground, 12dB channel gain
+                                            INxx differential DC-coupled input and AC signal
+                                                                                                                        111
+                  Signal-to-noise ratio, A- shorted to ground, 0dB channel gain
+    SNR                                                                                                                                      dB
+                  weighted(1) (2)           INxx differential DC-coupled input and AC signal
+                                                                                                                        99
+                                            shorted to ground, 12dB channel gain
+
+6          Submit Document Feedback                                                                    Copyright © 2024 Texas Instruments Incorporated
+
+                                                               Product Folder Links: TAA5212
+
+
+=== PDF page 7 ===
+                                                                                                                                  TAA5212
+www.ti.com                                                                                   SLASF30A – JANUARY 2022 – REVISED DECEMBER 2024
+
+At TA = 25°C, AVDD = 3.3V, IOVDD = 3.3V, fIN = 1kHz sinusoidal signal, fS = 48kHz, 32-bit audio data, BCLK =
+256×fS, TDM target mode, linear phase decimation filter, 5kΩ input impedance setting, AC-coupled differential input with
+ADC_CHx_CM_TOL = 2'b00 or DC-coupled differential input with ADC_CHx_CM_TOL = 2'b10 as applicable, PLL on,
+channel gain = 0dB, MICBIAS programmed to VREF and other default configurations; measured filter free with an Audio
+Precision with a 20Hz to 20kHz un-weighted banwidth, unless otherwise noted
+             PARAMETER                                  TEST CONDITIONS                              MIN       NOM         MAX     UNIT
+                                          Wideband Mode(4): INxx differential DC-coupled
+               Signal-to-noise ratio, A- input and AC signal shorted to ground, 0dB
+ SNR                                                                                                             100                dB
+               weighted(1) (2)           channel gain (Integrated till 20kHz and A-
+                                         Weighted)
+                                          Wideband Mode(4): INxx differential DC-coupled
+ SNR           Signal-to-noise ratio(1)   input and AC signal shorted to ground, 0dB                              89                dB
+                                          channel gain (Integrated till 85kHz)
+                                         Power Tune Mode(5): INxx differential AC-coupled
+                                         input and AC signal shorted to ground, 0dB                              104
+               Signal-to-noise ratio, A- channel gain
+ SNR                                                                                                                                dB
+               weighted(1) (2)           Power Tune Mode(5): INxx differential DC-coupled
+                                         input and AC signal shorted to ground, 0dB                              103
+                                         channel gain
+                                          INxx differential AC-coupled input and AC signal
+                                          shorted to ground, 0dB channel gain, AVDD =                            113
+                                          1.8V
+                                         INxx differential DC-coupled input and AC signal
+               Signal-to-noise ratio, A-
+ SNR                                     shorted to ground, 0dB channel gain, AVDD =                             106                dB
+               weighted(1) (2)
+                                         1.8V
+                                          INxx differential DC-coupled input selected and
+                                          AC signal shorted to ground, 12dB channel gain,                         94
+                                          AVDD = 1.8V
+                                         Power Tune Mode(5): INxx differential AC-coupled
+                                         input and AC signal shorted to ground, 0dB                              104
+               Signal-to-noise ratio, A- channel gain, AVDD = 1.8V
+ SNR                                                                                                                                dB
+               weighted(1) (2)           Power Tune Mode(5): INxx differential DC-coupled
+                                         input and AC signal shorted to ground, 0dB                              102
+                                         channel gain, AVDD = 1.8V
+                                          INxx differential AC-coupled input and AC signal
+                                          shorted to ground, 0dB channel gain, 10kΩ input                        115
+                                          impedance
+                                         INxx differential AC-coupled input and AC signal
+                                         shorted to ground, 0dB channel gain, 40kΩ input                         105
+               Signal-to-noise ratio, A- impedance
+ SNR                                                                                                                                dB
+               weighted(1) (2)           INxx differential AC-coupled input and AC
+                                         signal shorted to ground, 0dB channel gain,                             116
+                                         ADC_CH1_CM_TOL = 2'b01
+                                          INxx differential DC-coupled input and AC signal
+                                          shorted to ground, 0dB channel gain, High                              112
+                                          Swing Mode(3)
+                                         INxx single-ended AC-coupled input and AC
+                                                                                                                 111
+               Signal-to-noise ratio, A- signal shorted to ground, 0dB channel gain
+ SNR                                                                                                                                dB
+               weighted(1) (2)           INxx single-ended AC-coupled input and AC
+                                                                                                                  99
+                                         signal shorted to ground, 12dB channel gain
+                                         INxx single-ended DC-coupled input and AC
+                                                                                                                 104
+               Signal-to-noise ratio, A- signal shorted to ground, 0dB channel gain
+ SNR                                                                                                                                dB
+               weighted(1) (2)           INxx single-ended DC-coupled input and AC
+                                                                                                                  92
+                                         signal shorted to ground, 12dB channel gain
+
+Copyright © 2024 Texas Instruments Incorporated                                                             Submit Document Feedback      7
+                                                         Product Folder Links: TAA5212
+
+
+=== PDF page 8 ===
+TAA5212
+SLASF30A – JANUARY 2022 – REVISED DECEMBER 2024                                                                              www.ti.com
+
+At TA = 25°C, AVDD = 3.3V, IOVDD = 3.3V, fIN = 1kHz sinusoidal signal, fS = 48kHz, 32-bit audio data, BCLK =
+256×fS, TDM target mode, linear phase decimation filter, 5kΩ input impedance setting, AC-coupled differential input with
+ADC_CHx_CM_TOL = 2'b00 or DC-coupled differential input with ADC_CHx_CM_TOL = 2'b10 as applicable, PLL on,
+channel gain = 0dB, MICBIAS programmed to VREF and other default configurations; measured filter free with an Audio
+Precision with a 20Hz to 20kHz un-weighted banwidth, unless otherwise noted
+              PARAMETER                               TEST CONDITIONS                       MIN         NOM           MAX       UNIT
+                                         INxx single-ended mux AC-coupled input and AC
+                                         signal shorted to ground, 0dB channel gain, 10kΩ                  97
+               Signal-to-noise ratio, A- input impedance
+    SNR                                                                                                                          dB
+               weighted(1) (2)           INxx single-ended mux DC-coupled input and AC
+                                         signal shorted to ground, 0dB channel gain 10kΩ                   96
+                                         input impedance
+               Dynamic range, A-        INxx differential AC-coupled input and –60dBFS
+    DR                                                                                                    119                    dB
+               weighted(2)              AC signal input, 0dB channel gain
+                                        INxx differential DC-coupled input and –60dBFS
+                                                                                                          112                    dB
+               Dynamic range, A-        AC signal input, 0dB channel gain
+    DR
+               weighted(2)              INxx differential DC-coupled input and –72dBFS
+                                                                                                         100                     dB
+                                        AC signal input, 12dB channel gain
+                                        Power Tune Mode: INxx differential AC-coupled
+                                        input and –60dBFS AC signal input, 0dB channel                   106
+               Dynamic range, A-        gain
+    DR                                                                                                                           dB
+               weighted(2)              Power Tune Mode: INxx differential DC-coupled
+                                        input and –60dBFS AC signal input, 0dB channel                   105
+                                        gain
+                                        INxx differential AC-coupled input and –60dBFS
+                                                                                                          113
+                                        AC signal input, 0dB channel gain, AVDD = 1.8V
+               Dynamic range, A-        INxx differential DC-coupled input and –60dBFS
+    DR                                                                                                   106                     dB
+               weighted(2)              AC signal input, 0dB channel gain, AVDD = 1.8V
+                                        INxx differential DC-coupled input and –72dBFS
+                                                                                                           94
+                                        AC signal input, 12dB channel gain, AVDD = 1.8V
+                                        Power Tune Mode: INxx differential AC-coupled
+                                        input and –60dBFS AC signal input, 0dB channel                   105
+               Dynamic range, A-        gain, AVDD = 1.8V
+    DR                                                                                                                           dB
+               weighted(2)              Power Tune Mode: INxx differential DC-coupled
+                                        input and –60dBFS signal input, 0dB channel                      103
+                                        gain, AVDD = 1.8V
+                                        INxx differential AC-coupled input and –
+               Dynamic range, A-
+    DR                                  60dBFS AC signal input, 0dB channel gain,                         117                    dB
+               weighted(2)
+                                        ADC_CH1_CM_TOL = 2'b01
+               Dynamic range, A-        INxx single-ended AC-coupled input and –
+    DR                                                                                                    110                    dB
+               weighted(2)              60dBFS AC signal input, 0dB channel gain
+                                        INxx single-ended DC-coupled input and –
+                                                                                                         104
+               Dynamic range, A-        60dBFS AC signal input, 0dB channel gain
+    DR                                                                                                                           dB
+               weighted(2)              INxx single-ended DC-coupled input and –
+                                                                                                           92
+                                        72dBFS AC signal input, 12dB channel gain
+                                        INxx single-ended mux AC-coupled input and –
+                                        60dBFS AC signal input, 0dB channel gain, 10kΩ                     98
+               Dynamic range, A-        input impedance
+    DR                                                                                                                           dB
+               weighted(2)              INxx single-ended mux DC-coupled input and –
+                                        60dBFS AC signal input, 0dB channel gain 10kΩ                      97
+                                        input impedance
+                                        INxx differential AC-coupled input and –1dBFS
+                                                                                                         –98
+                                        AC signal input, 0dB channel gain
+               Total harmonic           INxx differential DC-coupled input and –1dBFS
+    THD+N                                                                                                –98                     dB
+               distortion(2)            AC signal input, 0dB channel gain
+                                        INxs differential DC-coupled input and –13dBFS
+                                                                                                         –96
+                                        AC signal input, 12dB channel gain
+
+8         Submit Document Feedback                                                          Copyright © 2024 Texas Instruments Incorporated
+
+                                                       Product Folder Links: TAA5212
+
+
+=== PDF page 9 ===
+                                                                                                                                    TAA5212
+www.ti.com                                                                                    SLASF30A – JANUARY 2022 – REVISED DECEMBER 2024
+
+At TA = 25°C, AVDD = 3.3V, IOVDD = 3.3V, fIN = 1kHz sinusoidal signal, fS = 48kHz, 32-bit audio data, BCLK =
+256×fS, TDM target mode, linear phase decimation filter, 5kΩ input impedance setting, AC-coupled differential input with
+ADC_CHx_CM_TOL = 2'b00 or DC-coupled differential input with ADC_CHx_CM_TOL = 2'b10 as applicable, PLL on,
+channel gain = 0dB, MICBIAS programmed to VREF and other default configurations; measured filter free with an Audio
+Precision with a 20Hz to 20kHz un-weighted banwidth, unless otherwise noted
+             PARAMETER                                   TEST CONDITIONS                              MIN       NOM         MAX      UNIT
+                                          INxx single-ended AC-coupled input and –1dBFS
+                                                                                                                  –96
+                                          AC signal input, 0dB channel gain
+                                          INxx single-ended DC-coupled input and –1dBFS
+               Total harmonic                                                                                     –86
+ THD+N                                    AC signal input, 0dB channel gain                                                           dB
+               distortion(2)
+                                          INxx single-ended mux AC-coupled input and –
+                                          1dBFS AC signal input, 0dB channel gain, 10kΩ                           –94
+                                          input impedance
+ ADC OTHER PARAMETERS
+                                          Input pins INxP or INxM, 5kΩ Input Impedance
+                                                                                                                  5.5
+                                          Mode
+                                          Input pins INxP or INxM, 10kΩ Input Impedance
+               AC Input impedance                                                                                  11                 kΩ
+                                          Mode
+                                          Input pins INxP or INxM, 40kΩ Input Impedance
+                                                                                                                   44
+                                          Mode
+               Digital volume control
+                                          Programmable in 0.5dB steps                                 –80                     47      dB
+               range
+               Input Signal Bandwidth     Upto 192KSPS FS Rate                                                   0.46                 FS
+               Input Signal Bandwidth     >192KSPS                                                                 90                kHz
+               Output data sample rate Programmable                                                      4                   768     kHz
+               Output data sample
+                                          Programmable                                                  16                    32     Bits
+               word length
+               Digital high-pass filter   First-order IIR filter with programmable
+                                                                                                                    1                 Hz
+               cutoff frequency           coefficients, –3dB point (default setting)
+                                          –1dBFS AC signal line-in differential input to non-
+               Interchannel isolation                                                                            –134                 dB
+                                          measurement channel
+               Interchannel gain          –6dBFS AC signal line-in differential input, 1kHz
+                                                                                                                 ±0.1                 dB
+               mismatch                   sinusoidal signal, 0dB channel gain
+               Interchannel phase         –6dBFS AC signal line-in differential input, 1kHz
+                                                                                                                ±0.01               Degrees
+               mismatch                   sinusoidal signal
+               Power-supply rejection     100mVPP, 1kHz sinusoidal signal on AVDD,
+ PSRR                                                                                                             121                 dB
+               ratio                      differential input, 0dB channel gain
+                                          Differential DC-coupled input, 0dB channel gain,
+               Common-mode
+ CMRR                                     –6dBFS AC input, 1kHz signal on both pins and                            80                 dB
+               rejection ratio
+                                          measured level at output
+ MICROPHONE BIAS
+                                          Bandwidth = 20Hz to 20kHz, A-weighted, 1µF
+               MICBIAS noise              capacitor between MICBIAS and VSS (thermal                                2               µVRMS
+                                          pad)
+                                          Bypass to AVDD                                                        AVDD
+               MICBIAS voltage            AVDD=1.8V                                                             1.375                 V
+                                          AVDD=3.3V                                                              2.75
+ DIGITAL I/O
+                                          All digital pins except SDA and SCL, IOVDD 1.8V                                  0.35 ×
+                                                                                                      –0.3
+               Low-level digital input    or 1.2V operation                                                               IOVDD
+ VIL                                                                                                                                  V
+               logic voltage threshold    All digital pins except SDA and SCL, IOVDD 3.3V
+                                                                                                      –0.3                   0.8
+                                          operation
+
+Copyright © 2024 Texas Instruments Incorporated                                                              Submit Document Feedback         9
+                                                          Product Folder Links: TAA5212
+
+
+=== PDF page 10 ===
+TAA5212
+SLASF30A – JANUARY 2022 – REVISED DECEMBER 2024                                                                                   www.ti.com
+
+At TA = 25°C, AVDD = 3.3V, IOVDD = 3.3V, fIN = 1kHz sinusoidal signal, fS = 48kHz, 32-bit audio data, BCLK =
+256×fS, TDM target mode, linear phase decimation filter, 5kΩ input impedance setting, AC-coupled differential input with
+ADC_CHx_CM_TOL = 2'b00 or DC-coupled differential input with ADC_CHx_CM_TOL = 2'b10 as applicable, PLL on,
+channel gain = 0dB, MICBIAS programmed to VREF and other default configurations; measured filter free with an Audio
+Precision with a 20Hz to 20kHz un-weighted banwidth, unless otherwise noted
+             PARAMETER                                      TEST CONDITIONS                    MIN          NOM           MAX       UNIT
+                                         All digital pins except SDA and SCL, IOVDD 1.8V      0.65 ×                 IOVDD +
+              High-level digital input   or 1.2V operation                                   IOVDD                       0.3
+ VIH                                                                                                                                  V
+              logic voltage threshold    All digital pins except SDA and SCL, IOVDD 3.3V                             IOVDD +
+                                                                                                  2
+                                         operation                                                                       0.3
+                                         All digital pins except SDA and SCL, IOL = –2mA,
+                                                                                                                           0.45
+              Low-level digital output   IOVDD 1.8V or 1.2V operation
+ VOL                                                                                                                                  V
+              voltage                    All digital pins except SDA and SCL, IOL = –2mA,
+                                                                                                                            0.4
+                                         IOVDD 3.3V operation
+                                        All digital pins except SDA and SCL, IOH = 2mA,     IOVDD –
+              High-level digital output IOVDD 1.8V or 1.2V operation                           0.45
+ VOH                                                                                                                                  V
+              voltage                   All digital pins except SDA and SCL, IOH = 2mA,
+                                                                                                2.4
+                                        IOVDD 3.3V operation
+              Low-level digital input                                                                                     0.3 ×
+ VIL(I2C)                                SDA and SCL                                           –0.5                                   V
+              logic voltage threshold                                                                                   IOVDD
+              High-level digital input                                                         0.7 ×                 IOVDD +
+ VIH(I2C)                                SDA and SCL                                                                                  V
+              logic voltage threshold                                                        IOVDD                       0.5
+              Low-level digital output
+ VOL1(I2C)                               SDA, IOL(I2C) = –3mA, IOVDD 3.3V operation                                         0.4       V
+              voltage
+              Low-level digital output   SDA, IOL(I2C) = –2mA, IOVDD 1.8V or 1.2V                                         0.2 x
+ VOL2(I2C)                                                                                                                            V
+              voltage                    operation                                                                      IOVDD
+                                         SDA, VOL(I2C) = 0.4V, standard-mode or fast-
+              Low-level digital output                                                            3
+ IOL(I2C)                                mode                                                                                        mA
+              current
+                                         SDA, VOL(I2C) = 0.4V, fast-mode plus                    20
+              Input logic-low leakage
+ IIL                                     All digital pins, Input = 0V                            –5           0.1             5      µA
+              for digital inputs
+              Input logic-high leakage
+ IIH                                   All digital pins, Input = IOVDD                           –5           0.1             5      µA
+              for digital inputs
+              Input capacitance for
+ CIN                                     All digital pins                                                       5                    pF
+              digital inputs
+              Pulldown resistance for
+ RPD          digital I/O pins when                                                                            20                    kΩ
+              asserted on
+ TYPICAL SUPPLY CURRENT CONSUMPTION
+ IAVDD        Current consumption in                                                                            8
+              sleep mode (software   All device external clocks stopped                                                              µA
+ IIOVDD       shutdown mode)                                                                                    1
+
+ IAVDD        Current consumption                                                                             1.5
+              with MICBIAS on, 5 mA fS = 48 kHz, BCLK = 256 × fS                                                                     mA
+ IIOVDD       load, ADC off                                                                                  0.02
+
+ IAVDD        Current consumption                                                                             8.6
+              with ADC 2-channel
+                                      f = 16 kHz, BCLK = 512 × fS                                                                    mA
+ IIOVDD       operation, MICBIAS off, S                                                                       0.1
+              PLL on
+              Current consumption
+              with ADC 2-channel
+ IAVDD                                f = 48 kHz, BCLK = 512 × fS                                            11.1                    mA
+              operation, MICBIAS off, S
+              PLL on
+              Current consumption
+              with ADC 2-channel
+ IAVDD                                f = 48 kHz, BCLK = 512 × fS                                            10.6                    mA
+              operation, MICBIAS off, S
+              PLL on, AVDD = 1.8V
+
+10       Submit Document Feedback                                                               Copyright © 2024 Texas Instruments Incorporated
+
+                                                            Product Folder Links: TAA5212
+
+

@@ -1,0 +1,132 @@
+# MAX14778: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Maxim MAX14778 via LCSC C1121866
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-30 ----
+                                                                                              EVALUATION KIT AVAILABLE
+
+
+
+
+MAX14778                                                   Dual ±25V Above- and Below-the-Rails
+                                                                         4:1 Analog Multiplexer
+
+
+
+General Description                                         Benefits and Features
+The MAX14778 dual 4:1 analog multiplexer supports           ●● Flexible Multiplexer Switches a Wide Array of High-
+analog signals up to Q25V with a single 3.0 to 5.5V            Voltage and Low-Voltage Signals Such as RS485,
+supply. Each multiplexer has separate control inputs to        RS232, and USB 1.1
+allow independent switching, making the device ideal for       • Two Independent Multiplexers
+multiplexing different communications signals with the         • Break-Before-Make Operation
+same connector pins. Extended ESD protection of Q6kV           • 1.5Ω RON (max)
+(Human Body Model) enable direct interfacing to cables         • 3mΩ RON Flatness (typ)
+and connectors.                                                • 300mA Maximum Current Through Multiplexer
+The MAX14778 features a low 1.5I (max) on-resistance           • 78pF Input Capacitance
+and 3mI (typ) flatness to maximize signal integrity over       • 75MHz Large-Signal Bandwidth
+the entire common-mode voltage range. Each multiplex-       ●● Ideal for Space-Constrained and Mobile Applications
+er can carry up to 300mA of continuous current through         • 20-Pin TQFN (5mm x 5mm) Package
+the multiplexer in either direction.                        ●● Wide Signal Range Supported from Single-Supply
+The MAX14778 supports switching of full-speed USB 1.1          Voltage Eliminates Negative Power Supply
+signals (12Mbps) and RS-485 data rates of up to 20Mbps.        • ±25V Signal Range
+The MAX14778 is available in a 20-pin (5mm x 5mm)              • Single 3.0V to 5.5V Supply
+TQFN package and is specified over the -40NC to +85NC       ●● ESD Protection Circuitry Eliminates Need for External
+extended temperature range.                                    Protection Circuitry
+                                                               • Extended ESD Protection on A_ and B_ Pins
+---- lines 95-190 ----
+
+
+
+
+Electrical Characteristics
+(VDD = 3.0V to 5.5V, TA = -40NC to +85NC, unless otherwise noted. Typical values are at VDD = 5V, TA = +25NC.) (Note 2)
+
+         PARAMETER                          SYMBOL                                 CONDITIONS                           MIN           TYP          MAX           UNITS
+  DC CHARACTERISTICS
+  Supply Voltage Range                          VDD                                                                     3.0                          5.5            V
+                                                                                              VDD P VDDTH                             4.27           10
+                                                                ENA = ENB = high
+                                                                                              VDD > VDDTH                             2.54            6
+  Supply Current                                 IDD                                                                                                               mA
+                                                                                              VDD P VDDTH                             4.31           10
+                                                                VENA = VENB = VDD/2
+                                                                                              VDD > VDDTH                             2.59            6
+  Charge-Pump Threshold                       VDDTH             (Note 3)                                                              4.64                          V
+  Analog Signal Range                            VIN            Figure 1, switch open or closed                         -25                         +25             V
+  Continuous Current
+                                               ICOM                                                                    -300                        +300            mA
+  Through Switch
+  On-Resistance                                 RON             Figure 1, ICOM = Q300mA, VIN = Q25V                                   0.84           1.5            Ω
+                                                                Figure 1, -25V P VIN P +25V,
+  On-Resistance Flatness                    RFLAT(ON)                                                                                   3                          mΩ
+                                                                ICOM = Q300mA
+  A_, B_ Off-Leakage                          IA(OFF),
+                                                                Figure 2, VIN = 25V, VOUT = 0V                         -200                        +200             nA
+  Current                                      IB(OFF)
+  ACOM, BCOM                              IACOM(OFF),
+                                                                Figure 2, VOUT = 15V, VIN = 0V                           -1                          +1             FA
+  Off-Leakage Current                     IBCOM(OFF)
+  A_, B_ On-Leakage                           IA(ON),           Figure 2, VIN = Q25V, ACOM or BCOM
+                                                                                                                         -1                          +1             FA
+  Current                                      IB(ON)           is unconnected
+
+
+
+
+www.maximintegrated.com                                                                                                                           Maxim Integrated │ 2
+MAX14778                                                           Dual ±25V Above- and Below-the-Rails
+                                                                                 4:1 Analog Multiplexer
+
+Electrical Characteristics (continued)
+(VDD = 3.0V to 5.5V, TA = -40NC to +85NC, unless otherwise noted. Typical values are at VDD = 5V, TA = +25NC.) (Note 2)
+
+      PARAMETER               SYMBOL                      CONDITIONS                    MIN       TYP        MAX          UNITS
+ LOGIC INPUTS (ENA, ENB, SA_, SB_)
+                                            VDD = 5.5V                                                        0.8
+                                            VDD = 4.5V                                                        0.8
+ Input Logic-Low Voltage         VIL                                                                                       V
+                                            VDD = 3.6V                                                        0.7
+                                            VDD = 3.0V                                                        0.7
+                                            VDD = 5.5V                                  2.1
+                                            VDD = 4.5V                                  2.0
+ Input Logic-High Voltage        VIH                                                                                       V
+                                            VDD = 3.6V                                  1.9
+                                            VDD = 3.0V                                  1.7
+ AC CHARACTERISTICS
+ Power-Up Time                  tPOR                                                               404                     ms
+                                            Figure 3, VIN = Q10V, RL = 10kI,
+ Enable Turn-On Time             tON                                                                           2           ms
+                                            CL = 15pF
+                                            Figure 3, VIN = Q10V, RL = 10kI,
+ Enable Turn-Off Time           tOFF                                                                          1.5          ms
+                                            CL = 15pF
+ Break-Before-Make                          Figure 4, VIN = Q10V, RL = 10kI,
+                                tBBM                                                               840                     Fs
+ Interval                                   CL = 15pF
+ Charge Injection                 Q         Figure 5, VA_ = 0V, CL = 1nF                          1720                     pC
+                                            Figure 6, VA_ = 1VRMS, f = 100kHz,
+ Off-Isolation                  VISO                                                               -80                     dB
+                                            RL = 50I, CL = 15pF
+ Crosstalk                       VCT        Figure 6, f = 100kHz, RS = RL = 50I                   -103                     dB
+
+ -3dB Bandwidth                  BW         Figure 6, RS = 50I, RL = 50I                           75                     MHz
+
+ Total Harmonic Distortion
+                               THD+N        RS = RL = 1kI, f = 20Hz to 20kHz                      0.003                    %
+ Plus Noise
+ Input Capacitance               CIN        A_, B_ pins                                            78                      pF
+ THERMAL PROTECTION
+ Thermal-Shutdown
+                               TSHUT                                                               145                     NC
+ Threshold
+ Thermal-Shutdown
+                                THYST                                                              25                      NC
+ Hysteresis
+ ESD PROTECTION
+ A_, B_ Pins (Note 4)                       Human Body Model                                       Q6                      kV
+ All Other Pins                             Human Body Model                                       Q2                      kV
+Note 2: All units are production tested at TA = +25NC. Specifications over temperature are guaranteed by design.
+Note 3: When VDD is higher than the charge-pump threshold, the internal 5V regulated charge pump is turned off and the input to
+        the high-voltage charge pumps is provided by VDD.
+Note 4: The MAX14778 requires a 100nF capacitor on both VP and VN to GND to guarantee full ESD protection. See the
+        Applications Information section for details on ESD test conditions.

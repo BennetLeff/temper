@@ -1,0 +1,550 @@
+# TI TAD5212 datasheet
+# Source: https://www.ti.com/lit/ds/symlink/tad5212.pdf
+# Retrieved 2026-10-20; PDF sha256 7e1a74ce33d9e91c67f570b01125a3b267635f9cbfd5c27270d933ce9b3ec927
+# Extracted with `pdftotext -layout`; only the listed PDF pages are kept (register maps etc. dropped).
+# Each page starts with a line "=== PDF page N ===" ; citations in docs/rev-e-acquisition-survey.md use these page numbers.
+# Pages kept: 1,6-10,37
+
+=== PDF page 1 ===
+                                                                                                                                                                                 TAD5212
+                                                                                     SLASFC1A – DECEMBER 2023 – REVISED JANUARY 2025
+
+     TAD5212 High-performance stereo audio DAC with 120dB dynamic range, and
+                              headphone/line driver
+1 Features                                                             3 Description
+•   Stereo differential or Quad single-ended high-                     The TAD5212 is a high performance audio DAC
+    performance audio DAC                                              with 2VRMS differential output, 120dB dynamic range
+    – Performance:                                                     stereo channels or 1VRMS single-ended output,
+       • DAC to differential line-out dynamic range:                   111dB dynamic range quad channels. The TAD5212
+          120dB                                                        supports both differential and single-ended inputs
+       • DAC to differential headphone-out dynamic                     and outputs. The DAC outputs can be configured
+          range: 118dB                                                 for either line-output or headphone loads. The DAC
+       • THD+N: –104 dB                                                can drive up to 62.5mW into a 16Ω headphone
+    – Line-out/headphone output voltage:                               load. The TAD5212 integrates programable channel
+       • Differential, 2VRMS full-scale                                gain, digital volume control, a low-jitter phase-locked
+       • Psuedo-differential, 1VRMS full-scale                         loop (PLL), a programmable high-pass filter (HPF),
+       • Single-ended, 1VRMS full-scale                                programmable EQ and biquad filters, low-latency and
+    – DAC sample rates (fs) = 4kHz to 768kHz                           ultra-low latency filter modes, and allows for sample
+•   Key features                                                       rates up to 768kHz for both the DAC and PDM
+                                                                       microphone signal-chains. The TAD5212 supports
+    – Analog input to output bypass path
+                                                                       analog input to output bypass option and also
+    – 4-Channel PDM digital microphone record path
+                                                                       recording up to four-channel digital microphones with
+    – Input and output mix/mux options
+                                                                       the PDM interface. Data from Analog-In and Digital-In
+    – Voice activity detection
+                                                                       can be mixed inside the device as well. The TAD5212
+    – Ultrasonic activity detection
+                                                                       supports time-division multiplexing (TDM), I2S, or left-
+    – Ultrasonic signal or tone generator
+                                                                       justified (LJ) audio formats, and can be controlled
+    – Battery and thermal foldback protection
+                                                                       with I2C or SPI. These integrated high-performance
+    – Signal distortion limiter
+                                                                       features, along with a single supply operation, make
+    – Low and Ultra-low latency filter options
+                                                                       TAD5212 an excellent choice for space-constrained
+    – Programmable HPF and Biquad filters
+                                                                       audio applications.
+    – I2C & SPI Control Interface
+    – Audio Serial Interface                                                                   Device Information
+       • Format: TDM, I2S or Left-justified (LJ)                       PART NUMBER                 PACKAGE(1)                                                          PACKAGE SIZE
+       • Word length: 16, 20, 24 or 32 Bits                                                                                                                            (NOM)(2)
+       • Bus controller and target modes                               TAD5212                     VQFN (24)                                                           4mm x 4mm with
+       • Daisy chain in TDM Mode                                                                                                                                       0.5mm pitch
+    – Programmable PLL for flexible clocking                           (1)   For all available packages, see the orderable addendum at
+    – Auto clock and sample rate detection                                   the end of the data sheet.
+    – Low Power Modes                                                  (2)   The package size (length × width) is a nominal value and
+                                                                             includes pins, where applicable.
+       • 11mW for 2-Ch Playback (1.8V supply)
+    – Single Supply Operation AVDD: 1.8V or 3.3V                                       ADDR
+                                                                                                                                              Audio Serial Interface
+                                                                                                                                                                         FSYNC
+
+                                                                                                                                                                         BCLK
+
+    – I/O Supply Operation: 1.2V or 1.8V or 3.3V
+                                                                                        SCL       I2C or SPI Control Interface
+                                                                                                                                                 (TDM, I2S, LJ)
+                                                                                        SDA                                                                              DOUT
+
+                                                                                                                                                                         DIN
+
+    – Temperature grade 1: -40°C ≤ TA ≤ +125°C
+                                                                                        IN1P                                                                             OUT1P
+
+2 Applications
+                                                                                        IN1M                                                                             OUT1M
+                                                                                                                         Programmable
+                                                                                                 Analog Bypass                                      4-Channel DAC +
+                                                                                                                        Digital Filters and
+                                                                                                      Path                                             Driver Amp
+                                                                                        IN2P                                 Biquads                                     OUT2P
+                                                                                        IN2M                                                                             OUT2M
+
+•   Soundbar
+•   Portable Audio and Video
+                                                                                                                                                                         GPO1
+
+                                                                                               Regulators, Voltage Reference and        PLL, Clock Generation and        GPI1
+                                                                                     MICBIAS           Microphone Bias                      PDM Microphone               GPIO1
+
+•   Smart Speakers                                                                                                                                                       GPIO2
+
+•   AV Receivers                                                                               VREF       DREG         VSS                      AVDD         IOVDD
+
+•   Professional Audio Mixer/Control Surface
+                                                                                         Simplified Block Diagram
+
+     An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+     intellectual property matters and other important disclaimers. PRODUCTION DATA.
+
+
+=== PDF page 6 ===
+TAD5212
+SLASFC1A – DECEMBER 2023 – REVISED JANUARY 2025                                                                                           www.ti.com
+
+over the operating ambient temperature range (unless otherwise noted)
+                                                                                                        MIN         NOM           MAX       UNIT
+    OTHERS
+    CCLK          GPIOx or GPIx controller mode clock frequency (CCLK)                                                        36.864(4)     MHz
+                  SCL and SDA bus capacitance for I2C interface supports standard-mode
+                                                                                                                                   400
+    Cb            and fast-mode                                                                                                              pF
+                  SCL and SDA bus capacitance for I2C interface supports fast-mode plus                                            550
+    CL            Digital output load capacitance                                                                       20          50       pF
+
+(1)        VSS and VSS (thermal pad); all ground pins must be tied together and must not differ in voltage by more than 0.2V.
+(2)        Set the AVDD_MODE bit correctly for AVDD 1.8V Operation. Refer Section 8.3 for more details.
+(3)        Set the IOVDD_IO_MODE bit correctly for IOVDD 1.8V and 1.2V Operation. Refer Section 8.3 for more details.
+(4)        CCLK input rise time (VIL to VIH) and fall time (VIH to VIL) must be less than 5ns. For better audio noise performance, CCLK input must
+           be used with low jitter.
+
+5.4 Thermal Information
+                                                                                                               TAD5212
+                                         THERMAL METRIC(1)                                                    RGE (VQFN)                    UNIT
+                                                                                                               24 PINS
+    RθJA          Junction-to-ambient thermal resistance                                                         38.4                       °C/W
+    RθJC(top)     Junction-to-case (top) thermal resistance                                                      26.3                       °C/W
+    RθJB          Junction-to-board thermal resistance                                                           15.9                       °C/W
+    ψJT           Junction-to-top characterization parameter                                                     0.5                        °C/W
+    ψJB           Junction-to-board characterization parameter                                                   15.8                       °C/W
+    RθJC(bot)     Junction-to-case (bottom) thermal resistance                                                   13.8                       °C/W
+
+(1)        For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+           report.
+
+5.5 Electrical Characteristics
+At TA = 25°C, AVDD = 3.3V, IOVDD = 3.3V, fIN = 1kHz sinusoidal signal, fS = 48kHz, 32-bit audio data, BCLK = 256 ×
+fS, TDM target mode, PLL on, channel gain = 0dB, linear phase interpolation filters, 1200Ω/600Ω line-out load in differential/
+single-ended configuration or 32Ω/16Ω receiver/headphone load as applicable, MICBIAS programmed to VREF, and other
+default configurations; measured filter free with an Audio Precision with a 20Hz to 20kHz un-weighted bandwidth, unless
+otherwise noted
+                 PARAMETER                                    TEST CONDITIONS                          MIN         NOM           MAX        UNIT
+    DAC Performance for Line Output/Head Phone Playback
+                                               Differential output between OUTxP and OUTxM,
+                                                                                                                         2
+                                               AVDD = 3.3V
+                                               Differential output between OUTxP and OUTxM,
+                                                                                                                         1
+                                               AVDD = 1.8V
+
+                  Full Scale Output            Single-ended output, AVDD = 3.3V                                          1
+                                                                                                                                            VRMS
+                  Voltage                      Single-ended output, AVDD = 1.8V                                         0.5
+                                               Pseudo-differential output between OUTxP and
+                                                                                                                         1
+                                               OUTxM, AVDD = 3.3V
+                                               Pseudo-differential output between OUTxP and
+                                                                                                                        0.5
+                                               OUTxM, AVDD = 1.8V
+
+6          Submit Document Feedback                                                                    Copyright © 2025 Texas Instruments Incorporated
+
+                                                               Product Folder Links: TAD5212
+
+
+=== PDF page 7 ===
+                                                                                                                                   TAD5212
+www.ti.com                                                                                    SLASFC1A – DECEMBER 2023 – REVISED JANUARY 2025
+
+At TA = 25°C, AVDD = 3.3V, IOVDD = 3.3V, fIN = 1kHz sinusoidal signal, fS = 48kHz, 32-bit audio data, BCLK = 256 ×
+fS, TDM target mode, PLL on, channel gain = 0dB, linear phase interpolation filters, 1200Ω/600Ω line-out load in differential/
+single-ended configuration or 32Ω/16Ω receiver/headphone load as applicable, MICBIAS programmed to VREF, and other
+default configurations; measured filter free with an Audio Precision with a 20Hz to 20kHz un-weighted bandwidth, unless
+otherwise noted
+             PARAMETER                                  TEST CONDITIONS                               MIN       NOM         MAX     UNIT
+                                          Differential output, 0dBFS signal, AVDD=3.3V                            120
+                                          Single-ended output, 0dBFS signal, AVDD=3.3V                            111
+                                          Pseudo-differential output, 0dBFS signal,
+                                                                                                                  112
+                                          AVDD=3.3V
+                                          Differential output, 0dBFS signal, AVDD=1.8V                            115
+                                          Single-ended output, 0dBFS signal, AVDD=1.8V                            105
+                                          Pseudo-differential output, 0dBFS signal,
+                                                                                                                  106
+                                          AVDD=1.8V
+                                         Differential output, 0dBFS signal, AVDD=3.3V,
+               Signal-to-noise ratio, A- Power Tune Mode(3)                                                       117
+ SNR                    (1) (2)                                                                                                      dB
+               weighted
+                                         Single-ended output, 0dBFS signal, AVDD=3.3V,
+                                                                                                                  104
+                                         Power Tune Mode(3)
+                                          Pseudo-differential output, 0dBFS signal,
+                                                                                                                  109
+                                          AVDD=3.3V, Power Tune Mode(3)
+                                          Differential output, 0dBFS signal, AVDD=1.8V,
+                                                                                                                  112
+                                          Power Tune Mode(3)
+                                          Single-ended output, 0dBFS signal, AVDD=1.8V,
+                                                                                                                  100
+                                          Power Tune Mode(3)
+                                          Pseudo-differential output, 0dBFS Signal,
+                                                                                                                  104
+                                          AVDD=1.8V, Power Tune Mode(3)
+                                          Differential-output, Receiver load, 0dBFS signal,
+                                                                                                                  118
+                                          AVDD=3.3V
+                                          Single-ended output, Headphone load, 0dBFS
+                                                                                                                  110
+                                          signal, AVDD=3.3V
+                                         Pseudo-differential output, Receiver load, 0dBFS
+                                                                                                                  112
+               Signal-to-noise ratio, A- signal, AVDD=3.3V
+ SNR                                                                                                                                 dB
+               weighted(1) (2)           Differential-output, Receiver load, 0dBFS signal,
+                                                                                                                  114
+                                         AVDD=1.8V
+                                          Single-ended output, Headphone load, 0dBFS
+                                                                                                                  105
+                                          signal, AVDD=1.8V
+                                          Pseudo-differential output, Receiver load, 0dBFS
+                                                                                                                  106
+                                          signal, AVDD=1.8V
+
+Copyright © 2025 Texas Instruments Incorporated                                                               Submit Document Feedback     7
+                                                         Product Folder Links: TAD5212
+
+
+=== PDF page 8 ===
+TAD5212
+SLASFC1A – DECEMBER 2023 – REVISED JANUARY 2025                                                                           www.ti.com
+
+At TA = 25°C, AVDD = 3.3V, IOVDD = 3.3V, fIN = 1kHz sinusoidal signal, fS = 48kHz, 32-bit audio data, BCLK = 256 ×
+fS, TDM target mode, PLL on, channel gain = 0dB, linear phase interpolation filters, 1200Ω/600Ω line-out load in differential/
+single-ended configuration or 32Ω/16Ω receiver/headphone load as applicable, MICBIAS programmed to VREF, and other
+default configurations; measured filter free with an Audio Precision with a 20Hz to 20kHz un-weighted bandwidth, unless
+otherwise noted
+              PARAMETER                              TEST CONDITIONS                    MIN         NOM           MAX       UNIT
+                                      Differential output, -60dBFS signal, AVDD=3.3V                 120
+                                      Single-ended output, -60dBFS signal,
+                                                                                                      111
+                                      AVDD=3.3V
+                                      Pseudo-differential output, -60dBFS signal,
+                                                                                                      112
+                                      AVDD=3.3V
+                                      Differential output, -60dBFS signal, AVDD=1.8V                  115
+                                      Single-ended output, -60dBFS Signal,
+                                                                                                     105
+                                      AVDD=1.8V
+                                      Pseudo-differential output, -60dBFS signal,
+                                                                                                     107
+                                      AVDD=1.8V
+               Dynamic range, A-      Differential output, -60dBFS signal, AVDD=3.3V,
+    DR                                                                                                115                    dB
+               weighted(2)            Power Tune Mode(3)
+                                      Single-ended output, -60dBFS signal,
+                                                                                                     104
+                                      AVDD=3.3V, Power Tune Mode(3)
+                                      Pseudo-differential output, -60dBFS signal,
+                                                                                                     109
+                                      AVDD=3.3V, Power Tune Mode(3)
+                                      Differential output, -60dBFS signal, AVDD=1.8V,
+                                                                                                      111
+                                      Power Tune Mode(3)
+                                      Single-ended output, -60dBFS signal,
+                                                                                                     100
+                                      AVDD=1.8V, Power Tune Mode(3)
+                                      Pseudo-differential output, -60dBFS signal,
+                                                                                                     104
+                                      AVDD=1.8V, Power Tune Mode
+                                      Differential-output, Receiver load, -60dBFS
+                                                                                                      118
+                                      signal, AVDD=3.3V
+                                      Single-ended output, Headphone load, -60dBFS
+                                                                                                      111
+                                      signal, AVDD=3.3V
+                                      Pseudo-differential output, Receiver load,
+                                                                                                      112
+               Dynamic range, A-      -60dBFS signal, AVDD=3.3V
+    DR                                                                                                                       dB
+               weighted(2)            Differential-output, Receiver load, -60dBFS
+                                                                                                      114
+                                      signal, AVDD=1.8V
+                                      Single-ended output, Headphone load, -60dBFS
+                                                                                                     105
+                                      signal, AVDD=1.8V
+                                      Pseudo-differential output, Receiver load,
+                                                                                                     107
+                                      -60dBFS signal, AVDD=1.8V
+                                      Differential output, –1dBFS signal, AVDD= 3.3V                –104
+               Total harmonic         Differential output, –1dBFS signal, AVDD= 1.8V                 –95
+    THD+N                                                                                                                    dB
+               distortion(2)
+                                      Single-ended output, 0dBFS signal, Headphone
+                                                                                                     –94
+                                      load, AVDD=3.3V
+               Headphone load range   Single-ended                                         4           16          600        Ω
+               Line-out load range    Single-ended                                       600                                  Ω
+               Headphone/Line-out
+                                      Single-ended                                         0                          2      nF
+               Cap load
+    Analog Bypass to Line Out/Head Phone Amplifier
+                                      Input pins INxP or INxM, 4.4kΩ Input Impedance
+                                                                                                      4.4
+                                      Mode
+               Input impedance                                                                                               kΩ
+                                      Input pins INxP or INxM, 20kΩ Input Impedance
+                                                                                                       20
+                                      Mode
+               Single Ended Full Scale
+                                       AVDD = 3.3V                                                      1                   Vrms
+               Output
+
+8        Submit Document Feedback                                                       Copyright © 2025 Texas Instruments Incorporated
+
+                                                     Product Folder Links: TAD5212
+
+
+=== PDF page 9 ===
+                                                                                                                                TAD5212
+www.ti.com                                                                                 SLASFC1A – DECEMBER 2023 – REVISED JANUARY 2025
+
+At TA = 25°C, AVDD = 3.3V, IOVDD = 3.3V, fIN = 1kHz sinusoidal signal, fS = 48kHz, 32-bit audio data, BCLK = 256 ×
+fS, TDM target mode, PLL on, channel gain = 0dB, linear phase interpolation filters, 1200Ω/600Ω line-out load in differential/
+single-ended configuration or 32Ω/16Ω receiver/headphone load as applicable, MICBIAS programmed to VREF, and other
+default configurations; measured filter free with an Audio Precision with a 20Hz to 20kHz un-weighted bandwidth, unless
+otherwise noted
+             PARAMETER                                    TEST CONDITIONS                          MIN       NOM         MAX     UNIT
+
+               Differential Full Scale    AVDD = 3.3V                                                            2               Vrms
+               Output                     AVDD = 1.8V                                                            1               Vrms
+               Gain Error                 AC-Coupled Input, -6dBFS input                                      ±0.1                dB
+                                          Idle Channel, AC Coupled Input Shorted to
+               Noise, A-Weighted                                                                               3.5              µVRMS
+                                          Ground, Differential output
+                                          Idle Channel, AC Coupled Input Shorted to
+               Noise, A-Weighted                                                                              19.7              µVRMS
+                                          Ground, Single-ended output
+               Signal-to-noise ratio, A- Idle Channel, AC-Coupled Input Shorted to
+ SNR                                                                                                           115                dB
+               weighted(1) (2)           Ground, Differential output
+               Signal-to-noise ratio, A- Idle Channel, AC-Coupled Input Shorted to
+ SNR                                                                                                            95                dB
+               weighted(1) (2)           Ground, Single-ended output
+               Total harmonic             IN1 differential AC-coupled Input and -1dBFS AC
+ THD+N                                                                                                        –102                dB
+               distortion(2)              signal input, 0dB channel gain
+ DAC Channel OTHER PARAMETERS
+               Output Offset              0 Input, Differential line-output                                   ±0.5                mV
+                                          Common Mode Level for OUTxP and OUTxM,
+                                                                                                               0.9
+                                          AVDD = 1.8V (Register Configurable)
+               Output Common Mode                                                                                                  V
+                                          Common Mode Level for OUTxP and OUTxM
+                                                                                                              1.65
+                                          AVDD = 3.3V (Register Configurable)
+               Common Mode Error          DC Error in Common Mode Voltage                                      ±20                mV
+
+               Output Signal              Up to 192KSPS FS Rate                                               0.46                FS
+               Bandwidth                  >192KSPS                                                              90                kHz
+               Input data sample rate     Programmable                                                4                   768     kHz
+               Input data sample word
+                                      Programmable                                                   16                    32     Bits
+               length
+                                          First-order IIR filter with programmable
+               Digital high-pass filter
+                                          coefficients,                                                          1                Hz
+               cutoff frequency
+                                          –3dB point (default setting)
+                                          Differential output, –1dBFS input signal on
+               Interchannel isolation                                                                         –134                dB
+                                          nonmeasurement channel
+               Gain Error                 Differential output, –6dBFS Input signal                            ±0.1                dB
+               Interchannel gain
+                                          Differential output, –6dBFS Input signal                            ±0.1                dB
+               mismatch
+               Interchannel phase
+                                          Differential output, –6dBFS Input signal                           ±0.01              Degrees
+               mismatch
+               Power-supply rejection     100mVPP, 1kHz sinusoidal signal on AVDD,
+ PSRR                                                                                                          120                dB
+               ratio                      differential output, 0dB channel gain
+               Mute Attenuation                                                                               –130                dB
+                                          Single-ended/Pseudo-differential headphone
+ Pout          Output Power Delivery                                                                          62.5                mW
+                                          RL=16Ω, THD+N<0.1%
+ MICROPHONE BIAS
+                                          Bandwidth = 20Hz to 20kHz, A-weighted, 1µF
+               MICBIAS noise              capacitor between MICBIAS and VSS (thermal                             2              µVRMS
+                                          pad)
+                                          Bypass to AVDD                                                     AVDD                  V
+               MICBIAS voltage            AVDD = 1.8V                                                        1.375                 V
+                                          AVDD = 3.3V                                                         2.75                 V
+
+Copyright © 2025 Texas Instruments Incorporated                                                            Submit Document Feedback       9
+                                                           Product Folder Links: TAD5212
+
+
+=== PDF page 10 ===
+TAD5212
+SLASFC1A – DECEMBER 2023 – REVISED JANUARY 2025                                                                                    www.ti.com
+
+At TA = 25°C, AVDD = 3.3V, IOVDD = 3.3V, fIN = 1kHz sinusoidal signal, fS = 48kHz, 32-bit audio data, BCLK = 256 ×
+fS, TDM target mode, PLL on, channel gain = 0dB, linear phase interpolation filters, 1200Ω/600Ω line-out load in differential/
+single-ended configuration or 32Ω/16Ω receiver/headphone load as applicable, MICBIAS programmed to VREF, and other
+default configurations; measured filter free with an Audio Precision with a 20Hz to 20kHz un-weighted bandwidth, unless
+otherwise noted
+             PARAMETER                                       TEST CONDITIONS                    MIN          NOM           MAX       UNIT
+ DIGITAL I/O
+                                          All digital pins except SDA and SCL, IOVDD 1.8V                                 0.35 ×
+                                                                                                –0.3
+               Low-level digital input    or 1.2V operation                                                              IOVDD
+ VIL                                                                                                                                   V
+               logic voltage threshold    All digital pins except SDA and SCL, IOVDD 3.3V
+                                                                                                –0.3                         0.8
+                                          operation
+                                          All digital pins except SDA and SCL, IOVDD 1.8V      0.65 ×                 IOVDD +
+               High-level digital input   or 1.2V operation                                   IOVDD                       0.3
+ VIH                                                                                                                                   V
+               logic voltage threshold    All digital pins except SDA and SCL, IOVDD 3.3V                             IOVDD +
+                                                                                                   2
+                                          operation                                                                       0.3
+                                          All digital pins except SDA and SCL, IOL = –2mA,
+                                                                                                                            0.45
+               Low-level digital output   IOVDD 1.8V or 1.2V operation
+ VOL                                                                                                                                   V
+               voltage                    All digital pins except SDA and SCL, IOL = –2mA,
+                                                                                                                             0.4
+                                          IOVDD 3.3V operation
+                                         All digital pins except SDA and SCL, IOH = 2mA,     IOVDD –
+               High-level digital output IOVDD 1.8V or 1.2V operation                           0.45
+ VOH                                                                                                                                   V
+               voltage                   All digital pins except SDA and SCL, IOH = 2mA,
+                                                                                                 2.4
+                                         IOVDD 3.3V operation
+               Low-level digital input                                                                                     0.3 ×
+ VIL(I2C)                                 SDA and SCL                                           –0.5                                   V
+               logic voltage threshold                                                                                   IOVDD
+               High-level digital input                                                         0.7 ×                 IOVDD +
+ VIH(I2C)                                 SDA and SCL                                                                                  V
+               logic voltage threshold                                                        IOVDD                       0.5
+               Low-level digital output
+ VOL1(I2C)                                SDA, IOL(I2C) = –3 mA, IOVDD 3.3V operation                                        0.4       V
+               voltage
+               Low-level digital output   SDA, IOL(I2C) = –2mA, IOVDD 1.8V or 1.2V                                         0.2 x
+ VOL2(I2C)                                                                                                                             V
+               voltage                    operation                                                                      IOVDD
+                                          SDA, VOL(I2C) = 0.4V, standard-mode or fast-
+               Low-level digital output                                                            3
+ IOL(I2C)                                 mode                                                                                        mA
+               current
+                                          SDA, VOL(I2C) = 0.4V, fast-mode plus                    20
+               Input logic-low leakage
+ IIL                                      All digital pins, input = 0V                            –5           0.1             5      µA
+               for digital inputs
+               Input logic-high leakage
+ IIH                                    All digital pins, input = IOVDD                           –5           0.1             5      µA
+               for digital inputs
+               Input capacitance for
+ CIN                                      All digital pins                                                       5                    pF
+               digital inputs
+               Pulldown resistance for
+ RPD           digital I/O pins when                                                                            20                    kΩ
+               asserted on
+ TYPICAL SUPPLY CURRENT CONSUMPTION
+ IAVDD         Current consumption in                                                                            9
+               sleep mode (software   All device external clocks stopped                                                              µA
+ IIOVDD        shutdown mode)                                                                                    1
+
+ IAVDD         Current consumption                                                                             1.5
+               with MICBIAS ON,
+                                       f = 48kHz, BCLK = 256 × fS                                                                     mA
+ IIOVDD        5mA load, no recording/ S                                                                      0.02
+               playback
+ IAVDD         Current consumption                                                                            18.8
+               with DAC to Headphone
+                                     fS = 16kHz, BCLK = 512 × fS                                                                      mA
+ IIOVDD        2-channel operation,                                                                           0.02
+               MICBIAS off, PLL on
+
+10       Submit Document Feedback                                                                Copyright © 2025 Texas Instruments Incorporated
+
+                                                             Product Folder Links: TAD5212
+
+
+=== PDF page 37 ===
+                                                                                                                                          TAD5212
+www.ti.com                                                                                       SLASFC1A – DECEMBER 2023 – REVISED JANUARY 2025
+
+6.3.7.1 DAC Signal-Chain
+Figure 6-20 shows the key components of the playback signal chain.
+       Main ASI input
+                          8x4 Mixer
+           Up to
+        8 Channels                                                             DVC (Digital
+                                                                                                       HPF/IIR                Biquad
+                                                        Adder                 Volume Control)
+
+                          2x4 Mixer
+
+       Aux ASI input
+                        SRC
+           Up to
+        2 Channels
+
+                                                                               Gain Control                                            OUTP
+                                                   DVC (Digital
+                          Adder                                                 (Distortion,          Interpolator Filters      DAC
+                                                  Volume Control)
+                                                                             Battery, Thermal)                                         OUTM
+
+                                      Figure 6-20. DAC Signal-Chain Processing Flowchart
+
+The DAC signal chain offers a highly flexible low noise playback path for low noise and high-fidelity audio
+applications. This low-noise and low-distortion, multibit, delta-sigma DAC enables the TAD5212 to achieve
+120dB dynamic range in a very low power. Moreover, the DAC architecture has inherent antialias filtering with
+a high rejection of out-of-band frequency noise around multiple modulator frequency components. Therefore,
+the device prevents noise from aliasing into the audio band. Further on in the signal chain, an integrated,
+high-performance multistage digital interpolation filter sharply cuts off any out-of-band frequency noise with high
+stop-band attenuation.
+The signal chain also consists of various highly programmable digital processing blocks such as biquad filters,
+phase calibration, gain calibration, high-pass filter, digital summer or mixer, synchronous sample rate converter,
+distortion limiter, thermal foldback, brownout prevention and volume control. The details on these processing
+blocks are discussed further in this section. The device also supports up to four channel single-ended output
+modes and an analog bypass option from analog input to DAC output.
+The output channels for playback can be enabled or disabled by using the CH_EN (P0_R118) register, and the
+input channels for the audio serial interface can be enabled or disabled by using the PASI_RX_CHx_CFG or
+SASI_RX_CHx_CFG bits. The device supports simultaneous power-up and power-down of all active channels
+for simultaneous playback. However, based on the application needs, if some channels must be powered-up or
+powered-down dynamically when the other channel playback is on, then that use case is supported by setting
+the DYN_PUPD_CFG (P0_R119) register.
+The device supports multiple data mixing options where up to 8 Input Channels from Main ASI, 2 Input Channels
+from Aux ASI, ADC loopback data, and tone generator can be mixed with flexible gain options for each path
+before playback on DAC output. By default, these mixers are disabled and channels are configured for only
+one channel of data. Mixers can be configured by setting ASI_DIN_Mixers programmable coefficient registers
+described in Register Map B0_P17.
+The device supports an output signal bandwidth of up to 90kHz, which allows the high-frequency non-audio
+signal to be played by using a 216kHz (or higher) sample rate. Wideband mode can be enabled or disabled by
+using the DAC_CHx_BW_Mode bit (P0_R101_D[0], P0_R108_D[0]).
+For sample rates of 48kHz or lower, the device supports all features and various programmable processing
+blocks. However, for sample rates higher than 48kHz, there are limitations in the number of simultaneous
+channel recordings and playback supported and the number of biquad filters and such. See the TAC5212
+Sampling Rates and Programmable Processing Blocks Supported application report for further details.
+
+Copyright © 2025 Texas Instruments Incorporated                                                                       Submit Document Feedback   37
+                                                                Product Folder Links: TAD5212
+
+

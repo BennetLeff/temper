@@ -1,0 +1,1127 @@
+# TI PCM510xA datasheet SLAS859C (May 2015)
+# Source: https://www.ti.com/lit/ds/symlink/pcm5102a.pdf
+# Retrieved 2026-10-20; PDF sha256 a522083606b8e994875883215046fbdb92fd362996ca97719d259fbe9df07a85
+# Extracted with `pdftotext -layout`; only the listed PDF pages are kept (register maps etc. dropped).
+# Each page starts with a line "=== PDF page N ===" ; citations in docs/rev-e-acquisition-survey.md use these page numbers.
+# Pages kept: 1,4-10,14-15,17,19-25
+
+=== PDF page 1 ===
+                             Product                    Sample &               Technical               Tools &               Support &
+                             Folder                     Buy                    Documents               Software              Community
+
+                                                                                                       PCM5100A, PCM5101A, PCM5102A
+                                                                                               PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+                                                                                                                          SLAS859C – MAY 2012 – REVISED MAY 2015
+
+                         PCM510xA 2.1 VRMS, 112/106/100 dB Audio Stereo DAC
+                             with PLL and 32-bit, 384 kHz PCM Interface
+1 Features                                                                            Using Directpath™ charge-pump technology, the
+                                                                                      PCM510xA devices provide 2.1-VRMS ground
+•
+1   Ultra Low Out-of-Band Noise                                                       centered outputs, allowing designers to eliminate DC
+•   Integrated High-Performance Audio PLL with BCK                                    blocking capacitors on the output, as well as external
+    Reference to Generate SCK Internally                                              muting circuits traditionally associated with single-
+•   Direct Line Level 2.1-VRMS Output                                                 supply line drivers.
+•   No DC Blocking Capacitors Required                                                The integrated line driver surpasses all other charge-
+•   Line Level Output Down to 1KΩ                                                     pump based line drivers by supporting loads down to
+                                                                                      1 kΩ per pin.
+•   Intelligent Muting System; Soft Up or Down Ramp
+    and Analog Mute For 120-dB Mute SNR                                               The integrated PLL on the device removes the
+•   Accepts 16-, 24-, and 32-Bit Audio Data                                           requirement for a system clock (commonly known as
+                                                                                      master clock), allowing a 3-wire I2S connection and
+•   PCM Data Formats: I2S, Left-Justified                                             reducing system EMI.
+•   Automatic Power-Save Mode When LRCK And
+                                                                                      Intelligent clock error and PowerSense undervoltage
+    BCK Are Deactivated                                                               protection utilizes a two-level mute system for pop-
+•   1.8 V or 3.3 V Failsafe LVCMOS Digital Inputs                                     free performance.
+•   Simple Configuration Using Hardware Pins                                          Compared with many conventional switched capacitor
+•   Single-Supply Operation: 14                                                       DAC architectures, the PCM510xA family offers up to
+    – 3.3 V Analog, 1.8 V or 3.3 V Digital                                            20 dB lower out-of-band noise, reducing EMI and
+                                                                                      aliasing in downstream amplifiers/ADCs, measured
+•   Qualified in Accordance with AEC-Q100
+                                                                                      from the traditional 100-kHz OBN measurements to 3
+                                                                                      MHz).
+2 Applications
+•   A/V Receivers, DVD, BD Players                                                                        Table 1. Device Information(1)
+•   Automotive Infotainment and Telematics                                                 PART NUMBER                     PACKAGE          BODY SIZE (NOM)
+•   HDTV Receivers                                                                    PCM5102A
+•   Aftermarket Automotive Amplifiers                                                 PCM5101A                     TSSOP (20)              5.50 mm × 4.40 mm
+                                                                                      PCM5100A
+3 Description                                                                         (1) For all available packages, see the orderable addendum at
+The PCM510xA devices are a family of monolithic                                           the end of the data sheet.
+CMOS-integrated circuits that include a stereo digital-
+to-analog converter and additional support circuitry in
+a small TSSOP package. The PCM510xA devices
+use the latest generation of TI’s advanced segment-
+DAC architecture to achieve excellent dynamic
+performance and improved tolerance to clock jitter.
+
+4 Simplified System Diagram
+                                                                               2
+                                                                              I S
+                                   2ch Single Ended
+                                                                             BCK
+                                                          PCM1863/5                                  PCM510xA
+                                                                                             PLL
+
+                                                                            LRCK
+                              IN
+                             AUX                                                                   Charge Pump                 OUT
+                                                                                                                               LINE
+                                   2ch Single Ended
+
+                                                         Analog
+                                          MIC
+                                           IN
+
+                                                                          BT Module
+                                                         Sensor                                              WiLAN chip
+                                                                                       MSP430
+                                                      - Light Intensity
+                                                      - Ultrasonic
+                                                      - Battery Level
+
+1
+
+      An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+      intellectual property matters and other important disclaimers. PRODUCTION DATA.
+
+
+=== PDF page 4 ===
+PCM5100A, PCM5101A, PCM5102A
+PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+SLAS859C – MAY 2012 – REVISED MAY 2015                                                                                      www.ti.com
+
+6 Device Comparison
+
+                                          Differences Between PCM510xA Devices
+                                   PART NUMBER           DYNAMIC RANGE    SNR             THD
+                                      PCM5102A                  112dB    112dB           –93 dB
+                                      PCM5101A                  106 dB   106 dB          –92 dB
+                                      PCM5100A                  100 dB   100 dB          –90 dB
+
+                                         Typical Performance (3.3 V Power Supply)
+                PARAMETER                                                 PCM5102 / PCM5101 / PCM5100
+                SNR                                                                 112 / 106 / 100 dB
+                Dynamic range                                                       112 /106 / 100 dB
+                THD+N at –1 dBFS                                                    –93/ –92 / –90 dB
+                Full-scale single-ended output                                    2.1 VRMS (GND center)
+                Normal 8× oversampling digital filter latency                              20tS
+                Low latency 8× oversampling digital filter latency                         3.5tS
+                Sampling frequency                                                  8 kHz to 384 kHz
+                System clock multiples (fSCK): 64, 128, 192, 256, 384,                Up to 50 MHz
+                512, 768, 1024, 1152, 1536, 2048, 3072
+
+4      Submit Documentation Feedback                                                Copyright © 2012–2015, Texas Instruments Incorporated
+
+               Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 5 ===
+                                                                                              PCM5100A, PCM5101A, PCM5102A
+                                                                                      PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+www.ti.com                                                                                                 SLAS859C – MAY 2012 – REVISED MAY 2015
+
+7 Pin Configuration and Functions
+                                                               PW 20-Pin Package
+                                                                  (Top View)
+
+                                                                 Pin Functions
+             PIN
+                                  TYPE                                                   DESCRIPTION
+NAME                NO.
+AGND                  9             —         Analog ground
+AVDD                  8             P         Analog power supply, 3.3 V
+BCK                  13              I        Audio data bit clock input (1)
+CAPM                  4             O         Charge pump flying capacitor terminal for negative rail
+CAPP                  2             O         Charge pump flying capacitor terminal for positive rail
+CPGND                 3             —         Charge pump ground
+CPVDD                 1             P         Charge pump power supply, 3.3 V
+DEMP                 10              I        De-emphasis control for 44.1-kHz sampling rate (1): Off (Low) / On (High)
+DGND                 19             —         Digital ground
+DIN                  14              I        Audio data input (1)
+DVDD                 20             P         Digital power supply, 1.8 V or 3.3 V
+FLT                  11              I        Filter select : Normal latency (Low) / Low latency (High)
+FMT                  16              I        Audio format selection : I2S (Low) / Left-justified (High)
+LDOO                 18             P         Internal logic supply rail terminal for decoupling, or external 1.8 V supply terminal
+LRCK                 15              I        Audio data word clock input (1)
+OUTL                  6             O         Analog output from DAC left channel
+OUTR                  7             O         Analog output from DAC right channel
+SCK                  12              I        System clock input (1)
+VNEG                  5             O         Negative charge pump rail terminal for decoupling, –3.3 V
+XSMT                 17              I        Soft mute control (1): Soft mute (Low) / soft un-mute (High)
+
+(1)   Failsafe LVCMOS Schmitt trigger input
+
+Copyright © 2012–2015, Texas Instruments Incorporated                                                      Submit Documentation Feedback       5
+                   Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 6 ===
+PCM5100A, PCM5101A, PCM5102A
+PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+SLAS859C – MAY 2012 – REVISED MAY 2015                                                                                               www.ti.com
+
+8 Specifications
+8.1 Absolute Maximum Ratings
+over operating free-air temperature range (unless otherwise noted)
+                                                                                                      MIN                  MAX           UNIT
+                                      AVDD, CPVDD, DVDD                                               –0.3                 3.9
+Supply voltage
+                                      LDO with DVDD at 1.8 V                                          –0.3                 2.25
+                                      DVDD at 1.8 V                                                   –0.3                 2.25            V
+Digital input voltage
+                                      DVDD at 3.3 V                                                   –0.3                 3.9
+Analog input voltage                                                                                  –0.3                 3.9
+Operating junction temperature range                                                                   –40                 130            °C
+Storage temperature, Tstg                                                                              –65                 150            °C
+
+8.2 ESD Ratings
+                                                                                                                          VALUE          UNIT
+                                                                                                      (1)
+                                          Human-body model (HBM), per ANSI/ESDA/JEDEC JS-001                              ±2000
+V(ESD)      Electrostatic discharge       Charged-device model (CDM), per JEDEC specification JESD22-                                     V
+                                                                                                                           ±750
+                                          C101 (2)
+
+(1)   JEDEC document JEP155 states that 500-V HBM allows safe manufacturing with a standard ESD control process.
+(2)   JEDEC document JEP157 states that 250-V CDM allows safe manufacturing with a standard ESD control process.
+
+8.3 Recommended Operating Conditions
+                                                                                                               MIN        NOM     MAX     UNIT
+                                                           Referenced to    VCOM mode                             3        3.3    3.46
+AVDD            Analog power supply voltage range                                                                                            V
+                                                           AGND (1)         VREF mode                           3.2        3.3    3.46
+                                                           Referenced to    1.8 V DVDD                         1.65        1.8    1.95
+DVDD            Digital power supply voltage range                                                                                           V
+                                                           DGND (1)         3.3 V DVDD                          3.1        3.3    3.46
+CPVDD           Charge pump supply voltage range           Referenced to CPGND (1)                              3.1        3.3    3.46       V
+MCLK            Master clock frequency                                                                                             50     MHz
+LOL, LOR        Stereo line output load resistance                                                                1        10              kΩ
+CLOUT           Digital output load capacitance                                                                            10              pF
+TJ              Operating junction temperature range                                                            –40               130      °C
+
+(1)   All grounds on board are tied together; they must not differ in voltage by more than 0.2 V max, for any combination of ground signals.
+
+8.4 Thermal Information
+                                                                                                                   PW
+                                          THERMAL METRIC (1)                                                                          UNIT
+                                                                                                                20 PINS
+RθJA              Junction-to-ambient thermal resistance                                                          91.2
+RθJC(top)         Junction-to-case (top) thermal resistance                                                       25.3
+RθJB              Junction-to-board thermal resistance                                                             42
+                                                                                                                                      °C/W
+ψJT               Junction-to-top characterization parameter                                                          1
+ψJB               Junction-to-board characterization parameter                                                    41.5
+RθJC(bot)         Junction-to-case (bottom) thermal resistance                                                     —
+
+(1)   For more information about traditional and new thermal metrics, see the IC Package Thermal Metrics application report, SPRA953.
+
+6        Submit Documentation Feedback                                                       Copyright © 2012–2015, Texas Instruments Incorporated
+
+                 Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 7 ===
+                                                                                                   PCM5100A, PCM5101A, PCM5102A
+                                                                                           PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+www.ti.com                                                                                                SLAS859C – MAY 2012 – REVISED MAY 2015
+
+8.5 Electrical Characteristics
+Q1 Automotive grade devices are specified for TA = –40°C to 125°C. Consumer grade (non-Q1) devices are specified at TA =
+25°C. All devices in the family are characterized with AVDD = CPVDD = DVD = 3.3 V, fS = 48 kHz, system clock = 512 fS and
+24-bit data unless otherwise noted.
+                       PARAMETER                                    TEST CONDITIONS                    MIN         TYP          MAX      UNIT
+                Resolution                                                                              16           24           32     Bits
+Data Format (PCM Mode)
+                Audio data bit length                                                                   16           24           32     Bits
+fS (1)          Sampling frequency                                                                        8                      384     kHz
+                                                        Clock multiples: 64, 128, 192, 256, 384,
+fSCK            System clock frequency                  512, 768, 1024, 1152, 1536, 2048, or                                      50     MHz
+                                                        3072
+Digital Input/Output for non-Q1 Consumer Grade Devices
+                Logic family: 3.3 V LVCMOS compatible
+VIH                                                                                                0.7×DVDD
+                Input logic level                                                                                                         V
+VIL                                                                                                                         0.3×DVDD
+IIH                                                     VIN = VDD                                                                 10
+                Input logic current                                                                                                      µA
+IIL                                                     VIN = 0 V                                                                –10
+VOH                                                     IOH = –4 mA                                0.8×DVDD
+                Output logic level                                                                                                        V
+VOL                                                     IOL = 4 mA                                                         0.22×DVDD
+                Logic family 1.8 V LVCMOS compatible
+VIH                                                                                                0.7×DVDD
+                Input logic level                                                                                                         V
+VIL                                                                                                                         0.3×DVDD
+IIH                                                     VIN = VDD                                                                 10
+                Input logic current                                                                                                      µA
+IIL                                                     VIN = 0 V                                                                –10
+VOH                                                     IOH = –2 mA                                0.8×DVDD
+                Output logic level                                                                                                        V
+VOL                                                     IOL = 2 mA                                                         0.22×DVDD
+Digital Input/Output for Q1 Automotive Grade Devices
+                Logic family: 3.3 V LVCMOS compatible
+VIH                                                                                                0.7×DVDD
+                Input logic level                                                                                                         V
+VIL                                                                                                                         0.3×DVDD
+IIH                                                     VIN = VDD                                                                 10
+                Input logic current                                                                                                      µA
+IIL                                                     VIN = 0 V                                                                –10
+VOH                                                     IOH = –4 mA                                0.8×DVDD
+                Output logic level                                                                                                        V
+VOL                                                     IOL = 4 mA                                                         0.22×DVDD
+                Logic family 1.8 V LVCMOS compatible
+VIH                                                                                                0.7×DVDD
+                Input logic level                                                                                                         V
+VIL                                                                                                                         0.3×DVDD
+IIH                                                     VIN = VDD                                                                 10
+                Input logic current                                                                                                      µA
+IIL                                                     VIN = 0 V                                                                –10
+VOH                                                     IOH = –2 mA                                0.8×DVDD
+                Output logic level                                                                                                        V
+VOL                                                     IOL = 2 mA                                                          0.3×DVDD
+
+(1)      One sample time is defined as the reciprocal of the sampling frequency. 1tS = 1/fS
+
+Copyright © 2012–2015, Texas Instruments Incorporated                                                    Submit Documentation Feedback          7
+                     Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 8 ===
+PCM5100A, PCM5101A, PCM5102A
+PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+SLAS859C – MAY 2012 – REVISED MAY 2015                                                                                            www.ti.com
+
+Electrical Characteristics (continued)
+Q1 Automotive grade devices are specified for TA = –40°C to 125°C. Consumer grade (non-Q1) devices are specified at TA =
+25°C. All devices in the family are characterized with AVDD = CPVDD = DVD = 3.3 V, fS = 48 kHz, system clock = 512 fS and
+24-bit data unless otherwise noted.
+                    PARAMETER                             TEST CONDITIONS                     MIN           TYP            MAX       UNIT
+Dynamic Performance (PCM Mode) (2) (3)
+                                                                          PCM5102A                           –93            –83       dB
+                                                fS = 48 kHz               PCM5101A                           –92            –82
+                                                                          PCM5100A                           –90            –80
+            THD+N at –1 dBFS (3)
+                                                                          PCM5102A                           –93
+                                                fS = 96 kHz and 192 kHz   PCM5101A                           –92
+                                                                          PCM5100A                           –90
+                                                                          PCM5102A            106            112
+                                                EIAJ, A-weighted, fS = 48
+                                                                          PCM5101A            100            106
+                                                kHz
+                                                                          PCM5100A             95            100
+            Dynamic range (3)
+                                                                          PCM5102A                           112
+                                                EIAJ, A-weighted, fS = 96
+                                                                          PCM5101A                           106
+                                                kHz and 192 kHz
+                                                                          PCM5100A                           100
+                                                                          PCM5102A                           112
+                                                EIAJ, A-weighted, fS = 48
+                                                                          PCM5101A                           106
+                                                kHz
+                                                                          PCM5100A                           100
+            Signal-to-noise ratio (3)
+                                                                          PCM5102A                           112
+                                                EIAJ, A-weighted, fS = 96
+                                                                          PCM5101A                           106
+                                                kHz and 192 kHz
+                                                                          PCM5100A                           100
+                                                EIAJ, A-weighted, fS = 48 kHz                 113            123
+            Signal to noise ratio with analog
+            mute (3) (4)                        EIAJ, A-weighted, fS = 96 kHz and 192                        123
+                                                kHz
+                                                                          PCM5102A            100            109
+                                                fS = 48 kHz               PCM5101A             95            103
+                                                                          PCM5100A             90             97
+                                                                          PCM5102A                           109
+            Channel separation                  fS = 96 kHz               PCM5101A                           103
+                                                                          PCM5100A                            97
+                                                                          PCM5102A                           109
+                                                fS = 192 kHz              PCM5101A                           103
+                                                                          PCM5100A                            97
+
+(2)   Filter condition: THD+N: 20-Hz HPF, 20-kHz AES17 LPF; Dynamic range: 20-Hz HPF, 20-kHz AES17 LPF; A-weighted signal-to-noise
+      ratio: 20-Hz HPF, 20-kHz AES17 LPF; A-weighted channel separation: 20-Hz HPF, 20-kHz AES17 LPF. Analog performance
+      specifications are measured using the System Two Cascade™ audio measurement system by Audio Precision™ in the RMS mode.
+(3)   Output load is 10 kΩ, with 470-Ω output resistor and a 2.2-nF shunt capacitor (see recommended output filter).
+(4)   Assert XSMT or both L-ch and R-ch PCM data are Bipolar Zero.
+
+8        Submit Documentation Feedback                                                  Copyright © 2012–2015, Texas Instruments Incorporated
+
+                 Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 9 ===
+                                                                                            PCM5100A, PCM5101A, PCM5102A
+                                                                                    PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+www.ti.com                                                                                       SLAS859C – MAY 2012 – REVISED MAY 2015
+
+Electrical Characteristics (continued)
+Q1 Automotive grade devices are specified for TA = –40°C to 125°C. Consumer grade (non-Q1) devices are specified at TA =
+25°C. All devices in the family are characterized with AVDD = CPVDD = DVD = 3.3 V, fS = 48 kHz, system clock = 512 fS and
+24-bit data unless otherwise noted.
+                    PARAMETER                                     TEST CONDITIONS            MIN          TYP          MAX      UNIT
+Analog Output
+             Output voltage                                                                                 2.1                 VRMS
+             Gain error                                                                        –6           ±2            6    % of FSR
+             Gain error on Q1 Automotive Grade
+                                                                                               –7           ±2            7    % of FSR
+             Devices
+             Gain mismatch, channel-to-channel                                                 –6           ±2            6    % of FSR
+             Gain mismatch, channel-to-channel on
+                                                                                               –6           ±2            6    % of FSR
+             Q1 Devices
+             PCM5100/1 bipolar zero error               At bipolar zero                        –5           ±1            5      mV
+             PCM5102 Bipolar zero error                 At bipolar zero                        –2           ±1            2      mV
+             Load impedance                                                                     1                                kΩ
+Filter Characteristics–1: Normal
+             Pass band                                                                                                0.45fS
+             Stop band                                                                      0.55fS
+             Stop band attenuation                                                            –60
+                                                                                                                                 dB
+             Pass-band ripple                                                                                          ±0.02
+             Delay time                                                                                    20tS                   s
+Filter Characteristics–2: Low Latency
+             Pass band                                                                                                0.47fS
+             Stop band                                                                      0.55fS
+             Stop band attenuation                                                            –52
+                                                                                                                                 dB
+             Pass-band ripple                                                                                        ±0.0001
+             Delay time                                                                                   3.5tS                   s
+Power Supply Requirements
+DVDD         Digital supply voltage                     Target DVDD = 1.8 V                  1.65           1.8         1.95     VDC
+DVDD         Digital supply voltage                     Target DVDD = 3.3 V                     3           3.3          3.6
+AVDD         Analog supply voltage                                                              3           3.3          3.6     VDC
+CPVDD        Charge-pump supply voltage                                                         3           3.3          3.6
+                                                        fS = 48 kHz                                          7
+IDD          DVDD supply current at 1.8 V (5)           fS = 96 kHz                                          8                   mA
+                                                        fS = 192 kHz                                         9
+                                                        fS = 48 kHz                                          7
+IDD          DVDD supply current at 1.8 V (6)           fS = 96 kHz                                          8                   mA
+                                                        fS = 192 kHz                                         9
+IDD          DVDD supply current at 1.8 V (7)           Standby                                             0.3                  mA
+                                                        fS = 48 kHz                                          7           12
+IDD          DVDD supply current at 3.3 V (5)           fS = 96 kHz                                          8                   mA
+                                                        fS = 192 kHz                                         9
+                                                        fS = 48 kHz                                          8           13
+IDD          DVDD supply current at 3.3 V (6)           fS = 96 kHz                                          9                   mA
+                                                        fS = 192 kHz                                        10
+IDD          DVDD supply current at 3.3 V (7)           Standby                                             0.5          0.8     mA
+                                                        fS = 48 kHz                                         11           16
+IDD          AVDD / CPVDD supply current (5)            fS = 96 kHz                                         11                   mA
+                                                        fS = 192 kHz                                        11
+
+(5)   Input is Bipolar Zero data.
+(6)   Input is 1 kHz –1 dBFS data.
+(7)   Power Down Mode
+Copyright © 2012–2015, Texas Instruments Incorporated                                           Submit Documentation Feedback             9
+                  Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 10 ===
+PCM5100A, PCM5101A, PCM5102A
+PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+SLAS859C – MAY 2012 – REVISED MAY 2015                                                                                   www.ti.com
+
+Electrical Characteristics (continued)
+Q1 Automotive grade devices are specified for TA = –40°C to 125°C. Consumer grade (non-Q1) devices are specified at TA =
+25°C. All devices in the family are characterized with AVDD = CPVDD = DVD = 3.3 V, fS = 48 kHz, system clock = 512 fS and
+24-bit data unless otherwise noted.
+                  PARAMETER                                 TEST CONDITIONS         MIN           TYP            MAX        UNIT
+                                                 fS = 48 kHz                                        22             32
+IDD        AVDD / CPVDD supply current (6)       fS = 96 kHz                                        22                       mA
+                                                 fS = 192 kHz                                       22
+IDD        AVDD / CPVDD supply current (7)       fS = n/a                                           0.2            0.4       mA
+                                                 fS = 48 kHz                                        49            185
+           Power dissipation, DVDD = 1.8 V (5)   fS = 96 kHz                                        51                      mW
+                                                 fS = 192 kHz                                       53
+                                                 fS = 48 kHz                                        85            187
+           Power dissipation, DVDD = 1.8 V (6)   fS = 96 kHz                                        87                      mW
+                                                 fS = 192 kHz                                       89
+           Power dissipation, DVDD = 1.8 V (7)   fS = n/a (Power Down Mode)                          1                      mW
+                                                 fS = 48 kHz                                        60            92.4
+           Power dissipation, DVDD = 3.3 V (5)   fS = 96 kHz                                        63                      mW
+                                                 fS = 192 kHz                                       66
+                                                 fS = 48 kHz                                        99          148.5
+           Power dissipation, DVDD = 3.3 V (6)   fS = 96 kHz                                       102                      mW
+                                                 fS = 192 kHz                                      106
+           Power dissipation, DVDD = 3.3 V (7)   fS = n/a (Power Down Mode)                          2              4       mW
+
+10     Submit Documentation Feedback                                          Copyright © 2012–2015, Texas Instruments Incorporated
+
+                Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 14 ===
+PCM5100A, PCM5101A, PCM5102A
+PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+SLAS859C – MAY 2012 – REVISED MAY 2015                                                                                                                              www.ti.com
+
+9 Detailed Description
+
+9.1 Overview
+The integrated PLL on the device provided adds the flexibility to remove the system clock (commonly known as
+master clock), allowing a 3-wire I2S connection and reducing system EMI.
+Powersense undervoltage protection utilizes a two-level mute system. Upon clock error or system power failure,
+the device digitally attenuates the data (or last known good data) and then mutes the analog circuit.
+Compared with existing DAC technology, the PCM510xA devices offer up to 20 dB lower out-of-band noise,
+reducing EMI and aliasing in downstream amplifiers/ADCs. (from traditional 100-kHz OBN measurements to 3
+MHz).
+The PCM510xA devices accept industry-standard audio data formats with 16- to 32-bit data. Sample rates up to
+384 kHz are supported.
+
+9.2 Functional Block Diagram
+                                                     8x Interpolation Filter
+
+                                                                                                       Current                                  LINE OUT
+
+                                                                                                                            Analog
+                                                                                 32bit ûModulator
+
+                                                                                                                             Mute
+                           Audio Interface
+
+                                                                                                                  I/V
+                                                                                                       Segment
+          DIN (i2s)                                                                                    DAC
+
+                                                                                                       Current
+
+                                                                                                                            Analog
+                                                                                                                             Mute
+                                                                                                                  I/V
+                                                                                                       Segment
+                                                                                                       DAC
+
+                           Zero
+                           Data
+                          Detector                                              Advanced Mute Control
+
+                         Clock Halt
+                         Detection
+                                                                                                      PCM510xA
+              LRCK                                                                                                                                  CPVDD (3.3V)
+                                                                                                                                     Power          AVDD (3.3V)
+              BCK        PLL Clock                                                                                                   Supply         DVDD (1.8V or 3.3V)
+              SCK                            UVP/Reset                         POR                               Ch. Pump                           GND
+                                                                                                                 VNEG
+                                                                                                                 CAPM
+                                                                                                                 CAPP
+
+9.3 Feature Description
+9.3.1 Terminology
+Sampling frequency is symbolized by fS. Full scale is symbolized by FS. Sample time as a unit is symbolized by
+tS.
+
+9.3.2 Audio Data Interface
+
+9.3.2.1 Audio Serial Interface
+The audio interface port is a 3-wire serial port with the signals LRCK, BCK, and DIN. BCK is the serial audio bit
+clock, used to clock the serial data present on DIN into the serial shift register of the audio interface. Serial data
+is clocked into the PCM510xA on the rising edge of BCK. LRCK is the serial audio left/right word clock. LRCK
+polarity for left/right is given by the format selected.
+
+14     Submit Documentation Feedback                                                                                        Copyright © 2012–2015, Texas Instruments Incorporated
+
+               Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 15 ===
+                                                                                                       PCM5100A, PCM5101A, PCM5102A
+                                                                                               PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+www.ti.com                                                                                                             SLAS859C – MAY 2012 – REVISED MAY 2015
+
+Feature Description (continued)
+                           Table 2. PCM510xA Audio Data Formats, Bit Depths and Clock Rates
+                                                                                      MAX LRCK
+    CONTROL MODE                     FORMAT                     DATA BITS                                         SCK RATE [x fS]             BCK RATE [x fS]
+                                                                                    FREQUENCY [fS]
+                                                                                                                        128 – 3072
+                                                                                        Up to 192 kHz                                             64, 48, 32
+    Hardware Control                  I2S/LJ                32, 24, 20, 16                                               (≤50MHz)
+                                                                                              384 kHz                        64, 128              64, 48, 32
+
+The PCM510xA requires the synchronization of LRCK and system clock, but does not need a specific phase
+relation between LRCK and system clock.
+If the relationship between LRCK and system clock changes more than ±5 SCK, internal operation (using an
+onchip oscillator) is initialized within one sample period and analog outputs are forced to the bipolar zero level
+until resynchronization between LRCK and system clock is completed.
+If the relationship between LRCK and BCK are invalid more than 4 LRCK periods, internal operation (using an
+onchip oscillator) is initialized within one sample period and analog outputs are forced to the bipolar zero level
+until resynchronization between LRCK and BCK is completed.
+
+9.3.2.2 PCM Audio Data Formats
+The PCM510xA supports industry-standard audio data formats, including standard I2S and left-justified. Data
+formats are selected using the FMT (pin 16), Low for I2S, and High for Left-justified. All formats require binary
+twos-complement, MSB-first audio data; up to 32-bit audio data is accepted.
+                                                                                    1tS
+
+                                                                                                        R-channel
+                 LRCK                                 L-channel
+
+                  BCK
+
+             Audio data word = 16-bit, BCK = 32, 48, 64fS
+
+                                 1    2          15    16                                 1    2        15   16
+                 DATA
+
+                                      MSB                   LSB                               MSB                 LSB
+
+              Audio data word = 24-bit, BCK = 48, 64fS
+                                  - ,
+                                 1    2                     2    24                       1    2                  23    24
+                 DATA
+
+                                      MSB                             LSB                     MSB                             LSB
+
+              Audio data word = 32-bit, BCK = 64fS
+
+                                 1    2                                       31   32     1    2                                        31   32
+                 DATA
+
+                                      MSB                                    LSB              MSB                                      LSB
+
+                                               Figure 13. Left Justified Audio Data Format
+
+Copyright © 2012–2015, Texas Instruments Incorporated                                                              Submit Documentation Feedback               15
+                 Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 17 ===
+                                                                                                                          PCM5100A, PCM5101A, PCM5102A
+                                                                                                                  PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+www.ti.com                                                                                                                                  SLAS859C – MAY 2012 – REVISED MAY 2015
+
+9.3.4 Audio Processing
+
+9.3.4.1 Interpolation Filter
+The PCM510xA provides two types of interpolation filter. Users can select which filter to use by using the FLT pin
+(pin 11).
+
+                                                           Table 3. Digital Interpolation Filter Options
+                                                    FLT Pin     Description
+                                                       0        FIR normal x8/x4/x2/x1 interpolation filters
+                                                       1        IIR low-latency x8/x4/x2/x1 interpolation filters
+
+The normal x8 / x4 / x2 / x1(bypass) interpolation filter is programmed for sample rates from 8 kHz to 384 kHz.
+
+                                                              Table 4. Normal x8 Interpolation Filter
+                               Parameter                        Condition                                       Value (Typ)                Value (Max)      Units
+                               Filter gain pass band            0 ……. 0.45fS                                                                  ±0.02             dB
+                               Filter gain stop band            0.55fS ….. 7.455fS                                        –60                                   dB
+                               Filter group delay                                                                     22tS                                      s
+
+                       0                                                                                        1.0
+
+                                                                                                                0.8
+                    −20
+
+                                                                                                                0.6
+                    −40
+                                                                                             Amplitude (FFS)
+   Amplitude (dB)
+
+                                                                                                                0.4
+                    −60
+                                                                                                                0.2
+
+                    −80
+                                                                                                                0.0
+
+                    −100
+                                                                                                               −0.2
+
+                    −120                                                                                       −0.4
+                           0          1            2                3             4                                   0         50   100    150     200   250       300   350   400
+                                             Frequency (x fS)                                                                                     Samples
+                                                                                  G012                                                                                           G023
+
+                       Figure 15. Normal x8 Interpolation Filter Frequency                                            Figure 16. Normal x8 Interpolation Filter Impulse
+                                           Response                                                                                      Response
+
+Copyright © 2012–2015, Texas Instruments Incorporated                                                                                      Submit Documentation Feedback                17
+                               Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 19 ===
+                                                                                                                                          PCM5100A, PCM5101A, PCM5102A
+                                                                                                                                  PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+www.ti.com                                                                                                                                                  SLAS859C – MAY 2012 – REVISED MAY 2015
+
+The normal x4 / x2 / x1 (bypass) interpolation filter is programmed for sample rates from 8 kHz to 384 kHz.
+
+                                                                           Table 5. Normal x4 Interpolation Filter
+                               Parameter                                        Condition                                       Value (Typ)               Value (Max)       Units
+                               Filter gain pass band                            0 ……. 0.45fS                                                                    ±0.02           dB
+                               Filter gain stop band                            0.55fS ….. 7.455fS                                        –60                                   dB
+                               Filter group delay                                                                                     22tS                                      s
+                       0                                                                                                        1.0
+
+                                                                                                                                0.8
+                    −20
+
+                                                                                                                                0.6
+                    −40
+
+                                                                                                             Amplitude (FFS)
+   Amplitude (dB)
+
+                                                                                                                                0.4
+                    −60
+                                                                                                                                0.2
+
+                    −80
+                                                                                                                                0.0
+
+                    −100
+                                                                                                                               −0.2
+
+                    −120                                                                                                       −0.4
+                           0          1            2                                3           4                                     0         20   40     60      80    100       120   140   160
+                                             Frequency (x fS)                                                                                                     Samples
+                                                                                                 G009                                                                                            G020
+
+                       Figure 18. Normal x4 Interpolation Filter Frequency                                                            Figure 19. Normal x4 Interpolation Filter Impulse
+                                           Response                                                                                                      Response
+
+                                                                         0.05
+
+                                                                         0.04
+
+                                                                         0.03
+
+                                                                         0.02
+                                                       Amplitude (dB)
+
+                                                                         0.01
+
+                                                                         0.00
+
+                                                                        −0.01
+
+                                                                        −0.02
+
+                                                                        −0.03
+
+                                                                        −0.04
+
+                                                                        −0.05
+                                                                             0.0                           0.5                                            1.0
+                                                                                                     Frequency (x fS)
+                                                                                                                                                           G031
+
+                                                                         Figure 20. Normal x4 Interpolation Filter Passband Ripple
+
+Copyright © 2012–2015, Texas Instruments Incorporated                                                                                                     Submit Documentation Feedback                 19
+                               Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 20 ===
+PCM5100A, PCM5101A, PCM5102A
+PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+SLAS859C – MAY 2012 – REVISED MAY 2015                                                                                                                                                           www.ti.com
+
+                                                                             Table 6. Normal x2 Interpolation Filter
+                                 Parameter                                        Condition                                        Value (Typ)             Value (Max)              Units
+                                 Filter gain pass band                            0 ……. 0.45fS                                                                    ±0.02              dB
+                                 Filter gain stop band                            0.55fS ….. 7.455fS                                         –60                                     dB
+                                 Filter group delay                                                                                      22tS                                         s
+                         0                                                                                                         1.0
+
+                                                                                                                                   0.8
+                      −20
+
+                                                                                                                                   0.6
+                      −40
+
+                                                                                                                Amplitude (FFS)
+     Amplitude (dB)
+
+                                                                                                                                   0.4
+                      −60
+                                                                                                                                   0.2
+
+                      −80
+                                                                                                                                   0.0
+
+                      −100
+                                                                                                                                  −0.2
+
+                      −120                                                                                                        −0.4
+                             0          1            2                                3             4                                    0     10   20    30      40     50    60    70     80   90   100
+                                               Frequency (x fS)                                                                                                        Samples
+                                                                                                    G006                                                                                               G017
+
+                         Figure 21. Normal x2 Interpolation Filter Frequency                                                             Figure 22. Normal x2 Interpolation Filter Impulse
+                                             Response                                                                                                       Response
+
+                                                                           0.05
+
+                                                                           0.04
+
+                                                                           0.03
+
+                                                                           0.02
+                                                         Amplitude (dB)
+
+                                                                           0.01
+
+                                                                           0.00
+
+                                                                          −0.01
+
+                                                                          −0.02
+
+                                                                          −0.03
+
+                                                                          −0.04
+
+                                                                          −0.05
+                                                                               0.0            0.5             1.0                             1.5          2.0
+                                                                                                        Frequency (x fS)
+                                                                                                                                                               G028
+
+                                                                           Figure 23. Normal x2 Interpolation Filter Passband Ripple
+
+20                     Submit Documentation Feedback                                                                                                Copyright © 2012–2015, Texas Instruments Incorporated
+
+                                 Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 21 ===
+                                                                                                                                              PCM5100A, PCM5101A, PCM5102A
+                                                                                                                                      PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+www.ti.com                                                                                                                                                   SLAS859C – MAY 2012 – REVISED MAY 2015
+
+The low-latency x8 / x4 / x2 / x1 (bypass) interpolation filter is programmed for sample rates from 8 kHz to 384
+kHz.
+
+                                                                       Table 7. Low Latency x8 Interpolation Filter
+                               Parameter                                               Condition                                                     Value (Typ)             Units
+                               Filter gain pass band                                   0 ……. 0.45fS                                                    ±0.0001                    dB
+                               Filter gain stop band                                   0.55fS ….. 7.455fS                                                  –52                    dB
+                               Filter group delay                                                                                                          3.5tS                  s
+                       0                                                                                                            1.0
+
+                                                                                                                                    0.8
+                    −20
+
+                                                                                                                                    0.6
+
+                    −40
+                                                                                                                                    0.4
+
+                                                                                                                 Amplitude (FFS)
+   Amplitude (dB)
+
+                    −60                                                                                                             0.2
+
+                                                                                                                                    0.0
+                    −80
+
+                                                                                                                                   −0.2
+
+                    −100
+                                                                                                                                   −0.4
+
+                    −120                                                                                                           −0.6
+                           0          1            2                               3               4                                      0   50     100     150      200   250        300   350   400
+                                             Frequency (x fS)                                                                                                       Samples
+                                                                                                   G011                                                                                             G022
+
+                    Figure 24. Low Latency x8 Interpolation Filter Frequency                                                         Figure 25. Low Latency x8 Interpolation Filter Impulse
+                                          Response                                                                                                        Response
+
+                                                                      0.00010
+
+                                                                      0.00008
+
+                                                                      0.00006
+
+                                                                      0.00004
+                                                    Amplitude (dB)
+
+                                                                      0.00002
+
+                                                                      0.00000
+
+                                                                     −0.00002
+
+                                                                     −0.00004
+
+                                                                     −0.00006
+
+                                                                     −0.00008
+
+                                                                     −0.00010
+                                                                             0.0           0.1            0.2         0.3                      0.4          0.5
+                                                                                                          Frequency (x fS)
+                                                                                                                                                             G033
+
+                                                                     Figure 26. Low Latency x8 Interpolation Filter Passband Ripple
+
+Copyright © 2012–2015, Texas Instruments Incorporated                                                                                                       Submit Documentation Feedback                  21
+                               Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 22 ===
+PCM5100A, PCM5101A, PCM5102A
+PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+SLAS859C – MAY 2012 – REVISED MAY 2015                                                                                                                                                         www.ti.com
+
+                                                                        Table 8. Low Latency x4 Interpolation Filter
+                                 Parameter                                               Condition                                                      Value (Typ)             Units
+                                 Filter gain pass band                                   0 ……. 0.45fS                                                      ±0.0001               dB
+                                 Filter gain stop band                                   0.55fS ….. 3.455fS                                                 –52                  dB
+                                 Filter group delay                                                                                                         3.5tS                 s
+                         0                                                                                                            1.0
+
+                                                                                                                                      0.8
+                      −20
+
+                                                                                                                                      0.6
+
+                      −40
+                                                                                                                                      0.4
+
+                                                                                                                   Amplitude (FFS)
+     Amplitude (dB)
+
+                      −60                                                                                                             0.2
+
+                                                                                                                                      0.0
+                      −80
+
+                                                                                                                                     −0.2
+
+                      −100
+                                                                                                                                     −0.4
+
+                      −120                                                                                                           −0.6
+                             0          1            2                               3               4                                      0   20    40     60       80  100   120     140   160   180
+                                               Frequency (x fS)                                                                                                       Samples
+                                                                                                     G008                                                                                            G019
+
+                      Figure 27. Low Latency x4 Interpolation Filter Frequency                                                         Figure 28. Low Latency x4 Interpolation Filter Impulse
+                                            Response                                                                                                        Response
+
+                                                                         0.0001
+
+                                                                        0.00008
+
+                                                                        0.00006
+
+                                                                        0.00004
+                                                      Amplitude (dB)
+
+                                                                        0.00002
+
+                                                                              0
+
+                                                                       −0.00002
+
+                                                                       −0.00004
+
+                                                                       −0.00006
+
+                                                                       −0.00008
+
+                                                                        −0.0001
+                                                                               0.0                                0.5                                        1.0
+                                                                                                            Frequency (x fS)
+                                                                                                                                                               G030
+
+                                                                       Figure 29. Low Latency x4 Interpolation Filter Passband Ripple
+
+22                     Submit Documentation Feedback                                                                                                 Copyright © 2012–2015, Texas Instruments Incorporated
+
+                                 Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 23 ===
+                                                                                                                                   PCM5100A, PCM5101A, PCM5102A
+                                                                                                                           PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+www.ti.com                                                                                                                                            SLAS859C – MAY 2012 – REVISED MAY 2015
+
+                                                                  Table 9. Low Latency x2 Interpolation Filter
+                                             Parameter                             Condition                                       Value (Typ)        Units
+                                             Filter gain pass band                 0 ……. 0.45fS                                     ±0.0001             dB
+                                             Filter gain stop band                 0.55fS ….. 1.455fS                                    –52            dB
+                                             Filter group delay                                                                       3.5tS                 s
+
+space
+
+                       0                                                                                                 1.0
+
+                                                                                                                         0.8
+                    −20
+
+                                                                                                                         0.6
+                    −40
+
+                                                                                                      Amplitude (FFS)
+   Amplitude (dB)
+
+                                                                                                                         0.4
+                    −60
+                                                                                                                         0.2
+
+                    −80
+                                                                                                                         0.0
+
+                    −100
+                                                                                                                        −0.2
+
+                    −120                                                                                                −0.4
+                           0         1          2                              3        4                                      0    10     20    30      40       50    60   70   80   90   100
+                                          Frequency (x fS)                                                                                                      Samples
+                                                                                        G005                                                                                                 G016
+
+                    Figure 30. Low Latency x2 Interpolation Filter Frequency                                              Figure 31. Low Latency x2 Interpolation Filter Impulse
+                                          Response                                                                                             Response
+
+                                                                   0.0001
+
+                                                                  0.00008
+
+                                                                  0.00006
+
+                                                                  0.00004
+                                                Amplitude (dB)
+
+                                                                  0.00002
+
+                                                                        0
+
+                                                                 −0.00002
+
+                                                                 −0.00004
+
+                                                                 −0.00006
+
+                                                                 −0.00008
+
+                                                                  −0.0001
+                                                                         0.0                         0.5                                              1.0
+                                                                                               Frequency (x fS)
+                                                                                                                                                       G030
+
+                                                                 Figure 32. Low Latency x2 Interpolation Filter Passband Ripple
+
+Copyright © 2012–2015, Texas Instruments Incorporated                                                                                                 Submit Documentation Feedback                 23
+                               Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 24 ===
+PCM5100A, PCM5101A, PCM5102A
+PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+SLAS859C – MAY 2012 – REVISED MAY 2015                                                                                                                      www.ti.com
+
+9.3.5 Reset and System Clock Functions
+
+9.3.5.1 Clocking Overview
+The PCM510xA devices have flexible systems for clocking. Internally, the device requires a number of clocks,
+mostly at related clock rates to function correctly. All of these clocks can be derived from the serial audio
+interface in one form or another.
+The data flows at the sample rate (fS). Once the data is brought into the serial audio interface, it gets processed,
+interpolated and modulated all the way to 128 × fS before arriving at the current segments for the final digital to
+analog conversion.
+The serial audio interface typically has 4 connections SCK (system master clock), BCK (bit clock), LRCK (left
+right word clock) and DIN (data). The device has an internal PLL that is used to take either SCK or BCK and
+create the higher rate clocks required by the interpolating processor and the DAC clock. This allows the device to
+operate with or without an external SCK.
+
+9.3.5.2 Clock Slave Mode With Master/System Clock (SCK) Input (4 Wire I2S)
+The PCM510xA requires a system clock to operate the digital interpolation filters and advanced segment DAC
+modulators. The system clock is applied at the SCK input and supports up to 50 MHz. The PCM510xA system-
+clock detection circuit automatically senses the system-clock frequency. Common audio sampling frequencies in
+the bands of 8 kHz, 16 kHz, (32 kHz - 44.1 kHz - 48 kHz), (88.2kHz - 96kHz), (176.4 kHz - 192 kHz), and 384
+kHz with ±4% tolerance are supported. Values in the parentheses are grouped when detected, e.g. 88.2kHZ and
+96kHz are detected as "double rate," 32kHz, 44.1kHz and 48kHz will be detected as "single rate".
+The sampling frequency detector sets the clock for the digital filter, Delta Sigma Modulator (DSM) and the
+Negative Charge Pump (NCP) automatically. Table 10 shows examples of system clock frequencies for common
+audio sampling rates.
+SCK rates that are not common to standard audio clocks, between 1 MHz and 50 MHz, are only supported in
+software mode, available only in the PCM512x, PCM514x, and PCM5242 devices, by configuring various PLL
+and clock-divider registers. This programmability allows the device to become a clock master and drive the host
+serial port with LRCK and BCK, from a non-audio related clock (for example, using 12 MHz to generate 44.1 kHz
+[LRCK] and 2.8224 MHz [BCK]).
+
+                                Table 10. System Master Clock Inputs for Audio Related Clocks
+ Sampling                                                                   System Clock Frequency (fSCK) (MHz)
+ Frequency       64 fS      128 fS          192 fS            256 fS      384 fS      512 fS      768 fS      1024 fS     1152 fS    1536 fS    2048 fS       3072 fS
+      8 kHz      – (1)      1.024 (2)      1.536 (2)           2.048       3.072       4.096       6.144       8.192      9.216      12.288     16.384        24.576
+      16 kHz     – (1)      2.048 (2)      3.072 (2)           4.096       6.144       8.192      12.288      16.384      18.432     24.576     36.864        49.152
+      32 kHz     – (1)      4.096 (2)      6.144 (2)           8.192      12.288      16.384      24.576      32.768      36.864     49.152       – (1)         – (1)
+  44.1 kHz       – (1)     5.6488 (2)      8.4672 (2)         11.2896     16.9344     22.5792     33.8688     45.1584      – (1)      – (1)       – (1)         – (1)
+                     (1)            (2)                 (2)                                                                    (1)        (1)         (1)
+      48 kHz     –          6.144          9.216              12.288      18.432      24.576      36.864      49.152       –          –           –             – (1)
+                     (1)             (2)                                                                (1)         (1)        (1)        (1)         (1)
+  88.2 kHz       –         11.2896         16.9344            22.5792     33.8688     45.1584       –           –          –          –           –             – (1)
+                     (1)            (2)                                                                 (1)         (1)        (1)        (1)         (1)
+      96 kHz     –         12.288           18.432            24.576      36.864      49.152        –           –          –          –           –             – (1)
+                     (1)                                                        (1)         (1)         (1)         (1)        (1)        (1)         (1)
+ 176.4 kHz       –          22.579         33.8688            45.1584       –           –           –           –          –          –           –             – (1)
+                     (1)                                                        (1)         (1)         (1)         (1)        (1)        (1)         (1)
+  192 kHz        –          24.576          36.864            49.152        –           –           –           –          –          –           –             – (1)
+                                                  (1)               (1)         (1)         (1)         (1)         (1)        (1)        (1)         (1)
+  384 kHz       24.576      49.152            –                 –           –           –           –           –          –          –           –             – (1)
+
+(1)    This system clock rate is not supported for the given sampling frequency.
+(2)    This system clock rate is supported by PLL mode.
+
+24         Submit Documentation Feedback                                                                        Copyright © 2012–2015, Texas Instruments Incorporated
+
+                  Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+
+=== PDF page 25 ===
+                                                                              PCM5100A, PCM5101A, PCM5102A
+                                                                      PCM5100A-Q1, PCM5101A-Q1, PCM5102A-Q1
+www.ti.com                                                                              SLAS859C – MAY 2012 – REVISED MAY 2015
+
+9.3.5.3 Clock Slave Mode with BCK PLL to Generate Internal Clocks (3-Wire PCM)
+The system clock PLL mode allows designers to use a simple 3-wire I2S audio source. The 3-wire source
+reduces the need for a high frequency SCK, making PCB layout easier, and reduces high frequency
+electromagnetic interference.
+The internal PLL is disabled as soon as an external SCK is supplied.
+The device starts up expecting an external SCK input, but if BCK and LRCK start correctly while SCK remains at
+ground level for 16 successive LRCK periods, then the internal PLL starts, automatically generating an internal
+SCK from the BCK reference. Specific BCK rates are required to generate an appropriate master clock. Table 11
+describes the minimum and maximum BCK per LRCK for the integrated PLL to automatically generate an
+internal SCK.
+
+                                     Table 11. BCK Rates (MHz) by LRCK Sample Rate for
+                                                  PCM510xA PLL Operation
+                                                                    BCK (fS)
+                                        Sample f (kHz)      32                  64
+                                                8            –                   –
+                                               16            –                 1.024
+                                               32          1.024               2.048
+                                              44.1         1.4112              2.8224
+                                               48          1.536               3.072
+                                               96          3.072               6.144
+                                              192          6.144               12.288
+                                              384          12.288              24.576
+
+9.4 Device Functional Modes
+9.4.1 External SCK and PLL Activation
+As discussed in Clock Slave Mode with BCK PLL to Generate Internal Clocks (3-Wire PCM), the internal PLL of
+a PCM510xA device supplies a SCK if an external SCK is not present at powerup.
+
+9.4.1.1 Interpolation Filter Modes
+Interpolation-filter options are controlled by the FLT pin. See Table 3.
+
+9.4.1.2 44.1kHz De-emphasis
+De-emphasis control for 44.1-kHz fS is controlled by the DEMP pin. See Pin Configuration and Functions.
+
+9.4.1.3 Audio Format
+Audio format is selected by the FMT pin. See Pin Configuration and Functions.
+
+Copyright © 2012–2015, Texas Instruments Incorporated                                   Submit Documentation Feedback      25
+                 Product Folder Links: PCM5100A PCM5101A PCM5102A PCM5100A-Q1 PCM5101A-Q1 PCM5102A-Q1
+
+

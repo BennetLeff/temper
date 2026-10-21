@@ -1,0 +1,182 @@
+# ADG1209: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Analog Devices ADG1208/ADG1209 via LCSC C654763
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-30 ----
+                                                                                                            Low Capacitance, 4-/8-Channel,
+                                                                                                            ±15 V/+12 V iCMOS Multiplexers
+Data Sheet                                                                                                              ADG1208/ADG1209
+FEATURES                                                                                                                                        FUNCTIONAL BLOCK DIAGRAMS
+<1 pC charge injection over full signal range                                                                                                   ADG1208                              ADG1209
+1 pF off capacitance
+                                                                                                                       S1                                               S1A
+33 V supply range                                                                                                                                                                                           DA
+120 Ω on resistance                                                                                                                                                     S4A
+
+Fully specified at ±15 V/+12 V                                                                                                                                      D
+3 V logic compatible inputs
+                                                                                                                                                                        S1B
+Rail-to-rail operation                                                                                                                                                                                      DB
+Break-before-make switching action                                                                                     S8                                               S4B
+Available in a 16-lead TSSOP, a 16-lead LFCSP, and a
+   16-lead SOIC                                                                                                                                  1-OF-8
+                                                                                                                                                DECODER
+                                                                                                                                                                                     1-OF-4
+                                                                                                                                                                                    DECODER
+Typical power consumption < 0.03 µW
+
+
+
+
+                                                                                                                                                                                                                 05713-001
+APPLICATIONS                                                                                                                                    A0 A1 A2 EN                         A0    A1   EN
+
+                                                                                                                                                                    Figure 1.
+Audio and video routing
+---- lines 140-285 ----
+Data Sheet                                                                                                 ADG1208/ADG1209
+
+SPECIFICATIONS
+DUAL SUPPLY
+VDD = +15 V ± 10%, VSS = –15 V ± 10%, GND = 0 V, unless otherwise noted. Temperature range is as follows: Y version: –40°C to +125°C.
+
+Table 1.
+                                                         −40ºC to      −40ºC to
+Parameter                                      +25ºC     +85ºC         +125ºC       Unit      Test Conditions/Comments
+ANALOG SWITCH
+  Analog Signal Range                                                  VSS to VDD   V
+  On Resistance, RON                           120                                  Ω typ     VS = ±10 V, IS = −1 mA, see Figure 31
+                                               200       240           270          Ω max     VDD = +13.5 V, VSS = −13.5 V
+  On-Resistance Match Between Channels, ∆RON   3.5                                  Ω typ     VS = ±10 V, IS = −1 mA
+                                               6         10            12           Ω max
+  On-Resistance Flatness, RFLAT (On)           20                                   Ω typ     VS = −5 V/0 V/+5 V, IS = −1 mA
+                                               64        76            83           Ω max
+LEAKAGE CURRENTS
+  Source Off Leakage, IS (Off )                ±0.003                               nA typ    VD = ±10 V, VS = −10 V, see Figure 32
+                                               ±0.1      ±0.6          ±1           nA max
+  Drain Off Leakage, ID (Off )                 ±0.003                               nA typ    VS = 1 V/10 V, VD = 10 V/1 V, see Figure 32
+     ADG1208                                   ±0.1      ±0.6          ±1           nA max
+     ADG1209                                   ±0.1      ±0.6          ±1           nA max
+  Channel On Leakage, ID, IS (On)              ±0.02                                nA typ    VS = VD = ±10 V, see Figure 33
+     ADG1208                                   ±0.2      ±0.6          ±1           nA max
+     ADG1209                                   ±0.2      ±0.6          ±1           nA max
+DIGITAL INPUTS
+  Input High Voltage, VINH                                             2.0          V min
+  Input Low Voltage, VINL                                              0.8          V max
+  Input Current, IINL or IINH                  ±0.005                               µA max    VIN = VINL or VINH
+                                                                       ±0.1         µA max
+  Digital Input Capacitance, CIN               2                                    pF typ
+DYNAMIC CHARACTERISTICS 1
+  Transition Time, tTRANSITION                 80                                   ns typ    RL = 300 Ω, CL = 35 pF
+                                               130       165           185          ns max    VS = 10 V, see Figure 34
+  tON (EN)                                     75                                   ns typ    RL = 300 Ω, CL = 35 pF
+                                               95        105           115          ns max    VS = 10 V, see Figure 36
+  tOFF (EN)                                    83                                   ns typ    RL = 300 Ω, CL = 35 pF
+                                               100       125           140          ns max    VS = 10 V, see Figure 36
+  Break-Before-Make Time Delay, tBBM           25                                   ns typ    RL = 300 Ω, CL = 35 pF
+                                                                       10           ns min    VS1 = VS2 = 10 V, see Figure 35
+  Charge Injection                             0.4                                  pC typ    VS = 0 V, RS = 0 Ω, CL = 1 nF, see Figure 37
+  Off Isolation                                −85                                  dB typ    RL = 50 Ω, CL = 5 pF, f = 1 MHz, see Figure 38
+  Channel to Channel Crosstalk                 −85                                  dB typ    RL = 50 Ω, CL = 5 pF, f = 1 MHz, see Figure 40
+  Total Harmonic Distortion Plus Noise         0.15                                 % typ     RL = 10 kΩ, 5 V rms, f = 20 Hz to 20 kHz,
+                                                                                              see Figure 41
+  −3 dB Bandwidth                              550                                  MHz typ   RL = 50 Ω, CL = 5 pF, see Figure 39
+  CS (Off )                                    1                                    pF typ    f = 1 MHz, VS = 0 V
+                                               1.5                                  pF max    f = 1 MHz, VS = 0 V
+  CD (Off ), ADG1208                           6                                    pF typ    f = 1 MHz, VS = 0 V
+                                               7                                    pF max    f = 1 MHz, VS = 0 V
+  CD (Off ), ADG1209                           3.5                                  pF typ    f = 1 MHz, VS = 0 V
+                                               4.5                                  pF max    f = 1 MHz, VS = 0 V
+
+
+
+
+                                                          Rev. E | Page 3 of 21
+ADG1208/ADG1209                                                                                                                   Data Sheet
+                                                                    −40ºC to      −40ºC to
+Parameter                                                   +25ºC   +85ºC         +125ºC     Unit        Test Conditions/Comments
+  CD, CS (On), ADG1208                                      7                                pF typ      f = 1 MHz, VS = 0 V
+                                                            8                                pF max      f = 1 MHz, VS = 0 V
+     CD, CS (On), ADG1209                                   5                                pF typ      f = 1 MHz, VS = 0 V
+                                                            6                                pF max      f = 1 MHz, VS = 0 V
+POWER REQUIREMENTS                                                                                       VDD = +16.5 V, VSS = −16.5 V
+  IDD                                                       0.002                            µA typ      Digital inputs = 0 V or VDD
+                                                                                  1.0        µA max
+     IDD                                                    220                              µA typ      Digital inputs = 5 V
+                                                                                  380        µA max
+     ISS                                                    0.002                            µA typ      Digital inputs = 0 V or VDD
+                                                                                  1.0        µA max
+     ISS                                                    0.002                            µA typ      Digital inputs = 5 V
+                                                                                  1.0        µA max
+     VDD/VSS                                                                      ±5/±16.5   V min/max   |VDD| = |VSS|
+1
+    Guaranteed by design, not subject to production test.
+
+
+
+
+                                                                     Rev. E | Page 4 of 21
+Data Sheet                                                                                                        ADG1208/ADG1209
+SINGLE SUPPLY
+VDD = 12 V ± 10%, VSS = 0 V, GND = 0 V, unless otherwise noted. Temperature range is as follows: Y version: –40°C to +125°C.
+
+Table 2.
+                                                   −40ºC to     −40ºC to
+Parameter                                +25ºC     +85ºC        +125ºC             Unit      Test Conditions/Comments
+ANALOG SWITCH
+  Analog Signal Range                                           0 to VDD           V
+  On Resistance, RON                     300                                       Ω typ     VS = 0 V to 10 V, IS = −1 mA, see Figure 31
+                                         475       567          625                Ω max     VDD = 10.8 V, VSS = 0 V
+  On-Resistance Match Between            5                                         Ω typ     VS = 0 V to 10 V, IS = −1 mA
+    Channels, ∆RON
+                                         16        26           27                 Ω max
+  On-Resistance Flatness, RFLAT (On)     60                                        Ω typ     VS = 3 V/6 V/9 V, IS = −1 mA
+LEAKAGE CURRENTS                                                                             VDD = 13.2 V
+  Source Off Leakage, IS (Off )          ±0.003                                    nA typ    VS = 1 V/10 V, VD = 10 V/1 V, see Figure 32
+                                         ±0.1      ±0.6         ±1                 nA max
+  Drain Off Leakage, ID (Off )           ±0.003                                    nA typ    VS = 1 V/10 V, VD = 10 V/1 V, see Figure 32
+     ADG1208                             ±0.1      ±0.6         ±1                 nA max
+     ADG1209                             ±0.1      ±0.6         ±1                 nA max
+  Channel On Leakage ID, IS (On)         ±0.02                                     nA typ    VS = VD = 1 V or 10 V, see Figure 33
+     ADG1208                             ±0.2      ±0.6         ±1                 nA max
+     ADG1209                             ±0.2      ±0.6         ±1                 nA max
+DIGITAL INPUTS
+  Input High Voltage, VINH                                      2.0                V min
+  Input Low Voltage, VINL                                       0.8                V max
+  Input Current, IINL or IINH            ±0.001
+                                                                ±0.1               µA max    VIN = VINL or VINH
+  Digital Input Capacitance, CIN         3                                         pF typ
+DYNAMIC CHARACTERISTICS 1
+  Transition Time, tTRANSITION           100                                       ns typ    RL = 300 Ω, CL = 35 pF
+                                         170       210          235                          VS = 8 V, see Figure 34
+   tON (EN)                              90                                        ns typ    RL = 300 Ω, CL = 35 pF
+                                         110       140          160                          VS = 8 V, see Figure 36
+   tOFF (EN)                             105                                       ns typ    RL = 300 Ω, CL = 35 pF
+                                         130       155          175                          VS = 8 V, see Figure 36
+  Break-Before-Make Time Delay, tBBM     45                                        ns typ    RL = 300 Ω, CL = 35 pF
+                                                                20                 ns min    VS1 = VS2 = 8 V, see Figure 35
+  Charge Injection                       −0.2                                      pC typ    VS = 6 V, RS = 0 Ω, CL = 1 nF, see Figure 37
+  Off Isolation                          −85                                       dB typ    RL = 50 Ω, CL = 5 pF, f = 1 MHz, see Figure 38
+  Channel to Channel Crosstalk           −85                                       dB typ    RL = 50 Ω, CL = 5 pF, f = 1 MHz, see Figure 40
+  −3 dB Bandwidth                        450                                       MHz typ   RL = 50 Ω, CL = 5 pF, see Figure 39
+  CS (Off )                              1.2                                       pF typ    f = 1 MHz, VS = 6 V
+                                         1.8                                       pF max    f = 1 MHz, VS = 6 V
+  CD (Off ), ADG1208                     7.5                                       pF typ    f = 1 MHz, VS = 6 V
+                                         9                                         pF max    f = 1 MHz, VS = 6 V
+  CD (Off ), ADG1209                     4.5                                       pF typ    f = 1 MHz, VS = 6 V
+                                         5.5                                       pF max    f = 1 MHz, VS = 6 V
+  CD, CS (On), ADG1208                   9                                         pF typ    f = 1 MHz, VS = 6 V
+                                         10.5                                      pF max    f = 1 MHz, VS = 6 V
+  CD, CS (On), ADG1209                   6                                         pF typ    f = 1 MHz, VS = 6 V
+                                         7.5                                       pF max    f = 1 MHz, VS = 6 V
+
+
+
+
+                                                           Rev. E | Page 5 of 21
+ADG1208/ADG1209                                                                                                                   Data Sheet
+                                                             −40ºC to    −40ºC to
+Parameter                                            +25ºC   +85ºC       +125ºC             Unit        Test Conditions/Comments
+POWER REQUIREMENTS                                                                                      VDD = 13.2 V
+  IDD                                                0.002                                  µA typ      Digital inputs = 0 V or VDD
+                                                                         1.0                µA max

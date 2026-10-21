@@ -1,0 +1,119 @@
+# AGQ: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Panasonic AGQ datasheet via LCSC C490150
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-20 ----
+                                                    High sensitivity, 100 mW
+                                                    Nominal operating power,
+                                                   2 Form C and 2 A Compact                   GQ RELAYS (AGQ)
+                                                      flat body type relays
+
+                                                  FEATURES                                    TYPICAL APPLICATIONS
+                                                  1. High capacity: 2 A                       1. Telephone switchboard
+                                                  2. Flat compact size                        2. Telecommunications equipment
+                                                     10.6 (L) × 7.2 (W) × 5.2 (H) mm          3. Security
+                                                     .417 (L) × .283 (W) × .205 (H) inch      4. Measurement equipment
+                                                  3. High sensitivity single side stable      5. Consumer electronic and audio
+                                                     type (Nominal operating power:              visual equipment
+                                                     100mW) is available
+                                                  4. Outstanding surge resistance.
+                                                     1,500 V 10×160 μs (FCC part 68)
+                                                     (open contacts)
+             RoHS compliant
+                                                     2,500 V 2×10 μs (Telcordia) (contact
+                                                     and coil)
+                                                  5. The use of twin crossbar contacts
+---- lines 55-100 ----
+                                                                                                             ASCTB7E 201407-T
+                                                                  –1–
+GQ (AGQ)
+
+TYPES
+1. Standard PC board terminal
+                                                         Single side stable                             1 coil latching                 High sensitivity single side stable
+           Nominal coil voltage
+                                                             Part No.                                      Part No.                                  Part No.
+                  1.5 V DC                                  AGQ2001H                                     AGQ2101H                                 AGQ2601H
+                  3 V DC                                    AGQ20003                                     AGQ21003                                  AGQ26003
+                  4.5 V DC                                  AGQ2004H                                     AGQ2104H                                 AGQ2604H
+                  6 V DC                                    AGQ20006                                     AGQ21006                                  AGQ26006
+                  9 V DC                                    AGQ20009                                     AGQ21009                                  AGQ26009
+                 12 V DC                                    AGQ20012                                     AGQ21012                                  AGQ26012
+                 24 V DC                                    AGQ20024                                     AGQ21024                                  AGQ26024
+Standard packing: Tube: 50 pcs.; Case: 1,000 pcs.
+
+
+2. Surface-mount terminal
+1) Tube packing
+                                                         Single side stable                             1 coil latching                 High sensitivity single side stable
+           Nominal coil voltage
+                                                             Part No.                                      Part No.                                  Part No.
+                  1.5 V DC                                 AGQ2001H                                    AGQ2101H                                AGQ2601H
+                  3 V DC                                   AGQ20003                                    AGQ21003                                AGQ26003
+                  4.5 V DC                                 AGQ2004H                                    AGQ2104H                                AGQ2604H
+                  6 V DC                                   AGQ20006                                    AGQ21006                                AGQ26006
+                  9 V DC                                   AGQ20009                                    AGQ21009                                AGQ26009
+                 12 V DC                                   AGQ20012                                    AGQ21012                                AGQ26012
+                 24 V DC                                   AGQ20024                                    AGQ21024                                AGQ26024
+: For each surface-mounted terminal identification, input the following letter. A type: A, S type: S
+Standard packing: Tube: 50 pcs.; Case: 1,000 pcs.
+
+
+2) Tape and reel packing
+                                                         Single side stable                             1 coil latching                 High sensitivity single side stable
+           Nominal coil voltage
+                                                             Part No.                                      Part No.                                  Part No.
+                  1.5 V DC                                AGQ2001HZ                                    AGQ2101HZ                              AGQ2601HZ
+                  3 V DC                                  AGQ20003Z                                    AGQ21003Z                              AGQ26003Z
+                  4.5 V DC                                AGQ2004HZ                                    AGQ2104HZ                              AGQ2604HZ
+                  6 V DC                                  AGQ20006Z                                    AGQ21006Z                              AGQ26006Z
+                  9 V DC                                  AGQ20009Z                                    AGQ21009Z                              AGQ26009Z
+                 12 V DC                                  AGQ20012Z                                    AGQ21012Z                              AGQ26012Z
+                 24 V DC                                   AGQ20024Z                                   AGQ21024Z                               AGQ26024Z
+---- lines 170-215 ----
+
+2. Specifications
+ Characteristics                                             Item                                                                                                 Specifications
+                                   Arrangement                                                                            2 Form C
+Contact                            Initial contact resistance, max.                                                       Max. 100 mΩ (By voltage drop 6 V DC 1A)
+                                   Contact material                                                                       Stationary contact: AgPd+Au clad Movable contact: AgPd
+                                   Nominal switching capacity                                                             2 A 30 V DC, 1 A 30 V DC, 0.3 A 125 V AC (resistive load)
+                                   Max. switching power                                                                   60 W (DC), 30 W (DC), 37.5 V A (AC) (resistive load)
+                                   Max. switching voltage                                                                 110 V DC, 125 V AC
+                                   Max. switching current                                                                 2A
+Rating                             Min. switching capacity (Reference value)*1                                            10μA 10 mV DC
+                                                           Single side stable                                             140mW (1.5 to 12 V DC), 230mW (24 V DC)
+                                   Nominal operating       High sensitivity single side
+                                   power                   stable type                                                    100mW (1.5 to 12 V DC), 120mW (24 V DC)
+                                                           1 coil latching
+                                                                                                                          Min. 1,000MΩ (at 500V DC)
+                                   Insulation resistance (Initial)
+                                                                                                                          Measurement at same location as “Initial breakdown voltage” section.
+                                                            Between open contacts                                         750 Vrms for 1min. (Detection current: 10mA)
+                                   Breakdown voltage
+                                                            Between contact and coil                                      1,500 Vrms for 1min. (Detection current: 10mA)
+                                   (Initial)
+                                                            Between contact sets                                          1,000 Vrms for 1min. (Detection current: 10mA)
+Electrical                         Surge breakdown          Between open contacts                                         1,500 V (10×160μs) (FCC Part 68)
+characteristics                    voltage (Initial)        Between contacts and coil                                     2,500 V (2×10μs) (Telcordia)
+                                                                                                                          Max. 50°C
+                                   Temperature rise (at 20°C 68°F)
+                                                                                                                          (By resistive method, nominal coil voltage applied to the coil; contact carrying current: 1A.)
+                                   Operate time [Set time] (at 20°C 68°F)                                                 Max. 4 ms [Max. 4 ms] (Nominal coil voltage applied to the coil, excluding contact bounce time.)
+                                                                                                                          Max. 4 ms [Max. 4 ms] (Nominal coil voltage applied to the coil, excluding contact bounce time.)
+                                   Release time [Reset time] (at 20°C 68°F)
+                                                                                                                          (without diode)
+                                                        Functional                                                        Min. 750 m/s2 (Half-wave pulse of sine wave: 6 ms; detection time: 10μs.)
+                                   Shock resistance
+Mechanical                                              Destructive                                                       Min. 1,000 m/s2 (Half-wave pulse of sine wave: 6 ms.)
+characteristics                                         Functional                                                        10 to 55 Hz at double amplitude of 3.3 mm (Detection time: 10μs.)
+                                   Vibration resistance
+                                                        Destructive                                                       10 to 55 Hz at double amplitude of 5 mm
+                                   Mechanical                                                                             Min. 5 × 107 (at 180 cpm)
+Expected life                                                                                                             Min. 5 × 104 (2 A 30 V DC resistive), Min. 105 (1 A 30 V DC resistive),
+                                   Electrical
+                                                                                                                          Min. 105 (0.3 A 125 V AC resistive) (at 20 cpm)
+                                                                                                                          Ambient temperature:
+                                                                                                                          (Single side stable, 1 coil latching type) –40°C to +85°C –40°F to +185°F
+                                   Conditions for operation, transport and storage*2
+Conditions                                                                                                                (High sensitivity single side stable type) –40°C to +70°C –40°F to +158°F

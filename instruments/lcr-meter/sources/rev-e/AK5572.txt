@@ -1,0 +1,483 @@
+# AKM AK5572 datasheet 015016766-E-04 (2022/02)
+# Source: https://www.akm.com/content/dam/documents/products/audio/audio-adc/ak5572en/ak5572en-en-datasheet.pdf
+# Retrieved 2026-10-20; PDF sha256 28a9add286a47faab67b56be65134414d7e5cb9eb6a01ae5a5d091779cf9243d
+# Extracted with `pdftotext -layout`; only the listed PDF pages are kept (register maps etc. dropped).
+# Each page starts with a line "=== PDF page N ===" ; citations in docs/rev-e-acquisition-survey.md use these page numbers.
+# Pages kept: 1,3,6,9,14,16-17,32-33
+
+=== PDF page 1 ===
+                                                                                            [AK5572]
+
+                                                                                   AK5572
+                                          2-Channel Differential 32-bit  ADC
+
+                                       1. General Description
+The AK557x series is a 32-bit, 768 kHz sampling, differential input A/D converter for digital audio
+systems. It achieves 121 dB dynamic range and 112 dB S/(N+D) while maintaining low power
+consumption performance.
+The AK5572 integrates a 2-channel A/D converter, suitable for mixers and multi-channel recorders. Four
+types of digital filters are integrated and selectable according to the sound quality preference. The
+AK5572 can be easily connected to a DSP by supporting TDM audio formats. Additionally, it supports
+DSD output up to 11.2MHz. The channel summation mode improves the dynamic range performance by
+summing-up multiple channel A/D data and averaging. The dynamic range is improved to 124 dB in 2-to-1
+mode.
+
+                                             2. Features
+ Sampling Rate: 8 kHz - 768 kHz
+ Input: Full Differential Inputs
+ S/(N+D): 112 dB
+ DR: 121 dB (2-to-1 mode: 124 dB)
+ S/N: 121 dB (2-to-1 mode: 124 dB)
+ Internal Filter: Four types of LPF, Digital HPF
+ Power Supply: 4.75-5.25 V (Analog), 1.7-1.98 V or 3.0-3.6 V (Digital)
+ Output Format
+     PCM mode: 24/32-bit MSB justified, I2S or TDM
+     DSD mode: DSD Native 64, 128, 256
+     Maximized Slot Efficiency in TDM Mode by Optimal Data Placed Mode
+ Cascade TDM I/F:
+     TDM512: fs= 48 kHz
+     TDM256: fs= 96 kHz or 48 kHz
+     TDM126: fs= 192 kHz, 96 kHz or 48 kHz
+ Operation Mode: Master Mode & Slave Mode
+ Detection Function: Input Overflow Flag
+ Serial Interface: 3-wire Serial and I2C μP I/F (Pin setting is also available)
+ Power Consumption: 148 mW (@AVDD= 5.0 V, TVDD= 3.3 V, fs= 48 kHz)
+ Package: 48-pin QFN
+
+015016766-E-04                                                                               2022/02
+                                                 -1-
+
+
+=== PDF page 3 ===
+                                                                                                                                       [AK5572]
+
+                                                                     4. Block Diagram
+■ Block Diagram
+
+             VREFH1
+                      VREFL1
+                                                                               TVDD        LDOE    VDD18     DVSS
+
+                      Voltage Reference                                                    LDO
+
+ AIN1P      Delta-Sigma                      Decimation                                HPF
+             Modulator                         Filter                                                                          DIF0/DSDSEL0
+ AIN1N
+                                                                                                                               DIF1/DSDSEL1
+ AIN2P      Delta-Sigma                      Decimation                                HPF                                     BICK/DCLK
+ AIN2N       Modulator                         Filter                                                     Serial Output        LRCK/DSDOL1
+                                                                                                            Interface          TDMIN/DSDOR1
+                                                                                                                               SDTO1
+                                                                                                                               DP
+                                                                                                                               TDM0
+                                                                                                                               TDM1
+                                                                                                                               ODP
+
+  AVDD
+                                                                                                                               PSN/CAD0_SPI
+  AVSS                                                               Controller                                                CKS0/SDA/CDTI
+                                                                                                                               CKS1/CAD0_I2C/CSN
+                                                                                                                               CKS2/SCL/CCLK
+                                                                                                                               CKS3/CAD1
+                                               SLOW/DCKB
+                                                           SD/PMOD
+
+                                                                                             MSN
+                                                                         PW2
+                                                                               PW1
+                                                                                     PW0
+                                      TEST
+
+                                                                                                    OVF
+                               MCLK
+
+                                                                                                             DCKS/HPFE
+               PDN
+
+                                                                                                                         I2C
+
+                                                           Figure 1. Block Diagram
+
+015016766-E-04                                                                                                                             2022/02
+                                                                                -3-
+
+
+=== PDF page 6 ===
+                                                                                                 [AK5572]
+
+                                                                                               Power Down
+ No.   Pin Name       I/O   Function
+                                                                                               Status
+       CKS0             I   Clock Mode Select Pin
+ 31    SDA            I/O   Control Data I/O Pin in I2C Bus Serial Control Mode                   Hi-Z
+       CDTI             I   Control Data Input Pin in 3-wire Serial Control Mode
+       CKS1             I   Clock Mode Select Pin
+ 32    CAD0_I2C         I   Chip Address 0 Pin in I2C Bus Serial Control Mode                     Hi-Z
+       CSN              I   Chip Select Pin in 3-wire Serial Control Mode
+       CKS2             I   Clock Mode Select Pin
+ 33    SCL              I   Control Data Clock Pin in I2C Bus Serial Control Mode                 Hi-Z
+       CCLK             I   Control Data Clock Pin in 3-wire Serial Control Mode
+       CKS3             I   Clock Mode Select Pin
+ 34                                                                                               Hi-Z
+       CAD1             I   Chip Address 1 Pin in I2C Bus or 3-wire Serial Control Mode
+       SLOW             I   Slow Roll-OFF Digital Filter Select Pin in PCM Mode
+ 35                                                                                               Hi-Z
+       DCKB             I   Polarity of DCLK Pin in DSD Mode
+       SD               I   Short Delay Digital Filer Select Pin in PCM Mode
+ 36                                                                                               Hi-Z
+       PMOD             I   DSD Phase Modulation Mode Select Pin in DSD Mode
+                            Audio Data Format Select Pin in PCM Mode
+       DIF0             I
+ 37                           “L”: MSB Justified, “H”: I2S                                        Hi-Z
+       DSDSEL0          I   DSD Sampling Rate Control Pin in DSD Mode
+                            Audio Data Format Select Pin in PCM Mode
+       DIF1             I
+ 38                           “L”: 24-bit Mode, “H”: 32-bit Mode                                  Hi-Z
+       DSDSEL1          I   DSD Sampling Rate Control Pin in DSD Mode
+                            TDM I/F Format Select Pin
+ 39    TDM0             I                                                                         Hi-Z
+                            * This pin must be fixed to “L” when using DSD mode.
+                            TDM I/F Format Select Pin
+ 40    TDM1             I                                                                         Hi-Z
+                            * This pin must be fixed to “L” when using DSD mode.
+                            Control Mode Select Pin (I2C pin = “H”)
+       PSN              I
+ 41                          “L”:I2C Bus Serial Control Mode, “H” :Parallel Control Mode          Hi-Z
+       CAD0_SPI         I   Chip Address 0 Pin in 3-wire serial control Mode (I2C pin = “L”)
+                            Control Mode Select Pin
+ 42    I2C              I     “L”: 3-wire Serial Control Mode                                     Hi-Z
+                              “H”: I2C Bus Serial Control Mode or Parallel Control Mode
+                            DSD Mode Enable Pin
+ 43    DP               I                                                                         Hi-Z
+                              “L”: PCM Mode, “H”: DSD Mode
+                        I   High Pass Filter Enable Pin
+       HPFE
+ 44                           “L”: HPF Disable, “H”: HPF Enable                                   Hi-Z
+       DCKS             I   Master Clock Frequency Select at DSD Mode (DSD Only)
+                            LDO Enable Pin
+ 45    LDOE             I                                                                         Hi-Z
+                              “L”: LDO Disable, “H”: LDO Enable
+ 46    ODP              I   Optimal Data Placement Mode Enable Pin                                Hi-Z
+ 47    AIN1P            I   Channel 1 Positive Input Pin                                          Hi-Z
+ 48    AIN1N            I   Channel 1 Negative Input Pin                                          Hi-Z
+Note 1. All digital input pins must not be allowed to float.
+
+015016766-E-04                                                                                    2022/02
+                                                     -6-
+
+
+=== PDF page 9 ===
+                                                                                        [AK5572]
+
+                                         8. Analog Characteristics
+(Ta= 25 C; AVDD= 5.0 V; TVDD= 3.3 V, fs= 48 kHz, BICK= 64 fs;
+Signal Frequency= 1 kHz; 24-bit Data; Measurement frequency= 20 Hz-20 kHz at fs= 48 kHz,
+40 Hz-40 kHz at fs= 96 kHz, 40 Hz-40 kHz at fs= 192 kHz, unless otherwise specified.)
+Parameter                                                         Min.    Typ.        Max. Unit
+Analog Input Characteristics:
+Resolution                                                          -        -         32   Bit
+Input Voltage                                        (Note 10)    2.7    2.8        2.9 Vpp
+S/(N+D)                                 −1dBFS                     100     112          -   dB
+                        fs=48kHz
+                                        −20dBFS                     -       97          -   dB
+                        BW=20kHz
+                                        −60dBFS                     -       57          -   dB
+                                        −1dBFS                      -      110          -   dB
+                        fs=96kHz
+                                        −20dBFS                     -       90          -   dB
+                        BW=40kHz
+                                        −60dBFS                     -       50          -   dB
+                                        −1dBFS                      -      110          -   dB
+                        fs=192kHz
+                                        −20dBFS                     -       90          -   dB
+                        BW=40kHz
+                                        −60dBFS                     -       50          -   dB
+Dynamic Range                           Not Sum. mode              117     121          -   dB
+(−60dBFS with A-weighted)               2-to-1 mode                 -      124          -   dB
+S/N                                     Not Sum. mode              117     121          -   dB
+(A-weighted)                            2-to-1 mode                 -      124          -   dB
+Input Resistance
+  These values will be doubled in DSD 64fs mode.                   3.0     3.6         4.2 k
+  (Values in DSD128 or DSD256 modes are as shown here)
+Interchannel Isolation
+                                                                   110     120          -   dB
+(AIN1AIN2)
+Interchannel Gain Mismatch                                          -       0          0.5  dB
+Power Supply Rejection                               (Note 11)      -       60          -   dB
+Power Supplies
+Power Supply Current
+      Normal Operation (PDN pin = “H”, LDOE pin = “H”)
+              AVDD+VREFH1                                           -       25          33  mA
+              TVDD             (fs= 48 kHz)                         -       7           10  mA
+              TVDD             (fs= 96 kHz)                         -       11          14  mA
+              TVDD             (fs= 192 kHz)                        -       11          14  mA
+      Power down mode (PDN pin = “L”)                (Note 12)
+              AVDD+TVDD                                             -       10         100  A
+Note 10. This value is (AINnP)−(AINnN) that the ADC output becomes full-scale (n=1-2).
+           Vin = 0.56  (VREFHm−VREFLm) [Vpp]. (m=1)
+Note 11. PSRR is applied to AVDD, TVDD with 1kHz, 20mVpp sine wave. The VREFH1 is held to the
+         fixed voltage.
+Note 12. All digital inputs are fixed to TVDD or TVSS.
+
+015016766-E-04                                                                           2022/02
+                                              -9-
+
+
+=== PDF page 14 ===
+                                                                                               [AK5572]
+
+■ ADC Filter Characteristics (fs = 192 kHz)
+(Ta= −40 - +105 C; AVDD= 4.75-5.25 V, TVDD=1.7-1.98 V (LDOE pin=“L”) or 3.0-3.6 V (LDOE pin=“H”),
+VDD18= 1.7-1.98 V (LDOE pin = “L”))
+ Parameter                                   Symbol          Min.        Typ.         Max.          Unit
+ Digital Filter (Decimation LPF): SHARP ROLL-OFF (Figure 11)
+ (SD pin = “L”, SLOW pin = “L”)
+ Passband (Note 13) +0.001/−0.037 dB                           0            -          83.7         kHz
+                                                PB
+                         −6.0 dB                               -         100.2           -          kHz
+ Stopband (Note 13)                             SB          122.9           -            -          kHz
+ Stopband Attenuation                           SA            85            -            -           dB
+ Group Delay Distortion 0 - 40.0 kHz           GD             -           0             -          1/fs
+ Group Delay (Note 14)                          GD             -          15             -          1/fs
+ Digital Filter (Decimation LPF): SLOW ROLL-OFF (Figure 12)
+ (SD pin = “L”, SLOW pin = “H”)
+ Passband (Note 13) +0.001/−0.1 dB                             0            -          31.5         kHz
+                                                PB
+                         −6.0 dB                               -         75.2            -          kHz
+ Stopband (Note 13)                             SB           146            -            -          kHz
+ Stopband Attenuation                           SA            85            -            -           dB
+ Group Delay Distortion 0 - 40.0 kHz           GD             -           0             -          1/fs
+ Group Delay (Note 14)                          GD             -           8             -          1/fs
+ Digital Filter (Decimation LPF): SHORT DELAY SHARP ROLL-OFF FILTER (Figure 13)
+ (SD pin = “H”, SLOW pin = “L”)
+ Passband (Note 13) +0.001/−0.037 dB                           0            -          83.7         kHz
+                                                PB
+                         −6.0 dB                               -         100.2           -          kHz
+ Stopband (Note 13)                             SB          122.9           -            -          kHz
+ Stopband Attenuation                           SA            85            -            -           dB
+ Group Delay Distortion 0 - 40.0 kHz           GD             -            -           0.3         1/fs
+ Group Delay (Note 14)                          GD             -           6             -          1/fs
+ Digital Filter (Decimation LPF): SHORT DELAY SLOW ROLL-OFF FILTER (Figure 14)
+ (SD pin = “H”, SLOW pin = “H”)
+ Passband (Note 13) +0.001/−0.1 dB                             0            -          31.5         kHz
+                                                PB
+                         −6.0 dB                               -         75.2            -          kHz
+ Stopband (Note 13)                             SB           146            -            -          kHz
+ Stopband Attenuation                           SA            85            -            -           dB
+ Group Delay Distortion 0 - 40.0 kHz           GD             -            -           0.4         1/fs
+ Group Delay (Note 14)                          GD             -           6             -          1/fs
+ Digital Filter (HPF):
+ Frequency Response            −3.0 dB                         -          1.0            -           Hz
+                               −0.5 dB          FR             -          2.5            -           Hz
+ (Note 13)                     −0.1 dB                         -          6.5            -           Hz
+Note 13. The passband and stopband frequencies scale with fs.
+             For example, PB (+0.001 dB/−0.037 dB) = 0.436  fs (SHARP ROLL-OFF).
+             For example, PB (+0.001 dB/−0.1 dB) = 0.164  fs (SLOW ROLL-OFF).
+Note 14. The calculated delay time induced by digital filtering. This time is from the input of an analog
+          signal to the L channel MSB output timing of the SDTO. It may have an error of +1[1/fs] at
+          maximum when outputting data via audio interfaces.
+
+015016766-E-04                                                                                  2022/02
+                                                 - 14 -
+
+
+=== PDF page 16 ===
+                                                                                               [AK5572]
+
+■ ADC Filter Characteristics (fs = 384 kHz)
+(Ta= −40 - +105 C; AVDD= 4.75-5.25 V, TVDD=1.7-1.98 V (LDOE pin=“L”) or 3.0-3.6 V (LDOE pin=“H”),
+VDD18= 1.7-1.98 V (LDOE pin= “L”))
+ Parameter                                 Symbol           Min.         Typ.         Max.          Unit
+ Digital Filter (Decimation LPF) (Figure 15)
+ (SD pin = “X”, SLOW pin = “X”) * It does not depend on the SD pin and SLOW pin.
+                          −0.1 dB                             -          81.75           -          kHz
+ Frequency Response
+                          −1.0 dB                             -           114            -          kHz
+ (Note 13)                                    FR
+                          −3.0 dB                             -         137.63           -          kHz
+                          −6.0 dB                             -          157.2           -          kHz
+ Stopband (Note 13)                           SB           277.4           -             -          kHz
+ Stopband Attenuation                         SA             85            -             -           dB
+ Group Delay Distortion 0 - 40.0 kHz        GD               -            0             -          1/fs
+ Group Delay (Note 14)                       GD               -            7             -          1/fs
+Note 13. The passband and stopband frequencies scale with fs.
+Note 14. The calculated delay time induced by digital filtering. This time is from the input of an analog
+          signal to the L channel MSB output timing of the SDTO. It may have an error of +1[1/fs] at
+          maximum when outputting data via audio interfaces.
+
+                            Figure 15. Frequency Response (fs = 384 kHz)
+
+015016766-E-04                                                                                  2022/02
+                                                 - 16 -
+
+
+=== PDF page 17 ===
+                                                                                               [AK5572]
+
+■ ADC Filter Characteristics (fs = 768 kHz)
+(Ta= −40 - +105 C; AVDD= 4.75-5.25 V, TVDD=1.7-1.98 V (LDOE pin=“L”) or 3.0-3.6 V (LDOE pin=“H”),
+VDD18= 1.7-1.98 V (LDOE pin = “L”))
+ Parameter                                 Symbol           Min.         Typ.         Max.          Unit
+ Digital Filter (Decimation LPF) (Figure 16)
+ (SD pin = “X”, SLOW pin = “X”) * It does not depend on the SD pin and SLOW pin.
+ Frequency Response         −0.1 dB                           -          26.25           -          kHz
+ (Note 13)                  −1.0 dB                           -          83.75           -          kHz
+                                              FR
+                            −3.0 dB                           -          144.5           -          kHz
+                            −6.0 dB                           -          203.1           -          kHz
+ Stopband (Note 13)                           SB           640.3           -             -          kHz
+ Stopband Attenuation                         SA             85            -             -           dB
+ Group Delay Distortion 0 - 40.0 kHz        GD               -            0             -          1/fs
+ Group Delay (Note 14)                       GD               -            5             -          1/fs
+Note 13. The passband and stopband frequencies scale with fs.
+Note 14. The calculated delay time induced by digital filtering. This time is from the input of an analog
+          signal to the L channel MSB output timing of the SDTO. It may have an error of +1[1/fs] at
+          maximum when outputting data via audio interfaces.
+
+                            Figure 16. Frequency Response (fs = 768 kHz)
+
+015016766-E-04                                                                                  2022/02
+                                                 - 17 -
+
+
+=== PDF page 32 ===
+                                                                                                [AK5572]
+
+                                                       MCLK
+  fs
+           32fs     48fs     64fs     96fs    128fs    192fs      256fs    384fs    512fs    768fs    1024fs
+                                                                 8.192    12.288   16.384   24.576    32.768
+32 kHz     N/A      N/A      N/A      N/A      N/A         N/A
+                                                                  MHz      MHz      MHz      MHz       MHz
+                                                                 12.288   18.432   24.576   36.864
+48 kHz     N/A      N/A      N/A      N/A      N/A         N/A                                         N/A
+                                                                  MHz      MHz      MHz      MHz
+                                                                 24.576   36.864
+96 kHz     N/A      N/A      N/A      N/A      N/A         N/A                      N/A      N/A       N/A
+                                                                  MHz      MHz
+                                              24.576   36.864
+192 kHz    N/A      N/A      N/A      N/A                         N/A       N/A     N/A      N/A       N/A
+                                               MHz      MHz
+                            24.576   36.864
+384 kHz    N/A      N/A                        N/A         N/A    N/A       N/A     N/A      N/A       N/A
+                             MHz      MHz
+          24.576   36.864
+768 kHz                      N/A      N/A      N/A         N/A    N/A       N/A     N/A      N/A       N/A
+           MHz      MHz
+                                                                                      (N/A: Not Available)
+                               Table 2 System Clock Example (Slave mode)
+
+                                                       MCLK
+  fs
+           32fs     48fs     64fs     96fs    128fs    192fs      256fs    384fs    512fs    768fs    1024fs
+                                                                 8.192    12.288   16.384   24.576    32.768
+32 kHz     N/A      N/A      N/A      N/A      N/A         N/A
+                                                                  MHz      MHz      MHz      MHz       MHz
+                                                                 12.288   18.432   24.576   36.864
+48 kHz     N/A      N/A      N/A      N/A      N/A         N/A                                         N/A
+                                                                  MHz      MHz      MHz      MHz
+                                                                 24.576   36.864
+96 kHz     N/A      N/A      N/A      N/A      N/A         N/A                      N/A      N/A       N/A
+                                                                  MHz      MHz
+                                              24.576   36.864
+192 kHz    N/A      N/a      N/A      N/A                         N/A      N/A      N/A      N/A       N/A
+                                               MHz      MHz
+                            24.576   36.864
+384 kHz    N/A      N/A                        N/A         N/A    N/A      N/A      N/A      N/A       N/A
+                             MHz      MHz
+          24.576   36.864   49.152
+768 kHz                               N/A      N/A         N/A    N/A      N/A      N/A      N/A       N/A
+           MHz      MHz      MHz
+                                                                                      (N/A: Not available)
+                               Table 3. System Clock Example (Master mode)
+
+                                                       MCLK
+  fs
+           32fs     48fs     64fs     96fs    128fs    192fs     256fs    384fs     512fs    768fs    1024fs
+                                                                                   16.384   24.576    32.768
+32 kHz     N/A      N/A      N/A      N/A      N/A         N/A    N/A      N/A
+                                                                                    MHz      MHz       MHz
+                                                                                   24.576   36.864
+48 kHz     N/A      N/A      N/A      N/A      N/A         N/A    N/A      N/A                         N/A
+                                                                                    MHz      MHz
+                                                                 24.576   36.864
+96 kHz     N/A      N/A      N/A      N/A      N/A         N/A                      N/A      N/A       N/A
+                                                                  MHz      MHz
+                                              24.576   36.864
+192 kHz    N/A      N/a      N/A      N/A                         N/A      N/A      N/A      N/A       N/A
+                                               MHz      MHz
+                            24.576   36.864
+384 kHz    N/A      N/A                        N/A         N/A    N/A      N/A      N/A      N/A       N/A
+                             MHz      MHz
+          24.576   36.864
+768 kHz                      N/A      N/A      N/A         N/A    N/A      N/A      N/A      N/A       N/A
+           MHz      MHz
+                                                                                      (N/A: Not available)
+                                Table 4. System Clock Example (Auto mode)
+
+  015016766-E-04                                                                                   2022/02
+                                                  - 32 -
+
+
+=== PDF page 33 ===
+                                                                                       [AK5572]
+
+  CKS3        CKS2        CKS1        CKS0                     MCLK           Speed Mode
+                                                 MSN pin
+ pin (bit)   pin (bit)   pin (bit)   pin (bit)               Frequency          fs Range
+                                                     L          128fs         Quad Speed
+  L (0)       L (0)       L (0)       L (0)
+                                                     H          24M      108 kHz  fs  216 kHz
+                                                     L          192fs         Quad Speed
+  L (0)       L (0)       L (0)       H (1)
+                                                     H          36M      108 kHz  fs  216 kHz
+                                                     L          256fs        Normal Speed
+  L (0)       L (0)       H (1)       L (0)
+                                                     H          12M       8 kHz  fs  54 kHz
+                                                     L          256fs        Double Speed
+  L (0)       L (0)       H (1)       H (1)
+                                                     H          24M      54 kHz  fs  108 kHz
+                                                     L          384fs        Double Speed
+  L (0)       H (1)       L (0)       L (0)
+                                                     H          36M      54 kHz  fs  108 kHz
+                                                     L          384fs        Normal Speed
+  L (0)       H (1)       L (0)       H (1)
+                                                     H          18M       8 kHz  fs  54 kHz
+                                                     L          512fs        Normal Speed
+  L (0)       H (1)       H (1)       L (0)
+                                                     H          24M       8 kHz  fs  54 kHz
+                                                     L          768fs        Normal Speed
+  L (0)       H (1)       H (1)       H (1)
+                                                     H          36M       8 kHz  fs  54 kHz
+                                                     L          64fs           Oct Speed
+  H (1)       L (0)       L (0)       L (0)
+                                                     H          24M           fs = 384 kHz
+                                                     L          32fs           Hex Speed
+  H (1)       L (0)       L (0)       H (1)
+                                                     H          24M           fs = 768 kHz
+                                                     L          96fs           Oct Speed
+  H (1)       L (0)       H (1)       L (0)
+                                                     H          36M           fs = 384 kHz
+                                                     L          48fs           Hex Speed
+  H (1)       L (0)       H (1)       H (1)
+                                                     H          36M           fs = 768 kHz
+                                                     L           NA                NA
+  H (1)       H (1)       L (0)       L (0)                     64fs           Hex Speed
+                                                     H
+                                                               49.1M          fs = 768 kHz
+                                                     L         1024fs        Normal Speed
+  H (1)       H (1)       L (0)       H (1)
+                                                     H          32M       8 kHz ≤ fs ≤ 32 kHz
+                                                     L
+  H (1)       H (1)       H (1)       L (0)                     NA                NA
+                                                     H
+                                                     L          Auto      8 kHz  fs  768 kHz
+  H (1)       H (1)       H (1)       H (1)
+                                                     H          NA                 NA
+
+                             Table 5. Clock Mode (fs & MCLK Frequency)
+
+015016766-E-04                                                                          2022/02
+                                                 - 33 -
+
+

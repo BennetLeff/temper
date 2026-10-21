@@ -1,0 +1,262 @@
+# ADG5436: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Analog Devices ADG5436 via LCSC C657525
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-30 ----
+                                                                                                            Fault Protection and Detection,
+                                                                                                                10 Ω RON, Dual SPDT Switch
+Data Sheet                                                                                                                      ADG5436F
+FEATURES                                                                                                                  FUNCTIONAL BLOCK DIAGRAM
+Overvoltage protection up to −55 V and +55 V                                                                                               ADG5436F
+  Power-off protection up to −55 V and +55 V
+                                                                                                                             S1A                              S2A
+  Overvoltage detection on source pins
+                                                                                                                               D1                             D2
+  Interrupt flags indicate fault status
+                                                                                                                             S1B                              S2B
+Low on resistance: 10 Ω (typical)
+  On-resistance flatness of 0.5 Ω (maximum)
+6 kV human body model (HBM) ESD rating                                                                                                     FAULT
+                                                                                                                                         DETECTION            SF
+Latch-up immune under any circumstance                                                                                                       +
+                                                                                                                                                              FF
+                                                                                                                                       SWITCH DRIVER
+Known state without digital inputs present
+VSS to VDD analog signal range                                                                                                       IN1    IN2   EN     DR
+   ±5 V to ±22 V dual supply operation
+
+
+
+
+                                                                                                                                                                    12882-001
+                                                                                                                           NOTES
+   8 V to 44 V single-supply operation                                                                                     1. SWITCHES SHOWN FOR A LOGIC 1 INPUT.
+
+   Fully specified at ±15 V, ±20 V, +12 V, and +36 V                                                                                         Figure 1.
+---- lines 115-340 ----
+SPECIFICATIONS
+±15 V DUAL SUPPLY
+VDD = 15 V ± 10%, VSS = −15 V ± 10%, GND = 0 V, CDECOUPLING = 0.1 µF, unless otherwise noted.
+Table 1.
+                                           −40°C to   −40°C to
+Parameter                          +25°C   +85°C      +125°C            Unit         Test Conditions/Comments
+ANALOG SWITCH                                                                        VDD = 13.5 V, VSS = −13.5 V, see Figure 30
+  Analog Signal Range                                 VDD to VSS        V
+  On Resistance, RON               10                                   Ω typ        Voltage on the Sxx pins (VS) = ±10 V, IS = −10 mA
+                                   11.2    14         16.5              Ω max
+                                   9.5                                  Ω typ        VS = ±9 V, IS = −10 mA
+                                   10.7    13.5       16                Ω max
+  On-Resistance Match              0.15                                 Ω typ        VS = ±10 V, IS = −10 mA
+    Between Channels, ∆RON
+                                   0.65    0.8        0.95              Ω max
+                                   0.15                                 Ω typ        VS = ±9 V, IS = −10 mA
+                                   0.6     0.7        0.8               Ω max
+  On-Resistance Flatness,          0.6                                  Ω typ        VS = ±10 V, IS = −10 mA
+    RFLAT(ON)
+                                   0.9     1.1        1.1               Ω max
+                                   0.1                                  Ω typ        VS = ±9 V, IS = −10 mA
+                                   0.4     0.5        0.5               Ω max
+  Threshold Voltage, VT            0.7                                  V typ        See Figure 26
+LEAKAGE CURRENTS                                                                     VDD = 16.5 V, VSS = −16.5 V
+  Source Off Leakage, IS (Off )    ±0.1                                 nA typ       VS = ±10 V, voltage on the Dx pin (VD) = ∓10 V, see Figure 31
+                                   ±1.5    ±5.0       ±21               nA max
+  Drain Off Leakage, ID (Off )     ±0.1                                 nA typ       VS = ±10 V, VD = ∓10 V, see Figure 31
+                                   ±1.5    ±7.0       ±25               nA max
+  Channel On Leakage, ID (On),     ±0.5                                 nA typ       VS = VD = ±10 V, see Figure 32
+    IS (On)
+                                   ±1.5    ±5.0       ±21               nA max
+FAULT
+  Source Leakage Current, IS
+    With Overvoltage                                  ±72               µA typ       VDD = 16.5 V, VSS = −16.5 V, GND = 0 V, VS = ±55 V,
+                                                                                     see Figure 35
+    Power Supplies                                    ±49               µA typ       VDD = 0 V or floating, VSS = 0 V or floating, GND = 0 V, EN = 0 V
+       Grounded or Floating                                                          or floating, INx = 0 V or floating, VS = ±55 V, see Figure 36
+  Drain Leakage Current, ID                                                          DR = floating or >2 V
+    With Overvoltage               ±2.0                                 nA typ       VDD = 16.5 V, VSS = −16.5 V, GND = 0 V, VS = ±55 V, see
+                                                                                     Figure 35
+                                   ±20     ±30        ±65               nA max
+     Power Supplies                ±10                                  nA typ       VDD = 0 V, VSS = 0 V, GND = 0 V, INx = 0 V or floating,
+       Grounded                                                                      VS = ±55 V, EN = 0 V, see Figure 36
+                                   ±30     ±50        ±100              nA max
+     Power Supplies Floating       ±10     ±10        ±10               µA typ       VDD = floating, VSS = floating, GND = 0 V, VS = ±55 V,
+                                                                                     EN = 0 V, see Figure 36
+DIGITAL INPUTS/OUTPUTS
+  Input Voltage High, VINH                            2.0               V min
+  Input Voltage Low, VINL                             0.8               V max
+  Input Current, IINL or IINH      ±0.7                                 µA typ       VIN = VGND or VDD
+                                                      ±1.2              µA max
+  Digital Input Capacitance, CIN   6.0                                  pF typ
+  Output Voltage High, VOH         2.0                                  V min
+  Output Voltage Low, VOL          0.8                                  V max
+                                                             Rev. C | Page 3 of 30
+ADG5436F                                                                                                                                  Data Sheet
+                                                     −40°C to   −40°C to
+Parameter                                 +25°C      +85°C      +125°C            Unit         Test Conditions/Comments
+DYNAMIC CHARACTERISTICS 1
+  Transition Time, tTRANSITION            400                                     ns typ       RL = 300 Ω, CL = 35 pF
+                                          540        555        570               ns max       VS = 10 V, see Figure 46
+     tON (EN)                             435                                     ns typ       RL = 300 Ω, CL = 35 pF
+                                          515        530        550               ns max       VS = 10 V, see Figure 45
+     tOFF (EN)                            165                                     ns typ       RL = 300 Ω, CL = 35 pF
+                                          210        215        220               ns max       VS = 10 V, see Figure 45
+     Break-Before-Make Time               320                                     ns typ       RL = 300 Ω, CL = 35 pF
+       Delay, tD
+                                                                190               ns min       VS = 10 V, see Figure 44
+     Overvoltage Response                 510                                     ns typ       RL = 1 kΩ, CL = 2 pF, see Figure 39
+       Time, tRESPONSE
+                                          680        725        750               ns max
+     Overvoltage Recovery Time,           820                                     ns typ       RL = 1 kΩ, CL = 2 pF, see Figure 40
+       tRECOVERY
+                                          1100       1150       1200              ns max
+     Interrupt Flag Response              85                    115               ns typ       CL = 12 pF, see Figure 41
+        Time, tDIGRESP
+     Interrupt Flag Recovery              60                    85                µs typ       CL = 12 pF, see Figure 42
+        Time, tDIGREC
+                                          600                                     ns typ       CL = 12 pF, RPULLUP = 1 kΩ, see Figure 43
+  Charge Injection, QINJ                  −724                                    pC typ       VS = 0 V, RS = 0 Ω, CL = 1 nF, see Figure 47
+  Off Isolation                           −71                                     dB typ       RL = 50 Ω, CL = 5 pF, f = 1 MHz, see Figure 33
+ Channel-to-Channel Crosstalk             −73                                     dB typ       RL = 50 Ω, CL = 5 pF, f = 1 MHz, see Figure 34
+  Total Harmonic Distortion               0.001                                   % typ        RL = 10 kΩ, VS = 15 V p-p, f = 20 Hz to 20 kHz, see Figure 38
+    Plus Noise, THD + N
+  −3 dB Bandwidth                         169                                     MHz typ      RL = 50 Ω, CL = 5 pF, see Figure 37
+  Insertion Loss                          −0.8                                    dB typ       RL = 50 Ω, CL = 5 pF, f = 1 MHz, see Figure 37
+  Source Capacitance (CS), Off            12                                      pF typ       VS = 0 V, f = 1 MHz
+  Drain Capacitance (CD), Off             24                                      pF typ       VS = 0 V, f = 1 MHz
+  CD (On), CS (On)                        37                                      pF typ       VS = 0 V, f = 1 MHz
+POWER REQUIREMENTS                                                                             VDD = 16.5 V, VSS = −16.5 V, GND = 0 V, digital inputs = 0 V,
+                                                                                               5 V, or VDD
+     Normal Mode
+       IDD                                0.9                                     mA typ
+                                          1.2                   1.3               mA max
+        IGND                              0.4                                     mA typ
+                                          0.55                  0.6               mA max
+        ISS                               0.5                                     mA typ
+                                          0.65                  0.7               mA max
+     Fault Mode                                                                                VS = ±55 V
+       IDD                                1.2                                     mA typ
+                                          1.6                   1.8               mA max
+        IGND                              0.8                                     mA typ
+                                          1.0                   1.1               mA max
+        ISS                               0.5                                     mA typ       Digital inputs = 5 V
+                                          1.0                   1.8               mA max       VS = ±55 V, VD = 0 V
+     VDD/VSS                                                    ±5                V min        GND = 0 V
+                                                                ±22               V max        GND = 0 V
+1
+    Guaranteed by design. Not subject to production test.
+
+
+
+
+                                                                       Rev. C | Page 4 of 30
+Data Sheet                                                                                                                  ADG5436F
+±20 V DUAL SUPPLY
+VDD = 20 V ± 10%, VSS = −20 V ± 10%, GND = 0 V, CDECOUPLING = 0.1 µF, unless otherwise noted.
+
+Table 2.
+                                                            −40°C to         −40°C to
+Parameter                                        +25°C      +85°C            +125°C       Unit     Test Conditions/Comments
+ANALOG SWITCH                                                                                      VDD = 18 V, VSS = −18 V, see Figure 30
+  Analog Signal Range                                                        VDD to VSS   V
+  On Resistance, RON                             10                                       Ω typ    VS = ±15 V, IS = −10 mA
+                                                 11.5       14.5             16.5         Ω max
+                                                 9.5                                      Ω typ    VS = ±13.5 V, IS = −10 mA
+                                                 11         14               16.5         Ω max
+  On-Resistance Match Between Channels, ∆RON     0.15                                     Ω typ    VS = ±15 V, IS = −10 mA
+                                                 0.65       0.8              0.95         Ω max
+                                                 0.15                                     Ω typ    VS = ±13.5 V, IS = −10 mA
+                                                 0.6        0.7              0.8          Ω max
+  On-Resistance Flatness, RFLAT(ON)              1.0                                      Ω typ    VS = ±15 V, IS = −10 mA
+                                                 1.4        1.5              1.5          Ω max
+                                                 0.1                                      Ω typ    VS = ±13.5 V, IS = −10 mA
+                                                 0.4        0.5              0.5          Ω max
+  Threshold Voltage, VT                          0.7                                      V typ    See Figure 26
+LEAKAGE CURRENTS                                                                                   VDD = 22 V, VSS = −22 V
+  Source Off Leakage, IS (Off )                  ±0.1                                     nA typ   VS = ±15 V, VD = ±15 V, see Figure 31
+                                                 ±1.5       ±5.0             ±21          nA max
+  Drain Off Leakage, ID (Off )                   ±0.1                                     nA typ   VS = ±15 V, VD = ±15 V, see Figure 31
+                                                 ±1.5       ±7.0             ±25          nA max
+  Channel On Leakage, ID (On), IS (On)           ±0.5                                     nA typ   VS = VD = ±15 V, see Figure 32
+                                                 ±1.5       ±5.0             ±21          nA max
+FAULT
+  Source Leakage Current, IS
+    With Overvoltage                                                         ±84          µA typ   VDD = +22 V, VSS = −22 V, GND = 0 V,
+                                                                                                   VS = ±55 V, see Figure 35
+     Power Supplies Grounded or Floating                                     ±49          µA typ   VDD = 0 V or floating, VSS = 0 V or floating,
+                                                                                                   GND = 0 V, EN = 0 V or floating, INx = 0 V
+                                                                                                   or floating, VS = ±55 V, see Figure 36
+  Drain Leakage Current, ID                                                                        DR = floating or >2 V
+    With Overvoltage                             ±5.0                                     nA typ   VDD = +22 V, VSS = −22 V, GND = 0 V,
+                                                                                                   INx = 0 V or floating, VS = ±55 V, see
+                                                                                                   Figure 35
+                                                 ±1.0       ±1.0             ±1.0         µA max
+     Power Supplies Grounded                     ±10                                      nA typ   VDD = 0 V, VSS = 0 V, GND = 0 V, VS =
+                                                                                                   ±55 V, EN = 0 V, see Figure 36
+                                                 ±30        ±50              ±100         nA max
+     Power Supplies Floating                     ±10        ±10              ±10          µA typ   VDD = floating, VSS = floating, GND =
+                                                                                                   0 V, VS = ±55 V, EN = 0 V, see Figure 36
+DIGITAL INPUTS
+  Input Voltage High, VINH                                                   2.0          V min
+  Input Voltage Low, VINL                                                    0.8          V max
+  Input Current, IINL or IINH                    0.7                                      µA typ   VIN = VGND or VDD
+                                                                             1.2          µA max
+  Digital Input Capacitance, CIN                 6.0                                      pF typ
+  Output Voltage High, VOH                       2.0                                      V min
+  Output Voltage Low, VOL                        0.8                                      V max
+
+
+
+
+                                                           Rev. C | Page 5 of 30
+ADG5436F                                                                                                                          Data Sheet
+                                                                     −40°C to         −40°C to
+Parameter                                                   +25°C    +85°C            +125°C     Unit      Test Conditions/Comments
+DYNAMIC CHARACTERISTICS 1
+  Transition Time, tTRANSITION                              405                                  ns typ    RL = 300 Ω, CL = 35 pF
+                                                            540      555              570        ns max    VS = 10 V, see Figure 46
+     tON (EN)                                               430                                  ns typ    RL = 300 Ω, CL = 35 pF
+                                                            535      560              585        ns max    VS = 10 V, see Figure 45
+     tOFF (EN)                                              170                                  ns typ    RL = 300 Ω, CL = 35 pF
+                                                            205      210              215        ns max    VS = 10 V, see Figure 45
+     Break-Before-Make Time Delay, tD                       330                                  ns typ    RL = 300 Ω, CL = 35 pF
+                                                                                      205        ns min    VS = 10 V, see Figure 44
+     Overvoltage Response Time, tRESPONSE                   430                                  ns typ    RL = 1 kΩ, CL = 2 pF, see Figure 39
+                                                            560      605              630        ns max
+     Overvoltage Recovery Time, tRECOVERY                   930                                  ns typ    RL = 1 kΩ, CL = 2 pF, see Figure 40
+                                                            1300     1500             1700       ns max
+     Interrupt Flag Response Time, tDIGRESP                 85                        115        ns typ    CL = 12 pF, see Figure 41
+     Interrupt Flag Recovery Time, tDIGREC                  60                        85         µs typ    CL = 12 pF, see Figure 42
+                                                            600                                  ns typ    CL = 12 pF, RPULLUP = 1 kΩ, see Figure 43
+     Charge Injection, QINJ                                 −737                                 pC typ    VS = 0 V, RS = 0 Ω, CL = 1 nF, see
+                                                                                                           Figure 47
+     Off Isolation                                          −72                                  dB typ    RL = 50 Ω, CL = 5 pF, f = 1 MHz, see
+                                                                                                           Figure 33
+     Channel-to-Channel Crosstalk                           −73                                  dB typ    RL = 50 Ω, CL = 5 pF, f = 1 MHz, see
+                                                                                                           Figure 34
+     Total Harmonic Distortion Plus Noise, THD + N          0.001                                % typ     RL = 10 kΩ, VS = 20 V p-p, f = 20 Hz to
+                                                                                                           20 kHz, see Figure 38
+     −3 dB Bandwidth                                        171                                  MHz typ   RL = 50 Ω, CL = 5 pF, see Figure 37
+     Insertion Loss                                         −0.8                                 dB typ    RL = 50 Ω, CL = 5 pF, f = 1 MHz, see
+                                                                                                           Figure 37
+  CS (Off )                                                 11                                   pF typ    VS = 0 V, f = 1 MHz
+  CD (Off )                                                 23                                   pF typ    VS = 0 V, f = 1 MHz
+  CD (On), CS (On)                                          36                                   pF typ    VS = 0 V, f = 1 MHz
+POWER REQUIREMENTS                                                                                         VDD = 22 V, VSS = −22 V, digital inputs =
+                                                                                                           0 V, 5 V, or VDD
+     Normal Mode
+       IDD                                                  0.9                                  mA typ
+                                                            1.2                       1.3        mA max
+        IGND                                                0.4                                  mA typ
+                                                            0.55                      0.6        mA max
+        ISS                                                 0.5                                  mA typ
+                                                            0.65                      0.7        mA max
+     Fault Mode                                                                                            VS = ±55 V
+       IDD                                                  1.2                                  mA typ
+                                                            1.6                       1.8        mA max
+        IGND                                                0.8                                  mA typ
+                                                            1.0                       1.1        mA max
+        ISS                                                 0.5                                  mA typ    Digital inputs = 5 V
+                                                            1.0                       1.8        mA max    VS = ±55 V, VD = 0 V
+     VDD/VSS                                                                          ±5         V min     GND = 0 V
+                                                                                      ±22        V max     GND = 0 V
+1
+    Guaranteed by design. Not subject to production test.

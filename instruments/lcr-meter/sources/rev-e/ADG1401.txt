@@ -1,0 +1,89 @@
+# ADG1401: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Analog Devices ADG1401/ADG1402 via LCSC C209446
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-30 ----
+                                                                                            1 Ω On Resistance, ±15 V/+12 V/±5 V
+                                                                                                           iCMOS SPST Switches
+                                                                                                              ADG1401/ADG1402
+FEATURES                                                                                                                 FUNCTIONAL BLOCK DIAGRAM
+1 Ω on resistance                                                                                                                       ADG1401
+0.2 Ω on resistance flatness
+                                                                                                                               S                           D
+Up to 430 mA continuous current
+Fully specified at +12 V, ±15 V, ±5 V
+No VL supply required
+                                                                                                                                                           IN
+3 V logic-compatible inputs
+Rail-to-rail operation
+
+
+
+
+                                                                                                                                                                  08486-001
+8-lead MSOP and 8-lead, 3 mm × 2 mm LFCSP packages
+                                                                                                                            SWITCHES SHOWN FOR A LOGIC 1 INPUT
+
+                                                                                                                          Figure 1. ADG1401 Functional Block Diagram
+APPLICATIONS
+Automatic test equipment
+Data acquisition systems                                                                                                                ADG1402
+Battery-powered systems                                                                                                        S                           D
+Sample-and-hold systems
+Audio signal routing
+Video signal routing                                                                                                                                       IN
+Communication systems
+---- lines 93-145 ----
+SPECIFICATIONS
+±15 V DUAL SUPPLY
+VDD = +15 V ± 10%, VSS = −15 V ± 10%, GND = 0 V, unless otherwise noted.
+
+Table 1.
+                                                            −40°C to    −40°C to
+Parameter                                         25°C      +85°C       +125°C             Unit        Test Conditions/Comments
+ANALOG SWITCH
+  Analog Signal Range                                                   VDD to VSS         V
+  On Resistance, RON                              1                                        Ω typ       VS = ±10 V, IS = −10 mA; see Figure 20
+                                                  1.3       1.6         1.8                Ω max       VDD = +13.5 V, VSS = −13.5 V
+     On Resistance Flatness, RFLAT (ON)           0.2                                      Ω typ       VS = ±10 V; IS = −10 mA
+                                                  0.23      0.26        0.3                Ω max
+LEAKAGE CURRENTS                                                                                       VDD = +16.5 V, VSS = −16.5 V
+  Source Off Leakage, IS (Off )                   ±0.05                                    nA typ      VS = ±10 V, VD = ±10 V; see Figure 21
+                                                  ±0.4      ±3          ±150               nA max
+     Drain Off Leakage, ID (Off )                 ±0.05                                    nA typ      VS = ±10 V, VD = ±10 V; see Figure 21
+                                                  ±0.4      ±3          ±150               nA max
+     Channel On Leakage, ID, IS (On)              ±0.2                                     nA typ      VS = VD = ±10 V; see Figure 22
+                                                  ±1        ±3          ±150               nA max
+DIGITAL INPUTS
+  Input High Voltage, VINH                                              2.0                V min
+  Input Low Voltage, VINL                                               0.8                V max
+  Input Current, IINL or IINH                     0.002                                    μA typ      VIN = VGND or VDD
+                                                                        ±0.1               μA max
+  Digital Input Capacitance, CIN                  4                                        pF typ
+DYNAMIC CHARACTERISTICS 1
+  tON                                             120                                      ns typ      RL = 300 Ω, CL = 35 pF
+                                                  150       185         215                ns max      VS = 10 V; see Figure 23
+     tOFF                                         120                                      ns typ      RL = 300 Ω, CL = 35 pF
+                                                  150       175         200                ns max      VS = 10 V; see Figure 23
+     Charge Injection                             −12                                      pC typ      VS = 0 V, RS = 0 Ω, CL = 1 nF; see Figure 24
+     Off Isolation                                −58                                      dB typ      RL = 50 Ω, CL = 5 pF, f = 1 MHz; see Figure 25
+     Total Harmonic Distortion + Noise            0.008                                    % typ       RL = 10 kΩ, 5 V rms, f = 20 Hz to 20 kHz;
+                                                                                                       see Figure 27
+  −3 dB Bandwidth                                 120                                      MHz typ     RL = 50 Ω, CL = 5 pF; see Figure 26
+  Insertion Loss                                  0.08                                     dB typ      RL = 50 Ω, CL = 5 pF, f = 1 MHz; see Figure 26
+  CS (Off )                                       36                                       pF typ      f = 1 MHz, VS = 0 V
+  CD (Off )                                       41                                       pF typ      f = 1 MHz, VS = 0 V
+  CD, CS (On)                                     187                                      pF typ      f = 1 MHz, VS = 0 V
+POWER REQUIREMENTS                                                                                     VDD = +16.5 V, VSS = −16.5 V
+  IDD                                             0.002                                    μA typ      Digital inputs = 0 V or VDD
+                                                                        1.0                μA max
+     IDD                                          60                                       μA typ      Digital inputs = 5 V
+                                                                        95                 μA max
+     ISS                                          0.002                                    μA typ      Digital inputs = 0 V, 5 V, or VDD
+                                                                        1.0                μA max
+     VDD/VSS                                                            ±4.5/±16.5         V min/max   Ground = 0 V
+1
+    Guaranteed by design, not subject to production test.
+
+
+

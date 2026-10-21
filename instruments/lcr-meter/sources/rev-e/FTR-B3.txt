@@ -1,0 +1,92 @@
+# FTR-B3: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Fujitsu FTR-B3 datasheet via LCSC C126744
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-30 ----
+                                                                                          FTR-K1 SERIES
+
+ULTRA MINIATURE RELAY
+2 POLES - 2 A (Low Profile Signal Relay)
+FTR-B3 Series
+n FEATURES
+l DPDT 2C
+l Ultra miniature low profile relay with high heat resistant material
+
+l Height: 5.45mm, Weight: 0.85g, Mounting space: 87mm2
+
+l Adopted superior contact spring for high frequency characteristic
+
+l Comply with Telcordia / FCC part 68
+
+   - Isolation distance: min. 1.6mm
+   - Dielectric strength between coil and contact: 1500VAC
+   - Surge strength: 2500V
+l Low power: Non-latching: 140mW (230mW at 24V)
+
+  Latching: 100mW (120mW at 24V)
+l High reliable bifurcated gold overlay silver contact
+
+l UL, CSA recognized. Conforms to BSI, IEC60950-1
+
+l RoHS compliant. Please see page 9 for more information
+
+l Plastic sealed
+
+
+---- lines 55-110 ----
+
+    Remarks: Actual marking on relay would not carry code FTR and be as below:
+    Ordering code: FTR-B3GB012Z-B10     Actual marking: B3GB012Z
+
+                                                                                                                     1
+                                                                                         FTR-K1 SERIES
+                                                                                           FTR-B3 SERIES
+ n SPECIFICATION
+Item                                                                 Standard type                  Latching type
+                                                                     FTR-B3 ( ) A                   FTR-B3 ( ) B
+Contact Data    Configuration                                        2 form C
+                Construction                                         Bifurcated contacts
+                                                                     Z: Gold overlay silver nickel / P: Gold overlay silver
+                Material
+                                                                     palladium
+                Resistance (initial)                                 Max. 75 mΩ at 1 A, 6 VDC
+                Contact rating (resistive)                           30VDC, 1A / 125VAC, 0.3A
+                Max. carrying current                                2A
+                Max. switching voltage                               250 VAC / 220VDC
+                Max. switching power                                 62.5VA / 30W
+                Min. switching load *                                0.01mA, 10mVDC
+Life            Mechanical                                           Min. 50 x 106 operations       Min. 20 x 106 operations
+                                                                     Min. 100 x 103 operations at 1A 30VDC
+                Electrical (rated load)
+                                                                     Min. 100 x 103 operations at 0.3A 125VAC
+Coil Data       Rated power (at 20 °C)                               140mW - 230mW                  100mW - 120mW
+                Applied pulse width                                  -                              Min. 10ms
+                Operate power (at 20 °C)                             80mW - 130mW                   57mW - 68mW
+                Operating temperature range                          -40 °C to +85 °C (no frost)
+                Storage temperature / humidity                       -40 °C to +85 °C / 5% to 85% RH (no frost)
+Timing Data     Operate (at nominal voltage, no bounce)              Max. 3 ms                      Max. 3 ms (set)
+                Release (at nominal voltage, no bounce)              Max. 3 ms                      Max. 3 ms (reset)
+Insulation      Resistance (initial)                                 Min. 1,000MΩ at 500VDC
+                                              Open contacts          1,000VAC (50/60Hz) 1min
+                Dielectric strength           Adjacent contacts      1,000VAC (50/60Hz) 1min.
+                                              Contacts to coil       1,500VAC (50/60Hz) 1min
+                Surge strength                Contacts to coil       2,500V, 2 x 10µs standard wave
+                                              Open contacts          0.28 mm
+                Clearance                     Adjacent contacts      1.0 mm
+                                              Contacts to coil       1.0 mm
+                                              Open contacts          0.28 mm
+                Creepage                      Adjacent contacts      1.0 mm
+                                              Contacts to coil       1.60 mm
+Other                                         Misoperation           10 to 55 to 10Hz single amplitude 1.65mm
+                Vibration resistance
+                                              Endurance              10 to 55 to 10Hz single amplitude 2.5mm
+                                              Misoperation           750m/s² (11 ±1ms)
+                Shock
+                                              Endurance              1,000m/s² (6 ±1ms)
+                Weight                                               Approximately 0.85 g
+                Sealing                                              RT III (plastic sealed)
+   * Minimum switching loads mentioned above are reference values. Please perform the confirmation test with actual
+   load before production since reference values may vary according to switching frequencies, environmental conditions
+   and expected reliability levels.
+                                                                                                                               2
+                                                                                           FTR-B3

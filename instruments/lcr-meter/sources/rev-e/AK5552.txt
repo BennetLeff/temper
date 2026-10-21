@@ -1,0 +1,107 @@
+# AKM AK5552 datasheet 015099871-E-03 (2022/02)
+# Source: https://www.akm.com/content/dam/documents/products/audio/audio-adc/ak5552vn/ak5552vn-en-datasheet.pdf
+# Retrieved 2026-10-20; PDF sha256 15892823da952b806cf5a3c381693866ac4b0d99d6c0085e12bfa20a93ab71e6
+# Extracted with `pdftotext -layout`; only the listed PDF pages are kept (register maps etc. dropped).
+# Each page starts with a line "=== PDF page N ===" ; citations in docs/rev-e-acquisition-survey.md use these page numbers.
+# Pages kept: 1,9
+
+=== PDF page 1 ===
+                                                                                            [AK5552]
+
+                                                                                   AK5552
+                                          2-Channel Differential 32-bit  ADC
+
+                                           1. General Description
+The AK555x series is a 32-bit, 768 kHz sampling, differential input A/D converter for digital audio
+systems. It achieves 115 dB dynamic range and 106 dB S/(N+D) while maintaining low power
+consumption performance.
+The AK5552 integrates a 2-channel A/D converter, suitable for mixers and multi-channel recorders. Four
+types of digital filters are integrated and selectable according to the sound quality preference. The
+AK5552 can be easily connected to a DSP by supporting TDM audio formats. Additionally, it supports
+DSD output up to 11.2MHz. The channel summation mode improves the dynamic range performance by
+summing-up multiple channel A/D data and averaging. The dynamic range is improved to 118 dB in 2-to-1
+mode.
+
+                                             2. Features
+ Sampling Rate: 8 kHz - 768 kHz
+ Input: Full Differential Inputs
+ S/(N+D): 106 dB
+ DR: 115 dB (2-to-1 mode: 118 dB)
+ S/N: 115 dB (2-to-1 mode: 118 dB)
+ Internal Filter: Four types of LPF, Digital HPF
+ Power Supply: 4.5-5.5 V (Analog), 1.7-1.98 V or 3.0-3.6 V (Digital)
+ Output Format
+     PCM mode: 24/32-bit MSB justified, I2S or TDM
+     DSD mode: DSD Native 64, 128, 256
+     Maximized Slot Efficiency in TDM Mode by Optimal Data Placed Mode
+ Cascade TDM I/F:
+     TDM512: fs= 48 kHz
+     TDM256: fs= 96 kHz or 48 kHz
+     TDM126: fs= 192 kHz, 96 kHz or 48 kHz
+ Operation Mode: Master Mode & Slave Mode
+ Detection Function: Input Overflow Flag
+ Serial Interface: 3-wire Serial and I2C μP I/F (Pin setting is also available)
+ Power Consumption: 83 mW (@AVDD= 5.0 V, TVDD= 3.3 V, fs= 48 kHz)
+ Package: 48-pin QFN
+
+015099871-E-03                                                                               2022/02
+                                                 -1-
+
+
+=== PDF page 9 ===
+                                                                                        [AK5552]
+
+                                         8. Analog Characteristics
+(Ta= 25 C; AVDD= 5.0 V; TVDD= 3.3 V, fs= 48 kHz, BICK= 64fs;
+Signal Frequency= 1 kHz; 24-bit Data; Measurement frequency= 20 Hz-20 kHz at fs= 48 kHz,
+40 Hz-40 kHz at fs= 96 kHz, 40 Hz-40 kHz at fs= 192 kHz, unless otherwise specified.)
+Parameter                                                         Min.    Typ.        Max. Unit
+Analog Input Characteristics:
+Resolution                                                          -        -         32   Bit
+Input Voltage                                        (Note 10)    2.7    2.8        2.9 Vpp
+S/(N+D)                                 −1dBFS                     100     106          -   dB
+                        fs=48kHz
+                                        −20dBFS                     -       92          -   dB
+                        BW=20kHz
+                                        −60dBFS                     -       52          -   dB
+                                        −1dBFS                      -      106          -   dB
+                        fs=96kHz
+                                        −20dBFS                     -       89          -   dB
+                        BW=40kHz
+                                        −60dBFS                     -       49          -   dB
+                                        −1dBFS                      -      106          -   dB
+                        fs=192kHz
+                                        −20dBFS                     -       89          -   dB
+                        BW=40kHz
+                                        −60dBFS                     -       49          -   dB
+Dynamic Range                           Not Sum. mode              110     115          -   dB
+(−60dBFS with A-weighted)               2-to-1 mode                 -      118          -   dB
+S/N                                     Not Sum. mode              110     115          -   dB
+(A-weighted)                            2-to-1 mode                 -      118          -   dB
+Input Resistance
+  These values will be doubled in DSD 64fs mode.                   8.8    10.4        12.0 k
+  (Values in DSD128 or DSD256 modes are as shown here)
+Interchannel Isolation
+                                                                   110     120          -   dB
+(AIN1AIN2)
+Interchannel Gain Mismatch                                          -       0          0.5  dB
+Power Supply Rejection                               (Note 11)      -       60          -   dB
+Power Supplies
+Power Supply Current
+      Normal Operation (PDN pin = “H”, LDOE pin = “H”)
+              AVDD+VREFH1                                           -       12          16  mA
+              TVDD             (fs= 48 kHz)                         -       7           10  mA
+              TVDD             (fs= 96 kHz)                         -       11          14  mA
+              TVDD             (fs= 192 kHz)                        -       11          14  mA
+      Power down mode (PDN pin = “L”)                (Note 12)
+              AVDD+TVDD                                             -       10         100  A
+Note 10. This value is (AINnP)−(AINnN) that the ADC output becomes full-scale (n=1-2).
+           Vin = 0.56  (VREFHm−VREFLm) [Vpp]. (m=1)
+Note 11. PSRR is applied to AVDD, TVDD with 1kHz, 20mVpp sine wave. The VREFH1 is held to the
+         fixed voltage.
+Note 12. All digital inputs are fixed to TVDD or TVSS.
+
+015099871-E-03                                                                           2022/02
+                                              -9-
+
+

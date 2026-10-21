@@ -1,0 +1,145 @@
+# AQY221N5V: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Panasonic PhotoMOS AQY221N5V datasheet ASCTB350E 2022-01 via LCSC C2982229
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-140 ----
+PhotoMOS
+
+
+RF SSOP 1 Form A C×R3
+C×R3 type, SSOP package, 20 V load voltage
+                                                                                              FEATURES
+                                                                                               Miniature SSOP package
+                                                                                               (Compared to SOP 4-pin models, volume ratio can be
+                                                                                               reduced by approximately 53%.)
+                                       2.65     4.45                                           Load voltage: 20 V
+                                                  1.80
+                                                                                               Low C×R (C×R3)
+                                                                                               Output capacitance: Typ. 1.1 pF, On resistance: Typ. 2.8Ω
+
+                              1                              4
+                                                                                              TYPICAL APPLICATIONS
+                                                                                               Measuring and testing equipment
+                                                                                               IC tester, Probe card, Board tester and other testing
+                              2                              3                                 equipment
+                                                                                               Telecommunication equipment
+                                                                                            Note: Please contact our sales representative for automotive applications of PhotoMOS.
+
+
+
+                                                                          (Unit: mm)
+
+
+
+
+  TYPES
+
+                                                   Output rating*1                                                      Part No.                                 Packing quantity
+        Category                                                                                   Tape and reel                    Tape and reel
+                                    Load voltage                     Load current                                                                                  Tape and reel
+                                                                                                  packing style Y*2                packing style 1Y
+                                                                                                                                                                 Packing style Y
+                                                                                                                                                                   1-reel: 3,500 pcs.
+                                                                                                                                                               Outer carton: 3,500 pcs.
+    AC/DC dual use                       20 V                          180 mA                       AQY221N5VY                      AQY221N5V1Y
+                                                                                                                                                                Packing style 1Y
+                                                                                                                                                                   1-reel: 1,000 pcs.
+                                                                                                                                                               Outer carton: 1,000 pcs.
+Note: For space reasons, the three initial letters of the part number “AQY”, the package (SSOP) indication “V”, and the packaging style “Y” are not marked on the device.
+      (Ex. the label for product number AQY221N5VY is 221N5.)
+*1. Indicate the peak AC and DC values.
+*2. Only tape and reel package is available.Tape and reel packing style Y: picked from the 1/4-pin side. For part numbers with picked from the 2/3-pin side, change the “Y" at the end
+    to “W" when ordering.
+
+
+
+
+2022.01              industrial.panasonic.com/ac/e/                                    ー1ー                        Panasonic Corporation 2022                ASCTB350E 202201
+PhotoMOS RF SSOP 1 Form A C×R3
+
+ RATING
+
+       Absolute maximum ratings (Ambient temperature: 25°C)
+                                        Item                  Symbol                                          AQY221N5V                                             Remarks
+                             LED forward current                   IF                                               50 mA
+                             LED reverse voltage                  VR                                                 5V
+     Input
+
+
+
+
+                                                                                                                                                             f = 100 Hz,
+                             Peak forward current                 IFP                                                1A
+                                                                                                                                                             Duty Ratio = 0.1%
+                             Power dissipation                    Pin                                            75 mW
+                             Load voltage (peak AC)               VL                                                 20 V
+                             Continuous load current               IL                                               0.18 A                                   Peak AC, DC
+     Output
+
+
+
+
+                                                                                                                                                             100 ms (1 shot),
+                             Peak load current                    Ipeak                                             0.3 A
+                                                                                                                                                             VL = DC
+                             Power dissipation                    Pout                                          250 mW
+Total power dissipation                                           PT                                            300 mW
+I/O isolation voltage                                             Viso                                         1,500 Vrms
+                                                                                                                                                             (Avoid icing and
+Ambient temperature (Operating)                                   Topr                                        -40 to +85°C
+                                                                                                                                                             condensation)
+Ambient temperature (Storage)                                     Tstg                                       -40 to +100°C
+Junction temperature                                               Tj                                               125°C
+
+
+       Electrical characteristics (Ambient temperature: 25°C)
+                                         Item                       Symbol                                      AQY221N5V                                          Condition
+                             LED operate                Typical                                                      0.8 mA
+                                                                          IFon
+                             current                   Maximum                                                        3 mA
+                                                                                                                                                             IL = 80 mA
+                             LED turn off              Minimum                                                       0.2 mA
+  Input
+
+
+
+
+                                                                          IFoff
+                             current                    Typical                                                      0.7 mA
+                             LED dropout                Typical                                          1.35 V (1.14 V at IF = 5 mA)
+                                                                          VF                                                                                 IF = 50 mA
+                             voltage                   Maximum                                                        1.5 V
+                                                        Typical                                                       2.8 Ω                                  IF = 5 mA
+                             On resistance                                Ron                                                                                IL = 80 mA
+                                                       Maximum                                                        4.5 Ω                                  Within 1 s
+  Output
+
+
+
+
+                                                        Typical                                                      1.1 pF                                  IF = 0 mA
+                             Output
+                                                                          Cout                                                                               VB = 0 V
+                             capacitance               Maximum                                                       1.5 pF                                  f = 1 MHz
+                             Off state leakage          Typical                                                      0.01 nA                                 IF = 0 mA
+                                                                          ILeak
+                             current                   Maximum                                                       10 nA*1                                 VL = Max.
+                                                        Typical                                                      0.02 ms
+                             Turn on time*2                               Ton
+  Transfer characteristics
+
+
+
+
+                                                       Maximum                                                       0.2 ms                                  IF = 5 mA
+                                                                                                                                                             VL = 10 V
+                                                        Typical                                                      0.01 ms                                 RL = 125 Ω
+                             Turn off time*2                              Toff
+                                                       Maximum                                                       0.2 ms
+                                                        Typical                                                      0.8 pF                                  f = 1 MHz
+                             I/O capacitance                              Ciso
+                                                       Maximum                                                       1.5 pF                                  VB = 0 V
+                             Initial I/O isolation
+                                                       Minimum            Riso                                      1,000 MΩ                                 500 V DC
+                             resistance
+Note: Variation possible through combinations of output capacitance and on resistance. For more information, please contact our sales representative.

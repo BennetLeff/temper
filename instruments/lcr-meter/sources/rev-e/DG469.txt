@@ -1,0 +1,117 @@
+# DG469: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Vishay DG469/DG470 doc 71470 via LCSC C222452
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-30 ----
+                                                                                                           DG469, DG470
+                                                                                                            Vishay Siliconix
+
+       High Voltage, Single and Dual Supply SPDT Analog Switch
+                             with Enable Pin
+
+DESCRIPTION                                                       FEATURES
+The DG469, DG470 are high voltage SPDT switches, with a           •   Low on resistance (3.6 Ω typical)
+typical on resistance of 3.6 Ω and typical flatness of 0.4 Ω.     •   On resistance flatness (0.4 Ω typical)
+The DG469, DG470 are identical, except the DG470                  •   44 V supply maximum rating
+provides an enable input. When the enable input is activated,
+                                                                                                                             RoHS
+                                                                  •   ± 15 V analog signal range                             COMPLIANT
+both sides of the switch are in a high impedance mode (Off),      •   Fully specified at supply voltages of ± 4.5 V, 12 V and ± 15 V
+maintaining a "Safe State" at power up. This function can
+                                                                  •   TTL/CMOS compatible
+also be used as a quick "disconnect" in the event of a fault
+                                                                  •   Break before make switching guaranteed
+condition. For audio switching, the enable pin provides a
+mute function. These are high voltage switches that are fully     •   Total harmonic distortion 0.0145 %
+specified with dual supplies at ± 4.5 V and ± 15 V and a          •   Compliant to RoHS Directive 2002/95/EC
+single supply of 12 V over an operating temperature range
+from - 40 °C to + 125 °C. Fast switching speeds coupled with      APPLICATIONS
+high signal bandwidth makes these parts suitable for video        •   Audio and video signal switching
+switching applications. All digital inputs have 0.8 V and 2.4 V   •   Precision automatic test equipment
+logic thresholds ensuring low voltage TTL/CMOS                    •   Precision data acquisition
+compatibility. Each switch conducts equally well in both          •   Relay replacement
+directions when on and can handle an input signal range that      •   Communications systems
+extends to the supply voltage rails. They exhibit break-
+                                                                  •   Automotive applications
+---- lines 105-185 ----
+
+
+  SPECIFICATIONS for Dual Supplies
+                                                     Test Conditions                                   - 40 °C to 125 °C - 40 °C to 85 °C
+                                                    Unless Specified
+                                                   V+ = 15 V, V- = - 15 V
+  Parameter                       Symbol            VIN = 2.4 V, 0.8 Va            Temp.b     Typ.c     Min.d       Max.d    Min.d    Max.d        Unit
+  Analog Switch
+  Analog Signal Rangee            VANALOG                                           Full                 - 15        15       - 15     15           V
+
+                                     RON      IS = 50 mA, VD = - 10 V to + 10 V    Room        3.6                   6                 6
+  On-Resistance
+                                                                                    Full                             8                 7
+                                    ΔRON                                           Room        0.12                  0.4               0.4
+  On-Resistance Match                             IS = 50 mA, VD = ± 10 V                                                                           Ω
+                                                                                    Full                             0.9               0.5
+                                 RFLATNESS    IS = 50 mA, VD = - 5 V, 0 V, + 5 V   Room        0.4                   0.5               0.5
+  On-Resistance Flatness
+                                                                                    Full                             0.9               0.8
+                                    IS(off)                                        Room       ± 0.1      - 0.5       0.5      - 0.5    0.5
+  Switch Off                                                                        Full                 - 20        20       - 2.5    2.5
+                                                  VD = ± 14 V, VS = ± 14 V
+  Leakage Current                                                                  Room       ± 0.1      - 0.5       0.5      - 0.5    0.5
+                                    ID(off)                                                                                                         nA
+                                                                                    Full                 - 20        20       - 2.5    2.5
+  Channel On                                                                       Room       ± 0.2      - 0.5       0.5      - 0.5    0.5
+                                    ID(on)            VS = VD = ± 14 V
+  Leakage Current                                                                   Full                 - 20        20        -5       5
+  Digital Control
+  Input Current, VIN Low              IIL          VIN Under Test = 0.8 V           Full       0.05       -1         1         -1      1
+                                                                                                                                                    µA
+  Input Current, VIN High            IIH           VIN Under Test = 2.4 V           Full       0.05       -1         1         -1      1
+  Input Capacitancee                 CIN                 f = 1 MHz                 Room        3.7                                                  pF
+
+
+
+
+www.vishay.com                                                                                                             Document Number: 71470
+2                                                                                                                        S09-1053-Rev. D, 08-Jun-09
+                                                                                                                DG469, DG470
+                                                                                                                        Vishay Siliconix
+
+ SPECIFICATIONS for Dual Supplies
+                                                      Test Conditions                                - 40 °C to 125 °C - 40 °C to 85 °C
+                                                     Unless Specified
+                                                    V+ = 15 V, V- = - 15 V
+ Parameter                       Symbol              VIN = 2.4 V, 0.8 Va         Temp.b    Typ.c      Min.d    Max.d      Min.d    Max.d   Unit
+ Dynamic Characteristics
+                                      tON                                         Room      129                 166                 166
+ Turn-On Time
+                                                   RL = 300 Ω, CL = 35 pF          Full                         200                 185
+                                                        VS = ± 10 V               Room       80                 108                 108
+ Turn-Off Time                        tOFF                                                                                                 ns
+                                                                                   Full                         135                 120
+ Break-Before-Make                                       VS = 10 V
+                                       tD                                         Room       15
+ Time Delay                                        RL = 300 Ω, CL = 35 pF
+ Charge Injectione                     Q        Vg = 0 V, Rg = 0 Ω, CL = 1 nF     Room       58                                            pC
+                 e                OIRR                                            Room      - 57
+ Off Isolation
+                                                     RL = 50 Ω, CL = 5 pF
+ Channel-to-Channel                                                                                                                        dB
+                                  XTALK                   f = 1 MHz               Room      - 63
+ Crosstalke
+ Source Off Capacitancee          CS(off)                                         Room       37
+ Drain Off Capacitancee           CD(off)                 f = 1 MHz               Room       85                                            pF
+                           e      CD(on)                                          Room      125
+ Channel On Capacitance
+ Power Supplies
+ Power Supply Current                  I+                                         Room      3.0                     6                6
+                                                                                   Full                             7                7
+                                                  V+ = 16.5 V, V- = - 16.5 V      Room      - 0.4     - 0.5               - 0.5
+ Negative Supply Current               I-              VIN = 0 or 5 V              Full               - 4.5               - 4.5            µA
+
+                                   IGND                                           Room      - 3.0      -6                  -6
+ Ground Current
+                                                                                   Full                -7                  -7
+
+
+
+ SPECIFICATIONS for Dual Supplies

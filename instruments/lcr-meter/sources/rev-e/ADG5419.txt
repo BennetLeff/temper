@@ -1,0 +1,88 @@
+# ADG5419: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Analog Devices ADG5419 (Chinese edition) via LCSC C209440
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-30 ----
+                                                                                            高压防闩锁型单通道SPDT开关
+                                                                                                                                                         ADG5419
+产品特性                                                                                                                                   功能框图
+所有条件下都具有防闩锁特性                                                                                                                            ADG5419
+人体模型(HBM)ESD额定值：8 kV                                                                                                          SA
+                                                                                                                                                             D
+低导通电阻：13.5 Ω                                                                                                                  SB
+
+
+±9 V至±22 V双电源供电                                                                                                               IN
+9 V至40 V单电源供电
+最大额定电源电压：48 V
+
+
+
+
+                                                                                                                                                                  11370-001
+额定电源电压范围：±15 V、±20 V、+12 V和+36 V                                                                                            SWITCHES SHOWN FOR A LOGIC 0 INPUT.
+
+                                                                                                                                            图1.
+模拟信号范围：VDD至VSS
+
+应用
+高压信号路由
+自动测试设备
+模拟前端电路
+精密数据采集系统
+工业仪器仪表
+放大器增益选择
+继电器替代方案
+---- lines 89-140 ----
+技术规格
+±15 V双电源
+除非另有说明，VDD = +15 V ± 10%，VSS = −15 V ± 10%，GND = 0 V。
+
+表1.
+参数                          25°C    −40°C 至 +85°C   −40°C 至 +125°C     单位         测试条件/注释
+模拟开关
+ 模拟信号范围                                             VDD 至VSS           V
+ 导通电阻RON                    13.5                                       Ω(典型值)     VS = ±10 V, IS = −10 mA; 参见图22
+                            15      19              23                 Ω(最大值)     VDD = +13.5 V, VSS = −13.5 V
+    通道间导通电阻                 0.1                                        Ω(典型值)     VS = ±10 V, IS = −10 mA
+     匹配∆RON
+                            0.8     1.3             1.4                Ω(最大值)
+    导通电阻平坦度RFLAT (ON)       1.8                                        Ω(典型值)     VS = ±10 V, IS = −10 mA
+                            2.2     2.7             3.1                Ω(最大值)
+漏电流                                                                               VDD = +16.5 V, VSS = −16.5 V
+ 源极关断泄漏IS (Off)             ±0.1                                       nA(典型值)    VS = ±10 V, VD =  10 V; 参见图21
+                            ±0.25   ±1              ±10                nA(最大值)
+    通道接通泄漏ID (On)、IS (On)   ±0.1                                       nA(典型值)    VS = VD = ±10 V; 参见图21
+                            ±0.4    ±4              ±10                nA(最大值)
+数字输入
+ 输入高电压VINH                                          2.0                V(最小值)
+ 输入低电压VINL                                          0.8                V(最大值)
+ 输入电流IINL或IINH              0.002                                      µA(典型值)    VIN = VGND 或V DD
+                                                    ±0.1               µA(最大值)
+ 数字输入电容CIN                  6                                          pF(典型值)
+动态特性1
+ 转换时间tTRANSITION            217                                        ns(典型值)    RL = 300 Ω, CL = 35 pF
+                            260     310             336                ns(最大值)    VS = 10 V; 参见图27
+    先开后合时间延迟tD              86                                         ns(典型值)    RL = 300 Ω, CL = 35 pF
+                                                    45                 ns(最小值)    VS = 10 V;参见图28
+    电荷注入QINJ                130                                        pC(典型值)    VS = 0 V, RS = 0 Ω, CL = 1 nF;参见图29
+    关断隔离                    −60                                        dB(典型值)    RL = 50 Ω, CL = 5 pF, f = 1 MHz; 参见图24
+    通道间串扰                   −80                                        dB(典型值)    RL = 50 Ω, CL = 5 pF, f = 1 MHz; 参见图23
+    总谐波失真加噪声                0.01                                       %(典型值)     RL = 1 kΩ, 15 V p-p, f = 20 Hz至20 kHz;
+                                                                                  参见图25
+ −3 dB带宽                    190                                        MHz(典型值)   RL = 50 Ω, CL = 5 pF;参见图26
+ 插入损耗                       −0.8                                       dB(典型值)    RL = 50 Ω, CL = 5 pF, f = 1 MHz; 参见图26
+ CS (Off)                   12                                         pF(典型值)    VS = 0 V, f = 1 MHz
+ CD (On)，CS (On)            55                                         pF(典型值)    VS = 0 V, f = 1 MHz
+电源要求                                                                              VDD = +16.5 V, VSS = −16.5 V
+ IDD                        45                                         µA(典型值)    数字输入 = 0 V或VDD
+                            55                      70                 µA(最大值)
+    ISS                     0.001                                      µA(典型值)    数字输入 = 0 V或VDD
+                                                    1                  µA(最大值)
+    VDD/VSS                                         ±9/±22             V(最小值/     GND = 0 V
+                                                                       最大值)
+1
+    通过设计保证，但未经生产测试。
+
+
+

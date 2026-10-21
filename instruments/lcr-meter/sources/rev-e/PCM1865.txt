@@ -1,0 +1,375 @@
+# TI PCM186x datasheet SLAS831D (Mar 2018)
+# Source: https://www.ti.com/lit/ds/symlink/pcm1865.pdf
+# Retrieved 2026-10-20; PDF sha256 c42b9dfac5d8a4f684edc45edc8a3b2b82d3e26ea352f1e019044ed8aad4ab50
+# Extracted with `pdftotext -layout`; only the listed PDF pages are kept (register maps etc. dropped).
+# Each page starts with a line "=== PDF page N ===" ; citations in docs/rev-e-acquisition-survey.md use these page numbers.
+# Pages kept: 1,7,13,16,47,53
+
+=== PDF page 1 ===
+                                 Product        Order        Technical            Tools &            Support &
+                                 Folder         Now          Documents            Software           Community
+
+                                                                                                     PCM1860, PCM1861, PCM1862
+                                                                                                     PCM1863, PCM1864, PCM1865
+        Burr-Brown Audio                                                                      SLAS831D – MARCH 2014 – REVISED MARCH 2018
+
+                         PCM186x 4-Channel or 2-Channel, 192-kHz, Audio ADCs
+1 Features                                                             2 Applications
+1•   High SNR Performance:                                             •    Home Theater and TV
+     – 110-dB SNR (PCM1861/63/65)                                      •    Voice Controlled Devices
+     – 103-dB SNR (PCM1860/62/64)                                      •    Bluetooth® Speaker
+•    ADC Sample Rate (fS) = 8 kHz to 192 kHz                           •    Microphone Array Processors
+•    Up To Four Independent ADC Channels Available
+•    Single-Ended, 2.1-VRMS Full-Scale (FS) Input                      3 Description
+                                                                       The PCM186x family (PCM1860, PCM1861,
+•    Differential, 4.2-VRMS FS Input
+                                                                       PCM1862, PCM1863, PCM1864, and PCM1865) of
+•    Hardware (HW) Control: PCM1860/61                                 audio front-end devices take a new approach to
+•    Software (SW) Control (I2C or SPI):                               audio-function integration to ease compliance with
+     PCM1862/63/64/65                                                  European Ecodesign legislation, while enabling high-
+                                                                       performance end products at reduced cost. The
+•    Support for Up To Four Digital Microphones
+                                                                       PCM186x support single-supply operation at 3.3 V,
+     (SW-Controlled Devices)                                           and offer an integrated programable gain amplifier
+•    Programmable Gain Amplifier (PGA):                                (PGA) in a small package; this configuration makes it
+     – Fixed Gain: 0 dB, 12 dB, 32 dB                                  feasible to implement smaller and smarter products at
+         (PCM1860/61)                                                  a reduced cost.
+     – SW-Controlled Gain: –12 dB to +32 dB                            The PCM186x audio front end supports single-ended
+         (PCM1862/63/64/65)                                            input levels from small-mV microphone inputs to 2.1-
+•    Integrated High-Performance Audio PLL                             VRMS line inputs, without external resistor dividers.
+                                                                       The front-end mixer (MIX), multiplexer (MUX), and
+•    Single 3.3-V Power-Supply Operation                               PGA also support differential (Diff), pseudo-
+•    Power Dissipation at 3.3 V:                                       differential, and single-ended (SE) inputs, making
+     – < 85 mW (PCM1860/61/62/63)                                      these devices an ideal interface for products that
+                                                                       require interference suppression. The PCM186x
+     – < 145 mW (PCM1864/65)                                           integrate many system-level functions that assist or
+•    Energysense Audio Content Detector for Auto                       replace some DSP functions.
+     System Wakeup and Sleep
+                                                                       An integrated band-gap voltage reference provides
+•    Master or Slave Audio Interface                                   excellent PSRR, so that a dedicated analog 3.3-V rail
+•    Automatic PGA Clipping Suppression Control                        may not be required.
+•    PCB-Footprint Compatibility Across All Devices
+                                                                                              Device Information(1)
+                                                                           PART NUMBER               PACKAGE              BODY SIZE (NOM)
+                                                                         PCM186x                TSSOP (30)                7.80 mm × 4.40 mm
+                                                                         (1) For all available packages, see the package option addendum
+                                                                             at the end of the data sheet.
+
+                                                Simplified Application Diagram
+
+                            IN                      DOUT                     DOUT
+                           MIC
+                                                     BCK
+                                      PCM186x                TMS320C5535                PCM5121        TPA3116
+                                                    LRCK
+
+                                                                                     SW mix
+                           IN
+                          LINE
+
+                                                                               BCK
+                                                                                        PCM5100        TPA3116
+                                                                             LRCK
+                                                           USB
+                                                            IN
+
+1
+                                                                       Copyright © 2017, Texas Instruments Incorporated
+
+       An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+       intellectual property matters and other important disclaimers. PRODUCTION DATA.
+
+
+=== PDF page 7 ===
+                                                                                                                 PCM1860, PCM1861, PCM1862
+                                                                                                                 PCM1863, PCM1864, PCM1865
+www.ti.com                                                                                              SLAS831D – MARCH 2014 – REVISED MARCH 2018
+
+5 Device Comparison Table
+
+       PART NUMBER                    PCM1860                PCM1861         PCM1862               PCM1863                 PCM1864                PCM1865
+        Control method                             H/W                                                        I2C or SPI
+         Differential
+ SNR performance A weighted            103 dB                    110 dB        103 dB               110 dB                  103 dB                110 dB
+             data
+       Analog front end            2.1 VRMS MUX with fixed PGA gains                        2.1 VRMS MUX, MIX, PGA and auxiliary ADC
+     Simultaneous channel
+                                                     2                                      2                                               4
+           capability
+   Energysense signal detect               Yes (fixed threshold)                                   Yes (programmable threshold)
+    Energysense signal loss                         No                                             Yes (programmable threshold)
+         Controlsense                               No                                             Yes (programmable threshold)
+      Interrupt controller                          No                                                            Yes
+  Digital microphone support                        No                                   Yes (2)                                        Yes (4)
+           Clock PLL               BCK to generate internal master clock                                 Fully programmable
+ Lowest power standby mode
+                                                 7.96 mW                                                       0.22 mW
+       (1.8-V IOVDD)
+ Digital mixing with digital and
+                                                    No                                                            Yes
+         analog inputs
+                                                             2
+     Digital output formats                  Left-justified, I S                                Left-justified, right-justified, I2S, TDM
+                                                                           Energysense signal loss and detect, controlsense, post PGA clipping, RX digital
+     Interrupt capabilities             Energysense signal detect
+                                                                                                               toggle
+
+Copyright © 2014–2018, Texas Instruments Incorporated                                                          Submit Documentation Feedback                 7
+                               Product Folder Links: PCM1860 PCM1861 PCM1862 PCM1863 PCM1864 PCM1865
+
+
+=== PDF page 13 ===
+                                                                                                                   PCM1860, PCM1861, PCM1862
+                                                                                                                   PCM1863, PCM1864, PCM1865
+www.ti.com                                                                                                   SLAS831D – MARCH 2014 – REVISED MARCH 2018
+
+7.5 Electrical Characteristics: PGA and ADC AC Performance
+all specifications at TA = 25°C, AVDD = 3.3 V, DVDD = 3.3 V, IOVDD = 3.3 V, master mode, single-speed mode, fS = 48 kHz,
+system clock = 256 × fS, and 24-bit data (unless otherwise noted)
+                 PARAMETER                                           TEST CONDITIONS                                MIN       TYP       MAX      UNIT
+PRIMARY PGA AND ADC
+                                                                                           PCM1860
+                                                                                           PCM1862                    97      103                 dB
+                                                   0-dB PGA gain, –60-dB input signal,     PCM1864
+          Input channel signal-to-noise ratio,     master mode at Diff input               PCM1861
+          differential input                                                               PCM1863                    97      110                 dB
+                                                                                           PCM1865
+                                                   32-dB PGA gain (1), –86-dB input signal, master mode at
+                                                                                                                      85       90                 dB
+                                                   Diff input
+                                                   0-dB PGA gain, –1-dB input signal, master mode at Diff
+                                                                                                                    –85       –93                 dB
+          Input channel THD+N, differential        input
+          input                                    32-dB PGA gain, –33-dB input signal, master mode at
+                                                                                                                    –76       –84                 dB
+                                                   Diff input
+          L channel to R channel separation line
+                                                   0-dB PGA gain, –1-dB input signal, master mode                            –105                 dB
+          input
+          L channel to R channel separation mic
+                                                   20-dB PGA gain, –1-dB input signal, master mode                           –105                 dB
+          input
+          L1 channel to L2 channel separation
+                                                   0-dB PGA gain, –1-dB input signal, master mode                            –105                 dB
+          line input
+          R1 channel to R2 channel separation
+                                                   0-dB PGA gain, –1-dB input signal, master mode                            –105                 dB
+          line input
+          L1 channel to L2 channel separation
+                                                   20-dB PGA gain, –1-dB input signal, master mode                           –105                 dB
+          mic input
+          R1 channel to R2 channel separation
+                                                   20-dB PGA gain, –1-dB input signal, master mode                           –105                 dB
+          mic input
+          Range of analog PGA                      –12 to +12 dB (1-dB step), 20 dB, and 32 dB                    –12 (2)                 32      dB
+          Accuracy of PGA + ADC                                                                                                0.5                dB
+          Matching between PGA + ADCs on-
+                                                                                                                              0.05                dB
+          chip
+                                                   Single-ended mode                                                                     2.1     VRMS
+          Full-scale voltage input
+                                                   Differential mode (2.1 VRMS per pin)                                                  4.2     VRMS
+                                                                                           PCM1860
+                                                                                           PCM1862                            103                 dB
+                                                   0-dB PGA gain, –60-dB input signal,     PCM1864
+          Input channel signal-to-noise ratio,     master mode at SE input                 PCM1861
+          single-ended input                                                               PCM1863                            106                 dB
+                                                                                           PCM1865
+                                                   32-dB PGA gain, –92-dB input signal, master mode at
+                                                                                                                               75                 dB
+                                                   SE input
+                                                   0-dB PGA gain, –1-dB input signal, master mode at SE
+                                                                                                                               87                 dB
+          Input channel THD+N, single-ended        input
+          input                                    32-dB PGA gain, –33-dB input signal, master mode at
+                                                                                                                               68                 dB
+                                                   SE input
+                                                   PCM1864 and PCM1865                                                         10
+          Input impedance per analog input pin                                                                                                    kΩ
+                                                   PCM1860, PCM1861, PCM1862, and PCM1863                                      20
+                                                   Differential input, 1-kHz signal on both pins and measure
+CMRR      Common-mode rejection ratio                                                                                          56                 dB
+                                                   level at output
+SECONDARY ADC PERFORMANCE
+          Default Energysense signal detection
+                                                   At 1 kHz                                                                   –57                dBFS
+          threshold
+          Energysense signal bandwidth                                                                                         10                kHz
+          Energysense accuracy (2)                                                                                              3                 dB
+          Secondary ADC accuracy                                                                                               12                bits
+          Secondary ADC sampling rate                                                                                  8                 192     kHz
+
+(1)   32-dB gain when using differential mode inputs is only available in SW-controlled devices.
+(2)   Specified by design.
+
+Copyright © 2014–2018, Texas Instruments Incorporated                                                            Submit Documentation Feedback          13
+                              Product Folder Links: PCM1860 PCM1861 PCM1862 PCM1863 PCM1864 PCM1865
+
+
+=== PDF page 16 ===
+PCM1860, PCM1861, PCM1862
+PCM1863, PCM1864, PCM1865
+SLAS831D – MARCH 2014 – REVISED MARCH 2018                                                                                www.ti.com
+
+7.7 Electrical Characteristics: Digital Filter
+all specifications at TA = 25°C, AVDD = 3.3 V, DVDD = 3.3 V, IOVDD = 3.3 V, master mode, single-speed mode, fS = 48 kHz,
+system clock = 256 × fS, and 24-bit data (unless otherwise noted)
+                 PARAMETER                         TEST CONDITIONS                    MIN           TYP          MAX        UNIT
+CLASSIC FIR
+            Pass band                                                                             0.454                      fS
+            Stop band                                                                             0.583                      fS
+            Pass-band ripple                                                                      ±0.05                      dB
+            Stop-band attenuation                                                                   –65                      dB
+            Group delay or latency                                                                    30                  Samples
+            HPF –3-dB cutoff frequency                                                                 1                     Hz
+LOW LATENCY IIR
+            Pass band                                                                             0.454                      fS
+            Stop band                                                                             0.546                      fS
+            Pass-band ripple                                                                      ±0.02                      dB
+            Stop-band attenuation                                                                   –75                      dB
+            Group delay or latency                                                                    10                  Samples
+            HPF –3-dB cutoff frequency                                                                 1                     Hz
+
+7.8 Timing Requirements: External Clock
+all specifications at TA = 25°C, AVDD = 3.3 V, DVDD = 3.3 V, IOVDD = 3.3 V, master mode, single-speed mode, fS = 48 kHz,
+system clock = 256 × fS, 24-bit data (unless otherwise noted)
+                                                                                            MIN        TYP        MAX        UNIT
+          XTAL support                                                                       15                      35      MHz
+          MCLK frequency                                 3.3 V on MCLK pin                    1                      50      MHz
+          MCLK                                           1.8 V MCLK input on XI pin           1                      50      MHz
+          MCLK input duty cycle                          1.8 V MCLK                         48%                    52%
+                                                         IOVDD = 3.3 V                                               50      MHz
+          Maximum BCK frequency
+                                                         IOVDD = 1.8 V                                               25      MHz
+
+16     Submit Documentation Feedback                                            Copyright © 2014–2018, Texas Instruments Incorporated
+
+                         Product Folder Links: PCM1860 PCM1861 PCM1862 PCM1863 PCM1864 PCM1865
+
+
+=== PDF page 47 ===
+                                                                                                             PCM1860, PCM1861, PCM1862
+                                                                                                             PCM1863, PCM1864, PCM1865
+www.ti.com                                                                                             SLAS831D – MARCH 2014 – REVISED MARCH 2018
+
+In addition, the device uses an on-chip oscillator to detect errors in the rate of present clocks. That logic is shown
+in Table 16.
+
+                                               Table 16. Summary of Clock Error Logic
+ SCK/LRCK Ratio           BCK/LRCK RATIO                           LRCK                  ERROR DETECT                       ACTION
+          -                         -                      < 8 kHz or > 192 kHz             fS error                Enter clock waiting state
+  Not 128 / 256 /                                                                                             Enter the clock waiting state, tie I2S
+                                    -                   8 / 16 / 32 / 44.1 / 48 kHz        SCK error
+  384 / 512 / 768                                                                                                          output to 0
+  Not 128 / 256 /                                                                                             Enter the clock waiting state, tie I2S
+                                    -                          88.2 / 96 kHz               SCK error
+    384 / 512                                                                                                              output to 0
+                                                                                                              Enter the clock waiting state, tie I2S
+   Not 128 / 256                    -                         176.4 / 192 kHz              SCK error
+                                                                                                                           output to 0
+                                                        8 / 16 / 32 / 44.1 / 48 / 88.2                        Enter the clock waiting state, tie I2S
+                         Not 256 / 64 / 48 / 32                                            BCK error
+                                                           / 96 / 174.6 / 196 kHz                                          output to 0
+                                                                                                              Enter the clock waiting state, tie I2S
+                                                                 >192 kHz                   fS error
+                                                                                                                           output to 0
+
+In an application with a non-audio standard SCK coming into the product, the clock error detection on the SCK
+pin can be ignored by disabling the auto clock detector (CLKDET_EN Page.0 0x20).
+
+9.3.9.8 Changes in Clock Sources and Sample Rates
+In slave mode, when changing clock sources, the PCM186x requires at least three BCK clocks of no clock or
+data for the device to reconfigure after clocks resume (if the device is in auto clock config mode).
+For example, auto clock config mode: StateA = 48 kHz, change to StateB = 44.1 kHz
+For changing from state A to State B:
+• Leaving State A
+• Hold clocks (or HiZ from external) for 3 BCK minimum
+• Change clocks
+• Allow ~100 µs (at least 3 BLKs at 48 kHz) for the device to reconfigure
+• Data ramp back in on zero-crossing ramp (if zero crossing has not been disabled in software mode)
+• Transition to State B complete
+In master mode, simply switching the I/O pins on the hardware-controlled devices, or changing the sampling rate
+register should change the sampling rate.
+
+                                                         NOTE
+               Hardware-controlled devices cannot switch from XTAL master mode to external slave
+               mode because the XTAL continues clocking the internal SCLK and not be in sync to the
+               new external clocks. However, this switch can be done in software mode.
+
+9.3.10 Analog-to-Digital Converters (ADCs)
+
+9.3.10.1 Main Audio ADCs
+The SNR of the primary ADCs in the PCM186x are 103 dB (for PCM1860, PCM1862, PCM1864), or 110 dB (for
+PCM1861, PCM1863, PCM1865), with 40-kHz bandwidth that is tightly coupled to dedicated PGAs and input
+multiplexers. Often in this document, references are made to ADC1L and ADC1R (or CH1_L and CH1_R), the
+main left and right ADCs present in the PCM1862, PCM1863, PCM1864 and PCM1865. References to ADC2L
+and ADC2R are the other pair of left and right ADCs present only in the PCM1864 and PCM1865.
+
+Copyright © 2014–2018, Texas Instruments Incorporated                                                      Submit Documentation Feedback               47
+                            Product Folder Links: PCM1860 PCM1861 PCM1862 PCM1863 PCM1864 PCM1865
+
+
+=== PDF page 53 ===
+                                                                                         PCM1860, PCM1861, PCM1862
+                                                                                         PCM1863, PCM1864, PCM1865
+www.ti.com                                                                        SLAS831D – MARCH 2014 – REVISED MARCH 2018
+
+To flatten out the response of the secondary ADC, so that all frequencies are detected evenly, write the biquads
+shown in Table 18 to the virtual DSP memory, using the techniques discussed in the Programming DSP
+Coefficients on Software-Controlled Devices section.
+
+                                      Table 18. Secondary ADC Biquad Coefficients at 48-
+                                                        kHz Sampling
+
+                                                COEFFICIENT        VIRTUAL RAM ADDRESS
+                                                   LPF_B0                  0x20
+                                                   LPF_B1                  0x21
+                                                   LPF_B2                  0x22
+                                                   LPF_A1                  0x23
+                                                   LPF_A2                  0x24
+                                                   HPF_B0                  0x25
+                                                   HPF_B1                  0x26
+                                                   HPF_B2                  0x27
+                                                   HPF_A1                  0x28
+                                                   HPF_A2                  0x29
+
+9.3.12 Audio Processing
+Both DSP1 and DSP2 are fixed function processors that are not custom-programmable. They are used in this
+device to perform multiple filtering, mixing functions, signal detection and housekeeping functions. Programming
+the DSP coefficients is done indirectly using registers on Page1. The data and target DSP memory address are
+stored in registers, and once the DSPs are ready for the data (that is done by request) the data is then latched
+into the DSP memory.
+This indirect method of programming the DSP allows multiple registers to be written, without consuming valuable
+register map space. More details can be found in the Programming DSP Coefficients on Software-Controlled
+Devices section.
+
+9.3.12.1 DSP1 Processing Features
+
+9.3.12.1.1 Digital Decimation Filters
+The main audio path uses a selectable decimation filter used to convert the high-data-rate modulator to I2S rates.
+A choice between a classic FIR response and a low-latency IIR response is available. A high-pass filter, separate
+from that used for the secondary ADC, is also available to remove any dc bias that may be present in the signal.
+This feature is enabled by default.
+Details can be found in the DSP_CTRL register (Page.0, 0x71).
+
+9.3.12.1.2 Digital PGA
+As discussed in the Programmable Gain Amplifier section, the digital PGA gain can be controlled by the auto
+gain mapping function, that will use the analog gain settings in register PGA_VAL_CH1_L (Page.0 0x01) and
+related registers to achieve the target gain with a combination of digital and analog gain. However, digital gain
+can be also controlled directly by disabling the auto gain mapping function using register
+PGA_CONTROL_MAPPING (Page.0 0x19). Manual update of digital PGA is only available in 4-channel devices
+because the digital PGA gain is fixed to 0 dB when manual gain mapping is enabled.
+
+9.3.12.2 DSP2 Processing Features
+
+9.3.12.2.1 Digital Mixing Function
+This function allows post ADC mixing, as well as ADC + incoming I2S mix. Volume control functionality can be
+performed prior to outputting the signal to an I2S DAC or Amplifier.
+Gain range is from –120 dB to +18 dB (4.20 format). Phase Inversion can be done by performing the two's
+compliment of the positive gain coefficient. two's compliment can be performed by inverting all bits in the binary
+coefficient, and adding 1 to the LSB.
+
+Copyright © 2014–2018, Texas Instruments Incorporated                                 Submit Documentation Feedback      53
+                            Product Folder Links: PCM1860 PCM1861 PCM1862 PCM1863 PCM1864 PCM1865
+
+

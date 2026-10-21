@@ -1,0 +1,172 @@
+# TQ2SA: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Panasonic TQ-SMD relay datasheet via LCSC C22686 (https://www.lcsc.com/product-detail/C22686.html)
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-100 ----
+TQ SMD                                                                                                                                                      TESTING
+
+
+
+
+                                                                  LOW-PROFILE
+                                                              SURFACE-MOUNT RELAY                                  TQ SMD RELAYS
+                                                             FEATURES
+                   14            9
+                               .354
+                                                             • Low-profile: 6 mm .236 inch
+                  .551
+                                       5.6                     (Tape height: max. 6.5 mm .256 inch)
+                                      .220
+                                                             • Tape and reel package is available as standard packing style
+                                                             • Surge withstand between contacts and coil: 2,500 V
+                                                             • Breakdown voltage between contacts and coil: 1,500 V
+                                             mm inch         • Capacity: 2 A
+                                                             • High sensitivity:
+                                                               2 Form C; 140 mW power consumption (Single side stable type)
+ RoHS Directive compatibility information
+      http://www.nais-e.com/
+
+
+SPECIFICATIONS
+Contact                                                                                  Characteristics
+Arrangement                                                    2 Form C                  Initial insulation resistance*1         Min. 1,000 MΩ (at 500 V DC)
+Initial contact resistance, max.                                                                          Between open              1,000 Vrms for 1 min.
+                                                                 75 mΩ
+(By voltage drop 6 V DC 1 A)                                                                              contacts                (Detection current: 10 mA)
+                                                                                         Initial
+Contact material                                          Au-clad AgNi type                                                         1,500 Vrms for 1 min.
+                                                                                         breakdown Between contact sets
+                Nominal switching capacity                  2 A 30 V DC,                                                          (Detection current: 10 mA)
+                                                                                         voltage
+                (resistive load)                           0.5 A 125 V AC                                 Between contact and       1,500 Vrms for 1 min.
+                Max. switching power                                                                      coil                    (Detection current: 10 mA)
+                                                            60 W, 62.5 VA
+                (resistive load)                                                                          Between open
+Rating                                                                                                    contacts                  1,500 V (FCC Part 68)
+                Max. switching voltage                   220 V DC, 125 V AC              Initial surge (10×160 µs)
+                Max. switching current                          2A                       voltage
+                                                                                                          Between contacts and
+                Min. switching capacity                                                                                               2,500 V (Telcordia)
+                                                           10 µA 10 mV DC                                 coil (2×10 µs)
+                (Reference value)#1
+                                                                                         Temperature rise*2 (at 20°C)                     Max. 50°C
+                                                       140 mW (1.5 to 12 V DC)
+                 Single side stable                       200 mW (24 V DC)               Operate time [Set time]*3 (at 20°C)        Max. 4 ms [Max. 4 ms]
+Nominal                                                   300 mW (48 V DC)               Release time [Reset time]*4
+                                                                                                                                    Max. 4 ms [Max. 4 ms]
+operating                                               70 mW (1.5 to 12 V DC)           (at 20°C)
+                 1 coil latching
+power                                                     100 mW (24 V DC)                                     Functional*5           Min. 750 m/s2 {75 G}
+                                                                                         Shock resistance
+                                                       140 mW (1.5 to 12 V DC)                                 Destructive*6         Min. 1,000 m/s2 {100 G}
+                 2 coil latching
+                                                          200 mW (24 V DC)                                                        200 m/s2 {20G}, 10 to 55 Hz
+                                                                                                                Functional*7
+                 Mechanical (at 180 cpm)                         108                                                             at double amplitude of 3.3 mm
+                                                                                         Vibration resistance
+                              2 A 30 V DC                                                                                         294 m/s2 {30G}, 10 to 55 Hz
+                                                                   105                                          Destructive
+Expected                      resistive                                                                                           at double amplitude of 5 mm
+life (min.       Electrical   1 A 30 V DC                                                Conditions for         Ambient                 –40°C to +85°C*3
+operations)                                                      2×105
+                 (at 20 cpm) resistive                                                   operation, transport   temperature             –40°F to +185°F
+                              0.5 A 125 V AC                                             and storage*8
+                                                                   105                   (Not freezing and
+                              resistive                                                                         Humidity                5 to 85% R.H.
+                                                                                         condensing at low
+Note:                                                                                    temperature)
+#1 This value can change due to the switching frequency, environmental conditions,
+   and desired reliability level, therefore it is recommended to check this with the     Unit weight                                  Approx. 2 g .071 oz
+   actual load. (SX relays are available for low level load switching [10V DC, 10mA
+   max. level])
+Remarks
+* Specifications will vary with foreign standards certification ratings.
+*1 Measurement at same location as “Initial breakdown voltage” section.
+*2 By resistive method, nominal voltage applied to the coil; contact carrying current:
+   2 A.
+*3 Nominal voltage applied to the coil, excluding contact bounce time.
+* Nominal voltage applied to the coil, excluding contact bounce time without diode.
+ 4
+
+*5 Half-wave pulse of sine wave: 6 ms; detection time: 10 µs
+*6 Half-wave pulse of sine wave: 6 ms
+*7 Detection time: 10 µs
+*8 Refer to 6. Conditions for operation, transport and storage mentioned in
+   AMBIENT ENVIRONMENT .
+
+
+
+
+                                                        All Rights Reserved © COPYRIGHT Matsushita Electric Works, Ltd.
+                                                                                                                                                 TQ SMD
+ORDERING INFORMATION
+                                                 Ex. TQ      2        SA     –     L      –         3V        –        Z
+
+   Contact arrangement            Surface-mount availability               Operating function            Coil voltage (DC)              Packing style
+---- lines 110-170 ----
+
+
+TYPES
+1. Single side stable
+                                                                                        Nominal
+                         Nominal                                   Drop-out                                                       Nominal        Max. allowable
+                                          Pick-up voltage,                              operating         Coil resistance,
+      Part No.           voltage,                                   voltage,                                                  operating power,     voltage,
+                                           V DC (max.)                                   current,           Ω (±10%)
+                          V DC                                    V DC (min.)                                                       mW               V DC
+                                                                                       mA (±10%)
+ TQ2S❍-1.5 V                1.5                 1.13                 0.15                 93.8                   16                 140               2.2
+ TQ2S❍-3 V                   3                  2.25                  0.3                 46.7                  64.3                140                4.5
+ TQ2S❍-4.5 V                4.5                 3.38                 0.45                  31                   145                 140               6.7
+ TQ2S❍-5 V                   5                  3.75                  0.5                 28.1                  178                 140                7.5
+ TQ2S❍-6 V                   6                   4.5                  0.6                 23.3                  257                 140                 9
+ TQ2S❍-9 V                   9                  6.75                  0.9                 15.5                  579                 140               13.5
+ TQ2S❍-12 V                 12                    9                   1.2                 11.7                 1,028                140                18
+ TQ2S❍-24 V                 24                   18                   2.4                  8.3                 2,880                200                36
+ TQ2S❍-48 V                 48                   36                   4.8                  6.3                 7,680                300               57.6
+
+2. 1 coil latching
+                                                                                        Nominal
+                         Nominal                                                                                                  Nominal        Max. allowable
+                                            Set voltage,         Reset voltage,         operating         Coil resistance,
+      Part No.           voltage,                                                                                             operating power,     voltage,
+                                            V DC (max.)           V DC (max.)            current,           Ω (±10%)
+                          V DC                                                                                                      mW               V DC
+                                                                                       mA (±10%)
+ TQ2S❍-L-1.5 V              1.5                 1.13                 1.13                 46.9                  32                  70                2.2
+ TQ2S❍-L-3 V                 3                  2.25                 2.25                 23.3                 128.6                70                4.5
+ TQ2S❍-L-4.5 V              4.5                 3.38                 3.38                 15.6                 289.3                70                6.7
+ TQ2S❍-L-5 V                 5                  3.75                 3.75                  14                   357                  70                7.5
+ TQ2S❍-L-6 V                 6                   4.5                  4.5                 11.7                  514                  70                 9
+ TQ2S❍-L-9 V                 9                  6.75                 6.75                  7.8                 1,157                70                13.5
+ TQ2S❍-L-12 V               12                    9                    9                   5.8                 2,057                 70                18
+ TQ2S❍-L-24 V               24                   18                   18                   4.2                 5,760                100                36
+
+3. 2 coil latching
+                                                                                        Nominal
+                         Nominal                                                                                                  Nominal        Max. allowable
+                                            Set voltage,         Reset voltage,         operating         Coil resistance,
+      Part No.           voltage,                                                                                             operating power,     voltage,
+                                            V DC (max.)           V DC (max.)            current,           Ω (±10%)
+                          V DC                                                                                                      mW               V DC
+                                                                                       mA (±10%)
+ TQ2S❍-L2-1.5 V             1.5                 1.13                 1.13                 93.8                  16                  140               2.2
+ TQ2S❍-L2-3 V                3                  2.25                 2.25                 46.7                 64.3                 140                4.5
+ TQ2S❍-L2-4.5 V             4.5                 3.38                 3.38                  31                   145                 140               6.7
+ TQ2S❍-L2-5 V                5                  3.75                 3.75                 28.1                  178                 140                7.5
+ TQ2S❍-L2-6 V                6                   4.5                  4.5                 23.3                  257                 140                 9
+ TQ2S❍-L2-9 V                9                  6.75                 6.75                 15.5                  579                 140               13.5
+ TQ2S❍-L2-12 V              12                    9                    9                  11.7                 1,028                140                18
+ TQ2S❍-L2-24 V              24                   18                   18                   8.3                 2,880                200                36
+❍: For each surface-mounted terminal variation, input the following letter.
+   SA type: A, SL type: L, SS type: S
+Notes: 1. Specified value of the pick-up, drop-out, set and reset voltage is with the condition of square wave coil pulse.
+       2. Standard packing: Tube: 50 pcs.; Case: 1,000 pcs.
+                             Tape and reel: 500 pcs.; Case: 1,000 pcs.
+       3. In case of 5 V transistor drive circuit, it is recommended to use 4.5 V type relay.
+
+
+---- Reader's notes from datasheet figures (NOT vendor text; read by eye from rendered PDF page 4, 2026-10-20) ----
+Fig. 11-(1) Isolation characteristics: about 61 dB at 10 MHz, about 41 dB at 100 MHz (about 20 dB/decade, capacitive).
+Fig. 10 Distribution of contact resistance (TQ2SA-5V, 30 pcs x 4 contacts): all values about 28-38 mOhm.
+"Change of contact resistance (mounting by IRS method)": band about 30-48 mOhm over 10x10^4 operations.

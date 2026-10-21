@@ -1,0 +1,100 @@
+# DG419: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Vishay DG417/DG418/DG419 doc 70051 via LCSC C6581
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-30 ----
+                                                                                                        DG417/418/419
+                                                                                                            Vishay Siliconix
+
+                                   Precision CMOS Analog Switches
+
+
+DESCRIPTION                                                             FEATURES
+The DG417/418/419 monolithic CMOS analog switches                       •    ± 15 V Analog Signal Range
+                                                                             On-Resistance - rDS(on): 20 Ω
+                                                                                                                                 Pb-free
+were designed to provide high performance switching of                  •                                                       Available
+
+analog signals. Combining low power, low leakages, high                 •    Fast Switching Action - tON: 100 ns             RoHS*
+speed, low on-resistance and small physical size, the                   •    Ultra Low Power Requirements - PD: 35 nW         COMPLIANT
+
+DG417 series is ideally suited for portable and battery                 •    TTL and CMOS Compatible
+powered industrial and military applications requiring high             •    MiniDIP and SOIC Packaging
+
+performance and efficient use of board space.                           • 44 V Supply Max Rating
+
+                                                                        BENEFITS
+To achieve high-voltage ratings and superior switching
+                                                                        •    Wide Dynamic Range
+performance, the DG417 series is built on Vishay Siliconix’s
+                                                                        •    Low Signal Errors and Distortion
+high voltage silicon gate (HVSG) process. Break-before-
+                                                                        •    Break-Before-Make Switching Action
+make is guaranteed for the DG419, which is an SPDT
+                                                                        •    Simple Interfacing
+configuration. An epitaxial layer prevents latchup.
+---- lines 165-228 ----
+
+                                                                Figure 1.
+
+
+ SPECIFICATIONSa
+                                                   Test Conditions                                 A Suffix         D Suffix
+                                             Unless Otherwise Specified                         - 55 to 125 °C   - 40 to 85 °C
+                                                 V+ = 15 V, V- = - 15 V
+  Parameter                    Symbol         VL = 5 V, VIN = 2.4 V, 0.8 Vf     Tempb   Typc    Mind      Maxd   Mind     Maxd   Unit
+  Analog Switch
+  Analog Signal Rangee         VANALOG                                           Full           - 15       15    - 15      15     V
+  Drain-Source                                IS = - 10 mA, VD = ± 12.5 V       Room     20                35              35
+                               rDS(on)                                                                                            Ω
+  On-Resistance                                V+ = 13.5 V, V- = - 13.5 V        Full                      45              45
+                                                                                Room    - 0.1   - 0.25    0.25   - 0.25   0.25
+                                IS(off)
+                                           V+ = 16.5, V- = - 16.5 V              Full            - 20      20      -5       5
+                                               VD = ± 15.5 V            DG417   Room    - 0.1   - 0.25    0.25   - 0.25   0.25
+  Switch Off Leakage Current
+                                                                        DG418    Full            - 20      20      -5       5
+                                ID(off)         VS = ± 15.5 V
+                                                                                Room    - 0.1   - 0.75    0.75   - 0.75   0.75
+                                                                        DG419                                                    nA
+                                                                                 Full            - 60      60     - 12     12
+                                                                        DG417   Room    - 0.4    - 0.4     0.4    - 0.4    0.4
+  Channel Off Leakage                     V+ = 16.5 V, V- = - 16.5 V    DG418    Full            - 40      40     - 10     10
+                                ID(on)
+  Current                                   VS = VD = ± 15.5 V                  Room    - 0.4   - 0.75    0.75   - 0.75   0.75
+                                                                        DG419
+                                                                                 Full            - 60      60     - 12     12
+  Digital Control
+  Input Current VIN Low           IIL                                            Full   0.005   - 0.5     0.5    - 0.5     0.5
+                                                                                                                                 µA
+  Input Current VIN High          IIH                                            Full   0.005   - 0.5     0.5    - 0.5     0.5
+  Dynamic Characteristics
+                                           RL = 300 Ω, CL = 35 pF       DG417   Room    100               175             175
+  Turn-On Time                   tON
+                                                VS = ± 10 V             DG418    Full                     250             250
+                                            See Switching Time          DG417   Room     60               145             145
+  Turn-Off Time                  tOFF
+                                                 Test Circuit           DG418    Full                     210             210
+                                           RL = 300 Ω, CL = 35 pF                                                                ns
+                                                                                Room                      175             175
+  Transition Time              tTRANS                                   DG419
+                                          VS1 = ± 10 V, VS2 = ± 10 V             Full                     250             250
+  Break-Before-Make                        RL = 300 Ω, CL = 35 pF
+                                  tD                                    DG419   Room     13       5                5
+  Time Delay (DG403)                         VS1 = VS2 = ± 10 V
+  Charge Injection                Q        CL = 10 nF, Vgen = 0 V, Rgen = 0 Ω   Room     60                                      pC
+  Source Off Capacitance        CS(off)                                         Room     8
+                                             f = 1 MHz, VS = 0 V        DG417
+  Drain Off Capacitance         CD(off)                                         Room     8
+                                                                        DG418
+                                                                                                                                 pF
+                                                                        DG417
+                                                                                Room     30
+  Channel On Capacitance        CD(on)       f = 1 MHz, VS = 0 V        DG418
+                                                                        DG419   Room     35
+
+Document Number: 70051                                                                                                 www.vishay.com
+S-71241–Rev. F, 25-Jun-07                                                                                                           3
+DG417/418/419
+Vishay Siliconix
+

@@ -1,0 +1,132 @@
+# ADG1419: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Analog Devices ADG1419 Rev. 0 via LCSC C22368
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-40 ----
+                                                                                     2.1 Ω On Resistance, ±15 V/+12 V/±5 V
+                                                                                                        iCMOS SPDT Switch
+                                                                                                                 ADG1419
+FEATURES                                                                                                                 FUNCTIONAL BLOCK DIAGRAM
+2.1 Ω on resistance                                                                                                                  ADG1419 LFCSP
+                                                                                                                              SA
+0.5 Ω maximum on resistance flatness at 25°C                                                                                                                  D
+Up to 390 mA continuous current                                                                                               SB
+
+Fully specified at +12 V, ±15 V, ±5 V
+No VL supply required                                                                                                                     DECODER
+3 V logic-compatible inputs
+Rail-to-rail operation
+
+
+
+
+                                                                                                                                                                   08485-001
+                                                                                                                                        IN   EN
+8-lead MSOP and 8-lead 3 mm × 2 mm LFCSP packages
+                                                                                                                            SWITCHES SHOWN FOR A LOGIC 0 INPUT.
+
+                                                                                                                         Figure 1. 8-Lead LFCSP Functional Block Diagram
+APPLICATIONS
+Automatic test equipment
+                                                                                                                                      ADG1419 MSOP
+Data acquisition systems                                                                                                      SA
+Battery-powered systems                                                                                                                                        D
+                                                                                                                              SB
+Relay replacements
+Sample-and-hold systems                                                                                                        IN
+Audio signal routing
+Video signal routing
+
+
+
+
+                                                                                                                                                                    08485-002
+Communication systems                                                                                                       SWITCHES SHOWN FOR A LOGIC 0 INPUT.
+
+---- lines 100-185 ----
+SPECIFICATIONS
+±15 V DUAL SUPPLY
+VDD = +15 V ± 10%, VSS = −15 V ± 10%, GND = 0 V, unless otherwise noted.
+
+Table 1.
+                                                        −40°C to       −40°C to
+Parameter                                       25°C    +85°C          +125°C       Unit      Test Conditions/Comments
+ANALOG SWITCH
+  Analog Signal Range                                                  VDD to VSS   V
+  On Resistance, RON                            2.1                                 Ω typ     VS = ±10 V, IS = −10 mA; see Figure 22
+                                                2.4     2.8            3.2          Ω max     VDD = +13.5 V, VSS = −13.5 V
+  On Resistance Match Between Channels, ∆RON    0.05                                Ω typ     VS = ±10 V, IS = −10 mA
+                                                0.2     0.25           0.3          Ω max
+  On Resistance Flatness, RFLAT (ON)            0.4                                 Ω typ     VS = ±10 V, IS = −10 mA
+                                                0.5     0.6            0.65         Ω max
+LEAKAGE CURRENTS                                                                              VDD = +16.5 V, VSS = −16.5 V
+  Source Off Leakage, IS (Off )                 ±0.1                                nA typ    VS = ±10 V, VS = ±10 V; see Figure 23
+                                                ±0.5    ±2             ±75          nA max
+  Drain Off Leakage, ID (Off )                  ±0.2                                nA typ    VS = ±10 V, VS = ±10 V; see Figure 23
+                                                ±0.6    ±3             ±100         nA max
+  Channel On Leakage, ID, IS (On)               ±0.2                                nA typ    VS = VD = ±10 V; see Figure 24
+                                                ±1      ±3             ±100         nA max
+DIGITAL INPUTS
+  Input High Voltage, VINH                                             2.0          V min
+  Input Low Voltage, VINL                                              0.8          V max
+  Input Current, IINL or IINH                   0.005                               μA typ    VIN = VGND or VDD
+                                                                       ±0.1         μA max
+  Digital Input Capacitance, CIN                4                                   pF typ
+DYNAMIC CHARACTERISTICS 1
+  Transition Time, tTRANSITION                  130                                 ns typ    RL = 300 Ω, CL = 35 pF
+                                                155     190            220          ns max    VS = +10 V; see Figure 25
+  tON (EN)                                      85                                  ns typ    RL = 300 Ω, CL = 35 pF
+                                                110     125            140          ns max    VS = 10 V; see Figure 27
+  tOFF (EN)                                     115                                 ns typ    RL = 300 Ω, CL = 35 pF
+                                                140     160            180          ns max    VS = 10 V; see Figure 27
+  Break-Before-Make Time Delay, tD              15                                  ns typ    RL = 300 Ω, CL = 35 pF
+                                                                       8            ns min    VS1 = VS2 = 10 V; see Figure 26
+  Charge Injection                              −16                                 pC typ    VS = 0 V, RS = 0 Ω, CL = 1 nF;
+                                                                                              see Figure 28
+  Off Isolation                                 −64                                 dB typ    RL = 50 Ω, CL = 5 pF, f = 1 MHz;
+                                                                                              see Figure 29
+  Channel-to-Channel Crosstalk                  −64                                 dB typ    RL = 50 Ω, CL = 5 pF, f = 1 MHz;
+                                                                                              see Figure 30
+  Total Harmonic Distortion + Noise             0.016                               % typ     RL = 10 kΩ, 5 V rms, f = 20 Hz to 20 kHz;
+                                                                                              see Figure 32
+  −3 dB Bandwidth                               135                                 MHz typ   RL = 50 Ω, CL = 5 pF; see Figure 31
+  Insertion Loss                                0.16                                dB typ    RL = 50 Ω, CL = 5 pF, f = 1 MHz;
+                                                                                              see Figure 31
+  CS (Off )                                     19                                  pF typ    f = 1 MHz; VS = 0 V
+  CD (Off )                                     44                                  pF typ    f = 1 MHz; VS = 0 V
+  CD, CS (On)                                   114                                 pF typ    f = 1 MHz; VS = 0 V
+
+
+
+
+                                                         Rev. 0 | Page 3 of 16
+ADG1419
+                                                                    −40°C to       −40°C to
+Parameter                                                   25°C    +85°C          +125°C         Unit          Test Conditions/Comments
+POWER REQUIREMENTS                                                                                              VDD = +16.5 V, VSS = −16.5 V
+  IDD                                                       0.002                                 μA typ        Digital inputs = 0 V or VDD
+                                                                                   1.0            μA max
+     IDD, 8-Lead MSOP                                       58                                    μA typ        Digital inputs = 5 V
+                                                                                   95             μA max
+     IDD, 8-Lead LFCSP                                      120                                   μA typ        Digital inputs = 5 V
+                                                                                   190            μA max
+     ISS                                                    0.002                                 μA typ        Digital inputs = 0 V, 5 V or VDD
+                                                                                   1.0            μA max
+     VDD/VSS                                                                       ±4.5/±16.5     V min/max     Ground = 0 V
+1
+    Guaranteed by design, not subject to production test.
+
+
++12 V SINGLE SUPPLY
+VDD = 12 V ± 10%, VSS = 0 V, GND = 0 V, unless otherwise noted.
+
+Table 2.
+                                                                    −40°C to      −40°C to
+Parameter                                                   25°C    +85°C         +125°C        Unit          Test Conditions/Comments
+ANALOG SWITCH
+  Analog Signal Range                                                             0 V to VDD    V
+  On Resistance, RON                                        4                                   Ω typ         VS = 0 V to 10 V, IS = −10 mA; see Figure 22
+                                                            4.6     5.5           6.2           Ω max         VDD = +10.8 V, VSS = 0 V
+     On Resistance Match Between Channels, ∆RON             0.08                                Ω typ         VS = 0 V to 10 V, IS = −10 mA
+                                                            0.25    0.3           0.35          Ω max
+     On Resistance Flatness, RFLAT (ON)                     1.2                                 Ω typ         VS = 0 V to 10 V, IS = −10 mA

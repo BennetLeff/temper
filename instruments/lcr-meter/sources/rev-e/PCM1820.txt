@@ -1,0 +1,347 @@
+# TI PCM1820/PCM1821 datasheet SBASA61A (Jun 2021)
+# Source: https://www.ti.com/lit/ds/symlink/pcm1820.pdf
+# Retrieved 2026-10-20; PDF sha256 842858f0898eaaf9056fcd7e310a16f7b7ce016ec2976f842d0efb19b0a44013
+# Extracted with `pdftotext -layout`; only the listed PDF pages are kept (register maps etc. dropped).
+# Each page starts with a line "=== PDF page N ===" ; citations in docs/rev-e-acquisition-survey.md use these page numbers.
+# Pages kept: 1,3,6-7,22
+
+=== PDF page 1 ===
+                                                                                                                    PCM1820, PCM1821
+                                                                                          SBASA61A – DECEMBER 2020 – REVISED JUNE 2021
+
+            PCM182x Stereo Channel, 32-Bit, 192-kHz, Burr-BrownTM Audio ADC
+
+1 Features                                                             3 Description
+•   Stereo high-performance ADC:                                       The PCM182x is a high-performance, Burr-Brown™
+    – 2-channel analog microphones or line-in                          audio analog-to-digital converter (ADC) that supports
+•   ADC line and microphone differential input                         simultaneous sampling of up to two analog channels.
+    performance:                                                       The device supports differential line and microphone
+    – PCM1820 dynamic range:                                           inputs with a 2-VRMS full-scale signal. The device
+        • 123-dB, dynamic range enhancer enabled                       integrates a phase-locked loop (PLL), a DC
+        • 113-dB, dynamic range enhancer disabled                      removal high-pass filter (HPF), and supports sample
+    – PCM1821 dynamic range: 106 dB                                    rates up to 192 kHz. The device supports time-
+    – THD+N: –95 dB                                                    division multiplexing (TDM) or I2S audio formats,
+•   ADC differential 2-VRMS full-scale input                           selectable with the hardware pin level. Additionally,
+•   ADC sample rate (fS) = 8 kHz to 192 kHz                            the PCM182x supports master and slave mode
+•   Hardware pin control configurations                                selection for the audio bus interface operation.
+•   Linear-phase or low-latency filter selection                       These integrated high-performance features, along
+•   Flexible audio serial data interface:                              with the ability to be powered from a single supply
+                                                                       of 3.3 V, make the device an excellent choice for cost-
+    – Master or slave interface selection
+                                                                       sensitive, space-constrained audio systems in far-field
+    – 32-bits, 2-channel TDM
+                                                                       microphone recording applications.
+    – 32-bits, 2-channel I2S
+•   Automatic power-down upon loss of audio clocks                     The PCM182x is specified from –40°C to +125°C, and
+•   Integrated high-performance audio PLL                              is offered in a 20-pin WQFN package.
+•   Single-supply operation: 3.3 V
+                                                                                           Device Information(1)
+•   I/O-supply operation: 3.3 V or 1.8 V
+                                                                             PART NUMBER          PACKAGE          BODY SIZE (NOM)
+•   Power consumption for 3.3-V AVDD supply:
+                                                                                                               3.00 mm × 3.00 mm with
+    – 19.6 mW/channel at 16-kHz sample rate                            PCM182x                   WQFN (20)
+                                                                                                               0.5-mm pitch
+    – 21.3 mW/channel at 48-kHz sample rate
+                                                                       (1)    For all available packages, see the package option
+2 Applications                                                                addendum at the end of the data sheet.
+•   Smart speakers
+•   DVD recorders and players
+•   AV receivers
+•   Video conference systems
+•   IP network cameras
+
+                                                                                        Simplified Block Diagram
+
+     An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+     intellectual property matters and other important disclaimers. PRODUCTION DATA.
+
+
+=== PDF page 3 ===
+                                                                                                                                       PCM1820, PCM1821
+www.ti.com                                                                                             SBASA61A – DECEMBER 2020 – REVISED JUNE 2021
+
+5 Device Comparison Table
+              FEATURE                     PCM1821                      PCM1820           TLV320ADC3120           TLV320ADC5120           TLV320ADC6120
+ Control interface                                       Pin control                                                     I2C
+ Digital audio serial interface                          TDM or I2S                                        TDM or I2S or left-justified (LJ)
+ Audio analog channel                                                                           2
+ Digital microphone channel                          Not available                                                        4
+ Programmable MICBIAS voltage                               N/A                                                          Yes
+ Dynamic range (DRE disabled)               106 dB                      113 dB               106 dB                    108 dB                  113 dB
+ Dynamic range (DRE enabled)             Not available                  123 dB             Not available               120 dB                  123 dB
+ ADC SNR with DRE                            N/A                        123 dB                 N/A                     120 dB                  123 dB
+ Input impedance                            10 kΩ                       2.5 kΩ                                  2.5 kΩ, 10 kΩ, 20 kΩ
+ Compatibility                        Pin-to-pin, package, drop-in replacements of         Pin-to-pin, package, and control registers compatible; drop-in
+                                                       each other                                           replacements of each other
+ Package                                                               WQFN (RTE), 20-pin, 3.00 mm × 3.00 mm (0.5-mm pitch)
+
+Copyright © 2021 Texas Instruments Incorporated                                                                           Submit Document Feedback          3
+                                                         Product Folder Links: PCM1820 PCM1821
+
+
+=== PDF page 6 ===
+PCM1820, PCM1821
+SBASA61A – DECEMBER 2020 – REVISED JUNE 2021                                                                                                  www.ti.com
+
+7.4 Thermal Information
+                                                                                                                     PCM182x
+                                           THERMAL METRIC(1)                                                        RTE (WQFN)                  UNIT
+                                                                                                                     20 PINS
+    RθJA          Junction-to-ambient thermal resistance                                                               55.9                     °C/W
+    RθJC(top)     Junction-to-case (top) thermal resistance                                                            33.1                     °C/W
+    RθJB          Junction-to-board thermal resistance                                                                 23.4                     °C/W
+    ψJT           Junction-to-top characterization parameter                                                           0.6                      °C/W
+    ψJB           Junction-to-board characterization parameter                                                         23.3                     °C/W
+    RθJC(bot)     Junction-to-case (bottom) thermal resistance                                                         16.7                     °C/W
+
+(1)        For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+           report.
+
+7.5 Electrical Characteristics
+at TA = 25°C, AVDD = 3.3 V, IOVDD = 3.3 V, fIN = 1-kHz sinusoidal signal, fS = 48 kHz, 32-bit audio data, BCLK = 256 × fS,
+TDM slave mode (unless otherwise noted)
+                 PARAMETER                                           TEST CONDITIONS                         MIN             TYP       MAX      UNIT
+    ADC CONFIGURATION
+                  AC input impedance
+                                                                                                                              2.5                 kΩ
+                  (PCM1820)
+                                                  Input pins INxP or INxM
+                  AC input impedance
+                                                                                                                               10                 kΩ
+                  (PCM1821)
+    PCM1820: ADC PERFORMANCE FOR LINE, MICROPHONE INPUT RECORDING : AVDD 3.3-V OPERATION
+                  Differential input full-scale
+                                                  AC-coupled input                                                              2               VRMS
+                  AC signal voltage
+                                                  IN1 differential input selected and AC signal shorted to
+                                                  ground, DRE enabled (DRE_LVL =                             115              122
+                  Signal-to-noise ratio, A-       –36 dB, DRE_MAXGAIN = 24 dB)
+    SNR                                                                                                                                           dB
+                  weighted(1) (2)
+                                                  IN1 differential input selected and AC signal shorted to
+                                                                                                             106              112
+                                                  ground, DRE disabled
+                                                  IN1 differential input selected and –60-dB full-scale
+                                                  AC signal input, DRE enabled (DRE_LVL = –36 dB,                             123
+                  Dynamic range, A-               DRE_MAXGAIN = 24 dB)
+    DR                                                                                                                                            dB
+                  weighted(2)
+                                                  IN1 differential input selected and –60-dB full-scale AC
+                                                                                                                              113
+                                                  signal input, DRE disabled
+                                                  IN1 differential input selected and –1-dB full-scale AC
+                                                  signal input, DRE enabled (DRE_LVL =                                        –95       –80
+                  Total harmonic distortion(2)    –36 dB, DRE_MAXGAIN = 24 dB)
+    THD+N         (3)                                                                                                                             dB
+                                                  IN1 differential input selected and –1-dB full-scale AC
+                                                                                                                              –95
+                                                  signal input, DRE disabled
+    PCM1821: ADC PERFORMANCE FOR LINE, MICROPHONE INPUT RECORDING : AVDD 3.3-V OPERATION
+                  Differential input full-scale
+                                                  AC-coupled input                                                              2               VRMS
+                  AC signal voltage
+                  Signal-to-noise ratio, A-       IN1 differential input selected and AC signal shorted to
+    SNR                                                                                                      100              106                 dB
+                  weighted(1) (2)                 ground
+                  Dynamic range, A-               IN1 differential input selected and –60-dB full-scale AC
+    DR                                                                                                                        106                 dB
+                  weighted(1) (2)                 signal input
+                  Total harmonic distortion(2)    IN1 differential input selected and –1-dB full-scale AC
+    THD+N         (3)                                                                                                         –95                 dB
+                                                  signal input
+    ADC OTHER PARAMETERS
+                  Output data sample rate                                                                    7.35                       192      kHz
+                  Output data sample word
+                                                                                                                                         32      Bits
+                  length
+                                                  –1-dB full-scale AC-signal input to non measurement
+                  Interchannel isolation                                                                                  –124                    dB
+                                                  channel
+                  Interchannel gain mismatch –6-dB full-scale AC-signal input                                                 0.1                 dB
+
+6          Submit Document Feedback                                                                           Copyright © 2021 Texas Instruments Incorporated
+
+                                                             Product Folder Links: PCM1820 PCM1821
+
+
+=== PDF page 7 ===
+                                                                                                                                    PCM1820, PCM1821
+www.ti.com                                                                                                 SBASA61A – DECEMBER 2020 – REVISED JUNE 2021
+
+7.5 Electrical Characteristics (continued)
+at TA = 25°C, AVDD = 3.3 V, IOVDD = 3.3 V, fIN = 1-kHz sinusoidal signal, fS = 48 kHz, 32-bit audio data, BCLK = 256 × fS,
+TDM slave mode (unless otherwise noted)
+                 PARAMETER                                           TEST CONDITIONS                              MIN      TYP           MAX       UNIT
+                 Gain drift(4)                   Across temperature range -40°C to 125°C                                   40.5                   ppm/°C
+                 Interchannel phase
+                                                 1-kHz sinusoidal signal                                                   0.02                   Degrees
+                 mismatch
+                                                 1-kHz sinusoidal signal, across temperature range -40°C
+                 Phase drift(5)                                                                                          0.0005                  Degrees/°C
+                                                 to 125°C
+                 Power-supply rejection          100-mVPP, 1-kHz sinusoidal signal on AVDD, differential
+ PSRR                                                                                                                       102                     dB
+                 ratio                           input selected, 0-dB channel gain
+ PCM1820:        Common-mode rejection           Differential microphone input selected, 100-mVPP, 1-kHz
+                                                                                                                             45                     dB
+ CMRR            ratio                           signal on both pins and measure level at output
+ PCM1821:        Common-mode rejection           Differential microphone input selected, 100-mVPP, 1-kHz
+                                                                                                                             60                     dB
+ CMRR            ratio                           signal on both pins and measure level at output
+ DIGITAL I/O
+                                                                                                                                        0.30 ×
+                                                 All digital pins except FMT0, IOVDD 1.8-V operation              –0.3
+                                                                                                                                       IOVDD         V
+                 Low-level digital input logic
+ VIL
+                 voltage threshold               All digital pins except FMT0, IOVDD 3.3-V operation              –0.3                     0.8
+                                                 FMT0 Pin                                                         –0.3                     0.8       V
+                                                 All digital pins except FMT0, IOVDD 1.8-V operation       0.7 × IOVDD             IOVDD + 0.3
+                 High-level digital input logic                                                                                                      V
+ VIH                                            All digital pins except FMT0, IOVDD 3.3-V operation                2.1             IOVDD + 0.3
+                 voltage threshold
+                                                FMT0 Pin                                                           2.1             AVDD + 0.3        V
+
+                 Low-level digital output        All digital pins, IOL = –2 mA, IOVDD 1.8-V operation                                     0.45
+ VOL                                                                                                                                                 V
+                 voltage                         All digital pins, IOL = –2 mA, IOVDD 3.3-V operation                                      0.4
+                                                                                                              IOVDD –
+                 High-level digital output       All digital pins, IOH = 2 mA, IOVDD 1.8-V operation
+ VOH                                                                                                             0.45                                V
+                 voltage
+                                                 All digital pins, IOH = 2 mA, IOVDD 3.3-V operation               2.4
+                 Input logic-high leakage for
+ IIH                                          All digital pins, input = IOVDD                                      –5        0.1            5       µA
+                 digital inputs
+                 Input logic-low leakage for
+ IIL                                             All digital pins, input = 0 V                                     –5        0.1            5       µA
+                 digital inputs
+                 Input capacitance for digital
+ CIN                                           All digital pins                                                               5                     pF
+                 inputs
+                 Pulldown resistance for
+ RPD             digital I/O pins when                                                                                       20                     kΩ
+                 asserted on
+ TYPICAL SUPPLY CURRENT CONSUMPTION
+ IAVDD                                           AVDD = 3.3 V, internal AREG                                                 0.5                    mA
+                 Current consumption with
+ IIOVDD                                          All external clocks stopped, IOVDD = 3.3 V                                  0.5
+                 all Clocks disabled                                                                                                                µA
+ IIOVDD                                          All external clocks stopped, IOVDD = 1.8 V                                  0.3
+ IAVDD           Current consumption with        AVDD = 3.3 V, internal AREG                                                11.9
+                 ADC 2-channel operating
+ IIOVDD                                          IOVDD = 3.3 V                                                             0.05                     mA
+                 at fS 16-kHz, BCLK = 256
+ IIOVDD          × fS and DRE disabled           IOVDD = 1.8 V                                                             0.02
+ IAVDD           Current consumption with        AVDD = 3.3 V, internal AREG                                               12.9
+                 ADC 2-channel operating
+ IIOVDD                                          IOVDD = 3.3 V                                                               0.1                    mA
+                 at fS 48-kHz, BCLK = 256
+ IIOVDD          × fS and DRE disabled           IOVDD = 1.8 V                                                             0.05
+ IAVDD           Current consumption with        AVDD = 3.3 V, internal AREG                                                 14
+                 ADC 2-channel operating
+ IIOVDD                                          IOVDD = 3.3 V                                                               0.1                    mA
+                 at fS 48-kHz, BCLK = 256
+ IIOVDD          × fS and DRE enabled            IOVDD = 1.8 V                                                             0.05
+
+(1)       Ratio of output level with 1-kHz full-scale sine-wave input, to the output level with the AC signal input shorted to ground, measured
+          A-weighted over a 20-Hz to 20-kHz bandwidth using an audio analyzer.
+(2)       All performance measurements done with a 20-kHz, low-pass filter and, where noted, an A-weighted filter. Failure to use such a filter
+          may result in higher THD and lower SNR and dynamic range readings than shown in the Electrical Characteristics. The low-pass filter
+          removes out-of-band noise, which, although not audible, may affect dynamic specification values.
+(3)       For best distortion performance, use input AC-coupling capacitors with a low-voltage-coefficient.
+
+Copyright © 2021 Texas Instruments Incorporated                                                                          Submit Document Feedback             7
+                                                             Product Folder Links: PCM1820 PCM1821
+
+
+=== PDF page 22 ===
+PCM1820, PCM1821
+SBASA61A – DECEMBER 2020 – REVISED JUNE 2021                                                                                                                                                    www.ti.com
+
+8.3.6.2.1.6 Sampling Rate: 96 kHz or 88.2 kHz
+Figure 8-17 and Figure 8-18 respectively show the magnitude response and the pass-band ripple for a
+decimation filter with a sampling rate of 96 kHz or 88.2 kHz. Table 8-13 lists the specifications for a decimation
+filter with an 96-kHz or 88.2-kHz sampling rate.
+
+                           10                                                                                             0.5
+                            0                                                                                             0.4
+                           -10
+                                                                                                                          0.3
+                           -20
+                                                                                                                          0.2
+                           -30
+         Magnitude (dB)
+
+                                                                                                         Magnitude (dB)
+                           -40                                                                                            0.1
+                           -50                                                                                              0
+                           -60                                                                                            -0.1
+                           -70
+                                                                                                                          -0.2
+                           -80
+                                                                                                                          -0.3
+                           -90
+                          -100                                                                                            -0.4
+                          -110                                                                                            -0.5
+                                 0   0.4   0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                     0   0.05    0.1   0.15 0.2 0.25 0.3 0.35        0.4    0.45   0.5
+                                                 Normalized Frequency (1/fS)               D001
+                                                                                                                                                   Normalized Frequency (1/fS)                 D001
+
+      Figure 8-17. Linear Phase Decimation Filter                                                  Figure 8-18. Linear Phase Decimation Filter Pass-
+                 Magnitude Response                                                                                   Band Ripple
+
+                                                       Table 8-13. Linear Phase Decimation Filter Specifications
+      PARAMETER                                                 TEST CONDITIONS                                             MIN                         TYP                      MAX            UNIT
+ Pass-band ripple                                Frequency range is 0 to 0.454 × fS                                       –0.05                                                  0.05                dB
+                                                 Frequency range is 0.58 × fS to 4 × fS                                    73.6
+ Stop-band attenuation                                                                                                                                                                               dB
+                                                 Frequency range is 4 × fS onwards                                         97.9
+ Group delay or latency                          Frequency range is 0 to 0.454 × fS                                                                     17.1                                     1/fS
+
+8.3.6.2.1.7 Sampling Rate: 192 kHz or 176.4 kHz
+Figure 8-19 and Figure 8-20 respectively show the magnitude response and the pass-band ripple for a
+decimation filter with a sampling rate of 192 kHz or 176.4 kHz. Table 8-14 lists the specifications for a decimation
+filter with an 192-kHz or 176.4-kHz sampling rate.
+
+                           10                                                                                             0.5
+                            0                                                                                             0.4
+                           -10
+                                                                                                                          0.3
+                           -20
+                                                                                                                          0.2
+                           -30
+         Magnitude (dB)
+
+                                                                                                         Magnitude (dB)
+
+                           -40                                                                                            0.1
+                           -50                                                                                              0
+                           -60                                                                                            -0.1
+                           -70
+                                                                                                                          -0.2
+                           -80
+                                                                                                                          -0.3
+                           -90
+                          -100                                                                                            -0.4
+                          -110                                                                                            -0.5
+                                 0   0.4   0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                     0    0.05     0.1   0.15    0.2   0.25     0.3        0.35    0.4
+                                                 Normalized Frequency (1/fS)               D001                                                   Normalized Frequency (1/fS)                  D001
+
+      Figure 8-19. Linear Phase Decimation Filter                                                  Figure 8-20. Linear Phase Decimation Filter Pass-
+                 Magnitude Response                                                                                   Band Ripple
+
+                                                       Table 8-14. Linear Phase Decimation Filter Specifications
+      PARAMETER                                                  TEST CONDITIONS                                             MIN                         TYP                     MAX            UNIT
+ Pass-band ripple                                Frequency range is 0 to 0.3 × fS                                          –0.05                                                 0.05                dB
+                                                 Frequency range is 0.473 × fS to 4 × fS                                     70.0
+ Stop-band attenuation                                                                                                                                                                               dB
+                                                 Frequency range is 4 × fS onwards                                          111.0
+ Group delay or latency                          Frequency range is 0 to 0.3 × fS                                                                        11.9                                        1/fS
+
+22    Submit Document Feedback                                                                                                                       Copyright © 2021 Texas Instruments Incorporated
+
+                                                                               Product Folder Links: PCM1820 PCM1821
+
+

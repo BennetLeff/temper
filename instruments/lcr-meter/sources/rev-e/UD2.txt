@@ -1,0 +1,97 @@
+# UD2: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: KEMET UD2 datasheet via LCSC C1560626
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-40 ----
+Miniature Signal Relays
+UC2/UD2
+
+Overview                                                                        Applications
+The KEMET UC2/UD2 miniature signal relays offer a super                         • Electronic switching systems
+compact case size in a flat package. Minimal board space                        • PBX
+is consumed with either a through-hole or surface mount                         • Terminal equipment
+configuration. These relays are recognized by UL and CSA,                       • Telephone systems
+while also being compliant with Part 68 of the FCC’s 1,500
+V surge capacity.
+
+
+
+
+Benefits
+• Low power consumption (< 140 mW)
+• Super compact and lightweight
+• Flat package for dense mounting
+• Low magnetic interference
+• Tube or embossed tape and reel packaging
+• UL recognized (E73266) and CSA certified (LR46266)
+• Surface mount and through-hole options
+
+
+
+
+Part Number System
+
+            UD2-                      3                     S                                   NU                                  -L
+            Series              Coil Voltage           Latch Type                            Lead Type                           Packaging
+ UC2- = Through-hole mount 3 = 3 VDC            Blank = Non-latch type        NU = Standard                              Blank = Tube
+ UD2- = Surface mount      4.5 = 4.5 VDC        S = Single coil latch type    NE = Low power consumption (Non-latch)     -L = Embossed tape on reel
+                           5 = 5 VDC                                          NUN = Minimum footprint
+                           12 = 12 VDC                                        NEN = Low power consumption (Non-latch),
+                                                                              Minimum footprint
+
+
+
+
+                                                                                                                              Built Into Tomorrow
+---- lines 295-345 ----
+
+
+
+© KEMET Electronics Corporation • KEMET Tower • One East Broward Boulevard                                          R7005_UC2_UD2 • 12/7/2020   6
+Fort Lauderdale, FL 33301 USA • 954-766-2800 • www.kemet.com
+Miniature Signal Relays – UC2/UD2
+
+
+Contact Specifications
+                                         Item                                                                           UC2/UD2
+     Contact Form                                                                2 Form C
+     Contact Material                                                            Silver alloy with gold alloy overlay
+                                            Maximum Switching Power              30 W, 37.5 VA
+                                            Maximum Switching Voltage            220 VDC, 250 VAC
+     Contact Ratings
+                                            Maximum Switching Current            1A
+                                            Maximum Carrying Current             1A
+     Minimum Contact Ratings                                                     10 mVDC, 10 µA*1
+     Initial Contact Resistance                                                  100 mΩ maximum (initial)
+     Operating Time (excluding bounce)                                           Approximately 2 milliseconds
+     Release Time (excluding bounce)                                             Approximately 1 milliseconds
+     Insulation Resistance                                                       1,000 MΩ at 500 VDC
+                                            Between Open Contacts                1,000 VAC (for one minute), 1,500 V surge (10 x 160 µs)*2
+     Withstand Voltage                      Between Adjacent Contacts            1,000 VAC (for one minute), 1,500 V surge (10 x 160 µs)*2
+                                            Between Coil and Contacts            1,500 VAC (for one minute), 2,500 V surge (2 x 10 µs)*3
+                                                                                 735 m/s2 (75 G) – misoperation
+     Shock Resistance
+                                                                                 980 m/s2 (100 G) – destructive failure
+                                                                                 10 to 55 Hz, double amplitude 3 mm (20 G) – misoperation
+     Vibration Resistance
+                                                                                 10 to 55 Hz, double amplitude 5 mm (30 G) – destructive failure
+                                                                                 −40 to +85°C
+     Ambient Temperature
+                                                                                 −40 to +70°C (Low power consumption type)
+     Coil Temperature Rise                                                       18°C at nominal coil voltage (140 mW)
+                                                                                 5 x 107 operations (Non-latch type)*4
+                                            Non-load
+                                                                                 1 x 107 operations (Latch type)
+     Running Specifications
+                                                                                 30 VDC 1 A (resistive), 1 x 105 operations at 20°C, 1 Hz
+                                            Load
+                                                                                 125 VAC 0.3 A (resistive), 1 x 105 operations at 20°C, 1 Hz
+     Weight                                                                      Approximately 0.8 g
+
+*1
+   This value is a reference value in the resistance load. Minimum capacity changes depending on the switching frequency, environment temperature,
+  and load.
+*2
+   Rise time: 10 µs; decay time to half crest: 160 µs.
+*3
+   Rise time: 2 µs; decay time to half crest: 10 µs.

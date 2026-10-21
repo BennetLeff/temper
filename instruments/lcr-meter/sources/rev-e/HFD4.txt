@@ -1,0 +1,272 @@
+# HFD4: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: Hongfa HFD4 datasheet via LCSC C64399
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-210 ----
+  HFD4                                                                         SUBMINIATURE SIGNAL RELAY
+
+                                                                                         Features
+                                                                                       ● Subminiature signal relay of 4th generation
+                                                                                       ● Surge withstand voltage up to 2500V
+                                                                                       ● Meets EC62368-1
+                                                                                       ● High contact capacity 2A 30VDC
+                                                                                       ● Providing J-leg SMT version for intensive installation
+  File No.:E133481
+                                                                                       ● Single side stable and latching type available
+                                                                                       ● High temperature resistant products at 105
+                                                                                            are available
+                                                                                       ● Products compliant with IEC60079 available
+  File No.:R50333270
+                                                                                       ● Products compliant with IEC 60335-1 available
+                                                                                       ● Monostable sensitive type with 100mV coil power
+                                                                                            is available
+                                                                                       ● Low halogen products conforming to IEC 61249-
+   File No.:CQC16002154335(Single side stable)                                              2-21 are available
+            CQC16002154336(Latching)                                                                                             RoHS compliant
+
+ CONTACT DATA                                                                   CHARACTERISTICS
+Contact arrangement                                                    2C      Insulation resistance                          1000M (at 500VDC)
+                      1)
+Contact resistance                  100m max. (at 10mA 30mVDC)                              Between coil & contacts                     1600VAC 1min
+                                                                               Dielectric
+Contact material                                      AgNi + Au plated                    Between open contacts                         1000VAC 1min
+                                                                               strength
+Contact rating                                                1A 30VDC                    Between contact sets                          1800VAC 1min
+(Res. load)                                                0.3A 125VAC                      Between open contacts
+                                                                               Surge     (10/160µs)                        1500VAC (FCC part 68)
+Max. switching current                                                 2A      withstand Between coil & contacts
+                                                                                                                             2500VAC (Telecordia)
+                                                                               voltage (2/10µs)
+Max. switching voltage                              250VAC / 220VDC
+                                                                               Operate time (Set time)                                       3ms max.
+Max. switching power                                      62.5VA / 60W
+                                                                               Release time (Reset time)                                     3ms max.
+                            2)
+Min. applicable load                                        10mV 10µA
+                                                                                                                                       -40 to 85
+Mechanical endurance                                                           Ambient temperature
+                                                              1 x 108OPS                                                            -40 to 105
+                                                                                                                                                 2)
+                                                5
+                                       1 x 10 OPS (AgNi + Au plated,           Humidity
+                           3)                                                                                                           5% to 85% RH
+Electrical endurance             0.3A 125VAC, Resistive load, at 85 C,
+                                                                        o
+
+
+
+                                                        1s on 9s off)          Vibration resistance                       10Hz to 55Hz 3.3mm DA
+                                                                                                                                                      2
+Notes:1) The data shown above are initial values.                              Shock           Functional                                     735m/s
+      2) Min. applicable load is reference value. Please perform the                                                                                  2
+         confirmation test with the actual load before production since        resistance      Destructive                                    980m/s
+         reference value may change according to switching frequencies,
+         environmental conditions and expected contact resistance and          Termination                                                   DIP, SMT
+         reliability.
+      3) Electric endurance data are collected in the NO or NC contact test.   Unit weight                                                Approx. 0.8g
+
+COIL                                                                           Moisture sensitivity levels (Only for
+                                                                                                                                                MSL 3
+                                                                               SMT type, JEDEC-STD-020)
+                           Single side stable        See "COIL DATA"
+Coil power                                                                     Construction                                              Plastic sealed
+                           1 coil latching           See "COIL DATA"           Notes: 1) The data shown above are initial values;
+Temperature rise            50K max.(At 1A load, 85        environment)               2) The 888 version is for applications at 105 .
+
+
+ HIGH FREQUENCY1)                                                              SAFETY APPROVAL RATINGS
+Frequency                                                        100MHz                                                          1A 30VDC at 85
+                                                                                                                                1A 30VDC at 105
+Insertion loss                                             0.04dB(Typ.)                                                          2A 30VDC at 40
+                                                                               UL/CUL             AgNi + Au plated            0.5A 125VDC at 40
+Voltage standing wave ratio V.SWR                             1.06(Typ.)
+                                                                                                                              0.3A 125VAC at 85
+Isolation                                                    43dB(Typ.)                                                       0.5A 125VAC at 40
+                                                                                                                                 1A 30VDC at 85
+Notes:1) Applicable to 428 version. Please refer to the "ORDERING                                 AgNi + Au plated
+                                                                               TÜV                                            0.3A 125VAC at 85
+        INFORMATION" for more details.;                                                                                       0.5A 125VAC at 85
+      2) The characteristic impedance of the measuring system is 50Ω;
+      3) The data shown above are initial values;                              Notes: 1) All values unspecified are at room temperature.
+      4) If you need higher frequency band, please contact us.                        2) Only typical loads are listed above. Other load specifications
+                                                                                         can be available upon request.
+               HONGFA RELAY
+               ISO9001, IATF16949 , ISO14001, OHSAS18001, IECQ QC 080000,ISO/IEC 27001 CERTIFIED                                        2024 Rev. 1.00
+
+
+                                                                                                                                                    67
+COIL DATA                                                                                               at 23
+Single side stable and Standard type
+
+                        Nominal        Initial Pick-up   Initial Drop-out                     Rated     Max.
+         Coil                                                 Voltage            Coil          coil
+                        Voltage            Voltage                                            power    Voltage
+         Code                                VDC1)             VDC            Resistance
+                             (1)                                                               mW           (4)
+                        VDC                  max.               min.                                   VDC
+                                                                                             approx.
+HFD4/1.5                  1.5              1.13               0.15           16 x (1 10%)     140       3.0
+HFD4/2.4                  2.4               1.8               0.24           41 x (1 10%)     140       4.8
+HFD4/3                     3               2.25                0.3          64.3 x (1 10%)    140       6.0
+HFD4/4.5                  4.5              3.38               0.45          145 x (1 10%)     140       9.0
+HFD4/5                     5               3.75                0.5          178 x (1 10%)     140        10
+HFD4/6                     6                4.5                0.6          257 x (1 10%)     140        12
+HFD4/9                     9               6.75                0.9          579 x (1 10%)     140        18
+HFD4/12                   12                 9                 1.2          1028 x (1 10%)    140        24
+HFD4/24                   24                18                 2.4          2880 x (1 10%)    200        48
+
+
+
+
+Monostable sensitive type(478 version)
+                                       Initial Pick-up   Initial Drop-out                     Rated
+                        Nominal                                                  Coil          coil     Max.
+         Coil           Voltage            Voltage            Voltage                         power    Voltage
+         Code                                VDC1)             VDC            Resistance
+                             (1)                                                               mW      VDC
+                                                                                                            (4)
+                        VDC                  max.               min.                         approx.
+HFD4/1.5                  1.5               1.2               0.15          22.5 x (1 10%)    100       3.0
+HFD4/2.4                  2.4              1.92               0.24           58 x (1 10%)     100       4.8
+HFD4/3                     3                2.4                0.3           90 x (1 10%)     100       6.0
+HFD4/4.5                  4.5               3.6               0.45          203 x (1 10%)     100       9.0
+HFD4/5                     5                 4                 0.5          250 x (1 10%)     100        10
+HFD4/6                     6                4.8                0.6          360 x (1 10%)     100        12
+HFD4/9                     9                7.2                0.9          810 x (1 10%)     100        18
+HFD4/12                   12                9.6                1.2          1440 x (1 10%)    100        24
+HFD4/24                   24               19.2                2.4          5760 x (1 10%)    100        48
+
+
+
+
+1 coil latching
+                                       Initial Pick-up   Initial Drop-out                     Rated
+                        Nominal                                                  Coil          coil     Max.
+         Coil           Voltage            Voltage            Voltage                                  Voltage
+                                             VDC1)                            Resistance      power
+         Code                (1)                               VDC 1)                          mW           (4)
+                        VDC                  max.               min.                                   VDC
+                                                                                             approx.
+HFD4/1.5-L                1.5              1.13               1.13          22.5 x (1 10%)    100        3.0
+HFD4/2.4-L                2.4               1.8                1.8           58x (1 10%)      100        4.8
+HFD4/3-L                   3               2.25               2.25           90 x (1 10%)     100        6.0
+HFD4/4.5-L                4.5              3.38               3.38          203 x (1 10%)     100        9.0
+HFD4/5-L                   5               3.75               3.75          250 x (1 10%)     100        10
+HFD4/6-L                   6                4.5                4.5          360 x (1 10%)     100        12
+HFD4/9-L                   9               6.75               6.75          810 x (1 10%)     100        18
+HFD4/12-L                 12                 9                  9           1440 x (1 10%)    100        24
+HFD4/24-L                 24                18                 18           2880 x (1 10%)    200        48
+
+
+
+
+68
+COIL DATA                                                                                                                                         at 23
+Notes:1) The data shown above are initial values.
+      2) To supply rated step voltage to coil is the foundation of relay proper operation. Please make sure the applied voltage to the coil reach at
+         rated values.
+         Please refer to the typical diagram below for single side stable relay. The "V_coil" is the rated voltage:
+
+
+                                                                             VCC
+
+
+
+
+                                                          RES2                                   V_coil
+
+                                                               RELAY                DIODE             V
+
+
+
+                                                 Port1
+                                                            RES1
+
+
+
+
+                                                                             GND
+
+
+       3) In case 5V of transistor drive circuit, it is recommended to use 4.5V type relay, and 3V to use 2.4V type relay.
+       4) For monostable relays，if you need to drop down voltage and hold mode after reliably operating,make sure that the effective value of
+          holding voltage is not less than 60% of the rated voltage.
+       5) Maximum voltage refers to the maximum voltage which relay coil could endure in a short period of time.
+       6) When user's requirements can't be found in the above table, special order allowed.
+       7) During the relay pick-up or drop-out processes, there are stages of contact pressure change, contact vibration and unstable contact etc.
+          When the voltage applied to coil is gradually changed, it will lengthen the unstable stage and affect relay endurance. To reduce this
+          influence, please apply step voltage(switching circuit) to relay coil.
+
+
+
+
+ORDERING INFORMATION
+
+                                 H F D4 /                          24                -L                   S              R               (XXX)
+Type
+Coil voltage                1.5, 2.4, 3, 4.5, 5, 6, 9, 12, 24VDC
+
+Sort                        L: 1 coil latching            Nil: Single side stable
+                            S: Standard SMT               S1: Short terminal SMT
+Terminal type
+                            S3: J-legs SMT                Nil: DIP
+                            R: Tape and reel packing (Only for SMT type) 1)
+Packing style
+                            Nil: Tube packing(Only for DIP type)
+---- lines 540-595 ----
+                                                                                                                                                            max. 280
+                              Contact Current                                        Contact Current (A)
+                                                                  Test conditions:
+                                                                  Energized with rated voltage
+                                                                                        o
+                                                                   Resistive load, at 85 C, 1s on 9s off.
+
+
+
+Notice
+1) This relay is highly sensitive polarized relay, if correct polarity is not applied to the coil terminals, the relay does not operate properly.
+2) To avoid using relays under strong magnetic field which will change the parameters of relays such as pick-up voltage and drop-out voltage.
+3) Relay is on the “reset” status when being released from stock, with the consideration of shock risen from transit and relay mounting, it should
+    be changed to the “set” status when application(connecting to the power supply). Please reset the relay to “set” or “reset” status on request.
+4) Energizing coil with rated voltage is basic for normal operation of a relay, please make sure the energized voltage to relay coil have reached
+    the rated voltage. Regarding latching relay, in order to maintain the "set" or "reset" status, impulse width of the rated voltage applied to coil
+    should be more than 5 times of "set" or "reset" time.
+5) For a monosteady state relay, after the relay is reliably operated, if it needs to be kept under pressure, make sure that the effective value of the
+    voltage is not less than 60% of the rated voltage;
+6) The relay may be damaged because of falling or when shocking conditions exceed the requirement.
+7) For SMT products, validation with real application should be done before your series production, if the reflow-soldering temperature curve is
+    out of our recommendation. Generally, two-time reflow-soldering is not recommended for the relay. However, if two-time reflow-soldering is
+    required, a 60-min. interval should be guaranteed and a validation should be done before production.
+8) Please use wave soldering or manual soldering for straight-in relay. If you need reflow welding, please confirm the feasibility with us.
+9) Contact is recommended for suitable condition and specifications if water cleaning or surface process is involved in assembling relays on PCB.
+                                                                                                 o
+10) Regarding the plastic sealed relay, we should leave it cooling naturally untill below 40 C after welding, then clean it and deal with coating,
+                                                                                       o
+    remarkably the temperature of solvents should also be controlled below 40 C.Please avoid cleaning the relay by ultrasonic, avoid using the
+    solvents like gasoline, Freon, and so on, which would affect the configuration of relay or influence the environment.
+11) Relays packaged in moisture barrier bags meet MSL-3 requirements. The relays should be stored at ambient conditions of ≤30℃ and ≤60%
+    RH after they are removed from their packaging, and should be used within 168 hours. If the relays cannot be used within 168 hours, please
+    repack them or store them in a drying oven at 25℃±5℃, ≤10% RH. Otherwise, relays may be subjected to a soldering test to check their
+    performance, or they may be used after keeping them in an oven for 72 hours at with 50℃±5℃, ≤30% RH.
+12) When applied with continuous current, the heat from relay coil will age its isolation. Thus, please do not ground connected the coil to reduce
+    electrical errosion if possible. And please provide protection circuit to avoid broken wire and losses.
+13) Please make sure that there are no silicon-based substances (such as silicon rubber, silicone oil, silicon-based coating agents, silicon fillers,
+    etc.) around the relay, because it will generate silicon-containing volatile gas, which may cause poor contact in case of silicon-containing volatile
+    gas sticking on contact
+14) About preferable condition of operation, storage and transportation, please refer to "Explanation to terminology and guidetines of relay".
+15) During the relay pick-up or drop-out processes, there are stages of contact pressure change, contact vibration and unstable contact etc.
+    When the voltage applied to coil is gradually changed, it will lengthen the unstable stage and affect relay endurance. To reduce this influence,
+    please apply step voltage(switching circuit) to relay coil.
+
+
+
+
+Disclaimer
+The specification is for reference only. See to "Terminology and Guidelines" for more information. Specifications subject to change without notice.
+We could not evaluate all the performance and all the parameters for every possible application. Thus the user should be in a right position to
+choose the suitable product for their own application. If there is any query, please contact Hongfa for the technical service. However, it is the user’s
+responsibility to determine which product should be used only.
+                                               © Xiamen Hongfa Electroacoustic Co., Ltd. All rights of Hongfa are reserved.
+
+
+                                                                                                                                                                                          73

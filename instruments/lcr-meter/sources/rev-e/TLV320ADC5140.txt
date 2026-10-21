@@ -1,0 +1,1300 @@
+# TI TLV320ADC5140 datasheet SBAS892A (Oct 2019); p3 compares TLV320ADC3140/5140/6140
+# Source: https://www.ti.com/lit/ds/symlink/tlv320adc5140.pdf
+# Retrieved 2026-10-20; PDF sha256 9e96492341cf62de129e773bf3edcca1573010d125d3a6b13257fe32b98ccafc
+# Extracted with `pdftotext -layout`; only the listed PDF pages are kept (register maps etc. dropped).
+# Each page starts with a line "=== PDF page N ===" ; citations in docs/rev-e-acquisition-survey.md use these page numbers.
+# Pages kept: 1,3,7-9,25-28,30,36,38-40,44-45,49-50
+
+=== PDF page 1 ===
+                                Product         Order        Technical            Tools &                   Support &
+                                Folder          Now          Documents            Software                  Community
+
+                                                                                                                                       TLV320ADC5140
+                                                                                                SBAS892A – JULY 2019 – REVISED OCTOBER 2019
+
+                 TLV320ADC5140 Quad-Channel, 768-kHz, Burr-BrownTM Audio ADC
+
+1 Features                                                             2 Applications
+1•   Multichannel high-performance ADC:                                •    Microphone array systems
+     – 4-channel analog microphones or line-in,                        •    Voice-activated digital assistants
+     – 8-channel digital PDM microphones, or                           •    Teleconferencing systems
+     – Combination of analog and digital microphones                   •    Security and surveillance systems
+•    ADC line and microphone differential input
+     performance:                                                      3 Description
+     – Dynamic range (DR):                                             The TLV320ADC5140 is a Burr-Brown™ high-
+                                                                       performance, audio analog-to-digital converter (ADC)
+         – 120-dB, dynamic range enhancer (DRE)                        that supports simultaneous sampling of up to four
+            enabled                                                    analog channels or eight digital channels for the
+         – 108-dB, DRE disabled                                        pulse density modulation (PDM) microphone input.
+     – THD+N: –98 dB                                                   The device supports line and microphone inputs, and
+                                                                       allows for both single-ended and differential input
+•    ADC channel summing mode, DR performance:                         configurations. The device integrates programable
+     – 111-dB, DRE disabled, 2-channel summing                         channel gain, digital volume control, a programmable
+     – 114-dB, DRE disabled, 4-channel summing                         microphone bias voltage, a phase-locked loop (PLL),
+                                                                       a programmable high-pass filter (HPF), biquad filters,
+•    ADC input voltage:                                                low-latency filter modes, and allows for sample rates
+     – Differential, 2-VRMS full-scale inputs                          up to 768 kHz. The device supports time-division
+     – Single-ended, 1-VRMS full-scale inputs                          multiplexing (TDM), I2S, or left-justified (LJ) audio
+                                                                       formats, and can be controlled with either the I2C or
+•    ADC sample rate (fS) = 8 kHz to 768 kHz
+                                                                       SPI interface. These integrated high-performance
+•    Programmable channel settings:                                    features, along with the ability to be powered from a
+     – Channel gain: 0 dB to 42 dB, 1-dB steps                         single-supply of 3.3 V or 1.8 V, make the device an
+     – Digital volume control: –100 dB to 27 dB                        excellent choice for space-constrained audio systems
+                                                                       in far-field microphone recording applications.
+     – Gain calibration with 0.1-dB resolution
+                                                                       The TLV320ADC5140 is specified from –40°C to
+     – Phase calibration with 163-ns resolution
+                                                                       +125°C, and is offered in a 24-pin WQFN package.
+•    Programmable microphone bias or supply voltage
+     generation                                                                                  Device Information(1)
+•    Low-latency signal processing filter selection                        PART NUMBER                  PACKAGE                      BODY SIZE (NOM)
+•    Programmable HPF and biquad digital filters                         TLV320ADC5140                 WQFN (24)
+                                                                                                                             4.00 mm × 4.00 mm with
+                                                                                                                             0.5-mm pitch
+•    Automatic gain controller (AGC)
+                                                                         (1) For all available packages, see the package option addendum
+•    I2C or SPI controls                                                     at the end of the data sheet.
+•    Integrated high-performance audio PLL
+•    Automatic clock divider setting configurations                                          Simplified Block Diagram
+•    Audio serial data interface:                                                IN1P_GPI1                                                               SHDNZ
+                                                                                               Digital PDM Microphones           PLL and Clock
+     – Format: TDM, I2S, or left-justified (LJ)                                 IN1M_GPO1               Interface                 Generation             GPIO1
+
+     – Word length: 16 bits, 20 bits, 24 bits, or 32 bits                        IN2P_GPI2
+                                                                                                                                                         FSYNC
+                                                                                IN2M_GPO2
+     – Master or slave interface                                                                                Programmable
+                                                                                                                                                         BCLK
+                                                                                 IN3P_GPI3     Quad Channel                           Audio Serial
+                                                                                                                Digital Filters,                         SDOUT
+•    Single-supply operation: 3.3 V or 1.8 V                                    IN3M_GPO3
+                                                                                                  ADC with
+                                                                                               Front-End PGA
+                                                                                                                Biquads, AGC
+                                                                                                                                       Interface
+                                                                                                                                     (TDM, I2S, LJ)
+                                                                                                                  and DRE
+•    I/O-supply operation: 3.3 V or 1.8 V                                        IN4P_GPI4
+                                                                                                                                                         SDA_SSZ
+
+•    Power consumption for 1.8-V AVDD supply:                                   IN4M_GPO4
+                                                                                                                                                         SCL_MOSI
+                                                                                                                             2
+                                                                                               MICBIAS, Regulators and      I C or SPI Control           ADDR0_SCLK
+     – 8.5 mW/channel at 16-kHz sample rate                                       MICBIAS         Voltage Reference              Interface
+                                                                                     VREF                                                                ADDR1_MISO
+     – 9.2 mW/channel at 48-kHz sample rate                                                          DREG   Thermal Pad   AVSS        AVDD       IOVDD
+                                                                                              AREG
+                                                                                                               (VSS)
+1
+
+       An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+       intellectual property matters and other important disclaimers. PRODUCTION DATA.
+
+
+=== PDF page 3 ===
+                                                                                                                                     TLV320ADC5140
+www.ti.com                                                                                                SBAS892A – JULY 2019 – REVISED OCTOBER 2019
+
+5 Device Comparison Table
+                FEATURES                           TLV320ADC3140                         TLV320ADC5140                           TLV320ADC6140
+Control interface                                                                             2
+                                                                                             I C or SPI
+Digital audio serial interface                                                     TDM, I2S, or left-justified (LJ)
+Audio analog channel                                     4                                        4                                       4
+Digital PDM channel                                      8                                        8                                       8
+Dynamic range enhancer (DRE)                        Not available                             Available                               Available
+Dynamic range (DRE disabled)                          106 dB                                   108 dB                                  113 dB
+Dynamic range (DRE enabled)                         Not available                              120 dB                                  123 dB
+Compatibility                                         Pin-to-pin, package, and control registers compatible; drop-in replacements of each other
+Package                                                              WQFN (RTW), 24-pin, 4.00 mm × 4.00 mm (0.5-mm pitch)
+
+Copyright © 2019, Texas Instruments Incorporated                                                                 Submit Documentation Feedback     3
+                                                        Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 7 ===
+                                                                                                                                   TLV320ADC5140
+www.ti.com                                                                                                SBAS892A – JULY 2019 – REVISED OCTOBER 2019
+
+7.4 Thermal Information
+                                                                                                                TLV320ADCx140
+                                           THERMAL METRIC (1)                                                      RTW (WQFN)                UNIT
+                                                                                                                     24 PINS
+RθJA           Junction-to-ambient thermal resistance                                                                 32.6                   °C/W
+RθJC(top)      Junction-to-case (top) thermal resistance                                                              25.0                   °C/W
+RθJB           Junction-to-board thermal resistance                                                                   11.9                   °C/W
+ψJT            Junction-to-top characterization parameter                                                              0.2                   °C/W
+ψJB            Junction-to-board characterization parameter                                                           11.9                   °C/W
+RθJC(bot)      Junction-to-case (bottom) thermal resistance                                                            2.9                   °C/W
+
+(1)    For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+       report.
+
+7.5 Electrical Characteristics
+at TA = 25°C, AVDD = 3.3 V, IOVDD = 3.3 V, fIN = 1-kHz sinusoidal signal, fS = 48 kHz, 32-bit audio data, BCLK = 256 × fS,
+TDM slave mode, PLL on (unless otherwise noted)
+               PARAMETER                                          TEST CONDITIONS                            MIN             TYP     MAX     UNIT
+ADC CONFIGURATION
+                                               Input pins INxP or INxM, 2.5-kΩ input impedance
+                                                                                                                             2.5
+                                               selection
+                                               Input pins INxP or INxM, 10-kΩ input impedance
+               AC input impedance                                                                                             10              kΩ
+                                               selection
+                                               Input pins INxP or INxM, 20-kΩ input impednace
+                                                                                                                              20
+                                               selection
+               Channel gain range              Programmable range with 1-dB steps                              0                      42      dB
+ADC PERFORMANCE FOR LINE/MICROPHONE INPUT RECORDING : AVDD 3.3-V OPERATION
+               Differential input full-scale
+                                               AC-coupled input                                                                2             VRMS
+               AC signal voltage
+               Single-ended input full-
+                                               AC-coupled input                                                                1             VRMS
+               scale AC signal voltage
+                                               IN1 differential input selected and AC signal shorted to
+                                               ground, DRE enabled (DRE_LVL = –36 dB,
+                                                                                                             112             119
+                                               DRE_MAXGAIN = 24 dB), 2.5-kΩ input impedance
+                                               selection
+                                               IN1 differential input selected and AC signal shorted to
+                                               ground, DRE enabled (DRE_LVL = –36 dB,
+                                                                                                                             116
+               Signal-to-noise ratio, A-       DRE_MAXGAIN = 24 dB), 10-kΩ input impedance
+SNR                                            selection                                                                                      dB
+               weighted (1) (2)
+                                               IN1 differential input selected and AC signal shorted to
+                                               ground, DRE disabled, 10-kΩ input impedance                   102             107
+                                               selection, 0-dB channel gain
+                                               IN1 differential input selected and AC signal shorted to
+                                               ground, DRE disabled, 10-kΩ input impedance                                   102
+                                               selection, 12-dB channel gain
+                                               IN1 differential input selected and –60-dB full-scale AC
+                                               signal input, DRE enabled (DRE_LVL = –36 dB,
+                                                                                                                             120
+                                               DRE_MAXGAIN = 24 dB), 2.5-kΩ input impedance
+                                               selection
+                                               IN1 differential input selected and –60-dB full-scale AC
+                                               signal input, DRE enabled (DRE_LVL = –36 dB,
+                                                                                                                             117
+               Dynamic range, A-               DRE_MAXGAIN = 24 dB), 10-kΩ input impedance
+DR                                             selection                                                                                      dB
+               weighted (2)
+                                               IN1 differential input selected and –60-dB full-scale AC
+                                               signal input, DRE disabled, 10-kΩ input impedance                             108
+                                               selection, 0-dB channel gain
+                                               IN1 differential input selected and –72-dB full-scale AC
+                                               signal input, DRE disabled, 10-kΩ input impedance                             103
+                                               selection, 12-dB channel gain
+
+(1)    Ratio of output level with 1-kHz full-scale sine-wave input, to the output level with the AC signal input shorted to ground, measured A-
+       weighted over a 20-Hz to 20-kHz bandwidth using an audio analyzer.
+(2)    All performance measurements done with 20-kHz low-pass filter and, where noted, A-weighted filter. Failure to use such a filter may
+       result in higher THD and lower SNR and dynamic range readings than shown in the Electrical Characteristics. The low-pass filter
+       removes out-of-band noise, which, although not audible, may affect dynamic specification values.
+Copyright © 2019, Texas Instruments Incorporated                                                              Submit Documentation Feedback         7
+                                                            Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 8 ===
+TLV320ADC5140
+SBAS892A – JULY 2019 – REVISED OCTOBER 2019                                                                                                   www.ti.com
+
+Electrical Characteristics (continued)
+at TA = 25°C, AVDD = 3.3 V, IOVDD = 3.3 V, fIN = 1-kHz sinusoidal signal, fS = 48 kHz, 32-bit audio data, BCLK = 256 × fS,
+TDM slave mode, PLL on (unless otherwise noted)
+              PARAMETER                                          TEST CONDITIONS                            MIN           TYP          MAX       UNIT
+                                              IN1 differential input selected and –1-dB full-scale AC
+                                              signal input, DRE enabled (DRE_LVL = –36 dB,
+                                                                                                                          –98           –80
+                                              DRE_MAXGAIN = 24 dB), 2.5-kΩ input impedance
+                                              selection
+                                              IN1 differential input selected and –1-dB full-scale AC
+                                              signal input, DRE enabled (DRE_LVL = –36 dB,
+                                                                                                                          –98
+              Total harmonic                  DRE_MAXGAIN = 24 dB), 10-kΩ input impedance
+THD+N                                         selection                                                                                           dB
+              distortion (2) (3)
+                                              IN1 differential input selected and –1-dB full-scale AC
+                                              signal input, DRE disabled, 10-kΩ input impedance                           –98
+                                              selection, 0-dB channel gain
+                                              IN1 differential input selected and –13-dB full-scale AC
+                                              signal input, DRE disabled, 10-kΩ input impedance                           –95
+                                              selection, 12-dB channel gain
+ADC PERFORMANCE FOR LINE/MICROPHONE INPUT RECORDING : AVDD 1.8-V OPERATION
+              Differential input full-scale
+                                              AC-coupled Input                                                               1                   VRMS
+              AC signal voltage
+              Single-ended input full-
+                                              AC-coupled Input                                                             0.5                   VRMS
+              scale AC signal voltage
+                                              IN1 differential input selected and AC signal shorted to
+                                              ground, DRE enabled (DRE_LVL = –36 dB,
+                                                                                                                          112
+                                              DRE_MAXGAIN = 24 dB), 2.5-kΩ input impedance
+                                              selection
+                                              IN1 differential input selected and AC signal shorted to
+              Signal-to-noise ratio, A-
+SNR                                           ground, DRE enabled (DRE_LVL = –36 dB,                                                              dB
+              weighted (1) (2)                                                                                            110
+                                              DRE_MAXGAIN = 24 dB), 10-kΩ input impedance
+                                              selection
+                                              IN1 differential input selected and AC signal shorted to
+                                              ground, DRE disabled, 10-kΩ input impedance                                 100
+                                              selection, 0-dB channel gain
+                                              IN1 differential input selected and –60-dB full-scale AC
+                                              signal input, DRE enabled (DRE_LVL = –36 dB,
+                                                                                                                          113
+                                              DRE_MAXGAIN = 24 dB), 2.5-kΩ input impedance
+                                              selection
+              Dynamic range, A-               IN1 differential input selected and –60-dB full-scale AC
+DR                                                                                                                                                dB
+              weighted (2)                    signal input, DRE enabled (DRE_LVL = –36 dB,
+                                                                                                                          111
+                                              DRE_MAXGAIN = 24 dB), 10-kΩ input impedance
+                                              selection
+                                              IN1 differential input selected and –60-dB full-scale AC
+                                                                                                                          101
+                                              signal input, DRE disabled, 0-dB channel gain
+                                              IN1 differential input selected and –2-dB full-scale AC
+                                              signal input, DRE enabled (DRE_LVL = –36 dB,
+                                                                                                                          –90
+                                              DRE_MAXGAIN = 24 dB), 2.5-kΩ input impedance
+                                              selection
+                                              IN1 differential input selected and –2-dB full-scale AC
+              Total harmonic
+THD+N                                         signal input, DRE enabled (DRE_LVL = –36 dB,                                                        dB
+              distortion (2) (3)                                                                                          –90
+                                              DRE_MAXGAIN = 24 dB), 10-kΩ input impedance
+                                              selection
+                                              IN1 differential input selected and –2-dB full-scale AC
+                                              signal Input, DRE disabled, 10-kΩ input impedance                           –90
+                                              selection, 0 dB channel gain
+ADC OTHER PARAMETERS
+              Digital volume control
+                                              Programmable 0.5-dB steps                                    –100                          27       dB
+              range
+              Output data sample rate         Programmable                                                  7.35                        768       kHz
+              Output data sample word
+                                              Programmable                                                   16                          32       Bits
+              length
+              Digital high-pass filter        First-order IIR filter with programmable coefficients, –3-
+                                                                                                                           12                     Hz
+              cutoff frequency                dB point (default setting)
+                                              –1-dB full-scale AC-signal input to non measurement
+              Interchannel isolation                                                                                     –124                     dB
+                                              channel
+
+(3)   For best distortion performance, use input AC-coupling capacitors with low-voltage-coefficient.
+8        Submit Documentation Feedback                                                                     Copyright © 2019, Texas Instruments Incorporated
+
+                                                           Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 9 ===
+                                                                                                                                     TLV320ADC5140
+www.ti.com                                                                                                 SBAS892A – JULY 2019 – REVISED OCTOBER 2019
+
+Electrical Characteristics (continued)
+at TA = 25°C, AVDD = 3.3 V, IOVDD = 3.3 V, fIN = 1-kHz sinusoidal signal, fS = 48 kHz, 32-bit audio data, BCLK = 256 × fS,
+TDM slave mode, PLL on (unless otherwise noted)
+              PARAMETER                                         TEST CONDITIONS                                MIN          TYP          MAX       UNIT
+              Interchannel gain
+                                              –6-dB full-scale AC-signal input and 0-dB channel gain                         0.1                    dB
+              mismatch
+                                              0-dB channel gain, across temperature range 15°C to
+              Gain drift                                                                                                    –4.4                  ppm/°C
+                                              35°C
+              Interchannel phase
+                                              1-kHz sinusoidal signal                                                       0.02                  Degrees
+              mismatch
+                                              1-kHz sinusoidal signal, across temperature range 15°C
+              Phase drift                                                                                                 0.0005                 Degrees/°C
+                                              to 35°C
+              Power-supply rejection          100-mVPP, 1-kHz sinusoidal signal on AVDD, differential
+PSRR                                                                                                                        102                     dB
+              ratio                           input selected, 0-dB channel gain
+                                              Differential microphone input selected, 0-dB channel
+              Common-mode rejection
+CMRR                                          gain, 100-mVPP, 1-kHz signal on both pins and measure                          60                     dB
+              ratio
+                                              level at output
+MICROPHONE BIAS
+                                              BW = 20 Hz to 20 kHz, A-weighted, 1-μF capacitor
+              MICBIAS noise                                                                                                  1.6                   µVRMS
+                                              between MICBIAS and AVSS
+                                              MICBIAS programmed to VREF and VREF programmed
+                                                                                                                          VREF
+                                              to either 2.75 V, 2.5 V, or 1.375 V
+              MICBIAS voltage                 MICBIAS programmed to VREF × 1.096 and VREF                                VREF ×                      V
+                                              programmed to either 2.75 V, 2.5 V, or 1.375 V                               1.096
+                                              Bypass to AVDD with 20-mA load                                          AVDD – 0.2
+                                              MICBIAS voltage ≥ 2.5 V                                                                      20
+              MICBIAS current drive                                                                                                                 mA
+                                              MICBIAS voltage < 2.5 V                                                                      10
+                                              MICBIAS programmed to either VREF or VREF ×
+              MICBIAS load regulation                                                                           0.1          0.6           1.8       %
+                                              1.096, measured up to max load
+              MICBIAS over current
+                                                                                                                30                                  mA
+              protection threshold
+DIGITAL I/O
+                                              All digital pins except INxP_GPIx, SDA and SCL, IOVDD                                     0.35 ×
+                                                                                                               –0.3
+              Low-level digital input logic   1.8-V operation                                                                          IOVDD
+VIL                                                                                                                                                  V
+              voltage threshold               All digital pins except INxP_GPIx, SDA and SCL, IOVDD
+                                                                                                               –0.3                        0.8
+                                              3.3-V operation
+                                             All digital pins except INxP_GPIx, SDA and SCL, IOVDD           0.65 ×                   IOVDD +
+              High-level digital input logic 1.8-V operation                                                IOVDD                         0.3
+VIH                                                                                                                                                  V
+              voltage threshold              All digital pins except INxP_GPIx, SDA and SCL, IOVDD                                    IOVDD +
+                                                                                                                 2
+                                             3.3-V operation                                                                              0.3
+                                              All digital pins except INxM_GPOx, SDA and SCL, IOL =
+                                                                                                                                          0.45
+              Low-level digital output        –2 mA, IOVDD 1.8-V operation
+VOL                                                                                                                                                  V
+              voltage                         All digital pins except INxM_GPOx, SDA and SCL, IOL =
+                                                                                                                                           0.4
+                                              –2 mA, IOVDD 3.3-V operation
+                                              All digital pins except INxM_GPOx, SDA and SCL, IOH =        IOVDD –
+              High-level digital output       2 mA, IOVDD 1.8-V operation                                     0.45
+VOH                                                                                                                                                  V
+              voltage                         All digital pins except INxM_GPOx, SDA and SCL, IOH =
+                                                                                                                2.4
+                                              2 mA, IOVDD 3.3-V operation
+              Low-level digital input logic
+VIL(I2C)                                      SDA and SCL                                                      –0.5                0.3 x IOVDD       V
+              voltage threshold
+              High-level digital input logic                                                                                          IOVDD +
+VIH(I2C)                                     SDA and SCL                                                0.7 x IOVDD                                  V
+              voltage threshold                                                                                                           0.5
+              Low-level digital output
+VOL1(I2C)                                     SDA, IOL(I2C) = –3 mA, IOVDD > 2 V                                                           0.4       V
+              voltage
+              Low-level digital output
+VOL2(I2C)                                     SDA, IOL(I2C) = –2 mA, IOVDD ≤ 2 V                                                   0.2 x IOVDD       V
+              voltage
+
+              Low-level digital output        SDA, VOL(I2C) = 0.4 V, standard-mode or fast-mode                  3
+IOL(I2C)                                                                                                                                            mA
+              current                         SDA, VOL(I2C) = 0.4 V, fast-mode plus                             20
+              Input logic-high leakage for
+IIH                                           All digital pins except INxP_GPIx pins, input = IOVDD             –5           0.1            5       µA
+              digital inputs
+              Input logic-low leakage for
+IIL                                           All digital pins except INxP_GPIx pins, input = 0 V               –5           0.1            5       µA
+              digital inputs
+
+Copyright © 2019, Texas Instruments Incorporated                                                                Submit Documentation Feedback                 9
+                                                           Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 25 ===
+                                                                                                                        TLV320ADC5140
+www.ti.com                                                                                       SBAS892A – JULY 2019 – REVISED OCTOBER 2019
+
+8.3.1.3 Using Multiple Devices With Shared Buses
+The device has many supported features and flexible options that can be used in the system to seamlessly
+connect multiple TLV320ADC5140 devices by sharing a single common I2C control bus and an audio serial
+interface bus. This architecture enables multiple applications to be applied to a system that require a microphone
+array for beam-forming operation, audio conferencing, noise cancellation, and so forth. Figure 35 shows a
+diagram of multiple TLV320ADC5140 devices in a configuration where the control and audio data buses are
+shared.
+
+                                                               Control Bus ± I2C Interface
+
+                                           TLV320ADCx140           TLV320ADCx140             TLV320ADCx140         TLV320ADCx140
+            Host Processor
+                                                   U1                      U2                      U3                     U4
+
+                                                         Audio Data Bus ± TDM, I2S, LJ Interface
+
+            Figure 35. Multiple TLV320ADC5140 Devices With Shared Control and Audio Data Buses
+
+The TLV320ADC5140 consists of the following features to enable seamless connection and interaction of
+multiple devices using a shared bus:
+• Supports up to four pin-programmable I2C slave addresses
+• I2C broadcast simultaneously writes to (or triggers) all TLV320ADC5140 devices
+• Supports up to 64 configuration output channel slots for the audio serial interface
+• Tri-state feature (with enable and disable) for the unused audio data slots of the device
+• Supports a bus-holder feature (with enable and disable) to keep the last driven value on the audio bus
+• The GPIO1 or GPOx pin can be configured as a secondary output data lane for the audio serial interface
+• The GPIO1 or GPIx pin can be used in a daisy-chain configuration of multiple TLV320ADC5140 devices
+• Supports one BCLK cycle data latching timing to relax the timing requirement for the high-speed interface
+• Programmable master and slave options for the audio serial interface
+• Ability to synchronize the multiple devices for the simultaneous sampling requirement across devices
+See the Multiple TLV320ADCx140 Devices With a Shared TDM and I2C Bus application report for further details.
+
+Copyright © 2019, Texas Instruments Incorporated                                                        Submit Documentation Feedback    25
+                                                        Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 26 ===
+TLV320ADC5140
+SBAS892A – JULY 2019 – REVISED OCTOBER 2019                                                                                     www.ti.com
+
+8.3.2 Phase-Locked Loop (PLL) and Clock Generation
+The device has a smart auto-configuration block to generate all necessary internal clocks required for the ADC
+modulator and the digital filter engine used for signal processing. This configuration is done by monitoring the
+frequency of the FSYNC and BCLK signal on the audio bus.
+The device supports the various output data sample rates (of the FSYNC signal frequency) and the BCLK to
+FSYNC ratio to configure all clock dividers, including the PLL configuration, internally without host programming.
+Table 6 and Table 7 list the supported FSYNC and BCLK frequencies.
+
+             Table 6. Supported FSYNC (Multiples or Submultiples of 48 kHz) and BCLK Frequencies
+                                                                     BCLK (MHz)
+ BCLK TO
+  FSYNC          FSYNC        FSYNC         FSYNC        FSYNC         FSYNC       FSYNC          FSYNC          FSYNC          FSYNC
+  RATIO          (8 kHz)     (16 kHz)      (24 kHz)     (32 kHz)      (48 kHz)    (96 kHz)       (192 kHz)      (384 kHz)      (768 kHz)
+     16         Reserved       0.256        0.384         0.512        0.768        1.536          3.072          6.144          12.288
+     24         Reserved       0.384        0.576         0.768        1.152        2.304          4.608          9.216          18.432
+     32           0.256        0.512        0.768         1.024        1.536        3.072          6.144          12.288         24.576
+     48           0.384        0.768        1.152         1.536        2.304        4.608          9.216          18.432        Reserved
+     64           0.512        1.024        1.536         2.048        3.072        6.144          12.288         24.576        Reserved
+     96           0.768        1.536        2.304         3.072        4.608        9.216          18.432       Reserved        Reserved
+     128          1.024        2.048        3.072         4.096        6.144       12.288          24.576       Reserved        Reserved
+     192          1.536        3.072        4.608         6.144        9.216       18.432        Reserved       Reserved        Reserved
+     256          2.048        4.096        6.144         8.192        12.288      24.576        Reserved       Reserved        Reserved
+     384          3.072        6.144        9.216        12.288        18.432     Reserved       Reserved       Reserved        Reserved
+     512          4.096        8.192        12.288       16.384        24.576     Reserved       Reserved       Reserved        Reserved
+     1024         8.192       16.384        24.576      Reserved      Reserved    Reserved       Reserved       Reserved        Reserved
+     2048         16.384     Reserved     Reserved      Reserved      Reserved    Reserved       Reserved       Reserved        Reserved
+
+            Table 7. Supported FSYNC (Multiples or Submultiples of 44.1 kHz) and BCLK Frequencies
+                                                                     BCLK (MHz)
+ BCLK TO
+  FSYNC           FSYNC        FSYNC        FSYNC         FSYNC        FSYNC        FSYNC         FSYNC          FSYNC          FSYNC
+  RATIO         (7.35 kHz)   (14.7 kHz)   (22.05 kHz)   (29.4 kHz)   (44.1 kHz)   (88.2 kHz)    (176.4 kHz)    (352.8 kHz)    (705.6 kHz)
+     16         Reserved     Reserved       0.3528       0.4704        0.7056      1.4112          2.8224         5.6448        11.2896
+     24         Reserved      0.3528        0.5292       0.7056        1.0584      2.1168          4.2336         8.4672        16.9344
+     32         Reserved      0.4704        0.7056       0.9408        1.4112      2.8224          5.6448        11.2896        22.5792
+     48           0.3528      0.7056        1.0584       1.4112        2.1168      4.2336          8.4672        16.9344        Reserved
+     64           0.4704      0.9408        1.4112       1.8816        2.8224      5.6448         11.2896        22.5792        Reserved
+     96           0.7056      1.4112        2.1168       2.8224        4.2336      8.4672         16.9344       Reserved        Reserved
+     128          0.9408      1.8816        2.8224       3.7632        5.6448      11.2896        22.5792       Reserved        Reserved
+     192          1.4112      2.8224        4.2336       5.6448        8.4672      16.9344       Reserved       Reserved        Reserved
+     256          1.8816      3.7632        5.6448       7.5264       11.2896      22.5792       Reserved       Reserved        Reserved
+     384          2.8224      5.6448        8.4672       11.2896      16.9344     Reserved       Reserved       Reserved        Reserved
+     512          3.7632      7.5264       11.2896       15.0528      22.5792     Reserved       Reserved       Reserved        Reserved
+     1024         7.5264      15.0528      22.5792      Reserved      Reserved    Reserved       Reserved       Reserved        Reserved
+     2048        15.0528     Reserved     Reserved      Reserved      Reserved    Reserved       Reserved       Reserved        Reserved
+
+26        Submit Documentation Feedback                                                      Copyright © 2019, Texas Instruments Incorporated
+
+                                                Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 27 ===
+                                                                                                                           TLV320ADC5140
+www.ti.com                                                                                        SBAS892A – JULY 2019 – REVISED OCTOBER 2019
+
+The status register ASI_STS, P0_R21, captures the device auto detect result for the FSYNC frequency and the
+BCLK to FSYNC ratio. If the device finds any unsupported combinations of FSYNC frequency and BCLK to
+FSYNC ratios, the device generates an ASI clock-error interrupt and mutes the record channels accordingly.
+The device uses an integrated, low-jitter, phase-locked loop (PLL) to generate internal clocks required for the
+ADC modulator and digital filter engine, as well as other control blocks. The device also supports an option to
+use BCLK, GPIO1, or the GPIx pin (as MCLK) as the audio clock source without using the PLL to reduce power
+consumption. However, the ADC performance may degrade based on jitter from the external clock source, and
+some processing features may not be supported if the external audio clock source frequency is not high enough.
+Therefore, TI recommends using the PLL for high-performance applications. More details and information on how
+to configure and use the device in low-power mode without using the PLL are discussed in the TLV320ADCx140
+Operation for Low-Power Critical Applications application report.
+The device also supports an audio bus master mode operation using the GPIO1 or GPIx pin (as MCLK) as the
+reference input clock source and supports various flexible options and a wide variety of system clocks. More
+details and information on master mode configuration and operation are discussed in the Configuring and
+Operating the TLV320ADCx140 as an Audio Bus Master application report.
+The audio bus clock error detection and auto-detect feature automatically generates all internal clocks, but can
+be disabled using the ASI_ERR, P0_R9_D5 and AUTO_CLK_CFG, P0_R19_D6, register bits, respectively. In
+the system, this disable feature can be used to support custom clock frequencies that are not covered by the
+auto detect scheme. For such application use cases, care must be taken to ensure that the multiple clock
+dividers are all configured appropriately. Therefore, TI recommends using the PPC3 GUI for device configuration
+settings; for more details see the TLV320ADCx140 Evaluation module user's guide and the PurePath™ console
+graphical development suite.
+
+8.3.3 Input Channel Configurations
+The device consists of four pairs of analog input pins (INxP and INxM) that can be configured as differential
+inputs or single-ended inputs for the recording channel. The device supports simultaneous recording of up to four
+channels using the high-performance multichannel ADC. The input source for the analog pins can be from
+electret condenser analog microphones, microelectrical-mechanical system (MEMS) analog microphones, or line-
+in (auxiliary) inputs from the system board. Additionally, if the application uses digital PDM microphones for the
+recording, then the INxP and INxM pins can be reconfigured in the device to support up to eight channels for the
+digital microphone recording. Table 8 shows the input source selection for the record channel.
+
+                                     Table 8. Input Source Selection for the Record Channel
+      P0_R60_D[6:5] : CH1_INSRC[1:0]                                  INPUT CHANNEL 1 RECORD SOURCE SELECTION
+                                                   Analog differential input for channel 1 (this setting is valid only when the GPI1 and GPO1 pin
+                   00 (default)
+                                                   functions are disabled)
+                                                   Analog single-ended Input for channel 1 (this setting is valid only when the GPI1 and GPO1
+                       01
+                                                   pin functions are disabled)
+                                                   Digital PDM input for channel 1 (configure the GPIx and GPOx pin accordingly for PDMDIN1
+                       10
+                                                   and PDMCLK)
+                       11                          Reserved (do not use this setting)
+
+Similarly, the input source selection setting for input channel 2, channel 3, and channel 4 can be configured
+using the CH2_INSRC[1:0] (P0_R65_D[6:5]), CH3_INSRC[1:0] (P0_R70_D[6:5]), and CH4_INSRC[1:0]
+(P0_R75_D[6:5]) register bits, respectively.
+Typically, voice or audio signal inputs are capacitively coupled (AC-coupled) to the device; however, the device
+also supports an option for DC-coupled inputs to save board space. This configuration can be done
+independently for each channel by setting the CH1_DC (P0_R60_D4), CH2_DC (P0_R65_D4), CH3_DC
+(P0_R70_D4), and CH4_DC (P0_R75_D4) register bits. The INM pin can be directly grounded in DC-coupled
+mode (see Figure 36), but the INM pin must be grounded after the AC-coupling capacitor in AC-coupled mode
+(see Figure 37) for the single-ended input configuration. For the best dynamic range performance, the differential
+AC-coupled input must be used with the DRE enabled.
+
+Copyright © 2019, Texas Instruments Incorporated                                                        Submit Documentation Feedback          27
+                                                      Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 28 ===
+TLV320ADC5140
+SBAS892A – JULY 2019 – REVISED OCTOBER 2019                                                                                        www.ti.com
+
+           Line or                                                                Line or
+         Microphone                                                             Microphone
+                                      INxP                                                                   INxP
+        Single-ended                                                           Single-ended
+            Input                                                                  Input
+                                      INxM                                                                   INxM
+
+                       GND             TLV320ADCx140                                    GND                    TLV320ADCx140
+        Figure 36. Single-Ended DC-Coupled Input Connection                    Figure 37. Single-Ended AC-Coupled Input Connection
+
+The device allows for flexibility in choosing the typical input impedance on INxP or INxM from 2.5 kΩ (default),
+10 kΩ, and 20 kΩ based on the input source impedance. The higher input impedance results in slightly higher
+noise or lower dynamic range. Table 9 lists the configuration register settings for the input impedance for the
+record channel.
+
+                                Table 9. Input Impedance Selection for the Record Channel
+       P0_R60_D[3:2] : CH1_IMP[1:0]                                  CHANNEL 1 INPUT IMPEDANCE SELECTION
+                 00 (default)                  Channel 1 input impedance typical value is 2.5 kΩ on INxP or INxM
+                       01                      Channel 1 input impedance typical value is 10 kΩ on INxP or INxM
+                       10                      Channel 1 input impedance typical value is 20 kΩ on INxP or INxM
+                       11                      Reserved (do not use this setting)
+
+Similarly, the input impedance selection setting for input channel 2, channel 3, and channel 4 can be configured
+using the CH2_IMP[1:0] (P0_R65_D[3:2]), CH3_IMP[1:0] (P0_R70_D[3:2]), and CH4_IMP[1:0] (P0_R75_D[3:2])
+register bits, respectively.
+The value of the coupling capacitor in AC-coupled mode must be chosen so that the high-pass filter formed by
+the coupling capacitor and the input impedance do not affect the signal content. Before proper recording can
+begin, this coupling capacitor must be charged up to the common-mode voltage at power-up. To enable quick
+charging, the device has modes to speed up the charging of the coupling capacitor. The default value of the
+quick-charge timing is set for a coupling capacitor up to 1 µF. However, if a higher-value capacitor is used in the
+system, then the quick-charging timing can be increased by using the INCAP_QCHG (P0_R5_D[5:4]) register
+bits. For best distortion performance, use the low-voltage coefficient capacitors for AC coupling. The input
+impedance value of 2.5 kΩ is not supported for the DC-coupled input.
+
+8.3.4 Reference Voltage
+All audio data converters require a DC reference voltage. The TLV320ADC5140 achieves low-noise performance
+by internally generating a low-noise reference voltage. This reference voltage is generated using a band-gap
+circuit with high PSRR performance. This audio converter reference voltage must be filtered externally using a
+minimum 1-µF capacitor connected from the VREF pin to analog ground (AVSS).
+The value of this reference voltage can be configured using the P0_R59_D[1:0] register bits and must be set to
+an appropriate value based on the desired full-scale input for the device and the AVDD supply voltage available
+in the system. The default VREF value is set to 2.75 V, which in turn supports a 2-VRMS differential full-scale
+input to the device. The required minimum AVDD voltage for this mode is 3 V. Table 10 lists the various VREF
+settings supported along with required AVDD range and the supported full-scale input signal for that
+configuration.
+
+                                              Table 10. VREF Programmable Settings
+                                   VREF OUTPUT            DIFFERENTIAL FULL-         SINGLE-ENDED FULL-
+      P0_R59_D[1:0] :           VOLTAGE (Same as             SCALE INPUT                SCALE INPUT                    AVDD RANGE
+     ADC_FSCALE[1:0]            Internal ADC VREF)            SUPPORTED                  SUPPORTED                     REQUIREMENT
+        00 (default)                  2.75 V                      2 VRMS                       1 VRMS                     3 V to 3.6 V
+            01                        2.5 V                     1.818 VRMS                 0.909 VRMS                    2.8 V to 3.6 V
+            10                       1.375 V                      1 VRMS                      0.5 VRMS                   1.7 V to 1.9 V
+            11                      Reserved                     Reserved                     Reserved                     Reserved
+
+28      Submit Documentation Feedback                                                           Copyright © 2019, Texas Instruments Incorporated
+
+                                                  Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 30 ===
+TLV320ADC5140
+SBAS892A – JULY 2019 – REVISED OCTOBER 2019                                                                                                 www.ti.com
+
+8.3.6 Signal-Chain Processing
+The TLV320ADC5140 signal chain is comprised of very-low-noise, high-performance, and low-power analog
+blocks and highly flexible and programmable digital processing blocks. The high performance and flexibility
+combined with a compact package makes the TLV320ADC5140 optimized for a variety of end-equipments and
+applications that require multichannel audio capture. Figure 38 shows a conceptual block diagram that highlights
+the various building blocks used in the signal chain, and how the blocks interact in the signal chain.
+                     PDMCLK
+                                           PDM
+                     PDMIN              Interface
+                                   Digital Microphone
+
+                                                                 M
+                     INP                                                        Phase              Decimation
+                                                                 U
+                                                                               Calibration           Filters
+                             PGA                                 X
+                                                 ADC
+                    INM
+
+                                                                                                                          Output
+                                             Gain                  Digital               Biquad        Digital Volume    Channel
+                           HPF
+                                           Calibration          Summer/Mixer             Filters       Control (DVC)    Data to ASI
+
+                   Other Input Channels Processed Data
+                           after Gain Calibration
+
+                                         Figure 38. Signal-Chain Processing Flowchart
+
+The front-end PGA is very low noise, with a 120-dB dynamic range performance. Along with a low-noise and low-
+distortion, multibit, delta-sigma ADC, the front-end PGA enables the TLV320ADC5140 to record a far-field audio
+signal with very high fidelity, both in quiet and loud environments. Moreover, the ADC architecture has inherent
+antialias filtering with a high rejection of out-of-band frequency noise around multiple modulator frequency
+components. Therefore, the device prevents noise from aliasing into the audio band during ADC sampling.
+Further on in the signal chain, an integrated, high-performance multistage digital decimation filter sharply cuts off
+any out-of-band frequency noise with high stop-band attenuation.
+The device also has an integrated programmable biquad filter that allows for custom low-pass, high-pass, or any
+other desired frequency shaping. Thus, the overall signal chain architecture removes the requirement to add
+external components for antialiasing low-pass filtering, and thus saves drastically on the external system
+component cost and board space. See the TLV320ADCx140 Integrated Analog Antialiasing Filter and Flexible
+Digital Filter application report for further details.
+The signal chain also consists of various highly programmable digital processing blocks such as phase
+calibration, gain calibration, high-pass filter, digital summer or mixer, biquad filters, and volume control. The
+details on these processing blocks are discussed further in this section. The device also supports up to eight
+digital PDM microphone recording channels when the analog record channels are not used. Channels 1 to 4 in
+the signal chain block diagram of Figure 38 are as described in this section, however, channels 5 to 8 only
+support the digital microphone recording option and do not support the digital summer or mixer option.
+The desired input channels for recording can be enabled or disabled by using the IN_CH_EN (P0_R115)
+register, and the output channels for the audio serial interface can be enabled or disabled by using the
+ASI_OUT_EN (P0_R116) register. In general, the device supports simultaneous power-up and power-down of all
+active channels for simultaneous recording. However, based on the application needs, if some channels must be
+powered-up or powered-down dynamically when the other channel recording is on, then that use case is
+supported by setting the DYN_CH_PUPD_EN, P0_R117_D4 register bit to 1'b1.
+The device supports an input signal bandwidth up to 80 kHz, which allows the high-frequency non-audio signal to
+be recorded by using a 176.4-kHz (or higher) sample rate.
+For output sample rates of 48 kHz or lower, the device supports all features for 8-channel recording and various
+programmable processing blocks. However, for output sample rates higher than 48 kHz, there are limitations in
+the number of simultaneous channel recordings supported and the number of biquad filters and such. See the
+TLV320ADCx140 Sampling Rates and Programmable Processing Blocks Supported application report for further
+details.
+
+30     Submit Documentation Feedback                                                                     Copyright © 2019, Texas Instruments Incorporated
+
+                                                         Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 36 ===
+TLV320ADC5140
+SBAS892A – JULY 2019 – REVISED OCTOBER 2019                                                                                                                                                         www.ti.com
+
+8.3.6.7 Configurable Digital Decimation Filters
+The device record channel includes a high dynamic range, built-in digital decimation filter to process the
+oversampled data from the multibit delta-sigma (ΔΣ) modulator to generate digital data at the same Nyquist
+sampling rate as the FSYNC rate. As illustrated in Figure 38, this decimation filter can also be used for
+processing the oversampled PDM stream from the digital microphone. The decimation filter can be chosen from
+three different types, depending on the required frequency response, group delay, and phase linearity
+requirements for the target application. The selection of the decimation filter option can be done by configuring
+the DECI_FILT, P0_R107_D[5:4] register bits. Table 21 shows the configuration register setting for the
+decimation filter mode selection for the record channel.
+
+                                                  Table 21. Decimation Filter Mode Selection for the Record Channel
+     P0_R107_D[5:4] : DECI_FILT[1:0]                                                                 DECIMATION FILTER MODE SELECTION
+                                    00 (default)                            Linear phase filters are used for the decimation
+                                           01                               Low latency filters are used for the decimation
+                                           10                               Ultra-low latency filters are used for the decimation
+                                           11                               Reserved (do not use this setting)
+
+8.3.6.7.1 Linear Phase Filters
+The linear phase decimation filters are the default filters set by the device and can be used for all applications
+that require a perfect linear phase with zero-phase deviation within the pass-band specification of the filter. The
+filter performance specifications and various plots for all supported output sampling rates are listed in this
+section.
+
+8.3.6.7.1.1 Sampling Rate: 8 kHz or 7.35 kHz
+Figure 41 and Figure 42 respectively show the magnitude response and the pass-band ripple for a decimation
+filter with a sampling rate of 8 kHz or 7.35 kHz. Table 22 lists the specifications for a decimation filter with an
+8-kHz or 7.35-kHz sampling rate.
+
+                          10                                                                                                   0.5
+                           0                                                                                                   0.4
+                          -10
+                                                                                                                               0.3
+                          -20
+                                                                                                                               0.2
+                          -30
+        Magnitude (dB)
+
+                                                                                                              Magnitude (dB)
+
+                          -40                                                                                                  0.1
+                          -50                                                                                                    0
+                          -60                                                                                                  -0.1
+                          -70
+                                                                                                                               -0.2
+                          -80
+                                                                                                                               -0.3
+                          -90
+                         -100                                                                                                  -0.4
+                         -110                                                                                                  -0.5
+                                0    0.4    0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                         0   0.05   0.1    0.15 0.2 0.25 0.3 0.35        0.4   0.45   0.5
+                                                  Normalized Frequency (1/fS)               D001
+                                                                                                                                                        Normalized Frequency (1/fS)                D001
+
+             Figure 41. Linear Phase Decimation Filter Magnitude                                                Figure 42. Linear Phase Decimation Filter Pass-Band
+                                  Response                                                                                             Ripple
+
+                                                           Table 22. Linear Phase Decimation Filter Specifications
+     PARAMETER                                                       TEST CONDITIONS                                                        MIN                    TYP                MAX                UNIT
+Pass-band ripple                                  Frequency range is 0 to 0.454 × fS                                                      –0.05                                       0.05               dB
+                                                  Frequency range is 0.58 × fS to 4 × fS                                                    72.7
+Stop-band attenuation                                                                                                                                                                                    dB
+                                                  Frequency range is 4 × fS onwards                                                         81.2
+Group delay or latency                            Frequency range is 0 to 0.454 × fS                                                                               17.1                                  1/fS
+
+36     Submit Documentation Feedback                                                                                                                   Copyright © 2019, Texas Instruments Incorporated
+
+                                                                                 Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 38 ===
+TLV320ADC5140
+SBAS892A – JULY 2019 – REVISED OCTOBER 2019                                                                                                                                                     www.ti.com
+
+8.3.6.7.1.4 Sampling Rate: 32 kHz or 29.4 kHz
+Figure 47 and Figure 48 respectively show the magnitude response and the pass-band ripple for a decimation
+filter with a sampling rate of 32 kHz or 29.4 kHz. Table 25 lists the specifications for a decimation filter with an
+32-kHz or 29.4-kHz sampling rate.
+
+                          10                                                                                              0.5
+                           0                                                                                              0.4
+                          -10
+                                                                                                                          0.3
+                          -20
+                                                                                                                          0.2
+                          -30
+        Magnitude (dB)
+
+                                                                                                         Magnitude (dB)
+                          -40                                                                                             0.1
+                          -50                                                                                               0
+                          -60                                                                                             -0.1
+                          -70
+                                                                                                                          -0.2
+                          -80
+                                                                                                                          -0.3
+                          -90
+                         -100                                                                                             -0.4
+                         -110                                                                                             -0.5
+                                0   0.4   0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                      0   0.05   0.1    0.15 0.2 0.25 0.3 0.35        0.4    0.45   0.5
+                                                Normalized Frequency (1/fS)               D001
+                                                                                                                                                   Normalized Frequency (1/fS)                 D001
+
+             Figure 47. Linear Phase Decimation Filter Magnitude                                           Figure 48. Linear Phase Decimation Filter Pass-Band
+                                  Response                                                                                        Ripple
+
+                                                         Table 25. Linear Phase Decimation Filter Specifications
+     PARAMETER                                                  TEST CONDITIONS                                              MIN                        TYP                      MAX             UNIT
+Pass-band ripple                                Frequency range is 0 to 0.454 × fS                                         –0.05                                                 0.05                dB
+                                                Frequency range is 0.58 × fS to 4 × fS                                       73.7
+Stop-band attenuation                                                                                                                                                                                dB
+                                                Frequency range is 4 × fS onwards                                          107.2
+Group delay or latency                          Frequency range is 0 to 0.454 × fS                                                                      16.9                                         1/fS
+
+8.3.6.7.1.5 Sampling Rate: 48 kHz or 44.1 kHz
+Figure 49 and Figure 50 respectively show the magnitude response and the pass-band ripple for a decimation
+filter with a sampling rate of 48 kHz or 44.1 kHz. Table 26 lists the specifications for a decimation filter with an
+48-kHz or 44.1-kHz sampling rate.
+
+                          10                                                                                              0.5
+                           0                                                                                              0.4
+                          -10
+                                                                                                                          0.3
+                          -20
+                                                                                                                          0.2
+                          -30
+        Magnitude (dB)
+
+                                                                                                         Magnitude (dB)
+
+                          -40                                                                                             0.1
+                          -50                                                                                               0
+                          -60                                                                                             -0.1
+                          -70
+                                                                                                                          -0.2
+                          -80
+                                                                                                                          -0.3
+                          -90
+                         -100                                                                                             -0.4
+                         -110                                                                                             -0.5
+                                0   0.4   0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                      0   0.05   0.1    0.15 0.2 0.25 0.3 0.35        0.4    0.45   0.5
+                                                Normalized Frequency (1/fS)               D001
+                                                                                                                                                   Normalized Frequency (1/fS)                 D001
+
+             Figure 49. Linear Phase Decimation Filter Magnitude                                           Figure 50. Linear Phase Decimation Filter Pass-Band
+                                  Response                                                                                        Ripple
+
+                                                         Table 26. Linear Phase Decimation Filter Specifications
+     PARAMETER                                              TEST CONDITIONS                                          MIN                             TYP                    MAX                 UNIT
+Pass-band ripple                                Frequency range is 0 to 0.454 × fS                       –0.05                                                               0.05                dB
+                                                Frequency range is 0.58 × fS to 4 × fS                             73.8
+Stop-band attenuation                                                                                                                                                                            dB
+                                                Frequency range is 4 × fS onwards                                  98.1
+Group delay or latency                          Frequency range is 0 to 0.454 × fS                                                                   17.1                                        1/fS
+
+38     Submit Documentation Feedback                                                                                                              Copyright © 2019, Texas Instruments Incorporated
+
+                                                                               Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 39 ===
+                                                                                                                                                                                   TLV320ADC5140
+www.ti.com                                                                                                                                     SBAS892A – JULY 2019 – REVISED OCTOBER 2019
+
+8.3.6.7.1.6 Sampling Rate: 96 kHz or 88.2 kHz
+Figure 51 and Figure 52 respectively show the magnitude response and the pass-band ripple for a decimation
+filter with a sampling rate of 96 kHz or 88.2 kHz. Table 27 lists the specifications for a decimation filter with an
+96-kHz or 88.2-kHz sampling rate.
+
+                            10                                                                                              0.5
+                             0                                                                                              0.4
+                            -10
+                                                                                                                            0.3
+                            -20
+                                                                                                                            0.2
+                            -30
+          Magnitude (dB)
+
+                                                                                                           Magnitude (dB)
+                            -40                                                                                             0.1
+                            -50                                                                                               0
+                            -60                                                                                             -0.1
+                            -70
+                                                                                                                            -0.2
+                            -80
+                                                                                                                            -0.3
+                            -90
+                           -100                                                                                             -0.4
+                           -110                                                                                             -0.5
+                                  0   0.4   0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                      0   0.05    0.1   0.15 0.2 0.25 0.3 0.35        0.4    0.45   0.5
+                                                  Normalized Frequency (1/fS)               D001
+                                                                                                                                                     Normalized Frequency (1/fS)                 D001
+
+               Figure 51. Linear Phase Decimation Filter Magnitude                                           Figure 52. Linear Phase Decimation Filter Pass-Band
+                                    Response                                                                                        Ripple
+
+                                                           Table 27. Linear Phase Decimation Filter Specifications
+      PARAMETER                                                  TEST CONDITIONS                                             MIN                          TYP                      MAX             UNIT
+Pass-band ripple                                  Frequency range is 0 to 0.454 × fS                                        –0.05                                                  0.05                dB
+                                                  Frequency range is 0.58 × fS to 4 × fS                                     73.6
+Stop-band attenuation                                                                                                                                                                                  dB
+                                                  Frequency range is 4 × fS onwards                                          97.9
+Group delay or latency                            Frequency range is 0 to 0.454 × fS                                                                      17.1                                         1/fS
+
+8.3.6.7.1.7 Sampling Rate: 192 kHz or 176.4 kHz
+Figure 53 and Figure 54 respectively show the magnitude response and the pass-band ripple for a decimation
+filter with a sampling rate of 192 kHz or 176.4 kHz. Table 28 lists the specifications for a decimation filter with an
+192-kHz or 176.4-kHz sampling rate.
+
+                            10                                                                                              0.5
+                             0                                                                                              0.4
+                            -10
+                                                                                                                            0.3
+                            -20
+                                                                                                                            0.2
+                            -30
+                                                                                                           Magnitude (dB)
+          Magnitude (dB)
+
+                            -40                                                                                             0.1
+                            -50                                                                                               0
+                            -60                                                                                             -0.1
+                            -70
+                                                                                                                            -0.2
+                            -80
+                                                                                                                            -0.3
+                            -90
+                           -100                                                                                             -0.4
+                           -110                                                                                             -0.5
+                                  0   0.4   0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                      0    0.05     0.1   0.15    0.2   0.25     0.3        0.35    0.4
+                                                  Normalized Frequency (1/fS)               D001
+                                                                                                                                                    Normalized Frequency (1/fS)                   D001
+
+               Figure 53. Linear Phase Decimation Filter Magnitude                                           Figure 54. Linear Phase Decimation Filter Pass-Band
+                                    Response                                                                                        Ripple
+
+                                                           Table 28. Linear Phase Decimation Filter Specifications
+      PARAMETER                                                   TEST CONDITIONS                                              MIN                        TYP                      MAX             UNIT
+Pass-band ripple                                  Frequency range is 0 to 0.3 × fS                                           –0.05                                                 0.05                dB
+                                                  Frequency range is 0.473 × fS to 4 × fS                                      70.0
+Stop-band attenuation                                                                                                                                                                                  dB
+                                                  Frequency range is 4 × fS onwards                                          111.0
+Group delay or latency                            Frequency range is 0 to 0.3 × fS                                                                        11.9                                         1/fS
+
+Copyright © 2019, Texas Instruments Incorporated                                                                                                       Submit Documentation Feedback                          39
+                                                                                 Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 40 ===
+TLV320ADC5140
+SBAS892A – JULY 2019 – REVISED OCTOBER 2019                                                                                                                                             www.ti.com
+
+8.3.6.7.1.8 Sampling Rate: 384 kHz or 352.8 kHz
+Figure 55 and Figure 56 respectively show the magnitude response and the pass-band ripple for a decimation
+filter with a sampling rate of 384 kHz or 352.8 kHz. Table 29 lists the specifications for a decimation filter with an
+384-kHz or 352.8-kHz sampling rate.
+
+                          10                                                                                              0.5
+                           0                                                                                              0.4
+                          -10
+                                                                                                                          0.3
+                          -20
+                                                                                                                          0.2
+                          -30
+        Magnitude (dB)
+
+                                                                                                         Magnitude (dB)
+                          -40                                                                                             0.1
+                          -50                                                                                               0
+                          -60                                                                                             -0.1
+                          -70
+                                                                                                                          -0.2
+                          -80
+                                                                                                                          -0.3
+                          -90
+                         -100                                                                                             -0.4
+                         -110                                                                                             -0.5
+                                0   0.4   0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                      0   0.05        0.1      0.15     0.2          0.25   0.3
+                                                Normalized Frequency (1/fS)               D001
+                                                                                                                                               Normalized Frequency (1/fS)             D001
+
+             Figure 55. Linear Phase Decimation Filter Magnitude                                           Figure 56. Linear Phase Decimation Filter Pass-Band
+                                  Response                                                                                        Ripple
+
+                                                         Table 29. Linear Phase Decimation Filter Specifications
+     PARAMETER                                                TEST CONDITIONS                                               MIN                     TYP                      MAX         UNIT
+Pass-band ripple                                Frequency range is 0 to 0.212 × fS                                        –0.05                                              0.05            dB
+                                                Frequency range is 0.58 × fS to 4 × fS                                     70.0
+Stop-band attenuation                                                                                                                                                                        dB
+                                                Frequency range is 4 × fS onwards                                         108.8
+Group delay or latency                          Frequency range is 0 to 0.212 × fS                                                                    7.2                                    1/fS
+
+8.3.6.7.1.9 Sampling Rate 768 kHz or 705.6 kHz
+Figure 57 and Figure 58 respectively show the magnitude response and the pass-band ripple for a decimation
+filter with a sampling rate of 768 kHz or 705.6 kHz. Table 30 lists the specifications for a decimation filter with an
+768-kHz or 705.6-kHz sampling rate.
+
+                          10                                                                                              0.5
+                           0                                                                                              0.4
+                          -10
+                                                                                                                          0.3
+                          -20
+                                                                                                                          0.2
+                          -30
+        Magnitude (dB)
+
+                                                                                                         Magnitude (dB)
+
+                          -40                                                                                             0.1
+                          -50                                                                                               0
+                          -60                                                                                             -0.1
+                          -70
+                                                                                                                          -0.2
+                          -80
+                                                                                                                          -0.3
+                          -90
+                         -100                                                                                             -0.4
+                         -110                                                                                             -0.5
+                                0   0.4   0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                      0          0.05          0.1            0.15          0.2
+                                                Normalized Frequency (1/fS)               D001
+                                                                                                                                               Normalized Frequency (1/fS)             D001
+
+             Figure 57. Linear Phase Decimation Filter Magnitude                                           Figure 58. Linear Phase Decimation Filter Pass-Band
+                                  Response                                                                                        Ripple
+
+                                                         Table 30. Linear Phase Decimation Filter Specifications
+     PARAMETER                                                 TEST CONDITIONS                                             MIN                      TYP                      MAX         UNIT
+Pass-band ripple                                Frequency range is 0 to 0.113 × fS                                        –0.05                                              0.05            dB
+                                                Frequency range is 0.58 × fS to 2 × fS                                     75.0
+Stop-band attenuation                                                                                                                                                                        dB
+                                                Frequency range is 2 × fS onwards                                          88.0
+Group Delay or Latency                          Frequency range is 0 to 0.113 × fS                                                                    5.9                                    1/fS
+
+40     Submit Documentation Feedback                                                                                                         Copyright © 2019, Texas Instruments Incorporated
+
+                                                                               Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 44 ===
+TLV320ADC5140
+SBAS892A – JULY 2019 – REVISED OCTOBER 2019                                                                                                                                       www.ti.com
+
+8.3.6.7.2.5 Sampling Rate: 96 kHz or 88.2 kHz
+Figure 67 shows the magnitude response and Figure 68 shows the pass-band ripple and phase deviation for a
+decimation filter with a sampling rate of 96 kHz or 88.2 kHz. Table 35 lists the specifications for a decimation
+filter with a 96-kHz or 88.2-kHz sampling rate.
+
+                   10                                                                                      0.5                                                                       0.5
+
+                                                                                                                                                                                             Phase Deviation from Linear (Degree)
+                    0                                                                                      0.4                                                                       0.4
+                   -10                                                                                     0.3                                                                       0.3
+                   -20
+                                                                                                           0.2                                                                       0.2
+
+                                                                                          Magnitude (dB)
+                   -30
+ Magnitude (dB)
+
+                                                                                                           0.1                                                                       0.1
+                   -40
+                                                                                                             0                                                                       0
+                   -50
+                   -60                                                                                     -0.1                                                                      -0.1
+
+                   -70                                                                                     -0.2                                                                      -0.2
+
+                   -80                                                                                     -0.3                                                                      -0.3
+                   -90                                                                                     -0.4          Pass-Band Ripple                                            -0.4
+                                                                                                                         Phase Deviation
+                  -100                                                                                     -0.5                                                                       -0.5
+                  -110                                                                                            0    0.05     0.1   0.15 0.2 0.25 0.3 0.35         0.4   0.45    0.5
+                         0   0.4   0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                                  Normalized Frequency (1/fS)                   D002
+                                         Normalized Frequency (1/fS)               D002                               Figure 68. Low-Latency Decimation Filter Pass-Band
+                         Figure 67. Low-Latency Decimation Filter Magnitude                                                       Ripple and Phase Deviation
+                                             Response
+
+                                                   Table 35. Low-Latency Decimation Filter Specifications
+                   PARAMETER                          TEST CONDITIONS                                                    MIN                  TYP                   MAX           UNIT
+Pass-band ripple                           Frequency range is 0 to 0.466 × fS                                          –0.04                                        0.04           dB
+Stop-band attenuation                      Frequency range is 0.6 × fS onwards                                           86.3                                                      dB
+Group delay or latency                     Frequency range is 0 to 0.365 × fS                                                                  7.7                                 1/fS
+Group delay deviation                      Frequency range is 0 to 0.365 × fS                                         –0.027                                    0.027              1/fS
+Phase deviation                            Frequency range is 0 to 0.365 × fS                                          –0.26                                        0.30      Degrees
+
+8.3.6.7.2.6 Sampling Rate 192 kHz or 176.4 kHz
+Figure 69 shows the magnitude response and Figure 70 shows the pass-band ripple and phase deviation for a
+decimation filter with a sampling rate of 192 kHz or 176.4 kHz. Table 36 lists the specifications for a decimation
+filter with a 192-kHz or 176.4-kHz sampling rate.
+
+                   10                                                                                      0.5                                                                       0.5
+
+                                                                                                                                                                                             Phase Deviation from Linear (Degree)
+                    0                                                                                      0.4                                                                       0.4
+                   -10                                                                                     0.3                                                                       0.3
+                   -20
+                                                                                                           0.2                                                                       0.2
+                                                                                          Magnitude (dB)
+
+                   -30
+ Magnitude (dB)
+
+                                                                                                           0.1                                                                       0.1
+                   -40
+                                                                                                             0                                                                       0
+                   -50
+                   -60                                                                                     -0.1                                                                      -0.1
+
+                   -70                                                                                     -0.2                                                                      -0.2
+
+                   -80                                                                                     -0.3                                                                      -0.3
+                   -90                                                                                     -0.4          Pass-Band Ripple                                            -0.4
+                                                                                                                         Phase Deviation
+                  -100                                                                                     -0.5                                                                       -0.5
+                  -110                                                                                            0    0.05     0.1   0.15 0.2 0.25 0.3 0.35         0.4   0.45    0.5
+                         0   0.4   0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                                  Normalized Frequency (1/fS)                   D002
+                                         Normalized Frequency (1/fS)               D002                               Figure 70. Low-Latency Decimation Filter Pass-Band
+                         Figure 69. Low-Latency Decimation Filter Magnitude                                                       Ripple and Phase Deviation
+                                             Response
+
+44                   Submit Documentation Feedback                                                                                       Copyright © 2019, Texas Instruments Incorporated
+
+                                                                   Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 45 ===
+                                                                                                                                                                  TLV320ADC5140
+www.ti.com                                                                                                                          SBAS892A – JULY 2019 – REVISED OCTOBER 2019
+
+                                                   Table 36. Low-Latency Decimation Filter Specifications
+                   PARAMETER                           TEST CONDITIONS                                                  MIN                TYP                MAX               UNIT
+Pass-band ripple                           Frequency range is 0 to 463 × fS                                            –0.03                                      0.03          dB
+Stop-band attenuation                      Frequency range is 0.6 × fS onwards                                          85.6                                                    dB
+Group delay or latency                     Frequency range is 0 to 0.365 × fS                                                               7.7                                 1/fS
+Group delay deviation                      Frequency range is 0 to 0.365 × fS                                         –0.027                                 0.027              1/fS
+Phase deviation                            Frequency range is 0 to 0.365 × fS                                          –0.26                                      0.30     Degrees
+
+8.3.6.7.3 Ultra-Low-Latency Filters
+For applications where ultra-low latency (within the audio band) is critical, the ultra-low-latency decimation filters
+on the TLV320ADC5140 can be used. The device supports these filters with a group delay of approximately four
+samples with an almost linear phase response within the 0.325 × fS frequency band. This section provides the
+filter performance specifications and various plots for all supported output sampling rates for the ultra-low-latency
+filters.
+
+8.3.6.7.3.1 Sampling Rate: 16 kHz or 14.7 kHz
+Figure 71 shows the magnitude response and Figure 72 shows the pass-band ripple and phase deviation for a
+decimation filter with a sampling rate of 16 kHz or 14.7 kHz. Table 37 lists the specifications for a decimation
+filter with a 16-kHz or 14.7-kHz sampling rate.
+
+                   10                                                                                      0.5                                                                     25
+
+                                                                                                                                                                                          Phase Deviation from Linear (Degree)
+                    0                                                                                      0.4                                                                     20
+                   -10                                                                                     0.3                                                                     15
+                   -20
+                                                                                                           0.2                                                                     10
+                                                                                          Magnitude (dB)
+
+                   -30
+ Magnitude (dB)
+
+                                                                                                           0.1                                                                     5
+                   -40
+                                                                                                             0                                                                     0
+                   -50
+                   -60                                                                                     -0.1                                                                    -5
+
+                   -70                                                                                     -0.2                                                                    -10
+                   -80                                                                                     -0.3                                                                    -15
+                   -90                                                                                     -0.4         Pass-Band Ripple                                           -20
+                                                                                                                        Phase Deviation
+                  -100                                                                                     -0.5                                                                     -25
+                  -110                                                                                            0   0.05    0.1   0.15 0.2 0.25 0.3 0.35         0.4   0.45    0.5
+                         0   0.4   0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                                Normalized Frequency (1/fS)                   D003
+                                         Normalized Frequency (1/fS)               D003                       Figure 72. Ultra-Low-Latency Decimation Filter Pass-Band
+                    Figure 71. Ultra-Low-Latency Decimation Filter Magnitude                                                  Ripple and Phase Deviation
+                                            Response
+
+                                               Table 37. Ultra-Low-Latency Decimation Filter Specifications
+                   PARAMETER                            TEST CONDITIONS                                                      MIN              TYP             MAX               UNIT
+Pass-band ripple                           Frequency range is 0 to 0.45 × fS                                            –0.05                                     0.05          dB
+Stop-band attenuation                      Frequency range is 0.6 × fS onwards                                           87.2                                                   dB
+Group delay or latency                     Frequency range is 0 to 0.325 × fS                                                                  4.3                              1/fS
+Group delay deviation                      Frequency range is 0 to 0.325 × fS                                          –0.512                                0.512              1/fS
+Phase deviation                            Frequency range is 0 to 0.325 × fS                                           –10.0                                     14.2     Degrees
+
+Copyright © 2019, Texas Instruments Incorporated                                                                                          Submit Documentation Feedback                       45
+                                                                   Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 49 ===
+                                                                                                                                                                TLV320ADC5140
+www.ti.com                                                                                                                        SBAS892A – JULY 2019 – REVISED OCTOBER 2019
+
+                                               Table 42. Ultra-Low-Latency Decimation Filter Specifications
+                   PARAMETER                           TEST CONDITIONS                                                  MIN              TYP                    MAX     UNIT
+Pass-band ripple                           Frequency range is 0 to 0.463 × fS                                          –0.03                                    0.03      dB
+Stop-band attenuation                      Frequency range is 0.6 × fS onwards                                          85.6                                              dB
+Group delay or latency                     Frequency range is 0 to 0.085 × fS                                                              3.7                           1/fS
+Group delay deviation                      Frequency range is 0 to 0.085 × fS                                         –0.024                                0.024        1/fS
+Phase deviation                            Frequency range is 0 to 0.085 × fS                                          –0.12                                    0.18   Degrees
+
+8.3.6.7.3.7 Sampling Rate 384 kHz or 352.8 kHz
+Figure 83 shows the magnitude response and Figure 84 shows the pass-band ripple and phase deviation for a
+decimation filter with a sampling rate of 384 kHz or 352.8 kHz. Table 43 lists the specifications for a decimation
+filter with a 384-kHz or 352.8-kHz sampling rate.
+
+                   10                                                                                      0.5                                                                2
+
+                                                                                                                                                                                     Phase Deviation from Linear (Degree)
+                    0                                                                                      0.4                                                                1.6
+                   -10                                                                                     0.3                                                                1.2
+                   -20
+                                                                                                           0.2                                                                0.8
+
+                                                                                          Magnitude (dB)
+                   -30
+ Magnitude (dB)
+
+                                                                                                           0.1                                                                0.4
+                   -40
+                                                                                                             0                                                                0
+                   -50
+                   -60                                                                                     -0.1                                                               -0.4
+
+                   -70                                                                                     -0.2                                                               -0.8
+
+                   -80                                                                                     -0.3                                                               -1.2
+                   -90                                                                                     -0.4         Pass-Band Ripple                                      -1.6
+                                                                                                                        Phase Deviation
+                  -100                                                                                     -0.5                                                             -2
+                  -110                                                                                            0        0.05        0.1        0.15           0.2     0.25
+                         0   0.4   0.8   1.2 1.6     2    2.4 2.8      3.2   3.6   4                                              Normalized Frequency (1/fS)              D002
+                                         Normalized Frequency (1/fS)               D002                       Figure 84. Ultra-Low-Latency Decimation Filter Pass-Band
+                    Figure 83. Ultra-Low-Latency Decimation Filter Magnitude                                                  Ripple and Phase Deviation
+                                            Response
+
+                                               Table 43. Ultra-Low-Latency Decimation Filter Specifications
+                   PARAMETER                          TEST CONDITIONS                                                  MIN               TYP               MAX          UNIT
+Pass-band ripple                           Frequency range is 0 to 0.1 × fS                                           –0.04                                 0.01         dB
+Stop-band attenuation                      Frequency range is 0.56 × fS onwards                                        70.1                                              dB
+Group delay or latency                     Frequency range is 0 to 0.157 × fS                                                              4.1                           1/fS
+Group delay deviation                      Frequency range is 0 to 0.157 × fS                                         –0.18                                 0.18         1/fS
+Phase deviation                            Frequency range is 0 to 0.157 × fS                                         –0.85                                 2.07       Degrees
+
+Copyright © 2019, Texas Instruments Incorporated                                                                                        Submit Documentation Feedback                    49
+                                                                   Product Folder Links: TLV320ADC5140
+
+
+=== PDF page 50 ===
+TLV320ADC5140
+SBAS892A – JULY 2019 – REVISED OCTOBER 2019                                                                                      www.ti.com
+
+8.3.7 Dynamic Range Enhancer (DRE)
+The device integrates an ultra-low noise front-end PGA with 120-dB dynamic range performance with a low-
+noise, low-distortion, multibit delta-sigma (ΔΣ) ADC with a 108-dB dynamic range. The dynamic range enhancer
+(DRE) is a digitally assisted algorithm to boost the overall channel performance. The DRE monitors the incoming
+signal amplitude and accordingly adjusts the internal PGA gain automatically. The DRE achieves a complete-
+channel dynamic range as high as 120 dB. At a system level, the DRE scheme enables far-field, high-fidelity
+recording of audio signals in very quiet environments and low-distortion recording in loud environments.
+This algorithm is implemented with very low latency and all signal chain blocks are designed to minimize any
+audible artifacts that may occur resulting from dynamic gain modulation. Additionally, the host can configure the
+target signal threshold level at which DRE is triggered by setting the appropriate value for the DRE_LVL[3:0],
+P0_R109[7:4] register bits. The DRE_LVL default level is set to –54 dB and TI recommends setting the
+DRE_LVL value lower than –30 dB to maximize the benefit of the DRE in real-world applications and to minimize
+any audible artifacts. Table 44 lists the DRE_LVL configuration settings.
+
+                              Table 44. DRE Trigger Threshold Level Programmable Settings
+     P0_R109_D[7:4] : DRE_LVL[3:0]                                   DRE TRIGGER THRESHOLD LEVEL
+                 0000                   The DRE trigger threshold is the –12-dB input signal level
+                 0001                   The DRE trigger threshold is the –18-dB input signal level
+                 0010                   The DRE trigger threshold is the –24-dB input signal level
+                  …                     …
+             0111 (default)             The DRE trigger threshold is the –54-dB input signal level
+                  …                     …
+                 1001                   The DRE trigger threshold is the –66-dB input signal level
+             1010 to 1111               Reserved (do not use these settings)
+
+The DRE gain range can be dynamically modulated by using the DRE_MAXGAIN[3:0, P0_R109[3:0] register
+bits. The DRE_MAXGAIN default value is set to 24 dB, and the DRE_MAXGAIN value is recommended to be set
+lower than 24 dB to maximize the benefit of the DRE in real-world applications and to minimize any audible
+artifacts. Table 45 lists the DRE_MAXGAIN configuration settings.
+
+                                  Table 45. DRE Maximum Gain Programmable Settings
+P0_R109_D[3:0] : DRE_MAXGAIN[3:0]                                      DRE MAXIMUM GAIN ALLOWED
+                 0000                   The DRE maximum gain allowed is 2 dB
+                 0001                   The DRE maximum gain allowed is 4 dB
+                 0010                   The DRE maximum gain allowed is 6 dB
+                  …                     …
+             1011 (default)             The DRE maximum gain allowed is 24 dB
+                  …                     …
+                 1110                   The DRE maximum gain allowed is 30 dB
+                 1111                   Reserved (do not use this setting)
+
+The DRE scheme is only supported for analog microphone recording channels with an AC-coupled input for best
+dynamic range performance. The DRE scheme can be independently enabled or disabled for each channel using
+the CH1_DREEN (P0_R60_D0), CH2_DREEN (P0_R65_D0), CH3_DREEN (P0_R70_D0), and CH4_DREEN
+(P0_R75_D0) register bits. For a DC-coupled input, the DRE scheme can be used with limited DRE_MAXGAIN
+depending on the DC differential input common-mode offset.
+Enabling the DRE for processing increases the power consumption of the device because of increased signal
+processing. Therefore, disable the DRE for low-power critical applications. Furthermore, the DRE is not
+supported for output sample rates greater than 192 kHz.
+
+50      Submit Documentation Feedback                                                         Copyright © 2019, Texas Instruments Incorporated
+
+                                               Product Folder Links: TLV320ADC5140
+
+

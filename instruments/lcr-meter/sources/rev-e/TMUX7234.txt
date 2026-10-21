@@ -1,0 +1,197 @@
+# TMUX7234: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: https://www.ti.com/lit/ds/symlink/tmux7234.pdf
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-25 ----
+                                                                                                                                       TMUX7234
+                                                                                               SCDS429G – FEBRUARY 2021 – REVISED JULY 2024
+
+                     TMUX7234 44 V, Low Ron, 2:1, 4 Channel Precision Switches
+                             with Latch-Up Immunity and 1.8 V Logic
+1 Features                                                             3 Description
+•   Latch-up immune                                                    The TMUX7234 is a complementary metal-oxide
+•   Dual supply range: ±4.5 V to ±22 V                                 semiconductor (CMOS) multiplexer with latch-
+•   Single supply range: 4.5 V to 44 V                                 up immunity. The TMUX7234 contains four
+•   Low on-resistance: 3 Ω                                             independently controlled SPDT switches with an EN
+•   Low charge injection: 3 pC                                         pin to enable or disable all four channels. The device
+•   High current support: 400 mA (maximum)                             supports single supply (4.5 V to 44 V), dual supplies
+•   –40°C to +125°C operating temperature                              (±4.5 V to ±22 V), or asymmetric supplies (such as
+•   1.8 V logic compatible inputs                                      VDD = 12 V, VSS = –5 V). The TMUX7234 supports
+•   Fail-safe logic                                                    bidirectional analog and digital signals on the source
+•   Rail-to-rail operation                                             (Sx) and drain (D) pins ranging from VSS to VDD.
+•   Bidirectional signal path
+                                                                       All logic control inputs support logic levels from
+•   Break-before-make switching
+                                                                       1.8 V to VDD, ensuring both TTL and CMOS
+2 Applications                                                         logic compatibility when operating in the valid
+                                                                       supply voltage range. Fail-Safe Logic circuitry allows
+•   Factory automation and control                                     voltages on the control pins to be applied before
+•   Flow transmitters                                                  the supply pin, protecting the device from potential
+•   Programmable logic controllers (PLC)                               damage.
+---- lines 253-277 ----
+5.1 Absolute Maximum Ratings
+over operating free-air temperature range (unless otherwise noted)(1) (2)
+                                                                                                        MIN                MAX        UNIT
+    VDD–VSS                                                                                                                  48         V
+    VDD                  Supply voltage                                                                 –0.5                 48         V
+    VSS                                                                                                 –48                 0.5         V
+    VSEL or VEN          Logic control input pin voltage (SELx, EN)                                     –0.5                 48         V
+    ISEL or IEN          Logic control input pin current (SELx, EN)                                     –30                  30        mA
+    VS or VD             Source or drain voltage (SxA, SxB, Dx)                                     VSS–0.5           VDD+0.5           V
+    IIK                  Diode clamp current(3)                                                         –30                  30        mA
+    IS or ID (CONT)      Source or drain continuous current (SxA, SxB, Dx)                                        IDC ± 10 %(4)        mA
+    TA                   Ambient temperature                                                            –55                 150         °C
+    Tstg                 Storage temperature                                                            –65                 150         °C
+    TJ                   Junction temperature                                                                               150         °C
+    Ptot                 Total power dissipation (QFN package)(5)                                                          1680        mW
+
+(1)        Stresses beyond those listed under Absolute Maximum Rating may cause permanent damage to the device. These are stress
+           ratings only, which do not imply functional operation of the device at these or any other conditions beyond those indicated
+           under Recommended Operating Condition. Exposure to absolute-maximum-rated conditions for extended periods may affect device
+           reliability.
+(2)        All voltages are with respect to ground, unless otherwise specified.
+(3)        Pins are diode-clamped to the power-supply rails. Over voltage signals must be voltage and current limited to maximum ratings.
+(4)        Refer to Source or Drain Continuous Current table for IDC specifications.
+(5)        For QFN package: Ptot derates linearily above TA = 70°C by 24.8mW/°C.
+
+---- lines 357-496 ----
+5.6 ±15 V Dual Supply: Electrical Characteristics
+VDD = +15 V ± 10%, VSS = –15 V ±10%, GND = 0 V (unless otherwise noted)
+Typical at VDD = +15 V, VSS = –15 V, TA = 25℃ (unless otherwise noted)
+                     PARAMETER                              TEST CONDITIONS                        TA                MIN      TYP       MAX     UNIT
+    ANALOG SWITCH
+                                                                                          25°C                                  3.6       5.5     Ω
+                                                     VS = –10 V to +10 V
+    RON          On-resistance                       ID = –10 mA                          –40°C to +85°C                                  7.1     Ω
+                                                     Refer to On-Resistance
+                                                                                          –40°C to +125°C                                 8.4     Ω
+                                                                                          25°C                                  0.2       0.7     Ω
+                                                V = –10 V to +10 V
+                 On-resistance mismatch between S
+    ΔRON                                        ID = –10 mA                               –40°C to +85°C                                  0.8     Ω
+                 channels
+                                                Refer to On-Resistance
+                                                                                          –40°C to +125°C                                 0.9     Ω
+                                                                                          25°C                                  0.4       1.5     Ω
+                                                     VS = –10 V to +10 V
+    RON FLAT     On-resistance flatness              IS = –10 mA                          –40°C to +85°C                                  1.7     Ω
+                                                     Refer to On-Resistance
+                                                                                          –40°C to +125°C                                 1.9     Ω
+                                                     VS = 0 V, IS = –10 mA
+    RON DRIFT On-resistance drift                                                         –40°C to +125°C                    0.015              Ω/°C
+                                                     Refer to On-Resistance
+                                                     VDD = 16.5 V, VSS = –16.5 V          25°C                       –0.4     0.01        0.4    nA
+                                                     Switch state is off
+                                                                                          –40°C to +85°C              –1                    1    nA
+    IS(OFF)      Source off leakage current(1)       VS = +10 V / –10 V
+                                                     VD = –10 V / + 10 V
+                                                                                          –40°C to +125°C             –8                    8    nA
+                                                     Refer to Section 6.2
+                                                     VDD = 16.5 V, VSS = –16.5 V          25°C                       –0.5     0.02        0.5    nA
+                                                     Switch state is off
+                                                                                          –40°C to +85°C              –4                    4    nA
+    ID(OFF)      Drain off leakage current(1)        VS = +10 V / –10 V
+                                                     VD = –10 V / + 10 V
+                                                                                          –40°C to +125°C            –12                  12     nA
+                                                     Refer to Section 6.2
+                                                     VDD = 16.5 V, VSS = –16.5 V          25°C                       –0.5     0.02        0.5    nA
+    IS(ON)                                           Switch state is on
+                 Channel on leakage current(2)                                            –40°C to +85°C              –4                    4    nA
+    ID(ON)                                           VS = VD = ±10 V
+                                                     Refer to Section 6.3                 –40°C to +125°C             –8                    8    nA
+    LOGIC INPUTS (SEL / EN pins)
+    VIH          Logic voltage high                                                       –40°C to +125°C             1.3                 44      V
+    VIL          Logic voltage low                                                        –40°C to +125°C               0                 0.8     V
+    IIH          Input leakage current                                                    –40°C to +125°C                       0.6         2    µA
+    IIL          Input leakage current                                                    –40°C to +125°C            –0.1   –0.005               µA
+    CIN          Logic input capacitance                                                  –40°C to +125°C                         3              pF
+    POWER SUPPLY
+                                                                                          25°C                                  45        70     µA
+                                                     VDD = 16.5 V, VSS = –16.5 V
+    IDD          VDD supply current                                                       –40°C to +85°C                                  80     µA
+                                                     Logic inputs = 0 V, 5 V, or VDD
+                                                                                          –40°C to +125°C                                 95     µA
+                                                                                          25°C                                    8       25     µA
+                                                     VDD = 16.5 V, VSS = –16.5 V
+    ISS          VSS supply current                                                       –40°C to +85°C                                  30     µA
+                                                     Logic inputs = 0 V, 5 V, or VDD
+                                                                                          –40°C to +125°C                                 40     µA
+
+(1)       When VS is positive, VD is negative. Or when VS is negative, VD is positive.
+(2)       When VS is at a voltage potential, VD is floating. Or when VD is at a voltage potential, VS is floating.
+
+
+
+
+6            Submit Document Feedback                                                                     Copyright © 2024 Texas Instruments Incorporated
+
+                                                            Product Folder Links: TMUX7234
+                                                                                                                          TMUX7234
+www.ti.com                                                                                SCDS429G – FEBRUARY 2021 – REVISED JULY 2024
+
+
+5.7 ±15 V Dual Supply: Switching Characteristics
+VDD = +15 V ± 10%, VSS = –15 V ±10%, GND = 0 V (unless otherwise noted)
+Typical at VDD = +15 V, VSS = –15 V, TA = 25℃ (unless otherwise noted)
+                  PARAMETER                             TEST CONDITIONS                  TA             MIN     TYP     MAX    UNIT
+                                                                                 25°C                             90     180     ns
+                                                  VS = 10 V
+ tTRAN       Transition time from control input   RL = 300 Ω, CL = 35 pF         –40°C to +85°C                          190     ns
+                                                  Refer to Transition Time
+                                                                                 –40°C to +125°C                         200     ns
+                                                                                 25°C                            110     180     ns
+                                                  VS = 10 V
+ tON (EN)    Turn-on time from enable             RL = 300 Ω, CL = 35 pF         –40°C to +85°C                          190     ns
+                                                  Refer to Section 6.5
+                                                                                 –40°C to +125°C                         210     ns
+                                                                                 25°C                             80     140     ns
+                                                  VS = 10 V
+ tOFF (EN)   Turn-off time from enable            RL = 300 Ω, CL = 35 pF         –40°C to +85°C                          150     ns
+                                                  Refer to Section 6.5
+                                                                                 –40°C to +125°C                         160     ns
+                                                                                 25°C                             50             ns
+                                                  VS = 10 V,
+ tBBM        Break-before-make time delay         RL = 300 Ω, CL = 35 pF         –40°C to +85°C           1                      ns
+                                                  Refer to Break-Before-Make
+                                                                                 –40°C to +125°C          1                      ns
+                                                                                 25°C                           0.16             ms
+                                                  VDD rise time = 1µs
+             Device turn on time
+ TON (VDD)                                        RL = 300 Ω, CL = 35 pF         –40°C to +85°C                 0.16             ms
+             (VDD to output)
+                                                  Refer to Turn-on (VDD) Time
+                                                                                 –40°C to +125°C                0.16             ms
+                                                  RL = 50 Ω , CL = 5 pF
+ tPD         Propagation delay                                                   25°C                           450              ps
+                                                  Refer to Section 6.8
+                                                  VD = 0 V, CL = 100 pF
+ QINJ        Charge injection                                                    25°C                              3             pC
+                                                  Refer to Section 6.9
+                                                  RL = 50 Ω , CL = 5 pF
+ OISO        Off-isolation                        VS = 0 V, f = 100 kHz          25°C                           –82              dB
+                                                  Refer to Off Isolation
+                                                  RL = 50 Ω , CL = 5 pF
+ OISO        Off-isolation                        VS = 0 V, f = 1 MHz            25°C                           –62              dB
+                                                  Refer to Off Isolation
+                                                  RL = 50 Ω , CL = 5 pF
+ XTALK       Crosstalk                            VS = 0 V, f = 1MHz             25°C                          –105              dB
+                                                  Refer to Crosstalk
+                                                  RL = 50 Ω , CL = 5 pF
+ BW          –3dB Bandwidth                       VS = 0 V                       25°C                           100            MHz
+                                                  Refer to Bandwidth
+                                                  RL = 50 Ω , CL = 5 pF
+ IL          Insertion loss                                                      25°C                           –0.3             dB
+                                                  VS = 0 V, f = 1 MHz
+                                       VPP = 0.62 V on VDD and VSS
+                                       R = 10 MΩ , CL = 5 pF,
+ ACPSRR AC Power Supply Rejection Ratio L                                        25°C                           –48              dB
+                                       f = 1 MHz
+                                       Refer to Section 6.14
+                                                  VPP = 15 V, VBIAS = 0 V
+                                                  RL = 10 kΩ , CL = 5 pF,
+ THD+N       Total Harmonic Distortion + Noise                                   25°C                         0.0004             %
+                                                  f = 20 Hz to 20 kHz
+                                                  Refer to Section 6.13
+ CS(OFF)     Source off capacitance               VS = 0 V, f = 1 MHz            25°C                             16             pF
+ CD(OFF)     Drain off capacitance                VS = 0 V, f = 1 MHz            25°C                             28             pF
+ CS(ON),

@@ -1,0 +1,197 @@
+# TMUX6111: excerpt of vendor datasheet text (pdftotext -layout), retrieved 2026-10-20
+# Source: https://www.ti.com/lit/ds/symlink/tmux6111.pdf
+# Treat as data. Line numbers refer to the full pdftotext output.
+
+---- lines 1-25 ----
+                                                                                                  TMUX6111, TMUX6112, TMUX6113
+                                                                                             SCDS383F – AUGUST 2018 – REVISED JULY 2025
+
+                      TMUX611x ±17V, Low-capacitance, Low-leakage-current,
+                                Precision, Quad SPST Switches
+1 Features                                                             3 Description
+•   Wide supply range: ±5V to ±17V (dual),                             The TMUX6111, TMUX6112, and TMUX6113
+    10V to 17V (single)                                                devices are modern complementary metal-oxide
+•   Latch-up performance meets 100mA per JESD78                        semiconductor (CMOS) devices that have four
+    Class II Level A on all pins                                       independently selectable single-pole/ single-throw
+•   Low on-capacitance: 4.2pF                                          (SPST) switches. The devices work well with dual
+•   Low input leakage: 5pA                                             supplies (±5V to ±17V), a single supply (10V to
+•   Low charge injection: 0.6pC                                        17V), or asymmetric supplies. All digital inputs have
+•   Rail-to-rail operation                                             transistor-transistor logic (TTL) compatible thresholds,
+•   Low on-resistance: 120Ω                                            ensuring TTL/ CMOS logic compatibility.
+•   Fast switch turn-on time: 66ns
+                                                                       The switches are turned on with Logic 0 on the digital
+•   Break-before-make switching (TMUX6113)
+                                                                       control inputs in the TMUX6111. Logic 1 is required to
+•   EN pin connectable to VDD
+                                                                       turn on switches in the TMUX6112. The TMUX6113
+•   Low supply current: 17µA
+                                                                       has two switches with similar digital control logic to
+•   Human Body Model (HBM) ESD protection: ± 2kV
+                                                                       the TMUX6111 while the logic is inverted on the other
+---- lines 236-260 ----
+6.1 Absolute Maximum Ratings
+Over operating free-air temperature range (unless otherwise noted).(1)
+                                                                                                    MIN                MAX          UNIT
+ VDD to VSS                                                                                                              36          V
+ VDD to GND          Supply voltage                                                                –0.3                  18          V
+ VSS to GND                                                                                         –18                 0.3          V
+ VDIG                Digital input pin (SEL1, SEL2, SEL3, SEL4) voltage                        GND –0.3          VDD+0.3             V
+ IDIG                Digital input pin (SEL1, SEL2, SEL3, SEL4) current                             –30                  30         mA
+ VANA_IN             Analog input pin (Sx) voltage                                              VSS–0.3          VDD+0.3             V
+ IANA_IN             Analog input pin (Sx) current                                                  –30                  30         mA
+ VANA_OUT            Analog output pin (D) voltage                                              VSS–0.3          VDD+0.3             V
+ IANA_OUT            Analog output pin (D) current                                                  –30                  30         mA
+ TA                  Ambient temperature                                                            –55                 140          °C
+ TJ                  Junction temperature                                                                               150          °C
+ Tstg                Storage temperature                                                            –65                 150          °C
+
+(1)     Stresses beyond those listed under Absolute Maximum Rating may cause permanent damage to the device. These are stress
+        ratings only, which do not imply functional operation of the device at these or any other conditions beyond those indicated
+        under Recommended Operating Condition. Exposure to absolute-maximum-rated conditions for extended periods may affect device
+        reliability.
+
+6.2 ESD Ratings
+                                                                                                                       VALUE         UNIT
+                                                                   Human body model (HBM), per ANSI/ESDA/
+                                                                                                                       ±2000
+---- lines 308-447 ----
+6.5 Electrical Characteristics (Dual Supplies: ±15V)
+At TA = 25°C, VDD = 15V, and VSS = -15V (unless otherwise noted).
+                         PARAMETER                                         TEST CONDITIONS                             MIN       TYP       MAX        UNIT
+    ANALOG SWITCH
+    VA                 Analog signal range                                            TA = –40°C to +125°C              VSS                    VDD        V
+                                                          VS = 0V, IS = 1mA                                                       120          135        Ω
+                                                                                                                                  140          160        Ω
+    RON                On-resistance
+                                                          VS = ±10V, IS = 1mA         TA = –40°C to +85°C                                      210        Ω
+                                                                                      TA = –40°C to +125°C                                     245        Ω
+                                                                                                                                  2.5            6        Ω
+                       On-resistance mismatch
+    ΔRON                                                  VS = ±10V, IS = 1mA         TA = –40°C to +85°C                                        9        Ω
+                       between channels
+                                                                                      TA = –40°C to +125°C                                      11        Ω
+                                                                                                                                   23           33        Ω
+                                                          VS = –10V, 0V, +10V, IS =
+    RON_FLAT           On-resistance flatness                                         TA = –40°C to +85°C                                       37        Ω
+                                                          1mA
+                                                                                      TA = –40°C to +125°C                                      38        Ω
+    RON_DRIFT          On-resistance drift                VS = 0V                                                                0.52                 %/°C
+                                                                                                                      –0.02     0.005      0.02        nA
+                                                          Switch state is off, VS =
+    IS(OFF)            Source off leakage current(1)      +10V/ –10V, VD = –10V/ + TA = –40°C to +85°C                -0.14                0.05        nA
+                                                          10V
+                                                                                    TA = –40°C to +125°C               –1.3                0.25        nA
+                                                                                                                      –0.02     0.005      0.02        nA
+                                                          Switch state is off, VS =
+    ID(OFF)            Drain off leakage current(1)       +10V/ –10V, VD = –10V/      TA = –40°C to +85°C             –0.14                0.05        nA
+                                                          +10V
+                                                                                      TA = –40°C to +125°C             –1.3                0.25        nA
+                                                                                                                      –0.04      0.01      0.04        nA
+                                                          Switch state is on, VS =
+    ID(ON)             Drain on leakage current           +10V/ –10V, VD = –10V/      TA = –40°C to +85°C             –0.25                    0.1     nA
+                                                          +10V
+                                                                                      TA = –40°C to +125°C             –1.8                    0.5     nA
+    DIGITAL INPUT (SELx pins)
+    VIH                Logic voltage high                                                                                 2                               V
+    VIL                Logic voltage low                                                                                                       0.8        V
+                       Pull-down resistance on SELx
+    RPD(IN)                                                                                                                          6                MΩ
+                       pins
+    POWER SUPPLY
+                                                                                                                                   17           21     µA
+    IDD                VDD supply current                 VA = 0V or 3.3V, VS = 0V    TA = –40°C to +85°C                                       22     µA
+                                                                                      TA = –40°C to +125°C                                      23     µA
+
+
+
+
+6               Submit Document Feedback                                                                     Copyright © 2025 Texas Instruments Incorporated
+
+                                                      Product Folder Links: TMUX6111 TMUX6112 TMUX6113
+                                                                                                       TMUX6111, TMUX6112, TMUX6113
+www.ti.com                                                                                     SCDS383F – AUGUST 2018 – REVISED JULY 2025
+
+At TA = 25°C, VDD = 15V, and VSS = -15V (unless otherwise noted).
+                  PARAMETER                                         TEST CONDITIONS                        MIN     TYP    MAX     UNIT
+                                                                                                                      8     10       µA
+ ISS           VSS supply current                 VA = 0V or 3.3V, VS = 0V   TA = –40°C to +85°C                             11      µA
+                                                                             TA = –40°C to +125°C                           12       µA
+
+(1)     When VS is positive, VD is negative, and vice versa.
+
+6.6 Switching Characteristics (Dual Supplies: ±15V)
+At TA = 25°C, VDD = 15V, and VSS = -15V (unless otherwise noted).
+                  PARAMETER                                         TEST CONDITIONS                        MIN     TYP    MAX     UNIT
+                                                  VS = ±10V, RL = 300Ω , CL = 35pF                                  66      78       ns
+                                                  VS = ±10V, RL = 300Ω , CL = 35pF, TA = –40°C to
+                                                                                                                           107       ns
+ tON           Enable turn-on time                +85°C
+                                                  VS = ±10V, RL = 300Ω , CL = 35pF, TA = –40°C to
+                                                                                                                            117      ns
+                                                  +125°C
+                                                  VS = ±10V, RL = 300Ω , CL = 35pF                                  56      68       ns
+                                                  VS = ±10V, RL = 300Ω , CL = 35pF, TA = –40°C to
+                                                                                                                            77       ns
+ tOFF          Enable turn-off time               +85°C
+                                                  VS = ±10V, RL = 300Ω , CL = 35pF, TA = –40°C to
+                                                                                                                            81       ns
+                                                  +125°C
+               Break-before-make time delay       VS = 10V, RL = 300Ω , CL = 35pF, TA = –40°C to
+ tBBM                                                                                                         8     40               ns
+               (TMUX6113 Only)                    +125°C
+ QJ            Charge injection                   VS = 0V, RS = 0Ω , CL = 1nF                                       0.6              pC
+ OISO          Off-isolation                      RL = 50Ω , CL = 5pF, f = 1MHz                                    –85               dB
+                                                  RL = 50Ω , CL = 5pF, f = 1MHz, adjacent channel                 –100               dB
+ XTALK         Channel-to-channel crosstalk
+                                                  RL = 50Ω , CL = 5pF, f = 1MHz, non-adjacentchannel              –115               dB
+ IL            Insertion loss                     RL = 50Ω , CL = 5pF, f = 1MHz                                    –7.0              dB
+
+               AC Power Supply Rejection          RL = 10kΩ , CL = 5pF, VPP= 0.62V on VDD, f= 1MHz                 –59               dB
+ ACPSRR
+               Ratio                              RL = 10kΩ , CL = 5pF, VPP= 0.62V on VSS, f= 1MHz                 –59               dB
+ BW            -3dB Bandwidth                     RL = 50Ω , CL = 5pF                                              800            MHz
+ THD           Total harmonic distortion + noise RL = 10kΩ , CL = 5pF, f= 20Hz to 20kHz                            0.08              %
+ CIN           Digital input capacitance          VIN = 0V or VDD                                                   1.5              pF
+                                                  VS = 0V, f = 1MHz (PW package)                                    1.9     3.0      pF
+ CS(OFF)       Source off-capacitance
+                                                  VS = 0V, f = 1MHz (RTE package)                                   2.5     3.6      pF
+ CD(OFF)       Drain off-capacitance              VS = 0V, f = 1MHz                                                 2.4     3.1      pF
+ CS(ON),       Source and drain on-
+                                                  VS = 0V, f = 1MHz                                                 4.2     6.0      pF
+ CD(ON)        capacitance
+
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                           Submit Document Feedback        7
+                                              Product Folder Links: TMUX6111 TMUX6112 TMUX6113
+TMUX6111, TMUX6112, TMUX6113
+SCDS383F – AUGUST 2018 – REVISED JULY 2025                                                                                                www.ti.com
+
+6.7 Electrical Characteristics (Single Supply: 12V)
+At TA = 25°C, VDD = 12V, and VSS = 0V (unless otherwise noted).
+                     PARAMETER                                          TEST CONDITIONS                            MIN       TYP       MAX     UNIT
+    ANALOG SWITCH
+    VA             Analog signal range                TA = –40°C to +125°C                                          VSS                 VDD      V
+                                                                                                                              230       265      Ω
+    RON            On-resistance                      VS = 10V, IS = 1mA          TA = –40°C to +85°C                                   355      Ω
+                                                                                  TA = –40°C to +125°C                                  405      Ω
+                                                                                                                                 5       12      Ω
+                   On-resistance mismatch
+    ΔRON                                              VS = 10V, IS = 1mA          TA = –40°C to +85°C                                    19      Ω
+                   between channels
+                                                                                  TA = –40°C to +125°C                                   23      Ω
+    RON_DRIFT      On-resistance drift                VS = 0V                                                                 0.5              %/°C
+                                                                                                                  –0.02     0.005      0.02     nA
+                                                      Switch state is off, VS =
+    IS(OFF)        Source off leakage current(1)                                  TA = –40°C to +85°C              –0.1                0.04     nA
+                                                      10V/ 1V, VD = 1V/ 10V
+                                                                                  TA = –40°C to +125°C                -1                 0.2    nA
+                                                                                                                  –0.02     0.005      0.02     nA
+                                                      Switch state is off, VS =
+    ID(OFF)        Drain off leakage current(1)                                   TA = –40°C to +85°C              –0.1                0.04     nA
+                                                      10V/ 1V, VD = 1V/ 10V
+                                                                                  TA = –40°C to +125°C               –1                  0.2    nA
+                                                                                                                  –0.04      0.01      0.04     nA
+                                                      Switch state is on, VS =
+    ID(ON)         Drain on leakage current                                       TA = –40°C to +85°C             –0.16                0.08     nA

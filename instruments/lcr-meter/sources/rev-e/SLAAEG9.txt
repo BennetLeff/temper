@@ -1,0 +1,150 @@
+# TI app note SLAAEG9 Clock Error Configuration, Detection, and Modes Supported in TAx5x1x Family
+# Source: https://www.ti.com/lit/pdf/slaaeg9
+# Retrieved 2026-10-20; PDF sha256 21006a3ef759ee85254d7b2ffe712e8fa321f8c1661b3c3da2232617760e50e8
+# Extracted with `pdftotext -layout`; only the listed PDF pages are kept (register maps etc. dropped).
+# Each page starts with a line "=== PDF page N ===" ; citations in docs/rev-e-acquisition-survey.md use these page numbers.
+# Pages kept: 1-3
+
+=== PDF page 1 ===
+www.ti.com                                                                                                                                                           Table of Contents
+
+Application Note
+Clock Error Configuration, Detection, and Modes
+Supported in TAx5x1x Family
+
+Sanjay Dixit, Saikiran Kurba
+                                                                                   ABSTRACT
+This application note applies to the following devices:
+TAC5212, TAC5112, TAC5211, TAC5111, TAA5212, TAD5212, TAD5112, TAC5412-Q1, TAC5411-Q1, TAC5312-
+Q1, TAC5311-Q1, TAC5212-Q1, TAC5211-Q1, TAC5112-Q1, TAC5111-Q1, TAA5412-Q1, TAD5212-Q1,
+TAD5112-Q1
+The Clock Detection Module in the TAX5X Family comprises of the following functionality:
+•    Detecting Sampling Rate (Fs Rate).
+•    Detecting Ratio between supplied source Clock and supplied Fsync.
+•    Monitoring Fs Rate and Source Clock to Fs Ratio and flag corresponding indications if any change in the
+     value is detected.
+•    Registers that record the incoming Fs Rate ans clk to Fs ratio for both.
+
+                                                                           Table of Contents
+1 Introduction.............................................................................................................................................................................2
+2 Semi-Automatic Mode............................................................................................................................................................ 3
+3 Detection of Clock Errors.......................................................................................................................................................4
+4 Determination of Incoming Timing in Auto-Detected Mode............................................................................................... 5
+5 Summary................................................................................................................................................................................. 6
+
+Trademarks
+All trademarks are the property of their respective owners.
+
+SLAAEG9 – NOVEMBER 2023                                                                Clock Error Configuration, Detection, and Modes Supported in TAx5x1x Family                         1
+Submit Document Feedback
+                                                                Copyright © 2023 Texas Instruments Incorporated
+
+
+=== PDF page 2 ===
+Introduction                                                                                                                         www.ti.com
+
+1 Introduction
+The TAX5X family permits a wide variety of timings to input to the chip. These timings include standard audio
+rates as well as non standard rates. The devices detect if the timings are valid and if so, the internal PLL, as well
+as, dividers are configured automatically. The device also can also return a clock error in case of a change in
+timing. It is also possible to read the actual input timings through a register
+In Automatic configuration the below Fs buckets are recognized as shown in Table 1-1.
+                                             Table 1-1. 1% Tolerance - Detectable Fs Buckets
+                                    Fs Min                               Fs Typ                        Fs Max
+                                    (KHz)                                (KHz)                          (KHz)
+                                    698.54                                768                          775.68
+                                    349.27                                384                          387.84
+                                    174.64                                192                          193.92
+                                     87.32                                 96                          96.96
+                                     43.66                                 48                          48.48
+                                     29.11                                 32                          32.32
+                                     21.83                                 24                          24.24
+                                     14.55                                 16                          16.16
+                                     10.91                                 12                          12.12
+                                     7.28                                   8                           8.08
+                                     4.37                                  4.8                          4.85
+                                     2.73                                   3                           3.03
+
+By default, only 1% tolerance frequency range is supported in SW pin configuration mode (Table 1-1) which can
+be extended to support 5% tolerance range (Table 1-2) using B0_P0_R50[1] for PASI and B0_P0_R51[1] for
+SASI.
+                                         Table 1-2. 2 5% Tolerance - Detectable Fs Buckets
+                           PASI/SASI                      Fs Min                      Fs Typ              Fs Max
+                          SAMP_RATE                       (KHz)                       (KHz)                (KHz)
+                                1                         670.32                        768               806.40
+                                5                         335.16                        384               403.20
+                                10                        167.58                        192               201.60
+                                15                         83.79                         96               100.80
+                                20                         41.90                         48                50.40
+                                23                         27.93                         32                33.60
+                                25                         20.95                         24                25.20
+                                28                         13.97                         16                16.80
+                                30                         10.47                         12                12.60
+                                33                          6.98                          8                    8.40
+                                37                          4.19                         4.8                   5.04
+
+2      Clock Error Configuration, Detection, and Modes Supported in TAx5x1x Family                                    SLAAEG9 – NOVEMBER 2023
+                                                                                                                        Submit Document Feedback
+                                                     Copyright © 2023 Texas Instruments Incorporated
+
+
+=== PDF page 3 ===
+www.ti.com                                                                                                         Semi-Automatic Mode
+
+2 Semi-Automatic Mode
+Sometimes, it is necessary to work with Non-Standard Clock Rates. Please refer to Table 2-1. To enable
+detection of a non-standard clock rate, the Frequency range needs to be specified. This frequency range can be
+done by setting the following registers.
+•   PASI_SAMP_RATE(5..O) in Register 0x32
+•   SASI_SAMP_RATE(5..O) in Register 0x33
+After do so, the automatic configuration functions if the incoming FSYNC frequency is matching with the sample
+rate setup in 0x32 and 0x33.
+                                         Table 2-1. All Sampling Bins
+        S.No                               Fs Bin (Hz)                                               Oscillator Count Range
+                             Min             Typical                    Max                       Min                       Max
+             1             670320            768000                    806400                      12                        21
+             2             536256            614400                    645120                      15                        26
+             3             446880            512000                    537600                      18                        30
+             4             383040          438857.14                   460800                      22                        35
+             5             335160            384000                    403200                      25                        40
+             6             297920          341333.33                   358400                      28                        45
+             7             268128            307200                    322560                      32                        50
+             8             223440            256000                    268800                      38                        59
+             9             191520          219428.57                   230400                      45                        69
+         10                167580            192000                    201600                      52                        78
+             11            148960          170666.67                   179200                      58                        88
+         12                134064            153600                    161280                      65                        98
+         13                111720            128000                    134400                      78                       117
+         14                 95760          109714.29                   115200                      92                       136
+         15                 83790             96000                    100800                     105                       155
+         16                 74480           85333.33                    89600                      118                      175
+         17                 67032             76800                     80640                     132                       194
+         18                 55860             64000                     67200                     158                       232
+         19                 47880           54857.14                    57600                     185                       271
+         20                 41895             48000                     50400                      211                      309
+         21                 37240           42666.67                    44800                     238                       348
+         22                 33516             38400                     40320                     265                       386
+         23                 27930             32000                     33600                     318                       463
+         24                 23940           27428.57                    28800                     371                       540
+         25                20947.50           24000                     25200                     424                       617
+         26                 18620           21333.33                    22400                     478                       694
+         27                 16758             19200                     20160                     531                       771
+         28                 13965             16000                     16800                     637                       925
+         29                 11970           13714.29                    14400                     744                      1079
+         30                10473.75           12000                     12600                     850                      1233
+         31                 9310            10666.67                    11200                     957                      1387
+         32                 8379              9600                      10080                     1063                     1541
+         33                6982.50            8000                      8400                      1276                     1849
+         34                 5985             6857.14                    7200                      1489                     2157
+         35                5236.88            6000                      6300                      1702                     2465
+         36                 4655             5333.33                    5600                      1915                     2773
+         37                4189.50            4800                      5040                      2127                     3081
+         38                3491.25            4000                      4200                      2553                     3696
+         39                2992.50           3428.57                    3600                      2979                     4312
+         40                2618.44            3000                      3150                      3405                     4928
+
+SLAAEG9 – NOVEMBER 2023                                  Clock Error Configuration, Detection, and Modes Supported in TAx5x1x Family   3
+Submit Document Feedback
+                                      Copyright © 2023 Texas Instruments Incorporated
+
+

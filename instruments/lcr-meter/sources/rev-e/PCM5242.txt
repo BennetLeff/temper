@@ -1,0 +1,390 @@
+# TI PCM5242 datasheet SLASE12A (Oct 2014)
+# Source: https://www.ti.com/lit/ds/symlink/pcm5242.pdf
+# Retrieved 2026-10-20; PDF sha256 18734ea229cb2e74bcdf3f1dcf51dadc3863e87639b769f9b0275d4853670d43
+# Extracted with `pdftotext -layout`; only the listed PDF pages are kept (register maps etc. dropped).
+# Each page starts with a line "=== PDF page N ===" ; citations in docs/rev-e-acquisition-survey.md use these page numbers.
+# Pages kept: 1,7-8,16,23,44
+
+=== PDF page 1 ===
+                                        Product            Sample &        Technical                  Tools &             Support &
+                                        Folder             Buy             Documents                  Software            Community
+
+                                                                                                                                                 PCM5242
+                                                                                                                  SLASE12A – JULY 2014 – REVISED OCTOBER 2014
+
+    PCM5242 4.2-VRMS DirectPath™, 114-dB Audio Stereo Differential-Output DAC with 32-bit,
+                                   384-kHz PCM Interface
+1 Features                                                                           3 Description
+•
+1     Differential DirectPath™ Ground Biased Outputs                                 The PCM5242 is a monolithic CMOS integrated
+                                                                                     circuit that includes a stereo digital-to-analog
+•     Market-Leading Low Out-of-Band Noise                                           converter and additional support circuitry in a small
+•     Selectable Digital-Filter Latency and Performance                              QFN package. The PCM5242 uses the latest
+•     No DC Blocking Capacitors Required                                             generation   of   TI’s   advanced      segment-DAC
+•     Integrated Negative Charge Pump                                                architecture  to    achieve    excellent     dynamic
+                                                                                     performance and improved tolerance to clock jitter.
+•     Intelligent Muting System; Soft Up or Down Ramp
+      and Analog Mute for 120dB Mute SNR                                             The PCM5242 integrates a fully programmable
+                                                                                     miniDSP core, allowing developers to integrate filters,
+•     Integrated High-Performance Audio PLL With                                     dynamic range controls, custom interpolators and
+      BCK Reference to Generate SCK Internally                                       other differentiating features to their products.
+•     Accepts 16-, 24-, and 32-Bit Audio Data
+                                                                                     The PCM5242 provides 4.2VRMS ground-centered
+•     PCM Data Formats: I2S, Left-Justified, Right-                                  differential outputs, allowing designers to eliminate
+      Justified, TDM                                                                 DC blocking capacitors on the output, as well as
+•     SPI or I2C Control                                                             external muting circuits traditionally associated with
+•     Software or Hardware Configuration                                             single supply line drivers.
+•     Automatic Power-Save Mode When LRCK And                                        The integrated PLL on the device removes the
+      BCK Are Deactivated                                                            requirement for a system clock (commonly known as
+                                                                                     master clock), allowing a 3-wire I2S connection and
+•     1.8V or 3.3V Failsafe LVCMOS Digital Inputs
+                                                                                     reducing system EMI.
+•     Single Supply Operation:
+      – 3.3V Analog, 1.8V or 3.3V Digital                                                                         Device Information(1)
+•     Integrated Power-On Reset                                                             PART NAME                   PACKAGE          BODY SIZE (NOM)
+
+•     Small 32-terminal QFN Package                                                   PCM5242                       VQFN (32)            5.00mm × 5.00mm
+                                                                                      (1) For all available packages, see the orderable addendum at
+2 Applications                                                                            the end of the datasheet.
+
+•     HiFi Smartphone
+•     A/V Receivers
+•     DVD, BD Players
+•     HDTV Receivers
+
+4 Simplified System Diagram
+
+                                                              2                     DOUT
+                                                             I S
+                   2ch Single Ended
+                                                           BCK                              Current Segment DAC            TPA3130
+                                          PCM1863/5                   miniDSPs,
+                                                           LRCK       Filters
+              IN
+             AUX
+                   2ch Single Ended
+                                                                                  PCM5242
+                                                                                                                          TPA6120A2
+
+                                         Analog
+                          MIC
+                           IN
+
+                                                          BT Module
+                                         Sensor                                                    WiLAN chip
+                                                                           MSP430
+                                      - Light Intensity
+                                      - Ultrasonic
+                                      - Battery Level
+1
+
+        An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+        intellectual property matters and other important disclaimers. PRODUCTION DATA.
+
+
+=== PDF page 7 ===
+                                                                                                                                   PCM5242
+www.ti.com                                                                                      SLASE12A – JULY 2014 – REVISED OCTOBER 2014
+
+7 Specifications
+7.1 Absolute Maximum Ratings
+over operating free-air temperature range (unless otherwise noted)
+                                                                                                       MIN               MAX            UNIT
+                                      AVDD, CPVDD, DVDD                                                –0.3               3.9
+Supply Voltage
+                                      LDOO wtih DVDD at 1.8V                                           –0.3              2.25
+                                      DVDD at 1.8V                                                     –0.3              2.25                V
+Digital Input Voltage
+                                      DVDD at 3.3V                                                     –0.3               3.9
+Analog Input Voltage                                                                                   –0.3               3.9
+
+7.2 Handling Ratings
+                                                                                                       MIN            MAX              UNIT
+Tstg                          Storage Temperature                                                       –40            125              °C
+                                                       Human body model (HBM), per
+                                                                                                      –2500           2500
+                              Electrostatic            ANSI/ESDA/JEDEC JS-001, all pins (1)
+V(ESD)                                                                                                                                  V
+                              Discharge                Charged device model (CDM), per JEDEC          –1500           1500
+                                                       specification JESD22-C101, all pins
+
+(1)    Level listed above is the passing level per ANSI, ESDA, and JEDEC JS-001. JEDEC document JEP155 states that 500V HBM allows
+       safe manufacturing with a standard ESD control process.
+
+7.3 Recommended Operating Conditions
+                                                                                                               MIN     NOM      MAX      UNIT
+                                                            Referenced to    VCOM mode                          3.0      3.3    3.46
+AVDD             Analog power supply voltage range                                                                                           V
+                                                            AGND (1)         VREF mode                          3.2      3.3    3.46
+                                                            Referenced to    1.8V DVDD                         1.65      1.8    1.95
+DVDD             Digital power supply voltage range                                                                                          V
+                                                            DGND (1)         3.3V DVDD                          3.1      3.3    3.46
+CPVDD            Charge pump supply voltage range           Referenced to CPGND (1)                             3.1      3.3    3.46         V
+MCLK             Master Clock Frequency                                                                                           50     MHz
+LOL, LOR         Stereo line output load resistance                                                               2       10                 kΩ
+CLout            Digital output load capacitance                                                                          10                 pF
+TJ               Operating Junction Temperature Range                                                           –25               85         °C
+
+(1)    All grounds on board are tied together; they must not differ in voltage by more than 0.2V max, for any combination of ground signals.
+
+7.4 Thermal Information
+                                                   THERMAL METRIC                                                 RHB (32 PINS)         UNIT
+RθJA                Junction-to-ambient thermal resistance                                                             72.2
+RθJC(top)           Junction-to-case(top) thermal resistance                                                           17.5
+RθJB                Junction-to-board thermal resistance                                                               35.0
+                                                                                                                                        °C/W
+ψJT                 Junction-to-top characterization parameter                                                          0.4
+ψJB                 Junction-to-board characterization parameter                                                       34.5
+RθJC(bottom)        Junction-to-case(bottom) thermal resistance                                                         n/a
+
+Copyright © 2014, Texas Instruments Incorporated                                                      Submit Documentation Feedback               7
+                                                           Product Folder Links: PCM5242
+
+
+=== PDF page 8 ===
+PCM5242
+SLASE12A – JULY 2014 – REVISED OCTOBER 2014                                                                                  www.ti.com
+
+7.5 Electrical Characteristics
+All specifications at TA = 25°C, AVDD = CPVDD = DVDD = 3.3V, fS = 48kHz, system clock = 512fS and 24-bit data unless
+otherwise noted.
+                 PARAMETER                                 TEST CONDITIONS                MIN          TYP            MAX       UNIT
+           Resolution                                                                       16           24             32       Bits
+Digital Input/Output
+           Logic Family: 3.3V LVCMOS compatible
+VIH                                                                                   0.7×DVDD
+           Input logic level                                                                                                      V
+VIL                                                                                                             0.3×DVDD
+IIH                                            VIN = VDD                                                                10
+           Input logic current                                                                                                   µA
+IIL                                            VIN = 0V                                                                –10
+VOH                                            IOH = –4mA                             0.8×DVDD
+           Output logic level                                                                                                     V
+VOL                                            IOL = 4mA                                                       0.22×DVDD
+           Logic Family 1.8V LVCMOS compatible
+VIH                                                                                   0.7×DVDD
+           Input logic level                                                                                                      V
+VIL                                                                                                             0.3×DVDD
+IIH                                            VIN = VDD                                                                10
+           Input logic current                                                                                                   µA
+IIL                                            VIN = 0V                                                                –10
+VOH                                            IOH = –2mA                             0.8×DVDD
+           Output logic level                                                                                                     V
+VOL                                            IOL = 2mA                                                       0.22×DVDD
+Dynamic Performance (PCM Mode) (1) (2)
+                                               fS = 48kHz                                               –94            –87
+                               (2)
+           THD+N at -1 dB                      fS = 96kHz                                               –94
+                                               fS = 192kHz                                              –94
+           Dynamic range (2)                   EIAJ, A-weighted, fS = 48kHz                108          114
+                                               EIAJ, A-weighted, fS = 96kHz                             114
+                                               EIAJ, A-weighted, fS = 192kHz                            114
+                                                                                                                                 dB
+           Signal-to-noise ratio (2)           EIAJ, A-weighted, fS = 48kHz                             114
+                                               EIAJ, A-weighted, fS = 96kHz                             114
+                                               EIAJ, A-weighted, fS = 192kHz                            114
+           Signal to noise ratio with analog   EIAJ, A-weighted, fS = 48kHz                113          123
+           mute (2) (3)
+                                               EIAJ, A-weighted, fS = 96kHz                113          123
+                                               EIAJ, A-weighted, fS = 192kHz               113          123
+           Channel Separation                  fS = 48kHz                              100 / 95   109 / 103
+                                               fS = 96kHz                              100 / 95   109 / 103                      dB
+                                               fS = 192kHz                             100 / 95   109 / 103
+
+(1)   Filter condition: THD+N: 20Hz HPF, 20kHz AES17 LPF Dynamic range: 20Hz HPF, 20kHz AES17 LPF, A-weighted Signal-to-noise
+      ratio: 20Hz HPF, 20kHz AES17 LPF, A-weighted Channel separation: 20Hz HPF, 20kHz AES17 LPF Analog performance specifications
+      are measured using the System Two Cascade™ audio measurement system by Audio Precision™ in the RMS mode.
+(2)   Output load is 10kΩ, with 470Ω output resistor and a 2.2nF shunt capacitor (see recommended output filter).
+(3)   Assert XSMT or both L-ch and R-ch PCM data are BPZ
+
+8        Submit Documentation Feedback                                                    Copyright © 2014, Texas Instruments Incorporated
+
+                                                      Product Folder Links: PCM5242
+
+
+=== PDF page 16 ===
+PCM5242
+SLASE12A – JULY 2014 – REVISED OCTOBER 2014                                                                                                                                   www.ti.com
+
+8 Detailed Description
+
+8.1 Overview
+The integrated PLL on the device provided adds the flexibility to remove the system clock (commonly known as
+master clock), allowing a 3-wire I2S connection and reducing system EMI. In addition, the PLL is completely
+programmable, allowing the device to become the I2S clock master and drive a DSP serial port as a slave. The
+PLL also accepts a non-standard clock (up to 50MHz) as a source to generate the audio related clock (for
+example 24.576MHz).
+Powersense undervoltage protection utilizes a two-level mute system. Upon clock error or system power failure,
+the device digitally attenuates the data (or last known good data), then mutes the analog circuit.
+Compared with existing DAC technology, the PCM5242 offers up to 20dB lower out-of-band noise, reducing EMI
+and aliasing in downstream amplifiers/ADCs. (from traditional 100kHz OBN measurements all the way to 3MHz).
+The PCM5242 accepts industry-standard audio data formats with 16- to 32-bit data. Sample rates up to 384kHz
+are supported.
+
+8.2 Functional Block Diagram
+                                                                                                  32-bit ∆Σ Modulator
+
+                                                                                                                        Current
+                                                                           Interpolation Filter
+                                                      Programmable
+                       Audio Interface
+
+                                                                                                                                  I/V
+            2
+      DIN (I S)                                                                                                         Segment
+                                                         miniDSP
+
+                                         Digital                                                                        DAC
+                                         Volume                                                                                                                  Differential
+                                         Control                                                                                                                 Line Outputs
+     DOUT (I2S)                                                                                                         Current   I/V
+
+      (through                                                                                                          Segment
+     any GPIO)                                                                                                          DAC
+
+                      Zero Data                                                                                                                                  MOSI/SDA/ATT2
+                                                                     Advanced Mute Control
+                       Detector                                                                                                                                  MS/MODE2
+                                                                                                                                               SPI/I2C           MODE1
+                                                                                                                                                                 MC/SCL/ATT1
+                      Clock Halt                                                                                                                                 MISO/ADR1/FMT
+                      Detection
+                                                                                                                                                                 GPIO6/FLT
+                                                                                                                                                                 GPIO5/ATT0
+                      Program
+                       RAM
+                                                                                                  PCM5242                                       GPIO             GPIO4/MAST
+                                                                                                                                                                 GPIO3/AGNS
+                                                                                                                                                                 GPIO2/ADR2/DOUT
+
+          LRCK                                                                                                                                                   CPVDD (3.3V)
+          BCK              PLL                                                                                                                 Power             AVDD (3.3V)
+                          Clock               UVP/                                                                                Charge       Supply            DVDD (1.8V or 3.3V)
+           MCK                                                          POR                                             VCom
+                                              Reset                                                                               Pump                           GND
+
+                                                                                                                                        CAPP
+                                               UVP/XSMT                                                                               CAPM
+                                                                                                                                    VNEG
+
+8.3 Terminology
+Control registers in this datasheet are given by REGISTER BIT/BYTE NAME (Page.x HEX ADDRESS). SE
+refers to "Single Ended" analog inputs, DIFF refers to "Differential" analog inputs. SCK (System Clock) and
+MCLK (Master Clock) are used interchangeably. Sampling frequency is symbolized by "fS". Full scale is
+symbolized by "FS". Sample time as a unit is symbolized by "tS".
+
+16     Submit Documentation Feedback                                                                                                       Copyright © 2014, Texas Instruments Incorporated
+
+                                                                       Product Folder Links: PCM5242
+
+
+=== PDF page 23 ===
+                                                                                                                                  PCM5242
+www.ti.com                                                                                         SLASE12A – JULY 2014 – REVISED OCTOBER 2014
+
+Audio Processing (continued)
+8.6.2 Interpolation Filter
+The PCM5242 provides 4 types of interpolation filters, selectable by writing to Page 0, Register 43, D(4:0).
+Additional RAM based Hybrid Flows can be implemented by selecting Program 31, and downloading instructions
+and coefficients to the device.
+
+                                                       Table 7. ROM Preset Programs
+ Program number              D(4:0)         Description                                                                     Minimum Cycles
+          0                 0 0000          Reserved
+          1                 0 0001          Normal x8/x4/x2/x1 Interpolation Filter (1)                                            256
+          2                 0 0010          Low Latency x8/x4/x2/x1 Interpolation Filter (1)                                       256
+                                                                                             (1)
+          3                 0 0011          High Attenuation x8/x4/x2 Interpolation Filter                                         512
+          4                 0 0100          Reserved
+          5                 0 0101          Preset Process Flow                                                                    n/a
+          6                 0 0110          Reserved
+          7                 0 0111          Asymmetric FIR Interpolation Filter (1)                                                512
+          :                     :           Reserved
+         31                 1 1111          RAM program / Hybrid Flows
+
+(1)   fS 44.1kHz De-emphasis filter is supported.
+
+The PCM5242supports four sampling modes (single rate, dual rate, quad rate, and octal rate) which produce
+different oversampling rates (OSR) in the interpolation digital filter operation. These are shown in Table 8.
+
+                                         Table 8. Sampling Modes and Oversampling Rates
+      Sampling Mode                         Sampling Frequency (fS) kHz                                Oversampling Rate (OSR)
+                                                            8
+                                                           16
+         Single Rate                                       32                                                   8 or 16
+                                                          44.1
+                                                           48
+                                                          88.2
+          Dual Rate                                                                                                4
+                                                           96
+                                                          176.4
+         Quad Rate                                                                                                 2
+                                                          192
+         Octal Rate                                       384                                                  1 (Bypass)
+
+Copyright © 2014, Texas Instruments Incorporated                                                       Submit Documentation Feedback       23
+                                                          Product Folder Links: PCM5242
+
+
+=== PDF page 44 ===
+PCM5242
+SLASE12A – JULY 2014 – REVISED OCTOBER 2014                                                                                 www.ti.com
+
+8.7 DAC and Differential Analog Outputs
+8.7.1 Analog Outputs
+The PCM5242 devices include a two-channel DAC, with differential outputs. Each pin has a full-scale output
+voltage is 2.1Vrms with ground center output. This equates to a 4.2Vrms differential output. A dc-coupled load is
+supported in addition to an ac-coupled load, if the load resistance conforms to the specification. The PCM5242
+DAC outputs on the OUTLP, OUTLN, OUTRP, and OUTRN terminals have market-leading low out-of-band
+noise, which offer up to 20dB lower out-of-band noise compared with existing DAC technology.
+Many applications require an external low-pass RC filter (470Ω + 1.2nF) to provide sufficient out-of-band noise
+rejection. This RC filter provides the added advantage of improved protection against ESD damage.
+The PCM5242 can also support single ended outputs, using OUTLP and OUTRP respectively. A single 470Ω
+and 2.2nF capacitor can be used on each pin in single ended mode.
+The choice between VREF and VCOM modes affects the maximum output level. This is explained in Voltage
+Reference and Output Levels.
+                                                    Optional RC Low-Pass Filter
+                                                                                  P Output
+                                                        4.3nF              470W
+                                                                                  N Output
+                                                                           470W
+
+                                                   +
+                                       Left Differential Output    RC LPF
+                                                                                  6 OUTLP
+
+                                                   -                              7 OUTLN
+                                                   -                              8 OUTRN
+                                                   + Output
+                                      Right Differential           RC LPF
+                                                                                  9 OUTRP
+
+                                          Figure 66. Optional Low Pass Filters
+
+8.7.2 Choosing Between VREF and VCOM Modes
+VREF mode is the default configuration. This mode allows full 2.1Vrms signal output. As shown in Recommended
+Operating Conditions, the minimum AVDD to avoid clipping is 3.2V.
+VCOM mode allows setting a custom common-mode voltage when required by the application. This somewhat
+limits the output signal swing before clipping.
+
+8.7.2.1 Voltage Reference and Output Levels
+The PCM5242 has an internal, fixed band-gap reference voltage, with default operation in VREF mode. No
+external decoupling capacitor is required for this mode.
+The PCM5242 can be operated with a common-mode voltage output (VCOM mode) at the VCOM pin by setting
+Page 1, Register 1, D(0) to 1. In this mode, an external decoupling capacitor is required.
+When using this DAC in VREF mode, the output-signal voltage is independent of the power-supply voltage: The
+D/A conversion gain in VREF mode yields a 2.1Vrms output voltage with a digital full-scale input. However, in
+VREF mode, an output waveform may clip due to the limitations that may be present in the analog power supply
+voltage. On the other hand, the full-scale output voltage in VCOM mode is proportional to the analog power
+supply AVDD. Example, (2.1 × AVDD / 3.3) Vrms.
+
+8.7.2.2 Mode Switching Sequence, From VREF Mode to VCOM Mode
+Following register setting sequence is recommended for changing VREF mode to VCOM mode.
+
+1. Page 0 / Register 2                        RQST = 1: Standby mode
+
+44     Submit Documentation Feedback                                                     Copyright © 2014, Texas Instruments Incorporated
+
+                                                 Product Folder Links: PCM5242
+
+

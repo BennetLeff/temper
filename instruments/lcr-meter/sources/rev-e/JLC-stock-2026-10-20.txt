@@ -1,0 +1,53 @@
+# JLCPCB/LCSC parts snapshot, 2026-10-20
+# Query: POST https://jlcpcb.com/api/overseas-pcb-order/v1/shoppingCart/smtGood/selectSmtComponentList {"keyword":<part>,"currentPage":1,"pageSize":25}
+# (jlcsearch.tscircuit.com text search returned unrelated parts for every MPN tried on this date; only C-number queries worked there.)
+# library: base = JLC Basic, expand = Extended; preferred = preferredComponentFlag. Price = 1-9 pcs USD (first price break). Stock = JLC stockCount.
+# LCSC       MPN                    package                  library preferred stock   price1    brand
+C207957    ADAU1979WBCPZ-RL       LFCSP-40(6x6)            expand  False     1475    5.6321    Analog Devices
+C1520729   AK4458VN               QFN-48(7x7)              expand  False     105     10.4631   Asahi Kasei Microdevices
+C962899    AK4458VN               LFCSP-48-EP(7x7)         expand  False     0       0.0398    Asahi Kasei Microdevices
+C2651617   AK5552VN               QFN-48-EP(7x7)           expand  False     2       6.4364    Asahi Kasei Microdevices
+C5451857   AK5572EN               QFN-48(7x7)              expand  False     30      12.0113   Asahi Kasei Microdevices
+C2651626   AK5578EN               VQFN-64-EP(9x9)          expand  False     34      21.1762   Asahi Kasei Microdevices
+C5125035   AK5704EN               QFN-28(4x4)              expand  False     94      2.8839    Asahi Kasei Microdevices
+C2151111   CS4272-CZZR            TSSOP-28                 expand  False     1238    4.1395    Cirrus Logic
+C1554755   CS43198-CNZR           QFN-40-EP(5x5)           expand  False     346     5.382     Cirrus Logic
+C20649226  CS5361-KZZR            TSSOP-24                 expand  False     111     3.5591    Cirrus Logic
+C5382102   CS5381-KZZR            TSSOP-24                 expand  False     26      8.4784    Cirrus Logic
+C2688377   ES9018K2M              QFN-28-EP(5x5)           expand  False     711     3.5804    ESS Tech
+C100123    NAU88C22YG             QFN-32-EP(5x5)           expand  False     0       0.636     Nuvoton Tech
+C914209    NAU88C22YG             QFN-32-EP(5x5)           expand  False     2500    1.2       Nuvoton Tech
+C2866894   PCM1802DBR             SSOP-20                  expand  False     136     2.9608    Texas Instruments
+C62360     PCM1804DBR             SSOP-28-208mil           expand  False     6       2.5668    Texas Instruments
+C55513     PCM1808PWR             TSSOP-14                 expand  False     48608   0.636     Texas Instruments
+C5215004   PCM1820IRTER           WQFN-20(3x3)             expand  False     33      3.4806    Texas Instruments
+C9900007817 PCM1820IRTER           QFN-20_L3.0-W3.0-P0.50-TL-EP expand  False     0       0.0007    JLCPCB Assembly
+C5215003   PCM1821IRTER           WQFN-20(3x3)             expand  False     0       5.2332    Texas Instruments
+C5214995   PCM1822IRTER           WQFN-20(3x3)             expand  False     509     3.224     Texas Instruments
+C2864564   PCM1840IRTWR           WQFN-24(4x4)             expand  False     104     5.2724    Texas Instruments
+C529569    PCM1863DBTR            TSSOP-30                 expand  False     879     3.2469    Texas Instruments
+C181312    PCM1865DBTR            TSSOP-30                 expand  False     788     6.7961    Texas Instruments
+C2651841   PCM3060PWR             TSSOP-28                 expand  False     1392    4.6871    Texas Instruments
+C524003    PCM4202DBR             SSOP-28                  expand  False     78      7.5073    Texas Instruments
+C524821    PCM4202DBR             SSOP-28-208mil           expand  False     0       5.5553    Texas Instruments
+C2651635   PCM4220PFBR            TQFP-48(7x7)             expand  False     51      14.7447   Texas Instruments
+C1520792   PCM5102APW             TSSOP-20                 expand  False     30      2.8512    Texas Instruments
+C107671    PCM5102APWR            TSSOP-20                 expand  False     2613    1.4518    Texas Instruments
+C1540085   PCM5122PW              TSSOP-28                 expand  False     177     4.1133    Texas Instruments
+C962071    PCM5122PWR             TSSOP-28                 expand  False     47      3.2485    Texas Instruments
+C180370    PCM5142PWR             TSSOP-28                 expand  False     28      6.4381    Texas Instruments
+C471871    PCM5242RHBR            VQFN-32-EP(5x5)          expand  False     841     2.9313    Texas Instruments
+C44525604  TAA5212IRGER           VQFN-24(4x4)             expand  False     188     10.0135   Texas Instruments
+C45335502  TAC5111IRGER           VQFN-24(4x4)             expand  False     50      6.2713    Texas Instruments
+C44853692  TAC5112IRGER           VQFN-24(4x4)             expand  False     181     5.928     Texas Instruments
+C44853693  TAC5211IRGER           VQFN-24(4x4)             expand  False     34      6.1127    Texas Instruments
+C44853694  TAC5212IRGER           VQFN-24(4x4)             expand  False     1       10.5481   Texas Instruments
+C45335600  TAD5112IRGER           VQFN-24-EP(4x4)          expand  False     16      5.0648    Texas Instruments
+C45068920  TAD5212IRGER           VQFN-24(4x4)             expand  False     1       6.3661    Texas Instruments
+C882863    TLV320ADC3140IRTWR     WQFN-24(4x4)             expand  False     46      3.1602    Texas Instruments
+C1852021   TLV320ADC3140IRTWT     QFN-24                   expand  False     279     4.6757    Texas Instruments
+C2876368   TLV320ADC5140IRTWR     WQFN-24(4x4)             expand  False     256     4.0038    Texas Instruments
+C1852018   TLV320ADC5140IRTWT     WQFN-24(4x4)             expand  False     0       8.6467    Texas Instruments
+C1852020   TLV320ADC6140IRTWR     WQFN-24(4x4)             expand  False     1       11.0794   Texas Instruments
+C1852023   TLV320ADC6140IRTWT     WQFN-24-EP(4x4)          expand  False     87      12.4903   Texas Instruments
+C24109     TLV320AIC3204IRHBR     QFN-32-EP(5x5)           expand  False     255     1.5662    Texas Instruments

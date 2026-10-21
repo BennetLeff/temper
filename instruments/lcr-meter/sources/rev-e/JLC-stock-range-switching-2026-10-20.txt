@@ -1,0 +1,35 @@
+# JLCPCB parts snapshot for range-switching candidates, 2026-10-20
+# Query: POST https://jlcpcb.com/api/overseas-pcb-order/v1/shoppingCart/smtGood/selectSmtComponentList {keyword, currentPage 1, pageSize 25}
+# library: base = Basic, expand = Extended. price1 = first price break USD. Exact-MPN rows only.
+# LCSC | MPN | package | library | preferred | stock | price1 | brand
+C47190 | G6K-2F-Y-TR DC5 | SMD,10x6.5mm | expand | False | 61851 | 1.048 | Omron Electronics
+C2982926 | G6K-2F-Y-5V | SMD,10x6.5mm | expand | False | 53294 | 1.182 | Omron Electronics
+C2906368 | G6K-2F-Y-5V | SMD,10x6.5mm | expand | False | 0 | 1.3864 | Omron Electronics
+C2974527 | G6K-2F-Y-5V | SMD,6.5x10mm | expand | False | 0 | 1.4371 | Omron Electronics
+C2153173 | G6KU-2F-Y-TR DC5 | SMD,10x6.5mm | expand | False | 4801 | 1.5924 | Omron Electronics
+C2684450 | TQ2SA-L2-5V-Z | SMD,14x9mm | expand | False | 1756 | 2.2692 | PANASONIC
+C22686 | TQ2SA-5V-Z | SMD,14x9mm | expand | False | 4491 | 1.5891 | PANASONIC
+C64399 | HFD4/5-SR | SMD,10x6.5mm | expand | False | 41727 | 1.4534 | HF(Xiamen Hongfa Electroacoustic)
+C2976892 | HFD4/4.5-LSR | SMD,10x6.5mm | expand | False | 2256 | 1.9766 | HF(Xiamen Hongfa Electroacoustic)
+C126744 | FTR-B3GA4.5Z-B10 | SMD,10.6x7.2mm | expand | False | 3516 | 1.2671 | FUJITSU
+C1560626 | UD2-5NU-L8 | SMD,6.5x10.6mm | expand | False | 2549 | 1.4534 | KEMET
+C490150 | AGQ200A4HZ | SMD,10.6x7.2mm | expand | False | 24068 | 1.2654 | PANASONIC
+C2653958 | EE2-5TNUH-L | SMD,15x7.5mm | expand | False | 324 | 2.8267 | KEMET
+C308989 | G6J-2FS-Y-TR DC5 | SMD,10.6x5.7mm | expand | False | 787 | 1.2605 | Omron Electronics
+C2982229 | AQY221N5VY | SSOP-4 | expand | False | 3060 | 4.5858 | PANASONIC
+C2862901 | TMUX7219DGKR | VSSOP-8-0.65mm | expand | False | 799 | 3.9204 | Texas Instruments
+C19184441 | TMUX7234PWR | TSSOP-20 | expand | False | 2014 | 6.5296 | Texas Instruments
+C3657378 | TMUX7211PWR | TSSOP-16 | expand | False | 1890 | 4.7084 | Texas Instruments
+C3658008 | TMUX6209PWR | TSSOP-16 | expand | False | 266 | 6.595 | Texas Instruments
+C2673386 | TMUX6111PWR | TSSOP-16 | expand | False | 192 | 5.1171 | Texas Instruments
+C22368 | ADG1419BRMZ-REEL7 | MSOP-8 | expand | False | 2487 | 11.6238 | Analog Devices
+C654763 | ADG1209YRZ-REEL7 | SOIC-16 | expand | False | 939 | 10.517 | Analog Devices
+C209440 | ADG5419BRMZ | MSOP-8 | expand | False | 7 | 8.6811 | Analog Devices
+C657525 | ADG5436FBCPZ-RL7 | LFCSP-16(4x4) | expand | False | 3 | 19.4285 | Analog Devices
+C655227 | ADG1436YCPZ-REEL7 | LFCSP-16(4x4) | expand | False | 1432 | 8.1874 | Analog Devices
+C209446 | ADG1401BRMZ-REEL7 | MSOP-8 | expand | False | 2148 | 5.9018 | Analog Devices
+C1121866 | MAX14778ETP+T | TQFN-20-EP(5x5) | expand | False | 2771 | 5.9885 | Analog Devices Inc./Maxim Integrated
+C6581 | DG419DY-T1-E3 | SOIC-8 | expand | False | 2764 | 1.9766 | Vishay Intertech
+C222452 | DG469EY-T1-E3 | SOIC-8 | expand | False | 2444 | 1.9635 | Vishay Intertech
+C20917 | AO3400A | SOT-23 | base | False | 1030347 | 0.0973 | Alpha & Omega Semicon
+C2128 | 1N4148WS | SOD-323 | base | False | 2924701 | 0.0143 | Jiangsu Changjing Electronics Technology Co., Ltd.

@@ -1,0 +1,653 @@
+# TI PCM512x datasheet SLAS763C (Oct 2018)
+# Source: https://www.ti.com/lit/ds/symlink/pcm5122.pdf
+# Retrieved 2026-10-20; PDF sha256 2e7b7d81b5b5895c497b296ab6608c544353951da3c37cb3294efb57b4b26822
+# Extracted with `pdftotext -layout`; only the listed PDF pages are kept (register maps etc. dropped).
+# Each page starts with a line "=== PDF page N ===" ; citations in docs/rev-e-acquisition-survey.md use these page numbers.
+# Pages kept: 1,4,8-9,14-15,21-24
+
+=== PDF page 1 ===
+                                    Product                           Order         Technical                       Tools &               Support &
+                                    Folder                            Now           Documents                       Software              Community
+
+                                                                                                                                                         PCM5121, PCM5122
+                                                                                                                                 SLAS763C – AUGUST 2012 – REVISED OCTOBER 2018
+
+               PCM512x 2-VRMS DirectPath™, 112-dB and 106-dB Audio Stereo DACs
+                              With 32-Bit, 384-kHz PCM Interface
+1 Features                                                                                         3 Description
+1•   Register-Selectable Audio-Processing Functions                                                The PCM512x devices are a family of monolithic
+     up to 48-kHz fS                                                                               CMOS-integrated circuits that include a stereo digital-
+                                                                                                   to-analog converter and additional support circuitry in
+     – Dynamic Range Control (DRC)                                                                 a small TSSOP package. The PCM512x uses the
+     – Equalization (EQ)                                                                           latest generation of TI’s advanced segment-DAC
+     – Filtering                                                                                   architecture   to    achieve     excellent   dynamic
+                                                                                                   performance and improved tolerance to clock jitter.
+•    DAC Functionality to 384-kHz fS
+•    Market-Leading Low Out-of-Band Noise                                                          Members of the PCM512x family integrate preset
+                                                                                                   audio processing functions with programmable
+•    Selectable Digital-Filter Latency and Performance                                             coefficients, allowing developers to change the
+•    No DC-Blocking Capacitors Required                                                            characteristics of the interpolation filter, speaker EQ,
+•    Integrated Negative Charge Pump                                                               dynamic range controls, and average volume control
+                                                                                                   in their products.
+•    Intelligent Muting System; Soft Up or Down Ramp
+     and Analog Mute for 120-dB Mute SNR                                                           The PCM512x provides 2.1-VRMS ground-centered
+•    Integrated High-Performance Audio PLL With                                                    outputs, allowing designers to eliminate DC-blocking
+     BCK Reference to Generate SCK Internally                                                      capacitors on the output, as well as external muting
+                                                                                                   circuits traditionally associated with single supply line
+•    Accepts 16-, 20-, 24-, and 32-Bit Audio Data                                                  drivers.
+•    PCM Data Formats: I2S, Left-Justified, Right-
+                                                                                                   The integrated line driver surpasses all other charge-
+     Justified, TDM / DSP                                                                          pump-based line drivers by supporting loads down to
+•    SPI or I2C Control                                                                            1 kΩ. By supporting loads down to 1 kΩ, the
+•    Software or Hardware Configuration                                                            PCM512x can essentially drive up to 10 products in
+•    Automatic Power-Save Mode When LRCK and                                                       parallel (LCD TV, DVDR, AV receivers, and so forth).
+     BCK are Deactivated                                                                           The integrated PLL on the device removes the
+•    1.8-V or 3.3-V Failsafe LVCMOS Digital Inputs                                                 requirement for a system clock (commonly known as
+                                                                                                   master clock), allowing a 3-wire I2S connection, along
+•    Single Supply Operation:                                                                      with reducing system EMI.
+     – 3.3-V Analog, 1.8-V or 3.3-V Digital
+•    Integrated Power-On Reset                                                                                                      Device Information(1)
+•    Small28-Pin Package                                                                              PART NUMBER                         PACKAGE           BODY SIZE (NOM)
+                                                                                                    PCM5121
+                                                                                                                                      TSSOP (28)           9.7 mm × 4.4 mm
+2 Applications                                                                                      PCM5122
+
+•    A/V Receivers                                                                                  (1) For all available packages, see the package option addendum
+                                                                                                        at the end of the data sheet.
+•    DVD, BD Players
+•    HDTV Receivers
+•    Applications Requiring 2-VRMS Audio Output
+                                                                        Simplified System Diagram
+                                                                               2                   DOUT
+                                                                              I S
+                               2ch Single Ended                                       Audio
+                                                                           BCK
+                                                                                    Processing             Current Segment DAC          TPA3130
+                                                      PCM1863/5
+                                                                          LRCK
+                                                                                      Blocks,
+                          IN                                                          Filters
+                         AUX
+                               2ch Single Ended
+                                                                                                 PCM512x
+                                                                                                                                       TPA6120A2
+
+                                                     Analog
+                                      MIC
+                                       IN
+
+                                                                        BT Module
+                                                                                                                                                  LINE
+                                                                                                                                                  OUT
+
+                                                     Sensor                                                 WiLAN chip
+                                                                                      MSP430
+                                                  - Light Intensity
+                                                  - Ultrasonic
+                                                  - Battery Level
+
+1
+
+       An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+       intellectual property matters and other important disclaimers. PRODUCTION DATA.
+
+
+=== PDF page 4 ===
+PCM5121, PCM5122
+SLAS763C – AUGUST 2012 – REVISED OCTOBER 2018                                                                                  www.ti.com
+
+5 Device Comparison
+
+                                    Table 1. Differences Between PCM512x Devices
+                                  PART NUMBER           DYNAMIC RANGE        SNR             THD
+                                     PCM5122A                  112 dB       112 dB          –93 dB
+                                     PCM5121A                  106 dB       106 dB          –92 dB
+
+                                  Table 2. Typical Performance (3.3-V Power Supply)
+               PARAMETER                                                             PCM5122 / PCM5121
+               SNR                                                                        112 / 106 dB
+               Dynamic range                                                              112 /106 dB
+               THD+N at –1 dBFS                                                           –93/ –92 dB
+               Full-scale single-ended output                                        2.1 VRMS (GND center)
+               Normal 8× oversampling digital filter latency                                  20/fS
+               Low latency 8× oversampling digital filter latency                            3.5/fS
+               Sampling frequency                                                      8 kHz to 384 kHz
+               System clock multiples (fSCK): 64, 128, 192, 256, 384,
+                                                                                         Up to 50 MHz
+               512, 768, 1024, 1152, 1536, 2048, 3072
+
+4      Submit Documentation Feedback                                                   Copyright © 2012–2018, Texas Instruments Incorporated
+
+                                                Product Folder Links: PCM5121 PCM5122
+
+
+=== PDF page 8 ===
+PCM5121, PCM5122
+SLAS763C – AUGUST 2012 – REVISED OCTOBER 2018                                                                                  www.ti.com
+
+7.5 Electrical Characteristics
+TA = 25°C, AVDD = CPVDD = DVDD = 3.3 V, fS = 48 kHz, system clock = 512 fS and 24-bit data (unless otherwise noted).
+                 PARAMETER                           TEST CONDITIONS                     MIN          TYP               MAX       UNIT
+           Resolution                                                                     16            24                32       Bits
+DIGITAL INPUT/OUTPUT
+Logic Family: 3.3-V LVCMOS Compatible
+VIH        Input logic level, high                                                0.7 × DVDD                                        V
+VIL        Input logic level, low                                                                                0.3 × DVDD         V
+IIH        Input logic current, high           VIN = VDD                                                                  10       µA
+IIL        Input logic current, low            VIN = 0 V                                                                 –10       µA
+VOH        Output logic level, high            IOH = –4 mA                        0.8 × DVDD                                        V
+VOL        Output logic level, low             IOL = 4 mA                                                       0.22 × DVDD         V
+Logic Family 1.8-V LVCMOS Compatible
+VIH        Input logic level, high                                                0.7 × DVDD                                        V
+VIL        Input logic level, low                                                                                0.3 × DVDD         V
+IIH        Input logic current, high           VIN = VDD                                                                  10       µA
+IIL        Input logic current, low            VIN = 0 V                                                                 –10       µA
+VOH        Output logic level, high            IOH = –2 mA                        0.8 × DVDD                                        V
+VOL        Output logic level, low             IOL = 2 mA                                                       0.22 × DVDD         V
+DYNAMIC PERFORMANCE (PCM MODE) (1) (2)
+                                               fS = 48 kHz                                             –93               –83
+           THD+N at –1 dB (2)                  fS = 96 kHz                                             –93                         dB
+                                               fS = 192 kHz                                            –93
+                                               EIAJ, A-weighted, fS = 48 kHz             108           112
+           Dynamic range (2)                   EIAJ, A-weighted, fS = 96 kHz                           112                         dB
+                                               EIAJ, A-weighted, fS = 192 kHz                          112
+                                               EIAJ, A-weighted, fS = 48 kHz                           112
+                                   (2)
+           Signal-to-noise ratio               EIAJ, A-weighted, fS = 96 kHz                           112                         dB
+                                               EIAJ, A-weighted, fS = 192 kHz                          112
+                                               EIAJ, A-weighted, fS = 48 kHz             113           123
+           Signal-to-noise ratio with analog
+                                               EIAJ, A-weighted, fS = 96 kHz             113           123                         dB
+           mute (2) (3)
+                                               EIAJ, A-weighted, fS = 192 kHz            113           123
+                                               fS = 48 kHz                           100 / 95    109 / 103
+           Channel separation                  fS = 96 kHz                           100 / 95    109 / 103                         dB
+                                               fS = 192 kHz                          100 / 95    109 / 103
+
+(1)   Filter condition: THD+N: 20-Hz HPF, 20-kHz AES17 LPF Dynamic range: 20-Hz HPF, 20-kHz AES17 LPF, A-weighted Signal-to-noise
+      ratio: 20-Hz HPF, 20-kHz AES17 LPF, A-weighted Channel separation: 20-Hz HPF, 20-kHz AES17 LPF Analog performance
+      specifications are measured using the System Two Cascade™ audio measurement system by Audio Precision™ in the RMS mode.
+(2)   Output load is 10 kΩ, with 470-Ω output resistor and a 2.2-nF shunt capacitor (see Recommended Output Filter for the PCM512x).
+(3)   Assert XSMT or both L-ch and R-ch PCM data are BPZ
+
+8        Submit Documentation Feedback                                                 Copyright © 2012–2018, Texas Instruments Incorporated
+
+                                               Product Folder Links: PCM5121 PCM5122
+
+
+=== PDF page 9 ===
+                                                                                                                  PCM5121, PCM5122
+www.ti.com                                                                                 SLAS763C – AUGUST 2012 – REVISED OCTOBER 2018
+
+Electrical Characteristics (continued)
+TA = 25°C, AVDD = CPVDD = DVDD = 3.3 V, fS = 48 kHz, system clock = 512 fS and 24-bit data (unless otherwise noted).
+                  PARAMETER                               TEST CONDITIONS                    MIN          TYP            MAX      UNIT
+ANALOG OUTPUT
+           Single-ended output voltage                                                                     2.1                    VRMS
+           Gain error                                                                          –6         ±2.0              6    % of FSR
+           Gain mismatch, channel-to-channel                                                   –6         ±0.5              6    % of FSR
+           Load impedance                                                                       5                                    kΩ
+FILTER CHARACTERISTICS–1: NORMAL (8x)
+           Pass band                                                                                                 0.45 × fS       kHz
+           Stop band                                                                     0.55 × fS                                   kHz
+           Stop band attenuation                                                              –60                                    dB
+           Pass-band ripple                                                                                             ±0.02        dB
+           Delay time                                                                                   20 × tS                       s
+FILTER CHARACTERISTICS–2: LOW LATENCY (8x)
+           Pass band                                                                                                 0.47 × fS       kHz
+           Stop band                                                                     0.55 × fS                                   kHz
+           Stop band attenuation                                                              –52                                    dB
+           Pass-band ripple                                                                                           ±0.0001        dB
+           Delay time                                                                                  3.5 × tS                       s
+FILTER CHARACTERISTICS–3: ASYMMETRIC FIR (8x)
+           Pass band                                                                                                  0.4 × fS       kHz
+           Stop band                                                                     0.72 × fS                                   kHz
+           Stop band attenuation                                                              –52                                    dB
+           Pass-band ripple                                                                                             ±0.05        dB
+           Delay time                                                                                  1.2 × tS                       s
+FILTER CHARACTERISTICS–4: HIGH-ATTENUATION (8x)
+           Pass band                                                                                                 0.45 × fS       kHz
+           Stop band                                                                     0.45 × fS                                   kHz
+           Stop band attenuation                                                                          –100                       dB
+           Pass-band ripple                                                                                           ±0.0005        dB
+           Delay time                                                                                 33.7 × tS                       s
+POWER SUPPLY REQUIREMENTS
+DVDD       Digital supply voltage                   Target DVDD = 1.8 V                      1.65          1.8           1.95      VDC
+DVDD       Digital supply voltage                   Target DVDD = 3.3 V                         3          3.3            3.6      VDC
+AVDD       Analog supply voltage                                                                3          3.3            3.6      VDC
+CPVDD      Charge-pump supply voltage                                                           3          3.3            3.6      VDC
+                                                    fS = 48 kHz, input is bipolar zero                                     14
+                                                                                                            11
+                                                    data
+                                                    fS = 96 kHz, input is bipolar zero
+IDD        DVDD supply current at 1.8 V                                                                     12                       mA
+                                                    data
+                                                    fS = 192 kHz, input is bipolar
+                                                                                                            14
+                                                    zero data
+                                                    fS = 48 kHz, input is 1 kHz – 1                                        14
+                                                                                                            11
+                                                    dBFS data
+                                                    fS = 96 kHz, input is 1 kHz – 1
+IDD        DVDD supply current at 1.8 V                                                                     12                       mA
+                                                    dBFS data
+                                                    fS = 192 kHz, input is 1 kHz – 1
+                                                                                                            14
+                                                    dBFS data
+                                          (4)
+IDD        DVDD supply current at 1.8 V             fS = N/A, power-down mode                              0.3            0.6        mA
+
+(4)   Power-down mode, with LRCK, BCK, and SCK halted at low level.
+Copyright © 2012–2018, Texas Instruments Incorporated                                                Submit Documentation Feedback          9
+                                                    Product Folder Links: PCM5121 PCM5122
+
+
+=== PDF page 14 ===
+PCM5121, PCM5122
+SLAS763C – AUGUST 2012 – REVISED OCTOBER 2018                                                                                                                                                   www.ti.com
+
+8 Detailed Description
+
+8.1 Overview
+The integrated PLL on the device provided adds the flexibility to remove the system clock (commonly known as
+master clock), allowing a 3-wire I2S connection and reducing system EMI. In addition, the PLL is completely
+programmable, allowing the device to become the I2S clock master and drive a DSP serial port as a slave. The
+PLL also accepts a non-standard clock (up to 50 MHz) as a source to generate the audio related clock (for
+example, 24.576 MHz).
+Powersense undervoltage protection utilizes a two-level mute system. Upon clock error or system power failure,
+the device digitally attenuates the data (or last known good data) and then mutes the analog circuit.
+Compared with existing DAC technology, the PCM512x devices offer up to 20 dB of lower out-of-band noise,
+reducing EMI and aliasing in downstream amplifiers/ADCs (from traditional 100-kHz OBN measurements to
+3 MHz).
+The PCM512x devices accept industry-standard audio data formats with 16-bit to 32-bit data. Sample rates up to
+384 kHz are supported.
+
+8.2 Functional Block Diagram
+
+                                                                                                                                               Analog
+                                                                                                         32-bit ΔΣ Modulator
+
+                                                                                                                               Current                                LINE OUT
+
+                                                                                                                                                Mute
+                                                                                  Interpolation Filter
+                                                               Fixed-Function
+                                 Audio Interface
+
+                                                                                                                                         I/V
+                        2                                                                                                      Segment
+                                                                 Processing
+                                                                 (EQ, DRC)
+
+                   DIN (I S)
+                                                    Digital                                                                    DAC
+                                                   Volume
+                                                   Control
+
+                                                                                                                                               Analog
+                                                                                                                               Current
+
+                                                                                                                                                Mute
+                  DOUT (I2S)
+                                                                                                                                         I/V
+
+                                                                                                                               Segment
+                  through any                                                                                                  DAC
+                     GPIO
+
+                                Zero Data                                                                                                                              MOSI/SDA/ATT2
+                                                                          Advanced Mute Control
+                                Detector                                                                                                                               MS/MODE2
+                                                                                                                                                             2         MODE1
+                                                                                                                                                         SPI/I C
+                                                                                                                                                                       MC/SCL/ATT1
+                                Clock Halt                                                                                                                             MISO/ADR1/FMT
+                                Detection
+                                                                                                                                                                       GPIO6/FLT
+                                                                                                                                                                       GPIO5/ATT0
+                                Program
+                                 RAM
+                                                                                                         PCM512x                                          GPIO         GPIO4/MAST
+                                                                                                                                                                       GPIO3/AGNS
+                                                                                                                                                                       GPIO2/ADR2/DOUT
+
+                      LRCK                                                                                                                                             CPVDD (3.3V)
+                       BCK          PLL                                                                                                                  Power         AVDD (3.3V)
+                                   Clock              Soft Mute /                                                                        Charge          Supply        DVDD (1.8V or 3.3V)
+                       SCK                                                      POR                                            VCom
+                                                         UVP                                                                              Pump                         GND
+
+                                                                                                                                             CAPP
+                                                     XSMT/UVP                                                                               CAPM
+                                                                                                                                          VNEG
+
+8.3 Feature Description
+8.3.1 Terminology
+Control registers in this data sheet are given by REGISTER BIT/BYTE NAME (Page.x HEX ADDRESS). SE
+refers to single-ended analog inputs. SCK (System Clock) and MCLK (Master Clock) are used interchangeably.
+Sampling frequency is symbolized by fS. Full scale is symbolized by FS. Sample time as a unit is symbolized by
+tS.
+
+14     Submit Documentation Feedback                                                                                                                    Copyright © 2012–2018, Texas Instruments Incorporated
+
+                                                              Product Folder Links: PCM5121 PCM5122
+
+
+=== PDF page 15 ===
+                                                                                                                   PCM5121, PCM5122
+www.ti.com                                                                                 SLAS763C – AUGUST 2012 – REVISED OCTOBER 2018
+
+Feature Description (continued)
+8.3.2 Audio Data Interface
+
+8.3.2.1 Audio Serial Interface
+The audio interface port is a 3-wire serial port with the signals LRCK, BCK, and DIN. BCK is the serial audio bit
+clock, used to clock the serial data present on DIN into the serial shift register of the audio interface. Serial data
+is clocked into the PCM512x on the rising edge of BCK. LRCK is the serial audio left/right word clock. LRCK
+polarity for left/right is given by the format selected.
+
+                            Table 4. PCM512x Audio Data Formats, Bit Depths and Clock Rates
+                                                                            MAX LRCK
+    CONTROL MODE                  FORMAT                DATA BITS                                 SCK RATE [x fS]     BCK RATE [x fS]
+                                                                          FREQUENCY [fS]
+                                                                           Up to 192 kHz             128 – 3072          64, 48, 32
+                                    I2S/LJ              32, 24, 20, 16
+                                                                              384 kHz                 64, 128            64, 48, 32
+     Software Control
+                                                                            Up to 48 kHz             128 – 3072           128, 256
+       (SPI or I2S)
+                                  TDM/DSP               32, 24, 20, 16        96 kHz                 128 – 512            128, 256
+                                                                              192 kHz              128, 192, 256            128
+                                                                           Up to 192 kHz             128 – 3072          64, 48, 32
+    Hardware Control                I2S/LJ              32, 24, 20, 16
+                                                                              384 kHz                 64, 128            64, 48, 32
+
+The PCM512x requires the synchronization of LRCK and system clock, but does not need a specific phase
+relation between LRCK and system clock.
+If the relationship between LRCK and system clock changes more than ±5 SCK, internal operation (using an
+onchip oscillator) is initialized within one sample period and analog outputs are forced to the bipolar zero level
+until resynchronization between LRCK and system clock is completed.
+If the relationship between LRCK and BCK are invalid more than 4 LRCK periods, internal operation (using an
+onchip oscillator) is initialized within one sample period and analog outputs are forced to the bipolar zero level
+until resynchronization between LRCK and BCK is completed.
+
+8.3.2.2 PCM Audio Data Formats
+The PCM512x supports industry-standard audio data formats, including standard I2S and left-justified. Data
+formats are selected via Register (Pg0Reg40). All formats require binary twos-complement, MSB-first audio data;
+up to 32-bit audio data is accepted.
+The PCM512x also supports right-justified and TDM/DSP in software control mode. I2S, LJ, RJ, and TDM/DSP
+are selected using Register (Pg0Reg40). All formats require binary twos-complement, MSB-first audio data. Up
+to 32 bits are accepted. Default setting is I2S and 24-bit word length.
+
+Copyright © 2012–2018, Texas Instruments Incorporated                                             Submit Documentation Feedback       15
+                                                    Product Folder Links: PCM5121 PCM5122
+
+
+=== PDF page 21 ===
+                                                                                                                       PCM5121, PCM5122
+www.ti.com                                                                                      SLAS763C – AUGUST 2012 – REVISED OCTOBER 2018
+
+8.3.4.2 Interpolation Filter
+The PCM512x provides 4 types of interpolation filters, selectable by writing to Page 0, Register 43, D(4:0).
+
+                                                        Table 7. ROM Preset Programs
+      PROGRAM
+                            D(4:0)                                        DESCRIPTION                                     MINIMUM CYCLES
+       NUMBER
+          0                0 0000          Reserved
+          1                0 0001          Normal x8/x4/x2/x1 Interpolation Filter (1)                                         256
+                                                                                          (1)
+          2                0 0010          Low Latency x8/x4/x2/x1 Interpolation Filter                                        256
+          3                0 0011          High Attenuation x8/x4/x2 Interpolation Filter (1)                                  512
+          4                0 0100          Reserved
+          5                0 0101          Preset Process Flow
+          6                0 0110          Reserved
+          7                0 0111          Asymmetric FIR Interpolation Filter (1)                                             512
+          :                    :           Reserved
+         31                1 1111          Reserved
+
+(1)   At fs=44.1 kHz, de-emphasis filter is supported.
+
+The PCM512x supports four sampling modes (single rate, dual rate, quad rate, and octal rate) which produce
+different oversampling rates (OSR) in the interpolation digital filter operation. These are shown in Table 8.
+
+                                        Table 8. Sampling Modes and Oversampling Rates
+      SAMPLING MODE                      SAMPLING FREQUENCY (fS) kHz                                 OVERSAMPLING RATE (OSR)
+                                                           8
+                                                          16
+         Single Rate                                      32                                                    8 or 16
+                                                          44.1
+                                                          48
+                                                          88.2
+          Dual Rate                                                                                                4
+                                                          96
+                                                         176.4
+         Quad Rate                                                                                                 2
+                                                          192
+         Octal Rate                                       384                                                 1 (Bypass)
+
+Copyright © 2012–2018, Texas Instruments Incorporated                                                  Submit Documentation Feedback       21
+                                                    Product Folder Links: PCM5121 PCM5122
+
+
+=== PDF page 22 ===
+PCM5121, PCM5122
+SLAS763C – AUGUST 2012 – REVISED OCTOBER 2018                                                                                                                                          www.ti.com
+
+                                                      Table 9. Normal x8 Interpolation Filter, Single Rate
+                                 PARAMETER                                CONDITION                      VALUE (TYP)                            VALUE (MAX)            UNIT
+                                 Filter Gain Pass Band                    0 ……. 0.45 × fS                                                                                  dB
+                                 Filter Gain Stop Band                    0.55 × fS ….. 7.455 × fS                                                                         dB
+                                 Filter Group Delay                                                                         20 / fs                                        S
+
+SPACE
+
+                         0                                                                                                   1.0
+
+                                                                                                                             0.8
+                      −20
+
+                                                                                                                             0.6
+                      −40
+
+                                                                                                          Amplitude (FFS)
+     Amplitude (dB)
+
+                                                                                                                             0.4
+                      −60
+                                                                                                                             0.2
+
+                      −80
+                                                                                                                             0.0
+
+                      −100
+                                                                                                                            −0.2
+
+                      −120                                                                                                  −0.4
+                             0          1            2                             3          4                                    0   50      100     150     200   250       300   350   400
+                                               Frequency (x fS)                                                                                              Samples
+                                                                                              G012                                                                                          G023
+
+                                 Figure 19. Normal x8 Interpolation Filter                                                             Figure 20. Normal x8 Interpolation Filter
+                                          Frequency Response                                                                                      Impulse Response
+
+                                                                         0.05
+
+                                                                         0.04
+
+                                                                         0.03
+
+                                                                         0.02
+                                                       Amplitude (dB)
+
+                                                                         0.01
+
+                                                                         0.00
+
+                                                                        −0.01
+
+                                                                        −0.02
+
+                                                                        −0.03
+
+                                                                        −0.04
+
+                                                                        −0.05
+                                                                             0.0       0.1        0.2         0.3                      0.4           0.5
+                                                                                                  Frequency (x fS)
+                                                                                                                                                      G034
+
+                                                                         Figure 21. Normal x8 Interpolation Filter Passband Ripple
+
+22                     Submit Documentation Feedback                                                                                         Copyright © 2012–2018, Texas Instruments Incorporated
+
+                                                                                Product Folder Links: PCM5121 PCM5122
+
+
+=== PDF page 23 ===
+                                                                                                                                                                   PCM5121, PCM5122
+www.ti.com                                                                                                                                SLAS763C – AUGUST 2012 – REVISED OCTOBER 2018
+
+                                                    Table 10. Normal x4 Interpolation Filter, Dual Rate
+                               PARAMETER                                CONDITION                       VALUE (TYP)                          VALUE (MAX)            UNIT
+                               Filter Gain Pass Band                    0 ……. 0.45 × fS                                                                                 dB
+                               Filter Gain Stop Band                    0.55 × fS ….. 3.455 × fS                                                                        dB
+                               Filter Group Delay                                                                         20 / fs                                       S
+
+SPACE
+
+                       0                                                                                                   1.0
+
+                                                                                                                           0.8
+                    −20
+
+                                                                                                                           0.6
+                    −40
+
+                                                                                                        Amplitude (FFS)
+   Amplitude (dB)
+
+                                                                                                                           0.4
+                    −60
+                                                                                                                           0.2
+
+                    −80
+                                                                                                                           0.0
+
+                    −100
+                                                                                                                          −0.2
+
+                    −120                                                                                                  −0.4
+                           0                       1                                        2                                    0   20      40     60      80    100       120   140   160
+                                             Frequency (x fS)                                                                                             Samples
+                                                                                            G009                                                                                         G020
+
+                               Figure 22. Normal x4 Interpolation Filter                                                             Figure 23. Normal x4 Interpolation Filter
+                                        Frequency Response                                                                                      Impulse Response
+
+                                                                       0.05
+
+                                                                       0.04
+
+                                                                       0.03
+
+                                                                       0.02
+                                                     Amplitude (dB)
+
+                                                                       0.01
+
+                                                                       0.00
+
+                                                                      −0.01
+
+                                                                      −0.02
+
+                                                                      −0.03
+
+                                                                      −0.04
+
+                                                                      −0.05
+                                                                           0.0                       0.25                                         0.5
+                                                                                                Frequency (x fS)
+                                                                                                                                                   G031
+
+                                                                       Figure 24. Normal x4 Interpolation Filter Passband Ripple
+
+Copyright © 2012–2018, Texas Instruments Incorporated                                                                                              Submit Documentation Feedback                23
+                                                                              Product Folder Links: PCM5121 PCM5122
+
+
+=== PDF page 24 ===
+PCM5121, PCM5122
+SLAS763C – AUGUST 2012 – REVISED OCTOBER 2018                                                                                                                                            www.ti.com
+
+                                                      Table 11. Normal x2 Interpolation Filter, Quad Rate
+                                 PARAMETER                                 CONDITION                       VALUE (TYP)                            VALUE (MAX)                UNIT
+                                 Filter Gain Pass Band                     0 ……. 0.45 × fS                                                                                   dB
+                                 Filter Gain Stop Band                     0.55 × fS ….. 1.455 × fS                                                                          dB
+                                 Filter Group Delay                                                                          20 / fs                                          S
+
+SPACE
+
+                         0                                                                                                    1.0
+
+                                                                                                                              0.8
+                      −20
+
+                                                                                                                              0.6
+                      −40
+
+                                                                                                           Amplitude (FFS)
+     Amplitude (dB)
+
+                                                                                                                              0.4
+                      −60
+                                                                                                                              0.2
+
+                      −80
+                                                                                                                              0.0
+
+                      −100
+                                                                                                                             −0.2
+
+                      −120                                                                                                   −0.4
+                             0                       0.5                                       1                                    0   10   20    30      40     50    60    70    80   90   100
+                                               Frequency (x fS)                                                                                                 Samples
+                                                                                               G006                                                                                            G017
+
+                                 Figure 25. Normal x2 Interpolation Filter                                                              Figure 26. Normal x2 Interpolation Filter
+                                          Frequency Response                                                                                       Impulse Response
+
+                                                                         0.05
+
+                                                                         0.04
+
+                                                                         0.03
+
+                                                                         0.02
+                                                       Amplitude (dB)
+
+                                                                         0.01
+
+                                                                         0.00
+
+                                                                        −0.01
+
+                                                                        −0.02
+
+                                                                        −0.03
+
+                                                                        −0.04
+
+                                                                        −0.05
+                                                                             0.0                        0.25                                        0.5
+                                                                                                   Frequency (x fS)
+                                                                                                                                                        G028
+
+                                                                         Figure 27. Normal x2 Interpolation Filter Passband Ripple
+
+24                     Submit Documentation Feedback                                                                                         Copyright © 2012–2018, Texas Instruments Incorporated
+
+                                                                                Product Folder Links: PCM5121 PCM5122
+
+
