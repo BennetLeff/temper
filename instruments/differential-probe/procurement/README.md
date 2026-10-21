@@ -42,11 +42,11 @@ The S1/S2 select-on-test positions also need small kits of neighbouring E24 1% C
 
 **Stock risk.** On 2026-10-20 DigiKey had 9 × HVCB2512BDE2M00 against the 20 needed for two boards, with an 18-week lead time. The cost-down replaced it with the JLC-stocked HV121WF2004T4E; see [`../docs/cost-down.md`](../docs/cost-down.md#1-hv-divider-resistors).
 
-**Assembly route.** The recommended JLC order is Economic, SMD only: the owner hand-solders the nine THT parts (BNC, toggles, holders, trimmers), so delete J3, SW1, SW2, BT1, BT2, RV1, RV2, CT1 and CT2 from the uploaded BOM/CPL. Bottom-side BT1/BT2 placed by JLC would force Standard double-sided assembly (`validation/cost.txt`, strategies A and D).
+**Assembly route.** The recommended JLC order is Economic, SMD only: the owner hand-solders the ten THT parts (BNC, toggles, reset button, holders, trimmers), so delete J3, SW1, SW2, SW3, BT1, BT2, RV1, RV2, CT1 and CT2 from the uploaded BOM/CPL. SW3 is the thru-hole C&K PTS645SL43-2 LFS (DigiKey CKN9098-ND); it replaced the SMT PTS645 that JLC would have global-sourced for a $20 inspection plus a $3.07 feeder. Bottom-side BT1/BT2 placed by JLC would force Standard double-sided assembly (`validation/cost.txt`, strategies A and D).
 
 ## Component prices
 
-Public DigiKey/LCSC prices checked on 2026-10-20 are in [`prices-2026-10-20.csv`](prices-2026-10-20.csv). `python3 procurement/cost.py` gives $148.63 in components for two Rev C boards after the [cost-down](../docs/cost-down.md) ($535.81 before), against $768.27 for Rev B. The caveats are in [`../docs/revc.md`](../docs/revc.md#cost-dated-2026-10-20).
+Public DigiKey/LCSC prices checked on 2026-10-20 are in [`prices-2026-10-20.csv`](prices-2026-10-20.csv). `python3 procurement/cost.py` gives $148.39 in components for two Rev C boards after the [cost-down](../docs/cost-down.md) ($535.81 before), against $768.27 for Rev B. The caveats are in [`../docs/revc.md`](../docs/revc.md#cost-dated-2026-10-20).
 
 Out of stock at DigiKey on that date, with LCSC stock: OPA2810IDR (C1849413), BAV199 (C40919), and RT0805BRD0730KL. C0805C302F5GACTU and C0805C161F5GACTU were not in stock anywhere checked.
 

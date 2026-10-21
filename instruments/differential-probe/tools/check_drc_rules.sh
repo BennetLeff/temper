@@ -4,7 +4,7 @@ set -eu
 cd "$(dirname "$0")/.."
 KICAD_PYTHON=${KICAD_PYTHON:-/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3}
 KICAD=${KICAD:-kicad-cli}
-for fixture in clearance slot interleg-none interleg-short opposing-pass opposing-fail; do
+for fixture in clearance slot interleg-none interleg-short opposing-pass opposing-fail button-over-holder; do
     directory="build/drc-oracle/$fixture"
     mkdir -p "$directory"
     cp cad/differential-probe.kicad_pro cad/differential-probe.kicad_dru cad/fp-lib-table "$directory/"
@@ -18,6 +18,7 @@ jq -e 'any(.violations[]; .type == "creepage" and (.description | contains("TIP_
 jq -e '(any(.violations[]; .type == "creepage" and (.description | contains("TIP_P to TIP_N"))) | not) and any(.violations[]; .type == "creepage" and (.description | test("P_SEG1 to N_SEG1|P_SEG2 to N_SEG2")))' build/drc-oracle/interleg-short/drc.json > /dev/null
 jq -e '(.violations | length) == 0 and (.unconnected_items | length) == 0' build/drc-oracle/opposing-pass/drc.json > /dev/null
 jq -e 'any(.violations[]; .type == "clearance" and (.description | contains("TIP_P to TIP_N"))) and any(.violations[]; .type == "creepage" and (.description | contains("TIP_P to TIP_N")))' build/drc-oracle/opposing-fail/drc.json > /dev/null
+jq -e 'any(.violations[]; .type == "courtyards_overlap" and any(.items[]; .description | contains("SW3")) and any(.items[]; .description | contains("BT1")))' build/drc-oracle/button-over-holder/drc.json > /dev/null
 {
     echo 'PASS: GND track 6 mm from the TIP_P landing fails the explicit 10 mm air-clearance rule (ordinary 0.2 mm clearance alone would pass).'
     echo 'PASS: removing the C1 routed slot fails the explicit 4 mm section creepage rule.'
@@ -25,6 +26,7 @@ jq -e 'any(.violations[]; .type == "clearance" and (.description | contains("TIP
     echo 'PASS: shortening the inter-leg notch to end at x = 23 mm keeps the tips covered but fails rank-4/rank-3 opposite-leg creepage around the notch end.'
     echo 'PASS: isolated opposing TIP pads with 20.5 mm edge spacing pass the revised 10/20 mm rules; the old 40 mm surface rule would reject this fixture.'
     echo 'PASS: isolated opposing TIP pads with 8 mm edge spacing fail both revised air and surface rules.'
+    echo 'PASS: the THT reset button moved over BT1 (old SMT site) fails courtyard overlap: its bottom courtyard keeps the trimmed tails off the holders.'
     echo 'Known-bad fixtures live only in ignored build/drc-oracle; canonical board unchanged.'
 } > validation/pcb-drc-oracle.txt
 cat validation/pcb-drc-oracle.txt

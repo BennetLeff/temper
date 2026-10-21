@@ -394,6 +394,13 @@ impl Copper {
         self.out += &format!("line\tDwgs.User\t0.2\t{PLANE_X}\t1\t{PLANE_X}\t{}\n", HEIGHT - 1.);
     }
 }
+/// Both copies of a duplicated THT button pad number (same row), left first.
+fn sw3_row(c: &Copper, key: &str) -> ((f64, f64), (f64, f64)) {
+    let (x, y) = c.p(key);
+    let (cx, _) = c.centers["SW3"];
+    let far = (2. * cx - x, y);
+    if x < far.0 { ((x, y), far) } else { (far, (x, y)) }
+}
 fn paired(key: &str) -> String {
     let (r, pin) = key.split_once('.').unwrap();
     for (p, n, _, _, _) in low_leg_cell() {
@@ -500,7 +507,6 @@ fn lv_parts() -> Vec<(&'static str, f64, f64, i32)> {
         ("R95", 113.0, 20.7, 270),
         ("C95", 116.5, 20.9, 90),
         ("D8", 119.0, 21.2, 270),
-        ("SW3", 120.0, 28.5, 180),
         // Warning comparators, threshold ladders and the selected-output divider.
         ("U5", 80.0, 52.0, 0),
         ("C87", 74.5, 49.5, 90),
@@ -535,6 +541,10 @@ fn lv_parts() -> Vec<(&'static str, f64, f64, i32)> {
         ("J3", 142.4, 35.0, 270),
         ("SW1", 135.3, 14.0, 270),
         ("SW2", 135.3, 56.0, 270),
+        // Through-hole latch reset, owner-soldered: in the panel strip between
+        // J3 and SW2, because its tails must stay off the bottom-side holders
+        // (x 71.3..126.6). Pressed through a lid hole like the trimmers.
+        ("SW3", 131.85, 46.25, 180),
     ]
 }
 /// Bottom-side 9 V holders under the low-voltage section, clear of every
@@ -689,14 +699,19 @@ impl Copper {
         let (r741, r732) = (k(self, "R74.1"), k(self, "R73.2"));
         self.run("OV_N", "F.Cu", &[r732, r741, (118.8, r741.1)]);
         self.rail("R73.1", (117.21, 12.2));
-        let (u74, sw32a, sw32b) = (k(self, "U7.4"), (123.98, 26.25), (116.02, 26.25));
-        self.run("RESET", "F.Cu", &[u74, (sw32a.0, u74.1), sw32a, sw32b]);
+        // RESET to the THT button in the panel strip: F.Cu to a via, In2 hop
+        // around BT2's GND pin straight onto the THT pad, F.Cu across the row
+        // to the second (internally common) pin 2. Pin 1 (+4V8) joins the In2 pour.
+        let u74 = k(self, "U7.4");
+        let (sw3a, sw3b) = sw3_row(self, "SW3.2");
+        self.run("RESET", "F.Cu", &[u74, (123.98, u74.1), (123.98, 26.25)]);
+        self.via("RESET", (123.98, 26.25));
+        self.run("RESET", "In2.Cu", &[(123.98, 26.25), (123.98, 41.5), (sw3a.0 - 2.1, sw3a.1), sw3a]);
+        self.run("RESET", "F.Cu", &[sw3a, sw3b]);
         for key in ["R95.1", "C95.2", "D8.1"] {
             let p = k(self, key);
             self.run("RESET", "F.Cu", &[p, (p.0, u74.1)]);
         }
-        self.run("+4V8", "F.Cu", &[(116.02, 30.75), (123.98, 30.75)]);
-        self.via("+4V8", (120.0, 30.75));
         self.rail("R95.2", (114.0, 22.3));
         self.rail("C95.1", (117.6, 22.9));
         self.rail("D8.2", (120.3, 22.85));
@@ -786,8 +801,11 @@ impl Copper {
         self.run("BAT_P", "B.Cu", &[bt11, (bt11.0, 27.0), (126.0, 27.0), (126.0, 50.0)]);
         self.via("BAT_P", (126.0, 50.0));
         self.run("BAT_P", "F.Cu", &[(126.0, 50.0), (sw22.0, 50.0), sw22]);
+        // SW_P passes under the SW3 pads and the SW2 rows on B.Cu (y = 50.9).
         let (sw21, d42) = (k(self, "SW2.1"), k(self, "D4.2"));
-        self.run("SW_P", "F.Cu", &[sw21, (sw21.0, 47.0), (121.5, 47.0), d42]);
+        self.run("SW_P", "B.Cu", &[sw21, (sw21.0, 50.9), (121.5, 50.9)]);
+        self.via("SW_P", (121.5, 50.9));
+        self.run("SW_P", "F.Cu", &[(121.5, 50.9), (121.5, 47.0), d42]);
         let (sw24, d51) = (k(self, "SW2.4"), k(self, "D5.1"));
         self.run("SW_N", "F.Cu", &[sw24, (sw24.0, 64.5), (d51.0, 64.5), d51]);
         let (bt22, sw25) = (k(self, "BT2.2"), k(self, "SW2.5"));

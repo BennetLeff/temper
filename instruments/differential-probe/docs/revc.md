@@ -20,14 +20,14 @@ Rev B is kept unchanged at commit `ca79d882f` (branch `codex/differential-probe-
 | Board outline | 240 × 84 mm = 20,160 mm² (20,046 mm² net of slots and chamfers) | **150 × 70 mm = 10,500 mm² (10,328 mm² net)**, −48% |
 | Copper layers | 4 | 4 (2-layer option evaluated below, not adopted) |
 | Enclosure | Not selected | **Hammond 1455N2201** extruded aluminium, 220 mm long, internal height 49.7 mm |
-| Components | 140: 135 on the board + 5 hand-wired off-board | **105, all on the board**: 96 SMD + 9 THT (BNC, 2 toggles, 2 holders, 4 trimmers) |
+| Components | 140: 135 on the board + 5 hand-wired off-board | **105, all on the board**: 95 SMD + 10 THT (BNC, 2 toggles, reset button, 2 holders, 4 trimmers) |
 | Unique MPNs | 45 | **42** |
 | Tolerance-bearing parts (definition below) | 77 | **52** |
 | HV divider resistors | 20 × 1 MΩ HVCB2512 | **10 × 2 MΩ** (HVCB2512, then 1% HV12 after the [cost-down](cost-down.md)) |
 | Mounting holes | 6 | **4** |
-| LV courtyard fill, top side | 14.4% of the 9,399 mm² LV region | **32.7%** of the 6,361 mm² LV region (bottom side 52.8%; both sides 42.7%) |
+| LV courtyard fill, top side | 14.4% of the 9,399 mm² LV region | **32.8%** of the 6,361 mm² LV region (bottom side 53.8%; both sides 43.3%; `validation/pcb-checks.txt`) |
 | Supply current, typical (amplifiers) | ~50 mA per rail (2 × ADA4817 + 3 × OPA810 + TL431 bias) | **~18 mA per rail** (4 OPA2810 channels + 1 OPA810) |
-| Component cost, 2 boards, dated 2026-10-20 | $768.27 | $535.81 (−30%); see [cost](#cost-dated-2026-10-20). **$148.63 after the [cost-down](cost-down.md)** |
+| Component cost, 2 boards, dated 2026-10-20 | $768.27 | $535.81 (−30%); see [cost](#cost-dated-2026-10-20). **$148.39 after the [cost-down](cost-down.md)** |
 | JLC bare-PCB quote, 5 pcs, 4 layers (HASL lead-free / ENIG) | $43.00 / $56.40 | **$36.80 / $49.30** |
 
 **Tolerance-bearing parts** are the parts whose value tolerance enters a stated ratio, gain, pole or warning-threshold budget:
@@ -179,14 +179,22 @@ Each saved at most one or two parts while weakening the latched-until-reset beha
 | Range switch | E-Switch **100SP1T1B5M7RE** (was C&K 7101SDAV2BE) | Gold SPDT, threaded 1/4-40 high-torque bushing, M7 vertical right-angle PC mount. |
 | Power switch | E-Switch **100DP1T1B1M7QEH** (was C&K 7201P3DAV2QE) | Silver DPDT, threaded 1/4-40, M7. |
 | 9 V holders | **MPD BH9VPC** × 2 | Bottom side, under the LV section. Pin 1 = +, as in the MPD drawing. |
+| Latch reset (SW3) | C&K **PTS645SL43-2 LFS** (was PTS645SL43SMTR92 LFS) | 6 × 6 mm tactile, thru-hole, 4.3 mm actuator, 130 gf; soldered by the owner. Pressed through a lid hole at (131.85, 46.25). |
 
 The power switch carries about 20 mA, which is adequate for silver contacts. Threaded gold DPDT parts were not stocked; unthreaded `D9` bushings cannot take a panel nut. The [cost-down](cost-down.md#5-toggles) replaced the C&K parts ($71.46 for two boards) with E-Switch 100-series M7 parts ($22.24), whose catalog hole pattern is the same as the AV2 bracket's.
+
+**Reset button (SW3).** The SMT PTS645SL43SMTR92 LFS was not stocked at JLC, so JLC would global-source it, which for a switch costs a $20 commodity inspection plus a $3.07 Extended feeder. The C&K **PTS645SL43-2 LFS** is the same switch with thru-hole pins (same 6 × 6 mm body, 4.3 mm actuator, 130 gf); the owner solders it, which removes both fees (`validation/cost.txt`, strategy E).
+
+- **Ratings** (Littelfuse/C&K PTS645 series datasheet): 50 mA at 12 V DC maximum, 10 µA at 1 V DC minimum; dielectric strength 250 V AC; contact resistance 100 mΩ maximum initial; insulation resistance 10¹¹ Ω minimum; 100,000 operations; −40 to +85 °C (DigiKey lists the same; the 2018 C&K sheet served by LCSC states −20 to +60 °C). In circuit the open switch sees 9.6 V (+4.8 V to RESET held at −4.8 V by R95), and closing it draws 96 µA DC through R95 plus the C95 discharge, as with the SMT part. **Approval basis: none listed**, as for the part it replaces; it is on the low-voltage side.
+- **Placement.** Its old site (120, 28.5) lies over BT1, so thru-hole tails would hit the holder body. Both holders cover the whole LV band from x = 71.3 to 126.6 mm on the bottom; the only top-side space outside that band with room for its 9 × 7 mm courtyard is the panel strip between J3 and SW2, at (131.85, 46.25). The footprint carries a bottom-side courtyard over the tails, so DRC fails if it is ever moved back over a holder (`make pcb-oracle`, fixture `button-over-holder`). SW_P now passes under it on B.Cu; RESET reaches it by an In2 hop from (123.98, 26.25); its +4.8 V pins join the In2 pour.
+- **Reach** is unchanged in kind: a lid hole over the button, as for the trimmers. The actuator top is 4.3 mm above the board.
 
 All footprints are generated in [`tools/build.rs`](../tools/build.rs) `edge_parts`, from manufacturer dimensions:
 
 - **BNC:** Ø0.89 mm pins on 2.54 mm; board locks Ø2.0 mm, 10.16 mm apart, 5.08 mm behind the pins; housing face 7.37 mm ahead of the pins.
 - **Toggles:** contact rows on 0.150 in; support pins 0.200 in apart and 0.500 in ahead of row 1; all holes 0.073 in (E-Switch 100 catalog, M7-SP / M7-DP; identical to the C&K AV2 pattern).
 - **Holders:** the MPD rev J PCB layout.
+- **Reset button** (`SW_Tactile_CK_PTS645_THT`): C&K PTS645 drawing "S STRAIGHT" and its PCB layout: four Ø1.0 mm holes on 6.5 × 4.5 mm, pins 1–2 and 3–4 internally common (so each row's two pads share a number and both are connected), 0.7 × 0.3 mm legs 3.5 mm below the seating plane, 6 × 6 mm body.
 
 **Verify against samples before fabrication:**
 
@@ -202,7 +210,7 @@ Holes go from 6 to 4:
 - **H1/H2:** grounded M3, at the panel end.
 - **H3/H4:** unplated, at the tip end, one on each side of the notch. Use **nylon screws and standoffs** there.
 
-The LV region (x ≥ 59 mm, 6,361 mm²) has 32.7% top-side courtyard coverage (Rev B: 14.4%) and 52.8% bottom-side coverage, from the two holders. That is 42.7% of the two-sided placement area.
+The LV region (x ≥ 59 mm, 6,361 mm²) has 32.8% top-side courtyard coverage (Rev B: 14.4%) and 53.8% bottom-side coverage, from the two holders and the reset button's tail keep-out. That is 43.3% of the two-sided placement area (`check_pcb.rs`; the same calculation gave 32.9 / 52.8 / 42.8% before the button moved).
 
 **Only the two-sided figure meets ≥ 35%.** Reaching 35% on the top side alone needs a 150 × 64 mm board (estimated 35.7%), which means re-placing every band. I kept 150 × 70 mm, the stated stretch target. The holders still fit, and the extra 6 mm buys routing corridors (WIDE_SEL/FINE_SEL along the top edge). This can be reversed if the top-side number matters.
 
@@ -236,7 +244,7 @@ The board sits on four standoffs so its underside is **22.0 mm above the inner f
 
 - CT1/CT2 at (62, 23) and (62, 47).
 - The RV1/RV2 3296W top screws (bodies at x ≈ 62–71 mm, y = 7 / 63 mm; locate the screw from a sample).
-- The SW3 reset at (120, 28.5).
+- The SW3 reset button at (131.85, 46.25), in the panel strip between the BNC and the power switch.
 - The D9 LED at (115, 24).
 
 The lid is 25 mm above the board, so hole edges stay ≥ 20 mm from HV copper. The holders hang 20.6 mm under the board, leaving 1.4 mm. Put an insulating sheet on the floor.
@@ -277,7 +285,7 @@ Prices were read from public DigiKey and LCSC product pages on 2026-10-20, witho
 | HV leads, tips, glands and FR4 parts ([HV leads](hv-leads.md#parts-and-prices-2026-10-20)) | none selected | $234.72, of which the 50 ft wire spool is $127.89 |
 | **Total with HV leads** | — | **$884.19** |
 
-The [cost-down](cost-down.md) (2026-10-20) brings the Rev C components to $148.63 at the same ledger prices and adds a JLC assembly-fee model (`validation/cost.txt`).
+The [cost-down](cost-down.md) (2026-10-20) brings the Rev C components to $148.39 at the same ledger prices and adds a JLC assembly-fee model (`validation/cost.txt`).
 
 Of the $232.46 component saving, the HV resistors account for $166.53 and removing the ADA4817s for $46.00. The PCB-mount switches ($71.46) cost about the same as Rev B's panel switches ($76.41).
 
@@ -294,7 +302,7 @@ Caveats on the prices:
 
 1. **HVCB2512BDE2M00 stock** (9 at DigiKey, 0 at LCSC). Resolved by the [cost-down](cost-down.md): 1% HV12 bodies stocked at JLC, HVCB kept as a drop-in upgrade.
 2. **BNC footprint orientation and E-Switch toggle fit** must be checked against samples or drawings before fabrication.
-3. **Top-side fill is 32.7%.** Accept it, or authorize the 150 × 64 mm re-placement.
+3. **Top-side fill is 32.8%.** Accept it, or authorize the 150 × 64 mm re-placement.
 4. **U12 kept as a separate OPA810.** Confirm, or ask for the ×2 + ×5 pairing.
 5. **Kemet 1% C0G select-on-test kits** need sourcing. Several Rev C MPNs have no reviewed LCSC identity (see [`procurement/README.md`](../procurement/README.md)).
 6. **Bench items.** Unchanged in kind from Rev B, plus:

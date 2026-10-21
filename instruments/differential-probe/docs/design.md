@@ -108,7 +108,7 @@ Scope zero subtraction does not remove an offset that the comparator sees.
 
 ### Latch
 
-The open-drain comparator outputs (OV_N) drive Q1 and the CD4013 set input, and the LED stays on until reset (SW3). This latch is an initial-envelope warning, not a fast protective trip: the comparators have roughly 560 ns typical delay.
+The open-drain comparator outputs (OV_N) drive Q1 and the CD4013 set input, and the LED stays on until reset (SW3, a thru-hole C&K PTS645 tactile switch pressed through a lid hole). This latch is an initial-envelope warning, not a fast protective trip: the comparators have roughly 560 ns typical delay.
 
 ## Supply, grounding and assembly
 
@@ -152,7 +152,7 @@ TI's two OPA2810 model files order their pins differently. The PSpice file used 
 
 The BNC, toggle and holder footprints are generated from manufacturer dimensions in `tools/build.rs`. Their "MP" support pins carry no net.
 
-The PTS645 reset switch has duplicate pad numbers 1 and 2 for its internally common terminals, and both copies are routed.
+The PTS645 reset switch (thru-hole, `SW_Tactile_CK_PTS645_THT`) has duplicate pad numbers 1 and 2 for its internally common terminals. Both RESET copies are joined by a track; both +4V8 copies connect to the In2 pour.
 
 The pad-number audit finds missing or extra pad numbers. It does not certify land-pattern geometry; see [revc.md §7](revc.md#7-pcb-mount-panel-parts) for the dimensions still to confirm on samples.
 

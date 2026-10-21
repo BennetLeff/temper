@@ -447,7 +447,6 @@ impl Design {
             "Package_TO_SOT_SMD",
             "Potentiometer_THT",
             "Diode_SMD",
-            "Button_Switch_SMD",
             "LED_SMD",
             "MountingHole",
         ] {
@@ -1736,14 +1735,7 @@ fn main() {
         (318., 196.),
         "RESET / STATUS / POWER VALIDATION",
     );
-    let button = part(
-        "RESET / NO",
-        "PTS645SL43SMTR92 LFS",
-        "C&K",
-        "Button_Switch_SMD:SW_SPST_PTS645Sx43SMTR92",
-        "https://www.ckswitches.com/media/1471/pts645.pdf",
-        "",
-    );
+    let button = edge_parts::reset_button();
     d.place(2, "SW3", "BUTTON", &button, (220., 154.), 0, false, true);
     d.link("SW3", "1", "+4V8");
     d.link("SW3", "2", "RESET");
@@ -1872,6 +1864,42 @@ mod edge_parts {
             "",
         )
     }
+    /// Latch reset, hand-soldered by the owner (docs/revc.md section 7). The
+    /// through-hole twin of the PTS645SL43SMTR92 it replaces: same 6 x 6 mm
+    /// body, 4.3 mm actuator height and 130 gf force; only the termination differs.
+    pub fn reset_button() -> Part {
+        part(
+            "RESET / NO",
+            "PTS645SL43-2 LFS",
+            "C&K",
+            "Probe:SW_Tactile_CK_PTS645_THT",
+            "https://www.littelfuse.com/assetdocs/littelfuse-c-k-tactile-pts645-series-datasheet?assetguid=d58fc8a8-f6e1-4527-ab68-27635e632e39",
+            "C221874",
+        )
+    }
+    /// C&K PTS645 "S" (straight) thru-hole termination, drawing "S STRAIGHT" /
+    /// "PCB LAYOUT" (C&K PTS645 datasheet, 6 February 2018, as served by LCSC
+    /// for C221874): 4 x 1.0 mm holes on 6.5 mm (x) by 4.5 mm (y); pins 1-2 and
+    /// 3-4 internally common (schematic on the same sheet), so the two pads of
+    /// each row share a number; 0.7 x 0.3 mm legs 3.5 mm below the seating
+    /// plane, 7.9 mm across the bent legs; body 6 x 6 mm; actuator 4.3 +/- 0.1
+    /// mm above the board, diameter 3.5 mm. Origin at the body centre.
+    fn tactile_tht() -> String {
+        let mut s = "(footprint \"SW_Tactile_CK_PTS645_THT\" (version 20241229) (generator \"temper_probe\") (layer \"F.Cu\") (descr \"C&K PTS645SL43-2 LFS 6 x 6 mm tactile, thru-hole: 4 x 1.0 mm holes on 6.5 x 4.5 mm, pins 1-2 and 3-4 common; legs 0.7 x 0.3 mm, 3.5 mm below the seating plane, 7.9 mm across the bent legs; actuator 4.3 mm high, 3.5 mm diameter. Pressed through an enclosure hole; B.CrtYd keeps bottom-side parts off the trimmed tails.\") (attr through_hole) (property \"Reference\" \"REF**\" (at 0 -4.4) (layer \"F.SilkS\") (effects (font (size .8 .8) (thickness .12)))) (property \"Value\" \"SW_Tactile_CK_PTS645_THT\" (at 0 4.4) (layer \"F.Fab\") (effects (font (size .8 .8) (thickness .12))))".to_string();
+        s += "(fp_rect (start -3 -3) (end 3 3) (stroke (width .1) (type default)) (fill none) (layer \"F.Fab\"))";
+        s += "(fp_circle (center 0 0) (end 1.75 0) (stroke (width .1) (type default)) (fill none) (layer \"F.Fab\"))";
+        for (x1, y1, x2, y2) in [(-3.1, -1.0, -3.1, 1.0), (3.1, -1.0, 3.1, 1.0), (-1.9, -3.1, 1.9, -3.1), (-1.9, 3.1, 1.9, 3.1)] {
+            s += &format!("(fp_line (start {x1} {y1}) (end {x2} {y2}) (stroke (width .12) (type default)) (layer \"F.SilkS\"))");
+        }
+        for layer in ["F.CrtYd", "B.CrtYd"] {
+            s += &format!("(fp_rect (start -4.5 -3.5) (end 4.5 3.5) (stroke (width .05) (type default)) (fill none) (layer \"{layer}\"))");
+        }
+        for (n, x, y) in [("1", -3.25, -2.25), ("1", 3.25, -2.25), ("2", -3.25, 2.25), ("2", 3.25, 2.25)] {
+            let shape = if (n, x) == ("1", -3.25) { "rect" } else { "circle" };
+            s += &format!("(pad \"{n}\" thru_hole {shape} (at {x} {y}) (size 2 2) (drill 1) (layers \"*.Cu\" \"*.Mask\"))");
+        }
+        s + ")\n"
+    }
     pub fn battery_holder() -> Part {
         part(
             "9 V PCB holder",
@@ -1957,6 +1985,7 @@ mod edge_parts {
             (spdt.name, render(&spdt)),
             (dpdt.name, render(&dpdt)),
             (bat.name, render(&bat)),
+            ("SW_Tactile_CK_PTS645_THT", tactile_tht()),
         ]
     }
 }

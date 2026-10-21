@@ -17,7 +17,7 @@ Canonical board: [`cad/differential-probe.kicad_pcb`](../cad/differential-probe.
 | General clearance | 0.20 mm; explicit HV rules override it |
 | Fine-pitch exception | U6 pad-to-pad only: 0.15 mm, matching the selected VSSOP land pattern |
 | Slots | Ten non-plated 1.2 × 8 mm cutouts, one under each HV capacitor, plus the notch |
-| Assembly | 105 circuit footprints (96 SMD, 9 THT), two HV landings, four mounting holes |
+| Assembly | 105 circuit footprints (95 SMD, 10 THT), two HV landings, four mounting holes |
 | Reference designators | F.Fab / B.Fab layers; silk carries outlines and board text only |
 
 The fabricator stackup, laminate CTI, copper weight and finish are not yet selected, and there is no controlled-impedance claim. Keep the In1 ground reference directly below F.Cu. Changing the dielectric thickness or copper geometry requires a new compensation/CMRR assessment.
@@ -91,7 +91,7 @@ How each section meets the 4 mm creepage rule:
 
 H3 and H4 sit on the two prongs on either side of the notch. A metal screw through a nylon spacer defeats the purpose of H3/H4. The H3/H4 nylon screws also clamp the arms of the FR4 lead bridge to the board top, so they are 1.6 mm longer than the board alone needs ([HV leads](hv-leads.md#strain-relief)).
 
-**Lid holes.** Drill holes in the lid over CT1 (62, 23) and CT2 (62, 47), the RV1/RV2 adjustment screws, SW3 (120, 28.5) and the D9 LED (115, 24). Use an insulated adjustment tool with a depth stop, and keep the hole geometry fixed after calibration.
+**Lid holes.** Drill holes in the lid over CT1 (62, 23) and CT2 (62, 47), the RV1/RV2 adjustment screws, the SW3 reset button (131.85, 46.25) and the D9 LED (115, 24). Use an insulated adjustment tool with a depth stop, and keep the hole geometry fixed after calibration.
 
 ## Leads and panel components
 
@@ -103,6 +103,8 @@ H3 and H4 sit on the two prongs on either side of the notch. A metal screw throu
 |---|---|---|
 | BNC | D-hole Ø12.83 mm with an 11.7 mm flat; panel ≤ 5 mm | 8.6 mm above the board top |
 | Toggles | 6.35 mm holes (1/4-40 bushing) | 6.35 mm above the board top |
+
+**Reset button.** SW3 (C&K PTS645SL43-2 LFS, thru-hole) sits in the panel strip at (131.85, 46.25), between J3 and SW2, and is pressed through a lid hole; its actuator is 4.3 mm above the board top. It cannot sit over the LV band (x 71.3–126.6 mm), because its tails would hit the bottom-side holders; its bottom courtyard makes DRC enforce that. Four Ø1.0 mm holes on 6.5 × 4.5 mm. The two RESET pins are joined on F.Cu and fed by an In2 hop; the two +4V8 pins join the In2 pour. SW_P runs under it on B.Cu.
 
 **Battery holders.** BT1 and BT2 (BH9VPC) mount on the underside. Their three 2.34 mm holes take 2-56 screws or eyelets. The screw heads land on top-side keep-outs, which are courtyard circles in the footprint.
 

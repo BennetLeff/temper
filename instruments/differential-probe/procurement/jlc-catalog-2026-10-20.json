@@ -4940,6 +4940,76 @@
      0.0069
     ]
    ]
+  },
+  "PTS645SL43-2 LFS": {
+   "query": "PTS645SL43-2 LFS",
+   "status": "Extended",
+   "lcsc": "C221874",
+   "mpn": "PTS645SL43-2LFS",
+   "manufacturer": "C&K",
+   "jlc_stock": 0,
+   "jlc_prices": [
+    [
+     1,
+     0.12
+    ],
+    [
+     50,
+     0.0942
+    ],
+    [
+     150,
+     0.0813
+    ],
+    [
+     1000,
+     0.0717
+    ],
+    [
+     2000,
+     0.0638
+    ],
+    [
+     5000,
+     0.0599
+    ]
+   ],
+   "describe": "-20℃~+60℃ 12V 4.3mm 50mA 6mm 6mm No PC Pin Round Button SPST Through Hole Without Bracket 插件-4P,6x6mm Tactile Switches ROHS",
+   "other_codes": [],
+   "jlc_least_patch": 2,
+   "jlc_loss": 1,
+   "jlc_min_purchase": 96,
+   "lcsc_stock": 0,
+   "lcsc_min_buy": 5,
+   "lcsc_prices": [
+    [
+     5,
+     0.1108
+    ],
+    [
+     50,
+     0.0869
+    ],
+    [
+     150,
+     0.075
+    ],
+    [
+     1000,
+     0.0661
+    ],
+    [
+     2000,
+     0.0589
+    ],
+    [
+     5000,
+     0.0553
+    ]
+   ]
   }
+ },
+ "merged": {
+  "PTS645SL43-2 LFS": "2026-10-20"
  }
 }

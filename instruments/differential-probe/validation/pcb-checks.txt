@@ -5,5 +5,6 @@ PASS: 7 paired divider/tap/trim nets have identical native track geometry after 
 PASS: all 10 elevated ladder nodes routed only on F.Cu, without vias.
 PASS: tap-to-buffer input (R12/R32 to U1): 14.478 / 14.478 mm, 0 / 0 vias.
 PASS: buffer output to subtractor input resistor: 7.565 / 7.565 mm, 0 / 0 vias.
+INFO: LV-region courtyard fill (x >= 59 mm, 6361 mm2): F.CrtYd 32.8 %, B.CrtYd 53.8 %, both sides 43.3 %.
 PASS: all rank-pair voltage bounds agree with independent maximization over the six allowed input-envelope vertices (600 V per section rank); opposing-tip DRC is 10 mm air / 20 mm surface.
 These checks do not establish capacitance matching, CMRR, stability or an insulation rating.

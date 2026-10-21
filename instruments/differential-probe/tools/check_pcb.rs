@@ -296,7 +296,20 @@ fn main() {
     }
     let rules = fs::read_to_string("cad/differential-probe.kicad_dru").unwrap();
     assert!(rules.contains("(rule \"TIP_P to TIP_N\" (condition \"A.NetName == 'TIP_P' && B.NetName == 'TIP_N'\") (constraint clearance (min 10mm)) (constraint creepage (min 20mm)))"),"opposing-tip DRC rule must encode the approved 3kV differential envelope");
-    let report=format!("PASS: {} physical footprints; every circuit value, selected footprint and DNP state matches KiCad XML.\nPASS: {} unique physical pin mappings match the schematic and explicit landings; duplicate pads checked individually.\nPASS: {} paired footprints / {matched_pads} pad pairs are exact mirror images about the y = 35 mm slot axis (identical pad dimensions; SOT-23 clamp pins 1/2 exchange under the mirror).\nPASS: {matched_nets} paired divider/tap/trim nets have identical native track geometry after mirroring.\nPASS: all 10 elevated ladder nodes routed only on F.Cu, without vias.\n{paired_lengths}PASS: all rank-pair voltage bounds agree with independent maximization over the six allowed input-envelope vertices (600 V per section rank); opposing-tip DRC is 10 mm air / 20 mm surface.\nThese checks do not establish capacitance matching, CMRR, stability or an insulation rating.\n",fps.len(),pads.len(),pairs.len());
+    // Courtyard fill of the LV region (x >= 59 mm; 91 x 70 mm less the two 3 mm
+    // corner chamfers = 6361 mm^2), by courtyard layer, counting every courtyard
+    // whose bounding-box centre lies in the region (BT top-side screw keep-outs and
+    // SW3's bottom tail keep-out included).
+    let lv_area = 91. * 70. - 2. * 4.5;
+    let mut fill = [0f64; 2];
+    for r in rows("validation/pcb-courtyards.tsv") {
+        let cx = (r[3].parse::<f64>().unwrap() + r[5].parse::<f64>().unwrap()) / 2.;
+        if cx >= 59. {
+            fill[(r[1] == "B") as usize] += r[2].parse::<f64>().unwrap();
+        }
+    }
+    let fill_line = format!("INFO: LV-region courtyard fill (x >= 59 mm, {lv_area:.0} mm2): F.CrtYd {:.1} %, B.CrtYd {:.1} %, both sides {:.1} %.\n", fill[0] / lv_area * 100., fill[1] / lv_area * 100., (fill[0] + fill[1]) / 2. / lv_area * 100.);
+    let report=format!("PASS: {} physical footprints; every circuit value, selected footprint and DNP state matches KiCad XML.\nPASS: {} unique physical pin mappings match the schematic and explicit landings; duplicate pads checked individually.\nPASS: {} paired footprints / {matched_pads} pad pairs are exact mirror images about the y = 35 mm slot axis (identical pad dimensions; SOT-23 clamp pins 1/2 exchange under the mirror).\nPASS: {matched_nets} paired divider/tap/trim nets have identical native track geometry after mirroring.\nPASS: all 10 elevated ladder nodes routed only on F.Cu, without vias.\n{paired_lengths}{fill_line}PASS: all rank-pair voltage bounds agree with independent maximization over the six allowed input-envelope vertices (600 V per section rank); opposing-tip DRC is 10 mm air / 20 mm surface.\nThese checks do not establish capacitance matching, CMRR, stability or an insulation rating.\n",fps.len(),pads.len(),pairs.len());
     print!("{report}");
     fs::write("validation/pcb-checks.txt", report).unwrap();
 }

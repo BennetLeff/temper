@@ -1,4 +1,4 @@
-Rev C: 105 parts/board, 42 MPNs, 2 boards $148.63 ($74.32/board)
+Rev C: 105 parts/board, 42 MPNs, 2 boards $148.39 ($74.20/board)
 Rev C before cost-down (5b9a9530b): 105 parts/board, 42 MPNs, 2 boards $535.81 ($267.90/board)
 Rev B: 140 parts/board, 45 MPNs, 2 boards $768.27 ($384.14/board)
   leads: R800-1020-0-50               1 x $127.8900 = $127.89  (lead wire: 4 x 0.295 m from one 50 ft spool (fallback Alpha 392040 RD005 100 ft))
@@ -34,7 +34,8 @@ Substitutions, two boards at distributor-ledger prices (tier covering the quanti
   MMBT3906,215         MMBT5401                     1 $    0.45 $    0.76 $   -0.31  Extended -> Basic
   C1210C106K3RACTU     C3225X7R1E106KTJ00N          4 $   13.28 $    2.51 $   10.77  Extended -> Extended
   C0805C181J5GACTU     CC0805JRNPO9BN181            1 $    0.34 $    0.56 $   -0.22  Extended -> Extended
-  all substitutions                                   $  431.89 $   44.72 $  387.18
+  PTS645SL43SMTR92 LFS PTS645SL43-2 LFS             1 $    0.78 $    0.54 $    0.24  Extended -> Extended
+  all substitutions                                   $  432.67 $   45.26 $  387.42
 
 JLC library status (snapshot procurement/jlc-catalog-2026-10-20.json):
   before cost-down: 42 MPNs: Basic 1, Extended 38, not at JLC 3
@@ -45,26 +46,26 @@ JLC assembly strategies (parts at JLC price for JLC-library parts, distributor l
   A  before cost-down; JLC assembles all it can incl. THT; rest global-sourced          Std   39 $  519.94 $ 205.84 $ 36.80 $     762.58 $   381.29
   B  before cost-down; owner hand-solders THT; rest global-sourced                     Econ   33 $  520.98 $ 131.80 $ 36.80 $     689.58 $   344.79
   C  before cost-down; owner hand-solders THT; rest consigned                          Econ   33 $  520.98 $ 121.80 $ 36.80 $     679.58 $   339.79
-  D  cost-down BOM; JLC assembles all it can incl. THT; rest global-sourced             Std   30 $  135.09 $ 205.84 $ 36.80 $     377.73 $   188.87
-  E  cost-down BOM; owner hand-solders THT; rest global-sourced (recommended)          Econ   24 $  130.37 $ 104.17 $ 36.80 $     271.34 $   135.67
-  F  cost-down BOM; owner hand-solders THT; rest consigned                             Econ   24 $  130.37 $  94.17 $ 36.80 $     261.34 $   130.67
-  G  cost-down BOM; owner THT; global; 5 boards assembled                              Econ   24 $  312.87 $ 105.34 $ 36.80 $     455.01 $    91.00
+  D  cost-down BOM; JLC assembles all it can incl. THT; rest global-sourced             Std   30 $  134.85 $ 205.96 $ 36.80 $     377.61 $   188.80
+  E  cost-down BOM; owner hand-solders THT; rest global-sourced (recommended)          Econ   23 $  130.13 $  81.09 $ 36.80 $     248.02 $   124.01
+  F  cost-down BOM; owner hand-solders THT; rest consigned                             Econ   23 $  130.13 $  91.09 $ 36.80 $     258.02 $   129.01
+  G  cost-down BOM; owner THT; global; 5 boards assembled                              Econ   23 $  312.27 $  82.24 $ 36.80 $     431.31 $    86.26
 
   Strategy B: 488 SMT joints, 0 JLC THT joints, inspection $20.00, consignment $0.00; routes {'owner': 6, 'jlc': 28, 'kit': 2, 'global': 6}
     extended MPNs placed by JLC (33): 1N4148W-E3-18, ADP7142AUJZ-R7, ADP7182AUJZ-R7, BAV199,215, C0805C104K5RACTU, C0805C181J5GACTU, C1206C103F5GACTU, C1210C106K3RACTU, C1812C330JHGACTU, CD4013BM96, HVCB2512BDE2M00, LTST-C170KRKT, MMBT3906,215, OPA2810IDR, OPA810IDR, PTS645SL43SMTR92 LFS, RC0805FR-0797R6L, RNCF0603TKY1K00, RNCF0603TKY2K00, RNCF0603TKY499R, RNCF0603TKY4K99, RT0805BRD07100KL, RT0805BRD0710KL, RT0805BRD071KL, RT0805BRD071ML, RT0805BRD07220RL, RT0805BRD0729K4L, RT0805BRD0730KL, RT0805BRD0747KL, RT0805BRD0749R9L, RT0805BRD0766K5L, TLV1702AIDGKR, TLV1704AIPWR
     not from the JLC library: 031-5431-10RFX (owner), 3296W-1-500LF (owner), 7101SDAV2BE (owner), 7201P3DAV2QE (owner), BH9VPC (owner), C0805C161F5GACTU (kit), C0805C302F5GACTU (kit), C1206C103F5GACTU (global), C1812C330JHGACTU (global), GKG60015 (owner), HVCB2512BDE2M00 (global), PTS645SL43SMTR92 LFS (global), RNCF0603TKY1K00 (global), RNCF0603TKY499R (global)
 
-  Strategy E: 488 SMT joints, 0 JLC THT joints, inspection $20.00, consignment $0.00; routes {'owner': 6, 'jlc': 31, 'kit': 2, 'global': 3}
-    extended MPNs placed by JLC (24): ADP7142AUJZ-R7, ADP7182AUJZ-R7, BAV199,215, C3225X7R1E106KTJ00N, CC0805JRNPO9BN181, CC1206FKNPO9BN103, CC1812JKNPOEBN330, CD4013BM96, HV121WF2004T4E, OPA2810IDR, OPA810IDR, PTS645SL43SMTR92 LFS, RC0805FR-0797R6L, RNCF0603TKY1K00, RNCF0603TKY2K00, RNCF0603TKY499R, RT0603BRD074K87L, RT0805BRD0710KL, RT0805BRD071KL, RT0805BRD0729K4L, RT0805BRD0730KL, RT0805BRD0766K5L, TLV1702AIDGKR, TLV1704AIPWR
-    not from the JLC library: 031-5431-10RFX (owner), 100DP1T1B1M7QEH (owner), 100SP1T1B5M7RE (owner), 3296W-1-501LF (owner), BH9VPC (owner), C0805C161F5GACTU (kit), C0805C302F5GACTU (kit), GKG60015 (owner), PTS645SL43SMTR92 LFS (global), RNCF0603TKY1K00 (global), RNCF0603TKY499R (global)
+  Strategy E: 480 SMT joints, 0 JLC THT joints, inspection $0.00, consignment $0.00; routes {'owner': 7, 'jlc': 31, 'kit': 2, 'global': 2}
+    extended MPNs placed by JLC (23): ADP7142AUJZ-R7, ADP7182AUJZ-R7, BAV199,215, C3225X7R1E106KTJ00N, CC0805JRNPO9BN181, CC1206FKNPO9BN103, CC1812JKNPOEBN330, CD4013BM96, HV121WF2004T4E, OPA2810IDR, OPA810IDR, RC0805FR-0797R6L, RNCF0603TKY1K00, RNCF0603TKY2K00, RNCF0603TKY499R, RT0603BRD074K87L, RT0805BRD0710KL, RT0805BRD071KL, RT0805BRD0729K4L, RT0805BRD0730KL, RT0805BRD0766K5L, TLV1702AIDGKR, TLV1704AIPWR
+    not from the JLC library: 031-5431-10RFX (owner), 100DP1T1B1M7QEH (owner), 100SP1T1B5M7RE (owner), 3296W-1-501LF (owner), BH9VPC (owner), C0805C161F5GACTU (kit), C0805C302F5GACTU (kit), GKG60015 (owner), PTS645SL43-2 LFS (owner), RNCF0603TKY1K00 (global), RNCF0603TKY499R (global)
 
 Headline, two boards (leads at the owner's ~$100 working figure in both columns):
                                          before  cost-down
-  components (as bought, model)      $   520.98 $   130.37
-  JLC assembly fees                  $   131.80 $   104.17
+  components (as bought, model)      $   520.98 $   130.13
+  JLC assembly fees                  $   131.80 $    81.09
   bare PCB, 5 pcs                    $    36.80 $    36.80
   HV leads (assumed)                 $   100.00 $   100.00
   enclosures, 2 x 1455N2201          $    76.86 $    76.86
-  total                              $   866.44 $   448.20  (saving $418.24, 48 %)
-  Distributor-ledger components: before $535.81, cost-down $148.63
+  total                              $   866.44 $   424.88  (saving $441.56, 51 %)
+  Distributor-ledger components: before $535.81, cost-down $148.39
   Documented HV-lead BOM (leads-bom.csv) instead of the assumption: $234.72

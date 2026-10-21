@@ -33,7 +33,7 @@
 "RV1,RV2","500 R / set 132.5 R","3296W-1-501LF","Bourns","Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical","2","","","https://www.bourns.com/docs/product-datasheets/3296.pdf","C69564"
 "SW1","SPDT / ON-ON / gold / threaded","100SP1T1B5M7RE","E-Switch","Probe:ESwitch_100_M7_SPDT","1","","","https://www.e-switch.com/wp-content/uploads/2022/06/100.pdf",""
 "SW2","POWER / DPDT / ON-ON / threaded","100DP1T1B1M7QEH","E-Switch","Probe:ESwitch_100_M7_DPDT","1","","","https://www.e-switch.com/wp-content/uploads/2022/06/100.pdf",""
-"SW3","RESET / NO","PTS645SL43SMTR92 LFS","C&K","Button_Switch_SMD:SW_SPST_PTS645Sx43SMTR92","1","","","https://www.ckswitches.com/media/1471/pts645.pdf",""
+"SW3","RESET / NO","PTS645SL43-2 LFS","C&K","Probe:SW_Tactile_CK_PTS645_THT","1","","","https://www.littelfuse.com/assetdocs/littelfuse-c-k-tactile-pts645-series-datasheet?assetguid=d58fc8a8-f6e1-4527-ab68-27635e632e39","C221874"
 "U1,U3","OPA2810IDR","OPA2810IDR","Texas Instruments","Package_SO:SOIC-8_3.9x4.9mm_P1.27mm","2","","","https://www.ti.com/lit/ds/symlink/opa2810.pdf","C1849413"
 "U5","TLV1704AIPWR","TLV1704AIPWR","Texas Instruments","Package_SO:TSSOP-14_4.4x5mm_P0.65mm","1","","","https://www.ti.com/lit/ds/symlink/tlv1704.pdf","C181596"
 "U6","TLV1702AIDGKR","TLV1702AIDGKR","Texas Instruments","Package_SO:VSSOP-8_3x3mm_P0.65mm","1","","","https://www.ti.com/lit/ds/symlink/tlv1704.pdf","C2870937"

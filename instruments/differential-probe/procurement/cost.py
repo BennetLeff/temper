@@ -129,8 +129,15 @@ SUBS = {
     "MMBT3906,215": "MMBT5401",
     "C1210C106K3RACTU": "C3225X7R1E106KTJ00N",
     "C0805C181J5GACTU": "CC0805JRNPO9BN181",
+    # SW3 reset: THT twin of the SMT part, hand-soldered by the owner, so JLC no
+    # longer global-sources it (no $20 inspection, no Extended feeder).
+    "PTS645SL43SMTR92 LFS": "PTS645SL43-2 LFS",
 }
 
+# Joints and THT status come from the committed board. The baseline (5b9a9530b)
+# fitted SW3 as the SMT PTS645SL43SMTR92 on the same four-joint pattern, so that
+# MPN is SMT wherever it appears, whatever SW3's footprint is now.
+BASELINE_SMT = {"PTS645SL43SMTR92 LFS"}
 pads = collections.defaultdict(lambda: [0, 0, ""])  # ref -> [joints, through, side placeholder]
 for r in csv.DictReader(open("validation/pcb-pads.tsv"), delimiter="\t"):
     if r["pin"]:
@@ -168,7 +175,7 @@ def assembly(rows, boards, owner_tht, offlib):
     for mpn, refs in sorted(by_mpn.items()):
         need = len(refs) * boards
         cat = catalog[mpn]
-        through = any(pads[r][1] for r in refs)
+        through = any(pads[r][1] for r in refs) and mpn not in BASELINE_SMT
         stocked = cat["status"] != "not at JLC" and (cat["jlc_stock"] or 0) >= need + (cat["jlc_loss"] or 0)
         if mpn in KIT:
             route = "kit"
@@ -189,8 +196,8 @@ def assembly(rows, boards, owner_tht, offlib):
             placed[mpn] = cat["status"] if route == "jlc" else "Extended"
             for r in refs:
                 j = pads[r][0] * boards
-                tht += j if pads[r][1] else 0
-                smt += 0 if pads[r][1] else j
+                tht += j if through else 0
+                smt += 0 if through else j
                 bottom |= sides.get(r) == "B"
         if route == "global" and refs[0].startswith(INSPECTED_PREFIX):
             inspections += GLOBAL_INSPECTION

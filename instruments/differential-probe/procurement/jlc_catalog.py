@@ -6,6 +6,10 @@ Reads public, unauthenticated endpoints only (the JLC parts-library search that
 jlcpcb.com/parts uses, and the LCSC product-detail API). No account, cart or order.
 Writes procurement/jlc-catalog-<date>.json; cost.py reads that file offline.
 
+`--merge` keeps every row of the existing snapshot and queries only MPNs it
+lacks (new BOM parts and candidates), recording them under "merged"; use it to
+add a part without re-dating the prices and stock of every other row.
+
 Library status: "base" = Basic, "expand" + preferredComponentFlag = Preferred
 extended, "expand" = Extended. An MPN with no exact JLC match is "not at JLC"
 (global sourcing or consignment).
@@ -15,6 +19,7 @@ import csv, datetime, io, json, re, subprocess, sys, time, urllib.request
 JLC = "https://jlcpcb.com/api/overseas-pcb-order/v1/shoppingCart/smtGood/selectSmtComponentList"
 LCSC = "https://wmsc.lcsc.com/ftps/wm/product/detail?productCode={}"
 BASELINE = "5b9a9530b:instruments/differential-probe/procurement/bom-jlc.csv"  # Rev C before the cost-down
+SNAPSHOT = "procurement/jlc-catalog-2026-10-20.json"  # the snapshot cost.py reads
 UA = {"User-Agent": "Mozilla/5.0", "Content-Type": "application/json"}
 
 # Candidates evaluated in docs/cost-down.md, by exact MPN or LCSC code.
@@ -42,6 +47,8 @@ CANDIDATES = [
     ("C3225X7R1E106KTJ00N", "C342744"), ("KH-6X6X4.3H-STM", "C2837530"),
     # C61 180 pF C0G: the KEMET part has a 452-piece JLC minimum purchase
     ("CC0805JRNPO9BN181", "C113826"),
+    # Owner-soldered THT reset button replacing the global-sourced PTS645 SMT part
+    ("PTS645SL43-2 LFS", "C221874"),
 ]
 
 
@@ -108,16 +115,25 @@ def main():
     bom = {}
     for r in rows:
         bom.setdefault(r["MPN"], (r["LCSC Part #"].strip() or None, r["Manufacturer"]))
+    merge = "--merge" in sys.argv
+    extra = [a for a in sys.argv[1:] if a != "--merge"]
     out = {"date": datetime.date.today().isoformat(), "source": [JLC, LCSC], "parts": {}}
+    if merge:
+        out = json.load(open(SNAPSHOT))
     queries = [(k, c, m) for k, (c, m) in sorted(bom.items())]
     queries += [(k, c, None) for k, c in CANDIDATES if k not in bom]
-    queries += [(k, None, None) for k in sys.argv[1:]]
+    queries += [(k, None, None) for k in extra]
+    if merge:
+        queries = [q for q in queries if q[0] not in out["parts"]]
+        out.setdefault("merged", {})
+        for key, _, _ in queries:
+            out["merged"][key] = datetime.date.today().isoformat()
     for key, code, mfr in queries:
         out["parts"][key] = lookup(key, code, mfr)
         r = out["parts"][key]
         print(f"{key:<28} {r['status']:<19} {r.get('lcsc', ''):<10} JLC {r.get('jlc_stock', '')!s:>7}  LCSC {r.get('lcsc_stock', '')!s:>7}")
         time.sleep(0.3)
-    path = f"procurement/jlc-catalog-{out['date']}.json"
+    path = SNAPSHOT if merge else f"procurement/jlc-catalog-{out['date']}.json"
     json.dump(out, open(path, "w"), indent=1, ensure_ascii=False)
     print(f"wrote {path}")
 

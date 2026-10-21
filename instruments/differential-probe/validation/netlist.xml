@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>/Users/bennet/Desktop/temper/worktrees/probe-revc/instruments/differential-probe/cad/differential-probe.kicad_sch</source>
-    <date>2026-10-20T20:24:19</date>
+    <date>2026-10-20T21:56:59</date>
     <tool>Eeschema 10.0.4</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -3247,20 +3247,20 @@
     </comp>
     <comp ref="SW3">
       <value>RESET / NO</value>
-      <footprint>Button_Switch_SMD:SW_SPST_PTS645Sx43SMTR92</footprint>
-      <datasheet>https://www.ckswitches.com/media/1471/pts645.pdf</datasheet>
+      <footprint>Probe:SW_Tactile_CK_PTS645_THT</footprint>
+      <datasheet>https://www.littelfuse.com/assetdocs/littelfuse-c-k-tactile-pts645-series-datasheet?assetguid=d58fc8a8-f6e1-4527-ab68-27635e632e39</datasheet>
       <fields>
-        <field name="MPN">PTS645SL43SMTR92 LFS</field>
+        <field name="MPN">PTS645SL43-2 LFS</field>
         <field name="Manufacturer">C&amp;K</field>
-        <field name="LCSC"/>
-        <field name="Footprint">Button_Switch_SMD:SW_SPST_PTS645Sx43SMTR92</field>
-        <field name="Datasheet">https://www.ckswitches.com/media/1471/pts645.pdf</field>
+        <field name="LCSC">C221874</field>
+        <field name="Footprint">Probe:SW_Tactile_CK_PTS645_THT</field>
+        <field name="Datasheet">https://www.littelfuse.com/assetdocs/littelfuse-c-k-tactile-pts645-series-datasheet?assetguid=d58fc8a8-f6e1-4527-ab68-27635e632e39</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="BUTTON" description=""/>
-      <property name="MPN" value="PTS645SL43SMTR92 LFS"/>
+      <property name="MPN" value="PTS645SL43-2 LFS"/>
       <property name="Manufacturer" value="C&amp;K"/>
-      <property name="LCSC" value=""/>
+      <property name="LCSC" value="C221874"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <sheetpath names="/power/" tstamps="/5c01f14f-ba52-4cee-88b9-93f7d8629945/"/>

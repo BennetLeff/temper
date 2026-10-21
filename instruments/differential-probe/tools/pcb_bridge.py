@@ -214,6 +214,11 @@ def mutant(kind: str, target: str) -> None:
             edge = k.PCB_SHAPE(board); edge.SetShape(k.SHAPE_T_SEGMENT)
             edge.SetStart(vec(*a)); edge.SetEnd(vec(*b)); edge.SetWidth(k.FromMM(.05))
             edge.SetLayer(k.Edge_Cuts); board.Add(edge)
+    elif kind == 'button-over-holder':
+        # Put the THT reset button back at the old SMT site (120, 28.5), over BT1:
+        # its B.CrtYd (trimmed tails) must collide with the holder body.
+        fp = board.FindFootprintByReference('SW3')
+        fp.SetPosition(vec(120, 28.5))
     else:
         raise ValueError(kind)
     k.SaveBoard(target, board)

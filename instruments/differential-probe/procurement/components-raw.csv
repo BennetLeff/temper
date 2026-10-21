@@ -95,7 +95,7 @@
 "RV2","500 R / set 132.5 R","Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical","3296W-1-501LF","Bourns","C69564","1",""
 "SW1","SPDT / ON-ON / gold / threaded","Probe:ESwitch_100_M7_SPDT","100SP1T1B5M7RE","E-Switch","","1",""
 "SW2","POWER / DPDT / ON-ON / threaded","Probe:ESwitch_100_M7_DPDT","100DP1T1B1M7QEH","E-Switch","","1",""
-"SW3","RESET / NO","Button_Switch_SMD:SW_SPST_PTS645Sx43SMTR92","PTS645SL43SMTR92 LFS","C&K","","1",""
+"SW3","RESET / NO","Probe:SW_Tactile_CK_PTS645_THT","PTS645SL43-2 LFS","C&K","C221874","1",""
 "U1","OPA2810IDR","Package_SO:SOIC-8_3.9x4.9mm_P1.27mm","OPA2810IDR","Texas Instruments","C1849413","1",""
 "U3","OPA2810IDR","Package_SO:SOIC-8_3.9x4.9mm_P1.27mm","OPA2810IDR","Texas Instruments","C1849413","1",""
 "U5","TLV1704AIPWR","Package_SO:TSSOP-14_4.4x5mm_P0.65mm","TLV1704AIPWR","Texas Instruments","C181596","1",""
