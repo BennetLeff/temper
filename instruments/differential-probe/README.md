@@ -40,7 +40,7 @@ Native KiCad DRC reports zero violations and zero unconnected items with the exp
 | Initial-envelope warning | Nominal 1.363 kV per tip; 1.239 kV wide / 248 V fine differential, latched |
 | Main measurement band | 35–60 kHz; proposed acceptance ±2% amplitude, ≤1° phase after calibration |
 | Common-mode rejection | 60 dB goal; measure versus frequency and apply a measurement-specific error budget |
-| Input loading | Ideal 10.005 MΩ and about 6.6 pF per tip; with leads and enclosure about 11.6 pF per tip (estimate, target ≤ 12 pF; [HV leads](docs/hv-leads.md#capacitance-budget)) |
+| Input loading | Ideal 10.005 MΩ and about 6.6 pF per tip; with leads and enclosure 11.7–11.9 pF per tip (option-B estimates, target ≤ 12 pF; [HV leads](docs/hv-leads.md#capacitance-budget)) |
 | Scope | 1 MΩ input, short BNC cable; do not select 50 Ω termination |
 | Power | Two 9 V batteries, regulated to approximately +4.80 / −4.81 V |
 | Enclosure | Owner-designed earthed shield (Hammond 1455N2201 is the reference geometry); 20 mm HV-to-metal setback in 3-D and the other requirements in the [Rev C record](docs/revc.md#9-size-layers-enclosure) |
@@ -73,7 +73,7 @@ The compact spacing design requires all three extended limits at once: `|V+| ≤
 The BOM contains every component.
 
 - **Cost-down (2026-10-20).** The divider uses 1% HV12 bodies stocked at JLC instead of the 0.1% HVCB2512 (9 at DigiKey, 0 at LCSC). The 4.87 kΩ + 500 Ω trim covers both a 1% and a 0.1% string, so Stackpole HVCB2512BDE2M00 remains a drop-in upgrade. The margin costs (DC CMRR drift with temperature, one fault case at the ±3 kV extension) are quantified in [cost-down](docs/cost-down.md).
-- **HV leads.** Captive Rowe R800-1020 leads (UL 3239, 10 kV DC), 200 mm outside the box, leave through nylon glands in a copper-free FR4 tip-end plate and are tied to an FR4 lead bridge inside. Tips, strain relief and the loading budget are in [HV leads](docs/hv-leads.md). Ordinary SMA, 1 kV test leads or low-voltage terminal blocks are not acceptable for the HV inputs.
+- **HV leads (option B).** Two dedicated probes, docked permanently on stage 53: probe 1 on the bank (TIP+ ring on J5, TIP− soldered into C22's free hole), probe 2 on the coil (rings on J5 and J2). The captive silicone leads (generic wire accepted by incoming hipot; UL 3239 10 kV DC fallbacks) leave through nylon glands in a printed wall insert and run in printed spines and docks generated in CadQuery ([`mech3d/`](mech3d/README.md)). Routing, stud stacks, loading budget and assembly are in [HV leads](docs/hv-leads.md). Ordinary SMA, 1 kV test leads or low-voltage terminal blocks are not acceptable for the HV inputs.
 
 ## Stage-53 identity
 

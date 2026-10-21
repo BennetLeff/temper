@@ -231,17 +231,21 @@ The LV region (x ≥ 59 mm, 6,361 mm²) has 32.8% top-side courtyard coverage (R
 | 4 layers (includes $25 engineering fee) | $36.80 | $49.30 |
 | **Saving if 2-layer were adopted** | **$26.40** | **$22.40** |
 
-**Enclosure: owner-designed (2026-10-20).** The owner is designing the enclosure, so it is not priced. The **Hammond 1455N2201** ([drawing](https://www.hammfg.com/files/parts/pdf/1455N2201.pdf); DigiKey $38.43, 52 in stock on 2026-10-20) stays as the reference design: the setback figures below, `tools/leads.rs` and the FR4 tip plate use its dimensions.
+**Enclosure: owner-designed (2026-10-20).** The owner is designing the enclosure, so it is not priced. The **Hammond 1455N2201** ([drawing](https://www.hammfg.com/files/parts/pdf/1455N2201.pdf); DigiKey $38.43, 52 in stock on 2026-10-20) stays as the reference design: the setback figures below, `tools/leads.rs` and the printed wall insert ([`mech3d/`](../mech3d/README.md)) use its dimensions.
 
 Any owner enclosure must provide:
 
 1. **An earthed conductive shield around the board, fixed in position.** Bond it to GND at H1/H2 and the BNC shell. The per-leg compensation absorbs static strays but not movement after calibration: a 0.0066 pF change at a tap alone limits CMRR to 60 dB (`validation/leads/leads.txt`), so each node's stray capacitance to the shield must stay stable to about 0.01 pF. No flexing walls, loose lids or movable metal near the ladder.
 2. **≥ 20 mm from every exposed HV conductor to metal**, in three dimensions: ladder copper and bodies, the W_HV landings, the trimmed lead tails (≤ 1 mm below the board) and the lead loops (≤ 5.5 mm above it).
-3. **The tip-end insulating feedthrough and strain relief**: the copper-free FR4 tip plate with its two PG7 nylon glands (12.7 mm holes), or an equivalent insulating wall, and the FR4 lead bridge clamped under the H3/H4 nylon screws.
+3. **The tip-end insulating feedthrough and strain relief**: an insulating tip-end wall with two PG7 nylon glands (12.7 mm holes, 29.0 mm apart) and the printed lead bridge clamped under the H3/H4 nylon screws. The printed `wall-insert` (STEP in `mech3d/out/`) is the reference and can be merged into the owner's wall. The wall must also carry:
+   - **the spine socket boss** on the outside, centred between the glands at the lead height: a 5.4 × 8.4 mm socket, 11 mm deep, in an 8 × 11 mm boss 12 mm long, with a vertical M3 pin hole 6 mm from the face;
+   - **the bridge ledge** on the inside, 5 mm wide, its top at the board-top plane (23.6 mm above the floor), reaching 6 mm under the bridge;
+   - **the gland axis height**: 26.61 mm above the inner floor in the reference (28.25 mm above the box underside). On the bench the box stands on a riser that puts the gland axis 50 mm above the stage-53 board top (71.7 mm for the reference box). An owner enclosure with a different axis height needs a different riser, not a different spine.
+   - **trimmer-guide holes** in the lid: Ø7.2 mm over CT1/CT2 and RV1/RV2 for the snap-in guides, lid 1.65 mm thick at the reference height (rebuild the guides with `make mech3d` if the lid differs).
 4. **Board standoffs** that put the board underside 22.0 mm above the inner floor (the 9 V holders hang 20.6 mm below the board; insulating sheet on the floor): metal at H1/H2, nylon at H3/H4.
 5. **Panel access**: an output panel (≤ 5 mm thick at the BNC) with the BNC D-hole (Ø12.83 mm, 11.7 mm flat) and the two 6.35 mm toggle holes, and holes for the SW3 reset button, the CT1/CT2 and RV1/RV2 trimmer tools and the D9 LED, with every hole edge ≥ 20 mm from HV copper.
 
-The Hammond 1455N2201 numbers in this section are the reference design. To check an owner enclosure, re-enter its dimensions in the constants at the top of [`tools/leads.rs`](../tools/leads.rs) (the enclosure block `BOX_H`, `BOX_H_NOM`, `BOX_W`, `BOARD_UNDER`, `OUT_PANEL_X`, `BOX_L_INT`, and the tip-plate block) and run `make check`: every setback gate, the section drawing and the FR4 parts regenerate, and a failed gate stops the check.
+The Hammond 1455N2201 numbers in this section are the reference design. To check an owner enclosure, re-enter its dimensions in the constants at the top of [`tools/leads.rs`](../tools/leads.rs) (the enclosure block `BOX_H`, `BOX_H_NOM`, `BOX_W`, `BOARD_UNDER`, `OUT_PANEL_X`, `BOX_L_INT`, and the tip-end wall block) and run `make check`: every setback gate and the section drawing regenerate, a failed gate stops the check, and `make mech3d` rebuilds the printed parts from the new geometry.
 
 **Reference design: Hammond 1455N2201.**
 
@@ -250,9 +254,9 @@ The board sits on four standoffs so its underside is **22.0 mm above the inner f
 | Direction | Clearance |
 |---|---|
 | Down | 22.0 mm minus a 1 mm trimmed W_HV lead tail = 21 mm. The SMD HV parts have no tails. |
-| Up | Lid at ≥ 49.14 mm; board top at 23.6 mm. HV parts are ≤ 1.1 mm (1812 C0G T max) and ≤ 0.76 mm (2512). Lead loops at W_HV must stay ≤ 5.5 mm high to keep ≥ 20 mm; the lead bridge holds them at 4.67 mm. |
+| Up | Lid at ≥ 49.14 mm; board top at 23.6 mm. HV parts are ≤ 1.1 mm (1812 C0G T max) and ≤ 0.76 mm (2512). Lead loops at W_HV must stay ≤ 5.5 mm high to keep ≥ 20 mm; the printed lead bridge holds them at 4.65 mm. |
 | Sides | 12.5 mm from the board edge to the rib tips (95 mm internal width), plus ≥ 16 mm from the edge to the nearest HV copper: ≥ 28 mm. |
-| Tip end | With the panel parts at the output plate, the board's tip edge is 73.4 mm from the tip-end plate (the Hammond drawing: 220 mm extrusion plus a 1.6 mm polycarbonate bezel lip at each end). That plate is **copper-free FR4**, not aluminium, so the nearest metal at the tip end is the lid and floor. The leads leave through nylon glands and are carried on an FR4 lead bridge; see [HV leads](hv-leads.md). The lead conductor is 22.45 mm from the lid. |
+| Tip end | With the panel parts at the output plate, the board's tip edge is 73.4 mm from the tip-end plate (the Hammond drawing: 220 mm extrusion plus a 1.6 mm polycarbonate bezel lip at each end). That wall is the **printed wall insert**, not aluminium, so the nearest metal at the tip end is the lid and floor. The leads leave through nylon glands and are carried on a printed lead bridge; see [HV leads](hv-leads.md). The lead conductor is 22.54 mm from the lid. |
 
 **Trimmer access.** Lid holes go over:
 
@@ -324,4 +328,4 @@ Caveats on the prices:
    - Clamp current shared with the OPA2810 ESD diodes.
    - Range-switch transients with the PCB-mount switch (E-Switch does not state break-before-make).
    - Cost-down items ([cost-down](cost-down.md#new-bench-items)): DC ratio tracking with temperature and self-heating for the 1% HV12 string, 500 Ω trim settability, Yageo 1812 body height.
-7. **HV leads ([HV leads](hv-leads.md)).** The per-tip loading estimate is 11.6 pF, so the tentative 10 pF target was revised to 12 pF; measure it. The FR4 tip-end plate opens the shield at the tip end; measure the shield edge current and CMRR with it fitted. Fit-check the FR4 plate against the owner's enclosure (or a received 1455N2201, if the reference is built) before relying on drawing dimensions.
+7. **HV leads ([HV leads](hv-leads.md#open-risks)).** Option B's per-tip estimates are 11.71–11.93 pF against the 12 pF target (probe 2 TIP− has 0.07 pF in hand); measure them docked. The generic lead wire is unrated and accepted only by incoming hipot. The printed tip-end wall opens the shield at the tip end; measure the shield edge current and CMRR with it fitted. Print one dock and one guide and fit-check them on stage 53 and the owner's enclosure before printing the rest.

@@ -89,13 +89,13 @@ How each section meets the 4 mm creepage rule:
 | H3 | (5, 5) | Unplated 3.2 mm; **nylon** standoff and **nylon** screw |
 | H4 | (5, 65) | Unplated 3.2 mm; **nylon** standoff and **nylon** screw |
 
-H3 and H4 sit on the two prongs on either side of the notch. A metal screw through a nylon spacer defeats the purpose of H3/H4. The H3/H4 nylon screws also clamp the arms of the FR4 lead bridge to the board top, so they are 1.6 mm longer than the board alone needs ([HV leads](hv-leads.md#strain-relief)).
+H3 and H4 sit on the two prongs on either side of the notch. A metal screw through a nylon spacer defeats the purpose of H3/H4. The H3/H4 nylon screws also clamp the arms of the printed lead bridge to the board top, through its 3 mm thickness, so they are 3 mm longer than the board alone needs ([HV leads](hv-leads.md#feedthroughs-and-strain-relief)).
 
-**Lid holes.** Drill holes in the lid over CT1 (62, 23) and CT2 (62, 47), the RV1/RV2 adjustment screws, the SW3 reset button (131.85, 46.25) and the D9 LED (115, 24). Use an insulated adjustment tool with a depth stop, and keep the hole geometry fixed after calibration.
+**Lid holes.** Drill holes in the lid over CT1 (62, 23) and CT2 (62, 47), the RV1/RV2 adjustment screws, the SW3 reset button (131.85, 46.25) and the D9 LED (115, 24). The holes take the printed snap-in trimmer guides (Ø7.2 mm holes; `trim-guide-ct`, `trim-guide-rv`), which set the depth for the printed handle with its Vessel CA-18 zirconia blade. Keep the hole geometry fixed after calibration.
 
 ## Leads and panel components
 
-**HV landings.** `W_HV1` and `W_HV2` are 4 mm solder pads with 1.6 mm plated holes for the captive HV leads. They are not a rated connector. The leads are Rowe R800-1020 (UL 3239, 10 kV DC; Alpha Wire 392040 fallback), entered from the top, with the insulation ending ≤ 1 mm above the pad and the tail ≤ 1.0 mm below the board. Each lead is tied to a copper-free FR4 lead bridge 11 mm before its joint, and leaves through a nylon gland in a copper-free FR4 tip-end plate. The design, budget and assembly steps are in [HV leads](hv-leads.md); the landings did not change.
+**HV landings.** `W_HV1` and `W_HV2` are 4 mm solder pads with 1.6 mm plated holes for the captive HV leads. They are not a rated connector. The leads are generic 20 AWG silicone wire accepted by incoming hipot (rated fallbacks Rowe R800-1020 and Alpha Wire 392040, UL 3239 10 kV DC), entered from the top, with the insulation ending ≤ 1 mm above the pad and the tail ≤ 1.0 mm below the board. Each lead is tied to the printed lead bridge 11 mm before its joint, and leaves through a nylon gland in the printed tip-end wall insert. The design, budget and assembly steps are in [HV leads](hv-leads.md); the landings did not change.
 
 **Panel components.** The BNC (J3), range switch (SW1) and power switch (SW2) are PCB-mounted. Their faces point at the output end plate:
 
