@@ -288,6 +288,8 @@ impl Design {
                 ),
             );
         }
+        // Board-copper items (solder jumpers) carry no orderable part.
+        let in_bom = !p.mpn.starts_with("PCB copper");
         let small = kind == "R_Small_US"
             || kind == "C"
             || kind == "D"
@@ -321,7 +323,7 @@ impl Design {
             properties += &prop(k, v, xy, true)
         }
         let path = self.path(s);
-        self.pages[s]+=&format!("(symbol (lib_id {}) (at {} {} {rot}) (unit 1) (in_bom yes) (on_board {}) (dnp {}) (uuid {}) {properties} (instances (project \"differential-probe\" (path {} (reference {}) (unit 1)))))\n",q(&format!("Probe:{kind}")),cx*G,cy*G,if on_board{"yes"}else{"no"},if dnp{"yes"}else{"no"},id(reference),q(&path),q(reference));
+        self.pages[s]+=&format!("(symbol (lib_id {}) (at {} {} {rot}) (unit 1) (in_bom {}) (on_board {}) (dnp {}) (uuid {}) {properties} (instances (project \"differential-probe\" (path {} (reference {}) (unit 1)))))\n",q(&format!("Probe:{kind}")),cx*G,cy*G,if in_bom{"yes"}else{"no"},if on_board{"yes"}else{"no"},if dnp{"yes"}else{"no"},id(reference),q(&path),q(reference));
         self.placed
             .insert(reference.into(), Placed { pins, sheet: s });
     }
@@ -449,6 +451,7 @@ impl Design {
             "Diode_SMD",
             "LED_SMD",
             "MountingHole",
+            "Jumper",
         ] {
             table+=&format!("(lib (name {0}) (type \"KiCad\") (uri \"${{KICAD10_FOOTPRINT_DIR}}/{lib}.pretty\") (options \"\") (descr \"KiCad 10 standard library\"))",q(lib));
         }
@@ -651,6 +654,15 @@ fn main() {
             vec![
                 pin("1", "K", "passive", -3., 0., 0),
                 pin("2", "A", "passive", 3., 0., 180),
+            ],
+            2.,
+        ),
+        (
+            "Jumper",
+            "SolderJumper_2_Bridged",
+            vec![
+                pin("1", "A", "passive", -4., 0., 0),
+                pin("2", "B", "passive", 4., 0., 180),
             ],
             2.,
         ),
@@ -1290,7 +1302,7 @@ fn main() {
         1,
         "R69",
         "R_Small_US",
-        // 220 R Basic with C61 100 pF: pole 5.90 MHz (docs/fee-consolidation.md, F3).
+        // 220 R Basic (docs/fee-consolidation.md, F3); with C61 47 pF the first pole is 12.6 MHz.
         &rb("220 R", "0805W8F2200T5E", "C17557"),
         (219., 44.),
         90,
@@ -1298,17 +1310,20 @@ fn main() {
         "FILTER",
         false,
     );
+    // Output filter (docs/design.md, output filter): C61 47 pF with R69 is the
+    // first pole; C62 330 pF after R70 at the BNC is the second, switched by the
+    // bridged solder jumper JP1 (open = ~11 MHz mode). tools/output_filter_study.py.
     d.two(
         1,
         "C61",
         "C",
         &part(
-            "100 pF",
-            "CL21C101JBANNNC",
+            "47 pF",
+            "CL21C470JBANNNC",
             "Samsung Electro-Mechanics",
             "Capacitor_SMD:C_0805_2012Metric",
-            "https://www.lcsc.com/product-detail/C1790.html",
-            "C1790",
+            "https://www.lcsc.com/product-detail/C14857.html",
+            "C14857",
         ),
         (231., 61.),
         0,
@@ -1328,6 +1343,33 @@ fn main() {
         90,
         "DRIVE",
         "OUT",
+        false,
+    );
+    let jumper = part(
+        "BW / bridged = 5.8 MHz, cut = 11 MHz",
+        "PCB copper (solder jumper)",
+        "none",
+        "Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm",
+        "",
+        "",
+    );
+    d.two(1, "JP1", "SolderJumper_2_Bridged", &jumper, (262., 62.), 0, "OUT", "OUT_C", false);
+    d.two(
+        1,
+        "C62",
+        "C",
+        &part(
+            "330 pF",
+            "CL10C331JB8NNNC",
+            "Samsung Electro-Mechanics",
+            "Capacitor_SMD:C_0603_1608Metric",
+            "https://www.lcsc.com/product-detail/C1664.html",
+            "C1664",
+        ),
+        (282., 66.),
+        0,
+        "OUT_C",
+        "GND",
         false,
     );
     d.place(1, "D3", "BAV199", &clamp, (267., 88.), 0, false, true);

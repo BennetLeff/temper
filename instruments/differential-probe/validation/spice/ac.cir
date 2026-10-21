@@ -9,6 +9,9 @@ VTP TP 0 DC 0 AC .5
 VTN TN 0 DC 0 AC .5 180
 XW TP TN OUT_W RAW_W FINE_W SEL_W VP VN PROBE_LV FINE_RANGE=0 BRANCH=1
 XF TP TN OUT_F RAW_F FINE_F SEL_F VP VN PROBE_LV FINE_RANGE=1 BRANCH=1
+* Second run: JP1 cut (C62 out), the ~11 MHz mode.
+XWO TP TN OUT_WO RAW_WO FINE_WO SEL_WO VP VN PROBE_LV FINE_RANGE=0 BRANCH=1 JP=0
+XFO TP TN OUT_FO RAW_FO FINE_FO SEL_FO VP VN PROBE_LV FINE_RANGE=1 BRANCH=1 JP=0
 .control
 set wr_singlescale
 set wr_vecnames
@@ -17,7 +20,11 @@ let wide_mag=mag(v(OUT_W))
 let fine_mag=mag(v(OUT_F))
 let wide_phase=180/PI*vp(OUT_W)
 let fine_phase=180/PI*vp(OUT_F)
-wrdata validation/spice/ac.tsv wide_mag fine_mag wide_phase fine_phase
+let wide_open_mag=mag(v(OUT_WO))
+let fine_open_mag=mag(v(OUT_FO))
+let wide_open_phase=180/PI*vp(OUT_WO)
+let fine_open_phase=180/PI*vp(OUT_FO)
+wrdata validation/spice/ac.tsv wide_mag fine_mag wide_phase fine_phase wide_open_mag fine_open_mag wide_open_phase fine_open_phase
 quit
 .endc
 .end

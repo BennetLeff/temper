@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>/Users/bennet/Desktop/temper/worktrees/probe-revc/instruments/differential-probe/cad/differential-probe.kicad_sch</source>
-    <date>2026-10-20T22:31:17</date>
+    <date>2026-10-21T00:41:52</date>
     <tool>Eeschema 10.0.4</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -1206,27 +1206,58 @@
       </units>
     </comp>
     <comp ref="C61">
-      <value>100 pF</value>
+      <value>47 pF</value>
       <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
-      <datasheet>https://www.lcsc.com/product-detail/C1790.html</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C14857.html</datasheet>
       <fields>
-        <field name="MPN">CL21C101JBANNNC</field>
+        <field name="MPN">CL21C470JBANNNC</field>
         <field name="Manufacturer">Samsung Electro-Mechanics</field>
-        <field name="LCSC">C1790</field>
+        <field name="LCSC">C14857</field>
         <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
-        <field name="Datasheet">https://www.lcsc.com/product-detail/C1790.html</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C14857.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
-      <property name="MPN" value="CL21C101JBANNNC"/>
+      <property name="MPN" value="CL21C470JBANNNC"/>
       <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
-      <property name="LCSC" value="C1790"/>
+      <property name="LCSC" value="C14857"/>
       <property name="Sheetname" value="signal"/>
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
       <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
       <tstamps>0c926a19-ab2a-4887-8e2e-25b1e9d9c369</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C62">
+      <value>330 pF</value>
+      <footprint>Capacitor_SMD:C_0603_1608Metric</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C1664.html</datasheet>
+      <fields>
+        <field name="MPN">CL10C331JB8NNNC</field>
+        <field name="Manufacturer">Samsung Electro-Mechanics</field>
+        <field name="LCSC">C1664</field>
+        <field name="Footprint">Capacitor_SMD:C_0603_1608Metric</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C1664.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="C" description="Unpolarized capacitor"/>
+      <property name="MPN" value="CL10C331JB8NNNC"/>
+      <property name="Manufacturer" value="Samsung Electro-Mechanics"/>
+      <property name="LCSC" value="C1664"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="cap capacitor"/>
+      <property name="ki_fp_filters" value="C_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>0c926b19-ab2a-4a3a-8e2d-a5b1e9d8e9e9</tstamps>
       <units>
         <unit name="A">
           <pins>
@@ -1286,6 +1317,37 @@
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
       <tstamps>092e1507-b5c1-46aa-843a-410958843ed9</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="JP1">
+      <value>BW / bridged = 5.8 MHz, cut = 11 MHz</value>
+      <footprint>Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm</footprint>
+      <fields>
+        <field name="MPN">PCB copper (solder jumper)</field>
+        <field name="Manufacturer">none</field>
+        <field name="LCSC"/>
+        <field name="Footprint">Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="SolderJumper_2_Bridged" description="Solder Jumper, 2-pole, closed/bridged"/>
+      <property name="MPN" value="PCB copper (solder jumper)"/>
+      <property name="Manufacturer" value="none"/>
+      <property name="LCSC" value=""/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="exclude_from_bom"/>
+      <property name="ki_keywords" value="solder jumper SPST"/>
+      <property name="ki_fp_filters" value="SolderJumper*Bridged*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>5aedcf19-d7a9-4e52-8135-70f77ceb5c08</tstamps>
       <units>
         <unit name="A">
           <pins>
@@ -3643,6 +3705,23 @@
         <pin num="3" name="B" type="passive"/>
       </pins>
     </libpart>
+    <libpart lib="Probe" part="SolderJumper_2_Bridged">
+      <description>Solder Jumper, 2-pole, closed/bridged</description>
+      <footprints>
+        <fp>SolderJumper*Bridged*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">JP</field>
+        <field name="Value">SolderJumper_2_Bridged</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description">Solder Jumper, 2-pole, closed/bridged</field>
+      </fields>
+      <pins>
+        <pin num="1" name="A" type="passive"/>
+        <pin num="2" name="B" type="passive"/>
+      </pins>
+    </libpart>
     <libpart lib="Probe" part="TLV1702">
       <fields>
         <field name="Reference">U</field>
@@ -3848,6 +3927,7 @@
       <node ref="C52" pin="2" pintype="passive"/>
       <node ref="C53" pin="2" pintype="passive"/>
       <node ref="C61" pin="2" pintype="passive"/>
+      <node ref="C62" pin="2" pintype="passive"/>
       <node ref="C71" pin="2" pintype="passive"/>
       <node ref="C72" pin="2" pintype="passive"/>
       <node ref="C73" pin="2" pintype="passive"/>
@@ -3937,29 +4017,34 @@
     <net code="27" name="OUT" class="Default">
       <node ref="D3" pin="3" pinfunction="K1/A2_3" pintype="passive"/>
       <node ref="J3" pin="1" pinfunction="1_1" pintype="passive"/>
+      <node ref="JP1" pin="1" pinfunction="A_1" pintype="passive"/>
       <node ref="R70" pin="2" pintype="passive"/>
     </net>
-    <net code="28" name="OUT_HALF" class="Default">
+    <net code="28" name="OUT_C" class="Default">
+      <node ref="C62" pin="1" pintype="passive"/>
+      <node ref="JP1" pin="2" pinfunction="B_2" pintype="passive"/>
+    </net>
+    <net code="29" name="OUT_HALF" class="Default">
       <node ref="R71" pin="2" pintype="passive"/>
       <node ref="R72" pin="1" pintype="passive"/>
       <node ref="U6" pin="2" pinfunction="1IN-_2" pintype="input"/>
       <node ref="U6" pin="5" pinfunction="2IN+_5" pintype="input"/>
     </net>
-    <net code="29" name="OUT_LIM_N" class="Default">
+    <net code="30" name="OUT_LIM_N" class="Default">
       <node ref="R92" pin="2" pintype="passive"/>
       <node ref="R93" pin="1" pintype="passive"/>
       <node ref="U6" pin="6" pinfunction="2IN-_6" pintype="input"/>
     </net>
-    <net code="30" name="OUT_LIM_P" class="Default">
+    <net code="31" name="OUT_LIM_P" class="Default">
       <node ref="R88" pin="2" pintype="passive"/>
       <node ref="R89" pin="1" pintype="passive"/>
       <node ref="U6" pin="3" pinfunction="1IN+_3" pintype="input"/>
     </net>
-    <net code="31" name="OV_LED" class="Default">
+    <net code="32" name="OV_LED" class="Default">
       <node ref="R96" pin="1" pintype="passive"/>
       <node ref="U7" pin="1" pinfunction="Q1_1" pintype="output"/>
     </net>
-    <net code="32" name="OV_N" class="Default">
+    <net code="33" name="OV_N" class="Default">
       <node ref="R73" pin="2" pintype="passive"/>
       <node ref="R74" pin="1" pintype="passive"/>
       <node ref="U5" pin="1" pinfunction="2OUT_1" pintype="open_collector"/>
@@ -3969,77 +4054,77 @@
       <node ref="U6" pin="1" pinfunction="1OUT_1" pintype="open_collector"/>
       <node ref="U6" pin="7" pinfunction="2OUT_7" pintype="open_collector"/>
     </net>
-    <net code="33" name="P_SEG1" class="Default">
+    <net code="34" name="P_SEG1" class="Default">
       <node ref="C1" pin="2" pintype="passive"/>
       <node ref="C2" pin="1" pintype="passive"/>
       <node ref="R1" pin="2" pintype="passive"/>
       <node ref="R2" pin="1" pintype="passive"/>
     </net>
-    <net code="34" name="P_SEG2" class="Default">
+    <net code="35" name="P_SEG2" class="Default">
       <node ref="C2" pin="2" pintype="passive"/>
       <node ref="C3" pin="1" pintype="passive"/>
       <node ref="R2" pin="2" pintype="passive"/>
       <node ref="R3" pin="1" pintype="passive"/>
     </net>
-    <net code="35" name="P_SEG3" class="Default">
+    <net code="36" name="P_SEG3" class="Default">
       <node ref="C3" pin="2" pintype="passive"/>
       <node ref="C4" pin="1" pintype="passive"/>
       <node ref="R3" pin="2" pintype="passive"/>
       <node ref="R4" pin="1" pintype="passive"/>
     </net>
-    <net code="36" name="P_SEG4" class="Default">
+    <net code="37" name="P_SEG4" class="Default">
       <node ref="C4" pin="2" pintype="passive"/>
       <node ref="C5" pin="1" pintype="passive"/>
       <node ref="R4" pin="2" pintype="passive"/>
       <node ref="R5" pin="1" pintype="passive"/>
     </net>
-    <net code="37" name="Q_BASE" class="Default">
+    <net code="38" name="Q_BASE" class="Default">
       <node ref="Q1" pin="1" pinfunction="B_1" pintype="input"/>
       <node ref="R74" pin="2" pintype="passive"/>
     </net>
-    <net code="38" name="RAW_OUT" class="Default">
+    <net code="39" name="RAW_OUT" class="Default">
       <node ref="R100" pin="1" pintype="passive"/>
       <node ref="R101" pin="1" pintype="passive"/>
       <node ref="R65" pin="2" pintype="passive"/>
       <node ref="U3" pin="7" pinfunction="OUT2_7" pintype="output"/>
     </net>
-    <net code="39" name="RESET" class="Default">
+    <net code="40" name="RESET" class="Default">
       <node ref="C95" pin="2" pintype="passive"/>
       <node ref="D8" pin="1" pinfunction="K_1" pintype="passive"/>
       <node ref="R95" pin="1" pintype="passive"/>
       <node ref="SW3" pin="2" pinfunction="2_2" pintype="passive"/>
       <node ref="U7" pin="4" pinfunction="RESET1_4" pintype="input"/>
     </net>
-    <net code="40" name="SELECTED" class="Default">
+    <net code="41" name="SELECTED" class="Default">
       <node ref="R103" pin="1" pintype="passive"/>
       <node ref="R69" pin="1" pintype="passive"/>
       <node ref="R71" pin="1" pintype="passive"/>
       <node ref="SW1" pin="2" pinfunction="COM_2" pintype="passive"/>
     </net>
-    <net code="41" name="SET" class="Default">
+    <net code="42" name="SET" class="Default">
       <node ref="Q1" pin="3" pinfunction="C_3" pintype="passive"/>
       <node ref="R75" pin="1" pintype="passive"/>
       <node ref="U7" pin="6" pinfunction="SET1_6" pintype="input"/>
     </net>
-    <net code="42" name="SUM_N" class="Default">
+    <net code="43" name="SUM_N" class="Default">
       <node ref="R62" pin="2" pintype="passive"/>
       <node ref="R65" pin="1" pintype="passive"/>
       <node ref="U3" pin="6" pinfunction="-IN2_6" pintype="input"/>
     </net>
-    <net code="43" name="SUM_P" class="Default">
+    <net code="44" name="SUM_P" class="Default">
       <node ref="R61" pin="2" pintype="passive"/>
       <node ref="R63" pin="1" pintype="passive"/>
       <node ref="U3" pin="5" pinfunction="+IN2_5" pintype="input"/>
     </net>
-    <net code="44" name="SW_N" class="Default">
+    <net code="45" name="SW_N" class="Default">
       <node ref="D5" pin="1" pinfunction="K_1" pintype="passive"/>
       <node ref="SW2" pin="4" pinfunction="A2_4" pintype="passive"/>
     </net>
-    <net code="45" name="SW_P" class="Default">
+    <net code="46" name="SW_P" class="Default">
       <node ref="D4" pin="2" pinfunction="A_2" pintype="passive"/>
       <node ref="SW2" pin="1" pinfunction="A1_1" pintype="passive"/>
     </net>
-    <net code="46" name="TAP_N" class="Default">
+    <net code="47" name="TAP_N" class="Default">
       <node ref="C25" pin="2" pintype="passive"/>
       <node ref="C51" pin="1" pintype="passive"/>
       <node ref="C52" pin="1" pintype="passive"/>
@@ -4049,7 +4134,7 @@
       <node ref="R31" pin="1" pintype="passive"/>
       <node ref="R32" pin="1" pintype="passive"/>
     </net>
-    <net code="47" name="TAP_P" class="Default">
+    <net code="48" name="TAP_P" class="Default">
       <node ref="C41" pin="1" pintype="passive"/>
       <node ref="C42" pin="1" pintype="passive"/>
       <node ref="C43" pin="1" pintype="passive"/>
@@ -4059,48 +4144,48 @@
       <node ref="R12" pin="1" pintype="passive"/>
       <node ref="R5" pin="2" pintype="passive"/>
     </net>
-    <net code="48" name="TIP_N" class="Default">
+    <net code="49" name="TIP_N" class="Default">
       <node ref="C21" pin="1" pintype="passive"/>
       <node ref="R21" pin="1" pintype="passive"/>
     </net>
-    <net code="49" name="TIP_P" class="Default">
+    <net code="50" name="TIP_P" class="Default">
       <node ref="C1" pin="1" pintype="passive"/>
       <node ref="R1" pin="1" pintype="passive"/>
     </net>
-    <net code="50" name="TRIM_N" class="Default">
+    <net code="51" name="TRIM_N" class="Default">
       <node ref="R31" pin="2" pintype="passive"/>
       <node ref="RV2" pin="1" pinfunction="CCW_1" pintype="passive"/>
     </net>
-    <net code="51" name="TRIM_P" class="Default">
+    <net code="52" name="TRIM_P" class="Default">
       <node ref="R11" pin="2" pintype="passive"/>
       <node ref="RV1" pin="1" pinfunction="CCW_1" pintype="passive"/>
     </net>
-    <net code="52" name="WIDE_SEL" class="Default">
+    <net code="53" name="WIDE_SEL" class="Default">
       <node ref="R101" pin="2" pintype="passive"/>
       <node ref="SW1" pin="1" pinfunction="A_1" pintype="passive"/>
     </net>
-    <net code="53" name="unconnected-(SW2-B1-Pad3)" class="Default">
+    <net code="54" name="unconnected-(SW2-B1-Pad3)" class="Default">
       <node ref="SW2" pin="3" pinfunction="B1_3" pintype="passive+no_connect"/>
     </net>
-    <net code="54" name="unconnected-(SW2-B2-Pad6)" class="Default">
+    <net code="55" name="unconnected-(SW2-B2-Pad6)" class="Default">
       <node ref="SW2" pin="6" pinfunction="B2_6" pintype="passive+no_connect"/>
     </net>
-    <net code="55" name="unconnected-(U7-/Q1-Pad2)" class="Default">
+    <net code="56" name="unconnected-(U7-/Q1-Pad2)" class="Default">
       <node ref="U7" pin="2" pinfunction="/Q1_2" pintype="output+no_connect"/>
     </net>
-    <net code="56" name="unconnected-(U7-/Q2-Pad12)" class="Default">
+    <net code="57" name="unconnected-(U7-/Q2-Pad12)" class="Default">
       <node ref="U7" pin="12" pinfunction="/Q2_12" pintype="output+no_connect"/>
     </net>
-    <net code="57" name="unconnected-(U7-Q2-Pad13)" class="Default">
+    <net code="58" name="unconnected-(U7-Q2-Pad13)" class="Default">
       <node ref="U7" pin="13" pinfunction="Q2_13" pintype="output+no_connect"/>
     </net>
-    <net code="58" name="unconnected-(U12-NC-Pad1)" class="Default">
+    <net code="59" name="unconnected-(U12-NC-Pad1)" class="Default">
       <node ref="U12" pin="1" pinfunction="NC_1" pintype="no_connect"/>
     </net>
-    <net code="59" name="unconnected-(U12-NC-Pad5)" class="Default">
+    <net code="60" name="unconnected-(U12-NC-Pad5)" class="Default">
       <node ref="U12" pin="5" pinfunction="NC_5" pintype="no_connect"/>
     </net>
-    <net code="60" name="unconnected-(U12-NC-Pad8)" class="Default">
+    <net code="61" name="unconnected-(U12-NC-Pad8)" class="Default">
       <node ref="U12" pin="8" pinfunction="NC_8" pintype="no_connect"/>
     </net>
   </nets>

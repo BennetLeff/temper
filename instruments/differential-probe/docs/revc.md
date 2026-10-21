@@ -20,12 +20,12 @@ Rev B is kept unchanged at commit `ca79d882f` (branch `codex/differential-probe-
 | Board outline | 240 × 84 mm = 20,160 mm² (20,046 mm² net of slots and chamfers) | **150 × 70 mm = 10,500 mm² (10,328 mm² net)**, −48% |
 | Copper layers | 4 | 4 (2-layer option evaluated below, not adopted) |
 | Enclosure | Not selected | **Owner-designed**, not priced; the Hammond 1455N2201 (extruded aluminium, 220 mm long, internal height 49.7 mm) is the reference geometry ([requirements](#9-size-layers-enclosure)) |
-| Components | 140: 135 on the board + 5 hand-wired off-board | **105, all on the board**: 95 SMD + 10 THT (BNC, 2 toggles, reset button, 2 holders, 4 trimmers) |
-| Unique MPNs | 45 | **42** |
+| Components | 140: 135 on the board + 5 hand-wired off-board | **106, all on the board**: 96 SMD + 10 THT (BNC, 2 toggles, reset button, 2 holders, 4 trimmers), plus the copper solder jumper JP1 |
+| Unique MPNs | 45 | **43** |
 | Tolerance-bearing parts (definition below) | 77 | **52** |
 | HV divider resistors | 20 × 1 MΩ HVCB2512 | **10 × 2 MΩ** (HVCB2512, then 1% HV12 after the [cost-down](cost-down.md)) |
 | Mounting holes | 6 | **4** |
-| LV courtyard fill, top side | 14.4% of the 9,399 mm² LV region | **32.8%** of the 6,361 mm² LV region (bottom side 53.8%; both sides 43.3%; `validation/pcb-checks.txt`) |
+| LV courtyard fill, top side | 14.4% of the 9,399 mm² LV region | **33.0%** of the 6,361 mm² LV region (bottom side 53.8%; both sides 43.4%; `validation/pcb-checks.txt`) |
 | Supply current, typical (amplifiers) | ~50 mA per rail (2 × ADA4817 + 3 × OPA810 + TL431 bias) | **~18 mA per rail** (4 OPA2810 channels + 1 OPA810) |
 | Component cost, 2 boards, dated 2026-10-20 | $768.27 | $535.81 (−30%); see [cost](#cost-dated-2026-10-20). **$148.10 after the [cost-down](cost-down.md) and [fee consolidation](fee-consolidation.md)** |
 | JLC bare-PCB quote, 5 pcs, 4 layers (HASL lead-free / ENIG) | $43.00 / $56.40 | **$36.80 / $49.30** |
@@ -35,7 +35,7 @@ Rev B is kept unchanged at commit `ca79d882f` (branch `codex/differential-probe-
 - HV resistors and capacitors.
 - R11/R31 and the low-leg capacitor bank.
 - The gain-setting resistors.
-- R69/C61, R70 and R100–R102.
+- R69/C61, R70/C62 and R100–R102.
 - R71/R72.
 - The warning-threshold network.
 - In Rev C only, the regulator feedback resistors R81–R84, because Rev C thresholds are derived from the rails.
@@ -139,12 +139,12 @@ Vendor PSpice model results (TI SBOMB66, `opa2810_a.lib` sha256 `b451809e…`) i
 
 | Range | −3 dB | Peaking | Phase at 60 kHz |
 |---|---|---|---|
-| Wide | 5.628 MHz | None | −0.953° |
-| Fine | 5.131 MHz | None | −1.195° |
+| Wide | 5.768 MHz | None | −1.000° |
+| Fine | 5.273 MHz | None | −1.241° |
 
-The filter is R69 220 Ω / C61 100 pF since the [fee consolidation](fee-consolidation.md); the earlier 97.6 Ω / 180 pF gave 5.786 / 5.252 MHz (`validation/spice/candidates.cir`).
+The filter is R69 220 Ω / C61 47 pF plus C62 330 pF at the BNC through the bridged jumper JP1 (2026-10-21; [design](design.md#output-filter-and-driver)). It halves the wide full-band noise for the same bandwidth. Cutting JP1 gives 10.86 / 8.47 MHz. The single-pole filters before it gave 5.628 / 5.131 MHz (R69 220 Ω / C61 100 pF, [fee consolidation](fee-consolidation.md)) and 5.786 / 5.252 MHz (97.6 Ω / 180 pF) (`validation/spice/candidates.cir`).
 
-Saturating the unused ×5 stage moves the wide output by 16.7 nV. These are nominal model results, not stability or bandwidth qualification.
+Saturating the unused ×5 stage moves the wide output by 16.8 nV. These are nominal model results, not stability or bandwidth qualification.
 
 ### 5. TL431s removed
 
@@ -212,7 +212,7 @@ Holes go from 6 to 4:
 - **H1/H2:** grounded M3, at the panel end.
 - **H3/H4:** unplated, at the tip end, one on each side of the notch. Use **nylon screws and standoffs** there.
 
-The LV region (x ≥ 59 mm, 6,361 mm²) has 32.8% top-side courtyard coverage (Rev B: 14.4%) and 53.8% bottom-side coverage, from the two holders and the reset button's tail keep-out. That is 43.3% of the two-sided placement area (`check_pcb.rs`; the same calculation gave 32.9 / 52.8 / 42.8% before the button moved).
+The LV region (x ≥ 59 mm, 6,361 mm²) has 33.0% top-side courtyard coverage (Rev B: 14.4%) and 53.8% bottom-side coverage, from the two holders and the reset button's tail keep-out. That is 43.4% of the two-sided placement area (`check_pcb.rs`; the same calculation gave 32.9 / 52.8 / 42.8% before the button moved).
 
 **Only the two-sided figure meets ≥ 35%.** Reaching 35% on the top side alone needs a 150 × 64 mm board (estimated 35.7%), which means re-placing every band. I kept 150 × 70 mm, the stated stretch target. The holders still fit, and the extra 6 mm buys routing corridors (WIDE_SEL/FINE_SEL along the top edge). This can be reversed if the top-side number matters.
 
@@ -275,7 +275,7 @@ Other enclosures considered:
 ## Layout notes specific to Rev C
 
 - **Routing.** Hand-authored in [`tools/layout.rs`](../tools/layout.rs), as in Rev B. **No autorouter was used.** Freerouting was only invoked with `--help`; nothing was routed with it or imported.
-- **Analog chain.** It runs along the slot axis: U1 → U3 → R69/C61 → R70 → BNC. The range-select ×5 stage and latch sit above it; the warning comparators, ladders and LDOs sit below.
+- **Analog chain.** It runs along the slot axis: U1 → U3 → R69/C61 → R70 → JP1/C62 at the BNC → BNC. The range-select ×5 stage and latch sit above it; the warning comparators, ladders and LDOs sit below.
 - **Matched lengths.** Tap-to-buffer inputs are 14.478 mm on both legs (the N side jogs to absorb U1's 1.27 mm pin offset). Buffer-to-subtractor paths are 7.565 mm on both legs. Both pairs are checked by `check_pcb.rs`.
 - **Reference designators.** They are on the Fab layers. Silk carries outlines and board text only, so DRC including silk reports zero.
 - **Component placement.** The holders mount on the bottom with their screw holes outboard. Bottom-flipping mirrors the part, so the top holder's contacts face the tap cell and the bottom holder's face the panel. BAT_P therefore runs on B.Cu along y = 27 mm.
@@ -319,7 +319,7 @@ Caveats on the prices:
 
 1. **HVCB2512BDE2M00 stock** (9 at DigiKey, 0 at LCSC). Resolved by the [cost-down](cost-down.md): 1% HV12 bodies stocked at JLC, HVCB kept as a drop-in upgrade.
 2. **BNC footprint orientation and E-Switch toggle fit** must be checked against samples or drawings before fabrication.
-3. **Top-side fill is 32.8%.** Accept it, or authorize the 150 × 64 mm re-placement.
+3. **Top-side fill is 33.0%.** Accept it, or authorize the 150 × 64 mm re-placement.
 4. **U12 kept as a separate OPA810.** Confirm, or ask for the ×2 + ×5 pairing.
 5. **Kemet 1% C0G select-on-test kits** need sourcing. Several Rev C MPNs have no reviewed LCSC identity (see [`procurement/README.md`](../procurement/README.md)).
 6. **Bench items.** Unchanged in kind from Rev B, plus:

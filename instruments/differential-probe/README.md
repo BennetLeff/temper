@@ -36,7 +36,7 @@ Native KiCad DRC reports zero violations and zero unconnected items with the exp
 | Initial differential range target | ±1.5 kV at 1000:1; ±300 V at 200:1 |
 | Extended range to qualify | ±3 kV at 1000:1; ±600 V at 200:1 |
 | Initial tip-to-earth target | Each tip within ±1.5 kV; extend separately to ±3 kV |
-| Bandwidth | DC–5 MHz small-signal target; vendor-model −3 dB 5.63 MHz wide / 5.13 MHz fine |
+| Bandwidth | DC–5 MHz small-signal target; vendor-model −3 dB 5.77 MHz wide / 5.27 MHz fine (two-pole output filter; cutting JP1 gives 10.9 / 8.5 MHz) |
 | Initial-envelope warning | Nominal 1.363 kV per tip; 1.239 kV wide / 248 V fine differential, latched |
 | Main measurement band | 35–60 kHz; proposed acceptance ±2% amplitude, ≤1° phase after calibration |
 | Common-mode rejection | 60 dB goal; measure versus frequency and apply a measurement-specific error budget |

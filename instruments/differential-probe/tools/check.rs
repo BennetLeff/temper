@@ -234,7 +234,8 @@ fn main() {
     let tau = 2e6 * 33e-12;
     let cap = 1999. * 33e-12 / 5.;
     for (r, m) in [
-        ("C61", "CL21C101JBANNNC"),
+        ("C61", "CL21C470JBANNNC"),
+        ("C62", "CL10C331JB8NNNC"),
         ("R69", "0805W8F2200T5E"),
         ("R101", "0805W8F499JT5E"),
         ("R102", "0805W8F499JT5E"),
@@ -281,8 +282,13 @@ fn main() {
     let load = 1. / (1. / 20_000. + 1. / 1_000_000.);
     let selection_gain = load / (load + 49.9);
     let source_r = 220. + 1. / (1. / 49.9 + 1. / load);
-    let cutoff = 1. / (2. * std::f64::consts::PI * source_r * 100e-12);
-    report+=&format!("\nIdeal circuit calculations (not measurements):\nRbottom = {bottom:.6} ohm; nominal trim = {:.6} ohm.\nCbottom TOTAL incl parasitics = {:.4} nF; input series C = 6.6 pF.\nDivider crossover = {:.2} Hz.\nShared filter pole including 49.9-ohm selector source resistance and loading = {:.6} MHz.\n",bottom-4870.,cap*1e9,1./(2.*std::f64::consts::PI*tau),cutoff/1e6);
+    // Output filter (tools/output_filter_study.py): C61 47 pF after R69, and C62 330 pF
+    // shunting OUT after R70 (49.9 R) through the bridged jumper JP1, in parallel with
+    // the lumped 1 m cable + scope input (120 pF). Cutting JP1 leaves only the cable.
+    let cutoff = 1. / (2. * std::f64::consts::PI * source_r * 47e-12);
+    let out_pole = 1. / (2. * std::f64::consts::PI * 49.9 * (330e-12 + 120e-12));
+    let out_pole_open = 1. / (2. * std::f64::consts::PI * 49.9 * 120e-12);
+    report+=&format!("\nIdeal circuit calculations (not measurements):\nRbottom = {bottom:.6} ohm; nominal trim = {:.6} ohm.\nCbottom TOTAL incl parasitics = {:.4} nF; input series C = 6.6 pF.\nDivider crossover = {:.2} Hz.\nFirst filter pole (R69 + 49.9-ohm selector source and loading, C61 47 pF) = {:.6} MHz; second pole (R70 49.9 ohm into C62 330 pF + 120 pF cable/scope, JP1 bridged) = {:.6} MHz ({:.3} MHz with JP1 cut).\n",bottom-4870.,cap*1e9,1./(2.*std::f64::consts::PI*tau),cutoff/1e6,out_pole/1e6,out_pole_open/1e6);
     // Cost-down DC trim (docs/cost-down.md section 2): 1 % upper string (HV121WF2004T4E),
     // 4.87 k 0.1 % fixed part (RT0603BRD074K87L), 500-ohm 3296 trimmer at +/-10 %,
     // usable from max(1 %, 2 ohm) of nominal to 0.9 x nominal.
@@ -311,12 +317,12 @@ fn main() {
     assert!(need_fine < 0.99, "calibrated-gain acceptance would leave < 1 % margin");
     report+=&format!("Divider ratio drift from TCR limits over -25..85 C: <= {:.2} % (string 100 ppm/C, bottom {bottom_tcr:.1} ppm/C); gain-resistor drift <= {:.3} % wide / {:.3} % fine (RNCF 5 ppm/C). The warning budget's >= 98 % gain condition therefore needs >= {:.2} % (wide) / {:.2} % (fine) calibrated gain at 25 C.\n",ratio_drift*100.,wide_gain_drift*100.,fine_gain_drift*100.,need_wide*100.,need_fine*100.);
     for f in [35e3, 60e3] {
-        let x = f / cutoff;
+        let (x, y) = (f / cutoff, f / out_pole);
         report += &format!(
-            "RC filter at {:.0} kHz: gain {:.6}, phase {:.4} deg.\n",
+            "Two-pole RC filter at {:.0} kHz: gain {:.6}, phase {:.4} deg.\n",
             f / 1e3,
-            1. / (1. + x * x).sqrt(),
-            -x.atan().to_degrees()
+            1. / ((1. + x * x) * (1. + y * y)).sqrt(),
+            -(x.atan() + y.atan()).to_degrees()
         );
     }
     // Rev C low-leg compensation coverage. Fixed 10 nF 1% C0G, then two
@@ -384,7 +390,7 @@ fn main() {
     report+=&format!("Low-leg C requirement: {need_lo:.1}..{need_hi:.1} pF (archived -8.26/+4.20 % 60 kHz-vs-DC spread on {c_nominal:.1} pF), less {:.0}..{:.0} pF tap parasitics.\nCompensation coverage PASS: fixed 10 nF +/-1 %, S1 E24 1.8-3.9 nF +/-1 %, S2 E24 0-360 pF +/-1 %, trimmer {trim_lo:.0}-{trim_hi:.0} pF. Stage-1 residual {x1_lo:.1}..{x1_hi:.1} pF and stage-2 residual {trim_lo:.0}..{stage2_hi:.1} pF swept without a gap at worst-case part tolerance; adjacent select steps overlap by >= {overlap1:.1} pF (S1) and >= {overlap2:.1} pF (S2), which bounds the allowable measurement error when choosing a value. Nominal 10 nF + 3.0 nF + 160 pF leaves {nominal_trim:.1} pF for trimmer plus parasitics.\n",parasitic.0,parasitic.1);
     report+=&format!("Selected-path DC insertion factor = {selection_gain:.8}, load = {load:.3} ohm; shared RC source R = {source_r:.4} ohm.\n");
     let mag = |f: f64, fine: bool| {
-        let mut value = 1. / (1. + (f / cutoff).powi(2)).sqrt();
+        let mut value = 1. / ((1. + (f / cutoff).powi(2)) * (1. + (f / out_pole).powi(2))).sqrt();
         for pole in [70e6 / (1. + wide_gain), 140e6] {
             value /= (1. + (f / pole).powi(2)).sqrt();
         }
@@ -408,7 +414,7 @@ fn main() {
         report+=&format!("Gain {g:.6}: loaded DC estimate {:.3}:1; initial {range:.0} Vpk -> {:.4} Vpk output.\n",2000./total_gain,range/2000.*total_gain);
         report+=&format!("Gain {g:.6}: illustrative first-order cascaded -3dB bandwidth {:.3} MHz; NOT an IC macromodel result or qualification.\n",(lo+hi)/2e6);
     }
-    report+="Bandwidth estimate uses U3B (subtractor) noise gain 3.004 / 70 MHz GBW, U12 gain 5.008 / 70 MHz GBW, U3A (driver) 140 MHz unity bandwidth, and C61 only; see validation/spice for the vendor-model result.\n";
+    report+="Bandwidth estimate uses U3B (subtractor) noise gain 3.004 / 70 MHz GBW, U12 gain 5.008 / 70 MHz GBW, U3A (driver) 140 MHz unity bandwidth, and the C61 and C62 poles (JP1 bridged); see validation/spice for the vendor-model result.\n";
     let body = 2e6;
     let i_dc = 3000. / (top + bottom);
     report+=&format!("At 3000 V DC per tip: total dissipation {:.3} W/leg; {:.4} W and {:.0} V per 2-Mohm body (five per leg); section capacitor ~600 V.\n",3000f64.powi(2)/(top+bottom),i_dc*i_dc*body,i_dc*body);

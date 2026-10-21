@@ -23,7 +23,19 @@ fn interpolate(data: &[Vec<f64>], col: usize, f: f64) -> f64 {
 fn main() -> Result<()> {
     let ac = rows("validation/spice/ac.tsv")?;
     let mut report="TI OPA2810 Rev A (U1A/U1B buffers, U3B subtractor, U3A driver) and OPA810 Rev A (U12) vendor macromodels; ngspice 45.2 PSpice compatibility.\nIdeal lumped 2000:1 compensated dividers and R12/R32 included; supplies +4.8000 / -4.8068 V; fixed switch positions; 1M scope plus lumped 120pF cable/input.\nGains are output per volt of tip differential input.\n\n".to_string();
-    for (col, label, expected) in [(1, "1000:1", 9.99412e-4), (2, "200:1", 5.00510e-3)] {
+    // Columns: 1/2 wide/fine magnitude and 3/4 phase with JP1 bridged (C62 fitted);
+    // 5/6 and 7/8 the same with JP1 cut (validation/spice/ac.cir second run).
+    report += "JP1 bridged (default: C61 47 pF, C62 330 pF at the BNC):\n";
+    for (col, label, expected, band) in [
+        (1, "1000:1", 9.99412e-4, 4.8e6..6.2e6),
+        (2, "200:1", 5.00510e-3, 4.8e6..6.2e6),
+        (5, "1000:1, JP1 cut", 9.99412e-4, 8.0e6..12.0e6),
+        (6, "200:1, JP1 cut", 5.00510e-3, 8.0e6..12.0e6),
+    ] {
+        if col == 5 {
+            report += "JP1 cut (C62 removed, ~11 MHz mode):\n";
+        }
+        let pcol = col + 2;
         let gain = ac[0][col];
         assert!(
             (gain / expected - 1.).abs() < 0.001,
@@ -36,13 +48,13 @@ fn main() -> Result<()> {
             .ok_or("no -3dB crossing")?;
         let bw = pair[0][0]
             + (pair[1][0] - pair[0][0]) * (pair[0][col] - target) / (pair[0][col] - pair[1][col]);
-        assert!((4.8e6..6.2e6).contains(&bw), "unexpected bandwidth {label}");
+        assert!(band.contains(&bw), "unexpected bandwidth {label}: {bw}");
         let peak = ac.iter().map(|r| r[col]).fold(0f64, f64::max) / gain;
         assert!(peak < 1.01, "unexpected AC peaking {label}");
         report+=&format!("{label}: LF gain {gain:.8e} V/V (ratio {:.3}:1); normalized -3dB bandwidth {:.4} MHz; maximum response {:.4} dB above LF (checked < 0.09 dB).\n",1./gain,bw/1e6,20.*peak.log10());
         for f in [35e3, 60e3, 5e6] {
             let relative = 20. * (interpolate(&ac, col, f) / gain).log10();
-            let phase = interpolate(&ac, col + 2, f);
+            let phase = interpolate(&ac, pcol, f);
             report += &format!(
                 "  {:.0} Hz: relative amplitude {relative:.6} dB, phase {phase:.6} deg.\n",
                 f

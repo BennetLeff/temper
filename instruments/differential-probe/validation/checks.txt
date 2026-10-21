@@ -1,24 +1,24 @@
-PASS: 105 exact-MPN components; 105 board footprints; no offboard (hand-wired) components.
-PASS: 275 pins, 60 independent connectivity groups agree with KiCad export.
+PASS: 107 exact-MPN components; 107 board footprints; no offboard (hand-wired) components.
+PASS: 279 pins, 61 independent connectivity groups agree with KiCad export.
 PASS: critical package pin mappings and power polarity assertions.
 
 Ideal circuit calculations (not measurements):
 Rbottom = 5002.501251 ohm; nominal trim = 132.501251 ohm.
 Cbottom TOTAL incl parasitics = 13.1934 nF; input series C = 6.6 pF.
 Divider crossover = 2411.44 Hz.
-Shared filter pole including 49.9-ohm selector source resistance and loading = 5.899580 MHz.
+First filter pole (R69 + 49.9-ohm selector source and loading, C61 47 pF) = 12.552298 MHz; second pole (R70 49.9 ohm into C62 330 pF + 120 pF cable/scope, JP1 bridged) = 7.087728 MHz (26.579 MHz with JP1 cut).
 DC trim at all 1% upper-string / 0.1% fixed-resistor corners: 77.606 to 187.396 ohm (500-ohm pot, usable 5 to 450 ohm; 20 ohm per turn of 25).
 Divider ratio drift from TCR limits over -25..85 C: <= 0.76 % (string 100 ppm/C, bottom 27.0 ppm/C); gain-resistor drift <= 0.060 % wide / 0.108 % fine (RNCF 5 ppm/C). The warning budget's >= 98 % gain condition therefore needs >= 98.81 % (wide) / 98.86 % (fine) calibrated gain at 25 C.
-RC filter at 35 kHz: gain 0.999982, phase -0.3399 deg.
-RC filter at 60 kHz: gain 0.999948, phase -0.5827 deg.
+Two-pole RC filter at 35 kHz: gain 0.999984, phase -0.4427 deg.
+Two-pole RC filter at 60 kHz: gain 0.999953, phase -0.7589 deg.
 Low-leg C requirement: 12103.6..13747.5 pF (archived -8.26/+4.20 % 60 kHz-vs-DC spread on 13193.4 pF), less 2..15 pF tap parasitics.
 Compensation coverage PASS: fixed 10 nF +/-1 %, S1 E24 1.8-3.9 nF +/-1 %, S2 E24 0-360 pF +/-1 %, trimmer 12-60 pF. Stage-1 residual 1988.6..3845.5 pF and stage-2 residual 12..416.4 pF swept without a gap at worst-case part tolerance; adjacent select steps overlap by >= 29.4 pF (S1) and >= 11.1 pF (S2), which bounds the allowable measurement error when choosing a value. Nominal 10 nF + 3.0 nF + 160 pF leaves 33.4 pF for trimmer plus parasitics.
 Selected-path DC insertion factor = 0.99746156, load = 19607.843 ohm; shared RC source R = 269.7733 ohm.
 Gain 2.004008: loaded DC estimate 1000.590:1; initial 1500 Vpk -> 1.4991 Vpk output.
-Gain 2.004008: illustrative first-order cascaded -3dB bandwidth 5.563 MHz; NOT an IC macromodel result or qualification.
+Gain 2.004008: illustrative first-order cascaded -3dB bandwidth 5.455 MHz; NOT an IC macromodel result or qualification.
 Gain 10.036104: loaded DC estimate 199.798:1; initial 300 Vpk -> 1.5015 Vpk output.
-Gain 10.036104: illustrative first-order cascaded -3dB bandwidth 4.935 MHz; NOT an IC macromodel result or qualification.
-Bandwidth estimate uses U3B (subtractor) noise gain 3.004 / 70 MHz GBW, U12 gain 5.008 / 70 MHz GBW, U3A (driver) 140 MHz unity bandwidth, and C61 only; see validation/spice for the vendor-model result.
+Gain 10.036104: illustrative first-order cascaded -3dB bandwidth 4.901 MHz; NOT an IC macromodel result or qualification.
+Bandwidth estimate uses U3B (subtractor) noise gain 3.004 / 70 MHz GBW, U12 gain 5.008 / 70 MHz GBW, U3A (driver) 140 MHz unity bandwidth, and the C61 and C62 poles (JP1 bridged); see validation/spice for the vendor-model result.
 At 3000 V DC per tip: total dissipation 0.900 W/leg; 0.1798 W and 600 V per 2-Mohm body (five per leg); section capacitor ~600 V.
 2-Mohm 2512 (HV121WF2004T4E) power-limited continuous voltage sqrt(1 W x 2 Mohm) = 1414 V. Protective-impedance split 2+3 bodies: if the 3-body group is bypassed at 3 kV DC, each remaining body sees 1500 V and 1.125 W, 112.5 % of the 1 W rating at 70 C: this double condition (fault plus sustained 3 kV DC on the extension envelope) exceeds the rating. At the 1.5 kV guarantee the same fault is 0.281 W (28.1 %).
 At 3000 Vpk sine: roughly 0.450 W/leg (half DC heating), 5.28 mArms at 60 kHz through ideal 6.6 pF.

@@ -78,6 +78,8 @@ R_Small_US	2		passive
 SPDT	2	COM	passive
 SPDT	1	A	passive
 SPDT	3	B	passive
+SolderJumper_2_Bridged	1	A	passive
+SolderJumper_2_Bridged	2	B	passive
 TLV1702	3	1IN+	input
 TLV1702	2	1IN-	input
 TLV1702	5	2IN+	input

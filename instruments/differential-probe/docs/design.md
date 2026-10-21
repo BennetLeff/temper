@@ -48,7 +48,7 @@ U3 channel 2 is the fixed ×2 subtractor. Its 499 Ω inputs are R61/R62; R63 (1 
 
 U12 (OPA810) is the noninverting ×5 stage: 499 Ω (R67) to ground and 2 kΩ (R68) feedback, giving 5.008. Both feedback networks stay connected in either range. R100 (49.9 Ω) isolates the fine-stage input from U3's output.
 
-U12 is kept as a separate package because it is the stage that saturates in wide range (see [revc.md §4](revc.md#4-one-amplifier-family-opa2810--opa810)). Saturating the unused U12 changes the wide output by 16.7 nV in the vendor model. That model cannot represent inter-channel coupling.
+U12 is kept as a separate package because it is the stage that saturates in wide range (see [revc.md §4](revc.md#4-one-amplifier-family-opa2810--opa810)). Saturating the unused U12 changes the wide output by 16.8 nV in the vendor model. That model cannot represent inter-channel coupling.
 
 ### Range selection
 
@@ -58,16 +58,38 @@ Range selection does not open any feedback loop, but the changeover is not a val
 
 ### Output filter and driver
 
-The common filter is R69 = 220 Ω and C61 = 100 pF C0G, both JLC Basic parts ([fee consolidation](fee-consolidation.md), F3). Including the selector's 49.9 Ω and the warning divider load, the effective source resistance is 269.77 Ω and the pole is 5.900 MHz (6.000 MHz with the earlier 97.6 Ω / 180 pF).
+The filter has two poles, both from JLC Basic C0G parts:
 
-The TI vendor model (full chain with a lumped divider, 1 MΩ ‖ 120 pF scope load) gives:
+- **First pole, before the driver.** R69 = 220 Ω ([fee consolidation](fee-consolidation.md), F3) and C61 = 47 pF C0G (Samsung CL21C470JBANNNC). With the selector's 49.9 Ω and the warning-divider load the source resistance is 269.77 Ω and the pole is 12.55 MHz.
+- **Second pole, at the BNC.** C62 = 330 pF C0G (Samsung CL10C331JB8NNNC) shunts OUT, after R70 (49.9 Ω), to GND through the bridged solder jumper JP1. With the 1 m cable and scope input (lumped 120 pF) the pole is 7.09 MHz.
 
-| Range | −3 dB | Phase at 60 kHz |
-|---|---|---|
-| Wide | 5.628 MHz | −0.95° |
-| Fine | 5.131 MHz | −1.19° |
+**Bandwidth jumper.** JP1 is closed by its copper bridge as built. Cutting the bridge removes C62 and gives the ~11 MHz mode; a solder blob restores it. The mode changes the 35–60 kHz phase by about 0.36°, so calibrate in the mode you measure in and record it.
 
-Neither range peaks. Calibrate each range separately.
+The TI vendor model (full chain with a lumped divider, 1 MΩ ‖ 120 pF scope load; [`validation/spice/results.txt`](../validation/spice/results.txt)) gives:
+
+| Range | JP1 | −3 dB | Phase at 60 kHz |
+|---|---|---|---|
+| Wide | bridged (default) | 5.768 MHz | −1.000° |
+| Fine | bridged (default) | 5.273 MHz | −1.241° |
+| Wide | cut | 10.856 MHz | −0.644° |
+| Fine | cut | 8.471 MHz | −0.886° |
+
+Neither range peaks in either mode. Calibrate each range separately. The study sweep ([`tools/output_filter_study.py`](../tools/output_filter_study.py), [`output-filter-study.txt`](../validation/spice/output-filter-study.txt)) reports 5.83 / 5.32 MHz for the same circuit because it takes the first grid point past −3 dB; `results.txt` interpolates.
+
+**Noise.** The study integrates the vendor-model output noise and refers it to the tips (divide by the gain), over 10 Hz–200 MHz ("full band"), to 20 MHz and to 5 MHz, in mV rms:
+
+| Filter | Range | Full band | To 20 MHz | To 5 MHz |
+|---|---|---:|---:|---:|
+| Before (C61 100 pF, no C62) | Wide | 373 | 143 | 72 |
+| Before | Fine | 141 | 114 | 70 |
+| **Now (C61 47 pF, C62 330 pF)** | Wide | **172** | 127 | 72 |
+| **Now** | Fine | **116** | 109 | 71 |
+| JP1 cut (C61 47 pF only) | Wide | 438 | 198 | 77 |
+| JP1 cut | Fine | 198 | 158 | 76 |
+
+**Finding: the driver's unfiltered noise tail dominated the full-band noise.** Before the change the only pole sat ahead of U3A, so U3A's own noise reached the BNC unfiltered up to its ~140 MHz bandwidth. Replacing U3A with an ideal buffer in the model drops the wide full-band figure from 373 to 157 mV; making U3B or U1 ideal instead changes it by only 10–18 mV (study section B). C62 after the driver filters that tail, which more than halves the wide full-band noise with the bandwidth unchanged. Below 5 MHz nothing changed (72 mV), because there the noise is the input stages' and the divider's. A scope's 20 MHz bandwidth limit already removed most of the tail; the change matters at full scope bandwidth.
+
+These are model figures (ideal lumped divider, no layout parasitics, no cable transmission line), not measurements.
 
 Loaded DC ratios are 1000.59:1 and 199.80:1 before calibration. U3 channel 1 is the unity-gain coax driver, and R70 is the 49.9 Ω series output resistor. Use the scope's 1 MΩ input: a 50 Ω termination roughly halves the signal and invalidates the calibration.
 

@@ -30,7 +30,11 @@ Begin with C41/C51 fitted, S1 (C42/C52) and S2 (C43/C53) at their nominal 3.0 nF
 
 Use swept sine response and a low-voltage step response to distinguish low-frequency compensation mismatch from distributed ladder parasitics. Verify both legs individually, then differential operation in both ranges. A single trimmer setting cannot correct arbitrary ladder parasitics across the whole band. Record both the coarse population and the fine adjustment, and verify repeatability after tool withdrawal and temperature stabilization.
 
-Measure small-signal response from DC through 10 MHz, locating the actual −3 dB bandwidth. The nominal RC pole (R69 220 Ω, C61 100 pF), including selector source resistance, is 5.900 MHz and adds approximately −0.340° at 35 kHz and −0.583° at 60 kHz. The OPA2810/OPA810 vendor model gives 5.63 MHz wide and 5.13 MHz fine with no peaking (first-order estimates 5.56 / 4.94 MHz); account for actual amplifier/fixture delay and component tolerances. Proposed acceptance is ±2% amplitude at 35–60 kHz and ≤1° residual phase error after the stated calibration correction; report the uncertainty rather than claiming those numbers from component tolerances.
+Measure small-signal response from DC through 15 MHz, locating the actual −3 dB bandwidth. The output filter has two poles: R69 220 Ω / C61 47 pF ahead of the driver (12.55 MHz including the selector source resistance) and R70 49.9 Ω into C62 330 pF plus the cable and scope input at the BNC (7.09 MHz with a lumped 120 pF); together they add approximately −0.44° at 35 kHz and −0.76° at 60 kHz (`validation/checks.txt`). The OPA2810/OPA810 vendor model gives 5.77 MHz wide and 5.27 MHz fine with no peaking, and −1.00° / −1.24° at 60 kHz (`validation/spice/results.txt`; first-order estimates 5.46 / 4.90 MHz); account for actual amplifier/fixture delay, the real cable and component tolerances. Proposed acceptance is ±2% amplitude at 35–60 kHz and ≤1° residual phase error after the stated calibration correction; report the uncertainty rather than claiming those numbers from component tolerances.
+
+**Bandwidth jumper (JP1).** Record the JP1 state with every result; the calibration belongs to one state. On one board, after the bridged-state measurements, cut JP1 with a scalpel between its pads, confirm it is open with an ohmmeter (C62 then reads open from OUT to GND), and repeat the swept response and the 35/60 kHz gain and phase in both ranges. Model: 10.86 MHz wide / 8.47 MHz fine, −0.64° / −0.89° at 60 kHz, no peaking. Check the step response for ringing with the intended cable in both states. Restore the bridge with a solder blob and confirm the original response returns within the measurement repeatability before using the board in the bridged state again.
+
+**Output noise.** With both tips shorted to GND at the probe, record the BNC output RMS noise in both ranges at full scope bandwidth and with the scope's 20 MHz limit, 1 MΩ input. Refer it to the tips by dividing by the measured gain. Model, bridged: 172 mV wide / 116 mV fine full band, 127 / 109 mV to 20 MHz (`validation/spice/output-filter-study.txt`). The scope's own noise floor at that setting must be subtracted in quadrature and stated.
 
 ## 4. CMRR and loading
 
@@ -121,7 +125,8 @@ These forces are chosen for this prototype, not quoted from a standard.
 | Rails, startup, battery loss and temperature | NOT RUN | |
 | DC ratio, offset and drift, both ranges | NOT RUN | |
 | 35–60 kHz amplitude and phase | NOT RUN | |
-| Small-signal bandwidth and stability | NOT RUN | |
+| Small-signal bandwidth and stability, JP1 bridged and cut | NOT RUN | |
+| Output noise, both ranges, full bandwidth and 20 MHz limit | NOT RUN | |
 | CMRR versus frequency and amplitude | NOT RUN | |
 | Input capacitance, shield edge current, DUT disturbance | NOT RUN | |
 | Initial continuous voltage qualification | NOT RUN | |

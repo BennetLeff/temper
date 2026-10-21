@@ -46,6 +46,8 @@ No Preferred Extended (fee-free Extended) part was found for any of these values
 
 Savings are for two boards, strategy E, from `validation/cost.txt` (fees plus part-price difference). Margin numbers are from `validation/fee-consolidation.txt` unless marked SPICE.
 
+**C61 changed since (2026-10-21).** The Rev C feature batch replaced C61 with 47 pF C0G (CL21C470JBANNNC, Basic) and added C62 330 pF C0G at the BNC behind the solder jumper JP1 ([design](design.md#output-filter-and-driver)). F3's R69 220 Ω stays. The F-rows below are the record of the single-pole decision.
+
 | Id | Swap | Saving | Parts added | Layout | Trade | Decision |
 |---|---|---:|---:|---|---|---|
 | **F3** | R69 97.6 Ω → **0805W8F2200T5E** 220 Ω (already on board as R12/R32); C61 180 pF → **Samsung CL21C101JBANNNC** 100 pF C0G | **$6.17** | 0 | None (0805 → 0805) | Pole 6.000 → 5.900 MHz (−1.7 %). Phase at 60 kHz −0.573° → −0.583°; drift after calibration ±0.0045° either way. SPICE −3 dB 5.786 → 5.628 MHz wide, 5.252 → 5.131 MHz fine, no peaking; the nominal model stays above the 5 MHz target. Pole tolerance corners move from 5.61–6.43 to 5.52–6.32 MHz. kT/C noise 4.80 → 6.44 µVrms at the output. | **Adopt** |

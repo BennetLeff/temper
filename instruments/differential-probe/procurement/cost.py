@@ -264,11 +264,22 @@ FEE_SUBS = {
 base_rows = rows_of(base_text)
 pre_fee_rows = [(ref, SUBS.get(mpn, mpn)) for ref, mpn in base_rows]
 rec_rows = [(ref, FEE_SUBS.get(ref, mpn)) for ref, mpn in pre_fee_rows]
-# The committed board must be exactly the substituted baseline.
+# Rev C feature batch (2026-10-21), applied after the fee consolidation, by reference:
+# value changes in FEATURE_SUBS and added placements in FEATURE_ADDS. Each feature
+# commit extends both, so the committed board stays an exact, auditable delta.
+FEATURE_SUBS = {
+    "C61": "CL21C470JBANNNC",  # output filter first pole, 47 pF C0G (docs/design.md)
+}
+FEATURE_ADDS = [
+    ("C62", "CL10C331JB8NNNC"),  # 330 pF C0G shunt at the BNC, through JP1 (PCB copper)
+]
+feat_rows = [(ref, FEATURE_SUBS.get(ref, mpn)) for ref, mpn in rec_rows] + FEATURE_ADDS
+
+# The committed board must be exactly the substituted baseline plus the features.
 now_rows = rows_of(open("procurement/bom-jlc.csv").read())
-cost_down_applied = sorted(now_rows) == sorted(rec_rows)
+cost_down_applied = sorted(now_rows) == sorted(feat_rows)
 if not cost_down_applied:
-    assert sorted(now_rows) == sorted(base_rows), "bom-jlc.csv is neither the baseline nor the cost-down BOM"
+    assert sorted(now_rows) == sorted(base_rows), "bom-jlc.csv is neither the baseline nor the cost-down + feature BOM"
 
 print("\nSubstitutions, two boards at distributor-ledger prices (tier covering the quantity, minimum applied):")
 print(f"  {'old MPN':<20} {'new MPN':<20} {'qty/board':>9} {'old':>9} {'new':>9} {'saving':>9}  JLC class old -> new")
@@ -294,6 +305,7 @@ STRATEGIES = [
     ("E  cost-down BOM; owner hand-solders THT; rest global-sourced (recommended)", rec_rows, 2, True, "global"),
     ("F  cost-down BOM; owner hand-solders THT; rest consigned", rec_rows, 2, True, "consign"),
     ("G  cost-down BOM; owner THT; global; 5 boards assembled", rec_rows, 5, True, "global"),
+    ("H  committed board (E + Rev C features); owner THT; global", feat_rows, 2, True, "global"),
 ]
 print("\nJLC assembly strategies (parts at JLC price for JLC-library parts, distributor ledger otherwise):")
 print(f"  {'strategy':<80} {'type':>8} {'ext':>4} {'parts':>9} {'fees':>8} {'PCB':>7} {'board total':>12} {'per board':>10}")
@@ -303,7 +315,11 @@ for name, rows, boards, owner, off in STRATEGIES:
     results[name[0]] = a
     total = a["parts"] + a["fees"] + PCB_5PCS
     print(f"  {name:<80} {'Econ' if a['economic'] else 'Std':>8} {len(a['extended']):>4} ${a['parts']:>8.2f} ${a['fees']:>7.2f} ${PCB_5PCS:>6.2f} ${total:>11.2f} ${total / boards:>9.2f}")
-for key in ("B", "E"):
+e, h = results["E"], results["H"]
+print(f"\n  Rev C features (H - E), two boards: parts ${h['parts'] - e['parts']:+.2f}, fees ${h['fees'] - e['fees']:+.2f}, "
+      f"total ${h['parts'] + h['fees'] - e['parts'] - e['fees']:+.2f}; Extended MPNs {len(e['extended'])} -> {len(h['extended'])}; "
+      f"added MPNs: {', '.join(sorted({m for _, m in feat_rows} - {m for _, m in rec_rows})) or 'none'}")
+for key in ("B", "E", "H"):
     a = results[key]
     print(f"\n  Strategy {key}: {a['smt']} SMT joints, {a['tht']} JLC THT joints, inspection ${a['inspections']:.2f}, consignment ${a['consign']:.2f}; routes {dict(a['routes'])}")
     print(f"    extended MPNs placed by JLC ({len(a['extended'])}): {', '.join(a['extended'])}")
@@ -327,7 +343,7 @@ print(f"  {'total, enclosure excluded':<34} ${tot_a:>9.2f} ${tot_b:>9.2f}  (savi
 base_c = ledger['Rev C before cost-down (5b9a9530b)']
 print(f"  revc.md cost table: Rev C ledger components ${base_c:.2f} + PCB ${PCB_5PCS:.2f} + HV leads ${leads_total:.2f} = ${base_c + PCB_5PCS + leads_total:.2f}")
 print(f"  Distributor-ledger components: before ${ledger['Rev C before cost-down (5b9a9530b)']:.2f}, "
-      f"cost-down {'$%.2f' % ledger['Rev C'] if cost_down_applied else '(not yet applied)'}")
+      f"committed board (cost-down + Rev C features) {'$%.2f' % ledger['Rev C'] if cost_down_applied else '(not yet applied)'}")
 
 # ---------------------------------------------------------------------------
 # 4. Fee consolidation (docs/fee-consolidation.md)

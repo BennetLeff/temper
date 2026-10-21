@@ -36,9 +36,11 @@ R32	0805W8F2200T5E	Resistor_SMD:R_0805_2012Metric	1,2
 RV1	3296W-1-501LF	Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical	1,2,3
 RV2	3296W-1-501LF	Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical	1,2,3
 U1	OPA2810IDR	Package_SO:SOIC-8_3.9x4.9mm_P1.27mm	1,2,3,4,5,6,7,8
-C61	CL21C101JBANNNC	Capacitor_SMD:C_0805_2012Metric	1,2
+C61	CL21C470JBANNNC	Capacitor_SMD:C_0805_2012Metric	1,2
+C62	CL10C331JB8NNNC	Capacitor_SMD:C_0603_1608Metric	1,2
 D3	BAV199,215	Package_TO_SOT_SMD:SOT-23	1,2,3
 J3	031-5431-10RFX	Probe:BNC_Amphenol_031-5431_Horizontal	1,2
+JP1	PCB copper (solder jumper)	Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm	1,2
 Q1	MMBT5401	Package_TO_SOT_SMD:SOT-23	1,2,3
 R61	RNCF0603TKY499R	Resistor_SMD:R_0603_1608Metric	1,2
 R62	RNCF0603TKY499R	Resistor_SMD:R_0603_1608Metric	1,2

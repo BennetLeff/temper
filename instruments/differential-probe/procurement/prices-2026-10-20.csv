@@ -96,3 +96,5 @@ CC0805JRNPO9BN181,0.0111,LCSC C113826,50,19650,"Yageo 180 pF 5% NP0 50 V 0805; J
 PTS645SL43-2 LFS,0.27,DigiKey CKN9098-ND,1,35029,"C&K PTS645 6 x 6 mm tactile, thru-hole, 4.3 mm, 130 gf; owner-soldered; replaces SW3 PTS645SL43SMTR92 LFS (global-sourced, $20 inspection); LCSC C221874 0 stock"
 CL21C101JBANNNC,0.0102,LCSC C1790,50,55350,"Samsung 100 pF 5% C0G 50 V 0805; JLC Basic; replaces C61 (docs/fee-consolidation.md F3)"
 0805W8F1001T5E,0.0035,LCSC C17513,100,37132700,"Uni-Royal 1 kOhm 1% 100 ppm 0805; JLC Basic; replaces R88/R92 (docs/fee-consolidation.md L1)"
+CL21C470JBANNNC,0.0082,LCSC C14857,20,13320,"Samsung 47 pF 5% C0G 50 V 0805; JLC Basic; C61 output filter (Rev C features, 2026-10-21)"
+CL10C331JB8NNNC,0.0182,LCSC C1664,50,227350,"Samsung 330 pF 5% C0G 50 V 0603; JLC Basic; C62 output shunt at the BNC (Rev C features, 2026-10-21)"

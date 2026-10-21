@@ -3,7 +3,8 @@
 * 5.0025 kR || 13.1934 nF), R12/R32 220 R, OPA2810 unity buffer (U1A/U1B).
 * U3 channel 2 (U3B) is the x2 subtractor, channel 1 (U3A) the output driver; U12 is OPA810.
 * TI's OPA2810 model is one channel per instance: no inter-channel coupling.
-.subckt PROBE_LV TP TN OUT RAW FINE SELECTED VP VN params: FINE_RANGE=0 BRANCH=1 R69=220 C61=100p
+* Output filter: C61 47 pF after R69; C62 330 pF from OUT to GND through JP1 (JP=1 bridged, JP=0 cut).
+.subckt PROBE_LV TP TN OUT RAW FINE SELECTED VP VN params: FINE_RANGE=0 BRANCH=1 R69=220 C61=47p JP=1 C62=330p
 RTOPP TP TAP_P 10Meg
 CTOPP TP TAP_P 6.6p
 RBOTP TAP_P 0 5002.501
@@ -38,6 +39,8 @@ R69 SELECTED FILTER {R69}
 C61 FILTER 0 {C61}
 XU3A FILTER DRIVE DRIVE VP VN OPA2810
 R70 DRIVE OUT 49.9
+RJP1 OUT OUT_C {0.001+(1-JP)*1e12}
+C62 OUT_C 0 {C62}
 R_SCOPE OUT 0 1Meg
 * Representative 1m coax + scope input capacitance, lumped; not a transmission line.
 C_SCOPE OUT 0 120p

@@ -483,7 +483,10 @@ fn lv_parts() -> Vec<(&'static str, f64, f64, i32)> {
         ("R69", 95.2, 34.365, 180),
         ("C61", 93.90, 31.000, 90),
         ("R70", 95.2, 36.905, 0),
-        ("D3", 132.0, 40.0, 0),
+        ("D3", 128.8, 40.0, 0),
+        // Second output pole at the BNC: JP1 (bridged) in series with C62 to GND.
+        ("JP1", 133.0, 38.6, 0),
+        ("C62", 133.0, 41.2, 180),
         // Range select: x5 stage and selection resistors.
         ("U12", 88.0, 16.0, 0),
         ("R100", 82.0, 16.635, 0),
@@ -653,8 +656,13 @@ impl Copper {
         let (r702, j31, d33) = (k(self, "R70.2"), k(self, "J3.1"), k(self, "D3.3"));
         self.run("OUT", "F.Cu", &[r702, (138.5, r702.1), (140.4, j31.1), j31]);
         self.run("OUT", "F.Cu", &[(d33.0, r702.1), d33]);
-        self.rail("D3.1", (129.8, 39.05));
-        self.rail("D3.2", (129.8, 40.95));
+        self.rail("D3.1", (126.75, 39.05));
+        self.rail("D3.2", (126.75, 40.95));
+        // C62 330 pF shunts OUT at the BNC through the bridged jumper JP1.
+        let (jp11, jp12, c621) = (k(self, "JP1.1"), k(self, "JP1.2"), k(self, "C62.1"));
+        self.run("OUT", "F.Cu", &[(jp11.0, r702.1), jp11]);
+        self.run("OUT_C", "F.Cu", &[jp12, (jp12.0, 39.9), (c621.0, 40.4), c621]);
+        self.rail("C62.2", (131.3, 41.2));
         // Input clamps (the leg cells are mirror images; rails are not checked for symmetry).
         self.rail("D1.1", (68.95, 25.6));
         self.rail("D1.2", (67.05, 25.6));

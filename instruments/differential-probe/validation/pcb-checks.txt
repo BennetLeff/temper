@@ -1,10 +1,10 @@
-PASS: 111 physical footprints; every circuit value, selected footprint and DNP state matches KiCad XML.
-PASS: 279 unique physical pin mappings match the schematic and explicit landings; duplicate pads checked individually.
+PASS: 113 physical footprints; every circuit value, selected footprint and DNP state matches KiCad XML.
+PASS: 283 unique physical pin mappings match the schematic and explicit landings; duplicate pads checked individually.
 PASS: 19 paired footprints / 39 pad pairs are exact mirror images about the y = 35 mm slot axis (identical pad dimensions; SOT-23 clamp pins 1/2 exchange under the mirror).
 PASS: 7 paired divider/tap/trim nets have identical native track geometry after mirroring.
 PASS: all 10 elevated ladder nodes routed only on F.Cu, without vias.
 PASS: tap-to-buffer input (R12/R32 to U1): 14.478 / 14.478 mm, 0 / 0 vias.
 PASS: buffer output to subtractor input resistor: 7.565 / 7.565 mm, 0 / 0 vias.
-INFO: LV-region courtyard fill (x >= 59 mm, 6361 mm2): F.CrtYd 32.8 %, B.CrtYd 53.8 %, both sides 43.3 %.
+INFO: LV-region courtyard fill (x >= 59 mm, 6361 mm2): F.CrtYd 33.0 %, B.CrtYd 53.8 %, both sides 43.4 %.
 PASS: all rank-pair voltage bounds agree with independent maximization over the six allowed input-envelope vertices (600 V per section rank); opposing-tip DRC is 10 mm air / 20 mm surface.
 These checks do not establish capacitance matching, CMRR, stability or an insulation rating.

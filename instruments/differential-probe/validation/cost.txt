@@ -1,4 +1,4 @@
-Rev C: 105 parts/board, 41 MPNs, 2 boards $148.10 ($74.05/board)
+Rev C: 106 parts/board, 42 MPNs, 2 boards $148.66 ($74.33/board)
 Rev C before cost-down (5b9a9530b): 105 parts/board, 42 MPNs, 2 boards $535.81 ($267.90/board)
 Rev B: 140 parts/board, 45 MPNs, 2 boards $768.27 ($384.14/board)
   leads: GEN-SIL-20AWG-10KV-5M        1 x $15.0000 = $15.00  [estimate]  (lead wire: four leads, 0.97 m, plus the hipot sample (rated fallbacks R800-1020-0-50, 392040 RD005))
@@ -66,12 +66,19 @@ JLC assembly strategies (parts at JLC price for JLC-library parts, distributor l
   E  cost-down BOM; owner hand-solders THT; rest global-sourced (recommended)          Econ   20 $  129.60 $  71.88 $ 36.80 $     238.28 $   119.14
   F  cost-down BOM; owner hand-solders THT; rest consigned                             Econ   20 $  129.60 $  81.88 $ 36.80 $     248.28 $   124.14
   G  cost-down BOM; owner THT; global; 5 boards assembled                              Econ   20 $  311.50 $  73.03 $ 36.80 $     421.33 $    84.27
+  H  committed board (E + Rev C features); owner THT; global                           Econ   20 $  129.80 $  71.88 $ 36.80 $     238.48 $   119.24
+
+  Rev C features (H - E), two boards: parts $+0.19, fees $+0.01, total $+0.20; Extended MPNs 20 -> 20; added MPNs: CL10C331JB8NNNC, CL21C470JBANNNC
 
   Strategy B: 488 SMT joints, 0 JLC THT joints, inspection $20.00, consignment $0.00; routes {'owner': 6, 'jlc': 28, 'kit': 2, 'global': 6}
     extended MPNs placed by JLC (33): 1N4148W-E3-18, ADP7142AUJZ-R7, ADP7182AUJZ-R7, BAV199,215, C0805C104K5RACTU, C0805C181J5GACTU, C1206C103F5GACTU, C1210C106K3RACTU, C1812C330JHGACTU, CD4013BM96, HVCB2512BDE2M00, LTST-C170KRKT, MMBT3906,215, OPA2810IDR, OPA810IDR, PTS645SL43SMTR92 LFS, RC0805FR-0797R6L, RNCF0603TKY1K00, RNCF0603TKY2K00, RNCF0603TKY499R, RNCF0603TKY4K99, RT0805BRD07100KL, RT0805BRD0710KL, RT0805BRD071KL, RT0805BRD071ML, RT0805BRD07220RL, RT0805BRD0729K4L, RT0805BRD0730KL, RT0805BRD0747KL, RT0805BRD0749R9L, RT0805BRD0766K5L, TLV1702AIDGKR, TLV1704AIPWR
     not from the JLC library: 031-5431-10RFX (owner), 3296W-1-500LF (owner), 7101SDAV2BE (owner), 7201P3DAV2QE (owner), BH9VPC (owner), C0805C161F5GACTU (kit), C0805C302F5GACTU (kit), C1206C103F5GACTU (global), C1812C330JHGACTU (global), GKG60015 (owner), HVCB2512BDE2M00 (global), PTS645SL43SMTR92 LFS (global), RNCF0603TKY1K00 (global), RNCF0603TKY499R (global)
 
   Strategy E: 480 SMT joints, 0 JLC THT joints, inspection $0.00, consignment $0.00; routes {'owner': 7, 'jlc': 30, 'kit': 2, 'global': 2}
+    extended MPNs placed by JLC (20): ADP7142AUJZ-R7, ADP7182AUJZ-R7, BAV199,215, C3225X7R1E106KTJ00N, CC1206FKNPO9BN103, CC1812JKNPOEBN330, CD4013BM96, HV121WF2004T4E, OPA2810IDR, OPA810IDR, RNCF0603TKY1K00, RNCF0603TKY2K00, RNCF0603TKY499R, RT0603BRD074K87L, RT0805BRD0710KL, RT0805BRD0729K4L, RT0805BRD0730KL, RT0805BRD0766K5L, TLV1702AIDGKR, TLV1704AIPWR
+    not from the JLC library: 031-5431-10RFX (owner), 100DP1T1B1M7QEH (owner), 100SP1T1B5M7RE (owner), 3296W-1-501LF (owner), BH9VPC (owner), C0805C161F5GACTU (kit), C0805C302F5GACTU (kit), GKG60015 (owner), PTS645SL43-2 LFS (owner), RNCF0603TKY1K00 (global), RNCF0603TKY499R (global)
+
+  Strategy H: 484 SMT joints, 0 JLC THT joints, inspection $0.00, consignment $0.00; routes {'owner': 7, 'jlc': 31, 'kit': 2, 'global': 2}
     extended MPNs placed by JLC (20): ADP7142AUJZ-R7, ADP7182AUJZ-R7, BAV199,215, C3225X7R1E106KTJ00N, CC1206FKNPO9BN103, CC1812JKNPOEBN330, CD4013BM96, HV121WF2004T4E, OPA2810IDR, OPA810IDR, RNCF0603TKY1K00, RNCF0603TKY2K00, RNCF0603TKY499R, RT0603BRD074K87L, RT0805BRD0710KL, RT0805BRD0729K4L, RT0805BRD0730KL, RT0805BRD0766K5L, TLV1702AIDGKR, TLV1704AIPWR
     not from the JLC library: 031-5431-10RFX (owner), 100DP1T1B1M7QEH (owner), 100SP1T1B5M7RE (owner), 3296W-1-501LF (owner), BH9VPC (owner), C0805C161F5GACTU (kit), C0805C302F5GACTU (kit), GKG60015 (owner), PTS645SL43-2 LFS (owner), RNCF0603TKY1K00 (global), RNCF0603TKY499R (global)
 
@@ -84,7 +91,7 @@ Headline, two boards (HV leads, hardware and printed parts from leads-bom.csv an
   enclosures                         owner-designed, not priced
   total, enclosure excluded          $   832.01 $   380.72  (saving $451.30, 54 %)
   revc.md cost table: Rev C ledger components $535.81 + PCB $36.80 + HV leads $142.43 = $715.04
-  Distributor-ledger components: before $535.81, cost-down $148.10
+  Distributor-ledger components: before $535.81, committed board (cost-down + Rev C features) $148.66
 
 Extended MPNs placed by JLC before fee consolidation (strategy E), two-board spend against the $3.07 feeder:
   MPN                    refs                                   route   2-board spend fee/spend
