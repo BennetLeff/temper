@@ -15,7 +15,7 @@ const USAGE: &str = "Usage (the board, Rev D protocol 2 or Rev E protocol 3, is 
   temper-lcr boot PORT
   temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard] [--no-source-off] [--short-standard]   (Rev D)
   temper-lcr noise PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard]   (Rev D)
-  temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S] [--no-source-off]   (Rev E; sets the range relay, FREQ_HZ must be exact; each point is followed by a zero-waveform source-off capture)
+  temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S] [--no-source-off] [--short-standard]   (Rev E; sets the range relay, FREQ_HZ must be exact; each point is followed by a zero-waveform source-off capture)
   temper-lcr capture-wave PORT RANGE_OHM FIXTURE WAVE.txt BIN[,BIN...] OUT.json [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E multitone)
   temper-lcr refcheck PORT RANGE_OHM FREQ_HZ[,FREQ_HZ...] OUT.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E; internal 1 kOhm reference via K4, DUT terminals open)
   temper-lcr range PORT 100|5000|100000   (Rev E)
@@ -155,6 +155,7 @@ fn capture_e(
     out: &str,
     o: &EOptions,
     source_off: bool,
+    short_standard: bool,
 ) -> Result<()> {
     // Every frequency must be exact before the instrument is touched.
     for &hz in freqs {
@@ -188,7 +189,7 @@ fn capture_e(
         );
         if source_off {
             // A failed check does not stop the sweep: the file is saved with the diagnostics.
-            let check = d.source_off_check(&record)?;
+            let check = d.source_off_check(&record, short_standard)?;
             eprintln!(
                 "source-off check {:.4} Hz: {} (A {:.2e}, B {:.2e} of source-on; limit {:.0e})",
                 check.frequency_hz,
@@ -546,8 +547,14 @@ fn run(args: &[String]) -> Result<()> {
                     if command == "noise" {
                         return Err("'noise' is a Rev D command: on Rev E run 'off PORT', then 'raw PORT COUNT OUT.json'".into());
                     }
-                    if flag("--allow-hazard") || flag("--short-standard") {
-                        return Err("--allow-hazard and --short-standard are Rev D options (DDS hazards and the short-standard source-off judgement); this board is Rev E".into());
+                    if flag("--allow-hazard") {
+                        return Err(
+                            "--allow-hazard is one of the Rev D options (DDS hazards); this board is Rev E"
+                                .into(),
+                        );
+                    }
+                    if flag("--short-standard") && flag("--no-source-off") {
+                        return Err("--short-standard judges the source-off check; it cannot be combined with --no-source-off".into());
                     }
                     return capture_e(
                         &mut d,
@@ -555,6 +562,7 @@ fn run(args: &[String]) -> Result<()> {
                         a[5],
                         &e_options(&flags)?,
                         !flag("--no-source-off"),
+                        flag("--short-standard"),
                     );
                 }
                 board => rev_d_only(board, command)?,

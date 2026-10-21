@@ -91,7 +91,7 @@ Run `temper-lcr refcheck PORT 100 1500,27500,60500 ref-100.json` with the **jack
 ## 8. Calibration with the cal kit
 
 1. Characterize the kit's resistors with the DMM ([CHARACTERIZE.md](../calkit/CHARACTERIZE.md)) and write the standards file. Until a reference meter has measured L and C, use the §5 ESTIMATES for both, and keep the 100 kΩ range at 10 kHz or below.
-2. Per range, capture SHORT, LOAD1, LOAD2 and the check resistor on the grid `1500,27500,35500,40500,50500,60500`, with one fixture string. Then:
+2. Per range, capture SHORT, LOAD1, LOAD2 and the check resistor on the grid `1500,27500,35500,40500,50500,60500`, with one fixture string. Capture the short with `--short-standard`, so that its near-zero voltage channel is judged against the current channel in the source-off check. Then:
 
 ```sh
 temper-lcr calibrate short.json r1.json R1 r3.json R3 cal-100.json --standards=kit.json

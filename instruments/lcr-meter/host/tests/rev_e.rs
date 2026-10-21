@@ -1807,7 +1807,8 @@ fn board_selection_follows_info_and_refuses_cross_use() {
         assert!(stderr(&out).contains("Rev E"), "{args:?}: {}", stderr(&out));
     }
     // Rev D-only options are refused on the codec board by name, before any capture.
-    // (`--no-source-off` is no longer one of them: Rev E has its own source-off check.)
+    // (`--no-source-off` and `--short-standard` are no longer Rev D-only: Rev E has its own
+    // source-off check.)
     let state = fake_e_state(Virtual::new(100, resistor(10.0)));
     let e = spawn_fake_e(state.clone());
     let capture = |extra: &str| {
@@ -1821,14 +1822,12 @@ fn board_selection_follows_info_and_refuses_cross_use() {
             extra,
         ])
     };
-    for flag in ["--allow-hazard", "--short-standard"] {
-        let out = capture(flag);
-        assert!(
-            !out.status.success() && stderr(&out).contains("Rev D options"),
-            "{}",
-            stderr(&out)
-        );
-    }
+    let out = capture("--allow-hazard");
+    assert!(
+        !out.status.success() && stderr(&out).contains("Rev D options"),
+        "{}",
+        stderr(&out)
+    );
     let out = run_cli(&["noise", &e.path, "100", "fixture-1", "1000", "/dev/null"]);
     assert!(
         !out.status.success() && stderr(&out).contains("Rev D command"),
@@ -2029,7 +2028,14 @@ fn zero_record(model: &Virtual, on: &RecordE) -> RecordE {
 }
 fn checked_record(model: &Virtual, hz: f64, mv: u32, skip: u32, periods: u32) -> RecordE {
     let mut record = model.tone_record(hz, mv, skip, periods);
-    let check = source_off_check_e(&record, &zero_record(model, &record)).unwrap();
+    let check = source_off_check_e(&record, &zero_record(model, &record), false).unwrap();
+    record.source_off_check = Some(check);
+    record
+}
+/// As `checked_record`, judged as a short standard (`capture --short-standard`).
+fn checked_short(model: &Virtual, hz: f64, mv: u32, skip: u32, periods: u32) -> RecordE {
+    let mut record = model.tone_record(hz, mv, skip, periods);
+    let check = source_off_check_e(&record, &zero_record(model, &record), true).unwrap();
     record.source_off_check = Some(check);
     record
 }
@@ -2239,6 +2245,67 @@ fn calibration_refuses_failed_source_off_points_unless_allowed() {
     assert!(!check.pass && !check.channels[0].pass);
     weak_a.records[0].validate().unwrap();
     calibrate_e(&weak_a, &a, 20.0, &b, 100.0).unwrap();
+}
+#[test]
+fn short_standard_judges_the_voltage_line_against_the_current_line() {
+    let hz = 27_000.0;
+    // A short: channel A carries a few codes, so noise alone is far above 1e-4 of it.
+    let mut model = Virtual::new(100, resistor(1e-4));
+    model.noise_codes = 20.0;
+    let mv = 1700;
+    let plain = checked_record(&model, hz, mv, 2, 40);
+    let check = plain.source_off_check.clone().unwrap();
+    assert!(!check.pass && !check.channels[0].pass && check.channels[1].pass);
+    assert!(!check.short_standard);
+    let short = checked_short(&model, hz, mv, 2, 40);
+    let check = short.source_off_check.clone().unwrap();
+    assert!(check.pass && check.short_standard, "{}", check.diagnostic);
+    assert_eq!(
+        check.channels[0].reference_codes,
+        check.channels[1].source_on_codes
+    );
+    assert!(check.channels[0].source_on_codes < check.channels[0].reference_codes / 1e3);
+    // Against its own source-on line A would fail; against B it is far inside the limit.
+    assert!(check.channels[0].source_off_codes > 1e-4 * check.channels[0].source_on_codes);
+    assert!(check.channels[0].ratio < 1e-4 && check.channels[0].pass);
+    short.validate().unwrap();
+    // analyze judges it the way it was captured, so the issue list has no source-off entry.
+    let m = analyze_e(&short, 100).unwrap().remove(0);
+    assert!(
+        !m.issues.iter().any(|i| i.starts_with("source-off")),
+        "{:?}",
+        m.issues
+    );
+    assert!(m.source_off.unwrap().pass);
+    // The flag is stored, survives the file, and cannot be flipped to launder a verdict.
+    let sweep = SweepE {
+        setup: setup_e(100),
+        records: vec![short.clone()],
+    };
+    let text = serde_json::to_string(&sweep).unwrap();
+    let value: serde_json::Value = serde_json::from_str(&text).unwrap();
+    assert_eq!(
+        value["records"][0]["source_off_check"]["short_standard"],
+        true
+    );
+    assert!(
+        parse_sweep_e(&text).unwrap().records[0]
+            .source_off_check
+            .as_ref()
+            .unwrap()
+            .short_standard
+    );
+    let mut bad = value.clone();
+    bad["records"][0]["source_off_check"]["short_standard"] = false.into();
+    let loaded = parse_sweep_e(&bad.to_string()).unwrap();
+    assert!(analyze_e(&loaded.records[0], 100).is_err());
+    // An interferer at the tone bin of channel B still fails the short, flag or not.
+    model.interferer = Some((18, 2e-4 * b_line(&model, hz, mv)));
+    let dirty = checked_short(&model, hz, mv, 2, 40)
+        .source_off_check
+        .unwrap();
+    assert!(dirty.short_standard && !dirty.pass && !dirty.channels[1].pass);
+    assert!(dirty.diagnostic.contains("current (B)"));
 }
 #[test]
 fn image_advisory_starts_above_0_429_fs() {
@@ -2513,6 +2580,53 @@ fn cli_source_off_failure_is_saved_then_refused_by_analyze_calibrate_and_validat
     );
     let flagged = validate(&["--allow-source-off-fail"]);
     assert!(flagged.status.success(), "{}", stderr(&flagged));
+    std::fs::remove_dir_all(folder).unwrap();
+}
+#[test]
+fn cli_short_standard_capture_passes_a_clean_short_and_fails_an_interfered_one() {
+    let folder = scratch("short-standard");
+    let out_file = folder.join("short.json");
+    let out_path = out_file.to_str().unwrap();
+    let run = |model: Virtual, extra: &[&str]| {
+        let state = fake_e_state(model);
+        let fake = spawn_fake_e(state.clone());
+        let mut args = vec![
+            "capture",
+            &fake.path,
+            "100",
+            "fixture-1",
+            "27000",
+            out_path,
+            "--mv=1700",
+            "--skip=2",
+            "--periods=40",
+        ];
+        args.extend_from_slice(extra);
+        run_cli(&args)
+    };
+    let mut short = Virtual::new(100, resistor(1e-4));
+    short.noise_codes = 20.0;
+    // Without the flag the short's A line fails against its own near-zero source-on line.
+    let out = run(short.clone(), &[]);
+    assert!(!out.status.success());
+    assert!(stderr(&out).contains("voltage (A)"), "{}", stderr(&out));
+    // With it, A is judged against B and the capture succeeds; the file records the rule.
+    let out = run(short.clone(), &["--short-standard"]);
+    assert!(out.status.success(), "{}", stderr(&out));
+    let saved = parse_sweep_e(&std::fs::read_to_string(&out_file).unwrap()).unwrap();
+    let check = saved.records[0].source_off_check.as_ref().unwrap();
+    assert!(check.pass && check.short_standard);
+    // An interferer on B at the tone bin still fails it.
+    let mut dirty = short.clone();
+    dirty.interferer = Some((18, 2e-3 * b_line(&short, 27_000.0, 1700)));
+    let out = run(dirty, &["--short-standard"]);
+    assert!(!out.status.success());
+    assert!(stderr(&out).contains("current (B)"), "{}", stderr(&out));
+    let saved = parse_sweep_e(&std::fs::read_to_string(&out_file).unwrap()).unwrap();
+    assert!(!saved.records[0].source_off_check.as_ref().unwrap().pass);
+    // The rule needs the check: with --no-source-off the flag is refused.
+    let out = run(short, &["--short-standard", "--no-source-off"]);
+    assert!(!out.status.success() && stderr(&out).contains("--no-source-off"));
     std::fs::remove_dir_all(folder).unwrap();
 }
 #[test]

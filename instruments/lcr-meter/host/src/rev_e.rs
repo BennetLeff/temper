@@ -880,8 +880,13 @@ fn judge_source_off(
 }
 /// R-E2: the DFT line at the tone bin of `off`, a capture of an all-zero waveform of the same
 /// PERIOD with the same SKIP and PERIODS as the source-on tone record `on`, against `on`'s line
-/// on each channel. `off` is analysed exactly as `on` is: one coherent DFT line at bin CYCLES.
-pub fn source_off_check_e(on: &RecordE, off: &RecordE) -> Result<SourceOffCheckE> {
+/// on each channel (`short_standard`: the voltage channel against the current channel's line, as
+/// Rev D's `--short-standard`). `off` is analysed exactly as `on` is: one coherent DFT line at bin CYCLES.
+pub fn source_off_check_e(
+    on: &RecordE,
+    off: &RecordE,
+    short_standard: bool,
+) -> Result<SourceOffCheckE> {
     on.validate()?;
     off.validate()?;
     let SourceE::Tone { cycles, .. } = on.source else {
@@ -909,7 +914,7 @@ pub fn source_off_check_e(on: &RecordE, off: &RecordE) -> Result<SourceOffCheckE
         line_on,
         line_off,
         noise,
-        false,
+        short_standard,
     ))
 }
 /// Override a failed source-off check: move its issue to `waived_issues`.
@@ -1062,7 +1067,10 @@ pub fn analyze_e(record: &RecordE, range: u32) -> Result<Vec<MeasurementE>> {
         if !v.valid_signal() {
             issues.push("voltage signal too weak or distorted".into());
         }
-        let source_off = record.source_off_check.as_ref().map(|c| c.rejudged(false));
+        let source_off = record
+            .source_off_check
+            .as_ref()
+            .map(|c| c.rejudged(c.short_standard));
         if let Some(check) = source_off.as_ref().filter(|c| !c.pass) {
             issues.push(check.diagnostic.clone());
         }
