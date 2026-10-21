@@ -1,12 +1,12 @@
-"""Batch order estimate for N assembled Rev D boards at JLC (read-only).
+"""Batch order estimate for N assembled Rev E boards at JLC (read-only).
 
 Run with KiCad's bundled Python:  <kicad-python> manufacturing/order_estimate.py [N]
 Writes manufacturing/order-estimate-<N>.json and prints a summary.
 
 Inputs:
   - bom-complete.csv (lines, quantities, SMT vs hand fit) and cpl-jlcpcb.csv (machine placements);
-  - prices/jlc-parts-2026-10-20.json: JLC assembly-library snapshot per LCSC code (price tiers,
-    stock, library class, lossNumber, leastPatchNumber);
+  - prices/jlc-parts-2026-10-21.json: JLC assembly-library snapshot per LCSC code (price tiers,
+    stock, library class, lossNumber, leastPatchNumber), written by prices/fetch_jlc_parts.py;
   - joint and leadless-package counts taken from cad/temper-lcr.kicad_pcb;
   - fee constants below, copied from https://jlcpcb.com/help/article/pcb-assembly-price
     (last updated 2026-09-09, read 2026-10-20), and the fabrication quote read from
@@ -29,14 +29,15 @@ N = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 MFG = ROOT / 'manufacturing'
 
 # JLC fabrication quote, 2026-10-20: 4 layers, 140 x 100 mm, qty 5, 1.6 mm, 1 oz outer /
-# 0.5 oz inner, ENIG 1 u", epoxy filled & capped vias, min via 0.2 mm/(0.3/0.35 mm), 3-4 days.
+# 0.5 oz inner, ENIG 1 u", epoxy filled & capped vias, 3-4 days.  Rev E has only 0.3 mm vias
+# (0.45 mm pad), JLC's standard via option: the $116.73 quote for 0.2 mm vias less its
+# 'Min via hole 0.2 mm' and 4-wire Kelvin lines, which the 0.2 mm option forced, gives the $80.98
+# the same page quoted for 0.3 mm vias.  TG155 and the POFV plating line are kept as quoted.
 FAB_QUOTE = {
     'qty': 5,
     'lines': {
         'Engineering fee': 25.00, 'Via covering (POFV)': 18.28, 'Surface finish (ENIG)': 18.20,
-        'Material type (TG155, forced by 0.2 mm vias)': 7.32, 'Board': 8.70,
-        'Min via hole 0.2 mm': 18.28, '4-wire Kelvin test (forced by 0.2 mm vias)': 17.47,
-        'Via plating method (forced by POFV)': 3.48,
+        'Material type (TG155)': 7.32, 'Board': 8.70, 'Via plating method (forced by POFV)': 3.48,
     },
 }
 ECONOMIC = {'setup': 8.18, 'stencil': 1.53, 'extended_line': 3.07}
@@ -47,7 +48,7 @@ MANUAL_JOINT = 0.0164         # 1-10,000 joints
 HAND_LABOR = 3.58             # per order, when any part is hand soldered
 CONFIRM_PLACEMENT = 0.45
 XRAY_TIERS = [(10, 1.64), (50, 0.82), (200, 0.49), (500, 0.33)]
-LEADLESS = re.compile(r'QFN|DFN|SON|BGA|LGA', re.I)
+LEADLESS = re.compile(r'QFN|DFN|SON|BGA|LGA')   # case-sensitive: 'Panasonic' is not a SON
 
 
 def tier_price(tiers, qty):
@@ -78,7 +79,7 @@ def board_counts():
 
 
 def main():
-    snapshot = json.loads((MFG / 'prices/jlc-parts-2026-10-20.json').read_text())['parts']
+    snapshot = json.loads((MFG / 'prices/jlc-parts-2026-10-21.json').read_text())['parts']
     placements, smt_joints, leadless, tht_joints, tht_refs = board_counts()
     lines, findings = [], []
     for row in csv.DictReader(open(MFG / 'bom-complete.csv')):
