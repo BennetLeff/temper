@@ -297,7 +297,19 @@ fn main() {
     let bottom_tcr = (fixed * 25. + (bottom - fixed) * 100.) / bottom;
     let ratio_drift = (100. + bottom_tcr) * 1e-6 * 60.;
     assert!(ratio_drift < 0.01);
-    report+=&format!("Divider ratio drift from TCR limits over -25..85 C: <= {:.2} % (string 100 ppm/C, bottom {bottom_tcr:.1} ppm/C). The warning budget's >= 98 % gain condition therefore needs >= {:.2} % calibrated gain at 25 C.\n",ratio_drift*100.,(0.98/(1.-ratio_drift))*100.);
+    // Gain-resistor drift (docs/fee-consolidation.md section 3): RNCF0603TKY 5 ppm/C in the
+    // subtractor (R61/R62 in, R63/R65 feedback) and fine stage (R67/R68), opposing signs.
+    for r in ["R61", "R62", "R63", "R65", "R67", "R68"] {
+        assert!(mpns[r].starts_with("RNCF0603TKY"), "gain-drift budget assumes 5 ppm/C RNCF at {r}");
+    }
+    let rncf_tc = 5e-6;
+    let fine_gain = 1. + 2000. / 499.;
+    let wide_gain_drift = 2. * rncf_tc * 60.;
+    let fine_gain_drift = wide_gain_drift + 2. * rncf_tc * 60. * (fine_gain - 1.) / fine_gain;
+    let need_wide = 0.98 / ((1. - ratio_drift) * (1. - wide_gain_drift));
+    let need_fine = 0.98 / ((1. - ratio_drift) * (1. - fine_gain_drift));
+    assert!(need_fine < 0.99, "calibrated-gain acceptance would leave < 1 % margin");
+    report+=&format!("Divider ratio drift from TCR limits over -25..85 C: <= {:.2} % (string 100 ppm/C, bottom {bottom_tcr:.1} ppm/C); gain-resistor drift <= {:.3} % wide / {:.3} % fine (RNCF 5 ppm/C). The warning budget's >= 98 % gain condition therefore needs >= {:.2} % (wide) / {:.2} % (fine) calibrated gain at 25 C.\n",ratio_drift*100.,wide_gain_drift*100.,fine_gain_drift*100.,need_wide*100.,need_fine*100.);
     for f in [35e3, 60e3] {
         let x = f / cutoff;
         report += &format!(

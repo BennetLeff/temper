@@ -8,7 +8,7 @@ Cbottom TOTAL incl parasitics = 13.1934 nF; input series C = 6.6 pF.
 Divider crossover = 2411.44 Hz.
 Shared filter pole including 49.9-ohm selector source resistance and loading = 5.899580 MHz.
 DC trim at all 1% upper-string / 0.1% fixed-resistor corners: 77.606 to 187.396 ohm (500-ohm pot, usable 5 to 450 ohm; 20 ohm per turn of 25).
-Divider ratio drift from TCR limits over -25..85 C: <= 0.76 % (string 100 ppm/C, bottom 27.0 ppm/C). The warning budget's >= 98 % gain condition therefore needs >= 98.75 % calibrated gain at 25 C.
+Divider ratio drift from TCR limits over -25..85 C: <= 0.76 % (string 100 ppm/C, bottom 27.0 ppm/C); gain-resistor drift <= 0.060 % wide / 0.108 % fine (RNCF 5 ppm/C). The warning budget's >= 98 % gain condition therefore needs >= 98.81 % (wide) / 98.86 % (fine) calibrated gain at 25 C.
 RC filter at 35 kHz: gain 0.999982, phase -0.3399 deg.
 RC filter at 60 kHz: gain 0.999948, phase -0.5827 deg.
 Low-leg C requirement: 12103.6..13747.5 pF (archived -8.26/+4.20 % 60 kHz-vs-DC spread on 13193.4 pF), less 2..15 pF tap parasitics.
