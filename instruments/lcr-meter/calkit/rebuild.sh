@@ -1,5 +1,5 @@
 #!/bin/sh
-# Cal kit r1: generate the board from build_calkit.py (hand-specified tracks, no autorouter),
+# Cal kit r2: generate the board from build_calkit.py (hand-specified tracks, no autorouter),
 # audit, and export the JLC package.  No purchasing or uploads.
 set -eu
 cd "$(dirname "$0")"

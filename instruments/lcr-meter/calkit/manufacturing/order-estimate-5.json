@@ -1,9 +1,13 @@
 {
  "boards": 5,
+ "outline_mm": [
+  38.0,
+  205.0
+ ],
  "parts_snapshot": "jlc-parts-2026-10-21.json",
- "placements_per_board": 16,
- "smt_joints_per_board": 32,
- "extended_lines": 11,
+ "placements_per_board": 17,
+ "smt_joints_per_board": 34,
+ "extended_lines": 12,
  "lines": [
   {
    "lcsc": "C1864297",
@@ -136,12 +140,30 @@
    "unit": 0.7145,
    "cost": 3.5725,
    "stock": 3810
+  },
+  {
+   "lcsc": "C5382604",
+   "mpn": "PTFR0805B1M00N9",
+   "refs": "R11",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 5,
+   "unit": 0.1936,
+   "cost": 0.968,
+   "stock": 12184
   }
  ],
- "stock_findings": [],
+ "stock_findings": [
+  "fabrication quote is for 38 x 193 mm, the card is 38 x 205 mm: re-quote"
+ ],
  "fab_quote": {
   "qty": 5,
   "date": "2026-10-21",
+  "size_mm": [
+   38.0,
+   193.0
+  ],
   "lines": {
    "Engineering fee": 4.0,
    "Surface finish (ENIG 1u\")": 17.4,
@@ -150,15 +172,15 @@
  },
  "economic": {
   "PCB fabrication (quote)": 25.0,
-  "SMT parts": 44.46,
+  "SMT parts": 45.43,
   "Setup (Economic)": 8.18,
   "Stencil": 1.53,
-  "Extended-part fee": 33.77,
-  "SMT joints": 0.26,
+  "Extended-part fee": 36.84,
+  "SMT joints": 0.27,
   "Confirm placement": 0.45
  },
- "total_usd": 113.64,
- "per_card_usd": 22.73,
+ "total_usd": 117.7,
+ "per_card_usd": 23.54,
  "excluded": [
   "shipping",
   "sales tax / VAT / import duty",

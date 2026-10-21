@@ -33,7 +33,7 @@ That is $90.69 per board, against $613.44 ($122.69 per board) for Rev D. Standar
 - Four BNC jacks for four-terminal (Kelvin) connection, against one 2-pin header: +$25.83 in parts and +$1.48 in manual joints. Hand fit, so no extended-part fee.
 - K4 reference relay on the existing TQ2SA line: +$10.10.
 - Its driver (AO3400A, 1N4148WS, 100 Ω, 100 kΩ), R107 on the existing 0.1 % line, and R105/R106 on the new basic 1 kΩ line (C21190): about $0.77, with no new extended line.
-- The calibration-kit card is a separate order ([calkit/README.md](../calkit/README.md)): about $113.64 for five. Kelvin clip leads are bought separately: $13–35 generic, $72 Tonghui TH26011AS, $169 B&K TL889A.
+- The calibration-kit card is a separate order ([calkit/README.md](../calkit/README.md)): about $117.70 for five (r2, with the 1 MΩ standard; fabrication still quoted at r1's 38 × 193 mm). Kelvin clip leads are bought separately: $13–35 generic, $72 Tonghui TH26011AS, $169 B&K TL889A.
 
 **Where Rev E saves, against Rev D's $613.44** (before the BNC/K4 additions above).
 - Parts −$136.68. The codec front end removes ADS9224R, AD9833 and both THS4551s and adds a TAC5112, three TQ2SA relays and their drivers.

@@ -46,6 +46,15 @@
    "reference_plane_items_removed": 2,
    "four_separate_paths": true
   },
+  "R11": {
+   "nets": [
+    "R11_H",
+    "R11_L"
+   ],
+   "tab_lands": 4,
+   "reference_plane_items_removed": 2,
+   "four_separate_paths": true
+  },
   "R2": {
    "nets": [
     "R2_H",

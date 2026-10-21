@@ -151,7 +151,7 @@ These variants are tested at the edges (`variants.py`). Cells are E typical / co
 | 100k | 10 MΩ | 20k | 39 / 27 | 40 / 27 | 10 / 5.4 | 10 / 2.7 | 10 / 2.7 |
 | 100k | 10 MΩ | 85k | 40499 / 1022 | 13994 / 1012 | 67 / 14 | 63 / 14 | 63 / 13 |
 
-**What each change buys**
+**What each change buys.** V1 and V2 are now built (2026-10-21): the host's `--standards` option ([host README](../../host/README.md)) and the cal kit r2's R11 ([calkit](../../calkit/README.md)). V1's residuals still need the reference-meter measurement.
 
 1. **Complex standards in the host (V1).** This is software only, plus one characterization of the kit on a reference meter. It is [calkit open item 5](../../calkit/README.md#open-questions).
    - At 100 kΩ, 85 kHz: from 1.2 / 1.0 % to 0.42 / 0.22 %.

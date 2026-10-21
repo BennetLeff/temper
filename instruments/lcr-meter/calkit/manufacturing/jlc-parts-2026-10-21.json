@@ -150,6 +150,43 @@
     ]
    ]
   },
+  "C5382604": {
+   "model": "PTFR0805B1M00N9",
+   "brand": "RESI",
+   "describe": "-55℃~+155℃ 130mW 150V 1MΩ Thin Film Resistor ±0.1% ±10ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "library": "expand",
+   "preferred": false,
+   "stock": 12184,
+   "least": 5,
+   "loss": 0,
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2405061538_RESI-PTFR0805B1M00N9_C5382604.pdf",
+   "tiers": [
+    [
+     1,
+     0.1936
+    ],
+    [
+     50,
+     0.1563
+    ],
+    [
+     150,
+     0.1403
+    ],
+    [
+     500,
+     0.1204
+    ],
+    [
+     2500,
+     0.0972
+    ],
+    [
+     5000,
+     0.0918
+    ]
+   ]
+  },
   "C723660": {
    "model": "RT0805BRB0720RL",
    "brand": "YAGEO",

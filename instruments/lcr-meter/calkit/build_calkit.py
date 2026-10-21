@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Temper LCR calibration / check-standard card (cal kit r1): native KiCad board generator.
+"""Temper LCR calibration / check-standard card (cal kit r2): native KiCad board generator.
 
 Run with KiCad's bundled Python (pcbnew), then ``rebuild.sh`` runs DRC and the JLC exports:
     /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3 build_calkit.py
@@ -62,6 +62,7 @@ PART = {
     '20K':   ('20 kΩ',   'RESI',  'PTFR0805Q20K0N9',    'C7603210',  RES, '±0.02 % ±10 ppm/°C thin film 0805'),
     '49K9':  ('49.9 kΩ', 'RESI',  'PTFR0805Q49K9N9',    'C47116076', RES, '±0.02 % ±10 ppm/°C thin film 0805'),
     '100K':  ('100 kΩ',  'RESI',  'PTFR0805Q100KN9',    'C23067433', RES, '±0.02 % ±10 ppm/°C thin film 0805'),
+    '1M':    ('1 MΩ',    'RESI',  'PTFR0805B1M00N9',    'C5382604',  RES, '±0.1 % ±10 ppm/°C thin film 0805'),
     '100N':  ('100 nF',  'Murata', 'GCM31C5C1H104FA16L', 'C1864297', CAP, 'C0G ±1 % 50 V 1206'),
     '47U':   ('47 µH',   'TDK',   'SLF12575T-470M2R7-PF', 'C81468',  IND, 'ferrite-shielded drum, 63 mΩ DCR, ±20 %'),
 }
@@ -78,6 +79,7 @@ ROWS = [
     ('two',   ['R7'], '20K',  '20kΩ  STD1',    'R7  100kΩ RANGE',     'R7'),
     ('two',   ['R8'], '49K9', '49.9kΩ  CHECK', 'R8  100kΩ RANGE',     'R8'),
     ('two',   ['R9'], '100K', '100kΩ  STD2',   'R9  100kΩ RANGE',     'R9'),
+    ('two',   ['R11'], '1M',  '1MΩ  HIGH-Z STD', 'R11  100kΩ RANGE',    'R11'),
     ('two',   ['C1'], '100N', '100nF C0G 1%',  'C1  LOW-LOSS CHECK',  'C1'),
     ('bank',  ['C2', 'C3', 'C4', 'C5', 'C6'], '100N', '0.5µF  5×100nF', 'C2-C6  BANK CLASS', 'C2-6'),
     ('two',   ['L1'], '47U',  '47µH  L CHECK', 'L1  SHIELDED',        'L1'),
@@ -345,7 +347,7 @@ for i, (kind, refs, key, label, note, back) in enumerate(ROWS):
     text('@ ____ °C', CX, y + dy, 0.9, k.B_SilkS)
 
 # Header / footer.
-text('TEMPER LCR CAL KIT  r1', W / 2, 3.0, 1.5, thick=0.22)
+text('TEMPER LCR CAL KIT  r2', W / 2, 3.0, 1.5, thick=0.22)
 text('H <--  4TP KELVIN CLIPS  --> L', W / 2, 6.2, 1.0)
 text('EITHER JAW UP · FULLY ON GOLD', W / 2, 8.6, 0.8, thick=0.12)
 text('S/N ______   DMM ____________', W / 2, 3.0, 1.0, k.B_SilkS)

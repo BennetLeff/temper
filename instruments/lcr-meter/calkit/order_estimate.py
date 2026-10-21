@@ -9,10 +9,12 @@ max(N * per-board + lossNumber, leastPatchNumber); assembly fees from
 https://jlcpcb.com/help/article/pcb-assembly-price (last updated 2026-09-09).
 Fabrication: JLC instant quote read on 2026-10-21 at https://cart.jlcpcb.com/quote for
 2 layers, 38 x 193 mm, qty 5, FR-4 TG135, 1.6 mm, green, ENIG 1 u", 1 oz, tented vias, 3 days.
+The card outline is read from calkit.kicad_pcb; a different size is reported as a finding.
 Shipping, taxes and import duty are excluded.  The uploaded BOM quote is authoritative.
 """
 import csv
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -20,11 +22,22 @@ ROOT = Path(__file__).resolve().parent
 MFG = ROOT / 'manufacturing'
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 
-FAB_QUOTE = {'qty': 5, 'date': '2026-10-21',
+FAB_QUOTE = {'qty': 5, 'date': '2026-10-21', 'size_mm': [38.0, 193.0],
              'lines': {'Engineering fee': 4.00, 'Surface finish (ENIG 1u")': 17.40, 'Board': 3.60}}
 ECONOMIC = {'setup': 8.18, 'stencil': 1.53, 'extended_line': 3.07}
 SMT_JOINT = 0.0016
 CONFIRM_PLACEMENT = 0.45
+
+
+def outline_mm():
+    """Bounding box of the Edge.Cuts lines in calkit.kicad_pcb, [width, height] in mm."""
+    text = (ROOT / 'calkit.kicad_pcb').read_text()
+    xs, ys = [], []
+    for m in re.finditer(r'\(gr_line\s+\(start ([-\d.]+) ([-\d.]+)\)\s+\(end ([-\d.]+) ([-\d.]+)\)'
+                         r'(?:(?!\(gr_line).)*?\(layer "Edge\.Cuts"\)', text, re.S):
+        xs += [float(m[1]), float(m[3])]
+        ys += [float(m[2]), float(m[4])]
+    return [round(max(xs) - min(xs), 3), round(max(ys) - min(ys), 3)]
 
 
 def tier_price(tiers, qty):
@@ -51,6 +64,10 @@ for row in csv.DictReader((MFG / 'bom-complete.csv').open()):
                   'unit': unit, 'cost': round(buy * unit, 4), 'stock': p['stock']})
 extended = [l for l in lines if l['library'] == 'expand' and not l['preferred']]
 joints = 2 * len(placements)          # every placed part is a 2-terminal SMD
+outline = outline_mm()
+if outline != FAB_QUOTE['size_mm']:
+    findings.append(f'fabrication quote is for {FAB_QUOTE["size_mm"][0]:g} x {FAB_QUOTE["size_mm"][1]:g} mm, '
+                    f'the card is {outline[0]:g} x {outline[1]:g} mm: re-quote')
 if FAB_QUOTE['qty'] != N:
     findings.append(f'fabrication quote is for {FAB_QUOTE["qty"]} boards, not {N}: re-quote')
 cost = {
@@ -62,7 +79,7 @@ cost = {
     'SMT joints': N * joints * SMT_JOINT,
     'Confirm placement': CONFIRM_PLACEMENT,
 }
-result = {'boards': N, 'parts_snapshot': snap.name, 'placements_per_board': len(placements),
+result = {'boards': N, 'outline_mm': outline, 'parts_snapshot': snap.name, 'placements_per_board': len(placements),
           'smt_joints_per_board': joints, 'extended_lines': len(extended), 'lines': lines,
           'stock_findings': findings, 'fab_quote': FAB_QUOTE,
           'economic': {k: round(v, 2) for k, v in cost.items()},

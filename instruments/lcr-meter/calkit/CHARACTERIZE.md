@@ -6,32 +6,51 @@ This procedure gets the ratio to about **0.004 % (k = 2)**, about seven times in
 
 ## 1. What the host does with the numbers
 
-There is **no file the host reads for standard values**. The characterized values are typed as command-line arguments (`host/src/main.rs`, usage text):
+Rev E's host reads the characterized values from a **standards file** (`--standards=KIT.json`). Name the standards on the command line; the short is always the entry `SHORT`:
 
 ```sh
-temper-lcr calibrate SHORT.json LOAD1.json LOAD1_OHM LOAD2.json LOAD2_OHM CAL.json
-temper-lcr validate  CAPTURE.json CAL.json KNOWN_OHM TOLERANCE_PERCENT
+temper-lcr calibrate short.json r1.json R1 r3.json R3 cal-100.json --standards=kit-SN03.json
+temper-lcr validate  r2.json cal-100.json R2 0.1 --standards=kit-SN03.json
 ```
 
-- `LOAD1_OHM` and `LOAD2_OHM` are real `f64` ohms. `calibration_coefficients` (`host/src/lib.rs`, also used by Rev E's `calibrate_e` in `host/src/rev_e.rs`) fits `measured = (a·true + b)/(c·true + 1)` per frequency from **one short and two resistors**. It refuses standards closer than 10 %. The values are stored in `CAL.json` as `standard1_ohm` and `standard2_ohm`, so the calibration file records what was entered.
-- The **short is assumed to be exactly 0 Ω**. The host has no input for a short residual. The card's SHORT is built so that this is true at its reference plane: both sense paths meet the bar at one point (README, *SHORT*).
-- **Standards are assumed purely real.** The host has no input for a standard's reactance or for complex values. The bounds in §5 show the card's resistors are real enough at the frequencies listed there.
-- **The OPEN is not a calibration standard.** The host README calls it an overload/leakage diagnostic only.
-- **No input for reactive check standards.** `validate` compares |Z − KNOWN_OHM| for a resistor only. Check C1, C2–C6 and L1 by running `analyze` and comparing C, L and tan δ with §6 by hand.
-- Use the same `FIXTURE` string for every capture in a calibration, for example `calkit-r1-SN03`. The host refuses mixed fixtures.
+```json
+{
+  "schema": "temper-lcr-standards-1",
+  "kit": "calkit-r2 SN03, DMM 34465A MY123 cal 2026-08, 2026-10-21",
+  "temperature_c": 23.1,
+  "standards": {
+    "SHORT": {"r_ohm": 0.0, "l_h": 1.5e-9},
+    "R1":  {"r_ohm": 20.00412,  "l_h": 1.5e-9, "c_f": 0.2e-12},
+    "R2":  {"r_ohm": 51.00876,  "l_h": 1.5e-9, "c_f": 0.2e-12},
+    "R3":  {"r_ohm": 100.01327, "l_h": 1.5e-9, "c_f": 0.2e-12},
+    "R7":  {"r_ohm": 20001.6,   "l_h": 1.5e-9, "c_f": 0.2e-12},
+    "R9":  {"r_ohm": 99987.2,   "l_h": 1.5e-9, "c_f": 0.2e-12},
+    "R11": {"r_ohm": 1000312.0, "l_h": 1.5e-9, "c_f": 0.2e-12}
+  }
+}
+```
 
-| Meter range | `calibrate` LOAD1 / LOAD2 | `validate` KNOWN | Card rows |
+- **Model.** Each standard is `r_ohm` in series with `l_h`, and the pair is shunted by `c_f`.
+  - `l_h` and `c_f` default to 0. The file refuses unknown fields and values outside |l_h| ≤ 1 mH and 0 ≤ c_f ≤ 1 µF; those limits catch unit slips such as nH typed as H.
+  - `calibrate_e_standards` (`host/src/rev_e.rs`) fits `measured = (a·true + b)/(c·true + 1)` at every frequency through the three complex impedances. So the short's inductance and the resistors' capacitance are not mistaken for fixture error.
+  - The calibration file records the values used (`standards`) and the kit string (`standards_kit`).
+- **Where the numbers come from.**
+  - `r_ohm` comes from the DMM procedure below.
+  - `l_h` and `c_f` need one measurement of the kit on a reference LCR meter or VNA, at the highest frequency you will use: each τ = L/R − RC, read from its phase (§5).
+  - Until that is done, enter the §5 ESTIMATES (1.5 nH, 0.2 pF). They remove the nominal parasitic, but the residual is then the ESTIMATE's own uncertainty, so keep the 100 kΩ range at ≤ 10 kHz.
+- **Without `--standards`.** The numeric form still works: `calibrate … LOAD1_OHM … LOAD2_OHM`. It assumes an exact 0 Ω short and purely real resistors.
+- **The OPEN is not a calibration standard.** The host README calls it an overload/leakage diagnostic only.
+- **Reactive check standards.** `validate` with `--standards` compares against the named standard's complex impedance, but the file holds R/L/C standards only. Check C1, C2–C6 and L1 by running `analyze` and comparing C, L and tan δ with §6 by hand.
+- **Fixture string.** Use the same `FIXTURE` string for every capture in a calibration, for example `calkit-r2-SN03`. The host refuses mixed fixtures.
+
+| Meter range | `calibrate` LOAD1 / LOAD2 | `validate` | Card rows |
 |---|---|---|---|
 | 100 Ω | R1 (20 Ω) / R3 (100 Ω) | R2 (51 Ω) | SHORT, R1, R2, R3 |
 | 5 kΩ | R4 (1 kΩ) / R6 (4.99 kΩ) | R5 (2 kΩ) | SHORT, R4, R5, R6 |
-| 100 kΩ | R7 (20 kΩ) / R9 (100 kΩ) | R8 (49.9 kΩ) | SHORT, R7, R8, R9 (≤ 10 kHz, §5) |
+| 100 kΩ, up to 100 kΩ DUTs | R7 (20 kΩ) / R9 (100 kΩ) | R8 (49.9 kΩ) | SHORT, R7, R8, R9 (≤ 10 kHz without characterized c_f, §5) |
+| 100 kΩ, DUTs above 100 kΩ | R7 (20 kΩ) / R11 (1 MΩ) | R9 (100 kΩ) | SHORT, R7, R9, R11 (needs `--standards`) |
 
-Example, after characterization:
-
-```sh
-temper-lcr calibrate short.json r1.json 20.00412 r3.json 100.01327 cal-100.json
-temper-lcr validate  r2.json cal-100.json 51.00876 0.1
-```
+The accuracy map ([../validation/rev-e-accuracy-map](../validation/rev-e-accuracy-map/README.md) §3) gives what each row buys. Calibrating with R11 instead of R9 takes 1 MΩ at 1 kHz from 0.40/0.56 % to 0.064/0.12 %, and leaves 100 kΩ at 0.031/0.097 %. Characterized `c_f` takes 100 kΩ at 85 kHz from 1.2/1.0 % to 0.42/0.22 %.
 
 Enter every digit the DMM gives. Do not round to the marking.
 
@@ -53,6 +72,7 @@ Enter every digit the DMM gives. Do not round to the marking.
 | SHORT, R1, R2, R3 | 100 Ω | 1 mA | One range: gain error cancels in the ratio |
 | SHORT, R4, R5, R6 | 10 kΩ | 100 µA | Same; 1 kΩ is 10 % of range, so null the offset with the SHORT |
 | SHORT, R7, R8, R9 | 100 kΩ (or 1 MΩ if 100 kΩ over-ranges) | 10 µA | Same; average 4× more (noise) |
+| R11 | 1 MΩ (2-wire is fine: 0.1 Ω of lead is 10⁻⁷) | 5 µA (typical) | A different range from R7: the ratio carries the DMM's range-to-range transfer error (ESTIMATE 20–50 ppm). Clean flux off the row first; surface leakage is in parallel |
 | L1 (DC resistance only) | 100 Ω | 1 mA | Null with the SHORT; expect ≈ 63 mΩ |
 
 Self-heating is negligible: 1 mA in 100 Ω is 0.1 mW.
@@ -73,7 +93,7 @@ Reduction:
 2. Take the mean of each standard's 6 clip-on means. Use the standard deviation of those 6 means ÷ √6 as the repeatability term. Clip-on to clip-on scatter includes contact effects, which the Kelvin tabs should hold below 1 ppm.
 3. Ratio: r = R3/R1 (and R6/R4, R9/R7). The ABBA order cancels linear drift.
 4. **Accept** the set when the ABBA halves agree to ≤ 5 ppm and card temperature moved ≤ 0.3 °C. Otherwise repeat.
-5. Write each value and the card temperature on the back of the card (write-in fields: `R3 = ____ @ __ °C`). Keep the full record (DMM model, serial, calibration date, NPLC, readings) next to the calibration files. A CSV with columns `row,ref,value_ohm,u_ohm_k2,card_c,date,dmm` is a good form. Nothing reads it automatically (§1).
+5. Write each value and the card temperature on the back of the card (write-in fields: `R3 = ____ @ __ °C`). Keep the full record (DMM model, serial, calibration date, NPLC, readings) next to the calibration files. Put the values into the standards file (§1); keep the CSV (`row,ref,value_ohm,u_ohm_k2,card_c,date,dmm`) as the record behind it.
 
 ## 5. Uncertainty
 
@@ -95,7 +115,7 @@ This ratio error leaves about 0.3 mΩ on coil R (16.5 mΩ × 0.004/0.2), against
 
 **Absolute value** = DMM accuracy: the 24-hour or 1-year % of reading spec, typically 0.003–0.01 % on a calibrated 6½-digit DMM. It only scales all results.
 
-**Reactive parasitics the host ignores** (ESTIMATE: 0805 thin film ~1 nH series, ~0.2 pF shunt including lands and card). The phase of each standard is ωτ, with τ = L/R − RC:
+**Reactive parasitics** (ESTIMATE: 0805 thin film ~1 nH series, ~0.2 pF shunt including lands and card). Enter them as `l_h` and `c_f` in the standards file (§1). Without the file the host takes the standards as real. The phase of each standard is ωτ, with τ = L/R − RC:
 
 | Standard | 1.5 kHz | 60 kHz | 100 kHz |
 |---|---|---|---|
@@ -103,8 +123,12 @@ This ratio error leaves about 0.3 mΩ on coil R (16.5 mΩ × 0.004/0.2), against
 | R3 100 Ω | ≪10⁻⁶ | 4×10⁻⁶ | 6×10⁻⁶ |
 | R6 4.99 kΩ | 9×10⁻⁶ | 4×10⁻⁴ | 6×10⁻⁴ |
 | R9 100 kΩ | 2×10⁻⁴ | 8×10⁻³ | 1.3×10⁻² |
+| R11 1 MΩ | 1.9×10⁻³ | 7.5×10⁻² | 0.13 |
 
-The 100 Ω range's standards are effectively real across 1.5–100 kHz. Their phase sits 1–2 orders below the 3×10⁻⁴ tan δ resolution. **Calibrate the 100 kΩ range at ≤ 10 kHz** (phase ≤ 1.3×10⁻³). The host README already recommends ≤ 10 kHz for that range.
+The 100 Ω range's standards are effectively real across 1.5–100 kHz. Their phase sits 1–2 orders below the 3×10⁻⁴ tan δ resolution.
+
+- **With ESTIMATE or no `c_f`, calibrate the 100 kΩ range at ≤ 10 kHz** (phase ≤ 1.3×10⁻³ on R9). The host README already recommends ≤ 10 kHz for that range.
+- **R11's phase is not small at any useful frequency.** Use it only with `c_f` in the file. Its value from a reference-meter measurement sets the high-|Z| phase accuracy: 0.05 pF of residual is 3×10⁻⁴ rad at 1 kHz and 1.9×10⁻² rad at 60 kHz.
 
 ## 6. Reactive check standards: what to expect
 
