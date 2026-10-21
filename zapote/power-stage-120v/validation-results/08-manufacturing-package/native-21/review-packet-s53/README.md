@@ -1,12 +1,45 @@
-# Reviewer packet: Temper 120 V induction power board, native-21 stage 53
+# Reviewer packet: Temper 120 V induction power board, native-21 stage 53 (section 0: now stage 55)
 
 For a professional power-electronics PCB designer. Written 2026-10-18. Nothing here has been built or bench-tested.
 Every number names its source file. Paths are relative to PS = `zapote/power-stage-120v` in this repository, unless they
 start with `firmware/` (repository worktree root) or `runs-native21/` (the build directory beside the worktree, outside
 git). `VR` = `PS/validation-results`. `FILES.md` (this folder) lists every path.
 
-**Work in progress.** Remediation lanes named `c54-*` (branches `c54-touch-current`, `c54-release-margins`,
-`c54-ledger-desk`) are running now. Some numbers below will change. The values here are the stage-53 board of record.
+## 0. Read first: the board of record is now stage 55 (updated 2026-10-20)
+
+Sections 1–9 are the stage-53 packet, written 2026-10-18. Two stages have landed since. Where this section and a later one
+disagree, this section wins.
+
+- **Stage 54** (`PS/DECISIONS.md` item 81, `VR/11-candidates/c54-board/README.md`), the c54 lanes the s53 text calls "running":
+  - R10 / R12 / R18 / R20 moved to UniRoyal PS12 2 W (same 2512 land).
+  - The split bleed moved to Panasonic ERJ-PA3 anti-surge parts.
+  - R44 / R45 became 11 k and the firmware peak-trip max 62.5 A.
+  - J1.2 gained an ac_n_in F.Cu strip with 8 stitch vias.
+  - 9 track-cleanup edits were made inside the existing locks.
+- **Stage 55** (item 82, `VR/11-candidates/c55-findings/README.md`):
+  - U47 SN74LVC1G17 Schmitt buffer + C179 between the R134 / C167 CMTI filter and U13.A, because U13.A's 10 ns/V
+    input-transition limit was exceeded.
+  - The SELV-spine lock was reissued on the new board.
+  - The C2 X2 ripple rating was re-read from KEMET's graph: 1.97 A for 1 µF, not 1.5 A.
+
+| Section 5 row | s53 (below) | s55 | Source |
+|---|---|---|---|
+| Release thermal margin | +1.3 K, R10 binding | **+3.8 K**, now bound by the laminate 1 mm-block copper peak; R10 +12.9 K | item 81; card `b3_release_margin_K` |
+| J1 cord terminal | 103.1 / 105 °C on a scaled curve | **94.8 / 105 °C, +10.2 K** (two-node clamp model, 14 AWG lead; gated B3 row) | item 81; `VR/11-candidates/c54-j1-thermal/` |
+| CT band vs firmware peak trip | 0.05 A | band 67.36–79.32 A, `TANK_PEAK_TRIP_MAX_A` 62.5 A: **4.86 A** | item 81; COMMISSIONING board table B9 / B17 |
+| Touch current | 0.2412 / 0.25 mA | unchanged. The governing limit is recorded as 0.5 mA (UL grounded portable); first article measures it | item 81; `VR/11-candidates/c54-touch-current/` |
+| Datasheet ledger | 3 / 92 / 0 | still 3 VERIFIED / 92 PARTIAL / 0 VIOLATION. Every SIGNAL line now carries electrical ratings. The two desk findings are resolved: U13.A edge fixed at s55; C2 ripple 0.874 of rating at the release case, 28 A open | items 81–82; `VR/11-candidates/c54-ledger-desk/results/gap-classes.md` |
+
+**Files for s55** (they replace the section 2 rows for the routed board, 3D model and Gerbers):
+- **Routed board:** now in git at `VR/08-manufacturing-package/native-21/board-of-record-s55/` (`section.kicad_pcb`,
+  `.kicad_sch`, `.kicad_dru`, `board.step`, `SHA256SUMS`). Board SHA-256
+  `d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d`, copper key `cf4d7c896672`.
+- **Gerbers:** zip SHA-256 `4342b4fda043483a4184aedb23b4081a17391bb697599384c8d0419e6b814638`.
+- **Card:** `VR/10-benchmark/scorecard-native21s55.json`.
+- **Counts:** 95 BOM lines, 374 placements, 786 vias (771 POFV 0.3 mm), 885 plated holes, DRC 0, JLC DFM PASS.
+
+**Section 9 items now fixed:** the FAB-NOTE via and hole counts (s55 census), the `PS/README.md` header and the
+`OPEN-ITEMS.md` header (both name s55).
 
 ## 1. What the board is
 

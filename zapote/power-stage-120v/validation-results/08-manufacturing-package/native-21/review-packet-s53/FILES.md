@@ -4,7 +4,15 @@ PS = `zapote/power-stage-120v` (in the repository). VR = `PS/validation-results`
 `runs-native21/` is the build directory beside the repository worktree; it is **not in git**, so we send those files.
 Hashes checked 2026-10-18.
 
-## Board of record (stage 53)
+## Board of record now: stage 55 (README section 0; added 2026-10-20)
+| File | Path | SHA-256 / note |
+|---|---|---|
+| Routed board, schematic, rules, STEP (in git) | `N21/board-of-record-s55/` | `SHA256SUMS` there; board `d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d` |
+| Gerber zip | `N21/fab/native-21-gerbers.zip` | `4342b4fda043483a4184aedb23b4081a17391bb697599384c8d0419e6b814638` |
+| Card | `VR/10-benchmark/scorecard-native21s55.json` | ACCEPT vs s54 |
+| Chain build (outside git) | `runs-native21/s55/c55c/` (log `runs-native21/s55/chain3.out`) | CHAIN_DONE |
+
+## Board of record (stage 53, superseded)
 | File | Path | SHA-256 / note |
 |---|---|---|
 | Routed board | `runs-native21/s53/c53int/section.kicad_pcb` | `82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27` |
