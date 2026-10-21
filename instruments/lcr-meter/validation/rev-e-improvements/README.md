@@ -7,6 +7,8 @@ This study asks how much four planned changes improve the accuracy of the Rev E 
 3. an internal 1 kΩ reference check;
 4. a 375 kHz codec rate.
 
+The same model over all three ranges, 10 mΩ–10 MΩ and 50 Hz–85 kHz, is in [rev-e-accuracy-map](../rev-e-accuracy-map/README.md).
+
 **Everything here is simulation.** No Rev E board exists. Values marked ESTIMATE are not from datasheets, and the verdicts depend on them. Section 4 gives each one's sensitivity so the results can be rescaled.
 
 ## 1. Results
