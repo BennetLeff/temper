@@ -122,6 +122,7 @@ for p in PARTS:
     path=k.KIID_PATH();path.push_back(k.KIID(rootid));path.push_back(k.KIID(uid("sheet-"+p["sheet"])));path.push_back(k.KIID(uid(ref)));f.SetPath(path)
     f.Reference().SetTextSize(pos(.8,.8));f.Reference().SetTextThickness(mm(.12))
     if ref == 'U13': f.Reference().SetPosition(pos(80,135))
+    if ref == 'U7': f.Reference().SetPosition(pos(170.2,105.6))  # Rev D: clear of R94
     if ref in ('U8','U9'): f.Reference().SetPosition(pos(151.5,p['pcb'][1]+5.2))
     if not ref.startswith('U'):
         f.Reference().SetLayer(k.F_Fab)
@@ -146,7 +147,7 @@ for a,c in [((50,50),(190,50)),((190,50),(190,150)),((190,150),(50,150)),((50,15
     s=k.PCB_SHAPE();s.SetShape(k.SHAPE_T_SEGMENT);s.SetStart(pos(*a));s.SetEnd(pos(*c));s.SetLayer(k.Edge_Cuts);s.SetWidth(mm(.05));b.Add(s)
 for i,(x,y) in enumerate([(54,54),(186,54),(54,146),(186,146)],1):
     f=k.FootprintLoad(str(LIBS/'MountingHole.pretty'),'MountingHole_3.2mm_M3');f.SetReference('H'+str(i));f.SetPosition(pos(x,y));f.Reference().SetLayer(k.F_Fab);f.SetAttributes(k.FP_EXCLUDE_FROM_BOM|k.FP_EXCLUDE_FROM_POS_FILES|k.FP_BOARD_ONLY);b.Add(f)
-for text,x,y,size in [('TEMPER LCR / REV C / TIDA-060029',121,54,1.5),('USB DATA',62,64,1),('DISCHARGED DUT ONLY',174,95,1),('HI',179,98,1),('LO',179,100.54,1),('JP1 100R',171,74,.8),('JP2 5k',177,74,.8),('JP3 100k',183,74,.8),('JP6 100k',155,111.5,.8),('JP4 100R',155,109,.8),('JP5 5k',155,121,.8),('BOOTSEL',60,84,.8),('RESET',60,95,.8),('J4 CLK/DIO',64,105,.8),('J5 GND/3V3',60,115,.8),('J6 TX/RX',77,111,.8),('MATCH RG AND RF JUMPERS',162,132,1),('5V 1A / CENTER +',69,140,1),('USB GND REFERENCED',111,147,1)]:
+for text,x,y,size in [('TEMPER LCR / REV D / TIDA-060029',121,54,1.5),('USB DATA',62,64,1),('DISCHARGED DUT ONLY',174,95,1),('HI',179,98,1),('LO',179,100.54,1),('JP1 100R',171,74,.8),('JP2 5k',177,74,.8),('JP3 100k',183,74,.8),('JP6 100k',155,111.5,.8),('JP4 100R',155,109,.8),('JP5 5k',155,121,.8),('BOOTSEL',60,84,.8),('RESET',60,95,.8),('J4 CLK/DIO',64,105,.8),('J5 GND/3V3',60,115,.8),('J6 TX/RX',77,111,.8),('MATCH RG AND RF JUMPERS',162,132,1),('5V 1A / CENTER +',69,140,1),('USB GND REFERENCED',111,147,1)]:
     t=k.PCB_TEXT(b);t.SetText(text);t.SetPosition(pos(x,y));t.SetTextSize(pos(size,size));t.SetTextThickness(mm(.15));t.SetLayer(k.F_SilkS);b.Add(t)
 # Explicit human-authored track list. All segments are in board millimetres.
 routing=ROOT/'routing.json'

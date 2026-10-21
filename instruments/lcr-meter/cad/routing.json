@@ -20124,7 +20124,7 @@
       "locked": true
     },
     {
-      "net": "DUT_LO",
+      "net": "TIA_SUM",
       "points": [
         [
           165.8875,
@@ -20144,7 +20144,7 @@
       "locked": true
     },
     {
-      "net": "DUT_LO",
+      "net": "TIA_SUM",
       "points": [
         [
           163.525,
@@ -20160,7 +20160,7 @@
       "locked": true
     },
     {
-      "net": "DUT_LO",
+      "net": "TIA_SUM",
       "points": [
         [
           164.0,
@@ -20176,7 +20176,7 @@
       "locked": true
     },
     {
-      "net": "DUT_LO",
+      "net": "TIA_SUM",
       "points": [
         [
           163.525,
@@ -20192,7 +20192,7 @@
       "locked": true
     },
     {
-      "net": "DUT_LO",
+      "net": "TIA_SUM",
       "points": [
         [
           163.525,
@@ -20208,7 +20208,7 @@
       "locked": true
     },
     {
-      "net": "DUT_LO",
+      "net": "TIA_SUM",
       "points": [
         [
           165.8875,
@@ -20219,16 +20219,47 @@
           107.675
         ],
         [
-          168.5,
-          108.875
+          167.825,
+          107.15
         ],
-        [
-          170.1125,
-          108.975
-        ]
+        "R94.2"
       ],
       "layer": "F.Cu",
       "width": 0.15,
+      "locked": true
+    },
+    {
+      "net": "DUT_LO",
+      "points": [
+        "R94.1",
+        [
+          166.175,
+          104.25
+        ]
+      ],
+      "layer": "F.Cu",
+      "width": 0.25,
+      "locked": true
+    },
+    {
+      "net": "DUT_LO",
+      "points": [
+        [
+          166.175,
+          104.25
+        ],
+        [
+          170.0,
+          104.25
+        ],
+        [
+          173.71,
+          100.54
+        ],
+        "J3.2"
+      ],
+      "layer": "B.Cu",
+      "width": 0.25,
       "locked": true
     },
     {
@@ -22320,6 +22351,13 @@
       ],
       "diameter": 0.55,
       "drill": 0.25
+    },
+    {
+      "net": "DUT_LO",
+      "at": [
+        166.175,
+        104.25
+      ]
     }
   ],
   "zones": [
@@ -22778,6 +22816,33 @@
         ]
       ],
       "tracks": true
+    },
+    {
+      "name": "R_ISO summing-side pad relief",
+      "layers": [
+        "In1.Cu",
+        "In2.Cu",
+        "B.Cu"
+      ],
+      "tracks": true,
+      "points": [
+        [
+          167.2,
+          104.8
+        ],
+        [
+          168.6,
+          104.8
+        ],
+        [
+          168.6,
+          106.4
+        ],
+        [
+          167.2,
+          106.4
+        ]
+      ]
     }
   ]
 }

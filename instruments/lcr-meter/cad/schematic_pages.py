@@ -37,7 +37,7 @@ def write_pages(root, data, symbols, geometry, pinout, local_fp, uid, q):
     root_chunks = [
         f'(kicad_sch (version 20250114) (generator "lcr_adapter") (uuid "{rootid}") '
         '(paper "A3") (title_block (title "Temper LCR — TIDA-060029 based") '
-        '(date "2026-10-20") (rev "C") (company "Temper") '
+        '(date "2026-10-20") (rev "D") (company "Temper") '
         '(comment 1 "Engineering prototype. One PCB. Isolated, discharged DUT only.")) (lib_symbols)'
     ]
     for i, (sheet, (title, notes)) in enumerate(sheets.items(), 2):
@@ -70,7 +70,7 @@ def write_pages(root, data, symbols, geometry, pinout, local_fp, uid, q):
             layout[p["ref"]] = (55 + (j % 6)*94, 160 + (j//6)*29)
         chunks = [
             f'(kicad_sch (version 20250114) (generator "lcr_adapter") (uuid "{uid("page-"+sheet)}") '
-            f'(paper "A2") (title_block (title {q(title)}) (date "2026-10-20") (rev "C") '
+            f'(paper "A2") (title_block (title {q(title)}) (date "2026-10-20") (rev "D") '
             '(company "Temper") (comment 1 "Global net names connect functional sheets. See TI conformance matrix.")) '
             f'(lib_symbols {" ".join(symbols)})'
         ]
@@ -222,7 +222,7 @@ def _write_adc(root, data, symbols, geometry, pinout, local_fp, uid, q, title, n
     text = library.read_text().rstrip()
     library.write_text(text[:-1] + '\n' + '\n'.join(s.replace('(symbol "LCR:', '(symbol "') for s in [fda, vertical]) + ')\n')
     chunks = [f'(kicad_sch (version 20250114) (generator "lcr_adapter") (uuid "{uid("page-adc")}") '
-              f'(paper "A2") (title_block (title {q(title)}) (date "2026-10-20") (rev "C") (company "Temper")) '
+              f'(paper "A2") (title_block (title {q(title)}) (date "2026-10-20") (rev "D") (company "Temper")) '
               f'(lib_symbols {" ".join(symbols+extra)})']
     endpoints = {}
     counter = 0
@@ -357,7 +357,7 @@ def _write_afe(root, data, symbols, local_fp, uid, q, title, notes):
     if '(symbol "OPA2810_DUAL"' not in text:
         library.write_text(text[:-1]+'\n'+'\n'.join(s.replace('(symbol "LCR:', '(symbol "') for s in extra)+')\n')
     chunks = [f'(kicad_sch (version 20250114) (generator "lcr_adapter") (uuid "{uid("page-afe")}") '
-              f'(paper "A2") (title_block (title {q(title)}) (date "2026-10-20") (rev "C") (company "Temper")) '
+              f'(paper "A2") (title_block (title {q(title)}) (date "2026-10-20") (rev "D") (company "Temper")) '
               f'(lib_symbols {" ".join(symbols+extra)})']
     parts = {p['ref']:p for p in data['parts'] if p['sheet']=='afe'}
     endpoints = {}
@@ -427,8 +427,12 @@ def _write_afe(root, data, symbols, local_fp, uid, q, title, notes):
     component('J3','AFE_DUT',(115,60))
     label('DUT_HI',(102,60),180)
     note('J3: connect external, isolated DUT between HI and LO.\nNo DUT component is fitted on this PCB.',(98,68))
-    path((118,60),(145,60),(145,62),(155,62))
-    label('DUT_LO',(134,60),180)
+    # Rev D: R94 isolates fixture/cable capacitance from the summing node; the LOW
+    # follower taps the J3 side, so channel A stays the DUT voltage.
+    component('R94','AFE_R',(136,60))
+    path((118,60),(133,60));path((139,60),(145,60),(145,62),(155,62))
+    label('DUT_LO',(124,60),180);label('TIA_SUM',(142,60),180)
+    note('Rev D: R94 22R 0.1% between J3 LO and the TIA summing node.\nLOW follower senses J3 LO; host uses Zf = R94 + RF||C104.',(118,50))
     component('U7','OPA2810_DUAL',(160,60))
     path((155,58),(151,58));label('GND',(151,58))
     path((165,60),(190,60),(190,24))
@@ -443,7 +447,7 @@ def _write_afe(root, data, symbols, local_fp, uid, q, title, notes):
     component('C104','AFE_C',(160,49))
     path((145,49),(157,49));path((163,49),(190,49));junction((145,49));junction((190,49))
     note('TI transimpedance topology; Rev C compensation\nC104=100pF directly across U7.1 and U7.2 in all ranges',(138,12),1.8)
-    for ref,at,inputnet,outputnet,start in [('U6',(105,100),'DUT_HI','HIGH_BUF',(95,60)),('U7',(160,100),'DUT_LO','LOW_BUF',(145,62))]:
+    for ref,at,inputnet,outputnet,start in [('U6',(105,100),'DUT_HI','HIGH_BUF',(95,60)),('U7',(160,100),'DUT_LO','LOW_BUF',(128,60))]:
         component(ref,'OPA2810_DUAL',at,2)
         x,y=at
         path(start,(start[0],y-2),(x-5,y-2));junction(start)

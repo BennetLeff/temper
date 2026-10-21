@@ -1,5 +1,5 @@
 {
-  "revision": "C",
+  "revision": "D",
   "title": "Temper TIDA-060029 LCR bench instrument",
   "date": "2026-10-20",
   "board": {
@@ -1157,7 +1157,7 @@
       "footprint": "Package_SO:VSSOP-8_3x3mm_P0.65mm",
       "pins": {
         "1": "TIA_OUT",
-        "2": "DUT_LO",
+        "2": "TIA_SUM",
         "3": "GND",
         "4": "-12V",
         "5": "DUT_LO",
@@ -2509,7 +2509,7 @@
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
-        "1": "DUT_LO",
+        "1": "TIA_SUM",
         "2": "RF100"
       },
       "pcb": [
@@ -2533,7 +2533,7 @@
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
-        "1": "DUT_LO",
+        "1": "TIA_SUM",
         "2": "RF5K"
       },
       "pcb": [
@@ -2557,7 +2557,7 @@
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
-        "1": "DUT_LO",
+        "1": "TIA_SUM",
         "2": "RF100K"
       },
       "pcb": [
@@ -2574,6 +2574,30 @@
       "library_type": "extended",
       "assembly": "SMT",
       "source_query": "100kohm 0.1% 0603"
+    },
+    {
+      "ref": "R94",
+      "value": "22R 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "DUT_LO",
+        "2": "TIA_SUM"
+      },
+      "pcb": [
+        167.0,
+        105.3,
+        0
+      ],
+      "sheet": "afe",
+      "mpn": "RT0603BRD0722RL",
+      "manufacturer": "YAGEO",
+      "lcsc": "C861239",
+      "unit_usd": 0.0318,
+      "stock": null,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "22ohm 0.1% 25ppm thin film 0603 (jlcsearch 2026-10-20; stock to confirm at BOM upload)"
     },
     {
       "ref": "R80",
@@ -2649,7 +2673,7 @@
     },
     {
       "ref": "R83",
-      "value": "1.78M",
+      "value": "1.74M",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -2662,14 +2686,14 @@
         0
       ],
       "sheet": "power",
-      "mpn": "RC0603FR-071M78L",
-      "manufacturer": "YAGEO",
-      "lcsc": "C482655",
-      "unit_usd": 0.0019,
-      "stock": 26,
+      "mpn": "0603WAF1744T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C422975",
+      "unit_usd": 0.0013,
+      "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "RC0603FR-071M78L"
+      "source_query": "1.74Mohm 1% 0603 (jlcsearch 2026-10-20; stock to confirm at BOM upload)"
     },
     {
       "ref": "R84",
@@ -5101,7 +5125,7 @@
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
-        "1": "DUT_LO",
+        "1": "TIA_SUM",
         "2": "TIA_OUT"
       },
       "pcb": [
