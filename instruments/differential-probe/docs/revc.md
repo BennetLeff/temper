@@ -295,14 +295,14 @@ Prices were read from public DigiKey and LCSC product pages on 2026-10-20, witho
 | Bare PCB, JLC 5 pcs, 4-layer HASL | $43.00 | $36.80 |
 | Enclosure | none selected | owner-designed, not priced |
 | **Total** | **$811.27** | **$572.61** (−29%) |
-| HV leads, tips, glands and FR4 parts ([HV leads](hv-leads.md#parts-and-prices-2026-10-20)) | none selected | $234.72, of which the 50 ft wire spool is $127.89 |
-| **Total with HV leads** | — | **$807.33** |
+| HV leads, hardware and printed parts ([HV leads](hv-leads.md#parts-ratings-and-prices-2026-10-20)) | none selected | $142.43: bought parts $57.60 (generic parts at estimated prices $29.60), resin $84.83 |
+| **Total with HV leads** | — | **$715.04** |
 
 The [cost-down](cost-down.md) (2026-10-20) brings the Rev C components to $148.10 at the same ledger prices (with the [fee consolidation](fee-consolidation.md)) and adds a JLC assembly-fee model (`validation/cost.txt`).
 
 Of the $232.46 component saving, the HV resistors account for $166.53 and removing the ADA4817s for $46.00. The PCB-mount switches ($71.46) cost about the same as Rev B's panel switches ($76.41).
 
-Not included: shipping, tax, Digi-Reel fees, JLC assembly (needs an account upload) and the S1/S2 select-on-test capacitor kits. The HV leads, tips, glands and the two FR4 parts are priced separately in [HV leads](hv-leads.md#parts-and-prices-2026-10-20) and by `procurement/cost.py`.
+Not included: shipping, tax, Digi-Reel fees, JLC assembly (needs an account upload) and the S1/S2 select-on-test capacitor kits. The HV leads, hardware and printed parts are priced separately in [HV leads](hv-leads.md#parts-ratings-and-prices-2026-10-20) and by `procurement/cost.py`.
 
 Caveats on the prices:
 

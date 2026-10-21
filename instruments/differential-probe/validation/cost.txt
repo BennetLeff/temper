@@ -1,18 +1,34 @@
 Rev C: 105 parts/board, 41 MPNs, 2 boards $148.10 ($74.05/board)
 Rev C before cost-down (5b9a9530b): 105 parts/board, 42 MPNs, 2 boards $535.81 ($267.90/board)
 Rev B: 140 parts/board, 45 MPNs, 2 boards $768.27 ($384.14/board)
-  leads: R800-1020-0-50               1 x $127.8900 = $127.89  (lead wire: 4 x 0.295 m from one 50 ft spool (fallback Alpha 392040 RD005 100 ft))
-  leads: CG-PG7-1-BK                  4 x $1.4600 = $5.84  (tip-plate glands)
+  leads: GEN-SIL-20AWG-10KV-5M        1 x $15.0000 = $15.00  [estimate]  (lead wire: four leads, 0.97 m, plus the hipot sample (rated fallbacks R800-1020-0-50, 392040 RD005))
+  leads: CG-PG7-1-BK                  4 x $1.4600 = $5.84  (wall-insert glands)
   leads: CGLN-PG7-BK                  4 x $0.4800 = $1.92  (gland locknuts)
-  leads: 34108                        4 x $0.3800 = $1.52  (TIP+ M4 ring (2 used + 2 spare))
-  leads: CT2631-0                     2 x $6.0000 = $12.00  (TIP- shrouded plug)
-  leads: CT4466-0                     2 x $20.0000 = $40.00  (TIP- hook clip for the SW_B pin)
-  leads: PLT1M-C                      100 x $0.2120 = $21.20  (bridge ties (12 used))
-  leads: RNF-100-3/16-BK-SP           1 x $3.5500 = $3.55  (heat-shrink (metres))
-  leads: JLC tip plate                1 x $10.4000 = $10.40  (FR4 tip plate lot of 5)
-  leads: JLC lead bridge              1 x $10.4000 = $10.40  (FR4 lead bridge lot of 5)
-Rev C HV leads, tips, glands and FR4 parts, 2 probes: $234.72
-  not in the USD total: 23.0480-21 (Staubli B4-I/KS 4 mm jack to fork adapter, black, 1000 V CAT II; NZD 18.13 per pack of 2 ex GST; not stocked at DigiKey or Mouser)
+  leads: 34108                        5 x $0.3800 = $1.90  (M4 rings: both TIP+ on J5, probe-2 TIP- on J2 (3 used + 2 spare))
+  leads: RNF-100-3/16-BK-SP           1 x $3.5500 = $3.55  (heat-shrink (metres): ring barrels and TIP- bands)
+  leads: GEN-TIE-2.5X100              1 x $3.0000 = $3.00  [estimate]  (cable ties, pack of 100 (28 used: bridges 12, saddles 8, docks 8))
+  leads: GEN-ISO7045-M4X8-A2          4 x $0.1000 = $0.40  [estimate]  (J5 and J2 stack screws (2 used + 2 spare))
+  leads: GEN-DIN125-M4-A2             4 x $0.0500 = $0.20  [estimate]  (J2 spacer washer (1 used + 3 spare))
+  leads: GEN-NYLON-M3-SET             1 x $8.0000 = $8.00  [estimate]  (dock standoffs and screws (H6/H7/H8/H10) and spine pins)
+  leads: GEN-M4X5-BRASS-FF            4 x $0.5000 = $2.00  [estimate]  (cal-jig J5/J2 contacts (two jigs))
+  leads: GEN-TURRET-2.4               2 x $0.5000 = $1.00  [estimate]  (cal-jig C22 contacts (two jigs))
+  leads: 13222                        1 x $14.7900 = $14.79  (trim tool (priced stand-in for the CA-18 blade))
+  printed: wall-insert      2 x  16.11 cm3 Flame Retardant  ->   41.9 ml with supports
+  printed: lead-bridge      2 x  13.45 cm3 Flame Retardant  ->   35.0 ml with supports
+  printed: spine-coil       1 x   9.96 cm3 Flame Retardant  ->   12.9 ml with supports
+  printed: spine-bank       1 x   3.80 cm3 Flame Retardant  ->    4.9 ml with supports
+  printed: dock-coil        1 x  23.43 cm3 Flame Retardant  ->   30.5 ml with supports
+  printed: dock-bank        1 x  39.16 cm3 Flame Retardant  ->   50.9 ml with supports
+  printed: trim-guide-ct    4 x   0.77 cm3 Tough 2000       ->    4.0 ml with supports
+  printed: trim-guide-rv    4 x   0.97 cm3 Tough 2000       ->    5.0 ml with supports
+  printed: trim-handle      1 x   7.45 cm3 Tough 2000       ->    9.7 ml with supports
+  printed: cal-cm-jig       1 x  77.36 cm3 Tough 2000       ->  100.6 ml with supports
+  printed: cal-dc-jig       1 x  76.68 cm3 Tough 2000       ->   99.7 ml with supports
+  resin: Flame Retardant   176.1 ml at $296.43/L = $52.20  (whole cartridge FORMLABS-FR-0.84L: $249.00)
+  resin: Tough 2000        219.0 ml at $149.00/L = $32.63  (whole cartridge FORMLABS-TOUGH2000-1L: $149.00)
+Rev C HV leads, hardware and printed parts, 2 probes: $142.43 (bought parts $57.60, of which estimated generics $29.60; resin $84.83)
+  not in the USD total: CA-18 (Vessel CA-18 zirconia adjusting blade, 1.8 mm; fits the printed trim-handle)
+  with the rated Rowe R800-1020-0-50 spool instead of the generic wire: $255.32
 
 Substitutions, two boards at distributor-ledger prices (tier covering the quantity, minimum applied):
   old MPN              new MPN              qty/board       old       new    saving  JLC class old -> new
@@ -59,16 +75,16 @@ JLC assembly strategies (parts at JLC price for JLC-library parts, distributor l
     extended MPNs placed by JLC (20): ADP7142AUJZ-R7, ADP7182AUJZ-R7, BAV199,215, C3225X7R1E106KTJ00N, CC1206FKNPO9BN103, CC1812JKNPOEBN330, CD4013BM96, HV121WF2004T4E, OPA2810IDR, OPA810IDR, RNCF0603TKY1K00, RNCF0603TKY2K00, RNCF0603TKY499R, RT0603BRD074K87L, RT0805BRD0710KL, RT0805BRD0729K4L, RT0805BRD0730KL, RT0805BRD0766K5L, TLV1702AIDGKR, TLV1704AIPWR
     not from the JLC library: 031-5431-10RFX (owner), 100DP1T1B1M7QEH (owner), 100SP1T1B5M7RE (owner), 3296W-1-501LF (owner), BH9VPC (owner), C0805C161F5GACTU (kit), C0805C302F5GACTU (kit), GKG60015 (owner), PTS645SL43-2 LFS (owner), RNCF0603TKY1K00 (global), RNCF0603TKY499R (global)
 
-Headline, two boards (leads at the owner's ~$100 working figure in both columns):
+Headline, two boards (HV leads, hardware and printed parts from leads-bom.csv and printed-parts.csv):
                                          before  cost-down
   components (as bought, model)      $   520.98 $   129.60
   JLC assembly fees                  $   131.80 $    71.88
   bare PCB, 5 pcs                    $    36.80 $    36.80
-  HV leads (assumed)                 $   100.00 $   100.00
+  HV leads, hardware, printed parts  $   142.43 $   142.43
   enclosures                         owner-designed, not priced
-  total, enclosure excluded          $   789.58 $   338.28  (saving $451.30, 57 %)
+  total, enclosure excluded          $   832.01 $   380.72  (saving $451.30, 54 %)
+  revc.md cost table: Rev C ledger components $535.81 + PCB $36.80 + HV leads $142.43 = $715.04
   Distributor-ledger components: before $535.81, cost-down $148.10
-  Documented HV-lead BOM (leads-bom.csv) instead of the assumption: $234.72
 
 Extended MPNs placed by JLC before fee consolidation (strategy E), two-board spend against the $3.07 feeder:
   MPN                    refs                                   route   2-board spend fee/spend

@@ -1,12 +1,14 @@
 mpn,units_two_probes,item
-R800-1020-0-50,1,lead wire: 4 x 0.295 m from one 50 ft spool (fallback Alpha 392040 RD005 100 ft)
-CG-PG7-1-BK,4,tip-plate glands
+GEN-SIL-20AWG-10KV-5M,1,"lead wire: four leads, 0.97 m, plus the hipot sample (rated fallbacks R800-1020-0-50, 392040 RD005)"
+CG-PG7-1-BK,4,wall-insert glands
 CGLN-PG7-BK,4,gland locknuts
-34108,4,TIP+ M4 ring (2 used + 2 spare)
-CT2631-0,2,TIP- shrouded plug
-CT4466-0,2,TIP- hook clip for the SW_B pin
-PLT1M-C,100,bridge ties (12 used)
-RNF-100-3/16-BK-SP,1,heat-shrink (metres)
-JLC tip plate,1,FR4 tip plate lot of 5
-JLC lead bridge,1,FR4 lead bridge lot of 5
-23.0480-21,1,TIP- adapter for the J2 stud (pack of 2)
+34108,5,"M4 rings: both TIP+ on J5, probe-2 TIP- on J2 (3 used + 2 spare)"
+RNF-100-3/16-BK-SP,1,heat-shrink (metres): ring barrels and TIP- bands
+GEN-TIE-2.5X100,1,"cable ties, pack of 100 (28 used: bridges 12, saddles 8, docks 8)"
+GEN-ISO7045-M4X8-A2,4,J5 and J2 stack screws (2 used + 2 spare)
+GEN-DIN125-M4-A2,4,J2 spacer washer (1 used + 3 spare)
+GEN-NYLON-M3-SET,1,dock standoffs and screws (H6/H7/H8/H10) and spine pins
+GEN-M4X5-BRASS-FF,4,cal-jig J5/J2 contacts (two jigs)
+GEN-TURRET-2.4,2,cal-jig C22 contacts (two jigs)
+13222,1,trim tool (priced stand-in for the CA-18 blade)
+CA-18,1,trim blade for the printed handle

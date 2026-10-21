@@ -9,7 +9,8 @@ jlc_catalog.py), validation/pcb-pads.tsv (solder joints) and the BOMs in git.
 1. Component cost at distributor prices: the tier that covers two boards, LCSC
    minimums applied. Rev B is read from git at ca79d882f plus its five off-board
    parts; "Rev C before cost-down" is the board at 5b9a9530b.
-2. HV leads, tips, glands and FR4 parts (docs/hv-leads.md), from leads-bom.csv.
+2. HV leads, hardware and printed parts (docs/hv-leads.md): leads-bom.csv, and
+   printed-parts.csv priced by resin volume from mech3d/out/*.json.
 3. JLC assembly-fee model (docs/cost-down.md). Fee constants are quoted from
    JLC's public pages, read 2026-10-20 (see FEES). No account quote was made.
 """
@@ -53,8 +54,11 @@ for name, bom, ov in (("Rev C", revc, {}), ("Rev C before cost-down (5b9a9530b)"
     ledger[name] = t
     print(f"{name}: {sum(bom.values())} parts/board, {len(bom)} MPNs, 2 boards ${t:.2f} (${t / 2:.2f}/board)")
 
-# Leads: quantities are already for two probes, in the ledger's selling unit.
+# Leads: quantities are already for two probes, in the ledger's selling unit. Rows
+# whose source starts with "estimate" are generic parts at an unread price; they are
+# in the total and listed separately so the estimate share is visible.
 leads = 0.0
+leads_est = 0.0
 unpriced = []
 for row in csv.DictReader(open("procurement/leads-bom.csv")):
     p = prices[row["mpn"]]
@@ -64,10 +68,36 @@ for row in csv.DictReader(open("procurement/leads-bom.csv")):
     units = max(float(row["units_two_probes"]), float(p["moq"]))
     line = units * float(p["unit_usd"])
     leads += line
-    print(f"  leads: {row['mpn']:<28} {units:g} x ${float(p['unit_usd']):.4f} = ${line:.2f}  ({row['item']})")
-print(f"Rev C HV leads, tips, glands and FR4 parts, 2 probes: ${leads:.2f}")
+    est = p["source"].startswith("estimate")
+    leads_est += line if est else 0.0
+    print(f"  leads: {row['mpn']:<28} {units:g} x ${float(p['unit_usd']):.4f} = ${line:.2f}{'  [estimate]' if est else ''}  ({row['item']})")
+
+# Printed parts: resin used = part volume x RESIN_OVERHEAD (supports, raft, wash loss;
+# an estimate), at the per-litre price of the cartridge. The parts are printed on a
+# friend's Formlabs printer; a whole cartridge is a separate decision (below).
+RESIN_OVERHEAD = 1.3
+RESIN_PRICE = {"Flame Retardant": ("FORMLABS-FR-0.84L", 0.84), "Tough 2000": ("FORMLABS-TOUGH2000-1L", 1.0)}
+resin_ml = collections.Counter()
+for row in csv.DictReader(open("procurement/printed-parts.csv")):
+    rec = json.load(open(f"mech3d/out/{row['part']}.json"))
+    n = int(row["units_two_probes"])
+    ml = rec["volume_cm3"] * n * RESIN_OVERHEAD
+    resin_ml[rec["resin"]] += ml
+    print(f"  printed: {row['part']:<16} {n} x {rec['volume_cm3']:6.2f} cm3 {rec['resin']:<16} -> {ml:6.1f} ml with supports")
+printed = 0.0
+for resin, ml in sorted(resin_ml.items()):
+    mpn, litres = RESIN_PRICE[resin]
+    per_l = float(prices[mpn]["unit_usd"]) / litres
+    line = ml / 1000.0 * per_l
+    printed += line
+    print(f"  resin: {resin:<16} {ml:6.1f} ml at ${per_l:.2f}/L = ${line:.2f}  (whole cartridge {mpn}: ${float(prices[mpn]['unit_usd']):.2f})")
+leads_total = leads + printed
+print(f"Rev C HV leads, hardware and printed parts, 2 probes: ${leads_total:.2f} "
+      f"(bought parts ${leads:.2f}, of which estimated generics ${leads_est:.2f}; resin ${printed:.2f})")
 for u in unpriced:
     print(f"  not in the USD total: {u}")
+alt = float(prices["R800-1020-0-50"]["unit_usd"]) - float(prices["GEN-SIL-20AWG-10KV-5M"]["unit_usd"])
+print(f"  with the rated Rowe R800-1020-0-50 spool instead of the generic wire: ${leads_total + alt:.2f}")
 
 # ---------------------------------------------------------------------------
 # 3. JLC assembly-fee model
@@ -103,7 +133,6 @@ CONSIGN_RATE, CONSIGN_MIN = 0.02, 10.0
 PCB_5PCS = 36.80        # JLC 5 pcs 150 x 70 mm 4-layer HASL (docs/revc.md)
 # The enclosure is owner-designed and not priced. The Hammond 1455N2201 (2 x $38.43,
 # docs/revc.md) remains the reference geometry in tools/leads.rs only.
-LEADS_ASSUMED = 100.0   # owner's working figure for AliExpress wire and cheap ties (not priced here)
 
 # Select-on-test S1/S2 parts are fitted from E24 kits at calibration; no listing had
 # stock of the nominal values on 2026-10-20. They are priced as owner parts in every
@@ -281,23 +310,24 @@ for key in ("B", "E"):
     off = [f"{m} ({r})" for m, n, r, s, c in a["lines"] if r not in ("jlc",)]
     print(f"    not from the JLC library: {', '.join(off)}")
 
-print("\nHeadline, two boards (leads at the owner's ~$100 working figure in both columns):")
+print("\nHeadline, two boards (HV leads, hardware and printed parts from leads-bom.csv and printed-parts.csv):")
 cur, rec = results["B"], results["E"]
 print(f"  {'':<34} {'before':>10} {'cost-down':>10}")
 for label, a, b in (
     ("components (as bought, model)", cur["parts"], rec["parts"]),
     ("JLC assembly fees", cur["fees"], rec["fees"]),
     ("bare PCB, 5 pcs", PCB_5PCS, PCB_5PCS),
-    ("HV leads (assumed)", LEADS_ASSUMED, LEADS_ASSUMED),
+    ("HV leads, hardware, printed parts", leads_total, leads_total),
 ):
     print(f"  {label:<34} ${a:>9.2f} ${b:>9.2f}")
 print(f"  {'enclosures':<34} {'owner-designed, not priced':>21}")
-tot_a = cur["parts"] + cur["fees"] + PCB_5PCS + LEADS_ASSUMED
-tot_b = rec["parts"] + rec["fees"] + PCB_5PCS + LEADS_ASSUMED
+tot_a = cur["parts"] + cur["fees"] + PCB_5PCS + leads_total
+tot_b = rec["parts"] + rec["fees"] + PCB_5PCS + leads_total
 print(f"  {'total, enclosure excluded':<34} ${tot_a:>9.2f} ${tot_b:>9.2f}  (saving ${tot_a - tot_b:.2f}, {100 * (tot_a - tot_b) / tot_a:.0f} %)")
+base_c = ledger['Rev C before cost-down (5b9a9530b)']
+print(f"  revc.md cost table: Rev C ledger components ${base_c:.2f} + PCB ${PCB_5PCS:.2f} + HV leads ${leads_total:.2f} = ${base_c + PCB_5PCS + leads_total:.2f}")
 print(f"  Distributor-ledger components: before ${ledger['Rev C before cost-down (5b9a9530b)']:.2f}, "
       f"cost-down {'$%.2f' % ledger['Rev C'] if cost_down_applied else '(not yet applied)'}")
-print(f"  Documented HV-lead BOM (leads-bom.csv) instead of the assumption: ${leads:.2f}")
 
 # ---------------------------------------------------------------------------
 # 4. Fee consolidation (docs/fee-consolidation.md)
