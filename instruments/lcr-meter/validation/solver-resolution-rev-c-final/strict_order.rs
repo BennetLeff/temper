@@ -62,6 +62,15 @@ pub fn true_op(path: &str) -> Result<BTreeMap<String, f64>, String> {
         return Err("invalid values".into());
     }
     let r: BTreeMap<_, _> = names.into_iter().zip(vals).collect();
+    if r.contains_key("v(vcm)") {
+        // Rev E codec deck (stability-full-chain/codec-template.cir): no FDA, DC-coupled source.
+        for n in ["v(excite)", "v(source)", "v(tia)"] {
+            if r.get(n).ok_or("missing codec-deck node")?.abs() > 0.05 {
+                return Err(format!("codec deck {n} off zero"));
+            }
+        }
+        return Ok(r);
+    }
     let rail = *r.get("v(v5)").ok_or("missing v5")?;
     for a in ["xa", "xb"] {
         let mid = *r.get(&format!("v({a}.mid)")).ok_or("missing MID")?;

@@ -67,9 +67,15 @@ struct Case {
     bridge: f64,
     riso: f64,
 }
+/// Rev E decks: TAC5112 codec front end (codec-template.cir) instead of the FDA/ADS9224R chain.
+fn codec(name: &str) -> bool {
+    name.contains("codec_") || name.contains("relay_")
+}
 fn circuit(c: &Case, lp: &str) -> (String, f64) {
     let final_design = c.name.starts_with("final_");
-    let mut s = fs::read_to_string(if final_design {
+    let mut s = fs::read_to_string(if codec(&c.name) {
+        "codec-template.cir"
+    } else if final_design {
         "final-template.cir"
     } else {
         "base-template.cir"
@@ -242,6 +248,13 @@ fn circuit(c: &Case, lp: &str) -> (String, f64) {
             .replace("Rseries series_mid tia ", "Rseries series_mid rf_end ");
         s += &format!("Lfeedback rf_end tia {}\n", l * 1e-9);
     }
+    // Rev E: isolation resistor between the TIA output pin (tia: C104, codec channel B tap, Rev D
+    // board copper) and the relay common bus (tbus: relay pads, RF through the selected contact).
+    if let Some((_, value)) = c.name.split_once("_rout") {
+        let r: f64 = value.split('_').next().unwrap().parse().unwrap();
+        s = s.replace("Lfeedback rf_end tia ", "Lfeedback rf_end tbus ");
+        s += &format!("Rout tia tbus {r}\n");
+    }
     let name = format!("{}_{}", c.name, lp);
     let density = if c.name.contains("fixed_r100k_coil") {
         19200
@@ -250,7 +263,12 @@ fn circuit(c: &Case, lp: &str) -> (String, f64) {
     } else {
         120
     };
-    s+=&format!(".control\nset klu\nset wr_singlescale\nset wr_vecnames\nset numdgt=17\nop\nwrdata {name}_dc.dat v(x5.mid) v(x6a.mid) v(x6b.mid) v(x7a.mid) v(x7b.mid) v(xa.mid) v(xb.mid) v(acin) v(source) v(hi) v(low) v(tia) v(highbuf) v(lowbuf) v(aop) v(aom) v(bop) v(bom)\nac dec 120 1 1G\nlet ve={ve}\nlet vf={vf}\nwrdata {name}_e.dat real(ve) imag(ve) real(vf) imag(vf)\n{second}ac dec 120 1 1G\nlet ve={ve}\nlet vf={vf}\nwrdata {name}_f.dat real(ve) imag(ve) real(vf) imag(vf)\nquit\n.endc\n.end\n");
+    let dc = if codec(&c.name) {
+        "v(x5.mid) v(x6a.mid) v(x6b.mid) v(x7a.mid) v(x7b.mid) v(excite) v(source) v(hi) v(low) v(tia) v(highbuf) v(lowbuf)"
+    } else {
+        "v(x5.mid) v(x6a.mid) v(x6b.mid) v(x7a.mid) v(x7b.mid) v(xa.mid) v(xb.mid) v(acin) v(source) v(hi) v(low) v(tia) v(highbuf) v(lowbuf) v(aop) v(aom) v(bop) v(bom)"
+    };
+    s+=&format!(".control\nset klu\nset wr_singlescale\nset wr_vecnames\nset numdgt=17\nop\nwrdata {name}_dc.dat {dc}\nac dec 120 1 1G\nlet ve={ve}\nlet vf={vf}\nwrdata {name}_e.dat real(ve) imag(ve) real(vf) imag(vf)\n{second}ac dec 120 1 1G\nlet ve={ve}\nlet vf={vf}\nwrdata {name}_f.dat real(ve) imag(ve) real(vf) imag(vf)\nquit\n.endc\n.end\n");
     (
         s.replace("ac dec 120 1 1G", &format!("ac dec {density} 1 1G")),
         bridge,
@@ -284,6 +302,14 @@ fn analyze(name: &str, bridge: f64, five: f64) -> String {
     for x in &dc[1..6] {
         assert!(x.abs() < 1e-6, "OPA MID invalid {name}: {x}");
     }
+    if codec(name) {
+        // DC-coupled source: the difference stage rejects the DAC's 1.65 V common mode, so the
+        // source, DUT and TIA sit near 0 V; the codec inputs are AC coupled.
+        for x in &dc[6..13] {
+            assert!(x.abs() < 0.05, "codec deck DC operating point off {name}: {x}");
+        }
+        return analyze_loop(name, bridge);
+    }
     for x in &dc[6..8] {
         assert!((x - five / 2.).abs() < 1e-4, "FDA MID invalid {name}: {x}");
     }
@@ -291,6 +317,9 @@ fn analyze(name: &str, bridge: f64, five: f64) -> String {
     for x in &dc[15..19] {
         assert!(*x > 1.9 && *x < 2.2, "FDA saturation {name}");
     }
+    analyze_loop(name, bridge)
+}
+fn analyze_loop(name: &str, bridge: f64) -> String {
     let e = data(&format!("{name}_e.dat"));
     let f = data(&format!("{name}_f.dat"));
     assert!(e.len() >= 1081);
@@ -949,6 +978,20 @@ fn main() {
             }
         }
     }
+    if mode == "codecbase" || mode == "fixedrelay" {
+        cases = relay_cases(mode == "fixedrelay", 0., 0.);
+    }
+    // fixedrelayrout{R}: relay bus behind R ohm; fixedrelaycng{C}: C pF from DUT_LO to ground;
+    // codecbasecng{C}: the latter without relays.
+    if let Some(rout) = mode.strip_prefix("fixedrelayrout") {
+        cases = relay_cases(true, rout.parse().unwrap(), 0.);
+    }
+    if let Some(cng) = mode.strip_prefix("fixedrelaycng") {
+        cases = relay_cases(true, 0., cng.parse().unwrap());
+    }
+    if let Some(cng) = mode.strip_prefix("codecbasecng") {
+        cases = relay_cases(false, 0., cng.parse().unwrap());
+    }
     let mut report="# Strict full-chain bilateral loop matrix\n\nAll printed cases pass internal DC bias checks. All unity crossings are reported. Angles are signed principal angular separation from -1, not a stability verdict; downward crossings with the usual negative-phase branch correspond to conventional phase margin. Upward crossings must be assessed with the complete return trajectory.\n\n| Case / loop | Unity crossings / signed angle from -1 | Minimum return difference |\n|---|---|---|\n".to_string();
     if final_design {
         for c in &mut cases {
@@ -965,7 +1008,21 @@ fn main() {
             }
         }
     }
-    for c in cases {
+    // SHARD=i/n runs every n-th case starting at i (parallel processes); each shard writes its own report.
+    let shard: Option<(usize, usize)> = std::env::var("SHARD").ok().map(|v| {
+        let (i, n) = v.split_once('/').unwrap();
+        (i.parse().unwrap(), n.parse().unwrap())
+    });
+    let requested = match shard {
+        Some((i, n)) => format!("{requested}-shard{i}of{n}"),
+        None => requested.clone(),
+    };
+    for (index, c) in cases.into_iter().enumerate() {
+        if let Some((i, n)) = shard {
+            if index % n != i {
+                continue;
+            }
+        }
         if let Ok(filter) = std::env::var("CASE_FILTER") {
             if !c.name.contains(&filter) {
                 continue;
@@ -987,6 +1044,8 @@ fn main() {
         {
             // The heaviest fixture loads also load the source driver and both sense followers.
             vec!["tia", "drive", "high", "low"]
+        } else if mode.starts_with("fixedrelay") && c.name.contains("_loops_") {
+            vec!["drive", "high", "low"]
         } else if mode == "low" {
             vec!["low"]
         } else if mode == "nominal" {
@@ -1045,4 +1104,108 @@ fn main() {
             fs::write(format!("matrix-{requested}.md"), &report).unwrap();
         }
     }
+}
+
+/// Rev E: Rev D extracted board (`_revd_risolo22`) on the codec front end, without relays
+/// (`codecbase`), or with three TQ2SA latching DPDT relays replacing JP1-JP6 (`fixedrelay`,
+/// docs/rev-e-range-switching.md section 6). Nodes: source = SOURCE_BUF, hi = DUT_HI, low = DUT_LO,
+/// sum = TIA_SUM, tia = TIA_OUT.
+#[derive(Clone, Copy)]
+struct Relay {
+    rc: f64,   // selected contact resistance, ohm (in series with RG and with RF)
+    lrel: f64, // selected contact-path inductance added to the RF lead, nH
+    coc: f64,  // open-contact capacitance, pF
+    ccc: f64,  // contact-to-coil capacitance, pF
+    cpp: f64,  // pole-to-pole capacitance, pF
+    dc: f64,   // extra TIA_OUT copper for the relay pads, pF
+}
+const NOMINAL: Relay = Relay { rc: 0.075, lrel: 10., coc: 0.3, ccc: 1., cpp: 0.5, dc: 3. };
+const STRESS: Relay = Relay { rc: 0.075, lrel: 20., coc: 2., ccc: 5., cpp: 2., dc: 10. };
+const RANGES: [(&str, f64, f64); 3] = [("r100", 100., 21.65), ("r5k", 5000., 50.46), ("r100k", 100000., 33.14)];
+const REVD_BOARD: &str = "Cbj3 low 0 5.666p\nCbsum sum 0 1.274p\nCbriso sum low 0.118p\nCbhi hi 0 5.232p\nCbhisum hi low 0.158p\nCbj3lbuf low lowbuf 0.15p\nCbsumtia sum tia 0.399p\nCbtiao tia 0 10.53p\n";
+fn relay_netlist(selected: f64, p: Relay, bus: &str) -> String {
+    let mut s = String::new();
+    for (k, (_, r, _)) in RANGES.iter().enumerate().filter(|(_, (_, r, _))| *r != selected) {
+        s += &format!(
+            "Ru{k} sum ru{k} {r}\nCocf{k} ru{k} {bus} {coc}p\nCcf{k} ru{k} 0 {ccc}p\nRgu{k} hi rgu{k} {r}\nCocs{k} rgu{k} source {coc}p\nCcs{k} rgu{k} 0 {ccc}p\nCpp{k} source ru{k} {cpp}p\nCppx{k} rgu{k} {bus} {cpp}p\n",
+            coc = p.coc,
+            ccc = p.ccc,
+            cpp = p.cpp
+        );
+    }
+    s + &format!(
+        "Ccsel_t {bus} 0 {ccc}p\nCcsel_s source 0 {ccc}p\nCppsel source {bus} {cpp}p\nCdtia {bus} 0 {dc}p\n",
+        ccc = p.ccc,
+        cpp = p.cpp,
+        dc = p.dc
+    )
+}
+fn relay_case(name: String, r: f64, dut: String, stray: f64) -> Case {
+    Case { name, r, cf: 0., dut, stray: stray * 1e-12, rail: 12., five: 5., rtol: 0., bridge: 100., riso: 4.32 }
+}
+/// `rout` > 0 adds `_rout{rout}`: the relay bus sits behind an isolation resistor (see circuit()).
+/// `cng` > 0 adds `_cng{cng}`: a fixed capacitor (pF) from DUT_LO to ground, ahead of R_iso, which
+/// lowers the TIA's high-frequency loop gain (noise-gain shaping, as the fixture strays already do).
+fn relay_cases(relays: bool, rout: f64, cng: f64) -> Vec<Case> {
+    let (bus, mut rt) = if rout > 0. { ("tbus", format!("_rout{rout}")) } else { ("tia", String::new()) };
+    let board = if cng > 0. {
+        rt += &format!("_cng{cng}");
+        format!("Cng low 0 {cng}p\n{REVD_BOARD}")
+    } else {
+        REVD_BOARD.to_string()
+    };
+    let mut cases = vec![];
+    let sets: Vec<(&str, Relay)> = if relays { vec![("nom", NOMINAL), ("str", STRESS)] } else { vec![("none", NOMINAL)] };
+    // 1. Grid over the Rev D extracted combinations.
+    for (set, p) in &sets {
+        for (range, r, rf_lead) in RANGES {
+            let mut duts = vec![("open", "RDUT hi low 1e12".to_string()), ("short", "RDUT hi low 0.01".into()), ("matched", format!("RDUT hi low {r}"))];
+            if range == "r100" {
+                duts.push(("coil50u", "RDUT hi coil 0.5\nLDUT coil low 50u".into()));
+            }
+            let strays = if range == "r100" { vec![0., 100., 220., 470., 1000.] } else { vec![0., 1000.] };
+            for (n, dut) in &duts {
+                for stray in &strays {
+                    for caplead in [4.87, 10.] {
+                        let (tag, rr, lead, extra) = if relays {
+                            ("relay", r + p.rc, rf_lead + p.lrel, relay_netlist(r, *p, bus))
+                        } else {
+                            ("codec", r, rf_lead, String::new())
+                        };
+                        cases.push(relay_case(format!("{tag}_{range}_{n}_stray{stray}_revd_risolo22_{set}{rt}_caplead{caplead}_local100_lead{lead}"), rr, format!("{board}{extra}{dut}"), *stray));
+                    }
+                }
+            }
+        }
+    }
+    if !relays {
+        return cases;
+    }
+    // 2. Attribution: stress value of one parameter at a time, the rest nominal.
+    for (range, r, rf_lead) in RANGES {
+        for param in ["coc", "ccc", "cpp", "lrel", "dc", "rc"] {
+            let mut p = NOMINAL;
+            match param {
+                "coc" => p.coc = STRESS.coc,
+                "ccc" => p.ccc = STRESS.ccc,
+                "cpp" => p.cpp = STRESS.cpp,
+                "lrel" => p.lrel = STRESS.lrel,
+                "dc" => p.dc = STRESS.dc,
+                _ => p.rc = STRESS.rc,
+            }
+            cases.push(relay_case(format!("relay_attr{param}_{range}_open_stray0_revd_risolo22{rt}_caplead10_local100_lead{}", rf_lead + p.lrel), r + p.rc, format!("{board}{}RDUT hi low 1e12", relay_netlist(r, p, bus)), 0.));
+        }
+    }
+    // 3. Source driver and sense followers: stress set, heaviest fixture.
+    for (range, r, rf_lead) in [RANGES[0], RANGES[2]] {
+        for stray in [0., 1000.] {
+            cases.push(relay_case(format!("relay_loops_{range}_open_stray{stray}_revd_risolo22_str{rt}_caplead10_local100_lead{}", rf_lead + STRESS.lrel), r + STRESS.rc, format!("{board}{}RDUT hi low 1e12", relay_netlist(r, STRESS, bus)), stray));
+        }
+    }
+    // 4. Two relays closed (weld): second feedback and source path in parallel.
+    for (a, b) in [(0, 1), (0, 2), (1, 2)] {
+        let (ra, rb) = (RANGES[a], RANGES[b]);
+        cases.push(relay_case(format!("relay_weld_{}_{}_open_stray0_revd_risolo22_nom{rt}_caplead10_local100_lead{}", ra.0, rb.0, ra.2 + NOMINAL.lrel), ra.1 + NOMINAL.rc, format!("{board}{}Rpar sum rfp {}\nLpar rfp {bus} 30n\nRGpar source hi {}\nRDUT hi low 1e12", relay_netlist(ra.1, NOMINAL, bus), rb.1, rb.1), 0.));
+    }
+    cases
 }

@@ -36,7 +36,7 @@ print(prov)
 EOF
 
 if [ "${1:-}" = "--spice" ]; then
-  for c in base r33 gain2 again4 r5k riso22 riso22_c100 riso22_c200 base_c100 base_c200; do
+  for c in base r33 gain2 again4 r5k riso22 riso22_c100 riso22_c200 base_c100 base_c200 riso22_lo100; do
     python3 chain_spice.py "$c"
   done
   for c in base_c80 base_c120 base_c160 base_c240 riso22_c80 riso22_c120 riso22_c160 riso22_c240; do

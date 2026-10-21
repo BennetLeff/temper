@@ -61,6 +61,9 @@ for _riso in (0, 22):
         _name = ("riso22" if _riso else "base") + (f"_c{_c}" if _c else "")
         if _name != "base":
             CONFIGS[_name] = dict(CONFIGS["base"], riso=float(_riso), chi=_c * 1e-12, clo=_c * 1e-12)
+# Rev E (docs/rev-e-front-end.md): fixed 100 pF from DUT_LO to ground ahead of R_iso, for TIA
+# stability with the range relays; no lead capacitance on HI.
+CONFIGS["riso22_lo100"] = dict(CONFIGS["base"], riso=22.0, clo=100e-12)
 
 # Noise injection sources: name -> (kind, element line template).  Op-amp voltage noise is
 # a series source at the non-inverting pin; current noise is a shunt current source to ground;

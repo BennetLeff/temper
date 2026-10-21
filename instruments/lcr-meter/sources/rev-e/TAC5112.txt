@@ -3,7 +3,7 @@
 # Retrieved 2026-10-20; PDF sha256 54b43ca9dea36e363f05c2992992dde6099fa4c5ef59266f032b4fceee4f0eab
 # Extracted with `pdftotext -layout`; only the listed PDF pages are kept (register maps etc. dropped).
 # Each page starts with a line "=== PDF page N ===" ; citations in docs/rev-e-acquisition-survey.md use these page numbers.
-# Pages kept: 1,4,7-16
+# Pages kept: 1,4,7-16,39-41,134,142 (39-41: input configuration, Tables 7-9 to 7-12; 134, 142: ADC/DAC BW_MODE registers)
 
 === PDF page 1 ===
                                                                                                                                  TAC5112
@@ -844,4 +844,341 @@ with a 20Hz to 20kHz un-weighted bandwidth, unless otherwise noted
 
                                                          Product Folder Links: TAC5112
 
+
+
+=== PDF page 39 ===
+                                                                                                                                   TAC5112
+www.ti.com                                                                                SLASF24A – DECEMBER 2023 – REVISED JANUARY 2025
+
+
+registers also capture the device auto detect result for the FSYNC frequency in auto detection mode for
+the primary and secondary ASI respectively. The registers CLK_DET_STS2 (P0_R64) and CLK_DET_STS3
+(P0_R65) capture the BCLK to FSYNC ratio detected by the device in the auto detection mode for the selected
+ASI which is chosen to be the PLL reference through the CLK_SRC_SEL (P0_R52_D[3:1]) registers. If the
+device finds any unsupported combinations of FSYNC frequency and BCLK to FSYNC ratios, the device
+generates an ASI clock-error interrupt and shuts down various blocks of the device accordingly.
+The TAC5112 also supports enabling channels while ADC or DAC channels are already in operation.
+This requires a pre-configuration before power to describe the maximum number of channels that can
+be enabled while in operation to ensure proper clock generation and use. This can be configured by
+using register DYN_PUPD_CFG (P0_R119). ADC_DYN_PUPD_EN (P0_R119_D[7]) and DAC_DYN_PUPD_EN
+(P0_R119_D[5]) bits can be used to independently enable ADC or DAC Channels' dynamic power up.
+Number of maximum channels supported for dynamic power-up and power-down can be configured using
+ADC_DYN_MAXCH_SEL (P0_R119_D[6]) and DAC_DYN_MAXCH_SEL (P0_R119_D[4]) bits.
+The device uses an integrated, low-jitter, phase-locked loop (PLL) to generate internal clocks required for the
+modulators and digital filter engine, as well as other control blocks. The device also supports an option to use
+BCLK, GPIOx, or the GPI1 pin (as CCLK) as the audio clock source without using the PLL to reduce power
+consumption. However, the ADC performance may degrade based on jitter from the external clock source, and
+some processing features may not be supported if the external audio clock source frequency is not high enough.
+Therefore, TI recommends using the PLL for high-performance applications. More details and information on
+how to configure and use the device in low-power mode without using the PLL are discussed in the TAC5x1x
+Power Consumption Matrix Across Various Usage Scenarios application report.
+The device also supports an audio bus controller mode operation using the GPIOx or GPI1 pin (as CCLK) as
+the reference input clock source and supports various flexible options and a wide variety of system clocks.
+More details and information on controller mode configuration and operation are discussed in the Clocking
+Configuration of Device and Flexible Clocking For TAx5x1x Family application report.
+The audio bus clock error detection and auto-detect feature automatically generates all internal clocks, but
+can be disabled using the IGNORE_CLK_ERR (P0_R4_D[6]) and CUSTOM_CLK_CFG (P0_R50_D[0]) register
+bits, respectively. In the system, this disable feature can be used to support custom clock frequencies that
+are not covered by the auto detect scheme. For such application use cases, care must be taken to ensure
+that the multiple clock dividers are all configured appropriately. TI recommends using the PPC3 GUI for device
+configuration settings; for more details see the TAC5212EVM-PDK Evaluation module user's guide and the
+PurePath™ console graphical development suite. The Clocking Configuration of Device and Flexible Clocking
+For TAx5x1x Family application report also covers various aspects of the custom clock configurations. Refer
+Clock Error Configuration, Detection, and Modes Supported in TAx5x1x Family application report for more
+details about the clock detection module of the device.
+When the PLL is turned off, the digital volume control and other features using programmable coeffients like
+biquads, mixer, AGC etc., except the high pass filter (HPF) are not applicable.
+7.3.3 Input Channel Configurations
+The TAC5112 consists of two pairs of analog input pins (INxP and INxM) that can be configured as differential
+inputs or single-ended inputs for the recording channel. The device supports simultaneous recording of up to
+two analog channels using the high-performance multichannel ADC. The input source for the analog pins can be
+from electret condenser analog microphones, microelectrical-mechanical system (MEMS) analog microphones,
+or line-in (auxiliary) inputs from the system board. Analog inputs support differential input, single-ended inputs
+(two pin and one-pin) with AC and DC coupling options. Table 7-9 shows the input source selection for the
+record channel 1.
+                                   Table 7-9. Input Source Selection for the Record Channel
+   P0_R80_D[7:6] : ADC_CH1_INSRC[1:0]                               INPUT CHANNEL 1 RECORD SOURCE SELECTION
+                   00 (default)                   Analog differential input for channel 1 using IN1P and IN1M
+                                                  Analog single-ended input for channel 1 using IN1P and IN1M (signal on one input pin and
+                        01
+                                                  ground on other pin)
+
+Copyright © 2025 Texas Instruments Incorporated                                                             Submit Document Feedback         39
+                                                         Product Folder Links: TAC5112
+
+
+=== PDF page 40 ===
+TAC5112
+SLASF24A – DECEMBER 2023 – REVISED JANUARY 2025                                                                            www.ti.com
+
+                       Table 7-9. Input Source Selection for the Record Channel (continued)
+     P0_R80_D[7:6] : ADC_CH1_INSRC[1:0]                      INPUT CHANNEL 1 RECORD SOURCE SELECTION
+                     10                   Analog single-ended input on IN1P
+                     11                   Analog single-ended Input on IN1M
+
+Similarly, the input source selection setting for input channel 2 can be configured using the
+ADC_CH2_INSRC[1:0] (P0_R85_D[7:6]) register bits.
+Typically, voice or audio signal inputs are capacitively coupled (AC-coupled) to the device and the common-
+mode variation at the device input is limited to less than 100mVpp for differential inputs for best performance.
+However, for applications that cannot avoid large common-mode fluctuations or when needed to save board
+space, the device also supports options for increasing the common mode tolerance and for DC-coupled inputs.
+This configuration can be done independently for each channel by setting the input common mode tolerance
+in ADC_CH1_CM_TOL (P0_R80_D[3:2]) and ADC_CH2_CM_TOL (P0_R85_D[3:2]) register bits. Table 7-10
+shows these options for Channel 1. Setting higher common mode tolerance offers improved CMRR performance
+at the expense of noise performance by a few decibels.
+                    Table 7-10. Common-Mode Tolerance Mode Selection for Record Channel
+  P0_R80_D[3:2] : ADC_CH1_CM_TOL[1:0]                        CHANNEL 1 INPUT COMMON-MODE TOLERANCE
+
+                                          AC-coupled input with common mode variance tolerance of 50mVpp for single-ended and
+                 00 (default)
+                                          100mVpp for differential configuration
+
+                                          AC-coupled / DC-coupled input with common mode variance tolerance supported 500mVpp
+                     01
+                                          for single-ended and 1Vpp for differential configuration
+
+                                          AC-coupled / DC-coupled input with common mode variance tolerance supported rail to rail
+                     10
+                                          (supply to ground) (High CMRR tolerance mode)
+
+                     11                   Reserved (do not use this setting)
+
+
+                          Table 7-11. Input Common Mode Tolerance for the Record Channel
+  P0_R80_D[3:2] : ADC_CH1_CM_TOL[1:0]                        INPUT CHANNEL 1 COMMON MODE TOLERANCE
+
+                                          AC-coupled input with common mode variance tolerance supported 50mVpp for single
+                 00 (default)
+                                          ended and 100mVpp for differential configuration
+
+                                          AC-coupled / DC-coupled input with common mode variance tolerance supported 500mVpp
+                     01
+                                          for single ended and 1Vpp for differential configuration
+
+                                          AC-coupled / DC-coupled input with common mode variance tolerance supported rail to rail
+                     10
+                                          (supply to ground) (High CMRR tolerance mode)
+
+                     11                   Reserved
+
+
+See Figure 7-15 to Figure 7-20 for the various typical input configuration diagrams. For single-ended inputs, the
+INxM pin can be directly grounded in DC-coupled configuration, but the INxM pin must be grounded after the
+AC-coupling capacitor in the AC-coupled configuration. For the best dynamic range performance, the differential
+AC-coupled input setting should be used and the common-mode variation at the device input should be limited to
+less than 100mVpp. For more details, refer Analog Input Configurations, Mixing and Muxing of TAx5x1x Devices
+application report.
+
+
+
+
+40     Submit Document Feedback                                                           Copyright © 2025 Texas Instruments Incorporated
+
+                                                  Product Folder Links: TAC5112
+
+
+=== PDF page 41 ===
+                                                                                                                                                    TAC5112
+www.ti.com                                                                                           SLASF24A – DECEMBER 2023 – REVISED JANUARY 2025
+
+
+
+
+         Audio input from                          INxP                                  Audio input from                          INxP
+         Line/Microphone                   C μF                                          Line/Microphone
+              source                                                                          source
+
+                                                  INxM                                                                            INxM
+                                           C μF
+
+
+
+
+     Figure 7-15. Differential AC-Coupled Input                                       Figure 7-16. Differential DC-Coupled Input
+   Connection (ADC_CHx_INSRC set to 2'b00 and                                       Connection (ADC_CHx_INSRC set to 2'b00 and
+   ADC_CHx_CM_TOL set to 2'b00 or 2'b01 or 2'10)                                       ADC_CHx_CM_TOL set to 2'b01 or 2'10)
+
+             Line or                                                                         Line or
+           Microphone                                                                      Microphone
+                                                  INxP                                                                           INxP
+          Single-ended                                                                    Single-ended
+              Input                                                                           Input
+                                                  INxM                                                                           INxM
+
+
+                            GND                                                                             GND
+    Figure 7-17. Single-ended AC-Coupled Input                                       Figure 7-18. Single-ended DC-Coupled Input
+   Connection (ADC_CHx_INSRC set to 2'b01 and                                       Connection (ADC_CHx_INSRC set to 2'b01 and
+   ADC_CHx_CM_TOL set to 2'b00 or 2'b01 or 2'10)                                       ADC_CHx_CM_TOL set to 2'b01 or 2'10)
+
+
+          Audio input from                                                                Audio input from
+          Line/Microphone                         INxP                                    Line/Microphone                         INxP
+               source                                                                          source
+                                          C μF
+
+                                                  INxM                                                                            INxM
+                                  Don’t care                                                                      Don’t care
+
+
+
+
+      Figure 7-19. Single-ended mux on INxP AC-                                       Figure 7-20. Single-ended mux on INxP DC-
+   Coupled Input Connection (ADC_CHx_INSRC set                                     Coupled Input Connection (ADC_CHx_INSRC set
+    to 2'b10 and ADC_CHx_CM_TOL set to 2'b00 or                                     to 2'b10 and ADC_CHx_CM_TOL set to 2'b01 or
+                     2'b01 or 2'10)                                                                       2'10)
+
+
+The device also allows for flexibility in choosing the typical input impedance on INxP or INxM from 5kΩ (default),
+10kΩ, and 40kΩ based on the input source impedance selection. There can be a ±20% variation on the selected
+input impedance value. The higher input impedance results in slightly higher noise or lower dynamic range.
+Table 7-12 lists the configuration register settings for the input impedance for the record channel.
+                                     Table 7-12. Input Impedance Selection for the Record Channel
+     P0_R80_D[5:4] : ADC_CH1_IMP[1:0]                                           CHANNEL 1 INPUT IMPEDANCE SELECTION
+                      00 (default)                        Channel 1 input impedance typical value is 5 kΩ on INxP or INxM
+                             01                           Channel 1 input impedance typical value is 10 kΩ on INxP or INxM
+                             10                           Channel 1 input impedance typical value is 40 kΩ on INxP or INxM
+                             11                           Reserved (do not use this setting)
+
+
+Similarly, the input impedance selection setting for input channel 2 can be configured using the
+ADC_CH2_IMP[1:0] (P0_R85_D[5:4]).
+Input impedance setting of 5 kΩ is not supported when the ADC inputs are configured for single ended mux
+(ADC_CHx_INSRC = 2'b10 or 2'b11) and also not supported in the high swing mode (Section 7.3.5).
+
+
+
+Copyright © 2025 Texas Instruments Incorporated                                                                                Submit Document Feedback   41
+                                                                 Product Folder Links: TAC5112
+
+
+=== PDF page 134 ===
+TAC5112
+SLASF24A – DECEMBER 2023 – REVISED JANUARY 2025                                                                              www.ti.com
+
+                              Table 8-70. ADC_CH1_CFG0 Register Field Descriptions
+      Bit    Field                    Type         Reset         Description
+      7-6    ADC_CH1_INSRC[1:0]       R/W          00b           ADC Channel 1 input configuration.
+                                                                 0d = Analog differential input
+                                                                 1d = Analog single-ended input
+                                                                 2d = Analog single-ended mux INP1 input
+                                                                 3d = Analog single-ended mux INM1 input
+      5-4    ADC_CH1_IMP[1:0]         R/W          00b           ADC Channel 1 input impedance (applicable for the analog input).
+                                                                 0d = Typical 5kΩ input impedance (For 4 Vrms case it will be 10kΩ)
+                                                                 1d = Typical 10kΩ input impedance
+                                                                 2d = Typical 40kΩ input impedance
+                                                                 3d = Reserved
+      3-2    ADC_CH1_CM_TOL[1:0]      R/W          00b           ADC Channel 1 input coupling (applicable for the analog input).
+                                                                 0d = AC-coupled input with common mode variance tolerance
+                                                                 supported 50 mVpp for single ended and 100 mVpp for differential
+                                                                 configuration
+                                                                 1d = AC-coupled / DC-coupled input with common mode variance
+                                                                 tolerance supported 500 mVpp for single ended and 1 Vpp for
+                                                                 differential configuration
+                                                                 2d = AC-coupled / DC-coupled input with common mode variance
+                                                                 tolerance supported rail to rail (supply to ground) (High CMRR
+                                                                 tolerance mode)
+                                                                 3d = Reserved
+      1      ADC_CH1_FULLSCALE_ R/W                0b            ADC Channel 1 Full-scale value for VREF=2.75 V (applicable for the
+             VAL                                                 analog input).
+                                                                 0d = 2 Vrms differential ( 1 Vrms for single ended operation)
+                                                                 1d = 4 Vrms differential ( 2 Vrms for single ended operation) (For AC-
+                                                                 coupled configuration external biasing is required for input common
+                                                                 mode, this mode supported with common mode variance tolerance
+                                                                 rail to rail) (only 2.75 VREF supported, only supported in audio band-
+                                                                 width mode)
+      0      ADC_CH1_BW_MODE          R/W          0b            ADC Channel 1 band-width selection. coupling (applicable for the
+                                                                 analog input).
+                                                                 0d = audio band-width (24 kHz mode)
+                                                                 1d = wide band-width (96 kHz mode) (Supported only for 40kΩ input
+                                                                 impedance case)
+
+
+
+8.1.1.69 IADC_CH_CFG Register (Address = 0x51) [Reset = 0x00]
+IADC_CH_CFG is shown in Table 8-71.
+Return to the Summary Table.
+This register is configuration register for ADC channels in IADC mode.
+                              Table 8-71. IADC_CH_CFG Register Field Descriptions
+      Bit    Field                    Type         Reset         Description
+      7      IADC_EN                  R/W          0b            IADC enable configuration.
+                                                                 0d = IADC disabled
+                                                                 1d = IADC enabled
+      6-5    IADC_MODE[1:0]           R/W          00b           IADC mode configuration. (for single channel mode channel select is
+                                                                 controlled by ADC_INSRC SE_MUX config)
+                                                                 0d = One-shot single channel
+                                                                 1d = One-shot multi channel
+                                                                 2d = Sequential single channel
+                                                                 3d = Sequential multi channel
+      4      IADC_CONVST_ONESH        R/W          0b            IADC conversion start one short configuration.
+             OT                                                  0d = No conversion
+                                                                 1d = Start one shot conversion
+      3      IADC_STOP_SEQ_CONV R/W                0b            IADC stop sequential conversion configuration.
+                                                                 0d = Sequential conversion running
+                                                                 1d = Stop sequential conversion
+
+134   Submit Document Feedback                                                              Copyright © 2025 Texas Instruments Incorporated
+
+                                                  Product Folder Links: TAC5112
+
+
+=== PDF page 142 ===
+TAC5112
+SLASF24A – DECEMBER 2023 – REVISED JANUARY 2025                                                                            www.ti.com
+
+8.1.1.87 OUT1x_CFG1 Register (Address = 0x65) [Reset = 0x20]
+OUT1x_CFG1 is shown in Table 8-89.
+Return to the Summary Table.
+This register is configuration register 1 for Channel OUT1x.
+                                 Table 8-89. OUT1x_CFG1 Register Field Descriptions
+      Bit    Field                    Type         Reset         Description
+      7-6    OUT1P_DRIVE[1:0]         R/W          00b           Channel OUT1P drive configuration.
+                                                                 0d = Line out driver with minimum 300Ω single ended impedance
+                                                                 1d = Headphone driver with minimum 16Ω single ended impedance
+                                                                 2d = To drive minimum of 4Ω single ended impedance
+                                                                 3d = For higher DR/SNR for FD receiver loads
+      5-3    OUT1P_LVL_CTRL[2:0]      R/W          100b          Channel OUT1P level control configuration.
+                                                                 0d = Reserved; Don't use
+                                                                 1d = Reserved; Don't use
+                                                                 2d = 12 dB (only valid in bypass only mode configured in
+                                                                 OUT1x_SRC{B0_P0_R100})
+                                                                 3d = 6 dB (only valid if ana bypass mode or ana-dig mix mode
+                                                                 configured in OUT1x_SRC{B0_P0_R100})
+                                                                 4d = 0 dB
+                                                                 5d = -6 dB (only valid if ana bypass mode or ana-dig mix mode
+                                                                 configured in OUT1x_SRC{B0_P0_R100})
+                                                                 6d = -12 dB (only valid if ana bypass mode or ana-dig mix mode
+                                                                 configured in OUT1x_SRC{B0_P0_R100} and AIN1M_BYP_IMP
+                                                                 configured 4.4kΩ )
+                                                                 7d = Reserved; Don't use
+      2      AIN1M_BYP_IMP            R/W          0b            AIN1M Analog Bypass input impedance.
+                                                                 0d = 4.4kΩ
+                                                                 1d = 20kΩ
+      1      AIN1x_BYP_CFG            R/W          0b            IN1x Analog Bypass input config.
+                                                                 0d = FD / Pseudo Diff
+                                                                 1d = SE
+      0      DAC_CH1_BW_MODE          R/W          0b            DAC Channel 1 band-width selection.
+                                                                 0d = audio band-width (24 kHz mode)
+                                                                 1d = wide band-width (96 kHz mode)
+
+
+
+8.1.1.88 OUT1x_CFG2 Register (Address = 0x66) [Reset = 0x20]
+OUT1x_CFG2 is shown in Table 8-90.
+Return to the Summary Table.
+This register is configuration register 2 for Channel OUT2x.
+                                 Table 8-90. OUT1x_CFG2 Register Field Descriptions
+      Bit    Field                    Type         Reset         Description
+      7-6    OUT1M_DRIVE[1:0]         R/W          00b           Channel OUT1M drive configuration.
+                                                                 0d = Line out driver with minimum 300Ω single ended impedance
+                                                                 1d = Headphone driver with minimum 16Ω single ended impedance
+                                                                 2d = To drive minimum of 4Ω single ended impedance
+                                                                 3d = For higher DR/SNR for FD receiver loads
+
+
+
+
+142   Submit Document Feedback                                                            Copyright © 2025 Texas Instruments Incorporated
+
+                                                  Product Folder Links: TAC5112
 

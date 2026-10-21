@@ -221,6 +221,8 @@ After the relay layout exists, re-extract `../layout-parasitics/` and replace th
 
 Size: about 150 `tia` runs plus 12 other-loop runs, at the existing 120 points/decade (4,800 for coil cases). This study did not run them.
 
+**Results (2026-10-20, on the codec front end).** The stress set fails at 38.5°. Adding 100 pF from DUT_LO to ground restores it to 56.0°. See [rev-e-front-end.md](rev-e-front-end.md#stability-results) and `validation/stability-full-chain/README.md`.
+
 ## 7. Risks and open items
 
 - **Relay parasitics.** Contact-to-coil capacitance, pole-to-pole capacitance, contact-path inductance and per-closure contact repeatability are unpublished for every candidate (**UNVERIFIED**). The §6 stress values bracket them. Measure one relay on the bench, or with a VNA, before ordering if the stress set comes close to 45°.

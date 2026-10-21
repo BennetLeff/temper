@@ -1,3 +1,33 @@
+# Rev E codec front end and range relays
+
+`codec-template.cir` is the Rev E front end ([design](../../docs/rev-e-front-end.md)): the OPA810 difference stage driven by the TAC5112 DAC, the retained TIA core, and four 1k/1k, 560 pF, 1 µF, 470 Ω legs into 40 kΩ codec inputs. It replaces the FDA/ADS9224R chain. `codec-seed.inc` holds its DC seed. All cases carry the Rev D extracted board string (`_revd_risolo22`). The relay cases follow [range-switching §6](../../docs/rev-e-range-switching.md). Criterion: every downward crossing ≥ 45°; reference floor Rev D as built, 51.3° and |1+T| ≥ 0.573.
+
+| Mode | Cases | Worst phase margin | Min. abs(1+T) | Verdict |
+|---|---:|---:|---:|---|
+| `codecbase`: codec load, jumpers (no relays) | 64 | 51.30° | 0.573 | equals Rev D: the codec network loads TIA_OUT like the FDA did |
+| `fixedrelay`, nominal parasitics | 64 | 48.64° | 0.536 | passes |
+| `fixedrelay`, stress parasitics | 64 | **38.48°** | 0.422 | **fails**; every range at 38–42° |
+| `fixedrelay`, attribution (one stress value at a time) | 18 | 44.81° (TIA_OUT pad copper 10 pF) | 0.495 | dC −3.8°, Ccc −2.2°, Cpp −1.3°, Coc −0.8°, L_rel and Rc ≈ 0 |
+| `fixedrelayrout22`: relay bus behind 22 Ω, stress | 64 | 41.81° | 0.467 | rejected (nominal 49.29°) |
+| **`fixedrelaycng100`: + 100 pF C0G, DUT_LO to ground**, nominal | 64 | 59.95° | 0.665 | passes |
+| same, stress | 64 | **55.97°** | 0.608 | passes, above the Rev D floor |
+| same, attribution / weld | 18 / 3 | 58.45° / 59.78° | 0.642 / 0.665 | passes |
+| same, `drive` / `high` / `low` loops (stress) | 4 each | 48.29° / 57.23° / 57.87° | 0.563 / 0.704 / 0.718 | passes; `drive` is the lowest margin left |
+| `codecbasecng100`: the capacitor without relays | 64 | 60.95° | 0.685 | reference: what the capacitor gives alone |
+
+**Mechanism and fix.** The relays add capacitance at TIA_OUT: pad copper, contact-to-coil capacitance, and pole-to-pole capacitance to SOURCE_BUF. With C104 = 100 pF and only a few pF at the summing node, the TIA feedback factor is near 1, so it crosses over near 60 MHz, where the OPA2810's output resistance and that load add phase lag. A fixed 100 pF from DUT_LO to ground, ahead of R_iso, lowers the high-frequency loop gain. This is the same noise-gain shaping that the fixture strays already provide (the `stray100` cases gave about 75°). The fixture strays then add to it.
+- **Why DUT_LO and not TIA_SUM.** DUT_LO is a virtual ground sensed by the LOW follower, so the capacitor carries only the TIA's error voltage. The error it causes is linear, the same as fixture stray, and the three-standard calibration removes it.
+- **Noise.** The capacitor changes no noise row at two significant figures (`../rev-e-codec/`, transfer `riso22_lo100`).
+- **Rejected alternatives.**
+  - Isolating the relay bus behind a resistor (`fixedrelayrout<R>`): the bus capacitance then loads the RF path instead, which only buys 3°.
+  - Spot checks of other C104 values and a larger R_iso, not committed, did not restore 45° either.
+
+**Still guessed.** The stress values of Ccc, Cpp, L_rel and dC are estimates (range-switching §6). Re-extract after the relay layout and rerun `fixedrelaycng100` with extracted values.
+
+Run one mode with `$LCR_LOOP_BUILD/matrix final_<mode>`. Set `SHARD=i/n` to split it across processes; each shard writes `matrix-final_<mode>-shard{i}of{n}.md`. Concatenate the table rows in shard order to get `matrix-final_<mode>.md`.
+
+---
+
 # Current Rev C fixed-local feedback validation
 
 The manufacturing circuit uses one local100 pF capacitor on all three ranges. **Fixture limit and Rev D candidate: see `fixture-envelope.md`** (100 Ω range fails 45° above about 300 pF per DUT terminal; a 22 Ω LO isolation resistor restores ≥55°; with extracted board parasitics the floor is 51.7°). Current evidence is `matrix-final_fixedgrid.md` (42cases), `matrix-final_fixedcorners.md` (84pairedcorners), `matrix-final_fixedlead.md` (48lead cases), `matrix-final_fixedfda.md` (12FDA differential/CM port checks), `matrix-final_fixedinvariance.md` (8bridge cases), `internal-loops-fixed.md` (15internalGM cuts), and `fixed-summary.md`. The fixed grid includes5nH local-CF lead and100nH RF-jumper lead; separate extremes test0/10nH local and0/100nH RF. Final100kΩ coil cases use19200points/decade to resolve narrow return trajectories. These are sensitivity assumptions, not extracted parasitics.
