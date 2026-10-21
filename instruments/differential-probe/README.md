@@ -55,7 +55,7 @@ The compact spacing design requires all three extended limits at once: `|V+| ≤
 |---|---|---:|
 | Upper divider resistors | Uni-Royal HV121WF2004T4E (2 MΩ, 1%, 1 W, 3 kV) | 10 |
 | Upper compensation | Yageo CC1812JKNPOEBN330, 33 pF NP0, 3 kV | 10 |
-| Low-leg fixed resistors | Yageo RT0603BRD074K87L (4.87 kΩ, 0.1%) | 2 |
+| Low-leg fixed resistors (also the rails-OK ladders and R126) | Yageo RT0603BRD074K87L (4.87 kΩ, 0.1%) | 2 + 5 |
 | Gain-setting precision resistors | Stackpole RNCF0603TKY499R / 1K00 / 2K00 | 3 / 2 / 1 |
 | Low-leg capacitors | Yageo CC1206FKNPO9BN103 + select-on-test C0805C302F5GACTU / C0805C161F5GACTU | 2 + 2 + 2 |
 | DC trim | Bourns 3296W-1-501LF (500 Ω) | 2 |
@@ -68,6 +68,7 @@ The compact spacing design requires all three extended limits at once: `|V+| ≤
 | Overload latch (flip-flop 2 drives the trigger output) | TI CD4013BM96 | 1 |
 | Regulators | ADP7142AUJZ-R7 / ADP7182AUJZ-R7 | 1 each |
 | Range / power switches (PCB) | E-Switch 100SP1T1B5M7RE / 100DP1T1B1M7QEH | 1 each |
+| Rails-OK window references / indicator LED | JSCJ CJ431 / Hubei KENTO KT-0805G (green) | 4 / 1 |
 | BNC (PCB, bulkhead): output J3, trigger J4 | Amphenol RF 031-5431-10RFX | 2 |
 | 9 V holders (PCB, underside) | MPD BH9VPC | 2 |
 

@@ -55,6 +55,8 @@ pub struct Out {
     pub neg_nom: f64,
     pub pos_min: f64,
     pub neg_min: f64,
+    pub pos_max: f64,
+    pub neg_max: f64,
     pub rail_min: f64,
     pub rail_max: f64,
     pub tip_nom: f64,
@@ -89,6 +91,13 @@ pub fn warning_with(p: &Warn, wide_offset: f64, fine_offset: f64) -> Out {
     let neg_max = 1.244 * fb_hi(p.r83, p.r84);
     let pos_min = 1.2 * (1. - 0.018) * fb_lo(p.r81, p.r82);
     let neg_min = 1.184 * fb_lo(p.r83, p.r84);
+    warning_rails(p, wide_offset, fine_offset, (pos_min, pos_max, neg_min, neg_max))
+}
+
+/// The same budget for stated rail magnitude ranges (pos_min, pos_max, neg_min,
+/// neg_max), e.g. the band a rail monitor accepts instead of the regulated range.
+pub fn warning_rails(p: &Warn, wide_offset: f64, fine_offset: f64, rails: (f64, f64, f64, f64)) -> Out {
+    let (pos_min, pos_max, neg_min, neg_max) = rails;
     let rail_max = pos_max.max(neg_max);
     let rail_min = pos_min.min(neg_min);
     let (ra, rb, rc) = (p.ra, p.rb, p.rc);
@@ -114,6 +123,8 @@ pub fn warning_with(p: &Warn, wide_offset: f64, fine_offset: f64) -> Out {
         neg_nom: 1.22 * (1. + p.r83.nom / p.r84.nom),
         pos_min,
         neg_min,
+        pos_max,
+        neg_max,
         rail_min,
         rail_max,
         tip_nom,

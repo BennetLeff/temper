@@ -198,6 +198,32 @@ New parts and ratings (functional low-voltage circuit; no safety approval is cla
 | R112 | Uni-Royal 0805W8F4700T5E 470 Ω (C17710, JLC Basic) | 1 %, 100 ppm/°C, 125 mW, 150 V | None |
 | D10 | Nexperia BAV199,215, as D1–D3 | 75 V continuous / 85 V repetitive reverse, 160 mA continuous forward, 4 A surge, ≤ 5 nA leakage at 75 V | None |
 
+### Rails-OK indicator (D11)
+
+A green LED, D11, is lit only while both regulated rails are inside a window. It answers "are the rails healthy?" at a glance, which the warning budget assumes and which nothing showed before (the old note was "no low-battery indicator").
+
+- **Circuit.** One ladder per rail: +4.8 V → R115 4.87 kΩ → RP_UV → R116 680 Ω → RP_OV → R117 560 Ω → R118 4.87 kΩ → GND, and the mirror from GND to −4.8 V (R119 4.87 kΩ, R120 750 Ω, R121 560 Ω, R122 4.87 kΩ). Each tap drives the REF pin of a CJ431 shunt reference. U13 (+UV) turns Q4 (MMBT5401) on through R123, Q4 drives D11 through R127 (2.7 kΩ), and U15 (−UV) sinks D11's cathode to −4.8 V, so both rails must be above UV. U14 (+OV, through R125) or U16 (−OV, through R126) turns Q5 on, which shorts Q4's base to +4.8 V and puts D11 out.
+- **Thresholds** (`validation/checks.txt`, every resistor corner, CJ431 VREF ±1 % + 17 mV temperature deviation + 5 mV for ZKA, IREF ≤ 5.2 µA, −2.7 mV/V for VKA, −25…85 °C):
+
+| Rail | UV threshold | OV threshold | Regulated range | Margins (UV / OV) |
+|---|---|---|---|---|
+| +4.8 V | 4.381–4.618 V | 4.927–5.200 V | 4.6960–4.9048 V | 77.7 / 22.0 mV |
+| −4.8 V (magnitude) | 4.335–4.595 V | 4.931–5.234 V | 4.6476–4.9197 V | 52.2 / 11.1 mV |
+
+  Every healthy rail combination lights it. A lit LED says each rail magnitude is within 4.335–5.234 V. That is wider than the regulated range, so it catches a dropped-out regulator (flat battery), a lost rail or a failed regulator, not a 1 % drift. Over that lit band the conditional late trip would be < 1,546 V per tip, < 1,410 V wide and < 289.1 V fine, against < 1,455 / 1,327 / 272.4 V with regulated rails. So the LED does not replace recording the rails at each trip-point measurement ([qualification.md §1](qualification.md)).
+- **Currents.** Assuming an overdriven 431 holds its cathode between 1.0 and 2.55 V (the CJ431 sheet gives no figure): U13 sinks ≥ 1.28 mA, the LED and U15 carry 1.27–2.42 mA, and in over-voltage U14 sinks ≥ 1.50 mA and U16 ≥ 1.28 mA, all above the 1.0 mA IKmin. Q4's base gets ≥ 1.19 mA, against ≤ 2.42 mA collector current. Q5 needs to source ≤ 4.27 mA.
+- **Cost in battery life.** Typical added draw is 4.3 mA on +4.8 V and 2.2 mA on −4.8 V (worst 6.2 / 2.9 mA), on top of about 18 mA typical per rail: 24 % / 12 % more current, so roughly 19 % / 11 % less run time on the positive / negative battery. The LED cannot be switched off; it is the low-battery indication.
+- **No hysteresis.** Near a threshold the 431 is linear, so D11 dims rather than snapping. Read it as lit or not lit.
+
+| Ref | Part | Ratings used | Approval basis |
+|---|---|---|---|
+| U13–U16 | JSCJ CJ431 (LCSC C3113, JLC Basic), SOT-23: 1 REF, 2 K, 3 A | VREF 2.495 V (±0.5 % listed; 1 % budgeted), VKA ≤ 36 V, IK 1–100 mA, IREF ≤ 4 µA (+1.2 µA over temperature), ZKA ≤ 0.5 Ω, PD 300 mW, −25…85 °C | None |
+| Q4, Q5 | JSCJ MMBT5401 (C8326), as Q1/Q3 | VCEO −150 V, IC −0.6 A, PC 0.3 W, hFE ≥ 100 at −10 mA | None |
+| D11 | Hubei KENTO KT-0805G (C2297, JLC Basic) | Green 0805, VF 2.6–3.1 V at 5 mA, 100 mW, −40…85 °C | None |
+| R115, R118, R119, R122, R126 | Yageo RT0603BRD074K87L 4.87 kΩ (already on the board) | 0.1 %, 25 ppm/°C, 100 mW, 75 V | None |
+| R116 / R117, R121 / R120 / R127 | Uni-Royal 0805W8F6800T5E 680 Ω / 0805W8F5600T5E 560 Ω / 0805W8F7500T5E 750 Ω / 0805W8F2701T5E 2.7 kΩ (C17798 / C28636 / C17818 / C17530) | 1 %, 100 ppm/°C, 125 mW, 150 V | None. The 750 Ω is JLC Preferred extended (no feeder fee); the others are Basic |
+| R123, R125 / R124 | 0805W8F1001T5E 1 kΩ / RT0805BRD0710KL 10 kΩ (already on the board) | 125 mW | None |
+
 ## Supply, grounding and assembly
 
 ### Batteries and regulators
@@ -211,8 +237,9 @@ Two 9 V batteries sit in PCB-mount MPD BH9VPC holders on the underside. They fee
 | Lit LED | about 0.8 mA extra |
 | Latched trigger output (J4) | about 0.9 mA extra into 1 MΩ, up to 11 mA into 50 Ω or a short; 0 when idle |
 | Zero-trim pots RV3/RV4 (20 kΩ across 9.6 V) | about 0.5 mA each, plus ≤ 0.5 mA wiper current |
+| Rails-OK indicator (D11 lit) | about 4.3 mA on +4.8 V and 2.2 mA on −4.8 V (worst 6.2 / 2.9 mA) |
 
-Verify the actual current and the regulator temperature. There is no low-battery indicator: record both rails before and after measurements.
+Verify the actual current and the regulator temperature. D11 going out shows a rail outside 4.335–5.234 V, which includes regulator dropout on a flat battery. It is not a precise rail check: record both rails before and after measurements.
 
 The 10 µF, 25 V, 1210 X7R regulator capacitors need an effective-capacitance check at bias. Each amplifier, comparator and latch supply has local 100 nF bypassing, with plane vias at each pin.
 

@@ -284,6 +284,27 @@ FEATURE_ADDS = [
     ("RV4", "3296W-1-203LF"),
     ("R113", "RT0805BRD0710KL"),
     ("R114", "RT0805BRD0766K5L"),
+    # Rails-OK indicator (docs/design.md): CJ431 window per rail, Q4/Q5, green LED.
+    ("U13", "CJ431"),
+    ("U14", "CJ431"),
+    ("U15", "CJ431"),
+    ("U16", "CJ431"),
+    ("Q4", "MMBT5401"),
+    ("Q5", "MMBT5401"),
+    ("D11", "KT-0805G"),
+    ("R115", "RT0603BRD074K87L"),
+    ("R116", "0805W8F6800T5E"),
+    ("R117", "0805W8F5600T5E"),
+    ("R118", "RT0603BRD074K87L"),
+    ("R119", "RT0603BRD074K87L"),
+    ("R120", "0805W8F7500T5E"),
+    ("R121", "0805W8F5600T5E"),
+    ("R122", "RT0603BRD074K87L"),
+    ("R123", "0805W8F1001T5E"),
+    ("R124", "RT0805BRD0710KL"),
+    ("R125", "0805W8F1001T5E"),
+    ("R126", "RT0603BRD074K87L"),
+    ("R127", "0805W8F2701T5E"),
 ]
 feat_rows = [(ref, FEATURE_SUBS.get(ref, mpn)) for ref, mpn in rec_rows] + FEATURE_ADDS
 

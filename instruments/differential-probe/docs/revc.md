@@ -20,12 +20,12 @@ Rev B is kept unchanged at commit `ca79d882f` (branch `codex/differential-probe-
 | Board outline | 240 × 84 mm = 20,160 mm² (20,046 mm² net of slots and chamfers) | **150 × 70 mm = 10,500 mm² (10,328 mm² net)**, −48% |
 | Copper layers | 4 | 4 (2-layer option evaluated below, not adopted) |
 | Enclosure | Not selected | **Owner-designed**, not priced; the Hammond 1455N2201 (extruded aluminium, 220 mm long, internal height 49.7 mm) is the reference geometry ([requirements](#9-size-layers-enclosure)) |
-| Components | 140: 135 on the board + 5 hand-wired off-board | **116, all on the board**: 103 SMD + 13 THT (2 BNCs, 2 toggles, reset button, 2 holders, 6 trimmers), plus the copper solder jumper JP1 |
-| Unique MPNs | 45 | **46** |
+| Components | 140: 135 on the board + 5 hand-wired off-board | **136, all on the board**: 123 SMD + 13 THT (2 BNCs, 2 toggles, reset button, 2 holders, 6 trimmers), plus the copper solder jumper JP1 |
+| Unique MPNs | 45 | **52** |
 | Tolerance-bearing parts (definition below) | 77 | **52** |
 | HV divider resistors | 20 × 1 MΩ HVCB2512 | **10 × 2 MΩ** (HVCB2512, then 1% HV12 after the [cost-down](cost-down.md)) |
 | Mounting holes | 6 | **4** |
-| LV courtyard fill, top side | 14.4% of the 9,399 mm² LV region | **38.9%** of the 6,361 mm² LV region (bottom side 53.8%; both sides 46.3%; `validation/pcb-checks.txt`) |
+| LV courtyard fill, top side | 14.4% of the 9,399 mm² LV region | **41.0%** of the 6,361 mm² LV region (bottom side 53.8%; both sides 47.4%; `validation/pcb-checks.txt`) |
 | Supply current, typical (amplifiers) | ~50 mA per rail (2 × ADA4817 + 3 × OPA810 + TL431 bias) | **~18 mA per rail** (4 OPA2810 channels + 1 OPA810) |
 | Component cost, 2 boards, dated 2026-10-20 | $768.27 | $535.81 (−30%); see [cost](#cost-dated-2026-10-20). **$148.10 after the [cost-down](cost-down.md) and [fee consolidation](fee-consolidation.md)** |
 | JLC bare-PCB quote, 5 pcs, 4 layers (HASL lead-free / ENIG) | $43.00 / $56.40 | **$36.80 / $49.30** |
@@ -40,7 +40,7 @@ Rev B is kept unchanged at commit `ca79d882f` (branch `codex/differential-probe-
 - The warning-threshold network.
 - In Rev C only, the regulator feedback resistors R81–R84, because Rev C thresholds are derived from the rails.
 
-Rev B's count includes its TL431 references and their resistors. Trimmers are counted as adjustment parts, not tolerance-bearing parts.
+Rev B's count includes its TL431 references and their resistors. Trimmers are counted as adjustment parts, not tolerance-bearing parts. The zero-trim injection resistors (R113/R114) and the rails-OK ladders (R115–R122) are not counted either: they set trim reach and an indicator window, not a measurement ratio or the warning budget.
 
 ## What changed, item by item
 
@@ -181,6 +181,8 @@ Each saved at most one or two parts while weakening the latched-until-reset beha
 
 **Rev C feature: trigger output (J4).** The CD4013's second flip-flop was unused. It now latches with the first and drives a second BNC through a PNP high-side stage (Q3, R110–R112, D10): 0 V idle, 4.45–4.92 V into 1 MΩ when latched, 0.42–0.48 V into 50 Ω. The scope can then trigger on the warning. It marks that the warning latched; it is not a peak-capture guarantee, and the latency estimate is 1.64 µs after the comparator output plus the comparator's typical 460 ns. Nothing on J4 can reach the warning latch. Details, ratings and margins are in [design.md](design.md#trigger-output-j4). Cost: +$7.42 for two boards (strategy H − E, `validation/cost.txt`), mostly the second owner-soldered BNC; two new JLC Basic resistors and no new Extended MPNs.
 
+**Rev C feature: rails-OK indicator (D11).** A green LED is lit only while both rails are inside a window set by four CJ431 shunt references on one ladder per rail (U13–U16, Q4/Q5, R115–R127). Every regulated-rail corner lights it, with at least 11.1 mV of margin to the nearest threshold; a lit LED shows both rail magnitudes inside 4.335–5.234 V. It flags a flat battery (regulator dropout), a lost rail or a failed regulator, which the warning budget assumes away; it does not check the 1 % regulated range, so record both rails with trip-point measurements as before. It costs about 4.3 mA on +4.8 V and 2.2 mA on −4.8 V, roughly 19 % / 11 % of battery run time. Details are in [design.md](design.md#rails-ok-indicator-d11). Cost: +$1.54 for two boards (strategy H − E, `validation/cost.txt`); six new MPNs (CJ431, KT-0805G and four 1 % resistors), all JLC Basic except the 750 Ω, which is Preferred extended (no feeder fee), so the Extended count stays at 20.
+
 ### 7. PCB-mount panel parts
 
 | Part | MPN | Notes |
@@ -220,7 +222,7 @@ Holes go from 6 to 4:
 - **H1/H2:** grounded M3, at the panel end. H2 is at (145.5, 65.5). H1 moved from the (145.5, 4.5) corner to (131.0, 31.2), between SW1 and J3, because the trigger BNC J4 now occupies that corner.
 - **H3/H4:** unplated, at the tip end, one on each side of the notch. Use **nylon screws and standoffs** there.
 
-The LV region (x ≥ 59 mm, 6,361 mm²) has 38.9% top-side courtyard coverage (Rev B: 14.4%) and 53.8% bottom-side coverage, from the two holders and the reset button's tail keep-out. That is 46.3% of the two-sided placement area (`check_pcb.rs`). The same calculation gave 37.0 / 53.8 / 45.4% before the zero trims, 33.0 / 53.8 / 43.4% before the trigger output (J4 and its stage) was added, and 32.9 / 52.8 / 42.8% before the button moved.
+The LV region (x ≥ 59 mm, 6,361 mm²) has 41.0% top-side courtyard coverage (Rev B: 14.4%) and 53.8% bottom-side coverage, from the two holders and the reset button's tail keep-out. That is 47.4% of the two-sided placement area (`check_pcb.rs`). The same calculation gave 38.9 / 53.8 / 46.3% before the rails-OK indicator, 37.0 / 53.8 / 45.4% before the zero trims, 33.0 / 53.8 / 43.4% before the trigger output (J4 and its stage) was added, and 32.9 / 52.8 / 42.8% before the button moved.
 
 **Top side and both sides now meet ≥ 35%**; the top side got there by adding the trigger output, not by shrinking the board. Before that, reaching 35% on the top side alone needed a 150 × 64 mm board (estimated 35.7%), which means re-placing every band. I kept 150 × 70 mm, the stated stretch target. The holders still fit, and the extra 6 mm buys routing corridors (WIDE_SEL/FINE_SEL along the top edge). This can be reversed if the top-side number matters.
 
@@ -251,7 +253,7 @@ Any owner enclosure must provide:
    - **the gland axis height**: 26.61 mm above the inner floor in the reference (28.25 mm above the box underside). On the bench the box stands on a riser that puts the gland axis 50 mm above the stage-53 board top (71.7 mm for the reference box). An owner enclosure with a different axis height needs a different riser, not a different spine.
    - **trimmer-guide holes** in the lid: Ø7.2 mm over CT1/CT2, RV1/RV2 and the RV3/RV4 zero trims for the snap-in guides, lid 1.65 mm thick at the reference height (rebuild the guides with `make mech3d` if the lid differs).
 4. **Board standoffs** that put the board underside 22.0 mm above the inner floor (the 9 V holders hang 20.6 mm below the board; insulating sheet on the floor): metal at H1/H2, nylon at H3/H4.
-5. **Panel access**: an output panel (≤ 5 mm thick at the BNCs) with two BNC D-holes (Ø12.83 mm, 11.7 mm flat; J4 trigger at y = 7.72 mm and J3 output at y = 35.0 mm, both 8.6 mm above the board top) and the two 6.35 mm toggle holes (SW1 at y = 21.36 mm, SW2 at y = 56.0 mm, 6.35 mm above the board top). Board y is measured from the edge nearest J4; the panel order from that edge is J4, SW1, J3, SW2, with SW3 set back at (131.85, 46.25). The J4–SW1 pitch is 13.64 mm, so check that the BNC nut and the toggle nut or washer clear each other on the panel. Also provide holes for the SW3 reset button, the CT1/CT2, RV1/RV2 and RV3/RV4 trimmer tools and the D9 LED, with every hole edge ≥ 20 mm from HV copper.
+5. **Panel access**: an output panel (≤ 5 mm thick at the BNCs) with two BNC D-holes (Ø12.83 mm, 11.7 mm flat; J4 trigger at y = 7.72 mm and J3 output at y = 35.0 mm, both 8.6 mm above the board top) and the two 6.35 mm toggle holes (SW1 at y = 21.36 mm, SW2 at y = 56.0 mm, 6.35 mm above the board top). Board y is measured from the edge nearest J4; the panel order from that edge is J4, SW1, J3, SW2, with SW3 set back at (131.85, 46.25). The J4–SW1 pitch is 13.64 mm, so check that the BNC nut and the toggle nut or washer clear each other on the panel. Also provide holes for the SW3 reset button, the CT1/CT2, RV1/RV2 and RV3/RV4 trimmer tools and the D9 and D11 LEDs, with every hole edge ≥ 20 mm from HV copper.
 
 The Hammond 1455N2201 numbers in this section are the reference design. To check an owner enclosure, re-enter its dimensions in the constants at the top of [`tools/leads.rs`](../tools/leads.rs) (the enclosure block `BOX_H`, `BOX_H_NOM`, `BOX_W`, `BOARD_UNDER`, `OUT_PANEL_X`, `BOX_L_INT`, and the tip-end wall block) and run `make check`: every setback gate and the section drawing regenerate, a failed gate stops the check, and `make mech3d` rebuilds the printed parts from the new geometry.
 
@@ -272,7 +274,7 @@ The board sits on four standoffs so its underside is **22.0 mm above the inner f
 - The RV1/RV2 3296W top screws (bodies at x ≈ 62–71 mm, y = 7 / 63 mm; locate the screw from a sample).
 - The RV3/RV4 zero-trim 3296W screws (bodies along x = 68.6 mm, y ≈ 10–20 mm for RV4 and 50–60 mm for RV3; locate the screw from a sample). The same `trim-guide-rv` guide fits.
 - The SW3 reset button at (131.85, 46.25), in the panel strip between the output BNC and the power switch.
-- The D9 LED at (115, 24).
+- The D9 warning LED at (115, 24) and the D11 rails-OK LED at (117.0, 35.25).
 
 The lid is 25 mm above the board, so hole edges stay ≥ 20 mm from HV copper. The holders hang 20.6 mm under the board, leaving 1.4 mm. Put an insulating sheet on the floor.
 
@@ -328,7 +330,7 @@ Caveats on the prices:
 
 1. **HVCB2512BDE2M00 stock** (9 at DigiKey, 0 at LCSC). Resolved by the [cost-down](cost-down.md): 1% HV12 bodies stocked at JLC, HVCB kept as a drop-in upgrade.
 2. **BNC footprint orientation and E-Switch toggle fit** must be checked against samples or drawings before fabrication.
-3. **Top-side fill is 38.9%** with the trigger output and zero trims added; the 150 × 64 mm re-placement is no longer needed for the fill target.
+3. **Top-side fill is 41.0%** with the trigger output, zero trims and rails-OK indicator added; the 150 × 64 mm re-placement is no longer needed for the fill target.
 4. **U12 kept as a separate OPA810.** Confirm, or ask for the ×2 + ×5 pairing.
 5. **Kemet 1% C0G select-on-test kits** need sourcing. Several Rev C MPNs have no reviewed LCSC identity (see [`procurement/README.md`](../procurement/README.md)).
 6. **Bench items.** Unchanged in kind from Rev B, plus:

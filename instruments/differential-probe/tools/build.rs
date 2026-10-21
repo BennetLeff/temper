@@ -893,6 +893,22 @@ fn main() {
             false,
         ),
     );
+    // Shunt reference used as a comparator (rails-OK indicator): SOT-23 CJ431
+    // pinout 1 REF, 2 K, 3 A (JCET datasheet; the CD431 orders them differently).
+    d.syms.insert(
+        "TL431".into(),
+        custom(
+            "TL431",
+            vec![
+                pin("1", "REF", "input", -6., 0., 0),
+                pin("2", "K", "passive", 0., 6., 270),
+                pin("3", "A", "passive", 0., -6., 90),
+            ],
+            4.,
+            4.,
+            true,
+        ),
+    );
     for (k, n) in [("PAD", 1), ("BNC", 2), ("BATTERY", 2), ("BUTTON", 2)] {
         let ps = (1..=n)
             .map(|i| {
@@ -1590,6 +1606,64 @@ fn main() {
     d.link("RV4", "2", "TRIM_F");
     d.two(1, "R114", "R_Small_US", &r("66.5 kR", "66K5"), (150., 232.), 0, "TRIM_F", "GAIN5_FB", false);
     d.text(1, (14., 247.), "Trim each range to 0 V at the BNC, tips shorted, after warm-up (docs/qualification.md section 2).", 1.27);
+    // Rails-OK indicator (docs/design.md "Rails-OK indicator"): green D11 lights only
+    // while both rails sit between an undervoltage and an overvoltage threshold, set by
+    // one 4-resistor ladder per rail and four CJ431 shunt references used as
+    // comparators. U13 (+ UV) turns the high-side PNP Q4 on; U15 (- UV) completes the
+    // LED return to -4V8; U14 (+ OV) or U16 (- OV) turns Q5 on, which holds Q4 off.
+    d.block(1, (325., 22.), (460., 172.), "RAILS-OK INDICATOR / green D11 = both rails inside their window");
+    let shunt = part(
+        "CJ431",
+        "CJ431",
+        "JCET (Jiangsu Changjiang)",
+        "Package_TO_SOT_SMD:SOT-23",
+        "https://www.lcsc.com/product-detail/C3113.html",
+        "C3113",
+    );
+    let green = part(
+        "GREEN / RAILS OK",
+        "KT-0805G",
+        "Hubei KENTO",
+        "LED_SMD:LED_0805_2012Metric",
+        "https://www.lcsc.com/product-detail/C2297.html",
+        "C2297",
+    );
+    // Positive-rail ladder: +4V8 - 4.87k - RP_UV - 680 - RP_OV - 560 - RP_B - 4.87k - GND.
+    d.two(1, "R115", "R_Small_US", &rf, (340., 40.), 90, "+4V8", "RP_UV", false);
+    d.two(1, "R116", "R_Small_US", &rb("680 R", "0805W8F6800T5E", "C17798"), (340., 60.), 90, "RP_UV", "RP_OV", false);
+    d.two(1, "R117", "R_Small_US", &rb("560 R", "0805W8F5600T5E", "C28636"), (340., 80.), 90, "RP_OV", "RP_B", false);
+    d.two(1, "R118", "R_Small_US", &rf, (340., 100.), 90, "RP_B", "GND", false);
+    // Negative-rail ladder: GND - 4.87k - RN_UV - 750 - RN_OV - 560 - RN_B - 4.87k - -4V8.
+    d.two(1, "R119", "R_Small_US", &rf, (440., 40.), 90, "GND", "RN_UV", false);
+    d.two(1, "R120", "R_Small_US", &rb("750 R", "0805W8F7500T5E", "C17818"), (440., 60.), 90, "RN_UV", "RN_OV", false);
+    d.two(1, "R121", "R_Small_US", &rb("560 R", "0805W8F5600T5E", "C28636"), (440., 80.), 90, "RN_OV", "RN_B", false);
+    d.two(1, "R122", "R_Small_US", &rf, (440., 100.), 90, "RN_B", "-4V8", false);
+    for (u, xy, refn, k, a) in [
+        ("U13", (365., 50.), "RP_UV", "U13K", "GND"),
+        ("U14", (365., 90.), "RP_OV", "U14K", "GND"),
+        ("U15", (415., 50.), "RN_UV", "LED_K", "-4V8"),
+        ("U16", (415., 90.), "RN_OV", "U16K", "-4V8"),
+    ] {
+        d.place(1, u, "TL431", &shunt, xy, 0, false, true);
+        d.link(u, "1", refn);
+        d.link(u, "2", k);
+        d.link(u, "3", a);
+    }
+    d.two(1, "R123", "R_Small_US", &rb("1 kR", "0805W8F1001T5E", "C17513"), (390., 125.), 0, "U13K", "Q4B", false);
+    d.two(1, "R124", "R_Small_US", &r("10 kR", "10K"), (390., 152.), 0, "Q4B", "+4V8", false);
+    d.two(1, "R125", "R_Small_US", &rb("1 kR", "0805W8F1001T5E", "C17513"), (335., 125.), 0, "U14K", "Q5B", false);
+    d.two(1, "R126", "R_Small_US", &rf, (335., 152.), 0, "U16K", "Q5B", false);
+    d.place(1, "Q4", "PNP", &pnp, (415., 135.), 0, false, true);
+    for (p, n) in [("1", "Q4B"), ("2", "+4V8"), ("3", "Q4C")] {
+        d.link("Q4", p, n)
+    }
+    d.place(1, "Q5", "PNP", &pnp, (362., 140.), 0, false, true);
+    for (p, n) in [("1", "Q5B"), ("2", "+4V8"), ("3", "Q4B")] {
+        d.link("Q5", p, n)
+    }
+    d.two(1, "R127", "R_Small_US", &rb("2.7 kR", "0805W8F2701T5E", "C17530"), (445., 125.), 0, "Q4C", "LED_G", false);
+    d.two(1, "D11", "LED", &green, (440., 152.), 0, "LED_K", "LED_G", false);
+    d.text(1, (328., 167.), "Lit: +rail and -rail each inside its window (validation/checks.txt). Thresholds are not a measurement.", 1.27);
     // Sheet 3: battery supply, decoupling, rail-referenced thresholds, latch UI.
     d.text(
         2,

@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>/Users/bennet/Desktop/temper/worktrees/probe-revc/instruments/differential-probe/cad/differential-probe.kicad_sch</source>
-    <date>2026-10-21T08:25:52</date>
+    <date>2026-10-21T08:45:38</date>
     <tool>Eeschema 10.0.4</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -1327,6 +1327,37 @@
         </unit>
       </units>
     </comp>
+    <comp ref="D11">
+      <value>GREEN / RAILS OK</value>
+      <footprint>LED_SMD:LED_0805_2012Metric</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C2297.html</datasheet>
+      <fields>
+        <field name="MPN">KT-0805G</field>
+        <field name="Manufacturer">Hubei KENTO</field>
+        <field name="LCSC">C2297</field>
+        <field name="Footprint">LED_SMD:LED_0805_2012Metric</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C2297.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="LED" description="Light emitting diode"/>
+      <property name="MPN" value="KT-0805G"/>
+      <property name="Manufacturer" value="Hubei KENTO"/>
+      <property name="LCSC" value="C2297"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="LED diode"/>
+      <property name="ki_fp_filters" value="LED* LED_SMD:* LED_THT:*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e1391119-929a-4275-8ab6-dab53eae9a20</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
     <comp ref="J3">
       <value>BNC / PCB right-angle bulkhead / 50 R</value>
       <footprint>Probe:BNC_Amphenol_031-5431_Horizontal</footprint>
@@ -1466,6 +1497,66 @@
       <property name="Sheetfile" value="signal.kicad_sch"/>
       <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
       <tstamps>093f1507-b5cf-49dd-86ba-410e660bfedf</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="Q4">
+      <value>MMBT5401</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C8326.html</datasheet>
+      <fields>
+        <field name="MPN">MMBT5401</field>
+        <field name="Manufacturer">CJ (Jiangsu Changjing)</field>
+        <field name="LCSC">C8326</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C8326.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="PNP" description=""/>
+      <property name="MPN" value="MMBT5401"/>
+      <property name="Manufacturer" value="CJ (Jiangsu Changjing)"/>
+      <property name="LCSC" value="C8326"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>093f0e07-b5cf-4df8-86b6-c10e66060c5f</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="Q5">
+      <value>MMBT5401</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C8326.html</datasheet>
+      <fields>
+        <field name="MPN">MMBT5401</field>
+        <field name="Manufacturer">CJ (Jiangsu Changjing)</field>
+        <field name="LCSC">C8326</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C8326.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="PNP" description=""/>
+      <property name="MPN" value="MMBT5401"/>
+      <property name="Manufacturer" value="CJ (Jiangsu Changjing)"/>
+      <property name="LCSC" value="C8326"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>093f0f07-b5cf-4fab-86b7-410e6606e5df</tstamps>
       <units>
         <unit name="A">
           <pins>
@@ -2158,6 +2249,409 @@
         </unit>
       </units>
     </comp>
+    <comp ref="R115">
+      <value>4.87 kR / 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</datasheet>
+      <fields>
+        <field name="MPN">RT0603BRD074K87L</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C861446</field>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="RT0603BRD074K87L"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C861446"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3a6772a-4b2a-42d6-85de-5fe9ade432c8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R116">
+      <value>680 R</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C17798.html</datasheet>
+      <fields>
+        <field name="MPN">0805W8F6800T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17798</field>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17798.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="0805W8F6800T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17798"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3a6762a-4b2a-4123-85dc-dfe9ade1a648</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R117">
+      <value>560 R</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C28636.html</datasheet>
+      <fields>
+        <field name="MPN">0805W8F5600T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C28636</field>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C28636.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="0805W8F5600T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C28636"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3a6752a-4b2a-4f70-85dd-5fe9ade27fc8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R118">
+      <value>4.87 kR / 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</datasheet>
+      <fields>
+        <field name="MPN">RT0603BRD074K87L</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C861446</field>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="RT0603BRD074K87L"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C861446"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3a6842a-4b2a-48ed-85df-dfe9ade6bf48</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R119">
+      <value>4.87 kR / 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</datasheet>
+      <fields>
+        <field name="MPN">RT0603BRD074K87L</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C861446</field>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="RT0603BRD074K87L"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C861446"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3a6832a-4b2a-473a-85e0-5fe9ade798c8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R120">
+      <value>750 R</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C17818.html</datasheet>
+      <fields>
+        <field name="MPN">0805W8F7500T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17818</field>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17818.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="0805W8F7500T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17818"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3aa022a-4b2d-44de-8f5b-dfea66aa3349</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R121">
+      <value>560 R</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C28636.html</datasheet>
+      <fields>
+        <field name="MPN">0805W8F5600T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C28636</field>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C28636.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="0805W8F5600T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C28636"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3aa032a-4b2d-4691-8f5c-5fea66ab0cc9</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R122">
+      <value>4.87 kR / 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</datasheet>
+      <fields>
+        <field name="MPN">RT0603BRD074K87L</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C861446</field>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="RT0603BRD074K87L"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C861446"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3aa002a-4b2d-4178-8f5a-dfea66a88049</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R123">
+      <value>1 kR</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C17513.html</datasheet>
+      <fields>
+        <field name="MPN">0805W8F1001T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17513</field>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17513.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="0805W8F1001T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17513"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3aa012a-4b2d-432b-8f5b-5fea66a959c9</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R124">
+      <value>10 kR</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <fields>
+        <field name="MPN">RT0805BRD0710KL</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC"> </field>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="RT0805BRD0710KL"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value=" "/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3aa062a-4b2d-4baa-8f5d-dfea66ad9949</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R125">
+      <value>1 kR</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C17513.html</datasheet>
+      <fields>
+        <field name="MPN">0805W8F1001T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17513</field>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17513.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="0805W8F1001T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17513"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3aa072a-4b2d-4d5d-8f5e-5fea66ae72c9</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R126">
+      <value>4.87 kR / 0.1%</value>
+      <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
+      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</datasheet>
+      <fields>
+        <field name="MPN">RT0603BRD074K87L</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC">C861446</field>
+        <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
+        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0603</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="RT0603BRD074K87L"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value="C861446"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3aa042a-4b2d-4844-8f5c-dfea66abe649</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R127">
+      <value>2.7 kR</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C17530.html</datasheet>
+      <fields>
+        <field name="MPN">0805W8F2701T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17530</field>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17530.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="0805W8F2701T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17530"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3aa052a-4b2d-49f7-8f5d-5fea66acbfc9</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
     <comp ref="RV3">
       <value>20 kR zero trim</value>
       <footprint>Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical</footprint>
@@ -2431,6 +2925,126 @@
             <pin num="5"/>
             <pin num="6"/>
             <pin num="8"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U13">
+      <value>CJ431</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C3113.html</datasheet>
+      <fields>
+        <field name="MPN">CJ431</field>
+        <field name="Manufacturer">JCET (Jiangsu Changjiang)</field>
+        <field name="LCSC">C3113</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C3113.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="TL431" description=""/>
+      <property name="MPN" value="CJ431"/>
+      <property name="Manufacturer" value="JCET (Jiangsu Changjiang)"/>
+      <property name="LCSC" value="C3113"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>632dee19-dc37-47a0-8ab7-47b269fd9c46</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U14">
+      <value>CJ431</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C3113.html</datasheet>
+      <fields>
+        <field name="MPN">CJ431</field>
+        <field name="Manufacturer">JCET (Jiangsu Changjiang)</field>
+        <field name="LCSC">C3113</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C3113.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="TL431" description=""/>
+      <property name="MPN" value="CJ431"/>
+      <property name="Manufacturer" value="JCET (Jiangsu Changjiang)"/>
+      <property name="LCSC" value="C3113"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>632df519-dc38-4385-8aba-c7b26a038ec6</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U15">
+      <value>CJ431</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C3113.html</datasheet>
+      <fields>
+        <field name="MPN">CJ431</field>
+        <field name="Manufacturer">JCET (Jiangsu Changjiang)</field>
+        <field name="LCSC">C3113</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C3113.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="TL431" description=""/>
+      <property name="MPN" value="CJ431"/>
+      <property name="Manufacturer" value="JCET (Jiangsu Changjiang)"/>
+      <property name="LCSC" value="C3113"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>632df419-dc38-41d2-8aba-47b26a02b546</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U16">
+      <value>CJ431</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <datasheet>https://www.lcsc.com/product-detail/C3113.html</datasheet>
+      <fields>
+        <field name="MPN">CJ431</field>
+        <field name="Manufacturer">JCET (Jiangsu Changjiang)</field>
+        <field name="LCSC">C3113</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C3113.html</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="TL431" description=""/>
+      <property name="MPN" value="CJ431"/>
+      <property name="Manufacturer" value="JCET (Jiangsu Changjiang)"/>
+      <property name="LCSC" value="C3113"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>632df319-dc38-401f-8ab9-c7b26a01dbc6</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
           </pins>
         </unit>
       </units>
@@ -4026,6 +4640,20 @@
         <pin num="2" name="B" type="passive"/>
       </pins>
     </libpart>
+    <libpart lib="Probe" part="TL431">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">TL431</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="REF" type="input"/>
+        <pin num="2" name="K" type="passive"/>
+        <pin num="3" name="A" type="passive"/>
+      </pins>
+    </libpart>
     <libpart lib="Probe" part="TLV1702">
       <fields>
         <field name="Reference">U</field>
@@ -4107,6 +4735,10 @@
       <node ref="D6" pin="1" pinfunction="K_1" pintype="passive"/>
       <node ref="Q1" pin="2" pinfunction="E_2" pintype="passive"/>
       <node ref="Q3" pin="2" pinfunction="E_2" pintype="passive"/>
+      <node ref="Q4" pin="2" pinfunction="E_2" pintype="passive"/>
+      <node ref="Q5" pin="2" pinfunction="E_2" pintype="passive"/>
+      <node ref="R115" pin="1" pintype="passive"/>
+      <node ref="R124" pin="2" pintype="passive"/>
       <node ref="R73" pin="1" pintype="passive"/>
       <node ref="R81" pin="1" pintype="passive"/>
       <node ref="R87" pin="1" pintype="passive"/>
@@ -4141,6 +4773,7 @@
       <node ref="D7" pin="2" pinfunction="A_2" pintype="passive"/>
       <node ref="D8" pin="2" pinfunction="A_2" pintype="passive"/>
       <node ref="D9" pin="1" pinfunction="K_1" pintype="passive"/>
+      <node ref="R122" pin="2" pintype="passive"/>
       <node ref="R75" pin="2" pintype="passive"/>
       <node ref="R83" pin="1" pintype="passive"/>
       <node ref="R91" pin="1" pintype="passive"/>
@@ -4149,6 +4782,8 @@
       <node ref="RV4" pin="3" pinfunction="CW_3" pintype="passive"/>
       <node ref="U1" pin="4" pinfunction="V-_4" pintype="power_in"/>
       <node ref="U12" pin="4" pinfunction="V-_4" pintype="power_in"/>
+      <node ref="U15" pin="3" pinfunction="A_3" pintype="passive"/>
+      <node ref="U16" pin="3" pinfunction="A_3" pintype="passive"/>
       <node ref="U3" pin="4" pinfunction="V-_4" pintype="power_in"/>
       <node ref="U5" pin="12" pinfunction="V-_12" pintype="power_in"/>
       <node ref="U6" pin="4" pinfunction="V-_4" pintype="power_in"/>
@@ -4262,6 +4897,8 @@
       <node ref="J4" pin="2" pinfunction="2_2" pintype="passive"/>
       <node ref="R103" pin="2" pintype="passive"/>
       <node ref="R111" pin="2" pintype="passive"/>
+      <node ref="R118" pin="2" pintype="passive"/>
+      <node ref="R119" pin="1" pintype="passive"/>
       <node ref="R63" pin="2" pintype="passive"/>
       <node ref="R67" pin="2" pintype="passive"/>
       <node ref="R72" pin="2" pintype="passive"/>
@@ -4273,6 +4910,8 @@
       <node ref="RV1" pin="3" pinfunction="CW_3" pintype="passive"/>
       <node ref="RV2" pin="2" pinfunction="WIPER_2" pintype="passive"/>
       <node ref="RV2" pin="3" pinfunction="CW_3" pintype="passive"/>
+      <node ref="U13" pin="3" pinfunction="A_3" pintype="passive"/>
+      <node ref="U14" pin="3" pinfunction="A_3" pintype="passive"/>
       <node ref="U8" pin="2" pinfunction="GND_2" pintype="power_in"/>
       <node ref="U9" pin="1" pinfunction="GND_1" pintype="power_in"/>
     </net>
@@ -4290,73 +4929,81 @@
       <node ref="D9" pin="2" pinfunction="A_2" pintype="passive"/>
       <node ref="R96" pin="2" pintype="passive"/>
     </net>
-    <net code="21" name="LIM_N" class="Default">
+    <net code="21" name="LED_G" class="Default">
+      <node ref="D11" pin="2" pinfunction="A_2" pintype="passive"/>
+      <node ref="R127" pin="2" pintype="passive"/>
+    </net>
+    <net code="22" name="LED_K" class="Default">
+      <node ref="D11" pin="1" pinfunction="K_1" pintype="passive"/>
+      <node ref="U15" pin="2" pinfunction="K_2" pintype="passive"/>
+    </net>
+    <net code="23" name="LIM_N" class="Default">
       <node ref="R91" pin="2" pintype="passive"/>
       <node ref="R92" pin="1" pintype="passive"/>
       <node ref="U5" pin="10" pinfunction="4IN-_10" pintype="input"/>
       <node ref="U5" pin="6" pinfunction="2IN-_6" pintype="input"/>
     </net>
-    <net code="22" name="LIM_P" class="Default">
+    <net code="24" name="LIM_P" class="Default">
       <node ref="R87" pin="2" pintype="passive"/>
       <node ref="R88" pin="1" pintype="passive"/>
       <node ref="U5" pin="5" pinfunction="1IN+_5" pintype="input"/>
       <node ref="U5" pin="9" pinfunction="3IN+_9" pintype="input"/>
     </net>
-    <net code="23" name="N_SEG1" class="Default">
+    <net code="25" name="N_SEG1" class="Default">
       <node ref="C21" pin="2" pintype="passive"/>
       <node ref="C22" pin="1" pintype="passive"/>
       <node ref="R21" pin="2" pintype="passive"/>
       <node ref="R22" pin="1" pintype="passive"/>
     </net>
-    <net code="24" name="N_SEG2" class="Default">
+    <net code="26" name="N_SEG2" class="Default">
       <node ref="C22" pin="2" pintype="passive"/>
       <node ref="C23" pin="1" pintype="passive"/>
       <node ref="R22" pin="2" pintype="passive"/>
       <node ref="R23" pin="1" pintype="passive"/>
     </net>
-    <net code="25" name="N_SEG3" class="Default">
+    <net code="27" name="N_SEG3" class="Default">
       <node ref="C23" pin="2" pintype="passive"/>
       <node ref="C24" pin="1" pintype="passive"/>
       <node ref="R23" pin="2" pintype="passive"/>
       <node ref="R24" pin="1" pintype="passive"/>
     </net>
-    <net code="26" name="N_SEG4" class="Default">
+    <net code="28" name="N_SEG4" class="Default">
       <node ref="C24" pin="2" pintype="passive"/>
       <node ref="C25" pin="1" pintype="passive"/>
       <node ref="R24" pin="2" pintype="passive"/>
       <node ref="R25" pin="1" pintype="passive"/>
     </net>
-    <net code="27" name="OUT" class="Default">
+    <net code="29" name="OUT" class="Default">
       <node ref="D3" pin="3" pinfunction="K1/A2_3" pintype="passive"/>
       <node ref="J3" pin="1" pinfunction="1_1" pintype="passive"/>
       <node ref="JP1" pin="1" pinfunction="A_1" pintype="passive"/>
       <node ref="R70" pin="2" pintype="passive"/>
     </net>
-    <net code="28" name="OUT_C" class="Default">
+    <net code="30" name="OUT_C" class="Default">
       <node ref="C62" pin="1" pintype="passive"/>
       <node ref="JP1" pin="2" pinfunction="B_2" pintype="passive"/>
     </net>
-    <net code="29" name="OUT_HALF" class="Default">
+    <net code="31" name="OUT_HALF" class="Default">
       <node ref="R71" pin="2" pintype="passive"/>
       <node ref="R72" pin="1" pintype="passive"/>
       <node ref="U6" pin="2" pinfunction="1IN-_2" pintype="input"/>
       <node ref="U6" pin="5" pinfunction="2IN+_5" pintype="input"/>
     </net>
-    <net code="30" name="OUT_LIM_N" class="Default">
+    <net code="32" name="OUT_LIM_N" class="Default">
       <node ref="R92" pin="2" pintype="passive"/>
       <node ref="R93" pin="1" pintype="passive"/>
       <node ref="U6" pin="6" pinfunction="2IN-_6" pintype="input"/>
     </net>
-    <net code="31" name="OUT_LIM_P" class="Default">
+    <net code="33" name="OUT_LIM_P" class="Default">
       <node ref="R88" pin="2" pintype="passive"/>
       <node ref="R89" pin="1" pintype="passive"/>
       <node ref="U6" pin="3" pinfunction="1IN+_3" pintype="input"/>
     </net>
-    <net code="32" name="OV_LED" class="Default">
+    <net code="34" name="OV_LED" class="Default">
       <node ref="R96" pin="1" pintype="passive"/>
       <node ref="U7" pin="1" pinfunction="Q1_1" pintype="output"/>
     </net>
-    <net code="33" name="OV_N" class="Default">
+    <net code="35" name="OV_N" class="Default">
       <node ref="R73" pin="2" pintype="passive"/>
       <node ref="R74" pin="1" pintype="passive"/>
       <node ref="U5" pin="1" pinfunction="2OUT_1" pintype="open_collector"/>
@@ -4366,41 +5013,56 @@
       <node ref="U6" pin="1" pinfunction="1OUT_1" pintype="open_collector"/>
       <node ref="U6" pin="7" pinfunction="2OUT_7" pintype="open_collector"/>
     </net>
-    <net code="34" name="P_SEG1" class="Default">
+    <net code="36" name="P_SEG1" class="Default">
       <node ref="C1" pin="2" pintype="passive"/>
       <node ref="C2" pin="1" pintype="passive"/>
       <node ref="R1" pin="2" pintype="passive"/>
       <node ref="R2" pin="1" pintype="passive"/>
     </net>
-    <net code="35" name="P_SEG2" class="Default">
+    <net code="37" name="P_SEG2" class="Default">
       <node ref="C2" pin="2" pintype="passive"/>
       <node ref="C3" pin="1" pintype="passive"/>
       <node ref="R2" pin="2" pintype="passive"/>
       <node ref="R3" pin="1" pintype="passive"/>
     </net>
-    <net code="36" name="P_SEG3" class="Default">
+    <net code="38" name="P_SEG3" class="Default">
       <node ref="C3" pin="2" pintype="passive"/>
       <node ref="C4" pin="1" pintype="passive"/>
       <node ref="R3" pin="2" pintype="passive"/>
       <node ref="R4" pin="1" pintype="passive"/>
     </net>
-    <net code="37" name="P_SEG4" class="Default">
+    <net code="39" name="P_SEG4" class="Default">
       <node ref="C4" pin="2" pintype="passive"/>
       <node ref="C5" pin="1" pintype="passive"/>
       <node ref="R4" pin="2" pintype="passive"/>
       <node ref="R5" pin="1" pintype="passive"/>
     </net>
-    <net code="38" name="Q_BASE" class="Default">
+    <net code="40" name="Q4B" class="Default">
+      <node ref="Q4" pin="1" pinfunction="B_1" pintype="input"/>
+      <node ref="Q5" pin="3" pinfunction="C_3" pintype="passive"/>
+      <node ref="R123" pin="2" pintype="passive"/>
+      <node ref="R124" pin="1" pintype="passive"/>
+    </net>
+    <net code="41" name="Q4C" class="Default">
+      <node ref="Q4" pin="3" pinfunction="C_3" pintype="passive"/>
+      <node ref="R127" pin="1" pintype="passive"/>
+    </net>
+    <net code="42" name="Q5B" class="Default">
+      <node ref="Q5" pin="1" pinfunction="B_1" pintype="input"/>
+      <node ref="R125" pin="2" pintype="passive"/>
+      <node ref="R126" pin="2" pintype="passive"/>
+    </net>
+    <net code="43" name="Q_BASE" class="Default">
       <node ref="Q1" pin="1" pinfunction="B_1" pintype="input"/>
       <node ref="R74" pin="2" pintype="passive"/>
     </net>
-    <net code="39" name="RAW_OUT" class="Default">
+    <net code="44" name="RAW_OUT" class="Default">
       <node ref="R100" pin="1" pintype="passive"/>
       <node ref="R101" pin="1" pintype="passive"/>
       <node ref="R65" pin="2" pintype="passive"/>
       <node ref="U3" pin="7" pinfunction="OUT2_7" pintype="output"/>
     </net>
-    <net code="40" name="RESET" class="Default">
+    <net code="45" name="RESET" class="Default">
       <node ref="C95" pin="2" pintype="passive"/>
       <node ref="D8" pin="1" pinfunction="K_1" pintype="passive"/>
       <node ref="R95" pin="1" pintype="passive"/>
@@ -4408,37 +5070,65 @@
       <node ref="U7" pin="10" pinfunction="RESET2_10" pintype="input"/>
       <node ref="U7" pin="4" pinfunction="RESET1_4" pintype="input"/>
     </net>
-    <net code="41" name="SELECTED" class="Default">
+    <net code="46" name="RN_B" class="Default">
+      <node ref="R121" pin="2" pintype="passive"/>
+      <node ref="R122" pin="1" pintype="passive"/>
+    </net>
+    <net code="47" name="RN_OV" class="Default">
+      <node ref="R120" pin="2" pintype="passive"/>
+      <node ref="R121" pin="1" pintype="passive"/>
+      <node ref="U16" pin="1" pinfunction="REF_1" pintype="input"/>
+    </net>
+    <net code="48" name="RN_UV" class="Default">
+      <node ref="R119" pin="2" pintype="passive"/>
+      <node ref="R120" pin="1" pintype="passive"/>
+      <node ref="U15" pin="1" pinfunction="REF_1" pintype="input"/>
+    </net>
+    <net code="49" name="RP_B" class="Default">
+      <node ref="R117" pin="2" pintype="passive"/>
+      <node ref="R118" pin="1" pintype="passive"/>
+    </net>
+    <net code="50" name="RP_OV" class="Default">
+      <node ref="R116" pin="2" pintype="passive"/>
+      <node ref="R117" pin="1" pintype="passive"/>
+      <node ref="U14" pin="1" pinfunction="REF_1" pintype="input"/>
+    </net>
+    <net code="51" name="RP_UV" class="Default">
+      <node ref="R115" pin="2" pintype="passive"/>
+      <node ref="R116" pin="1" pintype="passive"/>
+      <node ref="U13" pin="1" pinfunction="REF_1" pintype="input"/>
+    </net>
+    <net code="52" name="SELECTED" class="Default">
       <node ref="R103" pin="1" pintype="passive"/>
       <node ref="R69" pin="1" pintype="passive"/>
       <node ref="R71" pin="1" pintype="passive"/>
       <node ref="SW1" pin="2" pinfunction="COM_2" pintype="passive"/>
     </net>
-    <net code="42" name="SET" class="Default">
+    <net code="53" name="SET" class="Default">
       <node ref="Q1" pin="3" pinfunction="C_3" pintype="passive"/>
       <node ref="R75" pin="1" pintype="passive"/>
       <node ref="U7" pin="6" pinfunction="SET1_6" pintype="input"/>
       <node ref="U7" pin="8" pinfunction="SET2_8" pintype="input"/>
     </net>
-    <net code="43" name="SUM_N" class="Default">
+    <net code="54" name="SUM_N" class="Default">
       <node ref="R62" pin="2" pintype="passive"/>
       <node ref="R65" pin="1" pintype="passive"/>
       <node ref="U3" pin="6" pinfunction="-IN2_6" pintype="input"/>
     </net>
-    <net code="44" name="SUM_P" class="Default">
+    <net code="55" name="SUM_P" class="Default">
       <node ref="R61" pin="2" pintype="passive"/>
       <node ref="R63" pin="1" pintype="passive"/>
       <node ref="U3" pin="5" pinfunction="+IN2_5" pintype="input"/>
     </net>
-    <net code="45" name="SW_N" class="Default">
+    <net code="56" name="SW_N" class="Default">
       <node ref="D5" pin="1" pinfunction="K_1" pintype="passive"/>
       <node ref="SW2" pin="4" pinfunction="A2_4" pintype="passive"/>
     </net>
-    <net code="46" name="SW_P" class="Default">
+    <net code="57" name="SW_P" class="Default">
       <node ref="D4" pin="2" pinfunction="A_2" pintype="passive"/>
       <node ref="SW2" pin="1" pinfunction="A1_1" pintype="passive"/>
     </net>
-    <net code="47" name="TAP_N" class="Default">
+    <net code="58" name="TAP_N" class="Default">
       <node ref="C25" pin="2" pintype="passive"/>
       <node ref="C51" pin="1" pintype="passive"/>
       <node ref="C52" pin="1" pintype="passive"/>
@@ -4448,7 +5138,7 @@
       <node ref="R31" pin="1" pintype="passive"/>
       <node ref="R32" pin="1" pintype="passive"/>
     </net>
-    <net code="48" name="TAP_P" class="Default">
+    <net code="59" name="TAP_P" class="Default">
       <node ref="C41" pin="1" pintype="passive"/>
       <node ref="C42" pin="1" pintype="passive"/>
       <node ref="C43" pin="1" pintype="passive"/>
@@ -4458,72 +5148,84 @@
       <node ref="R12" pin="1" pintype="passive"/>
       <node ref="R5" pin="2" pintype="passive"/>
     </net>
-    <net code="49" name="TIP_N" class="Default">
+    <net code="60" name="TIP_N" class="Default">
       <node ref="C21" pin="1" pintype="passive"/>
       <node ref="R21" pin="1" pintype="passive"/>
     </net>
-    <net code="50" name="TIP_P" class="Default">
+    <net code="61" name="TIP_P" class="Default">
       <node ref="C1" pin="1" pintype="passive"/>
       <node ref="R1" pin="1" pintype="passive"/>
     </net>
-    <net code="51" name="TRIG" class="Default">
+    <net code="62" name="TRIG" class="Default">
       <node ref="J4" pin="1" pinfunction="1_1" pintype="passive"/>
       <node ref="R112" pin="2" pintype="passive"/>
     </net>
-    <net code="52" name="TRIG_B" class="Default">
+    <net code="63" name="TRIG_B" class="Default">
       <node ref="Q3" pin="1" pinfunction="B_1" pintype="input"/>
       <node ref="R110" pin="2" pintype="passive"/>
     </net>
-    <net code="53" name="TRIG_C" class="Default">
+    <net code="64" name="TRIG_C" class="Default">
       <node ref="D10" pin="3" pinfunction="K1/A2_3" pintype="passive"/>
       <node ref="Q3" pin="3" pinfunction="C_3" pintype="passive"/>
       <node ref="R111" pin="1" pintype="passive"/>
       <node ref="R112" pin="1" pintype="passive"/>
     </net>
-    <net code="54" name="TRIG_DRV" class="Default">
+    <net code="65" name="TRIG_DRV" class="Default">
       <node ref="R110" pin="1" pintype="passive"/>
       <node ref="U7" pin="12" pinfunction="/Q2_12" pintype="output"/>
     </net>
-    <net code="55" name="TRIM_F" class="Default">
+    <net code="66" name="TRIM_F" class="Default">
       <node ref="R114" pin="1" pintype="passive"/>
       <node ref="RV4" pin="2" pinfunction="WIPER_2" pintype="passive"/>
     </net>
-    <net code="56" name="TRIM_N" class="Default">
+    <net code="67" name="TRIM_N" class="Default">
       <node ref="R31" pin="2" pintype="passive"/>
       <node ref="RV2" pin="1" pinfunction="CCW_1" pintype="passive"/>
     </net>
-    <net code="57" name="TRIM_P" class="Default">
+    <net code="68" name="TRIM_P" class="Default">
       <node ref="R11" pin="2" pintype="passive"/>
       <node ref="RV1" pin="1" pinfunction="CCW_1" pintype="passive"/>
     </net>
-    <net code="58" name="TRIM_W" class="Default">
+    <net code="69" name="TRIM_W" class="Default">
       <node ref="R113" pin="1" pintype="passive"/>
       <node ref="RV3" pin="2" pinfunction="WIPER_2" pintype="passive"/>
     </net>
-    <net code="59" name="WIDE_SEL" class="Default">
+    <net code="70" name="U13K" class="Default">
+      <node ref="R123" pin="1" pintype="passive"/>
+      <node ref="U13" pin="2" pinfunction="K_2" pintype="passive"/>
+    </net>
+    <net code="71" name="U14K" class="Default">
+      <node ref="R125" pin="1" pintype="passive"/>
+      <node ref="U14" pin="2" pinfunction="K_2" pintype="passive"/>
+    </net>
+    <net code="72" name="U16K" class="Default">
+      <node ref="R126" pin="1" pintype="passive"/>
+      <node ref="U16" pin="2" pinfunction="K_2" pintype="passive"/>
+    </net>
+    <net code="73" name="WIDE_SEL" class="Default">
       <node ref="R101" pin="2" pintype="passive"/>
       <node ref="R113" pin="2" pintype="passive"/>
       <node ref="SW1" pin="1" pinfunction="A_1" pintype="passive"/>
     </net>
-    <net code="60" name="unconnected-(SW2-B1-Pad3)" class="Default">
+    <net code="74" name="unconnected-(SW2-B1-Pad3)" class="Default">
       <node ref="SW2" pin="3" pinfunction="B1_3" pintype="passive+no_connect"/>
     </net>
-    <net code="61" name="unconnected-(SW2-B2-Pad6)" class="Default">
+    <net code="75" name="unconnected-(SW2-B2-Pad6)" class="Default">
       <node ref="SW2" pin="6" pinfunction="B2_6" pintype="passive+no_connect"/>
     </net>
-    <net code="62" name="unconnected-(U7-/Q1-Pad2)" class="Default">
+    <net code="76" name="unconnected-(U7-/Q1-Pad2)" class="Default">
       <node ref="U7" pin="2" pinfunction="/Q1_2" pintype="output+no_connect"/>
     </net>
-    <net code="63" name="unconnected-(U7-Q2-Pad13)" class="Default">
+    <net code="77" name="unconnected-(U7-Q2-Pad13)" class="Default">
       <node ref="U7" pin="13" pinfunction="Q2_13" pintype="output+no_connect"/>
     </net>
-    <net code="64" name="unconnected-(U12-NC-Pad1)" class="Default">
+    <net code="78" name="unconnected-(U12-NC-Pad1)" class="Default">
       <node ref="U12" pin="1" pinfunction="NC_1" pintype="no_connect"/>
     </net>
-    <net code="65" name="unconnected-(U12-NC-Pad5)" class="Default">
+    <net code="79" name="unconnected-(U12-NC-Pad5)" class="Default">
       <node ref="U12" pin="5" pinfunction="NC_5" pintype="no_connect"/>
     </net>
-    <net code="66" name="unconnected-(U12-NC-Pad8)" class="Default">
+    <net code="80" name="unconnected-(U12-NC-Pad8)" class="Default">
       <node ref="U12" pin="8" pinfunction="NC_8" pintype="no_connect"/>
     </net>
   </nets>

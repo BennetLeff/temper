@@ -109,6 +109,28 @@ fn main() {
         ("D10", "3", "TRIG_C"),
         ("J4", "1", "TRIG"),
         ("J4", "2", "GND"),
+        // Rails-OK indicator: CJ431 SOT-23 1 REF, 2 K, 3 A (JSCJ C3113 drawing);
+        // KT-0805G 1 K, 2 A; MMBT5401 1 B, 2 E, 3 C.
+        ("U13", "1", "RP_UV"),
+        ("U13", "2", "U13K"),
+        ("U13", "3", "GND"),
+        ("U14", "1", "RP_OV"),
+        ("U14", "2", "U14K"),
+        ("U14", "3", "GND"),
+        ("U15", "1", "RN_UV"),
+        ("U15", "2", "LED_K"),
+        ("U15", "3", "-4V8"),
+        ("U16", "1", "RN_OV"),
+        ("U16", "2", "U16K"),
+        ("U16", "3", "-4V8"),
+        ("Q4", "1", "Q4B"),
+        ("Q4", "2", "+4V8"),
+        ("Q4", "3", "Q4C"),
+        ("Q5", "1", "Q5B"),
+        ("Q5", "2", "+4V8"),
+        ("Q5", "3", "Q4B"),
+        ("D11", "1", "LED_K"),
+        ("D11", "2", "LED_G"),
     ] {
         assert_eq!(
             by_pin[&format!("{r}.{p}")],
@@ -609,6 +631,104 @@ fn main() {
     assert!(t_total < 2e-6);
     report+=&format!("Trigger output J4 (CD4013 flip-flop 2, latched with the LED; Q3 MMBT5401 high-side, 470 ohm source): idle 0 V (R111 10 k to GND); set {:.3}..{:.3} V into 1 Mohm, {:.3}..{:.3} V into 50 ohm. Q3 base drive >= {:.3} mA (forced beta <= {:.0} at the {:.1} mA short-circuit current, hFE >= 100); CD4013 sinks <= {:.3} mA (IOL >= 1.1 mA at 85 C). Shorted BNC: R112 dissipates <= {:.0} mW (125 mW rating). Tolerated continuous drive at J4: {:.1} V to +{:.1} V (R112 power, and positive injection through D10 below the +4V8 rail's {:.1} mA minimum load); no path from J4 reaches SET, RESET or the comparators.\n",out_1m.0,out_1m.1,out_50.0,out_50.1,ib3_min*1e3,ic_short/ib3_min,ic_short*1e3,ib3_max*1e3,p_short*1e3,v_neg,v_pos,rail_load_min*1e3);
     report+=&format!("Trigger latency estimate after the comparator output falls (charge-control, 25 C datasheet maxima, assumed Ceb 30 pF): Q1 to SET threshold {:.0} ns (Ib >= {:.3} mA), CD4013 set to /Q {:.0} ns, Q3 turn-on {:.0} ns, output to 90 % on 1 Mohm || 122 pF {:.0} ns; total {:.2} us. The TLV1704 adds 460 ns typical (no maximum). This is an estimate, not a bound: the trigger marks that the warning latched; it is not a peak-capture guarantee.\n",t_q1*1e9,ib1_min*1e3,t_ff*1e9,t_q3*1e9,t_out*1e9,t_total*1e6);
+    // Rails-OK indicator (docs/design.md "Rails-OK indicator"): one CJ431 per threshold
+    // on a ladder across each rail. U13 (+UV) pulls Q4 on; U15 (-UV) sinks the LED
+    // cathode; U14 (+OV) or U16 (-OV) turns Q5 on, which shorts Q4's base to +4V8.
+    // The LED is lit only while both rails are above UV and below OV.
+    for (r, m) in [
+        ("U13", "CJ431"),
+        ("U14", "CJ431"),
+        ("U15", "CJ431"),
+        ("U16", "CJ431"),
+        ("Q4", "MMBT5401"),
+        ("Q5", "MMBT5401"),
+        ("D11", "KT-0805G"),
+        ("R115", "RT0603BRD074K87L"),
+        ("R116", "0805W8F6800T5E"),
+        ("R117", "0805W8F5600T5E"),
+        ("R118", "RT0603BRD074K87L"),
+        ("R119", "RT0603BRD074K87L"),
+        ("R120", "0805W8F7500T5E"),
+        ("R121", "0805W8F5600T5E"),
+        ("R122", "RT0603BRD074K87L"),
+        ("R123", "0805W8F1001T5E"),
+        ("R124", "RT0805BRD0710KL"),
+        ("R125", "0805W8F1001T5E"),
+        ("R126", "RT0603BRD074K87L"),
+        ("R127", "0805W8F2701T5E"),
+    ] {
+        assert_eq!(mpns[r], m, "rails-OK calculation source {r}");
+    }
+    // CJ431 (JSCJ, LCSC C3113), -25..85 C: VREF 2.475..2.525 V at IK 10 mA (1 % grade
+    // assumed; LCSC lists 0.5 %), temperature deviation <= 17 mV, dVREF/dVKA -2.7 mV/V
+    // max, IREF <= 4 uA (+1.2 uA over temperature), ZKA <= 0.5 ohm (taken over a 10 mA
+    // span: +/-5 mV), IKmin <= 1.0 mA, VKA <= 36 V, PD 300 mW.
+    let (vref_lo, vref_hi) = (2.475 - 0.017 - 0.005, 2.525 + 0.017 + 0.005);
+    let (iref_max, kvka) = (5.2e-6, 2.7e-3);
+    // Threshold (rail magnitude) range for a ladder top-a-UV-b-OV-x-c-bottom at the UV
+    // or OV tap: every resistor corner, VREF, IREF and the VKA swing up to vka_max.
+    let ladder = |a: &str, b: &str, x: &str, c: &str, nom: [f64; 4], ov: bool, vka_max: f64| {
+        let (mut lo, mut hi) = (f64::MAX, f64::MIN);
+        for k in 0..16 {
+            let r = |i: usize, n: &str| nom[i] * (1. + if k >> i & 1 == 1 { tolr(n) } else { -tolr(n) });
+            let (ra, rb, rx, rc) = (r(0, a), r(1, b), r(2, x), r(3, c));
+            let s = ra + rb + rx + rc;
+            let (below, above) = if ov { (rx + rc, ra + rb) } else { (rb + rx + rc, ra) };
+            for vr in [vref_lo, vref_hi] {
+                for ir in [0., iref_max] {
+                    for dv in [0., vka_max - 2.475] {
+                        let v = (vr - kvka * dv + ir * above * below / s) * s / below;
+                        lo = lo.min(v);
+                        hi = hi.max(v);
+                    }
+                }
+            }
+        }
+        (lo, hi)
+    };
+    let pos_nom = [4870., 680., 560., 4870.];
+    let neg_nom = [4870., 750., 560., 4870.];
+    let p_uv = ladder("R115", "R116", "R117", "R118", pos_nom, false, rmax + 0.01);
+    let p_ov = ladder("R115", "R116", "R117", "R118", pos_nom, true, rmax + 0.01);
+    let n_uv = ladder("R119", "R120", "R121", "R122", neg_nom, false, 2. * rmax + 0.01);
+    let n_ov = ladder("R119", "R120", "R121", "R122", neg_nom, true, 2. * rmax + 0.01);
+    // Healthy (regulated) ranges per rail from the regulator budget above.
+    let (pmin, pmax, nmin, nmax) = (w0.pos_min, w0.pos_max, w0.neg_min, w0.neg_max);
+    let margin = [pmin - p_uv.1, p_ov.0 - pmax, nmin - n_uv.1, n_ov.0 - nmax];
+    assert!(margin.iter().all(|m| *m > 0.005), "rails-OK must be lit throughout the regulated range");
+    // Currents at a healthy rail. Assumed (no CJ431 figure): an overdriven 431 holds its
+    // cathode between 1.0 V and 2.55 V. MMBT5401 VBE 0.6..0.85 V, VCE(sat) <= 0.2 V.
+    // KT-0805G (Hubei KENTO, C2297) VF 2.6..3.1 V at 5 mA; 2.4 V taken as the low end at the 1-3 mA used.
+    let (vka_lo, vka_hi, vbe_lo) = (1.0, 2.55, 0.6);
+    let (vf_lo, vf_hi) = (2.4, 3.1);
+    let r = |n: &str, nom: f64, up: bool| nom * (1. + if up { tolr(n) } else { -tolr(n) });
+    let ik13_min = (pmin - vbe_on - vka_hi) / r("R123", 1000., true);
+    let ib4_min = ik13_min - vbe_on / r("R124", 10_000., false);
+    let i_led_min = (pmin + nmin - vce_sat - vf_hi - vka_hi) / r("R127", 2700., true);
+    let i_led_max = (pmax + nmax - vf_lo - vka_lo) / r("R127", 2700., false);
+    assert!(ik13_min > 1.0e-3 && i_led_min > 1.0e-3, "CJ431 IK above IKmin when lit");
+    assert!(i_led_max < 0.4 * ib4_min * hfe_min, "Q4 saturates");
+    // Over-voltage paths (rail at its OV threshold, other rail at its regulated minimum).
+    let ik14_min = (p_ov.0 - vbe_on - vka_hi) / r("R125", 1000., true);
+    let ik16_min = (pmin - vbe_on + n_ov.0 - vka_hi) / r("R126", 4870., true);
+    // Q5 must hold Q4's base at +4V8 against R123 sinking into a saturated U13.
+    let ic5_need = (rmax.max(p_ov.1) - vka_lo) / r("R123", 1000., false);
+    assert!(ik14_min > 1.0e-3 && ik16_min > 1.0e-3, "CJ431 IK above IKmin in OV");
+    assert!(ic5_need < 0.4 * hfe_min * ik14_min.min(ik16_min), "Q5 saturates");
+    let ik13_max = (pmax - vbe_lo - vka_lo) / r("R123", 1000., false);
+    let lad_p = pmax / (r("R115", 4870., false) + r("R116", 680., false) + r("R117", 560., false) + r("R118", 4870., false));
+    let lad_n = nmax / (r("R119", 4870., false) + r("R120", 750., false) + r("R121", 560., false) + r("R122", 4870., false));
+    let pd431 = ik13_max * vka_hi.max(pmax);
+    assert!(pd431 < 0.1 * 0.3, "CJ431 dissipation");
+    // Typical draw: nominal rails, VBE 0.7, VKA 2 V, VF 2.85 V.
+    let typ_ik = (4.8 - 0.7 - 2.0) / 1000.;
+    let typ_led = (4.8 + 4.807 - 0.1 - 2.85 - 2.0) / 2700.;
+    let (typ_p, typ_n) = (typ_ik + typ_led + 4.8 / 10_980., typ_led + 4.807 / 11_050.);
+    // What a lit LED says about the rails, and the warning budget over that band.
+    let lit = budget::warning_rails(&design, wide_acc, fine_acc, (p_uv.0, p_ov.1, n_uv.0, n_ov.1));
+    report+=&format!("Rails-OK indicator (D11 green, CJ431 x4, one ladder per rail): lit only while +rail is above {:.3}..{:.3} V (UV) and below {:.3}..{:.3} V (OV), and -rail magnitude above {:.3}..{:.3} V and below {:.3}..{:.3} V (CJ431 VREF 1 %, 17 mV temperature deviation, 5 mV ZKA, IREF <= 5.2 uA, -2.7 mV/V VKA, resistor corners, -25..85 C). Regulated ranges +{:.4}..{:.4} / -{:.4}..{:.4} V lie inside with margins {:.1} / {:.1} mV (+UV / +OV) and {:.1} / {:.1} mV (-UV / -OV), so it is always lit with healthy rails.\n",p_uv.0,p_uv.1,p_ov.0,p_ov.1,n_uv.0,n_uv.1,n_ov.0,n_ov.1,pmin,pmax,nmin,nmax,margin[0]*1e3,margin[1]*1e3,margin[2]*1e3,margin[3]*1e3);
+    report+=&format!("Rails-OK currents (assumed 431 cathode 1.0..2.55 V when overdriven): U13 IK >= {:.2} mA, LED/U15 {:.2}..{:.2} mA, OV paths U14 >= {:.2} mA, U16 >= {:.2} mA (IKmin <= 1.0 mA); Q4 base >= {:.2} mA, Q5 must source <= {:.2} mA. Added draw, typical: +rail {:.1} mA, -rail {:.1} mA (worst +rail <= {:.1} mA, -rail <= {:.1} mA); against the ~18 mA typical amplifier draw per rail that is {:.0} % / {:.0} % more current, i.e. {:.0} % / {:.0} % less battery run time.\n",ik13_min*1e3,i_led_min*1e3,i_led_max*1e3,ik14_min*1e3,ik16_min*1e3,ib4_min*1e3,ic5_need*1e3,typ_p*1e3,typ_n*1e3,(ik13_max+i_led_max+lad_p)*1e3,(i_led_max+lad_n)*1e3,typ_p/18e-3*100.,typ_n/18e-3*100.,typ_p/(18e-3+typ_p)*100.,typ_n/(18e-3+typ_n)*100.);
+    report+=&format!("A lit rails-OK LED shows rail magnitudes inside {:.3}..{:.3} V, wider than the regulated {:.4}..{:.4} V the warning budget assumes: it catches a dropped-out or failed regulator, not a 1 % drift. Over the lit band the conditional late trip would be < {:.0} V per tip, < {:.0} V wide, < {:.1} V fine (regulated: {:.0} / {:.0} / {:.1} V); earliest trip {:.0} V per tip.\n",lit.rail_min,lit.rail_max,rmin,rmax,lit.tip_max,lit.wide_late,lit.fine_late,w.tip_max,w.wide_late,w.fine_late,lit.tip_early);
     report+="\nNot established by these checks: CMRR, amplitude/phase accuracy, 5 MHz system bandwidth, input-to-earth capacitance, overload recovery, unpowered input survival, transient withstand, creepage or clearance. PCB, fixed shield and fixture must be qualified together.\n";
     fs::write("validation/checks.txt", &report).unwrap();
     print!("{report}");

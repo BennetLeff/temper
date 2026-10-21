@@ -17,7 +17,7 @@ Canonical board: [`cad/differential-probe.kicad_pcb`](../cad/differential-probe.
 | General clearance | 0.20 mm; explicit HV rules override it |
 | Fine-pitch exception | U6 pad-to-pad only: 0.15 mm, matching the selected VSSOP land pattern |
 | Slots | Ten non-plated 1.2 × 8 mm cutouts, one under each HV capacitor, plus the notch |
-| Assembly | 116 circuit footprints (103 SMD, 13 THT) plus the copper jumper JP1, two HV landings, four mounting holes |
+| Assembly | 136 circuit footprints (123 SMD, 13 THT) plus the copper jumper JP1, two HV landings, four mounting holes |
 | Reference designators | F.Fab / B.Fab layers; silk carries outlines and board text only |
 
 The fabricator stackup, laminate CTI, copper weight and finish are not yet selected, and there is no controlled-impedance claim. Keep the In1 ground reference directly below F.Cu. Changing the dielectric thickness or copper geometry requires a new compensation/CMRR assessment.
@@ -91,7 +91,7 @@ How each section meets the 4 mm creepage rule:
 
 H3 and H4 sit on the two prongs on either side of the notch. A metal screw through a nylon spacer defeats the purpose of H3/H4. The H3/H4 nylon screws also clamp the arms of the printed lead bridge to the board top, through its 3 mm thickness, so they are 3 mm longer than the board alone needs ([HV leads](hv-leads.md#feedthroughs-and-strain-relief)).
 
-**Lid holes.** Drill holes in the lid over CT1 (62, 23) and CT2 (62, 47), the RV1/RV2 adjustment screws, the RV3/RV4 zero-trim screws (x = 68.6 mm, y ≈ 10–20 / 50–60 mm), the SW3 reset button (131.85, 46.25) and the D9 LED (115, 24). The holes take the printed snap-in trimmer guides (Ø7.2 mm holes; `trim-guide-ct`, `trim-guide-rv`), which set the depth for the printed handle with its Vessel CA-18 zirconia blade. Keep the hole geometry fixed after calibration.
+**Lid holes.** Drill holes in the lid over CT1 (62, 23) and CT2 (62, 47), the RV1/RV2 adjustment screws, the RV3/RV4 zero-trim screws (x = 68.6 mm, y ≈ 10–20 / 50–60 mm), the SW3 reset button (131.85, 46.25), the D9 warning LED (115, 24) and the D11 rails-OK LED (117.0, 35.25). The holes take the printed snap-in trimmer guides (Ø7.2 mm holes; `trim-guide-ct`, `trim-guide-rv`), which set the depth for the printed handle with its Vessel CA-18 zirconia blade. Keep the hole geometry fixed after calibration.
 
 ## Leads and panel components
 
@@ -105,6 +105,8 @@ H3 and H4 sit on the two prongs on either side of the notch. A metal screw throu
 | Toggles | 6.35 mm holes (1/4-40 bushing) | 6.35 mm above the board top |
 
 **Reset button.** SW3 (C&K PTS645SL43-2 LFS, thru-hole) sits in the panel strip at (131.85, 46.25), between J3 and SW2, and is pressed through a lid hole; its actuator is 4.3 mm above the board top. It cannot sit over the LV band (x 71.3–126.6 mm), because its tails would hit the bottom-side holders; its bottom courtyard makes DRC enforce that. Four Ø1.0 mm holes on 6.5 × 4.5 mm. The two RESET pins are joined on F.Cu and fed by an In2 hop; the two +4V8 pins join the In2 pour. SW_P runs under it on B.Cu.
+
+**Rails-OK indicator.** U13–U16, Q4/Q5, D11 and R115–R127 occupy the top side between x ≈ 102 and 126 mm, y ≈ 26–36.5 mm, west of SW1/SW3: the two ladders run east–west in a row at y = 27, the CJ431s at y = 29.75, the drive resistors at y = 32.5 and Q4/Q5, R127, D11 and U15 at y = 35.25. D11 (117.0, 35.25) needs its own lid hole. To make room, SELECTED now leaves SW1 on F.Cu down x = 126.4 to a via at (125.3, 36.2) and runs west on B.Cu along y = 36.2 to the existing B.Cu hop at x = 100.5; the RESET In2 hop via moved from (123.98, 26.25) to (123.98, 25.0).
 
 **Battery holders.** BT1 and BT2 (BH9VPC) mount on the underside. Their three 2.34 mm holes take 2-56 screws or eyelets. The screw heads land on top-side keep-outs, which are courtyard circles in the footprint.
 

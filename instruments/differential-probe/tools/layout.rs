@@ -560,6 +560,29 @@ fn lv_parts() -> Vec<(&'static str, f64, f64, i32)> {
         // on WIDE_SEL beside R101; R114 on the U12 inverting node beside R67, clear of the BT1 screw-head keep-out.
         ("RV4", 68.6, 12.37, 90),
         ("RV3", 68.6, 57.63, 270),
+        // Rails-OK indicator (U13..U16 CJ431, Q4/Q5, D11): four rows in the F.Cu area
+        // freed by moving SELECTED to B.Cu; the rows are y 27.0 (ladders), 29.75
+        // (references), 32.5 (base resistors), 35.25 (switches and LED).
+        ("R118", 103.4, 27.0, 180),
+        ("R117", 106.7, 27.0, 180),
+        ("R116", 110.2, 27.0, 180),
+        ("R115", 113.5, 27.0, 180),
+        ("R121", 117.0, 27.0, 180),
+        ("R120", 120.5, 27.0, 180),
+        ("R119", 124.05, 27.0, 180),
+        ("U14", 104.5, 29.75, 0),
+        ("U13", 109.0, 29.75, 0),
+        ("R122", 116.1, 29.75, 270),
+        ("U16", 121.0, 29.75, 0),
+        ("R125", 103.7, 32.5, 0),
+        ("R123", 107.6, 32.5, 180),
+        ("R124", 111.1, 32.5, 0),
+        ("R126", 119.5, 32.5, 180),
+        ("Q5", 104.3, 35.25, 0),
+        ("Q4", 108.5, 35.25, 0),
+        ("R127", 112.4, 35.25, 0),
+        ("D11", 117.0, 35.25, 180),
+        ("U15", 121.5, 35.25, 0),
         ("R113", 76.4, 19.5, 0),
         ("R114", 82.0, 10.5, 270),
         // Through-hole latch reset, owner-soldered: in the panel strip between
@@ -710,7 +733,12 @@ impl Copper {
         let (r1022, sw13) = (k(self, "R102.2"), k(self, "SW1.3"));
         self.run("FINE_SEL", "F.Cu", &[r1022, (97.8, r1022.1), (97.8, 5.0), (124.6, 5.0), (124.6, sw13.1), sw13]);
         let (sw12, r691, r1031) = (k(self, "SW1.2"), k(self, "R69.1"), k(self, "R103.1"));
-        self.run("SELECTED", "F.Cu", &[sw12, (sw12.0, 25.9), (126.4, 25.9), (126.4, 33.0), (97.6, 33.0), r691]);
+        // SELECTED crosses the middle of the LV band on B.Cu (y = 36.2, under the OUT
+        // track's F.Cu) so the F.Cu area x 101.8..126, y 26..36.6 holds the rails-OK cluster.
+        self.run("SELECTED", "F.Cu", &[sw12, (sw12.0, 25.9), (126.4, 25.9), (126.4, 36.2), (125.3, 36.2)]);
+        self.via("SELECTED", (125.3, 36.2));
+        self.run("SELECTED", "B.Cu", &[(125.3, 36.2), (100.5, 36.2)]);
+        self.run("SELECTED", "F.Cu", &[(100.5, 33.0), (97.6, 33.0), r691]);
         self.run("SELECTED", "F.Cu", &[r1031, (126.4, r1031.1)]);
         self.rail("R103.2", (124.9, 27.95));
         let r711 = k(self, "R71.1");
@@ -731,9 +759,9 @@ impl Copper {
         // to the second (internally common) pin 2. Pin 1 (+4V8) joins the In2 pour.
         let u74 = k(self, "U7.4");
         let (sw3a, sw3b) = sw3_row(self, "SW3.2");
-        self.run("RESET", "F.Cu", &[u74, (123.98, u74.1), (123.98, 26.25)]);
-        self.via("RESET", (123.98, 26.25));
-        self.run("RESET", "In2.Cu", &[(123.98, 26.25), (123.98, 41.5), (sw3a.0 - 2.1, sw3a.1), sw3a]);
+        self.run("RESET", "F.Cu", &[u74, (123.98, u74.1), (123.98, 25.0)]);
+        self.via("RESET", (123.98, 25.0));
+        self.run("RESET", "In2.Cu", &[(123.98, 25.0), (123.98, 41.5), (sw3a.0 - 2.1, sw3a.1), sw3a]);
         self.run("RESET", "F.Cu", &[sw3a, sw3b]);
         for key in ["R95.1", "C95.2", "D8.1"] {
             let p = k(self, key);
@@ -772,6 +800,59 @@ impl Copper {
         self.run("TRIG", "F.Cu", &[r1122, (r1122.0, 12.0)]);
         self.via("TRIG", (r1122.0, 12.0));
         self.run("TRIG", "B.Cu", &[(r1122.0, 12.0), (135.8, j41.1), j41]);
+        // ---- Rails-OK indicator --------------------------------------------------------
+        // Ladders on row A (y 27.0) chain pad to pad; their taps reach the CJ431 REF pins
+        // on row B through the y = 28.1 lane. Vias stay inside x 102.4..123.35,
+        // y 27.6..35.6, clear of OV_N/RESET on In2 and BAT_P/SELECTED on B.Cu.
+        let p = |c: &Copper, key: &str| c.p(key);
+        self.run("RP_B", "F.Cu", &[p(self, "R118.1"), p(self, "R117.2")]);
+        self.run("RP_OV", "F.Cu", &[p(self, "R117.1"), p(self, "R116.2")]);
+        let u14r = p(self, "U14.1");
+        self.run("RP_OV", "F.Cu", &[(108.45, 27.0), (108.45, 28.1), (104.3, 28.1), u14r]);
+        self.run("RP_UV", "F.Cu", &[p(self, "R116.1"), p(self, "R115.2")]);
+        let (r1152, u13r) = (p(self, "R115.2"), p(self, "U13.1"));
+        self.run("RP_UV", "F.Cu", &[r1152, (r1152.0, 28.1), (109.3, 28.1), (108.6, u13r.1), u13r]);
+        self.rail("R118.2", (102.5, 28.0));
+        self.rail("R115.1", (114.6, 28.3));
+        self.rail("U14.3", (106.6, 30.4));
+        self.rail("U13.3", (111.2, 30.5));
+        let (u142, r1251, u132, r1231) = (p(self, "U14.2"), p(self, "R125.1"), p(self, "U13.2"), p(self, "R123.1"));
+        self.run("U14K", "F.Cu", &[u142, (r1251.0, 31.5), r1251]);
+        self.run("U13K", "F.Cu", &[u132, r1231]);
+        // Q5B: R125 to Q5's base locally; R126 (U16 side) joins it on In2 at y = 31.3.
+        let (r1252, q51) = (p(self, "R125.2"), p(self, "Q5.1"));
+        self.run("Q5B", "F.Cu", &[r1252, (104.0, 33.6), q51]);
+        self.run("Q5B", "F.Cu", &[r1252, (105.5, 31.3)]);
+        let r1262 = p(self, "R126.2");
+        self.run("Q5B", "F.Cu", &[r1262, (r1262.0, 31.3)]);
+        self.hop("Q5B", "In2.Cu", &[(r1262.0, 31.3), (105.5, 31.3)]);
+        // Q4B: R123, Q4's base, Q5's collector and the R124 pull-up.
+        let (r1232, q41, q53, r1241) = (p(self, "R123.2"), p(self, "Q4.1"), p(self, "Q5.3"), p(self, "R124.1"));
+        self.run("Q4B", "F.Cu", &[r1232, q41]);
+        self.run("Q4B", "F.Cu", &[q53, (105.9, 34.4), r1232]);
+        self.run("Q4B", "F.Cu", &[q41, (q41.0, 33.75), (109.6, 33.75), (r1241.0, 33.2), r1241]);
+        self.rail("R124.2", (112.9, 33.55));
+        self.rail("Q5.2", (102.5, 35.3));
+        self.rail("Q4.2", (106.7, 35.3));
+        self.run("Q4C", "F.Cu", &[p(self, "Q4.3"), p(self, "R127.1")]);
+        self.run("LED_G", "F.Cu", &[p(self, "R127.2"), p(self, "D11.2")]);
+        let (d111, u152) = (p(self, "D11.1"), p(self, "U15.2"));
+        self.run("LED_K", "F.Cu", &[d111, (d111.0 + 0.95, u152.1), u152]);
+        // Negative-rail ladder and its references.
+        self.run("RN_OV", "F.Cu", &[p(self, "R121.1"), p(self, "R120.2")]);
+        let u161 = p(self, "U16.1");
+        self.run("RN_OV", "F.Cu", &[(118.75, 27.0), (118.75, 28.1), (119.4, 28.1), u161]);
+        self.run("RN_B", "F.Cu", &[p(self, "R121.2"), p(self, "R122.1")]);
+        self.run("RN_UV", "F.Cu", &[p(self, "R120.1"), p(self, "R119.2")]);
+        self.run("RN_UV", "F.Cu", &[(122.2, 27.0), (122.7, 28.3)]);
+        self.hop("RN_UV", "In2.Cu", &[(122.7, 28.3), (122.7, 33.3)]);
+        let u151 = p(self, "U15.1");
+        self.run("RN_UV", "F.Cu", &[(122.7, 33.3), (121.3, 33.6), u151]);
+        self.run("GND", "F.Cu", &[p(self, "R119.1"), (124.9, 27.95)]);
+        self.rail("R122.2", (116.1, 31.95));
+        self.rail("U16.3", (121.94, 31.2));
+        self.rail("U15.3", (123.3, 34.3));
+        self.run("U16K", "F.Cu", &[p(self, "U16.2"), p(self, "R126.1")]);
         // ---- Analog zero trims -------------------------------------------------------
         // Rail ends of RV3/RV4 are through-hole pads on the In2 (+4V8) and B.Cu (-4V8)
         // pours. Each wiper leaves on In2 from its own through-hole pad (shielded by
