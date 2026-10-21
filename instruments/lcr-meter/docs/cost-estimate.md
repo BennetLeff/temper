@@ -6,29 +6,29 @@ This complete meter occupies one PCB. Budget for obtaining one usable instrument
 
 `manufacturing/order_estimate.py 5` (KiCad Python) reproduces these figures and writes `manufacturing/order-estimate-5.json`. Inputs:
 - JLC assembly-library snapshot, read 2026-10-21 by `manufacturing/prices/fetch_jlc_parts.py` (`manufacturing/prices/jlc-parts-2026-10-21.json`): price tiers, stock, library class, attrition (`lossNumber`) and minimum quantity (`leastPatchNumber`) per part;
-- board counts: 182 placements, 567 SMT joints per board, leadless parts U1, U13 and U14, and 11 THT joints on J2–J6;
+- board counts: 183 placements, 569 SMT joints per board, leadless parts U1, U13 and U14, and 11 THT joints on J2–J6;
 - the published fee table;
 - the 2026-10-20 fabrication instant quote.
 
-Each line buys max(5 × per-board quantity + attrition, minimum). That is our reading of JLC's library fields; the quote from the uploaded BOM is authoritative. Every line has stock for this order. The thinnest are OPA2810 (251 in stock against 10 needed) and TAC5112 (181 against 5).
+Each line buys max(5 × per-board quantity + attrition, minimum). That is our reading of JLC's library fields; the quote from the uploaded BOM is authoritative. Every line has stock for this order. The thinnest are OPA2810 (251 in stock against 10 needed) and TAC5112 (136 against 5, down from 181 the day before).
 
 | Item | USD |
 |---|---:|
-| SMT parts (59 lines; attrition and minimums add $8.58) | 215.33 |
+| SMT parts (60 lines; attrition and minimums add $8.45) | 214.87 |
 | Extended-part fee, 27 × $3.07 | 82.89 |
 | Setup + stencil | 9.71 |
-| SMT joints, 5 × 567 × $0.0016 | 4.54 |
+| SMT joints, 5 × 569 × $0.0016 | 4.55 |
 | X-ray, 15 leadless parts × $0.82 | 12.30 |
 | Confirm placement | 0.45 |
 | PCB fabrication, 5 pcs (detail below) | 80.98 |
-| **Economic PCBA total** | **406.20** |
+| **Economic PCBA total** | **405.76** |
 | JLC fits J2–J6: parts $6.35, 55 manual joints $0.90, labour $3.58 | 10.83 |
-| **Five complete boards, before shipping and taxes** | **417.03** |
+| **Five complete boards, before shipping and taxes** | **416.59** |
 
-That is $83.41 per board, against $613.44 ($122.69 per board) for Rev D. Standard PCBA would cost $495.64 before hand fitting: higher setup and stencil fees, feeder loading on all 59 lines, and fixtures. Shipping, sales tax/VAT, import duty and coupons are excluded.
+That is $83.32 per board, against $613.44 ($122.69 per board) for Rev D. Standard PCBA would cost $496.73 before hand fitting: higher setup and stencil fees, feeder loading on all 60 lines, and fixtures. Shipping, sales tax/VAT, import duty and coupons are excluded.
 
 **Where Rev E saves, against Rev D's $613.44.**
-- Parts −$136.22. The codec front end removes ADS9224R, AD9833 and both THS4551s and adds a TAC5112, three TQ2SA relays and their drivers.
+- Parts −$136.68. The codec front end removes ADS9224R, AD9833 and both THS4551s and adds a TAC5112, three TQ2SA relays and their drivers.
 - Fabrication −$35.75. Every via is now 0.3 mm (see below).
 - Extended-part fees −$9.21. 27 extended lines instead of 30, after the basic-library swaps in [rev-e-plan.md](rev-e-plan.md).
 - X-ray −$8.20. Three leadless packages instead of five.
@@ -57,11 +57,11 @@ Catalog snapshot checked 2026-10-21:
 
 | Item | Quantity | USD |
 |---|---:|---:|
-| All components for one instrument | 187 | 45.07 |
-| Machine-placed components per PCB | 182 | 43.81 |
+| All components for one instrument | 188 | 45.07 |
+| Machine-placed components per PCB | 183 | 43.82 |
 | Hand-fitted components per PCB | 5 | 1.26 |
 
-Both `SMT` and `JLC SMT` source tags count as machine placements. Hand fitting is the DC jack and four two-pin headers. The 59 unique SMT lines comprise 27 extended, 29 basic and three preferred lines (BAT54S, SRV05-4 and the 27 Ω resistor). Catalog stock and prices do not guarantee eventual availability or the PCBA purchase price.
+Both `SMT` and `JLC SMT` source tags count as machine placements. Hand fitting is the DC jack and four two-pin headers. The 60 unique SMT lines comprise 27 extended, 30 basic and three preferred lines (BAT54S, SRV05-4 and the 27 Ω resistor). Catalog stock and prices do not guarantee eventual availability or the PCBA purchase price.
 
 **Epoxy-filled and copper-capped vias (POFV) are kept** for the exposed pads (U1, U11, U12, U13, U14: 33 vias, 4–9 per pad) and R3 pad 2 (34 via-in-pad locations, `validation/via-in-pad-process.json`). No other via sits in an SMT pad. The four-layer board does not qualify for JLC's free 6–20-layer POFV offer. The quote above includes it.
 

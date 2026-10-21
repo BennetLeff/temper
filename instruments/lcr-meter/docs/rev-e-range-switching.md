@@ -104,10 +104,10 @@ The switch sits on the TIA_OUT side of RF, as the jumpers do now. An unselected 
 - **Coils.** Each relay has a SET coil and a RESET coil (TQ2SA-L2: 178 Ω, 28.1 mA at 5 V; set/reset voltage ≤3.75 V; `TQ2SA.txt` line 156).
 - **SET drivers.** Each SET coil gets its own AO3400A low-side switch (C20917, basic), driven by RNG_SET_LO, RNG_SET_MED or RNG_SET_HI.
 - **RESET driver.** The three RESET coils go in parallel on one AO3400A, driven by RNG_RESET.
-- **Flyback.** One 1N4148WS (C2128, basic) across each coil, six in total.
+- **Flyback.** One 1N4148WS (C2128, basic) per driver, four in total: one across each SET coil and one across the three RESET coils in parallel (D5–D8).
 - **Gates.** 100 kΩ gate pull-down and about 100 Ω series gate resistor on each MOSFET. RP2040 pads also reset with pull-down enabled (`sources/new/RP2040-datasheet.txt` line 22732, PDE reset 0x1).
-- **GPIOs.** Four in total. Any four of 0, 1, 14–20, 22–24 work; choose them by routing, keeping the lines away from TIA_SUM.
-- **Coil supply.** Use the digital 5 V, not 5VA, through about 2.2 Ω and 22 µF placed at the relays. This filters supply ripple off the coil nodes, which couple into the RF nodes through contact-to-coil capacitance. The worst pulse (three RESET coils, 84 mA) drops about 0.18 V, so the coil still sees ≥4.5 V at the 4.75 V supply minimum.
+- **GPIOs.** Four in total. The board uses GPIO6 (SET_HI), GPIO7 (SET_LO), GPIO10 (RESET) and GPIO11 (SET_MED), pins the codec freed from the ADS9224R and AD9833. They leave the RP2040 next to the codec bus and run on B.Cu to the driver row south of the relays, away from TIA_SUM.
+- **Coil supply.** Use the digital 5 V, not 5VA, through about 2.2 Ω and 22 µF placed at the relays (R101 C22939 and C112 C12891, both basic; net VRLY). This filters supply ripple off the coil nodes, which couple into the RF nodes through contact-to-coil capacitance. The worst pulse (three RESET coils, 84 mA) drops about 0.18 V, so the coil still sees ≥4.5 V at the 4.75 V supply minimum.
 - **Coil drive voltage.** Panasonic recommends the 4.5 V coil "in case of 5 V transistor drive" (note 3, line 166). That note covers a saturated BJT's drop. An AO3400A drops millivolts at 28 mA, so the 5 V coil is correct.
 - **Firmware sequence.** Source off (as for the existing source-off record), RESET pulse 20 ms, SET_k pulse 20 ms, wait 10 ms, source on, existing settle.
   - Panasonic gives set/reset time ≤4 ms. Omron gives a 10 ms minimum pulse for its latching relay. The TQ2SA-L2 minimum pulse width is not given (**UNVERIFIED**), so use 20 ms.
@@ -233,5 +233,9 @@ Size: about 150 `tia` runs plus 12 other-loop runs, at the existing 120 points/d
 - **Latched state persists through power-off.** Firmware resets and selects High at every boot. With blank firmware the board keeps whatever range was last set, while the DDS source is still uncontrolled.
 - **Self-check limits.** The §3.4 self-check catches a wrong range or a failed pole, but not two relays welded closed. Calibration verification catches the latter.
 - **Layout.** The relays (14 × 9 mm each) go where JP1–JP6 are. R43–R45 stay at U7 with their TIA_SUM pads short. C104 stays local and unswitched. Route the coil drive lines away from TIA_SUM and RF100 and guard them with ground. Hand-route only.
-- **Cost.** 3 × $2.27 + 4 × AO3400A + 6 × 1N4148WS + resistors, about $7.4 per board. That adds one extended line (the relay) and removes the six jumpers.
+  - **As built (Rev E layout).** The jumper sites were too scattered for three 14 × 9 mm bodies, so the relays sit in one row at y = 128 mm: K2 (5 kΩ) at x = 152.5, K1 (100 Ω) at x = 167.5, K3 (100 kΩ) at x = 182.3, each with its RG resistor just south of it. The drivers form a row below them at y ≈ 140.
+  - R43–R45, C104 and the TIA_SUM pads are unchanged at U7.
+  - SOURCE_BUF and TIA_OUT reach the commons on In2 buses at y = 129.6 and 126.2. RF100 and RF100K run on In2 and RF5K on F.Cu. The drive lines run on B.Cu and stay away from TIA_SUM.
+  - The TIA_OUT run to the relays is about 60 mm. The §6 stress values are still estimates until this layout is extracted and `fixedrelaycng100` is rerun.
+- **Cost.** 3 × $2.27 + 4 × AO3400A + 4 × 1N4148WS + resistors, about $7.4 per board. That adds one extended line (the relay) and removes the six jumpers.
 - **Not covered.** This study does not change channel B's tap point or the 22 Ω R_iso. It ran no simulation; the §6 cases decide.
