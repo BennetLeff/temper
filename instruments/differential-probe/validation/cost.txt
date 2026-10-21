@@ -69,3 +69,48 @@ Headline, two boards (leads at the owner's ~$100 working figure in both columns)
   total, enclosure excluded          $   789.58 $   348.02  (saving $441.56, 56 %)
   Distributor-ledger components: before $535.81, cost-down $148.39
   Documented HV-lead BOM (leads-bom.csv) instead of the assumption: $234.72
+
+Extended MPNs placed by JLC before fee consolidation (strategy E), two-board spend against the $3.07 feeder:
+  MPN                    refs                                   route   2-board spend fee/spend
+  ADP7142AUJZ-R7         U8                                     jlc     $        6.95      0.4x
+  ADP7182AUJZ-R7         U9                                     jlc     $        6.64      0.5x
+  BAV199,215             D1,D2,D3                               jlc     $        0.38      8.1x
+  C3225X7R1E106KTJ00N    C71,C72,C73,C74                        jlc     $        3.12      1.0x
+  CC0805JRNPO9BN181      C61                                    jlc     $        0.13     23.0x
+  CC1206FKNPO9BN103      C41,C51                                jlc     $        1.84      1.7x
+  CC1812JKNPOEBN330      C1,C2,C3,C4,C5,C21,C22,C23,C24,C25     jlc     $        6.37      0.5x
+  CD4013BM96             U7                                     jlc     $        0.50      6.1x
+  HV121WF2004T4E         R1,R2,R3,R4,R5,R21,R22,R23,R24,R25     jlc     $        1.66      1.9x
+  OPA2810IDR             U1,U3                                  jlc     $       10.12      0.3x
+  OPA810IDR              U12                                    jlc     $        5.61      0.5x
+  RC0805FR-0797R6L       R69                                    jlc     $        0.03     98.4x
+  RNCF0603TKY1K00        R63,R65                                global  $        6.84      0.4x
+  RNCF0603TKY2K00        R68                                    jlc     $        4.61      0.7x
+  RNCF0603TKY499R        R61,R62,R67                            global  $       10.26      0.3x
+  RT0603BRD074K87L       R11,R31                                jlc     $        0.45      6.9x
+  RT0805BRD0710KL        R71,R72,R73,R75,R82,R84,R89,R93,R96    jlc     $        0.98      3.1x
+  RT0805BRD071KL         R88,R92                                jlc     $        0.54      5.6x
+  RT0805BRD0729K4L       R83                                    jlc     $        0.28     10.9x
+  RT0805BRD0730KL        R81                                    jlc     $        0.32      9.6x
+  RT0805BRD0766K5L       R87,R91                                jlc     $        0.43      7.2x
+  TLV1702AIDGKR          U6                                     jlc     $        2.17      1.4x
+  TLV1704AIPWR           U5                                     jlc     $        3.18      1.0x
+  23 Extended MPNs; feeders $70.61
+
+Fee-consolidation candidates, strategy E, two boards (saving > 0 is cheaper):
+  id     candidate                                                                   ext     fees    parts   saving added
+  F1     R69 97.6 R 1 % -> 220 R 1 % Basic (on board as R12/R32)                      -1 $   3.07 $   0.02 $   3.09     0
+  F2     C61 180 pF C0G -> 100 pF C0G Basic                                           -1 $   3.07 $   0.01 $   3.08     0
+  F3     F1 + F2 together (pole 5.90 MHz)                                             -2 $   6.14 $   0.03 $   6.17     0
+  F4     R69 97.6 R -> 100 R 1 % Basic, C61 kept                                      -1 $   3.07 $  -0.02 $   3.05     0
+  L1     R88/R92 1 k 0.1 % -> 1 k 1 % Basic                                           -1 $   3.07 $   0.49 $   3.56     0
+  L2     R81 30 k 0.1 % -> 30 k 1 % Basic                                             -1 $   3.07 $   0.26 $   3.33     0
+  L3     R83 29.4 k -> 30 k 0.1 % (on board as R81)                                   -1 $   3.07 $   0.18 $   3.25     0
+  L4     R81 30 k -> 3 x 10 k 0.1 % in series (on board)                              -1 $   3.06 $   0.09 $   3.15     2
+  P1     C71-C74 10 uF 1210 X7R -> 10 uF 1206 X5R 50 V Basic                          -1 $   3.07 $   0.11 $   3.18     0
+  D1     D1-D3 BAV199 -> BAV99 Basic                                                  -1 $   3.07 $   0.25 $   3.32     0
+  C1     U6 TLV1702 -> LM393 Basic (0..70 C)                                          -1 $   3.07 $   1.97 $   5.04     0
+  G1     R63/R65 1 k RNCF 0.01 % -> RT0805 1 k 0.1 % (on board)                       -1 $   3.07 $   6.66 $   9.73     0
+  G2     R68 2 k RNCF -> 2 x 1 k RNCF in series                                       -1 $   3.06 $  -2.23 $   0.83     1
+  G3     all six gain resistors -> RT0603 1 k 0.1 % (499 = 2 || 1 k, 2 k = 2 x 1 k)   -2 $   6.11 $  20.83 $  26.95     4
+  F3+L1  implemented set                                                              -3 $   9.21 $   0.53 $   9.74     0

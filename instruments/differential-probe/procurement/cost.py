@@ -222,8 +222,13 @@ def assembly(rows, boards, owner_tht, offlib):
     }
 
 
+# Fee consolidation (docs/fee-consolidation.md), applied after SUBS, by reference.
+FEE_SUBS = {
+}
+
 base_rows = rows_of(base_text)
-rec_rows = [(ref, SUBS.get(mpn, mpn)) for ref, mpn in base_rows]
+pre_fee_rows = [(ref, SUBS.get(mpn, mpn)) for ref, mpn in base_rows]
+rec_rows = [(ref, FEE_SUBS.get(ref, mpn)) for ref, mpn in pre_fee_rows]
 # The committed board must be exactly the substituted baseline.
 now_rows = rows_of(open("procurement/bom-jlc.csv").read())
 cost_down_applied = sorted(now_rows) == sorted(rec_rows)
@@ -287,3 +292,56 @@ print(f"  {'total, enclosure excluded':<34} ${tot_a:>9.2f} ${tot_b:>9.2f}  (savi
 print(f"  Distributor-ledger components: before ${ledger['Rev C before cost-down (5b9a9530b)']:.2f}, "
       f"cost-down {'$%.2f' % ledger['Rev C'] if cost_down_applied else '(not yet applied)'}")
 print(f"  Documented HV-lead BOM (leads-bom.csv) instead of the assumption: ${leads:.2f}")
+
+# ---------------------------------------------------------------------------
+# 4. Fee consolidation (docs/fee-consolidation.md)
+# ---------------------------------------------------------------------------
+# Every candidate is priced against the BOM before fee consolidation (cost-down
+# plus the THT reset button), strategy E: two boards, owner THT, global sourcing.
+# Added placements carry two SMT joints each.
+FEE_CANDIDATES = [
+    ("F1", "R69 97.6 R 1 % -> 220 R 1 % Basic (on board as R12/R32)", {"R69": "0805W8F2200T5E"}, []),
+    ("F2", "C61 180 pF C0G -> 100 pF C0G Basic", {"C61": "CL21C101JBANNNC"}, []),
+    ("F3", "F1 + F2 together (pole 5.90 MHz)", {"R69": "0805W8F2200T5E", "C61": "CL21C101JBANNNC"}, []),
+    ("F4", "R69 97.6 R -> 100 R 1 % Basic, C61 kept", {"R69": "0805W8F1000T5E"}, []),
+    ("L1", "R88/R92 1 k 0.1 % -> 1 k 1 % Basic", {"R88": "0805W8F1001T5E", "R92": "0805W8F1001T5E"}, []),
+    ("L2", "R81 30 k 0.1 % -> 30 k 1 % Basic", {"R81": "0805W8F3002T5E"}, []),
+    ("L3", "R83 29.4 k -> 30 k 0.1 % (on board as R81)", {"R83": "RT0805BRD0730KL"}, []),
+    ("L4", "R81 30 k -> 3 x 10 k 0.1 % in series (on board)", {"R81": "RT0805BRD0710KL"}, [("R81b", "RT0805BRD0710KL"), ("R81c", "RT0805BRD0710KL")]),
+    ("P1", "C71-C74 10 uF 1210 X7R -> 10 uF 1206 X5R 50 V Basic", {r: "CL31A106KBHNNNE" for r in ("C71", "C72", "C73", "C74")}, []),
+    ("D1", "D1-D3 BAV199 -> BAV99 Basic", {r: "BAV99,215" for r in ("D1", "D2", "D3")}, []),
+    ("C1", "U6 TLV1702 -> LM393 Basic (0..70 C)", {"U6": "LM393DR2G"}, []),
+    ("G1", "R63/R65 1 k RNCF 0.01 % -> RT0805 1 k 0.1 % (on board)", {"R63": "RT0805BRD071KL", "R65": "RT0805BRD071KL"}, []),
+    ("G2", "R68 2 k RNCF -> 2 x 1 k RNCF in series", {"R68": "RNCF0603TKY1K00"}, [("R68b", "RNCF0603TKY1K00")]),
+    ("G3", "all six gain resistors -> RT0603 1 k 0.1 % (499 = 2 || 1 k, 2 k = 2 x 1 k)",
+     {r: "RT0603BRD071KL" for r in ("R61", "R62", "R63", "R65", "R67", "R68")},
+     [(r, "RT0603BRD071KL") for r in ("R61b", "R62b", "R67b", "R68b")]),
+]
+FEE_CANDIDATES.append(("F3+L1", "implemented set", {**FEE_CANDIDATES[2][2], **FEE_CANDIDATES[4][2]}, []))
+
+
+def strategy_e(rows):
+    return assembly(rows, 2, True, "global")
+
+
+pre = strategy_e(pre_fee_rows)
+print("\nExtended MPNs placed by JLC before fee consolidation (strategy E), two-board spend against the $%.2f feeder:" % FEES["econ_extended"])
+print(f"  {'MPN':<22} {'refs':<38} {'route':<7} {'2-board spend':>13} {'fee/spend':>9}")
+refs_of = collections.defaultdict(list)
+for ref, mpn in pre_fee_rows:
+    refs_of[mpn].append(ref)
+for mpn, n, route, status, spend in pre["lines"]:
+    if mpn in pre["extended"]:
+        ratio = FEES["econ_extended"] / spend if spend else float("inf")
+        print(f"  {mpn:<22} {','.join(sorted(refs_of[mpn], key=lambda r: (r[0], int(''.join(c for c in r if c.isdigit()) or 0))))[:38]:<38} {route:<7} ${spend:>12.2f} {ratio:>8.1f}x")
+print(f"  {len(pre['extended'])} Extended MPNs; feeders ${FEES['econ_extended'] * len(pre['extended']):.2f}")
+
+print("\nFee-consolidation candidates, strategy E, two boards (saving > 0 is cheaper):")
+print(f"  {'id':<6} {'candidate':<74} {'ext':>4} {'fees':>8} {'parts':>8} {'saving':>8} {'added':>5}")
+for key, label, subs, extra in FEE_CANDIDATES:
+    rows = [(ref, subs.get(ref, mpn)) for ref, mpn in pre_fee_rows] + list(extra)
+    for ref, _ in extra:
+        pads[ref] = [2, 0, ""]
+    a = strategy_e(rows)
+    d_fee, d_parts = pre["fees"] - a["fees"], pre["parts"] - a["parts"]
+    print(f"  {key:<6} {label:<74} {len(a['extended']) - len(pre['extended']):>+4} ${d_fee:>7.2f} ${d_parts:>7.2f} ${d_fee + d_parts:>7.2f} {len(extra):>5}")

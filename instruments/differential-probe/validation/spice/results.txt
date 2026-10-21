@@ -11,6 +11,14 @@ Gains are output per volt of tip differential input.
   60000 Hz: relative amplitude -0.001823 dB, phase -1.179663 deg.
   5000000 Hz: relative amplitude -2.783265 dB, phase -89.619423 deg.
 
+Output-filter candidates (validation/spice/candidates.cir; R69 / C61):
+  A 97.6 R / 180 pF, 1000:1: -3dB 5.7858 MHz; max 0.0000 dB above LF; 35 kHz phase -0.5477 deg; 60 kHz -0.001766 dB, phase -0.9383 deg; 5 MHz -2.412 dB.
+  A 97.6 R / 180 pF, 200:1: -3dB 5.2519 MHz; max 0.0000 dB above LF; 35 kHz phase -0.6885 deg; 60 kHz -0.001823 dB, phase -1.1797 deg; 5 MHz -2.783 dB.
+  B 220 R / 100 pF, 1000:1: -3dB 5.6278 MHz; max 0.0000 dB above LF; 35 kHz phase -0.5565 deg; 60 kHz -0.001791 dB, phase -0.9533 deg; 5 MHz -2.517 dB.
+  B 220 R / 100 pF, 200:1: -3dB 5.1306 MHz; max 0.0000 dB above LF; 35 kHz phase -0.6973 deg; 60 kHz -0.001848 dB, phase -1.1947 deg; 5 MHz -2.890 dB.
+  C 100 R / 180 pF, 1000:1: -3dB 5.6969 MHz; max 0.0000 dB above LF; 35 kHz phase -0.5532 deg; 60 kHz -0.001780 dB, phase -0.9477 deg; 5 MHz -2.471 dB.
+  C 100 R / 180 pF, 200:1: -3dB 5.1839 MHz; max 0.0000 dB above LF; 35 kHz phase -0.6940 deg; 60 kHz -0.001837 dB, phase -1.1891 deg; 5 MHz -2.842 dB.
+
 60kHz, 1500Vpk differential at the tips, wide range: fine-stage model spans -4.915413 to 4.925987 V.
 Max wide-output difference with fine branch connected versus disconnected (20..60us): 16.704 nV.
 The fine-stage model clip levels extend about 0.12V outside the ideal supply rails; they are not physical clip-voltage predictions.

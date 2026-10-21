@@ -1,0 +1,75 @@
+Rev C fee consolidation, electrical checks (tools/fee_consolidation.rs; docs/fee-consolidation.md)
+
+1. Warning-threshold budget per ladder variant (-25..85 C; limits tip < 1500 V, wide < 1500 V, fine < 300 V)
+   PRECISION = 0.1 % + 25 ppm/C x 60 C; BASIC (Uni-Royal 0805W8F) = 1 % + 100 ppm/C x 60 C.
+   OPA2810 headroom = V+min - 3.0 V (CM range over temperature) - 1.5 V tap.
+
+   variant  late tip/wide/fine (V)       early tip/wide/fine (V)   +rail min  -rail min  OPA2810 headroom  pass
+   now       1453.0 /  1341.6 / 289.75     1267 /   1132 /   206    4.6960 V   4.6476 V   +0.196 V          yes
+            committed before this change (all 0.1 % / 25 ppm)
+   L1        1454.5 /  1341.8 / 289.79     1266 /   1132 /   206    4.6960 V   4.6476 V   +0.196 V          yes
+            R88/R92 1 k -> 1 % / 100 ppm Basic
+            late-trip rise vs now: tip +1.5 V, wide +0.2 V, fine +0.05 V
+   L2        1463.1 /  1350.8 / 291.59     1267 /   1132 /   206    4.6484 V   4.6476 V   +0.148 V          yes
+            R81 30 k -> 1 % / 100 ppm Basic
+            late-trip rise vs now: tip +10.1 V, wide +9.2 V, fine +1.84 V
+   L1+L2     1464.6 /  1351.0 / 291.63     1266 /   1132 /   206    4.6484 V   4.6476 V   +0.148 V          yes
+            both
+            late-trip rise vs now: tip +11.6 V, wide +9.4 V, fine +1.88 V
+   L3        1474.8 /  1361.5 / 293.73     1280 /   1144 /   208    4.6960 V   4.7183 V   +0.196 V          yes
+            R83 29.4 k -> 30 k 0.1 % (neg rail -4.88 V)
+            late-trip rise vs now: tip +21.8 V, wide +19.9 V, fine +3.98 V
+   L2+L3     1489.5 /  1374.9 / 296.40     1267 /   1132 /   206    4.6484 V   4.6705 V   +0.148 V          yes
+            R81 and R83 30 k 1 % Basic
+            late-trip rise vs now: tip +36.5 V, wide +33.3 V, fine +6.66 V
+   L4        1453.0 /  1341.6 / 289.75     1267 /   1132 /   206    4.6960 V   4.6476 V   +0.196 V          yes
+            R81 -> 3 x 10 k 0.1 % in series (each part independent)
+            late-trip rise vs now: tip +0.0 V, wide +0.0 V, fine +0.00 V
+   (R87)     1469.8 /  1356.9 / 292.81     1252 /   1119 /   203    4.6960 V   4.6476 V   +0.196 V          yes
+            R87/R91 66.5 k -> 1 % (no Basic 66.5 k exists; bound only)
+            late-trip rise vs now: tip +16.8 V, wide +15.3 V, fine +3.06 V
+
+   Series or parallel copies of one MPN do not tighten these bounds: each part is
+   independently +/-0.1 % / +/-25 ppm/C with no tracking specification, so the
+   worst case of the combination equals one part's (only the statistical spread narrows).
+
+2. Shared output filter (R69 + 49.9 R || 20 k || 1 M source, C61), single pole
+   Tolerance corners: resistors 1 % + 100 ppm/C x 60 C, C61 5 % + 30 ppm/C x 60 C.
+   Drift after a 25 C calibration: TC terms only, x 60 C.
+
+   A   97.6 R RC0805FR-0797R6L / 180 pF CC0805JRNPO9BN181 (before)
+       pole 6.000 MHz (corners 5.614..6.430); 35 kHz -0.3342 deg, 60 kHz -0.5730 deg (corners -0.6123..-0.5346); 60 kHz amplitude -0.000434 dB
+       60 kHz phase drift after calibration -0.00447/+0.00446 deg; source 147.37 ohm, thermal noise 4.80 uVrms in the pole bandwidth
+   F1  220 R 0805W8F2200T5E / 180 pF
+       pole 3.278 MHz (corners 3.067..3.513); 35 kHz -0.6118 deg, 60 kHz -1.0488 deg (corners -1.1207..-0.9785); 60 kHz amplitude -0.001455 dB
+       60 kHz phase drift after calibration -0.00819/+0.00816 deg; source 269.77 ohm, thermal noise 4.80 uVrms in the pole bandwidth
+   F2  97.6 R / 100 pF CL21C101JBANNNC
+       pole 10.799 MHz (corners 10.106..11.574); 35 kHz -0.1857 deg, 60 kHz -0.3183 deg (corners -0.3402..-0.2970); 60 kHz amplitude -0.000134 dB
+       60 kHz phase drift after calibration -0.00248/+0.00248 deg; source 147.37 ohm, thermal noise 6.44 uVrms in the pole bandwidth
+   F3  220 R 0805W8F2200T5E / 100 pF CL21C101JBANNNC (adopted)
+       pole 5.900 MHz (corners 5.521..6.323); 35 kHz -0.3399 deg, 60 kHz -0.5827 deg (corners -0.6227..-0.5437); 60 kHz amplitude -0.000449 dB
+       60 kHz phase drift after calibration -0.00455/+0.00454 deg; source 269.77 ohm, thermal noise 6.44 uVrms in the pole bandwidth
+   F4  100 R 0805W8F1000T5E / 180 pF
+       pole 5.904 MHz (corners 5.524..6.327); 35 kHz -0.3397 deg, 60 kHz -0.5823 deg (corners -0.6222..-0.5433); 60 kHz amplitude -0.000449 dB
+       60 kHz phase drift after calibration -0.00454/+0.00453 deg; source 149.77 ohm, thermal noise 4.80 uVrms in the pole bandwidth
+
+   The vendor-model sweep of A, F3 (B) and F4 (C) is validation/spice/candidates.cir
+   (reported in validation/spice/results.txt).
+
+3. Gain resistors (U3B subtractor R61/R62 in, R63/R65 feedback; fine stage R67/R68)
+   Initial tolerance is calibrated out (per-range gain, DC CMRR trim); what is left is TCR drift.
+   Leg mismatch = subtractor CM gain / differential gain, worst sign combination.
+
+   now  RNCF 499 / 1 k / 2 k
+        gains: subtractor 2.0040, fine stage 5.0080; leg mismatch 66.6 ppm per 10 C, 399.5 ppm over 60 C (HV string alone allows 2000 ppm per 10 C)
+        gain drift over 60 C: wide 0.060 %, fine 0.108 %
+   G1   R63/R65 -> RT0805 1 k; R61/R62/R67/R68 RNCF
+        gains: subtractor 2.0040, fine stage 5.0080; leg mismatch 199.8 ppm per 10 C, 1199.1 ppm over 60 C (HV string alone allows 2000 ppm per 10 C)
+        gain drift over 60 C: wide 0.180 %, fine 0.228 %
+   G2   R68 -> 2 x RNCF 1 k in series
+        gains: subtractor 2.0040, fine stage 5.0080; leg mismatch 66.6 ppm per 10 C, 399.5 ppm over 60 C (HV string alone allows 2000 ppm per 10 C)
+        gain drift over 60 C: wide 0.060 %, fine 0.108 %
+   G3   all RT0603 1 k (499 = 1 k || 1 k, 2 k = 1 k + 1 k)
+        gains: subtractor 2.0000, fine stage 5.0000; leg mismatch 333.4 ppm per 10 C, 2002.0 ppm over 60 C (HV string alone allows 2000 ppm per 10 C)
+        gain drift over 60 C: wide 0.300 %, fine 0.540 %
+

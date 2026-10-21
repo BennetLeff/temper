@@ -27,12 +27,14 @@ check:
 	$(MAKE) leads
 	$(MAKE) cost
 
-# Cost-down trade calculations (docs/cost-down.md) and the two-board cost / JLC fee model.
+# Cost-down trade calculations (docs/cost-down.md), the two-board cost / JLC fee model and the fee-consolidation checks (docs/fee-consolidation.md).
 cost:
 	$(RUSTC) --edition 2021 tools/cost_down.rs -o /tmp/temper-probe-cost-down
 	/tmp/temper-probe-cost-down > /dev/null
 	python3 procurement/cost.py > validation/cost.txt
 	python3 tools/tradeoff_stage53.py > validation/tradeoff-stage53.txt
+	$(RUSTC) --edition 2021 tools/fee_consolidation.rs -o /tmp/temper-probe-fee-consolidation
+	/tmp/temper-probe-fee-consolidation > /dev/null
 
 # HV lead budget, setback gates, section view and FR4 part geometry; stage-53 probe points.
 leads:
@@ -75,5 +77,6 @@ simulate:
 	shasum -a 256 -c validation/spice/sha256.txt
 	$(NGSPICE) -n -D ngbehavior=ps -b validation/spice/ac.cir > validation/spice/ac.log 2>&1
 	$(NGSPICE) -n -D ngbehavior=ps -b validation/spice/unused-fine-saturation.cir > validation/spice/unused-fine-saturation.log 2>&1
+	$(NGSPICE) -n -D ngbehavior=ps -b validation/spice/candidates.cir > validation/spice/candidates.log 2>&1
 	$(RUSTC) --edition 2021 tools/check_spice.rs -o /tmp/temper-probe-spice-check
 	/tmp/temper-probe-spice-check

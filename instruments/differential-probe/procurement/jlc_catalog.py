@@ -49,6 +49,10 @@ CANDIDATES = [
     ("CC0805JRNPO9BN181", "C113826"),
     # Owner-soldered THT reset button replacing the global-sourced PTS645 SMT part
     ("PTS645SL43-2 LFS", "C221874"),
+    # Fee consolidation (docs/fee-consolidation.md): Basic or on-board replacements
+    ("CL21C101JBANNNC", "C1790"), ("0805W8F1000T5E", "C17408"), ("0805W8F1001T5E", "C17513"), ("0805W8F3002T5E", "C17621"),
+    ("CL31A106KBHNNNE", "C13585"), ("BAV99,215", "C2500"), ("LM393DR2G", "C7955"),
+    ("RT0603BRD071KL", "C110776"),
 ]
 
 

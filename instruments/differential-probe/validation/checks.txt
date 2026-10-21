@@ -26,6 +26,7 @@ At 70 V/ns: ideal 6.6 pF implies 0.462 A transient; actual lead/shield capacitan
 Rails: +4.8000 / -4.8068 V nominal; worst-case magnitudes 4.6476..4.9197 V (ADP7142 +/-1.8 %, ADP7182 -2.95/+1.97 % ADJ, feedback 0.1 % + 25 ppm/C).
 Input warning +/-0.681290 V buffered = 1362.58 V/tip nominal. Selected-output warning +/-1.238710 V = 1238.71 V differential on wide / 247.74 V on fine (nominal, before gain calibration).
 Conditional late-trip budget (-25..85C): tip < 1453.02 V; selected comparator < 1.289762 V, corresponding to < 1341.59 V wide / 289.75 V fine with minimum calibrated gain 98% nominal and actual analog zero offsets <=25mV wide / <=130mV fine. Earliest possible trip (gain <=102%): 1267 V/tip, 1132 V wide / 206 V fine.
+Ladder classes: R87/R91 0.1 % + 25 ppm/C, R88/R92 0.1 % + 25 ppm/C, R89/R93 0.1 % + 25 ppm/C; sense R71/R72 0.1 % + 25 ppm/C.
 Warning budget requires measured divider/system gain >=98% nominal, buffer offset within +/-5mV each, actual selected-path zero within the stated range-specific limits and both rails inside their regulated range; scope zero subtraction does not remove the comparator offset. These are qualification acceptance conditions, not assumed measured facts. Comparator finite delay means this LED is not a transient peak guarantee.
 Clamp return: single fault (one bottom bank open, 3 kVpk at 60 kHz) injects <= 7.5 mA peak into a rail whose minimum load is ~14.7 mA, so neither LDO output is back-driven. Normal in-range inputs (|tap| <= 1.5 V) never forward-bias the rail clamps.
 

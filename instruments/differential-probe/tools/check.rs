@@ -17,6 +17,15 @@ fn body<'a>(s: &'a str, k: &str) -> &'a str {
         .map(|(_, v)| v.split_once(&format!("</{k}>")).unwrap().0)
         .unwrap_or("")
 }
+#[path = "budget.rs"]
+mod budget;
+fn budget_class(mpn: &str) -> &'static str {
+    if budget::tolerance(mpn) == budget::PRECISION {
+        "0.1 % + 25 ppm/C"
+    } else {
+        "1 % + 100 ppm/C"
+    }
+}
 fn main() {
     let xml = fs::read_to_string("validation/netlist.xml").unwrap();
     let input = fs::read_to_string("validation/expected-pins.tsv").unwrap();
@@ -397,50 +406,31 @@ fn main() {
     assert!((750f64).powi(2) / body < 0.3 * p_rated); // 1.5 kV DC with the 3-body group bypassed
     report+=&format!("2-Mohm 2512 (HV121WF2004T4E) power-limited continuous voltage sqrt(1 W x 2 Mohm) = {:.0} V. Protective-impedance split 2+3 bodies: if the 3-body group is bypassed at 3 kV DC, each remaining body sees 1500 V and {:.3} W, {:.1} % of the 1 W rating at 70 C: this double condition (fault plus sustained 3 kV DC on the extension envelope) exceeds the rating. At the 1.5 kV guarantee the same fault is {:.3} W ({:.1} %).\n",(p_rated*body).sqrt(),1500f64.powi(2)/body,1500f64.powi(2)/body/p_rated*100.,750f64.powi(2)/body,750f64.powi(2)/body/p_rated*100.);
     report+="At 3000 Vpk sine: roughly 0.450 W/leg (half DC heating), 5.28 mArms at 60 kHz through ideal 6.6 pF.\nAt 70 V/ns: ideal 6.6 pF implies 0.462 A transient; actual lead/shield capacitance adds to this.\n";
-    // Rail-referenced warning thresholds (no TL431). Ladder per polarity:
-    // rail - 66.5k - LIM - 1k - OUT_LIM - 10k - GND, 0.1 % resistors.
-    let res_tol = 0.001 + 25e-6 * 60.; // 0.1% initial plus 25ppm/C over -25..85C, relative to 25C.
-    let (ra, rb, rc) = (66_500., 1_000., 10_000.);
-    // ADP7142 ADJ 1.2 V: +1.8 % worst over line/load/TJ -40..125C; ADP7182 ADJ
-    // -1.22 V nominal, -1.244 V worst magnitude (+1.97 %). Feedback 30k|29.4k over 10k.
-    let fb = |r_top: f64, hi: bool| {
-        let k = if hi {
-            (1. + res_tol) / (1. - res_tol)
-        } else {
-            (1. - res_tol) / (1. + res_tol)
-        };
-        1. + r_top / 10_000. * k
+    // Rail-referenced warning thresholds (no TL431): tools/budget.rs, with each
+    // resistor's tolerance class taken from its MPN in the netlist.
+    for (a, b) in [("R87", "R91"), ("R88", "R92"), ("R89", "R93"), ("R71", "R72")] {
+        assert_eq!(mpns[a], mpns[b], "threshold ladders must match: {a} {b}");
+    }
+    let class = |r: &str, nom: f64| budget::Res { nom, tol: budget::tolerance(&mpns[r]) };
+    let design = budget::Warn {
+        r81: class("R81", 30_000.),
+        r82: class("R82", 10_000.),
+        r83: class("R83", 29_400.),
+        r84: class("R84", 10_000.),
+        ra: class("R87", 66_500.),
+        rb: class("R88", 1_000.),
+        rc: class("R89", 10_000.),
+        sense: budget::tolerance(&mpns["R71"]),
     };
-    let pos_max = 1.2 * 1.018 * fb(30_000., true);
-    let neg_max = 1.244 * fb(29_400., true);
-    let pos_min = 1.2 * (1. - 0.018) * fb(30_000., false);
-    let neg_min = 1.184 * fb(29_400., false);
-    let rail_max = pos_max.max(neg_max);
-    let rail_min = pos_min.min(neg_min);
-    let hi = 1. + res_tol;
-    let lo = 1. - res_tol;
-    let tip_div_max = (rb * hi + rc * hi) / (ra * lo + rb * hi + rc * hi);
-    let out_div_max = rc * hi / (ra * lo + rb * lo + rc * hi);
-    let tip_div_min = (rb * lo + rc * lo) / (ra * hi + rb * lo + rc * lo);
-    let out_div_min = rc * lo / (ra * hi + rb * hi + rc * lo);
-    let comp_error = 0.0055 + 0.0002; // comparator offset and input-bias/PSRR allowance.
-    let tip_max = (rail_max * tip_div_max + comp_error + 0.005) / 0.98 * 2000.;
-    let sense_min = (1. - res_tol) / 2.; // matched nominal 10k/10k, opposing tolerances.
-    let selected_max = (rail_max * out_div_max + comp_error) / sense_min;
-    let wide_offset = 0.025;
-    let fine_offset = 0.130;
-    let wide_late = (selected_max + wide_offset) / 0.98 * 1000.;
-    let fine_late = (selected_max + fine_offset) / 0.98 * 200.;
-    assert!(tip_max < 1500.);
-    assert!(wide_late < 1500.);
-    assert!(fine_late < 300.);
-    let tip_nom = 4.8 * (rb + rc) / (ra + rb + rc);
-    let out_nom = 4.8 * rc / (ra + rb + rc);
-    let tip_early = ((rail_min * tip_div_min - comp_error - 0.005) / 1.02 * 2000.).max(0.);
-    let sel_early = (rail_min * out_div_min - comp_error) / ((1. + res_tol) / 2.);
-    report+=&format!("Rails: +{:.4} / -{:.4} V nominal; worst-case magnitudes {rail_min:.4}..{rail_max:.4} V (ADP7142 +/-1.8 %, ADP7182 -2.95/+1.97 % ADJ, feedback 0.1 % + 25 ppm/C).\n",1.2*(1.+30./10.),1.22*(1.+29.4/10.));
-    report+=&format!("Input warning +/-{tip_nom:.6} V buffered = {:.2} V/tip nominal. Selected-output warning +/-{:.6} V = {:.2} V differential on wide / {:.2} V on fine (nominal, before gain calibration).\n",tip_nom*2000.,out_nom*2.,out_nom*2000.,out_nom*400.);
-    report+=&format!("Conditional late-trip budget (-25..85C): tip < {tip_max:.2} V; selected comparator < {selected_max:.6} V, corresponding to < {wide_late:.2} V wide / {fine_late:.2} V fine with minimum calibrated gain 98% nominal and actual analog zero offsets <=25mV wide / <=130mV fine. Earliest possible trip (gain <=102%): {tip_early:.0} V/tip, {:.0} V wide / {:.0} V fine.\n",(sel_early-wide_offset).max(0.)/1.02*1000.,(sel_early-fine_offset).max(0.)/1.02*200.);
+    let w = budget::warning(&design);
+    assert!(w.tip_max < 1500.);
+    assert!(w.wide_late < 1500.);
+    assert!(w.fine_late < 300.);
+    let (rail_min, rail_max, tip_max, selected_max, wide_late, fine_late, tip_early) = (w.rail_min, w.rail_max, w.tip_max, w.selected_max, w.wide_late, w.fine_late, w.tip_early);
+    report+=&format!("Rails: +{:.4} / -{:.4} V nominal; worst-case magnitudes {rail_min:.4}..{rail_max:.4} V (ADP7142 +/-1.8 %, ADP7182 -2.95/+1.97 % ADJ, feedback {}).\n",w.pos_nom,w.neg_nom,if ["R81","R82","R83","R84"].iter().all(|r| budget::tolerance(&mpns[*r]) == budget::PRECISION) {"0.1 % + 25 ppm/C".to_string()} else {format!("R81 {}, R82 {}, R83 {}, R84 {}",budget_class(&mpns["R81"]),budget_class(&mpns["R82"]),budget_class(&mpns["R83"]),budget_class(&mpns["R84"]))});
+    report+=&format!("Input warning +/-{:.6} V buffered = {:.2} V/tip nominal. Selected-output warning +/-{:.6} V = {:.2} V differential on wide / {:.2} V on fine (nominal, before gain calibration).\n",w.tip_nom,w.tip_nom*2000.,w.out_nom*2.,w.out_nom*2000.,w.out_nom*400.);
+    report+=&format!("Conditional late-trip budget (-25..85C): tip < {tip_max:.2} V; selected comparator < {selected_max:.6} V, corresponding to < {wide_late:.2} V wide / {fine_late:.2} V fine with minimum calibrated gain 98% nominal and actual analog zero offsets <=25mV wide / <=130mV fine. Earliest possible trip (gain <=102%): {tip_early:.0} V/tip, {:.0} V wide / {:.0} V fine.\n",w.wide_early,w.fine_early);
+    report+=&format!("Ladder classes: R87/R91 {}, R88/R92 {}, R89/R93 {}; sense R71/R72 {}.\n",budget_class(&mpns["R87"]),budget_class(&mpns["R88"]),budget_class(&mpns["R89"]),budget_class(&mpns["R71"]));
     report+="Warning budget requires measured divider/system gain >=98% nominal, buffer offset within +/-5mV each, actual selected-path zero within the stated range-specific limits and both rails inside their regulated range; scope zero subtraction does not remove the comparator offset. These are qualification acceptance conditions, not assumed measured facts. Comparator finite delay means this LED is not a transient peak guarantee.\n";
     // Clamp current returned into the LDO outputs must stay below their own load.
     // OPA2810 2x2 channels + OPA810: 2.9 mA/channel minimum, -40..125C (3.6 typ);

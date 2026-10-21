@@ -49,6 +49,35 @@ fn main() -> Result<()> {
             );
         }
     }
+    // Output-filter candidates (docs/fee-consolidation.md), same fixture as ac.cir.
+    let cand = rows("validation/spice/candidates.tsv")?;
+    report += "\nOutput-filter candidates (validation/spice/candidates.cir; R69 / C61):\n";
+    for (i, label) in ["A 97.6 R / 180 pF", "B 220 R / 100 pF", "C 100 R / 180 pF"].iter().enumerate() {
+        for (k, range) in ["1000:1", "200:1"].iter().enumerate() {
+            let col = 1 + 2 * i + k;
+            let pcol = 7 + 2 * i + k;
+            let gain = cand[0][col];
+            let target = gain / 2f64.sqrt();
+            let pair = cand
+                .windows(2)
+                .find(|p| p[0][col] >= target && p[1][col] < target)
+                .ok_or("no -3dB crossing")?;
+            let bw = pair[0][0]
+                + (pair[1][0] - pair[0][0]) * (pair[0][col] - target) / (pair[0][col] - pair[1][col]);
+            let peak = cand.iter().map(|r| r[col]).fold(0f64, f64::max) / gain;
+            assert!((4.8e6..6.2e6).contains(&bw), "candidate {label} {range}: bandwidth {bw}");
+            assert!(peak < 1.01, "candidate {label} {range}: peaking");
+            let a60 = 20. * (interpolate(&cand, col, 60e3) / gain).log10();
+            report += &format!(
+                "  {label}, {range}: -3dB {:.4} MHz; max {:.4} dB above LF; 35 kHz phase {:.4} deg; 60 kHz {a60:.6} dB, phase {:.4} deg; 5 MHz {:.3} dB.\n",
+                bw / 1e6,
+                20. * peak.log10(),
+                interpolate(&cand, pcol, 35e3),
+                interpolate(&cand, pcol, 60e3),
+                20. * (interpolate(&cand, col, 5e6) / gain).log10()
+            );
+        }
+    }
     let tran = rows("validation/spice/unused-fine-saturation.tsv")?;
     let settled: Vec<_> = tran.iter().filter(|r| r[0] >= 20e-6).collect();
     let difference = settled.iter().map(|r| r[4].abs()).fold(0f64, f64::max);
