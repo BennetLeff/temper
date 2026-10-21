@@ -1,72 +1,168 @@
-# Circuit and assembly decisions
+# Circuit and assembly decisions (Rev C)
+
+This page describes the Rev C circuit. The reasons for each change from Rev B, and the options rejected, are in the [Rev C record](revc.md). The Rev B version of this page is in git at `ca79d882f`. Its detailed calculations remain in [circuit-revb.md](circuit-revb.md).
 
 ## Signal path
 
-Each leg has 10 MΩ above its tap. Five identical sections each contain two 1 MΩ resistors and one 33 pF capacitor. With `Rbottom = 10 MΩ / 1999 = 5002.501 Ω`, the DC attenuation is 2000:1. Matching time constants requires a total low-leg capacitance of 13.1934 nF, including component, clamp, buffer and layout capacitance. The ideal high-frequency input capacitance is approximately 6.6 pF.
+### Divider
 
-R11/R31 are 4.99 kΩ, 0.01%; RV1/RV2 are 50 Ω, with the wiper tied to one end. The nominal trim setting is 12.501 Ω. All worst-direction 0.1% upper-string and 0.01% bottom-resistor corners require 7.000–18.003 Ω. A 50 Ω trimmer covers these corners without the reduced resolution of a 200 Ω part. This relies on the selected 0.1% upper resistors.
+Each leg has 10 MΩ above its tap: five sections, each one 2 MΩ HVCB2512 (0.1%) in parallel with one 33 pF / 3 kV C0G.
 
-The initial coarse population is 10 nF + 2.2 nF + 680 pF + 220 pF + 47 pF + 10 pF + 1 pF = 13.158 nF. CT1/CT2 are EW Electronics GKG60015 top-adjust ceramic trimmers, 12–60 pF / 100 V, with nominal setting 35.4 pF before parasitics. Their rotor connects to GND and stator to the tap. The manufacturer temperature coefficient is N2200 ±800 ppm/°C; their small contribution to total capacitance limits the nominal composite contribution to about −6 ppm/°C, but tracking and temperature behavior still need measurement.
+With `Rbottom = 10 MΩ / 1999 = 5002.501 Ω`, the DC attenuation is 2000:1. Matching time constants needs a total low-leg capacitance of 13.1934 nF, including component, clamp, buffer and layout capacitance. The ideal high-frequency input capacitance is about 6.6 pF.
 
-The trimmers provide fine adjustment through shield tool holes; the coarse bank still needs selection when component tolerance or parasitics exceed that adjustment range. Change coarse parts only with the DUT disconnected, then close the shield. Use low-voltage excitation and an insulated adjustment tool for fine adjustment; withdraw the tool before accepting the reading. The archived ladder model needed about 12.877 nF with assumed 0.2 pF node strays. That illustrates why a nominal population and one trimmer cannot guarantee broadband 60 dB rejection.
-U1/U2 buffer the taps through 220 Ω current-limiting resistors. The ADA4817 input range reaches only about 2.8 V below its positive supply; the proposed extended ±3 kV tip voltage produces ±1.5 V at the tap, inside the nominal ±4.8 V supply headroom. Power-down pin 8 is tied to the positive rail to enable the amplifier.
+### DC trim
 
-U3 is an OPA810 fixed ×2 difference amplifier. R61/R62 are 499 Ω inputs and paired 499 Ω resistors form each 998 Ω gain arm. U12 is a separate OPA810 noninverting ×5 stage: 499 Ω to ground and four series 499 Ω feedback resistors. Both feedback networks remain connected in either range. R100 (49.9 Ω) isolates the fine-stage input branch from U3.
+R11/R31 are 4.99 kΩ, 0.01%. RV1/RV2 are 50 Ω pots with the wiper tied to one end; the nominal setting is 12.501 Ω.
 
-SW1 selects between the fixed ×2 output and the cascaded ×10 output, each through its own 49.9 Ω isolation resistor, before the common filter and U4 output buffer. Only pole 1 is used: pin 1 WIDE_SEL, pin 2 SELECTED, pin 3 FINE_SEL; pins 4–6 are NC. R103 (1 MΩ) returns SELECTED to ground during contact opening. Use the gold-contact 7201SYZBE and verify electrical position rather than assuming lever direction. The manufacturer’s generic technical data specifies break-before-make unless noted otherwise; verify it on the received switch. The isolation resistors limit momentary output contention if contacts overlap; contact bounce and settling remain bench checks.
+All worst-direction corners of the 0.1% upper string and 0.01% bottom resistor need 7.000–18.003 Ω. Five 0.1% bodies give the same corners as Rev B's ten.
 
-Range selection no longer opens amplifier feedback. There is no circuit requirement to de-energize the DUT merely to select a range, but the transition is not a valid measurement interval. Keep the selector harness short and contained in the low-voltage compartment. Opening the enclosure or moving HV connections still requires de-energization.
+### Low-leg capacitance
 
-The common filter uses R69 = 97.6 Ω and C61 = 180 pF. Including the selected output's 49.9 Ω isolation resistor and detector/DC-return loading gives an effective source resistance near 147.37 Ω and a calculated RC pole of 6.000 MHz. A first-order amplifier cascade estimate gives 5.65 MHz wide and 5.00 MHz fine bandwidth; these are typical-model calculations, not guaranteed or simulated responses. The archived TI model predicts 5.55 MHz wide and 5.09 MHz fine with a representative 120 pF cable/scope load, using ideal buffer sources and supplies. Its 60 kHz phase is about −0.92° wide / −1.16° fine before the HV divider and buffers, reinforcing the need for range-specific phase calibration. The vendor model’s overdrive clipping exceeds its ideal rails slightly, so exact clipping and recovery are not physical predictions. The selector loading introduces about 0.254% attenuation, giving approximately 1002.6:1 and 200.52:1 before calibration. Calibrate the complete output path.
+The low leg is a fixed 10 nF 1% C0G (C41/C51), two select-on-test 1% C0G positions, and a GKG60015 12–60 pF top-adjust trimmer (CT1/CT2). The select-on-test positions are:
 
-U4 is an OPA810 unity buffer; R70 is 49.9 Ω series output isolation. Use a scope's 1 MΩ input. A 50 Ω termination roughly halves the signal and is outside this calibration. See [Rev B circuit calculations and evidence](circuit-revb.md) for the detailed gain, loading and warning budgets.
+| Position | Nominal | Choose from (E24) |
+|---|---|---|
+| S1: C42/C52 | 3.0 nF | 1.8–3.9 nF |
+| S2: C43/C53 | 160 pF | 0–360 pF |
+
+Selection is two-stage, with a re-measurement before each choice. [`checks.txt`](../validation/checks.txt) records the no-gap proof over the archived −8.26/+4.20% requirement spread at worst-case part tolerance. Nominal parts leave 33.4 pF for the trimmer plus parasitics.
+
+The trimmer rotor is tied to GND and the stator to the tap. Its N2200 ±800 ppm/°C temperature coefficient adds little because it is a small part of the total.
+
+Adjusting the bank:
+
+- **Fine adjustment** is through the lid holes. Use an insulated tool and low-voltage excitation, and withdraw the tool before reading.
+- **S1/S2 changes** need the DUT disconnected and the enclosure opened.
+
+The archived ladder model shows that one trimmer cannot correct arbitrary distributed parasitics across the band.
+
+### Input buffers
+
+U1 (OPA2810, one channel per leg) buffers each tap through 220 Ω, 0.1% (R12/R32).
+
+The JFET input stage holds to VS+ − 2.5 V typical (−3 V over temperature). That is about +1.8 V on the +4.8 V rail. The extended ±3 kV tip voltage puts ±1.5 V on the tap, inside that.
+
+### Subtractor and ×5 stage
+
+U3 channel 2 is the fixed ×2 subtractor. Its 499 Ω inputs are R61/R62; R63 (1 kΩ) is the reference arm and R65 (1 kΩ) the feedback. The gain is 2.004.
+
+U12 (OPA810) is the noninverting ×5 stage: 499 Ω (R67) to ground and 2 kΩ (R68) feedback, giving 5.008. Both feedback networks stay connected in either range. R100 (49.9 Ω) isolates the fine-stage input from U3's output.
+
+U12 is kept as a separate package because it is the stage that saturates in wide range (see [revc.md §4](revc.md#4-one-amplifier-family-opa2810--opa810)). Saturating the unused U12 changes the wide output by 16.7 nV in the vendor model. That model cannot represent inter-channel coupling.
+
+### Range selection
+
+SW1 (PCB-mount C&K 7101 SPDT) selects WIDE_SEL (pin 1) or FINE_SEL (pin 3) onto SELECTED (pin 2). Each source has its own 49.9 Ω isolation resistor, and the selected signal feeds the common filter. R103 (1 MΩ) returns SELECTED to ground while the contacts are open.
+
+Range selection does not open any feedback loop, but the changeover is not a valid measurement interval. Verify break-before-make behaviour and settling on the received switch.
+
+### Output filter and driver
+
+The common filter is R69 = 97.6 Ω and C61 = 180 pF. Including the selector's 49.9 Ω and the warning divider load, the effective source resistance is 147.37 Ω and the pole is 6.000 MHz.
+
+The TI vendor model (full chain with a lumped divider, 1 MΩ ‖ 120 pF scope load) gives:
+
+| Range | −3 dB | Phase at 60 kHz |
+|---|---|---|
+| Wide | 5.786 MHz | −0.94° |
+| Fine | 5.252 MHz | −1.18° |
+
+Neither range peaks. Calibrate each range separately.
+
+Loaded DC ratios are 1000.59:1 and 199.80:1 before calibration. U3 channel 1 is the unity-gain coax driver, and R70 is the 49.9 Ω series output resistor. Use the scope's 1 MΩ input: a 50 Ω termination roughly halves the signal and invalidates the calibration.
+
 ## Protection and indication
 
-D1/D2 are low-leakage BAV199 pairs clamping the buffer inputs to shunt references of approximately ±2.495 V plus a diode drop. D3 similarly clamps the output after R70. These are overload clamps, not precision ±3 V limiters: forward voltage, current and temperature change the clip level. The reverse-recovery behavior and charge injected into the reference wiring must be checked on hardware.
+### Clamps
 
-The fine range would demand 7.5 V output for 1.5 kV differential input. U12 saturates before that. In wide range the unused U12 can therefore be saturated while the selected output is valid. Verify that U12 overdrive, input bias current and rail/reference coupling do not disturb U3 or the wide output. The output clamp does not guarantee rapid recovery of earlier amplifier stages.
+D1/D2 (BAV199 pairs) clamp the buffer inputs directly to the ±4.8 V rails. D3 clamps the output after R70. These are overload clamps, not precision limiters.
 
-U5 watches both buffered inputs; U6 watches SELECTED through a 2:1 divider, so saturation of the unused fine output does not alone assert the output warning. The tip references use 25.5 kΩ / 10 kΩ dividers and the output references use 29.4 kΩ / 10 kΩ, giving nominal thresholds of ±0.7028 V at the input buffers and ±1.2665 V on SELECTED. These correspond approximately to 1.406 kV per tip, 1.266 kV wide differential and 253 V fine differential. The intentionally early thresholds leave tolerance margin before the initial qualification limits. The conditional static late-trip budget is about 1491 V per tip and 1364 V wide / 294 V fine, subject to the temperature, reference and calibrated-gain assumptions in the circuit record. Actual analog zero offsets must remain within ±25 mV wide / ±130 mV fine, with individual buffer offsets within ±5 mV. Scope zero subtraction does not remove offset seen by the comparator.
+The worst single-fault clamp current (one bottom bank open, 3 kVpk at 60 kHz) is 7.5 mA peak. The minimum rail load is about 14.7 mA, so neither LDO output is back-driven.
 
-The comparator outputs drive Q1 and the CD4013 set input; the LED stays on until reset. It flags the initial-envelope warning, including during extended-range qualification. It is not a fast protective trip or proof that every short peak was captured: the comparators have roughly 560 ns typical delay, with additional latch/path delay. Record clipping and actual waveform behavior as well.
-TL431 shunts have 1 kΩ feed resistors and no output capacitors; a capacitor added to either reference requires a stability assessment against the TI data sheet. Reference bias is about 2 mA after the threshold-divider loads. The output clamp can add tens of milliamps during saturation; verify shunt temperature, output-driver current and recovery together.
+The BAV199 forward voltage (about 0.9 V) exceeds the OPA2810's 0.5 V input-diode allowance, so the part's internal ESD diodes share some clamp current. R12/R32 keep the total below the 10 mA absolute maximum. Check this on the bench.
+
+### Saturation of the unused stage
+
+The fine range would need 7.5 V out for a 1.5 kV differential input, so U12 saturates first. In wide range, U12 can therefore be saturated while the selected output is valid.
+
+### Warning comparators and thresholds
+
+U5 (TLV1704) watches both buffered inputs in both polarities. U6 (TLV1702) watches SELECTED through the R71/R72 2:1 divider, so a saturated unused fine output does not by itself raise the output warning.
+
+The TL431 references are gone. One ladder per polarity across the regulated rail sets both thresholds: 66.5 kΩ → LIM → 1 kΩ → OUT_LIM → 10 kΩ → GND. Their spread includes the rail tolerances (ADP7142 ±1.8%; ADP7182 ADJ −2.95/+1.97%) and 0.1% feedback resistors.
+
+| Warning | Nominal | Conditional late-trip bound | Earliest trip |
+|---|---|---|---|
+| Per tip | 1,362.6 V | < 1,453.0 V | 1,267 V |
+| Wide differential | 1,238.7 V | < 1,341.6 V | 1,132 V |
+| Fine differential | 247.7 V | < 289.75 V | 206 V |
+
+The budget holds only if all of these are true:
+
+- Gain is at least 98% of nominal.
+- Each buffer offset is within ±5 mV.
+- The actual selected-path zero is within ±25 mV wide or ±130 mV fine.
+- Both rails are inside their regulated range.
+
+Scope zero subtraction does not remove an offset that the comparator sees.
+
+### Latch
+
+The open-drain comparator outputs (OV_N) drive Q1 and the CD4013 set input, and the LED stays on until reset (SW3). This latch is an initial-envelope warning, not a fast protective trip: the comparators have roughly 560 ns typical delay.
 
 ## Supply, grounding and assembly
 
-Two 9 V batteries feed ADP7142/ADP7182 regulators through a separate silver-contact 7201SYZQE power switch and reverse-polarity diodes. Nominal rails are +4.800 V and −4.807 V. The gold signal switch is not used as the supply switch. Expect roughly 60–80 mA per battery before overload loads; verify actual current, regulator temperature and battery runtime. The design has no low-battery validity indicator: record both rails before and after measurements, and stop using results if either leaves its calibrated range.
+### Batteries and regulators
 
-The selected 10 µF, 25 V, 1210 X7R regulator capacitors need an effective-capacitance check at actual bias and temperature; maintain at least the regulator's specified 2.2 µF. Two ADA4817s account for about 38 mA typical quiescent current; the three OPA810 stages add their own quiescent and signal-load current. Small TSOT regulator thermal behavior with fresh batteries must be checked. Local 100 nF bypasses accompany each amplifier, comparator and latch supply.
+Two 9 V batteries sit in PCB-mount MPD BH9VPC holders on the underside. They feed ADP7142/ADP7182 regulators through the PCB-mount silver-contact 7201P3DAV2QE power switch and SS14 reverse-polarity diodes. Nominal rails are +4.800 V and −4.807 V.
 
-GND is the BNC shell, scope earth and fixed electrostatic shield. Battery power does **not** make this a galvanically isolated input. Keep the scope's protective earth intact. Route shield displacement current to the BNC/shield bond without sharing the sensitive tap or gain-reference return path. Preserve equal geometry and thermal conditions between divider legs.
+| | Typical current per rail |
+|---|---|
+| Amplifiers: four OPA2810 channels + one OPA810 | ~18 mA |
+| Rev B for comparison | ~50 mA |
+| Lit LED | about 0.8 mA extra |
 
-At 3 kV DC on one tip, ideal leg dissipation is approximately 0.90 W, or 90 mW per 1 MΩ resistor. At 3 kV peak sinusoidal voltage it is approximately 0.45 W per leg. Each segment sees approximately 600 V peak and each resistor approximately 300 V under ideal sharing. These values do not replace voltage-coefficient, temperature, transient-sharing or insulation qualification. At 60 kHz and 3 kV peak, 6.6 pF draws about 5.28 mArms. A 70 V/ns edge implies about 0.46 A instantaneous displacement current before added stray capacitance. Neither number establishes acceptable disturbance on stage 53.
+Verify the actual current and the regulator temperature. There is no low-battery indicator: record both rails before and after measurements.
 
-The grounded enclosure, tip lead routing and final PCB are part of the compensation network. Determine clearance/creepage from the actual working voltage, transient environment, altitude, material and pollution conditions before layout release. No CAT rating is claimed. Do not put a continuous ground plane beneath the high-voltage ladder merely because the low-voltage amplifier needs good grounding. Keep the low-voltage RF layout compact while preserving the ladder's insulation and measured capacitance.
+The 10 µF, 25 V, 1210 X7R regulator capacitors need an effective-capacitance check at bias. Each amplifier, comparator and latch supply has local 100 nF bypassing, with plane vias at each pin.
+
+### Grounding
+
+GND is the BNC shell, scope earth and enclosure. Battery power does **not** make this a galvanically isolated input. Keep the scope's protective earth intact. The grounded mounting holes H1/H2 and the BNC shell bond the board to the enclosure at the output end.
+
+### HV ladder ratings
+
+At 3 kV DC on one tip, ideal leg dissipation is 0.90 W: 0.180 W and 600 V per 2 MΩ body. At 3 kV peak sinusoidal it is about 0.45 W per leg. At 60 kHz and 3 kV peak, 6.6 pF draws about 5.28 mArms. A 70 V/ns edge implies about 0.46 A of instantaneous displacement current before stray capacitance is added. None of these numbers replaces voltage-coefficient, temperature, transient-sharing or insulation qualification.
 
 ## Pin and footprint checks
 
-Custom symbols use the selected package, not a generic op-amp pinout:
+Custom symbols use the selected package pinout, not a generic op-amp pinout:
 
 | Part/package | Critical mapping |
 |---|---|
-| ADA4817-1ARDZ, RD-8-4 | 1 feedback, 2 −IN, 3 +IN, 4 −VS, 5 NIC, 6 OUT, 7 +VS, 8 PD, 9 exposed pad |
+| OPA2810, SOIC-8 | 1 OUT1, 2 −IN1, 3 +IN1, 4 −VS, 5 +IN2, 6 −IN2, 7 OUT2, 8 +VS |
+| OPA810, SOIC-8 | 2 −IN, 3 +IN, 4 −VS, 6 OUT, 7 +VS; 1/5/8 NC |
 | ADP7142, TSOT-5 | 1 VIN, 2 GND, 3 EN, 4 ADJ, 5 VOUT |
 | ADP7182, TSOT-5 | 1 GND, 2 VIN, 3 EN, 4 ADJ, 5 VOUT |
-| TL431BIDBZR, DBZ | 1 cathode, 2 REF, 3 anode; do not substitute TL432 pin mapping |
 | BAV199, SOT-23 | 1 outer anode, 2 outer cathode, 3 series junction |
-| OPA810, SOIC-8 | 2 −IN, 3 +IN, 4 −VS, 6 OUT, 7 +VS; 1/5/8 NC |
+| BH9VPC | 1 = +, 2 = − (MPD rev J PCB layout) |
+| 7201 DPDT | 2 and 5 common; 3 and 6 unused |
 
-The local ADA4817 footprint derives from KiCad's SOIC-8 exposed-pad footprint, with pad 9 resized to the RD-8-4 nominal 2.29 × 2.29 mm exposed pad. Analog Devices Rev. I changed the package designation from RD-8-1 to RD-8-4. Lead pitch is 1.27 mm; the package drawing gives exposed-pad dimensions 2.18–2.39 mm. The PCB revision contains four 0.9 mm square paste apertures within that pad; assembly-process qualification remains required. The PTS645 reset switch footprint represents its internally common terminal pairs as duplicate pad numbers 1 and 2; both copies are physically routed. See the [layout notes](layout.md) for slot, shielding and mounting details.
+TI's two OPA2810 model files order their pins differently. The PSpice file used here is `IN+ IN- OUT VCC VEE`; the TINA file puts OUT last.
 
-The pad-number audit detects missing or extra numbers; it does not certify land-pattern geometry or prove that a selected library footprint matches every dimensional detail. Offboard switches, BNC and battery clips intentionally have no PCB footprint.
+The BNC, toggle and holder footprints are generated from manufacturer dimensions in `tools/build.rs`. Their "MP" support pins carry no net.
+
+The PTS645 reset switch has duplicate pad numbers 1 and 2 for its internally common terminals, and both copies are routed.
+
+The pad-number audit finds missing or extra pad numbers. It does not certify land-pattern geometry; see [revc.md §7](revc.md#7-pcb-mount-panel-parts) for the dimensions still to confirm on samples.
 
 ## Reference sources
 
-- [Altium differential probe project](https://resources.altium.com/p/differential-oscilloscope-probe-project): architectural starting point; its attenuator is replaced.
-- [ADA4817 data sheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ADA4817-1_4817-2.pdf) and [RD-8-4 package](https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_edrd/rd-8-4.pdf).
-- [ADP7142](https://www.analog.com/media/en/technical-documentation/data-sheets/ADP7142.pdf), [ADP7182](https://www.analog.com/media/en/technical-documentation/data-sheets/ADP7182.pdf), [OPA810](https://www.ti.com/lit/ds/symlink/opa810.pdf).
-- [TLV170x](https://www.ti.com/lit/ds/symlink/tlv1704.pdf), [CD4013B](https://www.ti.com/lit/ds/symlink/cd4013b.pdf), [TL431](https://www.ti.com/lit/ds/symlink/tl431.pdf), [BAV199](https://assets.nexperia.com/documents/data-sheet/BAV199.pdf).
-- [Stackpole HVCB](https://seielect.com/Catalog/SEI-HVCB.pdf), [RNCF](https://seielect.com/Catalog/SEI-RNCF.pdf), [Bourns 3296](https://www.bourns.com/docs/product-datasheets/3296.pdf).
-- [C&K 7000 series, manufacturer data sheet](https://www.littelfuse.com/assetdocs/littelfuse-ck-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e).
+- [OPA2810](https://www.ti.com/lit/ds/symlink/opa2810.pdf) and its [PSpice model SBOMB66](https://www.ti.com/lit/zip/SBOMB66); [OPA810](https://www.ti.com/lit/ds/symlink/opa810.pdf).
+- [ADP7142](https://www.analog.com/media/en/technical-documentation/data-sheets/ADP7142.pdf), [ADP7182](https://www.analog.com/media/en/technical-documentation/data-sheets/ADP7182.pdf).
+- [TLV170x](https://www.ti.com/lit/ds/symlink/tlv1704.pdf), [CD4013B](https://www.ti.com/lit/ds/symlink/cd4013b.pdf), [BAV199](https://assets.nexperia.com/documents/data-sheet/BAV199.pdf).
+- [Stackpole HVC](https://www.seielect.com/Catalog/SEI-HVC.pdf), [RNCF](https://seielect.com/Catalog/SEI-RNCF.pdf), [Bourns 3296](https://www.bourns.com/docs/product-datasheets/3296.pdf).
+- [C&K 7000 series](https://www.littelfuse.com/assetdocs/littelfuse-c-k-toggle-7000-series-datasheet?assetguid=fed01bc6-88d0-4bda-b896-13c98cf9e90e), [Amphenol 031-5431-10RFX](https://www.amphenolrf.com/en-us/assets/file/4065791754/), [MPD BH9VPC](https://www.memoryprotectiondevices.com/datasheets/BH9VPC/BH9VPC-datasheet.pdf), [Hammond 1455N2201](https://www.hammfg.com/files/parts/pdf/1455N2201.pdf).
+- [Altium differential probe project](https://resources.altium.com/p/differential-oscilloscope-probe-project): the architectural starting point; its attenuator is replaced.
 
-All remaining component-specific links are in the generated BOM.
+Every other component link is in the generated BOM.
