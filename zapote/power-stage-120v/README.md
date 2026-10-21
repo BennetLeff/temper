@@ -1,6 +1,6 @@
 # power-stage-120v: full-bridge induction power stage
 
-> **Stale header (audit 2026-10-20):** the status and design text below predate the s53 board. Current: board s53, 290 × 190 mm, 2EDR8259X drivers, CA-IS3720HW isolators, PS1 deleted, KLDR025.TXP fuse, CT 1:200. See DECISIONS.md items 75 and later.
+> **Stale header (audit 2026-10-20):** the status and design text below predate the s53 board. Current: board s55 (d9ee93a8; `validation-results/08-manufacturing-package/native-21/fab/FAB-NOTE.md`), 290 × 190 mm, 2EDR8259X drivers, CA-IS3720HW isolators, PS1 deleted, KLDR025.TXP fuse, CT 1:200, U47 Schmitt buffer before U13.A. See DECISIONS.md items 75 and later (s54: item 81; s55: item 82).
 
 Status: **source compiled and audited; 240 × 160 mm four-layer placement
 generated; native-06 routed and checked for renewed D4 review; physical NOT RUN.**
