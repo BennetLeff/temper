@@ -98,8 +98,12 @@ Ref,Val,Package,PosX,PosY,Rot,Side
 "R110","22 kR","R_0805_2012Metric",126.600000,-7.050000,0.000000,top
 "R111","10 kR","R_0805_2012Metric",131.000000,-12.600000,180.000000,top
 "R112","470 R","R_0805_2012Metric",133.900000,-9.200000,-90.000000,top
+"R113","10 kR","R_0805_2012Metric",76.400000,-19.500000,0.000000,top
+"R114","66.5 kR","R_0805_2012Metric",82.000000,-10.500000,-90.000000,top
 "RV1","500 R / set 132.5 R","Potentiometer_Bourns_3296W_Vertical",65.000000,-7.000000,180.000000,top
 "RV2","500 R / set 132.5 R","Potentiometer_Bourns_3296W_Vertical",65.000000,-63.000000,180.000000,top
+"RV3","20 kR zero trim","Potentiometer_Bourns_3296W_Vertical",68.600000,-57.630000,-90.000000,top
+"RV4","20 kR zero trim","Potentiometer_Bourns_3296W_Vertical",68.600000,-12.370000,90.000000,top
 "SW1","SPDT / ON-ON / gold / threaded","ESwitch_100_M7_SPDT",135.300000,-21.360000,-90.000000,top
 "SW2","POWER / DPDT / ON-ON / threaded","ESwitch_100_M7_DPDT",135.300000,-56.000000,-90.000000,top
 "SW3","RESET / NO","SW_Tactile_CK_PTS645_THT",131.850000,-46.250000,180.000000,top

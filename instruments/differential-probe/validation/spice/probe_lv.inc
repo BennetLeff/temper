@@ -28,6 +28,10 @@ R67 GAIN5_FB 0 499
 R68 GAIN5_FB FINE 2k
 XU12 GAIN5_IN GAIN5_FB FINE VP VN OPA810
 R101 RAW WIDE_SEL 49.9
+* Zero trims at mid-travel (RV3/RV4 3296W 20 k: 5 k Thevenin), wipers AC-grounded by the rails:
+* R113 10 k loads WIDE_SEL, R114 66.5 k adds to the U12 feedback ground leg.
+R113 WIDE_SEL 0 15k
+R114 GAIN5_FB 0 71.5k
 R102 FINE FINE_SEL 49.9
 * Fixed switch position represented by contact resistances, not a transition model.
 RSELW WIDE_SEL SELECTED {.01+FINE_RANGE*1e12}

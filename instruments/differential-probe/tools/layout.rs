@@ -554,6 +554,14 @@ fn lv_parts() -> Vec<(&'static str, f64, f64, i32)> {
         ("R112", 133.9, 9.2, 270),
         ("D10", 127.0, 12.6, 0),
         ("SW2", 135.3, 56.0, 270),
+        // Analog zero trims (owner-soldered 3296W): their tails must stay off the
+        // holders, so they sit in the free strips beside the tap cells (x 65.9..71.3),
+        // RV4 (fine) above the slot axis, RV3 (wide) mirrored below it. R113 lands
+        // on WIDE_SEL beside R101; R114 on the U12 inverting node beside R67, clear of the BT1 screw-head keep-out.
+        ("RV4", 68.6, 12.37, 90),
+        ("RV3", 68.6, 57.63, 270),
+        ("R113", 76.4, 19.5, 0),
+        ("R114", 82.0, 10.5, 270),
         // Through-hole latch reset, owner-soldered: in the panel strip between
         // J3 and SW2, because its tails must stay off the bottom-side holders
         // (x 71.3..126.6). Pressed through a lid hole like the trimmers.
@@ -764,6 +772,21 @@ impl Copper {
         self.run("TRIG", "F.Cu", &[r1122, (r1122.0, 12.0)]);
         self.via("TRIG", (r1122.0, 12.0));
         self.run("TRIG", "B.Cu", &[(r1122.0, 12.0), (135.8, j41.1), j41]);
+        // ---- Analog zero trims -------------------------------------------------------
+        // Rail ends of RV3/RV4 are through-hole pads on the In2 (+4V8) and B.Cu (-4V8)
+        // pours. Each wiper leaves on In2 from its own through-hole pad (shielded by
+        // the In1 GND plane), passes under the F.Cu WIDE_SEL descent at x = 78.5 and
+        // comes up beside its injection resistor; the resistor sits at the node.
+        let (rv42, r1141, r1142) = (k(self, "RV4.2"), k(self, "R114.1"), k(self, "R114.2"));
+        self.run("TRIM_F", "In2.Cu", &[rv42, (70.2, 13.2), (73.0, 10.4), (79.7, 10.4), (80.5, r1141.1)]);
+        self.via("TRIM_F", (80.5, r1141.1));
+        self.run("TRIM_F", "F.Cu", &[(80.5, r1141.1), r1141]);
+        self.run("GAIN5_FB", "F.Cu", &[r1142, (r1142.0, 12.0), (84.0, 12.0)]);
+        let (rv32, r1131, r1132) = (k(self, "RV3.2"), k(self, "R113.1"), k(self, "R113.2"));
+        self.run("TRIM_W", "In2.Cu", &[rv32, (71.55, 52.25), (71.55, 22.55), (74.3, 19.8), (74.3, 19.5)]);
+        self.via("TRIM_W", (74.3, 19.5));
+        self.run("TRIM_W", "F.Cu", &[(74.3, 19.5), r1131]);
+        self.run("WIDE_SEL", "F.Cu", &[r1132, (78.5, r1132.1)]);
         for (key, v) in [
             ("U7.9", (101.6, 16.46)),
             ("U7.11", (101.6, 19.0)),

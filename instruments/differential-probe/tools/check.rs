@@ -294,8 +294,11 @@ fn main() {
         assert_eq!(mpns[r], m, "gain/threshold source {r}");
     }
     let wide_gain = 1000. / 499.;
-    let fine_stage = 1. + 2000. / 499.;
-    let load = 1. / (1. / 20_000. + 1. / 1_000_000.);
+    // Zero trims at mid-travel: R113 10 k / R114 66.5 k plus the 20 k pot's 5 k Thevenin
+    // (the wipers are AC-grounded by the rails). R113 loads WIDE_SEL; R114 joins R67.
+    let (r113_mid, r114_mid) = (10_000. + 5_000., 66_500. + 5_000.);
+    let fine_stage = 1. + 2000. / (1. / (1. / 499. + 1. / r114_mid));
+    let load = 1. / (1. / 20_000. + 1. / 1_000_000. + 1. / r113_mid);
     let selection_gain = load / (load + 49.9);
     let source_r = 220. + 1. / (1. / 49.9 + 1. / load);
     // Output filter (tools/output_filter_study.py): C61 47 pF after R69, and C62 330 pF
@@ -326,12 +329,18 @@ fn main() {
     }
     let rncf_tc = 5e-6;
     let fine_gain = 1. + 2000. / 499.;
-    let wide_gain_drift = 2. * rncf_tc * 60.;
-    let fine_gain_drift = wide_gain_drift + 2. * rncf_tc * 60. * (fine_gain - 1.) / fine_gain;
+    // The zero trims add small terms: R101 (100 ppm/C) against the R113 + pot load on the
+    // wide range (sensitivity 49.9 / load, load at its minimum with the pot at an end),
+    // and R114 (25 ppm/C) + pot (100 ppm/C, <= 5 k of 71.5 k) against R68 on the fine range.
+    let load_min = 1. / (1. / 20_000. + 1. / 1_000_000. + 1. / 10_000.);
+    let trim_wide_drift = 49.9 / (load_min + 49.9) * (100e-6 + 100e-6) * 60.;
+    let trim_fine_drift = (2000. / 66_500.) / fine_gain * (25e-6 + 100e-6 * 5. / 71.5 + rncf_tc) * 60.;
+    let wide_gain_drift = 2. * rncf_tc * 60. + trim_wide_drift;
+    let fine_gain_drift = 2. * rncf_tc * 60. + 2. * rncf_tc * 60. * (fine_gain - 1.) / fine_gain + trim_fine_drift;
     let need_wide = 0.98 / ((1. - ratio_drift) * (1. - wide_gain_drift));
     let need_fine = 0.98 / ((1. - ratio_drift) * (1. - fine_gain_drift));
     assert!(need_fine < 0.99, "calibrated-gain acceptance would leave < 1 % margin");
-    report+=&format!("Divider ratio drift from TCR limits over -25..85 C: <= {:.2} % (string 100 ppm/C, bottom {bottom_tcr:.1} ppm/C); gain-resistor drift <= {:.3} % wide / {:.3} % fine (RNCF 5 ppm/C). The warning budget's >= 98 % gain condition therefore needs >= {:.2} % (wide) / {:.2} % (fine) calibrated gain at 25 C.\n",ratio_drift*100.,wide_gain_drift*100.,fine_gain_drift*100.,need_wide*100.,need_fine*100.);
+    report+=&format!("Divider ratio drift from TCR limits over -25..85 C: <= {:.2} % (string 100 ppm/C, bottom {bottom_tcr:.1} ppm/C); gain-resistor drift <= {:.3} % wide / {:.3} % fine (RNCF 5 ppm/C, plus the zero-trim loading). The warning budget's >= 98 % gain condition therefore needs >= {:.2} % (wide) / {:.2} % (fine) calibrated gain at 25 C.\n",ratio_drift*100.,wide_gain_drift*100.,fine_gain_drift*100.,need_wide*100.,need_fine*100.);
     for f in [35e3, 60e3] {
         let (x, y) = (f / cutoff, f / out_pole);
         report += &format!(
@@ -426,11 +435,13 @@ fn main() {
                 hi = mid;
             }
         }
-        let total_gain = g * selection_gain * 1_000_000. / (1_000_000. + 49.9);
+        // R113 loads only WIDE_SEL; the fine path's selector sees the 20 k || 1 M load alone.
+        let sel_g = if fine { let l = 1. / (1. / 20_000. + 1. / 1_000_000.); l / (l + 49.9) } else { selection_gain };
+        let total_gain = g * sel_g * 1_000_000. / (1_000_000. + 49.9);
         report+=&format!("Gain {g:.6}: loaded DC estimate {:.3}:1; initial {range:.0} Vpk -> {:.4} Vpk output.\n",2000./total_gain,range/2000.*total_gain);
         report+=&format!("Gain {g:.6}: illustrative first-order cascaded -3dB bandwidth {:.3} MHz; NOT an IC macromodel result or qualification.\n",(lo+hi)/2e6);
     }
-    report+="Bandwidth estimate uses U3B (subtractor) noise gain 3.004 / 70 MHz GBW, U12 gain 5.008 / 70 MHz GBW, U3A (driver) 140 MHz unity bandwidth, and the C61 and C62 poles (JP1 bridged); see validation/spice for the vendor-model result.\n";
+    report+="Bandwidth estimate uses U3B (subtractor) noise gain 3.004 / 70 MHz GBW, U12 gain 5.036 (zero trim at mid-travel) / 70 MHz GBW, U3A (driver) 140 MHz unity bandwidth, and the C61 and C62 poles (JP1 bridged); see validation/spice for the vendor-model result.\n";
     let body = 2e6;
     let i_dc = 3000. / (top + bottom);
     report+=&format!("At 3000 V DC per tip: total dissipation {:.3} W/leg; {:.4} W and {:.0} V per 2-Mohm body (five per leg); section capacitor ~600 V.\n",3000f64.powi(2)/(top+bottom),i_dc*i_dc*body,i_dc*body);
@@ -456,14 +467,73 @@ fn main() {
         rc: class("R89", 10_000.),
         sense: budget::tolerance(&mpns["R71"]),
     };
-    let w = budget::warning(&design);
+    // Analog zero trims (docs/design.md "Analog zero trims"): RV3 (wide) drives WIDE_SEL
+    // through R113 against R101's 49.9-ohm source; RV4 (fine) drives U12's inverting node
+    // through R114. Both inject after the subtraction, so CMRR is untouched.
+    for (r, m) in [
+        ("RV3", "3296W-1-203LF"),
+        ("RV4", "3296W-1-203LF"),
+        ("R113", "RT0805BRD0710KL"),
+        ("R114", "RT0805BRD0766K5L"),
+        ("R67", "RNCF0603TKY499R"),
+        ("R68", "RNCF0603TKY2K00"),
+    ] {
+        assert_eq!(mpns[r], m, "zero-trim calculation source {r}");
+    }
+    let w0 = budget::warning_with(&design, 0., 0.);
+    let (rmin, rmax) = (w0.rail_min, w0.rail_max);
+    // OPA2810 (VS = 10 V table): VOS <= 1.5 mV at 25 C, <= 2.4 mV -40..85 C, drift <= 13 uV/C.
+    // OPA810 SOIC: VOS <= 0.5 mV at 25 C, drift <= 10 uV/C. Range -25..85 C: 60 C from 25 C.
+    let (vos25, vos_t, tc2810, vos810, tc810, dt) = (1.5e-3, 2.4e-3, 13e-6, 0.5e-3, 10e-6, 60.);
+    let fb_stage_end = 1. + 2000. / (1. / (1. / 499. + 1. / 66_500.)); // pot at an end
+    let sub_gain = 2. * (1000. / 499.) + (1. + 1000. / 499.); // two buffers x2, U3B noise gain
+    let raw_untrimmed = vos_t * sub_gain;
+    let wide_bnc = raw_untrimmed + vos_t; // plus U3A at unity
+    let fine_bnc = (raw_untrimmed + vos810 + tc810 * dt) * fb_stage_end + vos_t;
+    let tolr = |r: &str| budget::tolerance(&mpns[r]);
+    let r101_eff = |r101: f64| 1. / (1. / r101 + 1. / 20_000. + 1. / 1_000_000.);
+    // Trim reach at the weakest rail, resistor corners, wiper at an end (no pot Thevenin).
+    let r101_lo = r101_eff(49.9 * (1. - tolr("R101")));
+    let wide_reach = rmin * r101_lo / (10_000. * (1. + tolr("R113")) + r101_lo);
+    let fine_reach = rmin * 2000. * (1. - 0.001) / (66_500. * (1. + tolr("R114")));
+    assert!(wide_reach > 1.1 * wide_bnc, "RV3 cannot null the worst wide offset");
+    assert!(fine_reach > 1.1 * fine_bnc, "RV4 cannot null the worst fine offset");
+    // Residual at SELECTED (the comparator's view) after nulling the BNC at 25 C: U3A's
+    // 25 C offset stays; then -25..85 C drift of U1/U3B (and U12), a rail move of the
+    // wiper bounded by the full regulated spread, a 1 % voltage-ratio shift of the pot
+    // (3296 shock/vibration spec), contact-resistance change up to the 1 % CRV limit at
+    // the largest wiper current, injection-ratio drift, and the setting resolution.
+    let inj_w = 49.9 / (10_000. + 49.9);
+    let inj_f = 2000. / 66_500.;
+    let spread = rmax - rmin;
+    let vr_shift = 0.01 * 2. * rmax;
+    let crv_w = 0.01 * 20e3 * rmax / 10_000.;
+    let crv_f = 0.01 * 20e3 * rmax / 66_500.;
+    let res_w = vos25 + tc2810 * dt * sub_gain + (spread + vr_shift + crv_w) * inj_w + 160e-6 * dt * wide_bnc + 0.1e-3;
+    let res_f = vos25 + (tc2810 * dt * sub_gain + tc810 * dt) * fb_stage_end + (spread + vr_shift + crv_f) * inj_f + 40e-6 * dt * fine_bnc + 0.5e-3;
+    let untrimmed_w = raw_untrimmed;
+    let untrimmed_f = (raw_untrimmed + vos810 + tc810 * dt) * fb_stage_end;
+    assert!(untrimmed_w < budget::WIDE_OFFSET && untrimmed_f < budget::FINE_OFFSET);
+    // Acceptance limits for the trimmed zero: the residual rounded up (1 mV wide, 5 mV fine).
+    let wide_acc = (res_w * 1e3).ceil() / 1e3;
+    let fine_acc = (res_f * 200.).ceil() / 200.;
+    assert!(wide_acc < budget::WIDE_OFFSET && fine_acc < budget::FINE_OFFSET);
+    let wu = budget::warning(&design);
+    let sel = |l: f64| l / (l + 49.9);
+    let load_old = 1. / (1. / 20_000. + 1. / 1_000_000.);
+    let (wide_cost_mid, wide_cost_end) = (sel(load) / sel(load_old) - 1., sel(load_min) / sel(load_old) - 1.);
+    let (fine_cost_mid, fine_cost_end) = (fine_stage / (1. + 2000. / 499.) - 1., fb_stage_end / (1. + 2000. / 499.) - 1.);
+    report+=&format!("Analog zero trims (RV3 wide via R113 10 k into WIDE_SEL; RV4 fine via R114 66.5 k into the U12 inverting node; 20 k 3296W across the rails): reach >= +/-{:.1} mV at the wide BNC and +/-{:.1} mV at the fine BNC (weakest rail, resistor corners), against worst untrimmed offsets {:.1} / {:.1} mV (OPA2810 2.4 mV and OPA810 0.5 mV + 10 uV/C maxima). DC gain change: wide {:+.3} % at mid-travel ({:+.3} % at an end), from the R113 load; fine {:+.3} % ({:+.3} %), from R114 in the feedback ground leg.\n",wide_reach*1e3,fine_reach*1e3,wide_bnc*1e3,fine_bnc*1e3,wide_cost_mid*100.,wide_cost_end*100.,fine_cost_mid*100.,fine_cost_end*100.);
+    report+=&format!("Selected-path zero after trimming the BNC to 0 V at 25 C (-25..85 C): <= {:.2} mV wide, <= {:.2} mV fine (U3A 25 C offset 1.5 mV; OPA2810 13 uV/C, OPA810 10 uV/C; rail spread {:.0} mV; 1 % pot ratio shift and CRV; resolution 0.1 / 0.5 mV). Untrimmed worst case {:.1} / {:.1} mV. Trimmed acceptance limits: {:.0} mV wide / {:.0} mV fine (were 25 / 130 mV).\n",res_w*1e3,res_f*1e3,spread*1e3,untrimmed_w*1e3,untrimmed_f*1e3,wide_acc*1e3,fine_acc*1e3);
+    report+=&format!("With the untrimmed 25 / 130 mV limits the late trip would be < {:.2} V wide / {:.2} V fine; trimmed, see below.\n",wu.wide_late,wu.fine_late);
+    let w = budget::warning_with(&design, wide_acc, fine_acc);
     assert!(w.tip_max < 1500.);
     assert!(w.wide_late < 1500.);
     assert!(w.fine_late < 300.);
     let (rail_min, rail_max, tip_max, selected_max, wide_late, fine_late, tip_early) = (w.rail_min, w.rail_max, w.tip_max, w.selected_max, w.wide_late, w.fine_late, w.tip_early);
     report+=&format!("Rails: +{:.4} / -{:.4} V nominal; worst-case magnitudes {rail_min:.4}..{rail_max:.4} V (ADP7142 +/-1.8 %, ADP7182 -2.95/+1.97 % ADJ, feedback {}).\n",w.pos_nom,w.neg_nom,if ["R81","R82","R83","R84"].iter().all(|r| budget::tolerance(&mpns[*r]) == budget::PRECISION) {"0.1 % + 25 ppm/C".to_string()} else {format!("R81 {}, R82 {}, R83 {}, R84 {}",budget_class(&mpns["R81"]),budget_class(&mpns["R82"]),budget_class(&mpns["R83"]),budget_class(&mpns["R84"]))});
     report+=&format!("Input warning +/-{:.6} V buffered = {:.2} V/tip nominal. Selected-output warning +/-{:.6} V = {:.2} V differential on wide / {:.2} V on fine (nominal, before gain calibration).\n",w.tip_nom,w.tip_nom*2000.,w.out_nom*2.,w.out_nom*2000.,w.out_nom*400.);
-    report+=&format!("Conditional late-trip budget (-25..85C): tip < {tip_max:.2} V; selected comparator < {selected_max:.6} V, corresponding to < {wide_late:.2} V wide / {fine_late:.2} V fine with minimum calibrated gain 98% nominal and actual analog zero offsets <=25mV wide / <=130mV fine. Earliest possible trip (gain <=102%): {tip_early:.0} V/tip, {:.0} V wide / {:.0} V fine.\n",w.wide_early,w.fine_early);
+    report+=&format!("Conditional late-trip budget (-25..85C): tip < {tip_max:.2} V; selected comparator < {selected_max:.6} V, corresponding to < {wide_late:.2} V wide / {fine_late:.2} V fine with minimum calibrated gain 98% nominal and actual analog zero offsets <={:.0}mV wide / <={:.0}mV fine (trimmed). Earliest possible trip (gain <=102%): {tip_early:.0} V/tip, {:.0} V wide / {:.0} V fine.\n",wide_acc*1e3,fine_acc*1e3,w.wide_early,w.fine_early);
     report+=&format!("Ladder classes: R87/R91 {}, R88/R92 {}, R89/R93 {}; sense R71/R72 {}.\n",budget_class(&mpns["R87"]),budget_class(&mpns["R88"]),budget_class(&mpns["R89"]),budget_class(&mpns["R71"]));
     report+="Warning budget requires measured divider/system gain >=98% nominal, buffer offset within +/-5mV each, actual selected-path zero within the stated range-specific limits and both rails inside their regulated range; scope zero subtraction does not remove the comparator offset. These are qualification acceptance conditions, not assumed measured facts. Comparator finite delay means this LED is not a transient peak guarantee.\n";
     // Clamp current returned into the LDO outputs must stay below their own load.

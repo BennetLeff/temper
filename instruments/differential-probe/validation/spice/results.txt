@@ -3,34 +3,34 @@ Ideal lumped 2000:1 compensated dividers and R12/R32 included; supplies +4.8000 
 Gains are output per volt of tip differential input.
 
 JP1 bridged (default: C61 47 pF, C62 330 pF at the BNC):
-1000:1: LF gain 9.99412310e-4 V/V (ratio 1000.588:1); normalized -3dB bandwidth 5.7676 MHz; maximum response 0.0000 dB above LF (checked < 0.09 dB).
-  35000 Hz: relative amplitude -0.001445 dB, phase -0.583798 deg.
-  60000 Hz: relative amplitude -0.001719 dB, phase -1.000124 deg.
-  5000000 Hz: relative amplitude -2.375159 dB, phase -76.943317 deg.
-200:1: LF gain 5.00509983e-3 V/V (ratio 199.796:1); normalized -3dB bandwidth 5.2729 MHz; maximum response 0.0000 dB above LF (checked < 0.09 dB).
-  35000 Hz: relative amplitude -0.001465 dB, phase -0.724597 deg.
-  60000 Hz: relative amplitude -0.001776 dB, phase -1.241494 deg.
-  5000000 Hz: relative amplitude -2.748568 dB, phase -96.572493 deg.
+1000:1: LF gain 9.96106790e-4 V/V (ratio 1003.908:1); normalized -3dB bandwidth 5.7690 MHz; maximum response 0.0000 dB above LF (checked < 0.09 dB).
+  35000 Hz: relative amplitude -0.001445 dB, phase -0.583711 deg.
+  60000 Hz: relative amplitude -0.001719 dB, phase -0.999974 deg.
+  5000000 Hz: relative amplitude -2.374232 dB, phase -76.933348 deg.
+200:1: LF gain 5.03305461e-3 V/V (ratio 198.686:1); normalized -3dB bandwidth 5.2666 MHz; maximum response 0.0000 dB above LF (checked < 0.09 dB).
+  35000 Hz: relative amplitude -0.001465 dB, phase -0.725530 deg.
+  60000 Hz: relative amplitude -0.001777 dB, phase -1.243092 deg.
+  5000000 Hz: relative amplitude -2.754202 dB, phase -96.694335 deg.
 JP1 cut (C62 removed, ~11 MHz mode):
-1000:1, JP1 cut: LF gain 9.99412311e-4 V/V (ratio 1000.588:1); normalized -3dB bandwidth 10.8562 MHz; maximum response 0.0000 dB above LF (checked < 0.09 dB).
-  35000 Hz: relative amplitude -0.001347 dB, phase -0.376314 deg.
-  60000 Hz: relative amplitude -0.001432 dB, phase -0.644442 deg.
-  5000000 Hz: relative amplitude -0.789404 dB, phase -52.376659 deg.
-200:1, JP1 cut: LF gain 5.00509983e-3 V/V (ratio 199.796:1); normalized -3dB bandwidth 8.4706 MHz; maximum response 0.0000 dB above LF (checked < 0.09 dB).
-  35000 Hz: relative amplitude -0.001367 dB, phase -0.517113 deg.
-  60000 Hz: relative amplitude -0.001489 dB, phase -0.885812 deg.
-  5000000 Hz: relative amplitude -1.162821 dB, phase -72.005836 deg.
+1000:1, JP1 cut: LF gain 9.96106791e-4 V/V (ratio 1003.908:1); normalized -3dB bandwidth 10.8629 MHz; maximum response 0.0000 dB above LF (checked < 0.09 dB).
+  35000 Hz: relative amplitude -0.001347 dB, phase -0.376227 deg.
+  60000 Hz: relative amplitude -0.001432 dB, phase -0.644293 deg.
+  5000000 Hz: relative amplitude -0.788477 dB, phase -52.366690 deg.
+200:1, JP1 cut: LF gain 5.03305462e-3 V/V (ratio 198.686:1); normalized -3dB bandwidth 8.4478 MHz; maximum response 0.0000 dB above LF (checked < 0.09 dB).
+  35000 Hz: relative amplitude -0.001368 dB, phase -0.518046 deg.
+  60000 Hz: relative amplitude -0.001490 dB, phase -0.887411 deg.
+  5000000 Hz: relative amplitude -1.168455 dB, phase -72.127678 deg.
 
 Output-filter candidates (validation/spice/candidates.cir; R69 / C61):
-  A 97.6 R / 180 pF, 1000:1: -3dB 5.7858 MHz; max 0.0000 dB above LF; 35 kHz phase -0.5477 deg; 60 kHz -0.001766 dB, phase -0.9383 deg; 5 MHz -2.412 dB.
-  A 97.6 R / 180 pF, 200:1: -3dB 5.2519 MHz; max 0.0000 dB above LF; 35 kHz phase -0.6885 deg; 60 kHz -0.001823 dB, phase -1.1797 deg; 5 MHz -2.783 dB.
-  B 220 R / 100 pF, 1000:1: -3dB 5.6278 MHz; max 0.0000 dB above LF; 35 kHz phase -0.5565 deg; 60 kHz -0.001791 dB, phase -0.9533 deg; 5 MHz -2.517 dB.
-  B 220 R / 100 pF, 200:1: -3dB 5.1306 MHz; max 0.0000 dB above LF; 35 kHz phase -0.6973 deg; 60 kHz -0.001848 dB, phase -1.1947 deg; 5 MHz -2.890 dB.
-  C 100 R / 180 pF, 1000:1: -3dB 5.6969 MHz; max 0.0000 dB above LF; 35 kHz phase -0.5532 deg; 60 kHz -0.001780 dB, phase -0.9477 deg; 5 MHz -2.471 dB.
-  C 100 R / 180 pF, 200:1: -3dB 5.1839 MHz; max 0.0000 dB above LF; 35 kHz phase -0.6940 deg; 60 kHz -0.001837 dB, phase -1.1891 deg; 5 MHz -2.842 dB.
+  A 97.6 R / 180 pF, 1000:1: -3dB 5.7920 MHz; max 0.0000 dB above LF; 35 kHz phase -0.5474 deg; 60 kHz -0.001765 dB, phase -0.9377 deg; 5 MHz -2.408 dB.
+  A 97.6 R / 180 pF, 200:1: -3dB 5.2452 MHz; max 0.0000 dB above LF; 35 kHz phase -0.6895 deg; 60 kHz -0.001824 dB, phase -1.1813 deg; 5 MHz -2.789 dB.
+  B 220 R / 100 pF, 1000:1: -3dB 5.6313 MHz; max 0.0000 dB above LF; 35 kHz phase -0.5563 deg; 60 kHz -0.001790 dB, phase -0.9530 deg; 5 MHz -2.514 dB.
+  B 220 R / 100 pF, 200:1: -3dB 5.1242 MHz; max 0.0000 dB above LF; 35 kHz phase -0.6982 deg; 60 kHz -0.001849 dB, phase -1.1963 deg; 5 MHz -2.895 dB.
+  C 100 R / 180 pF, 1000:1: -3dB 5.7030 MHz; max 0.0000 dB above LF; 35 kHz phase -0.5529 deg; 60 kHz -0.001779 dB, phase -0.9471 deg; 5 MHz -2.467 dB.
+  C 100 R / 180 pF, 200:1: -3dB 5.1775 MHz; max 0.0000 dB above LF; 35 kHz phase -0.6950 deg; 60 kHz -0.001838 dB, phase -1.1907 deg; 5 MHz -2.848 dB.
 
-60kHz, 1500Vpk differential at the tips, wide range: fine-stage model spans -4.915412 to 4.925987 V.
-Max wide-output difference with fine branch connected versus disconnected (20..60us): 16.785 nV.
+60kHz, 1500Vpk differential at the tips, wide range: fine-stage model spans -4.916882 to 4.927455 V.
+Max wide-output difference with fine branch connected versus disconnected (20..60us): 17.037 nV.
 The fine-stage model clip levels extend about 0.12V outside the ideal supply rails; they are not physical clip-voltage predictions.
 This comparison supports only nominal branch isolation within the vendor model. It excludes real supply coupling, OPA2810 inter-channel coupling (the model is one channel per instance), layout/lead parasitics, distributed divider strays, temperature/tolerances, switch transitions/bounce and clamp references.
 No bench stability, CMRR, bandwidth, clip level or recovery rating is established.

@@ -71,7 +71,15 @@ pub struct Out {
 pub const WIDE_OFFSET: f64 = 0.025;
 pub const FINE_OFFSET: f64 = 0.130;
 
+/// Untrimmed acceptance offsets (the budget before the Rev C zero trims); kept for
+/// tools/fee_consolidation.rs, whose committed comparisons predate the trims.
 pub fn warning(p: &Warn) -> Out {
+    warning_with(p, WIDE_OFFSET, FINE_OFFSET)
+}
+
+/// Late/early-trip budget for a stated acceptance limit on the actual selected-path
+/// zero (V at SELECTED) on each range.
+pub fn warning_with(p: &Warn, wide_offset: f64, fine_offset: f64) -> Out {
     // Feedback ratio corners: Vout = Vref (1 + Rtop / Rbottom).
     let fb_hi = |t: Res, b: Res| 1. + t.nom * (1. + t.tol) / (b.nom * (1. - b.tol));
     let fb_lo = |t: Res, b: Res| 1. + t.nom * (1. - t.tol) / (b.nom * (1. + b.tol));
@@ -94,8 +102,8 @@ pub fn warning(p: &Warn) -> Out {
     let tip_max = (rail_max * tip_div_max + comp_error + 0.005) / 0.98 * 2000.;
     let sense_min = (1. - p.sense) / 2.; // matched nominal 10k/10k, opposing tolerances.
     let selected_max = (rail_max * out_div_max + comp_error) / sense_min;
-    let wide_late = (selected_max + WIDE_OFFSET) / 0.98 * 1000.;
-    let fine_late = (selected_max + FINE_OFFSET) / 0.98 * 200.;
+    let wide_late = (selected_max + wide_offset) / 0.98 * 1000.;
+    let fine_late = (selected_max + fine_offset) / 0.98 * 200.;
     let total = ra.nom + rb.nom + rc.nom;
     let tip_nom = 4.8 * (rb.nom + rc.nom) / total;
     let out_nom = 4.8 * rc.nom / total;
@@ -115,7 +123,7 @@ pub fn warning(p: &Warn) -> Out {
         wide_late,
         fine_late,
         tip_early,
-        wide_early: (sel_early - WIDE_OFFSET).max(0.) / 1.02 * 1000.,
-        fine_early: (sel_early - FINE_OFFSET).max(0.) / 1.02 * 200.,
+        wide_early: (sel_early - wide_offset).max(0.) / 1.02 * 1000.,
+        fine_early: (sel_early - fine_offset).max(0.) / 1.02 * 200.,
     }
 }

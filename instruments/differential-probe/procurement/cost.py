@@ -279,6 +279,11 @@ FEATURE_ADDS = [
     ("R111", "RT0805BRD0710KL"),
     ("R112", "0805W8F4700T5E"),
     ("D10", "BAV199,215"),
+    # Analog zero trims, one per range (docs/design.md): 20 k 3296W (owner THT) + resistor.
+    ("RV3", "3296W-1-203LF"),
+    ("RV4", "3296W-1-203LF"),
+    ("R113", "RT0805BRD0710KL"),
+    ("R114", "RT0805BRD0766K5L"),
 ]
 feat_rows = [(ref, FEATURE_SUBS.get(ref, mpn)) for ref, mpn in rec_rows] + FEATURE_ADDS
 

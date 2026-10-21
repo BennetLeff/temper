@@ -1565,6 +1565,31 @@ fn main() {
     d.link("J4", "1", "TRIG");
     d.link("J4", "2", "GND");
     d.text(1, (203., 225.), "Scope trigger, not a peak-capture guarantee. Edge estimated ~1.6 us after the comparator output, not a bound (validation/checks.txt).", 1.27);
+    // Analog zero trims, one per range (docs/design.md "Analog zero trims"). Each injects
+    // after the subtraction, so neither touches CMRR. RV3 drives WIDE_SEL through
+    // R113 against the 49.9-ohm R101 source (about +/-24 mV); RV4 drives the U12
+    // inverting node through R114 (about +/-144 mV at FINE_OUT). Clockwise raises
+    // the output on both ranges.
+    d.block(1, (10., 213.), (195., 252.), "ANALOG ZERO TRIMS / RV3 wide (1000:1), RV4 fine (200:1)");
+    let zero_trim = part(
+        "20 kR zero trim",
+        "3296W-1-203LF",
+        "Bourns",
+        "Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical",
+        "https://www.bourns.com/docs/product-datasheets/3296.pdf",
+        "C34845",
+    );
+    d.place(1, "RV3", "TRIM", &zero_trim, (40., 232.), 0, false, true);
+    d.link("RV3", "1", "-4V8");
+    d.link("RV3", "3", "+4V8");
+    d.link("RV3", "2", "TRIM_W");
+    d.two(1, "R113", "R_Small_US", &r("10 kR", "10K"), (70., 232.), 0, "TRIM_W", "WIDE_SEL", false);
+    d.place(1, "RV4", "TRIM", &zero_trim, (120., 232.), 0, false, true);
+    d.link("RV4", "1", "+4V8");
+    d.link("RV4", "3", "-4V8");
+    d.link("RV4", "2", "TRIM_F");
+    d.two(1, "R114", "R_Small_US", &r("66.5 kR", "66K5"), (150., 232.), 0, "TRIM_F", "GAIN5_FB", false);
+    d.text(1, (14., 247.), "Trim each range to 0 V at the BNC, tips shorted, after warm-up (docs/qualification.md section 2).", 1.27);
     // Sheet 3: battery supply, decoupling, rail-referenced thresholds, latch UI.
     d.text(
         2,

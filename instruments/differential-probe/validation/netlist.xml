@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>/Users/bennet/Desktop/temper/worktrees/probe-revc/instruments/differential-probe/cad/differential-probe.kicad_sch</source>
-    <date>2026-10-21T00:49:31</date>
+    <date>2026-10-21T08:25:52</date>
     <tool>Eeschema 10.0.4</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -2096,6 +2096,128 @@
         </unit>
       </units>
     </comp>
+    <comp ref="R113">
+      <value>10 kR</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <fields>
+        <field name="MPN">RT0805BRD0710KL</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC"> </field>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="RT0805BRD0710KL"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value=" "/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3a6792a-4b2a-463c-85db-5fe9addf19c8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="R114">
+      <value>66.5 kR</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <fields>
+        <field name="MPN">RT0805BRD0766K5L</field>
+        <field name="Manufacturer">Yageo</field>
+        <field name="LCSC"> </field>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
+      <property name="MPN" value="RT0805BRD0766K5L"/>
+      <property name="Manufacturer" value="Yageo"/>
+      <property name="LCSC" value=" "/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <property name="ki_keywords" value="r resistor"/>
+      <property name="ki_fp_filters" value="R_*"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>e3a6782a-4b2a-4489-85dd-dfe9ade35948</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="RV3">
+      <value>20 kR zero trim</value>
+      <footprint>Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical</footprint>
+      <datasheet>https://www.bourns.com/docs/product-datasheets/3296.pdf</datasheet>
+      <fields>
+        <field name="MPN">3296W-1-203LF</field>
+        <field name="Manufacturer">Bourns</field>
+        <field name="LCSC">C34845</field>
+        <field name="Footprint">Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical</field>
+        <field name="Datasheet">https://www.bourns.com/docs/product-datasheets/3296.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="TRIM" description=""/>
+      <property name="MPN" value="3296W-1-203LF"/>
+      <property name="Manufacturer" value="Bourns"/>
+      <property name="LCSC" value="C34845"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>a0329d19-fee3-43fe-8e2f-d8f4b6450481</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="3"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="RV4">
+      <value>20 kR zero trim</value>
+      <footprint>Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical</footprint>
+      <datasheet>https://www.bourns.com/docs/product-datasheets/3296.pdf</datasheet>
+      <fields>
+        <field name="MPN">3296W-1-203LF</field>
+        <field name="Manufacturer">Bourns</field>
+        <field name="LCSC">C34845</field>
+        <field name="Footprint">Potentiometer_THT:Potentiometer_Bourns_3296W_Vertical</field>
+        <field name="Datasheet">https://www.bourns.com/docs/product-datasheets/3296.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="Probe" part="TRIM" description=""/>
+      <property name="MPN" value="3296W-1-203LF"/>
+      <property name="Manufacturer" value="Bourns"/>
+      <property name="LCSC" value="C34845"/>
+      <property name="Sheetname" value="signal"/>
+      <property name="Sheetfile" value="signal.kicad_sch"/>
+      <sheetpath names="/signal/" tstamps="/5c01f04f-ba52-4b3b-88b9-13f7d861bfc5/"/>
+      <tstamps>a032a019-fee3-4917-8e30-58f4b645de01</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="3"/>
+            <pin num="2"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
     <comp ref="SW1">
       <value>SPDT / ON-ON / gold / threaded</value>
       <footprint>Probe:ESwitch_100_M7_SPDT</footprint>
@@ -3988,6 +4110,8 @@
       <node ref="R73" pin="1" pintype="passive"/>
       <node ref="R81" pin="1" pintype="passive"/>
       <node ref="R87" pin="1" pintype="passive"/>
+      <node ref="RV3" pin="3" pinfunction="CW_3" pintype="passive"/>
+      <node ref="RV4" pin="1" pinfunction="CCW_1" pintype="passive"/>
       <node ref="SW3" pin="1" pinfunction="1_1" pintype="passive"/>
       <node ref="U1" pin="8" pinfunction="V+_8" pintype="power_in"/>
       <node ref="U12" pin="7" pinfunction="V+_7" pintype="power_in"/>
@@ -4021,6 +4145,8 @@
       <node ref="R83" pin="1" pintype="passive"/>
       <node ref="R91" pin="1" pintype="passive"/>
       <node ref="R95" pin="2" pintype="passive"/>
+      <node ref="RV3" pin="1" pinfunction="CCW_1" pintype="passive"/>
+      <node ref="RV4" pin="3" pinfunction="CW_3" pintype="passive"/>
       <node ref="U1" pin="4" pinfunction="V-_4" pintype="power_in"/>
       <node ref="U12" pin="4" pinfunction="V-_4" pintype="power_in"/>
       <node ref="U3" pin="4" pinfunction="V-_4" pintype="power_in"/>
@@ -4091,6 +4217,7 @@
       <node ref="SW1" pin="3" pinfunction="B_3" pintype="passive"/>
     </net>
     <net code="15" name="GAIN5_FB" class="Default">
+      <node ref="R114" pin="2" pintype="passive"/>
       <node ref="R67" pin="1" pintype="passive"/>
       <node ref="R68" pin="1" pintype="passive"/>
       <node ref="U12" pin="2" pinfunction="-IN_2" pintype="input"/>
@@ -4357,37 +4484,46 @@
       <node ref="R110" pin="1" pintype="passive"/>
       <node ref="U7" pin="12" pinfunction="/Q2_12" pintype="output"/>
     </net>
-    <net code="55" name="TRIM_N" class="Default">
+    <net code="55" name="TRIM_F" class="Default">
+      <node ref="R114" pin="1" pintype="passive"/>
+      <node ref="RV4" pin="2" pinfunction="WIPER_2" pintype="passive"/>
+    </net>
+    <net code="56" name="TRIM_N" class="Default">
       <node ref="R31" pin="2" pintype="passive"/>
       <node ref="RV2" pin="1" pinfunction="CCW_1" pintype="passive"/>
     </net>
-    <net code="56" name="TRIM_P" class="Default">
+    <net code="57" name="TRIM_P" class="Default">
       <node ref="R11" pin="2" pintype="passive"/>
       <node ref="RV1" pin="1" pinfunction="CCW_1" pintype="passive"/>
     </net>
-    <net code="57" name="WIDE_SEL" class="Default">
+    <net code="58" name="TRIM_W" class="Default">
+      <node ref="R113" pin="1" pintype="passive"/>
+      <node ref="RV3" pin="2" pinfunction="WIPER_2" pintype="passive"/>
+    </net>
+    <net code="59" name="WIDE_SEL" class="Default">
       <node ref="R101" pin="2" pintype="passive"/>
+      <node ref="R113" pin="2" pintype="passive"/>
       <node ref="SW1" pin="1" pinfunction="A_1" pintype="passive"/>
     </net>
-    <net code="58" name="unconnected-(SW2-B1-Pad3)" class="Default">
+    <net code="60" name="unconnected-(SW2-B1-Pad3)" class="Default">
       <node ref="SW2" pin="3" pinfunction="B1_3" pintype="passive+no_connect"/>
     </net>
-    <net code="59" name="unconnected-(SW2-B2-Pad6)" class="Default">
+    <net code="61" name="unconnected-(SW2-B2-Pad6)" class="Default">
       <node ref="SW2" pin="6" pinfunction="B2_6" pintype="passive+no_connect"/>
     </net>
-    <net code="60" name="unconnected-(U7-/Q1-Pad2)" class="Default">
+    <net code="62" name="unconnected-(U7-/Q1-Pad2)" class="Default">
       <node ref="U7" pin="2" pinfunction="/Q1_2" pintype="output+no_connect"/>
     </net>
-    <net code="61" name="unconnected-(U7-Q2-Pad13)" class="Default">
+    <net code="63" name="unconnected-(U7-Q2-Pad13)" class="Default">
       <node ref="U7" pin="13" pinfunction="Q2_13" pintype="output+no_connect"/>
     </net>
-    <net code="62" name="unconnected-(U12-NC-Pad1)" class="Default">
+    <net code="64" name="unconnected-(U12-NC-Pad1)" class="Default">
       <node ref="U12" pin="1" pinfunction="NC_1" pintype="no_connect"/>
     </net>
-    <net code="63" name="unconnected-(U12-NC-Pad5)" class="Default">
+    <net code="65" name="unconnected-(U12-NC-Pad5)" class="Default">
       <node ref="U12" pin="5" pinfunction="NC_5" pintype="no_connect"/>
     </net>
-    <net code="64" name="unconnected-(U12-NC-Pad8)" class="Default">
+    <net code="66" name="unconnected-(U12-NC-Pad8)" class="Default">
       <node ref="U12" pin="8" pinfunction="NC_8" pintype="no_connect"/>
     </net>
   </nets>

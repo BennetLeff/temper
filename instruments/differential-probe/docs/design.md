@@ -46,9 +46,9 @@ The JFET input stage holds to VS+ − 2.5 V typical (−3 V over temperature). T
 
 U3 channel 2 is the fixed ×2 subtractor. Its 499 Ω inputs are R61/R62; R63 (1 kΩ) is the reference arm and R65 (1 kΩ) the feedback. The gain is 2.004.
 
-U12 (OPA810) is the noninverting ×5 stage: 499 Ω (R67) to ground and 2 kΩ (R68) feedback, giving 5.008. Both feedback networks stay connected in either range. R100 (49.9 Ω) isolates the fine-stage input from U3's output.
+U12 (OPA810) is the noninverting ×5 stage: 499 Ω (R67) to ground and 2 kΩ (R68) feedback, giving 5.008. The fine zero trim's R114 (66.5 kΩ plus up to 5 kΩ of pot) sits in parallel with R67, which raises it to 5.036 at mid-travel (5.038 with the wiper at an end). Both feedback networks stay connected in either range. R100 (49.9 Ω) isolates the fine-stage input from U3's output.
 
-U12 is kept as a separate package because it is the stage that saturates in wide range (see [revc.md §4](revc.md#4-one-amplifier-family-opa2810--opa810)). Saturating the unused U12 changes the wide output by 16.8 nV in the vendor model. That model cannot represent inter-channel coupling.
+U12 is kept as a separate package because it is the stage that saturates in wide range (see [revc.md §4](revc.md#4-one-amplifier-family-opa2810--opa810)). Saturating the unused U12 changes the wide output by 17.0 nV in the vendor model. That model cannot represent inter-channel coupling.
 
 ### Range selection
 
@@ -56,11 +56,45 @@ SW1 (PCB-mount E-Switch 100SP1T1B5M7RE gold SPDT) selects WIDE_SEL (pin 1) or FI
 
 Range selection does not open any feedback loop, but the changeover is not a valid measurement interval. Verify break-before-make behaviour and settling on the received switch.
 
+### Analog zero trims
+
+Each range has its own zero trim. Both inject after the subtraction, so neither touches CMRR. Both are 20 kΩ Bourns 3296W 25-turn pots (3296W-1-203LF) across the ±4.8 V rails, soldered by the owner. Clockwise raises the output on both ranges.
+
+- **RV3, wide.** The wiper drives WIDE_SEL through R113 (10 kΩ, 0.1%) against R101's 49.9 Ω source.
+- **RV4, fine.** The wiper drives U12's inverting node through R114 (66.5 kΩ, 0.1%), so it shifts FINE_OUT by −V(wiper) × R68/R114.
+
+The two trims are independent: R113 hangs on WIDE_SEL only, and RAW_OUT is an op-amp output. Figures below are from `validation/checks.txt`.
+
+| | Wide (RV3) | Fine (RV4) |
+|---|---|---|
+| Worst untrimmed offset at the BNC (OPA2810 2.4 mV; OPA810 0.5 mV + 10 µV/°C) | 19.2 mV | 92.7 mV |
+| Trim reach (weakest rail, resistor corners) | ±22.6 mV | ±139.3 mV |
+| Selected-path zero after trimming the BNC to 0 V at 25 °C, −25…85 °C | ≤ 9.58 mV | ≤ 44.39 mV |
+| Untrimmed selected-path zero, worst case | 16.8 mV | 90.3 mV |
+| DC gain change, mid-travel (wiper at an end) | −0.331% (−0.495%) | +0.559% (+0.601%) |
+
+**What the residual includes.** It is what the comparator sees after the BNC is nulled. The BNC null leaves U3A's own 25 °C offset (≤ 1.5 mV) at SELECTED. The residual then adds:
+
+- the 13 µV/°C OPA2810 drift of U1 and U3B (×5.036 on fine), plus the OPA810's 10 µV/°C;
+- a wiper move covering the full regulated-rail spread (272 mV);
+- the pot's 1% voltage-ratio shift (the 3296 shock/vibration figure) and a contact-resistance change up to its 1% CRV limit;
+- injection-ratio drift;
+- setting resolution of 0.1 mV wide and 0.5 mV fine (1.8 mV and 11 mV per turn).
+
+**Effect on the warning budget.** The warning budget's zero acceptance tightens from ±25 / ±130 mV to **±10 / ±45 mV**. That lowers the late-trip bound from 1,341.8 to 1,326.5 V on wide and from 289.79 to 272.45 V on fine.
+
+**Gain cost.** The gain changes are fixed loading effects, calibrated out with the rest of the path. On wide, the 25 °C calibrated-gain margin above the 98.82% acceptance drops by 0.33% (0.50% at an end of travel). The fine gain rises, which only moves its warning earlier.
+
+**Ratings and approval basis.** None of these parts is a safety part, and no approval is claimed.
+
+- **3296W-1-203LF** (LCSC C34845, JLC Extended, but owner-soldered THT, so no feeder fee): ±10%, ±100 ppm/°C, 0.5 W at 70 °C, 300 V maximum, −55 to +125 °C, 25 turns. Across 9.6 V it dissipates 4.6 mW.
+- **R113** (RT0805BRD0710KL, already on the board) and **R114** (RT0805BRD0766K5L, already on the board as R87/R91): Yageo RT 0.1%, 25 ppm/°C, 125 mW.
+
 ### Output filter and driver
 
 The filter has two poles, both from JLC Basic C0G parts:
 
-- **First pole, before the driver.** R69 = 220 Ω ([fee consolidation](fee-consolidation.md), F3) and C61 = 47 pF C0G (Samsung CL21C470JBANNNC). With the selector's 49.9 Ω and the warning-divider load the source resistance is 269.77 Ω and the pole is 12.55 MHz.
+- **First pole, before the driver.** R69 = 220 Ω ([fee consolidation](fee-consolidation.md), F3) and C61 = 47 pF C0G (Samsung CL21C470JBANNNC). With the selector's 49.9 Ω and the warning-divider load the source resistance is 269.77 Ω and the pole is 12.55 MHz (269.61 Ω and 12.56 MHz on wide with the zero trim's R113 load).
 - **Second pole, at the BNC.** C62 = 330 pF C0G (Samsung CL10C331JB8NNNC) shunts OUT, after R70 (49.9 Ω), to GND through the bridged solder jumper JP1. With the 1 m cable and scope input (lumped 120 pF) the pole is 7.09 MHz.
 
 **Bandwidth jumper.** JP1 is closed by its copper bridge as built. Cutting the bridge removes C62 and gives the ~11 MHz mode; a solder blob restores it. The mode changes the 35–60 kHz phase by about 0.36°, so calibrate in the mode you measure in and record it.
@@ -69,12 +103,12 @@ The TI vendor model (full chain with a lumped divider, 1 MΩ ‖ 120 pF scope lo
 
 | Range | JP1 | −3 dB | Phase at 60 kHz |
 |---|---|---|---|
-| Wide | bridged (default) | 5.768 MHz | −1.000° |
-| Fine | bridged (default) | 5.273 MHz | −1.241° |
-| Wide | cut | 10.856 MHz | −0.644° |
-| Fine | cut | 8.471 MHz | −0.886° |
+| Wide | bridged (default) | 5.769 MHz | −1.000° |
+| Fine | bridged (default) | 5.267 MHz | −1.243° |
+| Wide | cut | 10.863 MHz | −0.644° |
+| Fine | cut | 8.448 MHz | −0.887° |
 
-Neither range peaks in either mode. Calibrate each range separately. The study sweep ([`tools/output_filter_study.py`](../tools/output_filter_study.py), [`output-filter-study.txt`](../validation/spice/output-filter-study.txt)) reports 5.83 / 5.32 MHz for the same circuit because it takes the first grid point past −3 dB; `results.txt` interpolates.
+Neither range peaks in either mode. Calibrate each range separately. The study sweep ([`tools/output_filter_study.py`](../tools/output_filter_study.py), [`output-filter-study.txt`](../validation/spice/output-filter-study.txt)) reports 5.83 / 5.32 MHz for the same filter because it takes the first grid point past −3 dB; `results.txt` interpolates. The study netlist leaves out the zero-trim loads (R113/R114), which move the interpolated results by under 0.01 MHz.
 
 **Noise.** The study integrates the vendor-model output noise and refers it to the tips (divide by the gain), over 10 Hz–200 MHz ("full band"), to 20 MHz and to 5 MHz, in mV rms:
 
@@ -91,7 +125,7 @@ Neither range peaks in either mode. Calibrate each range separately. The study s
 
 These are model figures (ideal lumped divider, no layout parasitics, no cable transmission line), not measurements.
 
-Loaded DC ratios are 1000.59:1 and 199.80:1 before calibration. U3 channel 1 is the unity-gain coax driver, and R70 is the 49.9 Ω series output resistor. Use the scope's 1 MΩ input: a 50 Ω termination roughly halves the signal and invalidates the calibration.
+Loaded DC ratios are 1003.91:1 and 198.69:1 before calibration, with the zero trims at mid-travel (1000.59:1 and 199.80:1 without them). U3 channel 1 is the unity-gain coax driver, and R70 is the 49.9 Ω series output resistor. Use the scope's 1 MΩ input: a 50 Ω termination roughly halves the signal and invalidates the calibration.
 
 ## Protection and indication
 
@@ -116,14 +150,14 @@ The TL431 references are gone. One ladder per polarity across the regulated rail
 | Warning | Nominal | Conditional late-trip bound | Earliest trip |
 |---|---|---|---|
 | Per tip | 1,362.6 V | < 1,454.5 V | 1,266 V |
-| Wide differential | 1,238.7 V | < 1,341.8 V | 1,132 V |
-| Fine differential | 247.7 V | < 289.79 V | 206 V |
+| Wide differential | 1,238.7 V | < 1,326.5 V | 1,147 V |
+| Fine differential | 247.7 V | < 272.45 V | 222 V |
 
 The budget holds only if all of these are true:
 
 - Gain is at least 98% of nominal.
 - Each buffer offset is within ±5 mV.
-- The actual selected-path zero is within ±25 mV wide or ±130 mV fine.
+- The actual selected-path zero is within ±10 mV wide or ±45 mV fine. Trimming each range per [qualification.md §2](qualification.md#2-dc-ratio-and-zero) gives at most 9.58 / 44.39 mV. Untrimmed, the limits were ±25 / ±130 mV and the late trip < 1,341.8 V wide / < 289.79 V fine.
 - Both rails are inside their regulated range.
 
 Scope zero subtraction does not remove an offset that the comparator sees.
@@ -176,6 +210,7 @@ Two 9 V batteries sit in PCB-mount MPD BH9VPC holders on the underside. They fee
 | Rev B for comparison | ~50 mA |
 | Lit LED | about 0.8 mA extra |
 | Latched trigger output (J4) | about 0.9 mA extra into 1 MΩ, up to 11 mA into 50 Ω or a short; 0 when idle |
+| Zero-trim pots RV3/RV4 (20 kΩ across 9.6 V) | about 0.5 mA each, plus ≤ 0.5 mA wiper current |
 
 Verify the actual current and the regulator temperature. There is no low-battery indicator: record both rails before and after measurements.
 

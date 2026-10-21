@@ -84,4 +84,4 @@ The question was whether 30 k = 3 × 10 k (L4), 499 Ω = 1 k ‖ 1 k or 2 k = 1 
 
 ## Pre-existing budget gap found on the way
 
-The warning budget's "≥ 98 % calibrated gain" condition (`validation/checks.txt`) covers the HV divider's TCR drift (≤ 0.76 % over −25 to 85 °C) but not the gain resistors' drift (0.060 % wide, 0.108 % fine with the RNCF parts). `tools/check.rs` now includes it: the acceptance is ≥ 98.81 % (wide) / ≥ 98.86 % (fine) calibrated gain at 25 °C, asserted to stay under 99 %.
+The warning budget's "≥ 98 % calibrated gain" condition (`validation/checks.txt`) covers the HV divider's TCR drift (≤ 0.76 % over −25 to 85 °C) but not the gain resistors' drift (0.060 % wide, 0.108 % fine with the RNCF parts). `tools/check.rs` now includes it: the acceptance is ≥ 98.81 % (wide) / ≥ 98.86 % (fine) calibrated gain at 25 °C, asserted to stay under 99 %. Since the Rev C zero trims (2026-10-21) the wide figure is 98.82 %: R101 against the trim load adds 0.009 % of drift.

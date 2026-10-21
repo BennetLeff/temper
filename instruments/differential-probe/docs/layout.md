@@ -17,7 +17,7 @@ Canonical board: [`cad/differential-probe.kicad_pcb`](../cad/differential-probe.
 | General clearance | 0.20 mm; explicit HV rules override it |
 | Fine-pitch exception | U6 pad-to-pad only: 0.15 mm, matching the selected VSSOP land pattern |
 | Slots | Ten non-plated 1.2 × 8 mm cutouts, one under each HV capacitor, plus the notch |
-| Assembly | 112 circuit footprints (101 SMD, 11 THT) plus the copper jumper JP1, two HV landings, four mounting holes |
+| Assembly | 116 circuit footprints (103 SMD, 13 THT) plus the copper jumper JP1, two HV landings, four mounting holes |
 | Reference designators | F.Fab / B.Fab layers; silk carries outlines and board text only |
 
 The fabricator stackup, laminate CTI, copper weight and finish are not yet selected, and there is no controlled-impedance claim. Keep the In1 ground reference directly below F.Cu. Changing the dielectric thickness or copper geometry requires a new compensation/CMRR assessment.
@@ -78,7 +78,7 @@ How each section meets the 4 mm creepage rule:
 
 ## Enclosure, shield and mounting
 
-**Enclosure:** owner-designed, earthed and bonded to the BNC shell and scope earth. It must provide a fixed earthed shield (per-node strays stable to about 0.01 pF for CMRR), ≥ 20 mm from exposed HV conductors to metal, the tip-end insulating feedthrough and strain relief, the 22.0 mm standoff height below, and panel access for the BNC, toggles, reset button and trimmer tools; the full list is in [revc.md §9](revc.md#9-size-layers-enclosure). The Hammond 1455N2201 is the reference geometry used by the 3-D setback calculation there and by `tools/leads.rs`.
+**Enclosure:** owner-designed, earthed and bonded to the BNC shell and scope earth. It must provide a fixed earthed shield (per-node strays stable to about 0.01 pF for CMRR), ≥ 20 mm from exposed HV conductors to metal, the tip-end insulating feedthrough and strain relief, the 22.0 mm standoff height below, and panel access for the two BNCs, toggles, reset button and trimmer tools; the full list is in [revc.md §9](revc.md#9-size-layers-enclosure). The Hammond 1455N2201 is the reference geometry used by the 3-D setback calculation there and by `tools/leads.rs`.
 
 **Mounting.** Put the board on standoffs so its underside is 22.0 mm above the inner floor. The BNC and toggle faces sit at the output end plate. Keep every exposed HV conductor at least **20 mm from metal**, including W_HV lead loops (≤ 5.5 mm above the board) and trimmed lead tails (≤ 1 mm). Put an insulating sheet on the floor under the battery holders.
 
@@ -91,7 +91,7 @@ How each section meets the 4 mm creepage rule:
 
 H3 and H4 sit on the two prongs on either side of the notch. A metal screw through a nylon spacer defeats the purpose of H3/H4. The H3/H4 nylon screws also clamp the arms of the printed lead bridge to the board top, through its 3 mm thickness, so they are 3 mm longer than the board alone needs ([HV leads](hv-leads.md#feedthroughs-and-strain-relief)).
 
-**Lid holes.** Drill holes in the lid over CT1 (62, 23) and CT2 (62, 47), the RV1/RV2 adjustment screws, the SW3 reset button (131.85, 46.25) and the D9 LED (115, 24). The holes take the printed snap-in trimmer guides (Ø7.2 mm holes; `trim-guide-ct`, `trim-guide-rv`), which set the depth for the printed handle with its Vessel CA-18 zirconia blade. Keep the hole geometry fixed after calibration.
+**Lid holes.** Drill holes in the lid over CT1 (62, 23) and CT2 (62, 47), the RV1/RV2 adjustment screws, the RV3/RV4 zero-trim screws (x = 68.6 mm, y ≈ 10–20 / 50–60 mm), the SW3 reset button (131.85, 46.25) and the D9 LED (115, 24). The holes take the printed snap-in trimmer guides (Ø7.2 mm holes; `trim-guide-ct`, `trim-guide-rv`), which set the depth for the printed handle with its Vessel CA-18 zirconia blade. Keep the hole geometry fixed after calibration.
 
 ## Leads and panel components
 

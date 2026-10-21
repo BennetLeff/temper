@@ -27,10 +27,10 @@ fn main() -> Result<()> {
     // 5/6 and 7/8 the same with JP1 cut (validation/spice/ac.cir second run).
     report += "JP1 bridged (default: C61 47 pF, C62 330 pF at the BNC):\n";
     for (col, label, expected, band) in [
-        (1, "1000:1", 9.99412e-4, 4.8e6..6.2e6),
-        (2, "200:1", 5.00510e-3, 4.8e6..6.2e6),
-        (5, "1000:1, JP1 cut", 9.99412e-4, 8.0e6..12.0e6),
-        (6, "200:1, JP1 cut", 5.00510e-3, 8.0e6..12.0e6),
+        (1, "1000:1", 9.96107e-4, 4.8e6..6.2e6),
+        (2, "200:1", 5.03306e-3, 4.8e6..6.2e6),
+        (5, "1000:1, JP1 cut", 9.96107e-4, 8.0e6..12.0e6),
+        (6, "200:1, JP1 cut", 5.03306e-3, 8.0e6..12.0e6),
     ] {
         if col == 5 {
             report += "JP1 cut (C62 removed, ~11 MHz mode):\n";
