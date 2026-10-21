@@ -2,6 +2,50 @@
 
 This complete meter occupies one PCB. Budget for obtaining one usable instrument while paying the manufacturer's minimum batch. No checkout quote, reservation or purchase has been submitted.
 
+## Five assembled boards at JLC
+
+`manufacturing/order_estimate.py 5` (KiCad Python) reproduces these figures and writes `manufacturing/order-estimate-5.json`. Inputs:
+- JLC assembly-library snapshot, read 2026-10-20 (`manufacturing/prices/jlc-parts-2026-10-20.json`): price tiers, stock, library class, attrition (`lossNumber`) and minimum quantity (`leastPatchNumber`) per part;
+- board counts: 173 placements, 556 SMT joints per board, leadless parts U1, U8, U9, U10 and U13, and 23 THT joints on J2–J6 and JP1–JP6;
+- the published fee table;
+- the fabrication instant quote of the same day.
+
+Each line buys max(5 × per-board quantity + attrition, minimum). That is our reading of JLC's library fields; the quote from the uploaded BOM is authoritative. Every line has stock for this order. The thinnest is OPA2810, with 251 in stock against 10 needed.
+
+| Item | USD |
+|---|---:|
+| SMT parts (58 lines; attrition and minimums add $9.21) | 351.55 |
+| Extended-part fee, 30 × $3.07 | 92.10 |
+| Setup + stencil | 9.71 |
+| SMT joints, 5 × 556 × $0.0016 | 4.45 |
+| X-ray, 25 leadless parts × $0.82 | 20.50 |
+| Confirm placement | 0.45 |
+| PCB fabrication, 5 pcs (detail below) | 116.73 |
+| **Economic PCBA total** | **595.49** |
+| JLC fits J2–J6/JP1–JP6: parts $12.49, 115 manual joints $1.89, labour $3.58 | 17.95 |
+| **Five complete boards, before shipping and taxes** | **613.44** |
+
+That is $122.69 per board. Standard PCBA would cost $678.81 before hand fitting: higher setup and stencil fees, feeder loading on all 58 lines, and fixtures. Shipping, sales tax/VAT, import duty and coupons are excluded.
+
+**Fabrication quote.** 4 layers, 140 × 100 mm, 1.6 mm, 1 oz outer and 0.5 oz inner copper, ENIG 1 µin, epoxy filled and capped vias, 3–4-day build.
+
+| Line | USD |
+|---|---:|
+| Engineering fee | 25.00 |
+| POFV | 18.28 |
+| ENIG | 18.20 |
+| TG155 material | 7.32 |
+| Board | 8.70 |
+| Minimum via 0.2 mm | 18.28 |
+| 4-wire Kelvin test | 17.47 |
+| Horizontal electroless via plating | 3.48 |
+
+- The 0.2 mm via option forces TG155 material and the 4-wire Kelvin test. The 0.25 mm option forces the same extras and costs $116.15.
+- Only an all-0.3 mm via board avoids them, at $80.98. That is not available here: 58 holes are 0.20 mm and 57 are 0.25 mm, including the POFV pads.
+- JLC leaves vias over 0.5 mm unfilled. Every via on this board is 0.30 mm or smaller.
+
+**Where the money goes.** The ICs at $1 or more are $309.22, 88 % of the parts. ADS9224R and AD9833 alone are $155.34. The Rev E codec front end removes ADS9224R, AD9833 and both THS4551s, about $39 per board, and adds TAC5112 and three relays for about $13, before its smaller support parts.
+
 ## BOM arithmetic checkpoint
 
 Catalog snapshot checked 2026-10-20:
@@ -27,7 +71,7 @@ Stencil                                $1.5300
 Subtotal before other charges        $247.7036
 ```
 
-**Epoxy-filled and copper-capped vias (POFV) are required** for seventeen intended exposed-pad and selected ADC capacitor/signal-pad locations (54 vias; every exposed pad now has 5–9), including C107.1/C109.1 in the new FDA feedback network. The four-layer board does not qualify for JLC's free 6–20-layer POFV offer. The $320–450 estimate below excludes this quote-dependent surcharge. Tenting alone is incompatible with this package.
+**Epoxy-filled and copper-capped vias (POFV) are required** for seventeen intended exposed-pad and selected ADC capacitor/signal-pad locations (54 vias; every exposed pad now has 5–9), including C107.1/C109.1 in the new FDA feedback network. The four-layer board does not qualify for JLC's free 6–20-layer POFV offer. The 2026-10-20 fabrication quote above includes it. Tenting alone is incompatible with this package.
 
 Add PCB fabrication, POFV, assembly joints, required leadless-package X-ray, attrition/minimum placement quantities, hand parts, shipping and taxes. Supplier pack sizes and loss allowances can exceed simple BOM multiplication.
 
@@ -35,8 +79,8 @@ Add PCB fabrication, POFV, assembly joints, required leadless-package X-ray, att
 
 | Route | USD allowance | Assumptions |
 |---|---:|---|
-| Bare-board batch; hand assemble one | 140–220 plus POFV | One component set, four-layer fabrication and ordinary shipping; reflow/rework tools already available |
-| Two JLC SMT assemblies; finish by hand | 320–450 plus POFV | Two SMT sets, fixed fees, fabrication, inspection and shipping allowances |
+| Bare-board batch; hand assemble one | 140–220 | One component set, four-layer fabrication and ordinary shipping; reflow/rework tools already available |
+| Two JLC SMT assemblies; finish by hand | 320–450 | Two SMT sets, fixed fees, fabrication, inspection and shipping allowances |
 | Supply/cable/fixture/shunts/standards | Add 30–100+ | Excludes a reference meter, oscilloscope and enclosure |
 
 Use the full batch cost when deciding to build one instrument. Dividing it by two does not reduce the first payment. Taxes/import fees, special sourcing and a possible respin are outside these allowances.
