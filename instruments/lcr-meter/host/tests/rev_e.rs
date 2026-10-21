@@ -1233,8 +1233,15 @@ fn cli_files_select_their_revision_and_refuse_cross_use() {
         assert!(!out.status.success(), "{args:?}");
         assert!(stderr(&out).contains(want), "{args:?}: {}", stderr(&out));
     }
+    // `--allow-source-off-fail` is accepted on a Rev E file; one without a source-off check is
+    // reported as not checked, never refused.
     let out = run_cli(&["analyze", &es, "--allow-source-off-fail"]);
-    assert!(!out.status.success() && stderr(&out).contains("Rev E"));
+    assert!(out.status.success(), "{}", stderr(&out));
+    assert!(
+        stderr(&out).contains("not source-off checked"),
+        "{}",
+        stderr(&out)
+    );
     // Rev E calibrate through the CLI writes a loadable file.
     let calibrated = folder.join("new-cal.json");
     let short = {
@@ -1418,6 +1425,8 @@ struct EState {
     /// Drop the last payload byte.
     truncate: bool,
     capture_error: Option<&'static str>,
+    /// Every waveform uploaded with `WAVE`, in order.
+    waves: Vec<Vec<i32>>,
 }
 type Shared = Arc<Mutex<EState>>;
 fn fake_e_state(model: Virtual) -> Shared {
@@ -1431,6 +1440,7 @@ fn fake_e_state(model: Virtual) -> Shared {
         corrupt: false,
         truncate: false,
         capture_error: None,
+        waves: Vec::new(),
     }))
 }
 fn sum_for(volts: f64, count: f64) -> u32 {
@@ -1523,6 +1533,7 @@ fn spawn_fake_e(state: Shared) -> Fake {
                 if words.iter().any(|w| w.abs() > SOURCE_LIMIT_CODE) {
                     return reply("ERR level");
                 }
+                st.waves.push(words.clone());
                 st.words = words;
                 st.cycles = 0;
                 st.mv = 0;
@@ -1796,6 +1807,7 @@ fn board_selection_follows_info_and_refuses_cross_use() {
         assert!(stderr(&out).contains("Rev E"), "{args:?}: {}", stderr(&out));
     }
     // Rev D-only options are refused on the codec board by name, before any capture.
+    // (`--no-source-off` is no longer one of them: Rev E has its own source-off check.)
     let state = fake_e_state(Virtual::new(100, resistor(10.0)));
     let e = spawn_fake_e(state.clone());
     let capture = |extra: &str| {
@@ -1809,7 +1821,7 @@ fn board_selection_follows_info_and_refuses_cross_use() {
             extra,
         ])
     };
-    for flag in ["--allow-hazard", "--no-source-off", "--short-standard"] {
+    for flag in ["--allow-hazard", "--short-standard"] {
         let out = capture(flag);
         assert!(
             !out.status.success() && stderr(&out).contains("Rev D options"),
@@ -2001,6 +2013,546 @@ fn cli_captures_and_analyses_a_codec_board_end_to_end() {
     std::fs::remove_dir_all(folder).unwrap();
 }
 
+// ------------------------------------------------------------------ source-off check (R-E2)
+/// The zero-waveform capture the host takes after a tone record, from the virtual instrument.
+fn zero_record(model: &Virtual, on: &RecordE) -> RecordE {
+    let SourceE::Tone { cycles, .. } = on.source else {
+        panic!("tone record expected");
+    };
+    model.record(
+        SourceE::Wave,
+        &vec![0; on.period as usize],
+        &[cycles],
+        on.skip,
+        on.periods,
+    )
+}
+fn checked_record(model: &Virtual, hz: f64, mv: u32, skip: u32, periods: u32) -> RecordE {
+    let mut record = model.tone_record(hz, mv, skip, periods);
+    let check = source_off_check_e(&record, &zero_record(model, &record)).unwrap();
+    record.source_off_check = Some(check);
+    record
+}
+/// Peak codes of the source-on line on channel B for `mv` at `hz`.
+fn b_line(model: &Virtual, hz: f64, mv: u32) -> f64 {
+    model.responses(hz).1.abs() * f64::from(mv) / 1000.0 * CODES_PER_VOLT
+}
+#[test]
+fn source_off_check_passes_a_clean_point_and_fails_an_interferer_at_the_tone_bin() {
+    let hz = 27_000.0;
+    let (cycles, period) = tone_for_hz(hz).unwrap();
+    assert_eq!((cycles, period), (18, 125));
+    let mut model = Virtual::new(100, coil(0.5, 100e-6));
+    let mv = 200;
+    let clean = checked_record(&model, hz, mv, 2, 40);
+    let check = clean.source_off_check.clone().unwrap();
+    assert!(check.pass && check.diagnostic.contains("below 1e-4"));
+    assert_eq!((check.cycles, check.period), (cycles, period));
+    assert_eq!(check.limit_ratio, 1e-4);
+    for c in &check.channels {
+        assert!(c.source_on_codes > 1e4 && c.source_off_codes < 1e-9 && c.ratio < 1e-9 && c.pass);
+        assert_eq!(c.reference_codes, c.source_on_codes);
+        assert_eq!(c.limit_codes, 1e-4 * c.source_on_codes);
+    }
+    clean.validate().unwrap();
+    let measured = analyze_e(&clean, 100).unwrap();
+    assert!(measured[0].valid && measured[0].source_off.as_ref().unwrap().pass);
+    // An interferer on channel B at the tone bin: 5e-5 of the line passes, 2e-4 fails.
+    let line = b_line(&model, hz, mv);
+    model.interferer = Some((cycles as usize, 0.5e-4 * line));
+    assert!(
+        checked_record(&model, hz, mv, 2, 40)
+            .source_off_check
+            .unwrap()
+            .pass
+    );
+    model.interferer = Some((cycles as usize, 2e-4 * line));
+    let dirty = checked_record(&model, hz, mv, 2, 40);
+    let check = dirty.source_off_check.clone().unwrap();
+    assert!(!check.pass && check.channels[0].pass && !check.channels[1].pass);
+    assert!(
+        (check.channels[1].ratio / 2e-4 - 1.0).abs() < 0.02,
+        "{:e}",
+        check.channels[1].ratio
+    );
+    assert!(check
+        .diagnostic
+        .starts_with("source-off interference at 27000.0000 Hz"));
+    assert!(check.diagnostic.contains("current (B)") && !check.diagnostic.contains("voltage (A)"));
+    assert!(check.diagnostic.contains("coherent interference"));
+    // The refusal reaches the measurement; the waiver moves the issue and keeps it visible.
+    let mut m = analyze_e(&dirty, 100).unwrap().remove(0);
+    assert!(!m.valid && m.issues.iter().any(|i| i.starts_with("source-off")));
+    waive_source_off_e(&mut m);
+    assert!(m.valid && m.issues.is_empty() && m.waived_issues.len() == 1);
+    // An interferer elsewhere in the spectrum does not touch the line at the tone bin.
+    model.interferer = Some((7, 0.3 * line));
+    assert!(
+        checked_record(&model, hz, mv, 2, 40)
+            .source_off_check
+            .unwrap()
+            .channels[1]
+            .ratio
+            < 1e-6
+    );
+    // Noise alone at a weak signal fails with the noise cause, not the interference cause.
+    let mut noisy = Virtual::new(100, resistor(10.0));
+    noisy.noise_codes = 5_000.0;
+    let weak = checked_record(&noisy, hz, 1, 2, 8);
+    let check = weak.source_off_check.unwrap();
+    assert!(!check.pass && check.diagnostic.contains("within 3 sigma"));
+}
+#[test]
+fn source_off_check_is_stored_optionally_and_cannot_be_edited_into_a_pass() {
+    let model = {
+        let mut m = Virtual::new(100, coil(0.5, 100e-6));
+        m.interferer = Some((18, 2e-4 * b_line(&m, 27_000.0, 200)));
+        m
+    };
+    let record = checked_record(&model, 27_000.0, 200, 2, 40);
+    let sweep = SweepE {
+        setup: setup_e(100),
+        records: vec![record.clone()],
+    };
+    // Round trip keeps the check; the field names are the file format.
+    let text = serde_json::to_string(&sweep).unwrap();
+    let value: serde_json::Value = serde_json::from_str(&text).unwrap();
+    let stored = &value["records"][0]["source_off_check"];
+    for key in [
+        "frequency_hz",
+        "cycles",
+        "period",
+        "limit_ratio",
+        "channels",
+        "pass",
+    ] {
+        assert!(stored.get(key).is_some(), "{key}");
+    }
+    assert_eq!(stored["pass"], false);
+    assert!(stored["channels"][1]["ratio"].as_f64().unwrap() > 1e-4);
+    let back = parse_sweep_e(&text).unwrap();
+    // (JSON text may move a float by one ulp, so compare the numbers loosely.)
+    let (got, want) = (
+        back.records[0].source_off_check.clone().unwrap(),
+        record.source_off_check.clone().unwrap(),
+    );
+    assert_eq!(
+        (got.pass, got.cycles, got.period),
+        (want.pass, want.cycles, want.period)
+    );
+    for c in 0..2 {
+        assert_eq!(got.channels[c].pass, want.channels[c].pass);
+        assert!(
+            (got.channels[c].ratio - want.channels[c].ratio).abs()
+                <= 1e-12 * want.channels[c].ratio
+        );
+    }
+    // A file from before the check, or captured with --no-source-off, has no such key.
+    let mut old = value.clone();
+    old["records"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("source_off_check");
+    let loaded = parse_sweep_e(&old.to_string()).unwrap();
+    assert!(loaded.records[0].source_off_check.is_none());
+    let m = analyze_e(&loaded.records[0], 100).unwrap().remove(0);
+    assert!(m.valid && m.source_off.is_none());
+    let mut plain = loaded.records[0].clone();
+    plain.source_off_check = None;
+    assert!(!serde_json::to_string(&plain)
+        .unwrap()
+        .contains("source_off_check"));
+    // Flipping the stored verdict, the limit or the tone it describes is refused as corrupt.
+    for (key, edit) in [
+        ("pass", serde_json::json!(true)),
+        ("limit_ratio", serde_json::json!(1.0)),
+        ("cycles", serde_json::json!(8)),
+    ] {
+        let mut bad = value.clone();
+        bad["records"][0]["source_off_check"][key] = edit;
+        let loaded = parse_sweep_e(&bad.to_string()).unwrap();
+        assert!(
+            analyze_e(&loaded.records[0], 100).is_err(),
+            "editing {key} must be refused"
+        );
+    }
+    let mut bad = value.clone();
+    bad["records"][0]["source_off_check"]["channels"][1]["source_off_codes"] = 0.0.into();
+    let loaded = parse_sweep_e(&bad.to_string()).unwrap();
+    assert!(analyze_e(&loaded.records[0], 100).is_err());
+}
+#[test]
+fn calibration_refuses_failed_source_off_points_unless_allowed() {
+    let grid = [27_000.0];
+    let build = |dut: ZFn, interferer: bool| {
+        let mut model = Virtual::new(100, fixture(dut));
+        let mv = model.mv_for(27_000.0);
+        if interferer {
+            model.interferer = Some((18, 3e-4 * b_line(&model, 27_000.0, mv)));
+        }
+        SweepE {
+            setup: setup_e(100),
+            records: grid
+                .iter()
+                .map(|&hz| checked_record(&model, hz, mv, 0, 40))
+                .collect(),
+        }
+    };
+    let (short, a, b) = (
+        build(resistor(1e-4), false),
+        build(resistor(20.0), false),
+        build(resistor(100.0), false),
+    );
+    assert!(short.records[0].source_off_check.as_ref().unwrap().pass);
+    calibrate_e(&short, &a, 20.0, &b, 100.0).unwrap();
+    // A failed load is refused by name, and accepted with the waiver.
+    let dirty = build(resistor(100.0), true);
+    assert!(!dirty.records[0].source_off_check.as_ref().unwrap().pass);
+    let err = calibrate_e(&short, &a, 20.0, &dirty, 100.0).unwrap_err();
+    assert!(err.starts_with("standard 2: source-off"), "{err}");
+    let err = calibrate_e(&short, &dirty, 100.0, &a, 20.0).unwrap_err();
+    assert!(err.starts_with("standard 1: source-off"), "{err}");
+    calibrate_e_waiving(&short, &a, 20.0, &dirty, 100.0, true).unwrap();
+    let err = calibrate_e_standards(
+        &short,
+        StandardE::IDEAL_SHORT,
+        &a,
+        StandardE::resistor(20.0),
+        &dirty,
+        StandardE::resistor(100.0),
+        None,
+    )
+    .unwrap_err();
+    assert!(err.contains("source-off"), "{err}");
+    // A failed short is refused too ...
+    let dirty_short = build(resistor(1e-4), true);
+    let err = calibrate_e(&dirty_short, &a, 20.0, &b, 100.0).unwrap_err();
+    assert!(err.starts_with("short standard: source-off"), "{err}");
+    calibrate_e_waiving(&dirty_short, &a, 20.0, &b, 100.0, true).unwrap();
+    // ... but its own voltage line is near zero, so channel A is judged against channel B as
+    // in Rev D: a small A line over the 1e-4 limit of itself still passes.
+    let mut weak_a = short.clone();
+    let check = weak_a.records[0].source_off_check.as_mut().unwrap();
+    check.channels[0].source_on_codes = 50.0;
+    check.channels[0].source_off_codes = 0.02;
+    *check = check.rejudged(false);
+    assert!(!check.pass && !check.channels[0].pass);
+    weak_a.records[0].validate().unwrap();
+    calibrate_e(&weak_a, &a, 20.0, &b, 100.0).unwrap();
+}
+#[test]
+fn image_advisory_starts_above_0_429_fs() {
+    // 0.429 x 187 500 = 80 437.5 Hz exactly (429/1000): the boundary itself is not warned.
+    assert!(image_advisory(80_437.5).is_none());
+    assert!(image_advisory(60_500.0).is_none() && image_advisory(1_500.0).is_none());
+    for hz in [80_437.6, 80_500.0, 84_000.0, 85_000.0] {
+        let advice = image_advisory(hz).unwrap_or_else(|| panic!("{hz} Hz"));
+        assert!(
+            advice.contains("80.4 kHz") && advice.contains("unverified"),
+            "{advice}"
+        );
+        assert!(advice.contains("bring-up-rev-e.md section 10"), "{advice}");
+    }
+    assert!(image_advisory(84_000.0).unwrap().contains("103500 Hz"));
+    assert_eq!(tone_for_hz(80_437.5).unwrap(), (429, 1000));
+    assert_eq!(tone_for_hz(84_000.0).unwrap(), (56, 125));
+}
+#[test]
+fn cli_capture_takes_a_zero_waveform_source_off_record_per_point() {
+    let dut = coil(0.5, 100e-6);
+    let state = fake_e_state(Virtual::new(100_000, dut.clone()));
+    let fake = spawn_fake_e(state.clone());
+    let folder = scratch("source-off");
+    let out_file = folder.join("capture.json");
+    let out_path = out_file.to_str().unwrap();
+    let capture = |extra: &[&str]| {
+        let mut args = vec![
+            "capture",
+            &fake.path,
+            "100",
+            "fixture-1",
+            "27000,60000",
+            out_path,
+            "--mv=200",
+            "--skip=2",
+            "--periods=40",
+        ];
+        args.extend_from_slice(extra);
+        run_cli(&args)
+    };
+    // Default: each tone is followed by a zero WAVE of its own PERIOD and a CAPTURE with the same
+    // SKIP and PERIODS, and the sweep ends with OFF.
+    let before = commands(&state).len();
+    let out = capture(&[]);
+    assert!(out.status.success(), "{}", stderr(&out));
+    let sent: Vec<String> = commands(&state)[before..].to_vec();
+    let position = |what: &str, from: usize| {
+        from + sent[from..]
+            .iter()
+            .position(|c| c.starts_with(what))
+            .unwrap_or_else(|| panic!("{what} after {from} in {sent:?}"))
+    };
+    let mut at = position("RANGE 100", 0);
+    for step in [
+        "TONE 18 125 200",
+        "CAPTURE 2 40",
+        "WAVE 125 ",
+        "CAPTURE 2 40",
+        "TONE 8 25 200",
+        "CAPTURE 2 40",
+        "WAVE 25 ",
+        "CAPTURE 2 40",
+        "OFF",
+    ] {
+        at = position(step, at) + 1;
+    }
+    assert_eq!(sent.iter().filter(|c| c.starts_with("CAPTURE")).count(), 4);
+    {
+        let st = state.lock().unwrap();
+        assert_eq!(st.waves.len(), 2);
+        assert!(st.waves.iter().all(|w| w.iter().all(|&x| x == 0)));
+        assert_eq!(
+            st.waves.iter().map(Vec::len).collect::<Vec<_>>(),
+            vec![125, 25]
+        );
+    }
+    let log = stderr(&out);
+    assert!(
+        log.contains("source-off check 27000.0000 Hz: PASS")
+            && log.contains("source-off check 60000.0000 Hz: PASS"),
+        "{log}"
+    );
+    let saved = parse_sweep_e(&std::fs::read_to_string(&out_file).unwrap()).unwrap();
+    for r in &saved.records {
+        let check = r.source_off_check.as_ref().expect("check stored");
+        assert!(check.pass && check.channels.iter().all(|c| c.ratio < 1e-9));
+    }
+    let analysed = run_cli(&["analyze", out_path]);
+    assert!(analysed.status.success(), "{}", stderr(&analysed));
+    assert!(!stderr(&analysed).contains("not source-off checked"));
+    let values: Vec<MeasurementE> = serde_json::from_slice(&analysed.stdout).unwrap();
+    assert!(values.iter().all(|m| m.valid && m.source_off.is_some()));
+
+    // --no-source-off: one CAPTURE per point, no WAVE, no check in the file.
+    let before = commands(&state).len();
+    let out = capture(&["--no-source-off"]);
+    assert!(out.status.success(), "{}", stderr(&out));
+    let sent: Vec<String> = commands(&state)[before..].to_vec();
+    assert_eq!(sent.iter().filter(|c| c.starts_with("CAPTURE")).count(), 2);
+    assert!(!sent.iter().any(|c| c.starts_with("WAVE")), "{sent:?}");
+    let text = std::fs::read_to_string(&out_file).unwrap();
+    assert!(!text.contains("source_off_check"));
+    let analysed = run_cli(&["analyze", out_path]);
+    assert!(analysed.status.success(), "{}", stderr(&analysed));
+    assert!(
+        stderr(&analysed).contains("not source-off checked"),
+        "{}",
+        stderr(&analysed)
+    );
+    // The flag belongs to `capture`: the other Rev E capture commands do not take it.
+    for args in [
+        vec![
+            "refcheck",
+            &fake.path,
+            "100",
+            "1500",
+            out_path,
+            "--no-source-off",
+        ],
+        vec![
+            "capture-wave",
+            &fake.path,
+            "100",
+            "fixture-1",
+            "w.txt",
+            "3",
+            out_path,
+            "--no-source-off",
+        ],
+    ] {
+        let out = run_cli(&args);
+        assert!(
+            !out.status.success() && stderr(&out).contains("unknown option --no-source-off"),
+            "{args:?}: {}",
+            stderr(&out)
+        );
+    }
+    std::fs::remove_dir_all(folder).unwrap();
+}
+#[test]
+fn cli_source_off_failure_is_saved_then_refused_by_analyze_calibrate_and_validate() {
+    let dut = coil(0.5, 100e-6);
+    let mut model = Virtual::new(100, dut.clone());
+    // 2e-3 of the channel-B line, at the tone bin of 27 kHz (bin 18 of 125).
+    model.interferer = Some((18, 2e-3 * b_line(&model, 27_000.0, 200)));
+    let state = fake_e_state(model);
+    let fake = spawn_fake_e(state.clone());
+    let folder = scratch("source-off-fail");
+    let out_file = folder.join("capture.json");
+    let out_path = out_file.to_str().unwrap();
+    let out = run_cli(&[
+        "capture",
+        &fake.path,
+        "100",
+        "fixture-1",
+        "27000,60000",
+        out_path,
+        "--mv=200",
+        "--skip=2",
+        "--periods=40",
+    ]);
+    assert!(!out.status.success());
+    let log = stderr(&out);
+    // Only the interfered point fails; the 60 kHz point (bin 8 of 25) is clean.
+    assert!(
+        log.contains("source-off check 27000.0000 Hz: FAIL")
+            && log.contains("source-off check 60000.0000 Hz: PASS"),
+        "{log}"
+    );
+    assert!(
+        log.contains("1 point(s) failed the source-off check")
+            && log.contains("27000 Hz: source-off interference")
+            && log.contains("--allow-source-off-fail"),
+        "{log}"
+    );
+    // The sweep carried on to the last point and the file was written.
+    assert_eq!(
+        commands(&state)
+            .iter()
+            .filter(|c| c.starts_with("CAPTURE"))
+            .count(),
+        4
+    );
+    let saved = parse_sweep_e(&std::fs::read_to_string(&out_file).unwrap()).unwrap();
+    let verdicts: Vec<bool> = saved
+        .records
+        .iter()
+        .map(|r| r.source_off_check.as_ref().unwrap().pass)
+        .collect();
+    assert_eq!(verdicts, vec![false, true]);
+    // analyze refuses the failed point, and accepts it with the flag, still showing the issue.
+    let refused = run_cli(&["analyze", out_path]);
+    assert!(!refused.status.success());
+    assert!(
+        stderr(&refused).contains("source-off interference at 27000.0000 Hz"),
+        "{}",
+        stderr(&refused)
+    );
+    let waived = run_cli(&["analyze", out_path, "--allow-source-off-fail"]);
+    assert!(waived.status.success(), "{}", stderr(&waived));
+    let values: Vec<MeasurementE> = serde_json::from_slice(&waived.stdout).unwrap();
+    assert!(values.iter().all(|m| m.valid));
+    assert_eq!(values[0].waived_issues.len(), 1);
+    assert!(values[0].waived_issues[0].starts_with("source-off"));
+    assert!(values[1].waived_issues.is_empty());
+    // calibrate and validate refuse it the same way (the file stands in for all three
+    // standards: refusal comes first), and take the flag.
+    let cal_file = folder.join("cal.json");
+    let cal_path = cal_file.to_str().unwrap();
+    let calibrate = |extra: &[&str]| {
+        let mut args = vec![
+            "calibrate",
+            out_path,
+            out_path,
+            "20",
+            out_path,
+            "100",
+            cal_path,
+        ];
+        args.extend_from_slice(extra);
+        run_cli(&args)
+    };
+    let refused = calibrate(&[]);
+    assert!(!refused.status.success());
+    assert!(
+        stderr(&refused).contains("source-off"),
+        "{}",
+        stderr(&refused)
+    );
+    let flagged = calibrate(&["--allow-source-off-fail"]);
+    assert!(
+        !stderr(&flagged).contains("unknown option")
+            && !stderr(&flagged).contains("does not apply"),
+        "{}",
+        stderr(&flagged)
+    );
+    // validate needs a calibration that matches the file's setup: the library one, with a 20 ohm
+    // standard whose capture carries the failed check.
+    let (_, e_cal) = e_files();
+    let ecal = folder.join("ecal.json");
+    std::fs::write(&ecal, e_cal).unwrap();
+    let mut failing = Virtual::new(100, fixture(resistor(20.0)));
+    let mv = failing.mv_for(27_000.0);
+    failing.interferer = Some((18, 3e-4 * b_line(&failing, 27_000.0, mv)));
+    let dirty = SweepE {
+        setup: setup_e(100),
+        records: vec![checked_record(&failing, 27_000.0, mv, 0, 40)],
+    };
+    assert!(!dirty.records[0].source_off_check.as_ref().unwrap().pass);
+    let dirty_file = folder.join("dirty.json");
+    std::fs::write(&dirty_file, serde_json::to_string(&dirty).unwrap()).unwrap();
+    let validate = |extra: &[&str]| {
+        let mut args = vec![
+            "validate",
+            dirty_file.to_str().unwrap(),
+            ecal.to_str().unwrap(),
+            "20",
+            "5",
+        ];
+        args.extend_from_slice(extra);
+        run_cli(&args)
+    };
+    let refused = validate(&[]);
+    assert!(!refused.status.success());
+    // validate prints each point's verdict and issues on stdout.
+    assert!(
+        String::from_utf8_lossy(&refused.stdout).contains("FAIL (source-off interference"),
+        "{}{}",
+        stderr(&refused),
+        String::from_utf8_lossy(&refused.stdout)
+    );
+    let flagged = validate(&["--allow-source-off-fail"]);
+    assert!(flagged.status.success(), "{}", stderr(&flagged));
+    std::fs::remove_dir_all(folder).unwrap();
+}
+#[test]
+fn cli_warns_above_80_4_khz_and_still_captures() {
+    let state = fake_e_state(Virtual::new(100, resistor(10.0)));
+    let fake = spawn_fake_e(state.clone());
+    let folder = scratch("image-band");
+    let out_file = folder.join("capture.json");
+    let run = |hz: &str| {
+        run_cli(&[
+            "capture",
+            &fake.path,
+            "100",
+            "fixture-1",
+            hz,
+            out_file.to_str().unwrap(),
+            "--mv=200",
+            "--skip=1",
+            "--periods=4",
+        ])
+    };
+    // 84 kHz warns and captures; the boundary 0.429 fs = 80 437.5 Hz itself does not warn.
+    let out = run("84000");
+    assert!(out.status.success(), "{}", stderr(&out));
+    let log = stderr(&out);
+    assert!(
+        log.contains("warning: 84000 Hz is above 80.4 kHz")
+            && log.contains("unverified")
+            && log.contains("bring-up-rev-e.md section 10"),
+        "{log}"
+    );
+    assert!(commands(&state).contains(&"TONE 56 125 200".to_owned()));
+    let out = run("80437.5");
+    assert!(out.status.success(), "{}", stderr(&out));
+    assert!(!stderr(&out).contains("80.4 kHz"), "{}", stderr(&out));
+    assert!(commands(&state).contains(&"TONE 429 1000 200".to_owned()));
+    let out = run("60500");
+    assert!(out.status.success() && !stderr(&out).contains("80.4 kHz"));
+    std::fs::remove_dir_all(folder).unwrap();
+}
 /// The host constants are the firmware's: parsed from firmware-rev-e's headers and main.c.
 #[test]
 fn firmware_host_contract_rev_e() {

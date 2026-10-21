@@ -6,7 +6,10 @@
 //! line per requested bin: no window, no fit, no non-coherent frequency. Rev D lives in
 //! `lib.rs` and is untouched; nothing here changes its file formats.
 //! Digital tests do not establish the accuracy of an unbuilt analog instrument.
-use crate::{crc32, feedback, feedback_capacitance_pf, Complex, Result, ISOLATION_RESISTOR_OHM};
+use crate::{
+    crc32, feedback, feedback_capacitance_pf, Complex, Result, ISOLATION_RESISTOR_OHM,
+    SOURCE_OFF_ISSUE, SOURCE_OFF_LIMIT,
+};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::f64::consts::TAU;
@@ -441,6 +444,20 @@ pub fn sof_response(hz: f64, seconds: f64) -> f64 {
     }
 }
 
+/// Above 0.429 fs the DAC interpolation image at fs - f lands in the codec ADC's unspecified
+/// transition band and folds onto f. Neither attenuation is published. As a ratio in thousandths
+/// of fs so that the boundary is exact: 80 437.5 Hz.
+pub const IMAGE_BAND_THOUSANDTHS_FS: f64 = 429.0;
+/// Advisory for a tone at `hz`: `Some` strictly above 0.429 fs = 80.4 kHz. The capture still runs.
+pub fn image_advisory(hz: f64) -> Option<String> {
+    (hz * 1000.0 > IMAGE_BAND_THOUSANDTHS_FS * f64::from(SAMPLE_RATE_HZ)).then(|| {
+        format!(
+            "{hz} Hz is above 80.4 kHz (0.429 fs): the DAC interpolation image at fs - f ({} Hz) falls in the codec ADC's unspecified transition band and folds onto the tone, so reactive DUTs are unverified here until bring-up checks them (docs/bring-up-rev-e.md section 10)",
+            f64::from(SAMPLE_RATE_HZ) - hz
+        )
+    })
+}
+
 // ------------------------------------------------------------------ wire payloads
 pub const HEADER_BYTES: usize = 16;
 pub fn data_payload_len(period: usize) -> usize {
@@ -618,6 +635,11 @@ pub struct RecordE {
     pub sums: Vec<[i64; 2]>,
     /// CRC32 of the payload (extremes header and sums) as received.
     pub transport_crc32: u32,
+    /// Source-off check of this tone: a zero waveform of the same PERIOD captured with the same
+    /// SKIP and PERIODS right after it. Absent for `--no-source-off`, waveform records and files
+    /// from before the check existed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_off_check: Option<SourceOffCheckE>,
 }
 impl RecordE {
     pub fn payload(&self) -> Vec<u8> {
@@ -672,6 +694,9 @@ impl RecordE {
                 return Err("bin sums are inconsistent with the reported sample extremes".into());
             }
         }
+        if let Some(check) = &self.source_off_check {
+            check.validate(self)?;
+        }
         Ok(())
     }
     /// Builds a record from a decoded `DATA` reply.
@@ -695,6 +720,7 @@ impl RecordE {
             max: [h[1], h[3]],
             sums,
             transport_crc32,
+            source_off_check: None,
         }
     }
 }
@@ -702,6 +728,199 @@ impl RecordE {
 pub struct SweepE {
     pub setup: SetupE,
     pub records: Vec<RecordE>,
+}
+
+// ------------------------------------------------------------------ source-off check (R-E2)
+/// One channel of a source-off check.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SourceOffChannelE {
+    /// DFT line at the tone bin with the source on (peak codes).
+    pub source_on_codes: f64,
+    /// Amplitude the limit is relative to: `source_on_codes`, except for a short's voltage
+    /// channel judged as a short standard (the current channel's source-on line).
+    pub reference_codes: f64,
+    /// DFT line at the tone bin with a zero waveform of the same PERIOD playing (peak codes).
+    pub source_off_codes: f64,
+    /// `SOURCE_OFF_LIMIT` x `reference_codes`.
+    pub limit_codes: f64,
+    /// `source_off_codes / reference_codes`.
+    pub ratio: f64,
+    /// One-sigma noise of each component of that line, from the source-off record's residual:
+    /// rms x sqrt(2 / PERIOD). A line within about three of these is noise, not interference.
+    pub noise_sigma_codes: f64,
+    pub pass: bool,
+}
+/// Result of the source-off check of one tone record.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct SourceOffCheckE {
+    pub frequency_hz: f64,
+    pub cycles: u32,
+    pub period: u32,
+    /// Always [`SOURCE_OFF_LIMIT`]; stored so a file shows the limit it was judged against.
+    pub limit_ratio: f64,
+    /// The voltage channel was judged against the current channel (a short standard).
+    #[serde(default)]
+    pub short_standard: bool,
+    /// [voltage (A), current (B)].
+    pub channels: [SourceOffChannelE; 2],
+    pub pass: bool,
+    pub diagnostic: String,
+}
+impl SourceOffCheckE {
+    /// Judges the stored line magnitudes again, for a short standard or not. `calibrate` judges
+    /// the short's voltage channel against its current channel, as Rev D does, because a
+    /// short's own voltage line is near zero.
+    pub fn rejudged(&self, short_standard: bool) -> SourceOffCheckE {
+        judge_source_off(
+            self.frequency_hz,
+            self.cycles,
+            self.period,
+            [0, 1].map(|c| self.channels[c].source_on_codes),
+            [0, 1].map(|c| self.channels[c].source_off_codes),
+            [0, 1].map(|c| self.channels[c].noise_sigma_codes),
+            short_standard,
+        )
+    }
+    /// A stored check must describe this record and agree with its own numbers.
+    fn validate(&self, record: &RecordE) -> Result<()> {
+        let bad = |what: &str| Err(format!("source-off check: {what}"));
+        let SourceE::Tone { cycles, .. } = record.source else {
+            return bad("only a tone record carries one");
+        };
+        if self.cycles != cycles || self.period != record.period {
+            return bad("does not describe this record's tone");
+        }
+        if self.limit_ratio != SOURCE_OFF_LIMIT {
+            return bad("limit is not 1e-4");
+        }
+        for c in &self.channels {
+            if ![c.source_on_codes, c.source_off_codes, c.noise_sigma_codes]
+                .iter()
+                .all(|v| v.is_finite() && *v >= 0.0)
+            {
+                return bad("line magnitudes must be finite and not negative");
+            }
+        }
+        let again = self.rejudged(self.short_standard);
+        if again.pass != self.pass
+            || again
+                .channels
+                .iter()
+                .zip(&self.channels)
+                .any(|(a, b)| a.pass != b.pass)
+        {
+            return bad("verdict disagrees with the stored line magnitudes");
+        }
+        Ok(())
+    }
+}
+#[allow(clippy::too_many_arguments)]
+fn judge_source_off(
+    frequency_hz: f64,
+    cycles: u32,
+    period: u32,
+    on: [f64; 2],
+    off: [f64; 2],
+    noise: [f64; 2],
+    short_standard: bool,
+) -> SourceOffCheckE {
+    let channels = [0, 1].map(|c| {
+        let reference = if short_standard && c == 0 {
+            on[1]
+        } else {
+            on[c]
+        };
+        let limit = SOURCE_OFF_LIMIT * reference;
+        SourceOffChannelE {
+            source_on_codes: on[c],
+            reference_codes: reference,
+            source_off_codes: off[c],
+            limit_codes: limit,
+            ratio: off[c] / reference,
+            noise_sigma_codes: noise[c],
+            // A NaN ratio (zero reference) fails.
+            pass: off[c] <= limit,
+        }
+    });
+    let pass = channels.iter().all(|c| c.pass);
+    let diagnostic = if pass {
+        "source-off tone below 1e-4 of the source-on amplitude on both channels".into()
+    } else {
+        let failures: Vec<String> = channels
+            .iter()
+            .zip(["voltage (A)", "current (B)"])
+            .filter(|(c, _)| !c.pass)
+            .map(|(c, name)| {
+                let cause = if c.source_off_codes > 3.0 * c.noise_sigma_codes {
+                    "coherent interference (USB SOF, ground loop, adapter, switcher or activity locked to the waveform period) above the noise"
+                } else {
+                    "within 3 sigma of the source-off noise: the signal is too weak for the check to resolve 1e-4; raise the level, capture longer or change range"
+                };
+                format!(
+                    "{name}: source-off line {:.4} codes = {:.2e} of {:.1} codes > {:.0e} ({cause}; noise sigma {:.4} codes)",
+                    c.source_off_codes, c.ratio, c.reference_codes, SOURCE_OFF_LIMIT, c.noise_sigma_codes
+                )
+            })
+            .collect();
+        format!(
+            "{SOURCE_OFF_ISSUE} interference at {frequency_hz:.4} Hz: {}",
+            failures.join("; ")
+        )
+    };
+    SourceOffCheckE {
+        frequency_hz,
+        cycles,
+        period,
+        limit_ratio: SOURCE_OFF_LIMIT,
+        short_standard,
+        channels,
+        pass,
+        diagnostic,
+    }
+}
+/// R-E2: the DFT line at the tone bin of `off`, a capture of an all-zero waveform of the same
+/// PERIOD with the same SKIP and PERIODS as the source-on tone record `on`, against `on`'s line
+/// on each channel. `off` is analysed exactly as `on` is: one coherent DFT line at bin CYCLES.
+pub fn source_off_check_e(on: &RecordE, off: &RecordE) -> Result<SourceOffCheckE> {
+    on.validate()?;
+    off.validate()?;
+    let SourceE::Tone { cycles, .. } = on.source else {
+        return Err("source-off check needs a tone record".into());
+    };
+    if off.period != on.period
+        || off.periods != on.periods
+        || off.skip != on.skip
+        || off.bins != on.bins
+    {
+        return Err("source-off record differs in PERIOD, SKIP, PERIODS or bin".into());
+    }
+    let fit = |record: &RecordE, channel: usize| fit_channel_bins(record, channel).remove(0);
+    let (mut line_on, mut line_off, mut noise) = ([0.0; 2], [0.0; 2], [0.0; 2]);
+    for c in 0..2 {
+        let off_fit = fit(off, c);
+        line_on[c] = fit(on, c).phasor_codes.abs();
+        line_off[c] = off_fit.phasor_codes.abs();
+        noise[c] = off_fit.residual_rms_codes * (2.0 / f64::from(off.period)).sqrt();
+    }
+    Ok(judge_source_off(
+        tone_frequency_hz(cycles, on.period),
+        cycles,
+        on.period,
+        line_on,
+        line_off,
+        noise,
+        false,
+    ))
+}
+/// Override a failed source-off check: move its issue to `waived_issues`.
+pub fn waive_source_off_e(m: &mut MeasurementE) {
+    let (waived, kept): (Vec<String>, Vec<String>) = m
+        .issues
+        .drain(..)
+        .partition(|issue| issue.starts_with(SOURCE_OFF_ISSUE));
+    m.issues = kept;
+    m.waived_issues.extend(waived);
+    m.valid = m.issues.is_empty();
 }
 
 // ------------------------------------------------------------------ analysis
@@ -798,6 +1017,13 @@ pub struct MeasurementE {
     pub calibrated: bool,
     pub valid: bool,
     pub issues: Vec<String>,
+    /// The record's source-off check, judged again from its stored line magnitudes; absent when
+    /// the capture has none (`--no-source-off`, a waveform record or an older file).
+    #[serde(default)]
+    pub source_off: Option<SourceOffCheckE>,
+    /// Issues overridden on the command line; still reported, no longer invalidating.
+    #[serde(default)]
+    pub waived_issues: Vec<String>,
 }
 fn derived(m: &mut MeasurementE) {
     let z = m.impedance_ohm;
@@ -836,6 +1062,10 @@ pub fn analyze_e(record: &RecordE, range: u32) -> Result<Vec<MeasurementE>> {
         if !v.valid_signal() {
             issues.push("voltage signal too weak or distorted".into());
         }
+        let source_off = record.source_off_check.as_ref().map(|c| c.rejudged(false));
+        if let Some(check) = source_off.as_ref().filter(|c| !c.pass) {
+            issues.push(check.diagnostic.clone());
+        }
         let mut m = MeasurementE {
             frequency_hz: hz,
             cycles: bin,
@@ -853,6 +1083,8 @@ pub fn analyze_e(record: &RecordE, range: u32) -> Result<Vec<MeasurementE>> {
             calibrated: false,
             valid: issues.is_empty(),
             issues,
+            source_off,
+            waived_issues: Vec::new(),
         };
         derived(&mut m);
         out.push(m);
@@ -1078,10 +1310,21 @@ pub fn calibrate_e(
     load2: &SweepE,
     z2: f64,
 ) -> Result<CalibrationE> {
+    calibrate_e_waiving(short, load1, z1, load2, z2, false)
+}
+/// As `calibrate_e`, with `--allow-source-off-fail` as `allow_source_off_fail`.
+pub fn calibrate_e_waiving(
+    short: &SweepE,
+    load1: &SweepE,
+    z1: f64,
+    load2: &SweepE,
+    z2: f64,
+    allow_source_off_fail: bool,
+) -> Result<CalibrationE> {
     if !z1.is_finite() || !z2.is_finite() || z1 <= 0.0 || z2 <= 0.0 {
         return Err("use two distinct positive standards separated by at least 10%".into());
     }
-    calibrate_e_standards(
+    calibrate_e_checked(
         short,
         StandardE::IDEAL_SHORT,
         load1,
@@ -1089,6 +1332,7 @@ pub fn calibrate_e(
         load2,
         StandardE::resistor(z2),
         None,
+        allow_source_off_fail,
     )
 }
 /// As `calibrate_e`, with characterized standards: each standard's complex impedance at every
@@ -1103,6 +1347,22 @@ pub fn calibrate_e_standards(
     s2: StandardE,
     kit: Option<&str>,
 ) -> Result<CalibrationE> {
+    calibrate_e_checked(short, s0, load1, s1, load2, s2, kit, false)
+}
+/// As `calibrate_e_standards`. A standard whose capture carries a failed source-off check is
+/// refused unless `allow_source_off_fail` (`--allow-source-off-fail`). The short's voltage
+/// channel is judged against its current channel, as in Rev D.
+#[allow(clippy::too_many_arguments)]
+pub fn calibrate_e_checked(
+    short: &SweepE,
+    s0: StandardE,
+    load1: &SweepE,
+    s1: StandardE,
+    load2: &SweepE,
+    s2: StandardE,
+    kit: Option<&str>,
+    allow_source_off_fail: bool,
+) -> Result<CalibrationE> {
     for (name, s) in [("short", s0), ("load1", s1), ("load2", s2)] {
         s.check(name)?;
     }
@@ -1115,8 +1375,25 @@ pub fn calibrate_e_standards(
     let mut points = Vec::new();
     for ((s, r1), r2) in short.records.iter().zip(&load1.records).zip(&load2.records) {
         let ms = analyze_e(s, range)?;
-        let m1 = analyze_e(r1, range)?;
-        let m2 = analyze_e(r2, range)?;
+        let mut m1 = analyze_e(r1, range)?;
+        let mut m2 = analyze_e(r2, range)?;
+        if let Some(check) = &s.source_off_check {
+            let check = check.rejudged(true);
+            if !check.pass && !allow_source_off_fail {
+                return Err(format!("short standard: {}", check.diagnostic));
+            }
+        }
+        for (name, loads) in [("standard 1", &mut m1), ("standard 2", &mut m2)] {
+            for m in loads.iter_mut() {
+                if allow_source_off_fail {
+                    waive_source_off_e(m);
+                } else if let Some(issue) =
+                    m.issues.iter().find(|i| i.starts_with(SOURCE_OFF_ISSUE))
+                {
+                    return Err(format!("{name}: {issue}"));
+                }
+            }
+        }
         for (i, &bin) in s.bins.iter().enumerate() {
             // The short intentionally has near-zero voltage. Current and clipping still matter.
             if !ms[i].current.valid_signal()

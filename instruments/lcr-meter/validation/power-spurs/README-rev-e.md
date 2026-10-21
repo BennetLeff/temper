@@ -15,7 +15,7 @@ python3 rev_e_spurs.py       # -> rev_e_spurs.json, about 1 s; log in rev_e_spur
 
 | # | Mechanism | Rev D | Rev E | Action |
 |---|---|---|---|---|
-| 1 | USB SOF lines (host clock, 1 kHz ±560 ppm) on the tone | 0 dB rejection at every whole kHz | Unchanged: 0 dB at every whole kHz. 221 of the 3 627 integer frequencies the host can play exactly have response > 0.1, all within 50 Hz of a whole kHz. The half-kHz grid gives −51 to −54 dB | Host: use 1500, 27500, 35500, 40500, 50500, 60500 Hz (all exact tones). Port the source-off check (R-E2) |
+| 1 | USB SOF lines (host clock, 1 kHz ±560 ppm) on the tone | 0 dB rejection at every whole kHz | Unchanged: 0 dB at every whole kHz. 221 of the 3 627 integer frequencies the host can play exactly have response > 0.1, all within 50 Hz of a whole kHz. The half-kHz grid gives −51 to −54 dB | Host: use 1500, 27500, 35500, 40500, 50500, 60500 Hz (all exact tones). Source-off check ported (R-E2, done) |
 | 2 | Switcher harmonic lands on the tone | 2 % chance per frequency (any of 40 harmonics, SAR folds everything) | 0.010–0.091 % chance per frequency (only harmonics within the decimation passband of a modulator multiple reach the line). Every other alias is ≥ 90.5 dB down | None. Bring-up R4 unchanged |
 | 3 | Source spurs fold onto the tone | AD9833 harmonics k = 9/11 at 50 kHz etc. | DAC harmonics fold onto the line only through the ≥ 90.5 dB stop band (lowest folding order k = 14 at 50 kHz, k = 24 at 60 kHz). Crystal-locked clocks are all multiples of fs and alias to DC | None |
 | 4 | **DAC images at N·f_mod ± f (new)** | AD9833 images at 24 MHz: −125 to −167 dBc | Fold exactly onto f. Pessimistic estimate up to 0.75 % on a coil (table below); the datasheet says both converters reject these bands, by an amount not published | No board change. Bring-up gate B-E1; BOM fallback C34/C35 |
@@ -95,7 +95,7 @@ Neither number is published. TI's note for the sibling ADC family, [SBAA377](htt
 | ID | Change | Basis | Cost |
 |---|---|---|---|
 | **R-E1** | Host: recommend the half-kHz grid 1500, 27500, 35500, 40500, 50500, 60500 Hz in the Rev E docs and examples | §1: 0 dB → −51 to −54 dB SOF rejection; every point is an exact tone | Docs (done with this rerun) |
-| **R-E2** | Host: port Rev D's source-off check to Rev E. Upload a zero waveform of the same PERIOD (`WAVE`), capture with the same SKIP and PERIODS, require the tone bin below 10⁻⁴ of the source-on amplitude on each channel | The only check that sees SOF coupling, ground loops, the adapter, switcher collisions and PERIOD-locked board activity. `OFF` alone uses PERIOD 16 and cannot see the tone bin | Host only, about half a day; doubles capture time |
+| **R-E2** (done: commit "host: Rev E source-off check (zero WAVE, same SKIP and PERIODS) and 80-85 kHz advisory") | Host: port Rev D's source-off check to Rev E. Upload a zero waveform of the same PERIOD (`WAVE`), capture with the same SKIP and PERIODS, require the tone bin below 10⁻⁴ of the source-on amplitude on each channel | The only check that sees SOF coupling, ground loops, the adapter, switcher collisions and PERIOD-locked board activity. `OFF` alone uses PERIOD 16 and cannot see the tone bin | Host only, about half a day; doubles capture time |
 | B-E1 | Bring-up range screen (§4) | Settles the DAC-image question on the first board | 20 min bench |
 | R4 | Bring-up: measure fsw on SW_P; scope the rails (Rev D R4) | Unchanged | Bench |
 

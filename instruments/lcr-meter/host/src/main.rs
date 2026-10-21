@@ -15,7 +15,7 @@ const USAGE: &str = "Usage (the board, Rev D protocol 2 or Rev E protocol 3, is 
   temper-lcr boot PORT
   temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard] [--no-source-off] [--short-standard]   (Rev D)
   temper-lcr noise PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard]   (Rev D)
-  temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E; sets the range relay, FREQ_HZ must be exact)
+  temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S] [--no-source-off]   (Rev E; sets the range relay, FREQ_HZ must be exact; each point is followed by a zero-waveform source-off capture)
   temper-lcr capture-wave PORT RANGE_OHM FIXTURE WAVE.txt BIN[,BIN...] OUT.json [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E multitone)
   temper-lcr refcheck PORT RANGE_OHM FREQ_HZ[,FREQ_HZ...] OUT.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E; internal 1 kOhm reference via K4, DUT terminals open)
   temper-lcr range PORT 100|5000|100000   (Rev E)
@@ -30,9 +30,9 @@ const USAGE: &str = "Usage (the board, Rev D protocol 2 or Rev E protocol 3, is 
   temper-lcr advise-grid FREQ_HZ[,FREQ_HZ...]   (Rev D)
   temper-lcr analyze CAPTURE.json [CAL.json] [--allow-source-off-fail]
   temper-lcr calibrate SHORT.json LOAD1.json LOAD1_OHM LOAD2.json LOAD2_OHM CAL.json [--allow-source-off-fail]
-  temper-lcr calibrate SHORT.json LOAD1.json LOAD1_NAME LOAD2.json LOAD2_NAME CAL.json --standards=KIT.json   (Rev E; characterized standards, the short is SHORT)
+  temper-lcr calibrate SHORT.json LOAD1.json LOAD1_NAME LOAD2.json LOAD2_NAME CAL.json --standards=KIT.json [--allow-source-off-fail]   (Rev E; characterized standards, the short is SHORT)
   temper-lcr validate CAPTURE.json CAL.json KNOWN_OHM TOLERANCE_PERCENT [--allow-source-off-fail]
-  temper-lcr validate CAPTURE.json CAL.json NAME TOLERANCE_PERCENT --standards=KIT.json   (Rev E; complex error against the characterized standard)";
+  temper-lcr validate CAPTURE.json CAL.json NAME TOLERANCE_PERCENT --standards=KIT.json [--allow-source-off-fail]   (Rev E; complex error against the characterized standard)";
 
 fn text(path: &str) -> Result<String> {
     fs::read_to_string(path).map_err(|e| format!("{path}: {e}"))
@@ -143,7 +143,19 @@ fn warn_sof(hz: f64, seconds: f64) {
         );
     }
 }
-fn capture_e(d: &mut DeviceE, freqs: &[f64], out: &str, o: &EOptions) -> Result<()> {
+/// Advisory above 0.429 fs (see [`rev_e::image_advisory`]); the capture still runs.
+fn warn_image(hz: f64) {
+    if let Some(advice) = rev_e::image_advisory(hz) {
+        eprintln!("warning: {advice}");
+    }
+}
+fn capture_e(
+    d: &mut DeviceE,
+    freqs: &[f64],
+    out: &str,
+    o: &EOptions,
+    source_off: bool,
+) -> Result<()> {
     // Every frequency must be exact before the instrument is touched.
     for &hz in freqs {
         rev_e::tone_for_hz(hz)?;
@@ -154,6 +166,7 @@ fn capture_e(d: &mut DeviceE, freqs: &[f64], out: &str, o: &EOptions) -> Result<
     d.rails()?;
     d.range(d.setup.range_ohm)?;
     let mut records = Vec::new();
+    let mut source_off_failures = Vec::new();
     for &hz in freqs {
         let (_, period) = rev_e::tone_for_hz(hz)?;
         let seconds = rev_e::capture_seconds(
@@ -163,7 +176,8 @@ fn capture_e(d: &mut DeviceE, freqs: &[f64], out: &str, o: &EOptions) -> Result<
             period,
         );
         warn_sof(hz, seconds);
-        let record = d.capture_tone(hz, mv, o.skip, o.periods_for(period)?)?;
+        warn_image(hz);
+        let mut record = d.capture_tone(hz, mv, o.skip, o.periods_for(period)?)?;
         eprintln!(
             "captured {hz} Hz: {} periods of {} frames after skipping {}, clipping A {} B {}",
             record.periods,
@@ -172,6 +186,22 @@ fn capture_e(d: &mut DeviceE, freqs: &[f64], out: &str, o: &EOptions) -> Result<
             record.clipped(0),
             record.clipped(1)
         );
+        if source_off {
+            // A failed check does not stop the sweep: the file is saved with the diagnostics.
+            let check = d.source_off_check(&record)?;
+            eprintln!(
+                "source-off check {:.4} Hz: {} (A {:.2e}, B {:.2e} of source-on; limit {:.0e})",
+                check.frequency_hz,
+                if check.pass { "PASS" } else { "FAIL" },
+                check.channels[0].ratio,
+                check.channels[1].ratio,
+                check.limit_ratio
+            );
+            if !check.pass {
+                source_off_failures.push(format!("{hz} Hz: {}", check.diagnostic));
+            }
+            record.source_off_check = Some(check);
+        }
         records.push(record);
     }
     d.off()?;
@@ -181,7 +211,15 @@ fn capture_e(d: &mut DeviceE, freqs: &[f64], out: &str, o: &EOptions) -> Result<
             setup: d.setup.clone(),
             records,
         },
-    )
+    )?;
+    if !source_off_failures.is_empty() {
+        return Err(format!(
+            "{} point(s) failed the source-off check (saved to {out} with diagnostics; analyze refuses them unless --allow-source-off-fail):\n{}",
+            source_off_failures.len(),
+            source_off_failures.join("\n")
+        ));
+    }
+    Ok(())
 }
 /// `REFCAPTURE` per frequency: the internal 1 kOhm reference on `range`, for a drift or self
 /// check. The file is an ordinary Rev E capture with fixture `internal-reference-1k`.
@@ -199,6 +237,7 @@ fn refcheck_e(d: &mut DeviceE, range: u32, freqs: &[f64], out: &str, o: &EOption
     let mut records = Vec::new();
     for &hz in freqs {
         let (_, period) = rev_e::tone_for_hz(hz)?;
+        warn_image(hz);
         let record = d.reference_tone(range, hz, mv, o.skip, o.periods_for(period)?)?;
         records.push(record);
     }
@@ -236,6 +275,9 @@ fn capture_wave_e(
     let period = words.len() as u32;
     let bins: Vec<u32> = bins.split(',').map(number).collect::<Result<_>>()?;
     rev_e::check_bins(&bins, period)?;
+    for &bin in &bins {
+        warn_image(rev_e::tone_frequency_hz(bin, period));
+    }
     d.selftest()?;
     d.rails()?;
     d.range(d.setup.range_ohm)?;
@@ -255,15 +297,25 @@ fn capture_wave_e(
         },
     )
 }
-fn analyze_e_file(a: &[&str], waive: bool) -> Result<()> {
-    if waive {
-        return Err(
-            "--allow-source-off-fail does not apply to Rev E captures (no source-off record)"
-                .into(),
+/// Notes on stderr how many records of a Rev E file carry no source-off check. Rev D reports
+/// such files the same way: not checked, not refused.
+fn note_unchecked(sweep: &SweepE) {
+    let unchecked = sweep
+        .records
+        .iter()
+        .filter(|r| r.source_off_check.is_none())
+        .count();
+    if unchecked > 0 {
+        eprintln!(
+            "note: {unchecked} of {} record(s) not source-off checked (captured with --no-source-off, a waveform record, or a file from before the check)",
+            sweep.records.len()
         );
     }
+}
+fn analyze_e_file(a: &[&str], waive: bool) -> Result<()> {
     let sweep = sweep_e(a[1])?;
     sweep.setup.validate()?;
+    note_unchecked(&sweep);
     let cal = a
         .get(2)
         .map(|path| rev_e::parse_calibration_e(&text(path)?).map_err(|e| format!("{path}: {e}")))
@@ -271,6 +323,9 @@ fn analyze_e_file(a: &[&str], waive: bool) -> Result<()> {
     let mut values = Vec::new();
     for r in &sweep.records {
         for mut m in rev_e::analyze_e(r, sweep.setup.range_ohm)? {
+            if waive {
+                rev_e::waive_source_off_e(&mut m);
+            }
             if let Some(c) = &cal {
                 rev_e::correct_e(&mut m, &sweep.setup, c)?;
             }
@@ -285,20 +340,15 @@ fn analyze_e_file(a: &[&str], waive: bool) -> Result<()> {
         .collect();
     if !invalid.is_empty() {
         return Err(format!(
-            "one or more measurements failed signal-quality checks:\n{}",
+            "one or more measurements failed signal-quality or source-off checks:\n{}",
             invalid.join("\n")
         ));
     }
     Ok(())
 }
 fn validate_e_file(a: &[&str], waive: bool, standards_path: Option<&str>) -> Result<()> {
-    if waive {
-        return Err(
-            "--allow-source-off-fail does not apply to Rev E captures (no source-off record)"
-                .into(),
-        );
-    }
     let sweep = sweep_e(a[1])?;
+    note_unchecked(&sweep);
     let cal = rev_e::parse_calibration_e(&text(a[2])?).map_err(|e| format!("{}: {e}", a[2]))?;
     let known = match standards_path {
         Some(path) => standards(path)?.get(a[3])?,
@@ -312,6 +362,9 @@ fn validate_e_file(a: &[&str], waive: bool, standards_path: Option<&str>) -> Res
     let mut pass = !sweep.records.is_empty();
     for r in &sweep.records {
         for mut m in rev_e::analyze_e(r, sweep.setup.range_ohm)? {
+            if waive {
+                rev_e::waive_source_off_e(&mut m);
+            }
             rev_e::correct_e(&mut m, &sweep.setup, &cal)?;
             let truth = known.impedance(m.frequency_hz);
             let error = (m.impedance_ohm - truth).abs() / truth.abs() * 100.0;
@@ -493,11 +546,16 @@ fn run(args: &[String]) -> Result<()> {
                     if command == "noise" {
                         return Err("'noise' is a Rev D command: on Rev E run 'off PORT', then 'raw PORT COUNT OUT.json'".into());
                     }
-                    if flag("--allow-hazard") || flag("--no-source-off") || flag("--short-standard")
-                    {
-                        return Err("--allow-hazard, --no-source-off and --short-standard are Rev D options (DDS hazards and source-off records); this board is Rev E".into());
+                    if flag("--allow-hazard") || flag("--short-standard") {
+                        return Err("--allow-hazard and --short-standard are Rev D options (DDS hazards and the short-standard source-off judgement); this board is Rev E".into());
                     }
-                    return capture_e(&mut d, &freqs, a[5], &e_options(&flags)?);
+                    return capture_e(
+                        &mut d,
+                        &freqs,
+                        a[5],
+                        &e_options(&flags)?,
+                        !flag("--no-source-off"),
+                    );
                 }
                 board => rev_d_only(board, command)?,
             };
@@ -589,14 +647,15 @@ fn run(args: &[String]) -> Result<()> {
             );
         }
         ("calibrate", 7) if is_rev_e(a[1]) => {
-            if flag("--allow-source-off-fail") {
-                return Err("--allow-source-off-fail does not apply to Rev E captures (no source-off record)".into());
-            }
             let (short, load1, load2) = (sweep_e(a[1])?, sweep_e(a[2])?, sweep_e(a[4])?);
+            for sweep in [&short, &load1, &load2] {
+                note_unchecked(sweep);
+            }
+            let waive = flag("--allow-source-off-fail");
             let cal = match flag_value(&flags, "--standards") {
                 Some(path) => {
                     let kit = standards(path)?;
-                    rev_e::calibrate_e_standards(
+                    rev_e::calibrate_e_checked(
                         &short,
                         kit.get("SHORT")?,
                         &load1,
@@ -604,9 +663,17 @@ fn run(args: &[String]) -> Result<()> {
                         &load2,
                         kit.get(a[5])?,
                         Some(&format!("{} ({path})", kit.kit)),
+                        waive,
                     )?
                 }
-                None => rev_e::calibrate_e(&short, &load1, number(a[3])?, &load2, number(a[5])?)?,
+                None => rev_e::calibrate_e_waiving(
+                    &short,
+                    &load1,
+                    number(a[3])?,
+                    &load2,
+                    number(a[5])?,
+                    waive,
+                )?,
             };
             write(a[6], &cal)?;
             println!(

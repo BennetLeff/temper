@@ -549,6 +549,29 @@ impl DeviceE {
         record.validate()?;
         Ok(record)
     }
+    /// The source-off check of a tone record just captured with [`DeviceE::capture_tone`]:
+    /// uploads `PERIOD` zero words, captures with the record's SKIP and PERIODS, and judges the
+    /// DFT line at its CYCLES bin against the record's own. `OFF` would not do: it plays
+    /// PERIOD 16, whose bins cannot see the tone bin, and it would miss board activity locked
+    /// to the waveform period. The same SKIP covers the step from tone to zero, which settles
+    /// through the same filters, TIA and DUT as the step from silence to tone. Leaves the zero
+    /// waveform playing (silent): the caller sets the next tone or sends `OFF`.
+    pub fn source_off_check(&mut self, on: &RecordE) -> Result<rev_e::SourceOffCheckE> {
+        let SourceE::Tone { cycles, .. } = on.source else {
+            return Err("source-off check needs a tone record".into());
+        };
+        self.wave(&vec![0; on.period as usize])?;
+        let (payload, crc) = self.capture(on.skip, on.periods)?;
+        let off = RecordE::from_capture(
+            SourceE::Wave,
+            vec![cycles],
+            on.skip,
+            on.periods,
+            payload,
+            crc,
+        );
+        rev_e::source_off_check_e(on, &off)
+    }
     /// Plays `hz` at `mv` and captures the internal reference on `range` (`REFCAPTURE`): the
     /// same defaults as [`DeviceE::capture_tone`], settling for `range`.
     pub fn reference_tone(

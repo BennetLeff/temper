@@ -66,10 +66,10 @@ Applies to the Rev E board (`E-codec`, protocol 3): TAC5112 codec, latching rang
 
 ## 5. Quiet board (source off)
 
-The Rev E host has no automatic source-off check yet ([power-spurs Rev E](../validation/power-spurs/README-rev-e.md) R-E2), so do it by hand at each grid period.
+The Rev E host does the zero-waveform check itself on `capture` ([power-spurs Rev E](../validation/power-spurs/README-rev-e.md) R-E2, [host README](../host/README.md)); steps 1 and 3 and the `raw` method in step 2 remain by hand, because the host check sees only the tone bin.
 
 1. Silence the source with `temper-lcr off PORT`, then run `temper-lcr raw PORT 8192 quiet.json` with the jacks open and again with the Kelvin short. Compare the RMS per channel with [rev-e-codec](../validation/rev-e-codec/README.md).
-2. For each grid period, upload a waveform of that many zero words with `temper-lcr wave PORT zeros-P.txt`, then take `raw` again. The grid periods are 125 (1.5 kHz), 75 (27.5 kHz), 375 (35.5, 50.5 and 60.5 kHz) and 125 (40.5 kHz). This catches activity locked to the waveform period. Take the DFT of the record at the grid frequencies (23 Hz bins at 8192 frames). Any line standing above the noise floor at a grid frequency is interference: find it before calibrating.
+2. `temper-lcr capture` now does this at every point: after each source-on capture it uploads `PERIOD` zero words, captures again with the same SKIP and PERIODS, and requires the line at the tone bin below 10⁻⁴ of the source-on line on A and B (it doubles the capture time). It exits non-zero and saves the file if any point fails, and `analyze`, `calibrate` and `validate` refuse that point unless `--allow-source-off-fail`. Read the per-point `source_off_check` ratios and `noise_sigma_codes` in the capture file as a record of the quiet board. The manual method still serves for spectra, where the check only sees one bin: for each grid period, upload a waveform of that many zero words with `temper-lcr wave PORT zeros-P.txt`, then take `raw` again. The grid periods are 125 (1.5 kHz), 75 (27.5 kHz), 375 (35.5, 50.5 and 60.5 kHz) and 125 (40.5 kHz). This catches activity locked to the waveform period. Take the DFT of the record at the grid frequencies (23 Hz bins at 8192 frames). Any line standing above the noise floor at a grid frequency is interference: find it before calibrating.
 3. Repeat step 2 with the real adapter, USB to the real host, and the coil and leads in their working position.
 
 ## 6. Source, analog levels and stability
@@ -117,7 +117,7 @@ The desk analysis ([power-spurs Rev E](../validation/power-spurs/README-rev-e.md
 
 ## 10. Remaining first-board checks
 
-- **80–85 kHz.** The DAC interpolation image at fs − f falls in the ADC transition band, and neither attenuation is published. Measure C1 at 80 and 85 kHz against 60.5 kHz. C must agree within 0.1 %, or the top of the range is unusable for reactive parts.
+- **80–85 kHz.** The DAC interpolation image at fs − f falls in the ADC transition band, and neither attenuation is published. Measure C1 at 80 and 85 kHz against 60.5 kHz. C must agree within 0.1 %, or the top of the range is unusable for reactive parts. The host warns on every tone above 80.4 kHz until this is settled.
 - **Long capture.** A 60 s `capture` (`--seconds=59`) with other USB traffic on the host must finish without `acquisition_overrun`.
 - **Temper targets.** On the 100 Ω range at the half-kHz grid, measure the stage53 coil, the 100 nF and 0.5 µF resonant capacitors (35.5–60.5 kHz) and the 9 µF bus capacitor (1.5 kHz, characterized film capacitor), with the session procedure (step 8.4). Record the results against a reference meter where one is available.
 - **Relay capacitances (optional).** Measure a loose TQ2SA's contact-to-coil and pole-to-pole capacitance, and rerun `reverelaycng100_r104` with the values (`validation/stability-full-chain`). That replaces the estimate under the 46.8° margin.
