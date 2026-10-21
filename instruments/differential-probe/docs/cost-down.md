@@ -17,16 +17,16 @@ Both columns use the same assumptions: the owner hand-solders the ten THT parts 
 
 | Two boards | Before (`5b9a9530b`) | Cost-down |
 |---|---:|---:|
-| Components, as bought (JLC price for parts JLC supplies, distributor ledger otherwise) | $520.98 | **$130.10** |
-| JLC assembly fees | $131.80 | **$74.95** |
+| Components, as bought (JLC price for parts JLC supplies, distributor ledger otherwise) | $520.98 | **$129.60** |
+| JLC assembly fees | $131.80 | **$71.88** |
 | Bare PCB, JLC 5 pcs, 4-layer HASL | $36.80 | $36.80 |
 | HV leads (assumed) | $100.00 | $100.00 |
 | Enclosures | owner-designed, not priced | owner-designed, not priced |
-| **Total, enclosure excluded** | **$789.58** | **$341.85** (−$447.73, −57 %) |
+| **Total, enclosure excluded** | **$789.58** | **$338.28** (−$451.30, −57 %) |
 
-The documented HV-lead BOM ([`leads-bom.csv`](../procurement/leads-bom.csv), Rowe R800-1020 spool) is $234.72 instead of $100. That raises both columns by $134.72 and leaves the saving unchanged. At distributor-ledger prices alone (the basis of [revc.md](revc.md#cost-dated-2026-10-20)) the components fall from $535.81 to $148.15.
+The documented HV-lead BOM ([`leads-bom.csv`](../procurement/leads-bom.csv), Rowe R800-1020 spool) is $234.72 instead of $100. That raises both columns by $134.72 and leaves the saving unchanged. At distributor-ledger prices alone (the basis of [revc.md](revc.md#cost-dated-2026-10-20)) the components fall from $535.81 to $148.10.
 
-The cost-down column includes the later [fee consolidation](fee-consolidation.md) (Basic parts for the output filter), which `procurement/cost.py` applies on top of the substitutions below.
+The cost-down column includes the later [fee consolidation](fee-consolidation.md) (Basic parts for the output filter and the warning-ladder 1 k), which `procurement/cost.py` applies on top of the substitutions below.
 
 Not included: shipping, tax and duty, the owner's courier for parts bought at DigiKey, and the S1/S2 select-on-test kits (priced identically in every strategy).
 
@@ -161,12 +161,12 @@ Joints come from `validation/pcb-pads.tsv`. For each JLC-placed MPN the quantity
 | A | Before; JLC also places THT | Standard | 39 | $519.94 | $205.84 | $762.58 |
 | B | Before; owner solders THT | Economic | 33 | $520.98 | $131.80 | $689.58 |
 | C | Before; owner THT; rest consigned | Economic | 33 | $520.98 | $121.80 | $679.58 |
-| D | Cost-down; JLC also places THT | Standard | 28 | $134.82 | $204.43 | $376.05 |
-| **E** | **Cost-down; owner solders THT; rest global-sourced** | **Economic** | **21** | **$130.10** | **$74.95** | **$241.85** |
-| F | Cost-down; owner THT; rest consigned | Economic | 21 | $130.10 | $84.95 | $251.85 |
-| G | E with 5 boards assembled | Economic | 21 | $312.24 | $76.10 | $425.14 ($85.03 per board) |
+| D | Cost-down; JLC also places THT | Standard | 27 | $134.32 | $204.43 | $375.55 |
+| **E** | **Cost-down; owner solders THT; rest global-sourced** | **Economic** | **20** | **$129.60** | **$71.88** | **$238.28** |
+| F | Cost-down; owner THT; rest consigned | Economic | 20 | $129.60 | $81.88 | $248.28 |
+| G | E with 5 boards assembled | Economic | 20 | $311.50 | $73.03 | $421.33 ($84.27 per board) |
 
-**Recommended: E.** Strategy E's $74.95 is $8.18 setup + $1.53 stencil + 21 × $3.07 feeders ($64.47) + 480 SMT joints ($0.77). There is no inspection fee: the only part that drew one, the SMT PTS645 reset button (global-sourced, $20 commodity inspection plus a $3.07 feeder), is now the through-hole PTS645SL43-2 LFS that the owner solders ([revc.md §7](revc.md#7-pcb-mount-panel-parts)). Letting JLC fit the THT parts (A, D) costs about $100 more, because the bottom-side holders force Standard. Consignment (F) now costs $10 more than E, because the $10 minimum handling fee no longer displaces an inspection. The owner hand-solders the BNC, both toggles, the reset button, both holders and both trimmers, and buys them at DigiKey/LCSC.
+**Recommended: E.** Strategy E's $71.88 is $8.18 setup + $1.53 stencil + 20 × $3.07 feeders ($61.40) + 480 SMT joints ($0.77). There is no inspection fee: the only part that drew one, the SMT PTS645 reset button (global-sourced, $20 commodity inspection plus a $3.07 feeder), is now the through-hole PTS645SL43-2 LFS that the owner solders ([revc.md §7](revc.md#7-pcb-mount-panel-parts)). Letting JLC fit the THT parts (A, D) costs about $100 more, because the bottom-side holders force Standard. Consignment (F) now costs $10 more than E, because the $10 minimum handling fee no longer displaces an inspection. The owner hand-solders the BNC, both toggles, the reset button, both holders and both trimmers, and buys them at DigiKey/LCSC.
 
 **Extended count: 33 → 24** (−$27.63). The removed Extended MPNs are R12/R32 220 Ω, the four 49.9 Ω selector/output resistors, R74 47 k, R95 100 k, R103 1 M (now Uni-Royal 1 % Basic), the 100 nF decoupling (Yageo Basic), the LED (NationStar NCD0805R1), D8 (1N4148W Basic) and Q1 (MMBT5401 Basic). In every case the 0.1 % part bought nothing: R12/R32 are in series with a high-impedance OPA2810 input; R101/R102 (49.9 Ω into the 19.6 kΩ selector load) move the calibrated gain by at most 25 ppm and the shared filter pole by 0.34 %, R70 (into the scope's 1 MΩ) by 0.5 ppm, and R100 only isolates U12's input; R74/R95/R103 are bias and return resistors. The 10 µF bulk changes to TDK C3225X7R1E106KTJ00N because KEMET had only 8 at JLC. C61 (180 pF C0G 5 %) changes to Yageo CC0805JRNPO9BN181 because the KEMET part sells at JLC only in 452s.
 
@@ -174,11 +174,13 @@ Joints come from `validation/pcb-pads.tsv`. For each JLC-placed MPN the quantity
 
 **Extended count: 23 → 21** with the [fee consolidation](fee-consolidation.md) output filter: R69 220 Ω Basic (the R12/R32 MPN) and C61 100 pF C0G Basic (Samsung CL21C101JBANNNC), pole 6.000 → 5.900 MHz.
 
+**Extended count: 21 → 20** with R88/R92 (warning ladder 1 k) as Uni-Royal 0805W8F1001T5E 1 % Basic: the late-trip bound rises 1.5 V per tip (fee consolidation, L1).
+
 Q1 (base drive 47 kΩ from OV_N, collector load 10 kΩ to −4.8 V) needs a forced gain of about 5; MMBT5401 is 150 V, hFE ≥ 50 at 1 mA. NCD0805R1 is a 0805 red LED of the same footprint.
 
 ### What stays Extended, and why
 
-The precision ladder and gain resistors (RT0805 10 k, 1 k, 29.4 k, 30 k, 66.5 k; RNCF 499 Ω, 1 k, 2 k), the new 4.87 k, the seven ICs, BAV199, the 10 µF, 10 nF and 33 pF capacitors, and the HV resistor. No Basic part replaces them without losing a stated tolerance or footprint; [fee-consolidation.md](fee-consolidation.md) checks each one again with numbers (R69 and the 180 pF C61 moved to Basic there).
+The precision ladder and gain resistors (RT0805 10 k, 29.4 k, 30 k, 66.5 k; RNCF 499 Ω, 1 k, 2 k), the new 4.87 k, the seven ICs, BAV199, the 10 µF, 10 nF and 33 pF capacitors, and the HV resistor. No Basic part replaces them without losing a stated tolerance or footprint; [fee-consolidation.md](fee-consolidation.md) checks each one again with numbers (R69, the 180 pF C61 and the ladder 1 k moved to Basic there).
 
 ## Implementation (Phase 2)
 

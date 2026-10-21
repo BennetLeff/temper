@@ -89,13 +89,13 @@ The fine range would need 7.5 V out for a 1.5 kV differential input, so U12 satu
 
 U5 (TLV1704) watches both buffered inputs in both polarities. U6 (TLV1702) watches SELECTED through the R71/R72 2:1 divider, so a saturated unused fine output does not by itself raise the output warning.
 
-The TL431 references are gone. One ladder per polarity across the regulated rail sets both thresholds: 66.5 kΩ → LIM → 1 kΩ → OUT_LIM → 10 kΩ → GND. Their spread includes the rail tolerances (ADP7142 ±1.8%; ADP7182 ADJ −2.95/+1.97%) and 0.1% feedback resistors.
+The TL431 references are gone. One ladder per polarity across the regulated rail sets both thresholds: 66.5 kΩ → LIM → 1 kΩ → OUT_LIM → 10 kΩ → GND. Their spread includes the rail tolerances (ADP7142 ±1.8%; ADP7182 ADJ −2.95/+1.97%) and 0.1% feedback resistors. The 66.5 kΩ and 10 kΩ ladder resistors are 0.1%; the 1 kΩ middle resistors (R88/R92) are 1% Basic parts, which costs 1.5 V on the per-tip bound ([fee consolidation](fee-consolidation.md), L1). `tools/budget.rs` takes each resistor's class from its MPN.
 
 | Warning | Nominal | Conditional late-trip bound | Earliest trip |
 |---|---|---|---|
-| Per tip | 1,362.6 V | < 1,453.0 V | 1,267 V |
-| Wide differential | 1,238.7 V | < 1,341.6 V | 1,132 V |
-| Fine differential | 247.7 V | < 289.75 V | 206 V |
+| Per tip | 1,362.6 V | < 1,454.5 V | 1,266 V |
+| Wide differential | 1,238.7 V | < 1,341.8 V | 1,132 V |
+| Fine differential | 247.7 V | < 289.79 V | 206 V |
 
 The budget holds only if all of these are true:
 

@@ -1664,10 +1664,11 @@ fn main() {
         let x = 240. + i as f64 * 40.;
         let base = 87 + i * 4;
         d.two(2, &format!("R{base}"), "R_Small_US", &r("66.5 kR", "66K5"), (x, *y - 12.), 0, rail, lim, false);
-        d.two(2, &format!("R{}", base + 1), "R_Small_US", &r("1 kR", "1K"), (x, *y), 0, lim, out_lim, false);
+        // 1 % Basic: +1.5 V on the late tip trip (docs/fee-consolidation.md, L1).
+        d.two(2, &format!("R{}", base + 1), "R_Small_US", &rb("1 kR", "0805W8F1001T5E", "C17513"), (x, *y), 0, lim, out_lim, false);
         d.two(2, &format!("R{}", base + 2), "R_Small_US", &r("10 kR", "10K"), (x, *y + 12.), 0, out_lim, "GND", false);
     }
-    d.text(2,(205.,112.),"Thresholds track the LDO rails; budget in tools/check.rs.\nInput clamps D1-D3 return to the rails; rail load absorbs clamp current.",1.27);
+    d.text(2,(205.,112.),"Thresholds track the LDO rails; budget in tools/budget.rs.\nInput clamps D1-D3 return to the rails; rail load absorbs clamp current.",1.27);
     d.block(
         2,
         (10., 130.),

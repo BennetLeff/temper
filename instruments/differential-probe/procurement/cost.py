@@ -227,6 +227,9 @@ FEE_SUBS = {
     # F3: output filter 220 R / 100 pF, pole 5.90 MHz (docs/fee-consolidation.md).
     "R69": "0805W8F2200T5E",
     "C61": "CL21C101JBANNNC",
+    # L1: warning ladder middle resistor 1 % Basic, late trip +1.5 V.
+    "R88": "0805W8F1001T5E",
+    "R92": "0805W8F1001T5E",
 }
 
 base_rows = rows_of(base_text)

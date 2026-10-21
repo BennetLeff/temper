@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>/Users/bennet/Desktop/temper/worktrees/probe-revc/instruments/differential-probe/cad/differential-probe.kicad_sch</source>
-    <date>2026-10-20T22:27:53</date>
+    <date>2026-10-20T22:31:17</date>
     <tool>Eeschema 10.0.4</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -2998,19 +2998,19 @@
     <comp ref="R88">
       <value>1 kR</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C17513.html</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD071KL</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
+        <field name="MPN">0805W8F1001T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17513</field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17513.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD071KL"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
+      <property name="MPN" value="0805W8F1001T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17513"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>
@@ -3091,19 +3091,19 @@
     <comp ref="R92">
       <value>1 kR</value>
       <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
-      <datasheet>https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</datasheet>
+      <datasheet>https://www.lcsc.com/product-detail/C17513.html</datasheet>
       <fields>
-        <field name="MPN">RT0805BRD071KL</field>
-        <field name="Manufacturer">Yageo</field>
-        <field name="LCSC"> </field>
+        <field name="MPN">0805W8F1001T5E</field>
+        <field name="Manufacturer">Uni-Royal</field>
+        <field name="LCSC">C17513</field>
         <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
-        <field name="Datasheet">https://www.yageo.com/en/Chart/Download/pdf/RT/RT0805</field>
+        <field name="Datasheet">https://www.lcsc.com/product-detail/C17513.html</field>
         <field name="Description"/>
       </fields>
       <libsource lib="Probe" part="R_Small_US" description="Resistor, small US symbol"/>
-      <property name="MPN" value="RT0805BRD071KL"/>
-      <property name="Manufacturer" value="Yageo"/>
-      <property name="LCSC" value=" "/>
+      <property name="MPN" value="0805W8F1001T5E"/>
+      <property name="Manufacturer" value="Uni-Royal"/>
+      <property name="LCSC" value="C17513"/>
       <property name="Sheetname" value="power"/>
       <property name="Sheetfile" value="power.kicad_sch"/>
       <property name="ki_keywords" value="r resistor"/>

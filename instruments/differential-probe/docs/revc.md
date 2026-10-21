@@ -27,7 +27,7 @@ Rev B is kept unchanged at commit `ca79d882f` (branch `codex/differential-probe-
 | Mounting holes | 6 | **4** |
 | LV courtyard fill, top side | 14.4% of the 9,399 mm² LV region | **32.8%** of the 6,361 mm² LV region (bottom side 53.8%; both sides 43.3%; `validation/pcb-checks.txt`) |
 | Supply current, typical (amplifiers) | ~50 mA per rail (2 × ADA4817 + 3 × OPA810 + TL431 bias) | **~18 mA per rail** (4 OPA2810 channels + 1 OPA810) |
-| Component cost, 2 boards, dated 2026-10-20 | $768.27 | $535.81 (−30%); see [cost](#cost-dated-2026-10-20). **$148.15 after the [cost-down](cost-down.md) and [fee consolidation](fee-consolidation.md)** |
+| Component cost, 2 boards, dated 2026-10-20 | $768.27 | $535.81 (−30%); see [cost](#cost-dated-2026-10-20). **$148.10 after the [cost-down](cost-down.md) and [fee consolidation](fee-consolidation.md)** |
 | JLC bare-PCB quote, 5 pcs, 4 layers (HASL lead-free / ENIG) | $43.00 / $56.40 | **$36.80 / $49.30** |
 
 **Tolerance-bearing parts** are the parts whose value tolerance enters a stated ratio, gain, pole or warning-threshold budget:
@@ -150,13 +150,13 @@ Saturating the unused ×5 stage moves the wide output by 16.7 nV. These are nomi
 
 Thresholds now come from one ladder per polarity across the regulated rail: 66.5 kΩ → LIM (input-warning node) → 1 kΩ → OUT_LIM (selected-output node) → 10 kΩ → GND. The BAV199 clamps return directly to ±4.8 V.
 
-This removes U10, U11, R85, R86, R90 and R94: six parts. The rail accuracy is budgeted as ADP7142 ±1.8% and ADP7182 ADJ −2.95/+1.97%, plus 0.1% feedback resistors.
+This removes U10, U11, R85, R86, R90 and R94: six parts. The rail accuracy is budgeted as ADP7142 ±1.8% and ADP7182 ADJ −2.95/+1.97%, plus 0.1% feedback resistors. R88/R92 (1 kΩ) are 1% Basic parts since the [fee consolidation](fee-consolidation.md) (L1: +1.5 V per tip, +0.2 V wide, +0.04 V fine).
 
 | Warning | Nominal | Latest trip (−25…85 °C, gain ≥ 98%) | Earliest trip | Limit |
 |---|---|---|---|---|
-| Per tip | 1,362.6 V | < 1,453.0 V | 1,267 V | 1,500 V |
-| Selected output, wide | 1,238.7 V | < 1,341.6 V | 1,132 V | 1,500 V |
-| Selected output, fine | 247.7 V | < 289.75 V | 206 V | 300 V |
+| Per tip | 1,362.6 V | < 1,454.5 V | 1,266 V | 1,500 V |
+| Selected output, wide | 1,238.7 V | < 1,341.8 V | 1,132 V | 1,500 V |
+| Selected output, fine | 247.7 V | < 289.79 V | 206 V | 300 V |
 
 The worst single-fault clamp current (one bottom bank open, 3 kVpk at 60 kHz) is 7.5 mA peak. That is below the minimum rail load of about 14.7 mA, so neither LDO is back-driven.
 
@@ -298,7 +298,7 @@ Prices were read from public DigiKey and LCSC product pages on 2026-10-20, witho
 | HV leads, tips, glands and FR4 parts ([HV leads](hv-leads.md#parts-and-prices-2026-10-20)) | none selected | $234.72, of which the 50 ft wire spool is $127.89 |
 | **Total with HV leads** | — | **$807.33** |
 
-The [cost-down](cost-down.md) (2026-10-20) brings the Rev C components to $148.15 at the same ledger prices (with the [fee consolidation](fee-consolidation.md)) and adds a JLC assembly-fee model (`validation/cost.txt`).
+The [cost-down](cost-down.md) (2026-10-20) brings the Rev C components to $148.10 at the same ledger prices (with the [fee consolidation](fee-consolidation.md)) and adds a JLC assembly-fee model (`validation/cost.txt`).
 
 Of the $232.46 component saving, the HV resistors account for $166.53 and removing the ADA4817s for $46.00. The PCB-mount switches ($71.46) cost about the same as Rev B's panel switches ($76.41).
 
