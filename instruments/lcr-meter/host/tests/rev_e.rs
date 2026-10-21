@@ -12,7 +12,8 @@ use std::sync::{Arc, Mutex};
 use temper_lcr::rev_e::*;
 use temper_lcr::transport::{parse_codec, parse_reg, Board};
 use temper_lcr::{
-    crc32, parse_calibration, parse_sweep, Calibration, CalibrationPoint, Complex, Setup, Sweep,
+    calibration_coefficients, crc32, parse_calibration, parse_sweep, Calibration, CalibrationPoint,
+    Complex, Setup, Sweep,
 };
 
 // ------------------------------------------------------------------ virtual instrument
@@ -857,6 +858,130 @@ fn three_standard_calibration_recovers_the_true_dut() {
         .unwrap_err()
         .contains("no calibration"));
 }
+fn standard(s: StandardE) -> ZFn {
+    Arc::new(move |hz| s.impedance(hz))
+}
+const KIT: &str = r#"{
+  "schema": "temper-lcr-standards-1",
+  "kit": "test kit",
+  "temperature_c": 23.0,
+  "standards": {
+    "SHORT": {"r_ohm": 0.0002, "l_h": 5e-9},
+    "R1": {"r_ohm": 20.003, "l_h": 2e-9, "c_f": 0.2e-12},
+    "R3": {"r_ohm": 99.98, "l_h": 2e-9, "c_f": 0.2e-12}
+  }
+}"#;
+#[test]
+fn complex_fit_matches_the_real_fit_with_ideal_standards() {
+    let (ms, m1, m2) = (cx(0.03, 0.01), cx(21.0, -0.4), cx(104.0, 2.0));
+    let real = calibration_coefficients(ms, m1, 20.0, m2, 100.0).unwrap();
+    let complex = calibration_coefficients_e([
+        (ms, cx(0.0, 0.0)),
+        (m1, cx(20.0, 0.0)),
+        (m2, cx(100.0, 0.0)),
+    ])
+    .unwrap();
+    for (r, c) in real.iter().zip(&complex) {
+        assert_close(*c, *r, 1e-12, "coefficient");
+    }
+    // A non-zero short reads back as itself through its own calibration.
+    let zs = cx(2e-4, 1.9e-3);
+    let [a, b, c] =
+        calibration_coefficients_e([(ms, zs), (m1, cx(20.0, 0.0)), (m2, cx(100.0, 0.0))]).unwrap();
+    assert_close((ms - b) / (a - ms * c), zs, 1e-9, "short");
+    // The short must be small, the loads distinct.
+    assert!(calibration_coefficients_e([
+        (ms, cx(5.0, 0.0)),
+        (m1, cx(20.0, 0.0)),
+        (m2, cx(100.0, 0.0))
+    ])
+    .is_err());
+    assert!(
+        calibration_coefficients_e([(ms, zs), (m1, cx(20.0, 0.0)), (m2, cx(21.0, 0.0))]).is_err()
+    );
+}
+#[test]
+fn characterized_standards_remove_their_own_parasitics() {
+    // 100 ohm range: a short with 5 nH, loads with 2 nH; the DUT is a 50 mOhm, 100 nH coil.
+    // 100 kOhm range: loads with 0.3 pF; the DUT is 1 MOhm with 0.5 pF.
+    let cases: [(u32, StandardE, StandardE, StandardE, ZFn); 2] = [
+        (
+            100,
+            StandardE {
+                r_ohm: 2e-4,
+                l_h: 5e-9,
+                c_f: 0.0,
+            },
+            StandardE {
+                r_ohm: 20.0,
+                l_h: 2e-9,
+                c_f: 0.2e-12,
+            },
+            StandardE {
+                r_ohm: 100.0,
+                l_h: 2e-9,
+                c_f: 0.2e-12,
+            },
+            coil(0.05, 100e-9),
+        ),
+        (
+            100_000,
+            StandardE::resistor(1e-4),
+            StandardE {
+                r_ohm: 20e3,
+                l_h: 2e-9,
+                c_f: 0.3e-12,
+            },
+            StandardE {
+                r_ohm: 100e3,
+                l_h: 2e-9,
+                c_f: 0.3e-12,
+            },
+            tank(1e6, 0.0, 0.5e-12),
+        ),
+    ];
+    let grid = [60_000.0];
+    for (range, s0, s1, s2, truth) in cases {
+        let short = sweep_of(range, standard(s0), &grid);
+        let a = sweep_of(range, standard(s1), &grid);
+        let b = sweep_of(range, standard(s2), &grid);
+        let known = calibrate_e_standards(&short, s0, &a, s1, &b, s2, Some("kit")).unwrap();
+        let nominal = calibrate_e(&short, &a, s1.r_ohm, &b, s2.r_ohm).unwrap();
+        assert_eq!(known.standards.as_ref().unwrap()["short"], s0);
+        assert!(nominal.standards.is_none() && nominal.standards_kit.is_none());
+        let dut = sweep_of(range, truth.clone(), &grid);
+        let raw = analyze_e(&dut.records[0], range).unwrap().remove(0);
+        let z = truth(raw.frequency_hz);
+        let error = |cal: &CalibrationE| {
+            let mut m = raw.clone();
+            correct_e(&mut m, &dut.setup, cal).unwrap();
+            (m.impedance_ohm - z).abs() / z.abs()
+        };
+        let (with, without) = (error(&known), error(&nominal));
+        assert!(with < 1e-3, "range {range}: {with}");
+        assert!(
+            without > 10.0 * with && without > 5e-3,
+            "range {range}: {without} vs {with}"
+        );
+    }
+}
+#[test]
+fn standards_files_are_checked() {
+    let kit = parse_standards_e(KIT).unwrap();
+    assert_eq!(kit.get("R3").unwrap().r_ohm, 99.98);
+    assert!(kit.get("R9").unwrap_err().contains("R1, R3, SHORT"));
+    for (from, to) in [
+        ("temper-lcr-standards-1", "temper-lcr-standards-0"),
+        ("\"c_f\": 0.2e-12}\n  }", "\"c_f\": -1e-12}\n  }"),
+        ("\"l_h\": 5e-9", "\"l_h\": 5.0"),
+        ("\"l_h\": 5e-9", "\"l_h\": 5e-9, \"q\": 1"),
+        ("\"r_ohm\": 0.0002", "\"r_ohm\": -0.0002"),
+    ] {
+        assert!(KIT.contains(from), "{from}");
+        assert!(parse_standards_e(&KIT.replace(from, to)).is_err(), "{to}");
+    }
+    assert!(parse_standards_e(r#"{"schema": "temper-lcr-standards-1", "standards": {}}"#).is_err());
+}
 #[test]
 fn calibration_refuses_mismatches_and_bad_standards() {
     let grid = [27_000.0];
@@ -1137,6 +1262,55 @@ fn cli_files_select_their_revision_and_refuse_cross_use() {
     ]);
     assert!(out.status.success(), "{}", stderr(&out));
     parse_calibration_e(&std::fs::read_to_string(&calibrated).unwrap()).unwrap();
+    // With a standards file, the loads are named and the short is SHORT; validate takes a name.
+    let kit = parse_standards_e(KIT).unwrap();
+    let sweep = |name: &str| {
+        let s = sweep_of(100, standard(kit.get(name).unwrap()), &[27_000.0]);
+        path(&format!("{name}.json"), &serde_json::to_string(&s).unwrap())
+    };
+    let (ks, k1, k3, kit_path) = (
+        sweep("SHORT"),
+        sweep("R1"),
+        sweep("R3"),
+        path("kit.json", KIT),
+    );
+    let standards = format!("--standards={kit_path}");
+    let kit_cal = folder.join("kit-cal.json");
+    let kit_cal = kit_cal.to_str().unwrap();
+    let out = run_cli(&["calibrate", &ks, &k1, "R1", &k3, "R3", kit_cal, &standards]);
+    assert!(out.status.success(), "{}", stderr(&out));
+    let cal = parse_calibration_e(&std::fs::read_to_string(kit_cal).unwrap()).unwrap();
+    assert_eq!(cal.standards.unwrap()["load2"], kit.get("R3").unwrap());
+    assert!(cal.standards_kit.unwrap().starts_with("test kit"));
+    let out = run_cli(&["validate", &k1, kit_cal, "R1", "0.05", &standards]);
+    assert!(
+        out.status.success(),
+        "{}{}",
+        stderr(&out),
+        String::from_utf8_lossy(&out.stdout)
+    );
+    let refused: [(Vec<&str>, &str); 3] = [
+        (
+            vec!["calibrate", &ks, &k1, "R2", &k3, "R3", kit_cal, &standards],
+            "R2 is not in kit",
+        ),
+        (
+            vec!["validate", &k1, kit_cal, "20", "0.05", &standards],
+            "20 is not in kit",
+        ),
+        (
+            vec!["calibrate", &ds, &ds, "R1", &ds, "R3", kit_cal, &standards],
+            "Rev E captures only",
+        ),
+    ];
+    for (args, want) in refused {
+        let out = run_cli(&args);
+        assert!(
+            !out.status.success() && stderr(&out).contains(want),
+            "{args:?}: {}",
+            stderr(&out)
+        );
+    }
     std::fs::remove_dir_all(folder).unwrap();
 }
 

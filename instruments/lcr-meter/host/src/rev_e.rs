@@ -6,11 +6,9 @@
 //! line per requested bin: no window, no fit, no non-coherent frequency. Rev D lives in
 //! `lib.rs` and is untouched; nothing here changes its file formats.
 //! Digital tests do not establish the accuracy of an unbuilt analog instrument.
-use crate::{
-    calibration_coefficients, crc32, feedback, feedback_capacitance_pf, Complex, Result,
-    ISOLATION_RESISTOR_OHM,
-};
+use crate::{crc32, feedback, feedback_capacitance_pf, Complex, Result, ISOLATION_RESISTOR_OHM};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::f64::consts::TAU;
 
 // ------------------------------------------------------------------ constants (wave.h, main.c)
@@ -899,6 +897,13 @@ pub struct CalibrationE {
     pub model: String,
     pub standard1_ohm: f64,
     pub standard2_ohm: f64,
+    /// The characterized standards used (`--standards`), keyed `short`, `load1`, `load2`, and
+    /// the kit they came from. Absent when the standards were ideal: a zero short and two real
+    /// resistors.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub standards: Option<BTreeMap<String, StandardE>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub standards_kit: Option<String>,
     pub points: Vec<CalibrationPointE>,
 }
 /// Version-checked calibration loader. A Rev D calibration (schema 5, `D-riso22`) is refused
@@ -938,6 +943,132 @@ fn compatible_e(a: &SweepE, b: &SweepE) -> Result<()> {
     }
     Ok(())
 }
+// ------------------------------------------------------------------ characterized standards
+/// Schema tag of a standards file (`--standards`).
+pub const STANDARDS_SCHEMA_E: &str = "temper-lcr-standards-1";
+/// A characterized standard: resistance `r_ohm` in series with `l_h`, the pair shunted by `c_f`
+/// (the cal kit's equivalent circuit). A short is `r_ohm` and `l_h` with no `c_f`.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct StandardE {
+    pub r_ohm: f64,
+    #[serde(default)]
+    pub l_h: f64,
+    #[serde(default)]
+    pub c_f: f64,
+}
+impl StandardE {
+    pub const IDEAL_SHORT: StandardE = StandardE {
+        r_ohm: 0.0,
+        l_h: 0.0,
+        c_f: 0.0,
+    };
+    pub fn resistor(r_ohm: f64) -> Self {
+        Self {
+            r_ohm,
+            l_h: 0.0,
+            c_f: 0.0,
+        }
+    }
+    pub fn impedance(&self, hz: f64) -> Complex {
+        let w = TAU * hz;
+        let series = Complex::new(self.r_ohm, w * self.l_h);
+        series / (Complex::new(1.0, 0.0) + Complex::new(0.0, w * self.c_f) * series)
+    }
+    fn check(&self, name: &str) -> Result<()> {
+        // Bounds that catch unit slips (nH typed as H, pF as F) without limiting real parts.
+        if !self.r_ohm.is_finite()
+            || !self.l_h.is_finite()
+            || !self.c_f.is_finite()
+            || self.r_ohm < 0.0
+            || self.l_h.abs() > 1e-3
+            || !(0.0..=1e-6).contains(&self.c_f)
+        {
+            return Err(format!(
+                "standard {name}: need finite r_ohm >= 0, |l_h| <= 1e-3 H and 0 <= c_f <= 1e-6 F"
+            ));
+        }
+        Ok(())
+    }
+}
+/// A standards file: the characterized values of one kit, by name (`R3`, `SHORT`, ...).
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct StandardsFileE {
+    pub schema: String,
+    #[serde(default)]
+    pub kit: String,
+    #[serde(default)]
+    pub temperature_c: Option<f64>,
+    pub standards: BTreeMap<String, StandardE>,
+}
+impl StandardsFileE {
+    pub fn get(&self, name: &str) -> Result<StandardE> {
+        self.standards.get(name).copied().ok_or_else(|| {
+            format!(
+                "standard {name} is not in kit '{}' (has {})",
+                self.kit,
+                self.standards
+                    .keys()
+                    .cloned()
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        })
+    }
+}
+pub fn parse_standards_e(text: &str) -> Result<StandardsFileE> {
+    let file: StandardsFileE = serde_json::from_str(text).map_err(|e| e.to_string())?;
+    if file.schema != STANDARDS_SCHEMA_E {
+        return Err(format!(
+            "standards schema '{}' is not {STANDARDS_SCHEMA_E}",
+            file.schema
+        ));
+    }
+    if file.standards.is_empty() {
+        return Err("standards file lists no standards".into());
+    }
+    for (name, s) in &file.standards {
+        s.check(name)?;
+    }
+    Ok(file)
+}
+
+/// Fit measured = (a*true + b)/(c*true + 1) through three standards of known complex impedance:
+/// a*z + b - c*z*m = m for each. With an ideal short (z = 0) this is `calibration_coefficients`.
+pub fn calibration_coefficients_e(points: [(Complex, Complex); 3]) -> Result<[Complex; 3]> {
+    let [(ms, zs), (m1, z1), (m2, z2)] = points;
+    if [ms, zs, m1, z1, m2, z2].iter().any(|v| !v.finite()) {
+        return Err("non-finite standard or measurement".into());
+    }
+    let (n1, n2) = (z1.abs(), z2.abs());
+    if (z1 - z2).abs() < 0.1 * n1.max(n2) {
+        return Err("use two distinct standards separated by at least 10%".into());
+    }
+    if zs.abs() > 0.1 * n1.min(n2) {
+        return Err("the short must be under 10% of the smaller load".into());
+    }
+    let one = Complex::new(1.0, 0.0);
+    let rows =
+        [(zs, ms), (z1, m1), (z2, m2)].map(|(z, m)| [z, one, Complex::new(0.0, 0.0) - z * m, m]);
+    let det = |c0: usize, c1: usize, c2: usize| {
+        let e = |r: usize, c: usize| rows[r][c];
+        e(0, c0) * (e(1, c1) * e(2, c2) - e(1, c2) * e(2, c1))
+            - e(0, c1) * (e(1, c0) * e(2, c2) - e(1, c2) * e(2, c0))
+            + e(0, c2) * (e(1, c0) * e(2, c1) - e(1, c1) * e(2, c0))
+    };
+    let d = det(0, 1, 2);
+    let scale = m1.abs().max(m2.abs()).max(1.0) * n1.max(n2).max(1.0);
+    if !d.finite() || d.abs() < 1e-12 * scale * scale {
+        return Err("standards are indistinguishable; calibration is ill-conditioned".into());
+    }
+    let (a, b, c) = (det(3, 1, 2) / d, det(0, 3, 2) / d, det(0, 1, 3) / d);
+    if !a.finite() || !b.finite() || !c.finite() || (a - b * c).abs() < 1e-12 {
+        return Err("singular calibration transform".into());
+    }
+    Ok([a, b, c])
+}
+
 /// Three-standard calibration, one bilinear correction per analysed bin (a short and two
 /// resistors, as Rev D). Standards need not use the same SKIP or PERIODS.
 pub fn calibrate_e(
@@ -947,6 +1078,37 @@ pub fn calibrate_e(
     load2: &SweepE,
     z2: f64,
 ) -> Result<CalibrationE> {
+    if !z1.is_finite() || !z2.is_finite() || z1 <= 0.0 || z2 <= 0.0 {
+        return Err("use two distinct positive standards separated by at least 10%".into());
+    }
+    calibrate_e_standards(
+        short,
+        StandardE::IDEAL_SHORT,
+        load1,
+        StandardE::resistor(z1),
+        load2,
+        StandardE::resistor(z2),
+        None,
+    )
+}
+/// As `calibrate_e`, with characterized standards: each standard's complex impedance at every
+/// bin's frequency, so a short's inductance and a resistor's capacitance are not read as
+/// fixture error. `kit` names the standards file, recorded with the values in the calibration.
+pub fn calibrate_e_standards(
+    short: &SweepE,
+    s0: StandardE,
+    load1: &SweepE,
+    s1: StandardE,
+    load2: &SweepE,
+    s2: StandardE,
+    kit: Option<&str>,
+) -> Result<CalibrationE> {
+    for (name, s) in [("short", s0), ("load1", s1), ("load2", s2)] {
+        s.check(name)?;
+    }
+    if s1.r_ohm <= 0.0 || s2.r_ohm <= 0.0 {
+        return Err("use two distinct positive standards separated by at least 10%".into());
+    }
     compatible_e(short, load1)?;
     compatible_e(short, load2)?;
     let range = short.setup.range_ohm;
@@ -967,13 +1129,12 @@ pub fn calibrate_e(
                     "calibration standard has clipping, insufficient current, or poor fit".into(),
                 );
             }
-            let [a, b, c] = calibration_coefficients(
-                ms[i].raw_impedance_ohm,
-                m1[i].raw_impedance_ohm,
-                z1,
-                m2[i].raw_impedance_ohm,
-                z2,
-            )?;
+            let hz = ms[i].frequency_hz;
+            let [a, b, c] = calibration_coefficients_e([
+                (ms[i].raw_impedance_ohm, s0.impedance(hz)),
+                (m1[i].raw_impedance_ohm, s1.impedance(hz)),
+                (m2[i].raw_impedance_ohm, s2.impedance(hz)),
+            ])?;
             points.push(CalibrationPointE {
                 cycles: bin,
                 period: s.period,
@@ -990,8 +1151,16 @@ pub fn calibrate_e(
         dut_lo_capacitance_pf: DUT_LO_CAPACITOR_PF,
         setup: short.setup.clone(),
         model: CALIBRATION_MODEL_E.into(),
-        standard1_ohm: z1,
-        standard2_ohm: z2,
+        standard1_ohm: s1.r_ohm,
+        standard2_ohm: s2.r_ohm,
+        standards: kit.map(|_| {
+            BTreeMap::from([
+                ("short".to_owned(), s0),
+                ("load1".to_owned(), s1),
+                ("load2".to_owned(), s2),
+            ])
+        }),
+        standards_kit: kit.map(str::to_owned),
         points,
     })
 }

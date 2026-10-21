@@ -30,13 +30,18 @@ const USAGE: &str = "Usage (the board, Rev D protocol 2 or Rev E protocol 3, is 
   temper-lcr advise-grid FREQ_HZ[,FREQ_HZ...]   (Rev D)
   temper-lcr analyze CAPTURE.json [CAL.json] [--allow-source-off-fail]
   temper-lcr calibrate SHORT.json LOAD1.json LOAD1_OHM LOAD2.json LOAD2_OHM CAL.json [--allow-source-off-fail]
-  temper-lcr validate CAPTURE.json CAL.json KNOWN_OHM TOLERANCE_PERCENT [--allow-source-off-fail]";
+  temper-lcr calibrate SHORT.json LOAD1.json LOAD1_NAME LOAD2.json LOAD2_NAME CAL.json --standards=KIT.json   (Rev E; characterized standards, the short is SHORT)
+  temper-lcr validate CAPTURE.json CAL.json KNOWN_OHM TOLERANCE_PERCENT [--allow-source-off-fail]
+  temper-lcr validate CAPTURE.json CAL.json NAME TOLERANCE_PERCENT --standards=KIT.json   (Rev E; complex error against the characterized standard)";
 
 fn text(path: &str) -> Result<String> {
     fs::read_to_string(path).map_err(|e| format!("{path}: {e}"))
 }
 fn sweep(path: &str) -> Result<Sweep> {
     parse_sweep(&text(path)?).map_err(|e| format!("{path}: {e}"))
+}
+fn standards(path: &str) -> Result<rev_e::StandardsFileE> {
+    rev_e::parse_standards_e(&text(path)?).map_err(|e| format!("{path}: {e}"))
 }
 fn calibration(path: &str) -> Result<Calibration> {
     parse_calibration(&text(path)?).map_err(|e| format!("{path}: {e}"))
@@ -286,7 +291,7 @@ fn analyze_e_file(a: &[&str], waive: bool) -> Result<()> {
     }
     Ok(())
 }
-fn validate_e_file(a: &[&str], waive: bool) -> Result<()> {
+fn validate_e_file(a: &[&str], waive: bool, standards_path: Option<&str>) -> Result<()> {
     if waive {
         return Err(
             "--allow-source-off-fail does not apply to Rev E captures (no source-off record)"
@@ -295,18 +300,21 @@ fn validate_e_file(a: &[&str], waive: bool) -> Result<()> {
     }
     let sweep = sweep_e(a[1])?;
     let cal = rev_e::parse_calibration_e(&text(a[2])?).map_err(|e| format!("{}: {e}", a[2]))?;
-    let resistance: f64 = number(a[3])?;
+    let known = match standards_path {
+        Some(path) => standards(path)?.get(a[3])?,
+        None => rev_e::StandardE::resistor(number(a[3])?),
+    };
     let tolerance: f64 = number(a[4])?;
-    if !resistance.is_finite() || resistance <= 0.0 || !tolerance.is_finite() || tolerance <= 0.0 {
+    if !known.r_ohm.is_finite() || known.r_ohm <= 0.0 || !tolerance.is_finite() || tolerance <= 0.0
+    {
         return Err("validation resistance and percent tolerance must be positive".into());
     }
     let mut pass = !sweep.records.is_empty();
     for r in &sweep.records {
         for mut m in rev_e::analyze_e(r, sweep.setup.range_ohm)? {
             rev_e::correct_e(&mut m, &sweep.setup, &cal)?;
-            let error = (m.impedance_ohm - temper_lcr::Complex::new(resistance, 0.0)).abs()
-                / resistance
-                * 100.0;
+            let truth = known.impedance(m.frequency_hz);
+            let error = (m.impedance_ohm - truth).abs() / truth.abs() * 100.0;
             let ok = m.valid && error <= tolerance;
             pass &= ok;
             println!(
@@ -353,6 +361,7 @@ fn run(args: &[String]) -> Result<()> {
         _ => &[],
     };
     let valued: &[&str] = match command {
+        "calibrate" | "validate" => &["--standards"],
         "capture" => &E_VALUE_FLAGS,
         "capture-wave" => &["--skip", "--periods", "--seconds"],
         "refcheck" => &E_VALUE_FLAGS,
@@ -580,21 +589,35 @@ fn run(args: &[String]) -> Result<()> {
             );
         }
         ("calibrate", 7) if is_rev_e(a[1]) => {
-            let cal = rev_e::calibrate_e(
-                &sweep_e(a[1])?,
-                &sweep_e(a[2])?,
-                number(a[3])?,
-                &sweep_e(a[4])?,
-                number(a[5])?,
-            )?;
             if flag("--allow-source-off-fail") {
                 return Err("--allow-source-off-fail does not apply to Rev E captures (no source-off record)".into());
             }
+            let (short, load1, load2) = (sweep_e(a[1])?, sweep_e(a[2])?, sweep_e(a[4])?);
+            let cal = match flag_value(&flags, "--standards") {
+                Some(path) => {
+                    let kit = standards(path)?;
+                    rev_e::calibrate_e_standards(
+                        &short,
+                        kit.get("SHORT")?,
+                        &load1,
+                        kit.get(a[3])?,
+                        &load2,
+                        kit.get(a[5])?,
+                        Some(&format!("{} ({path})", kit.kit)),
+                    )?
+                }
+                None => rev_e::calibrate_e(&short, &load1, number(a[3])?, &load2, number(a[5])?)?,
+            };
             write(a[6], &cal)?;
             println!(
                 "Saved {} frequency-specific calibration points.",
                 cal.points.len()
             );
+        }
+        ("calibrate" | "validate", 5 | 7)
+            if !is_rev_e(a[1]) && flag_value(&flags, "--standards").is_some() =>
+        {
+            return Err("--standards applies to Rev E captures only".into());
         }
         ("calibrate", 7) => {
             let short = sweep(a[1])?;
@@ -645,7 +668,11 @@ fn run(args: &[String]) -> Result<()> {
                 ));
             }
         }
-        ("validate", 5) if is_rev_e(a[1]) => validate_e_file(&a, flag("--allow-source-off-fail"))?,
+        ("validate", 5) if is_rev_e(a[1]) => validate_e_file(
+            &a,
+            flag("--allow-source-off-fail"),
+            flag_value(&flags, "--standards"),
+        )?,
         ("validate", 5) => {
             let sweep = sweep(a[1])?;
             let cal = calibration(a[2])?;

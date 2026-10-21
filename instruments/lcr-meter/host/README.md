@@ -198,6 +198,23 @@ temper-lcr calibrate short.json load20.json 20.000 load100.json 100.000 calibrat
 temper-lcr analyze dut.json calibration.json
 ```
 
+**Characterized standards (`--standards=KIT.json`).** The numeric form assumes a 0 Ω short and purely real resistors. With a standards file, `calibrate` and `validate` take standard names instead of ohms, and the short is the entry `SHORT`:
+
+```sh
+temper-lcr calibrate short.json r1.json R1 r3.json R3 calibration.json --standards=kit-SN03.json
+temper-lcr validate r2.json calibration.json R2 0.1 --standards=kit-SN03.json
+```
+
+- **File.** Schema `temper-lcr-standards-1`: a `kit` string, an optional `temperature_c`, and `standards` by name, each `{"r_ohm", "l_h", "c_f"}`.
+  - The model is R in series with L, the pair shunted by C; L and C default to 0.
+  - Unknown fields, negative R or C, and |L| > 1 mH or C > 1 µF are refused, which catches unit slips.
+  - The format and where each number comes from are in [../calkit/CHARACTERIZE.md](../calkit/CHARACTERIZE.md) §1.
+- **Fit.** `calibrate_e_standards` solves the bilinear fit through the three complex impedances at each bin's frequency (`calibration_coefficients_e`). With a zero short and real loads it equals `calibration_coefficients`.
+- **Record.** The calibration file records the values used (`standards`: `short`, `load1`, `load2`) and the kit string (`standards_kit`). The fields are optional, so the schema stays 1.
+- **Validate.** `validate` compares against the named standard's complex impedance at each frequency.
+- **What it buys** (simulation, [accuracy map](../validation/rev-e-accuracy-map/README.md) §3). The 100 kΩ range at 85 kHz goes from 1.2 % to 0.42 % (typical). With the cal kit's 1 MΩ standard R11 as LOAD2, 1 MΩ at 1 kHz goes from 0.40 % to 0.064 %.
+- **Rev D** refuses `--standards`.
+
 ### Tests
 
-`tests/rev_e.rs` holds the Rev E tests next to Rev D's `tests/cli.rs` (which passes unchanged): payload round trips, CRC and length errors; exact period selection; settling defaults; a virtual instrument that solves the circuit (source, DUT, the 100 pF at DUT_LO, R_iso, the TIA, K = 0.5), applies the −5 frame offset, quantises to 24 bits, clips and sums into int64 bins, and recovers R, C, coil and tank DUTs on all three ranges, clipping, residual and multitone cases, and a three-standard calibration through a lossy fixture; the identity and schema cross-rejection; the client and CLI end to end against a fake protocol-3 firmware on a pseudo-terminal, `REFCAPTURE`/`refcheck` included (the 1 kΩ comes back within 0.2 % on all three ranges, and the range is unchanged afterwards). `firmware_host_contract_rev_e` reads the constants from `../firmware-rev-e/src` so the two cannot drift silently.
+`tests/rev_e.rs` holds the Rev E tests next to Rev D's `tests/cli.rs` (which passes unchanged): payload round trips, CRC and length errors; exact period selection; settling defaults; a virtual instrument that solves the circuit (source, DUT, the 100 pF at DUT_LO, R_iso, the TIA, K = 0.5), applies the −5 frame offset, quantises to 24 bits, clips and sums into int64 bins, and recovers R, C, coil and tank DUTs on all three ranges, clipping, residual and multitone cases, and a three-standard calibration through a lossy fixture; characterized standards (the complex fit equals the real one for ideal standards, and removes a short's 5 nH and the loads' 0.2–0.3 pF on the 100 Ω and 100 kΩ ranges, where the real-valued fit does not), standards-file checks, and `--standards` through the CLI; the identity and schema cross-rejection; the client and CLI end to end against a fake protocol-3 firmware on a pseudo-terminal, `REFCAPTURE`/`refcheck` included (the 1 kΩ comes back within 0.2 % on all three ranges, and the range is unchanged afterwards). `firmware_host_contract_rev_e` reads the constants from `../firmware-rev-e/src` so the two cannot drift silently.
