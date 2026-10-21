@@ -1,10 +1,10 @@
 [package]
 name = "temper-lcr"
-version = "0.7.0"
+version = "0.8.0"
 edition = "2021"
 rust-version = "1.85"
 license = "MIT"
-description = "Dual-channel USB capture and calibration for the TIDA-based Temper LCR meter"
+description = "Dual-channel USB capture and calibration for the Temper LCR meter (Rev D protocol 2, Rev E protocol 3)"
 
 [workspace]
 

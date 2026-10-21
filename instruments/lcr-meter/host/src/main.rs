@@ -1,20 +1,32 @@
 use serde::Serialize;
 use std::{env, fs, process};
-use temper_lcr::transport::Device;
+use temper_lcr::rev_e::{self, SweepE};
+use temper_lcr::transport::{Board, Device, DeviceE};
 use temper_lcr::{
-    advise, analyze, calibrate, capture_grid, check_grid, correct, frequency_hz, hazard_error,
-    parse_calibration, parse_sweep, waive_source_off, Advice, Calibration, CaptureOptions, Result,
-    Sweep,
+    advise, analyze, calibrate, capture_grid, check_grid, correct, file_revision, frequency_hz,
+    hazard_error, parse_calibration, parse_sweep, waive_source_off, Advice, Calibration,
+    CaptureOptions, Result, Sweep,
 };
 
-const USAGE: &str = "Usage:
+const USAGE: &str = "Usage (the board, Rev D protocol 2 or Rev E protocol 3, is selected from INFO; files carry their revision):
   temper-lcr info PORT
   temper-lcr selftest PORT
   temper-lcr rails PORT
   temper-lcr boot PORT
-  temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard] [--no-source-off] [--short-standard]
-  temper-lcr noise PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard]
-  temper-lcr advise-grid FREQ_HZ[,FREQ_HZ...]
+  temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard] [--no-source-off] [--short-standard]   (Rev D)
+  temper-lcr noise PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--allow-hazard]   (Rev D)
+  temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E; sets the range relay, FREQ_HZ must be exact)
+  temper-lcr capture-wave PORT RANGE_OHM FIXTURE WAVE.txt BIN[,BIN...] OUT.json [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E multitone)
+  temper-lcr range PORT 100|5000|100000   (Rev E)
+  temper-lcr off PORT   (Rev E)
+  temper-lcr codec PORT   (Rev E)
+  temper-lcr reg PORT N   (Rev E)
+  temper-lcr tone PORT CYCLES PERIOD MV   (Rev E; frequency = 187500 x CYCLES / PERIOD)
+  temper-lcr tone-hz PORT FREQ_HZ MV   (Rev E; smallest exact PERIOD, at most 85 kHz)
+  temper-lcr wave PORT WAVE.txt   (Rev E; int32 DAC words, at most +-1419797733)
+  temper-lcr raw PORT COUNT OUT.json   (Rev E; up to 8192 consecutive frames)
+  temper-lcr tone-plan RANGE_OHM FREQ_HZ[,FREQ_HZ...]   (Rev E, no device: exact CYCLES/PERIOD, default SKIP and PERIODS)
+  temper-lcr advise-grid FREQ_HZ[,FREQ_HZ...]   (Rev D)
   temper-lcr analyze CAPTURE.json [CAL.json] [--allow-source-off-fail]
   temper-lcr calibrate SHORT.json LOAD1.json LOAD1_OHM LOAD2.json LOAD2_OHM CAL.json [--allow-source-off-fail]
   temper-lcr validate CAPTURE.json CAL.json KNOWN_OHM TOLERANCE_PERCENT [--allow-source-off-fail]";
@@ -49,6 +61,242 @@ struct GridAdvice {
     frequencies: Vec<Advice>,
 }
 
+/// Options of the Rev E capture commands, parsed from `--name=value` flags.
+#[derive(Default)]
+struct EOptions {
+    mv: Option<u32>,
+    skip: Option<u32>,
+    periods: Option<u32>,
+    seconds: Option<f64>,
+}
+const E_VALUE_FLAGS: [&str; 4] = ["--mv", "--skip", "--periods", "--seconds"];
+fn flag_value<'a>(flags: &[&'a str], name: &str) -> Option<&'a str> {
+    flags
+        .iter()
+        .find_map(|f| f.strip_prefix(name).and_then(|r| r.strip_prefix('=')))
+}
+fn e_options(flags: &[&str]) -> Result<EOptions> {
+    let get = |name: &str| flag_value(flags, name);
+    let o = EOptions {
+        mv: get("--mv").map(number).transpose()?,
+        skip: get("--skip").map(number).transpose()?,
+        periods: get("--periods").map(number).transpose()?,
+        seconds: get("--seconds").map(number).transpose()?,
+    };
+    if o.periods.is_some() && o.seconds.is_some() {
+        return Err("--periods and --seconds are alternatives".into());
+    }
+    Ok(o)
+}
+impl EOptions {
+    fn any(&self) -> bool {
+        self.mv.is_some() || self.skip.is_some() || self.periods.is_some() || self.seconds.is_some()
+    }
+    /// SUMMED periods: explicit, from seconds, or None for the default length.
+    fn periods_for(&self, period: u32) -> Result<Option<u32>> {
+        match (self.periods, self.seconds) {
+            (Some(n), _) => Ok(Some(n)),
+            (None, Some(s)) => rev_e::periods_for_seconds(s, period).map(Some),
+            (None, None) => Ok(None),
+        }
+    }
+}
+fn rev_e_only(board: Board, command: &str) -> Result<DeviceE> {
+    match board {
+        Board::E(d) => Ok(d),
+        Board::D(_) => Err(format!(
+            "'{command}' is a Rev E (protocol 3) command; this board is Rev D"
+        )),
+    }
+}
+fn rev_d_only(board: Board, command: &str) -> Result<Device> {
+    match board {
+        Board::D(d) => Ok(d),
+        Board::E(_) => Err(format!(
+            "'{command}' is a Rev D (protocol 2) command; this board is Rev E"
+        )),
+    }
+}
+/// Revision named by a capture or calibration file; None if it is not JSON or names none, so
+/// the Rev D loaders report such files as they always have.
+fn revision_of(path: &str) -> Option<String> {
+    let value: serde_json::Value = serde_json::from_str(&fs::read_to_string(path).ok()?).ok()?;
+    file_revision(&value)
+}
+fn is_rev_e(path: &str) -> bool {
+    revision_of(path).as_deref() == Some(rev_e::HARDWARE_REVISION_E)
+}
+fn sweep_e(path: &str) -> Result<SweepE> {
+    rev_e::parse_sweep_e(&text(path)?).map_err(|e| format!("{path}: {e}"))
+}
+fn warn_sof(hz: f64, seconds: f64) {
+    let response = rev_e::sof_response(hz, seconds);
+    if response > 0.1 {
+        eprintln!(
+            "warning: {hz} Hz is within the reach of a USB start-of-frame line (a 1 kHz multiple, +-560 ppm); a {seconds:.2} s coherent capture rejects it only to {response:.2} of its amplitude. Prefer a frequency a few hertz away if the source-off noise is not already quiet."
+        );
+    }
+}
+fn capture_e(d: &mut DeviceE, freqs: &[f64], out: &str, o: &EOptions) -> Result<()> {
+    // Every frequency must be exact before the instrument is touched.
+    for &hz in freqs {
+        rev_e::tone_for_hz(hz)?;
+    }
+    let mv = o.mv.unwrap_or(rev_e::DEFAULT_TONE_MV);
+    rev_e::check_tone(1, rev_e::MAX_PERIOD, mv)?;
+    d.selftest()?;
+    d.rails()?;
+    d.range(d.setup.range_ohm)?;
+    let mut records = Vec::new();
+    for &hz in freqs {
+        let (_, period) = rev_e::tone_for_hz(hz)?;
+        let seconds = rev_e::capture_seconds(
+            o.skip.unwrap_or(0),
+            o.periods_for(period)?
+                .unwrap_or_else(|| rev_e::default_periods(period)),
+            period,
+        );
+        warn_sof(hz, seconds);
+        let record = d.capture_tone(hz, mv, o.skip, o.periods_for(period)?)?;
+        eprintln!(
+            "captured {hz} Hz: {} periods of {} frames after skipping {}, clipping A {} B {}",
+            record.periods,
+            record.period,
+            record.skip,
+            record.clipped(0),
+            record.clipped(1)
+        );
+        records.push(record);
+    }
+    d.off()?;
+    write(
+        out,
+        &SweepE {
+            setup: d.setup.clone(),
+            records,
+        },
+    )
+}
+fn capture_wave_e(
+    d: &mut DeviceE,
+    words_file: &str,
+    bins: &str,
+    out: &str,
+    o: &EOptions,
+) -> Result<()> {
+    let words =
+        rev_e::parse_wave_text(&text(words_file)?).map_err(|e| format!("{words_file}: {e}"))?;
+    let period = words.len() as u32;
+    let bins: Vec<u32> = bins.split(',').map(number).collect::<Result<_>>()?;
+    rev_e::check_bins(&bins, period)?;
+    d.selftest()?;
+    d.rails()?;
+    d.range(d.setup.range_ohm)?;
+    let record = d.capture_wave(&words, &bins, o.skip, o.periods_for(period)?)?;
+    d.off()?;
+    eprintln!(
+        "captured {} bins of a {period}-frame waveform: {} periods after skipping {}",
+        bins.len(),
+        record.periods,
+        record.skip
+    );
+    write(
+        out,
+        &SweepE {
+            setup: d.setup.clone(),
+            records: vec![record],
+        },
+    )
+}
+fn analyze_e_file(a: &[&str], waive: bool) -> Result<()> {
+    if waive {
+        return Err(
+            "--allow-source-off-fail does not apply to Rev E captures (no source-off record)"
+                .into(),
+        );
+    }
+    let sweep = sweep_e(a[1])?;
+    sweep.setup.validate()?;
+    let cal = a
+        .get(2)
+        .map(|path| rev_e::parse_calibration_e(&text(path)?).map_err(|e| format!("{path}: {e}")))
+        .transpose()?;
+    let mut values = Vec::new();
+    for r in &sweep.records {
+        for mut m in rev_e::analyze_e(r, sweep.setup.range_ohm)? {
+            if let Some(c) = &cal {
+                rev_e::correct_e(&mut m, &sweep.setup, c)?;
+            }
+            values.push(m);
+        }
+    }
+    println!("{}", json(&values)?);
+    let invalid: Vec<String> = values
+        .iter()
+        .filter(|m| !m.valid)
+        .map(|m| format!("{:.4} Hz: {}", m.frequency_hz, m.issues.join("; ")))
+        .collect();
+    if !invalid.is_empty() {
+        return Err(format!(
+            "one or more measurements failed signal-quality checks:\n{}",
+            invalid.join("\n")
+        ));
+    }
+    Ok(())
+}
+fn validate_e_file(a: &[&str], waive: bool) -> Result<()> {
+    if waive {
+        return Err(
+            "--allow-source-off-fail does not apply to Rev E captures (no source-off record)"
+                .into(),
+        );
+    }
+    let sweep = sweep_e(a[1])?;
+    let cal = rev_e::parse_calibration_e(&text(a[2])?).map_err(|e| format!("{}: {e}", a[2]))?;
+    let resistance: f64 = number(a[3])?;
+    let tolerance: f64 = number(a[4])?;
+    if !resistance.is_finite() || resistance <= 0.0 || !tolerance.is_finite() || tolerance <= 0.0 {
+        return Err("validation resistance and percent tolerance must be positive".into());
+    }
+    let mut pass = !sweep.records.is_empty();
+    for r in &sweep.records {
+        for mut m in rev_e::analyze_e(r, sweep.setup.range_ohm)? {
+            rev_e::correct_e(&mut m, &sweep.setup, &cal)?;
+            let error = (m.impedance_ohm - temper_lcr::Complex::new(resistance, 0.0)).abs()
+                / resistance
+                * 100.0;
+            let ok = m.valid && error <= tolerance;
+            pass &= ok;
+            println!(
+                "{:.6} Hz: complex error {:.6}% {}{}",
+                m.frequency_hz,
+                error,
+                if ok { "PASS" } else { "FAIL" },
+                if m.issues.is_empty() {
+                    String::new()
+                } else {
+                    format!(" ({})", m.issues.join("; "))
+                }
+            );
+        }
+    }
+    if !pass {
+        return Err("independent-standard validation failed".into());
+    }
+    Ok(())
+}
+
+/// Rev D's frequency-hazard check (R1): refuses a hazardous grid, or warns under `--allow-hazard`.
+fn hazard_precheck(freqs: &[f64], allow_hazard: bool) -> Result<()> {
+    for (hz, report) in freqs.iter().zip(check_grid(freqs, allow_hazard)?) {
+        if report.hazardous {
+            let warning = hazard_error(*hz, &report).replace('\n', "\nwarning: ");
+            eprintln!("warning: --allow-hazard: {warning}");
+        }
+    }
+    Ok(())
+}
+
 fn run(args: &[String]) -> Result<()> {
     let (flags, a): (Vec<&str>, Vec<&str>) = args
         .iter()
@@ -62,43 +310,152 @@ fn run(args: &[String]) -> Result<()> {
         "analyze" | "calibrate" | "validate" => &["--allow-source-off-fail"],
         _ => &[],
     };
-    if let Some(bad) = flags.iter().find(|f| !known.contains(f)) {
+    let valued: &[&str] = match command {
+        "capture" => &E_VALUE_FLAGS,
+        "capture-wave" => &["--skip", "--periods", "--seconds"],
+        _ => &[],
+    };
+    if let Some(bad) = flags.iter().find(|f| {
+        !known.contains(f)
+            && !valued
+                .iter()
+                .any(|v| f.strip_prefix(v).is_some_and(|r| r.starts_with('=')))
+    }) {
         return Err(format!("unknown option {bad} for '{command}'\n{USAGE}"));
     }
     let flag = |name: &str| flags.contains(&name);
     match (command, a.len()) {
-        ("info" | "selftest", 2) => {
-            let mut d = Device::open(a[1], 100, "diagnostic")?;
-            d.selftest()?;
-            println!("{}", json(&d.setup)?);
-            println!("ADC dual-channel fixed-pattern link test: PASS");
-            println!("{}", json(&d.rails()?)?);
-        }
-        ("rails", 2) => {
-            let mut d = Device::open(a[1], 100, "diagnostic")?;
-            println!("{}", json(&d.rails()?)?);
-        }
+        ("info" | "selftest", 2) => match Board::open(a[1], 100, "diagnostic")? {
+            Board::D(mut d) => {
+                d.selftest()?;
+                println!("{}", json(&d.setup)?);
+                println!("ADC dual-channel fixed-pattern link test: PASS");
+                println!("{}", json(&d.rails()?)?);
+            }
+            Board::E(mut d) => {
+                d.selftest()?;
+                let info = d.refresh_info()?;
+                println!("{}", json(&d.setup)?);
+                println!("{}", json(&info)?);
+                println!("codec TDM digital-loopback self-test: PASS");
+                println!("{}", json(&d.codec()?)?);
+                println!("{}", json(&d.rails()?)?);
+            }
+        },
+        ("rails", 2) => match Board::open(a[1], 100, "diagnostic")? {
+            Board::D(mut d) => println!("{}", json(&d.rails()?)?),
+            Board::E(mut d) => println!("{}", json(&d.rails()?)?),
+        },
         ("boot", 2) => {
-            let mut d = Device::open(a[1], 100, "diagnostic")?;
-            d.boot()?;
+            match Board::open(a[1], 100, "diagnostic")? {
+                Board::D(mut d) => d.boot()?,
+                Board::E(mut d) => d.boot()?,
+            }
             println!("rebooted into the USB bootloader: copy the UF2 to the RPI-RP2 drive");
         }
+        ("range", 3) => {
+            let mut d = rev_e_only(Board::open(a[1], number(a[2])?, "diagnostic")?, command)?;
+            d.range(number(a[2])?)?;
+            println!("range {} ohm selected", a[2]);
+        }
+        ("off", 2) => {
+            let mut d = rev_e_only(Board::open(a[1], 100, "diagnostic")?, command)?;
+            d.off()?;
+            println!("source off");
+        }
+        ("codec", 2) => {
+            let mut d = rev_e_only(Board::open(a[1], 100, "diagnostic")?, command)?;
+            println!("{}", json(&d.codec()?)?);
+        }
+        ("reg", 3) => {
+            let mut d = rev_e_only(Board::open(a[1], 100, "diagnostic")?, command)?;
+            let register: u32 = number(a[2])?;
+            println!("REG {register} = {}", d.reg(register)?);
+        }
+        ("tone", 5) => {
+            let mut d = rev_e_only(Board::open(a[1], 100, "diagnostic")?, command)?;
+            let (cycles, period, mv): (u32, u32, u32) =
+                (number(a[2])?, number(a[3])?, number(a[4])?);
+            d.tone(cycles, period, mv)?;
+            println!(
+                "tone {} Hz ({cycles}/{period}) at {mv} mV",
+                rev_e::tone_frequency_hz(cycles, period)
+            );
+        }
+        ("tone-hz", 4) => {
+            let mut d = rev_e_only(Board::open(a[1], 100, "diagnostic")?, command)?;
+            let (cycles, period) = d.tone_hz(number(a[2])?, number(a[3])?)?;
+            println!(
+                "tone {} Hz ({cycles}/{period}) at {} mV",
+                rev_e::tone_frequency_hz(cycles, period),
+                a[3]
+            );
+        }
+        ("wave", 3) => {
+            let mut d = rev_e_only(Board::open(a[1], 100, "diagnostic")?, command)?;
+            let words =
+                rev_e::parse_wave_text(&text(a[2])?).map_err(|e| format!("{}: {e}", a[2]))?;
+            d.wave(&words)?;
+            println!("waveform of {} frames playing", words.len());
+        }
+        ("raw", 4) => {
+            let mut d = rev_e_only(Board::open(a[1], 100, "diagnostic")?, command)?;
+            let (header, frames) = d.raw(number(a[2])?)?;
+            let stats = rev_e::raw_stats(&frames);
+            write(
+                a[3],
+                &serde_json::json!({
+                    "setup": d.setup,
+                    "extremes": header,
+                    "stats": stats,
+                    "frames": frames,
+                }),
+            )?;
+            println!("{}", json(&stats)?);
+        }
+        ("capture-wave", 7) => {
+            let mut d = rev_e_only(Board::open(a[1], number(a[2])?, a[3])?, command)?;
+            capture_wave_e(&mut d, a[4], a[5], a[6], &e_options(&flags)?)?;
+        }
         ("capture" | "noise", 6) => {
+            let freqs = frequencies(a[4])?;
+            let board = match Board::open(a[1], number(a[2])?, a[3]) {
+                Ok(board) => board,
+                Err(open_error) => {
+                    // Rev D refused hazardous grids before opening the port; keep that order
+                    // when the board cannot be asked which revision it is.
+                    hazard_precheck(&freqs, flag("--allow-hazard")).map_err(|hazard| {
+                        format!("{hazard}\n(the port could not be opened ({open_error}), so the board revision is unknown: this Rev D hazard check does not apply to a Rev E board)")
+                    })?;
+                    return Err(open_error);
+                }
+            };
+            let mut d = match board {
+                Board::E(mut d) => {
+                    if command == "noise" {
+                        return Err("'noise' is a Rev D command: on Rev E run 'off PORT', then 'raw PORT COUNT OUT.json'".into());
+                    }
+                    if flag("--allow-hazard") || flag("--no-source-off") || flag("--short-standard")
+                    {
+                        return Err("--allow-hazard, --no-source-off and --short-standard are Rev D options (DDS hazards and source-off records); this board is Rev E".into());
+                    }
+                    return capture_e(&mut d, &freqs, a[5], &e_options(&flags)?);
+                }
+                board => rev_d_only(board, command)?,
+            };
+            if e_options(&flags)?.any() {
+                return Err(
+                    "--mv, --skip, --periods and --seconds are Rev E options; this board is Rev D"
+                        .into(),
+                );
+            }
             let options = CaptureOptions {
                 source_on: command == "capture",
                 allow_hazard: flag("--allow-hazard"),
                 source_off: !flag("--no-source-off"),
                 short_standard: flag("--short-standard"),
             };
-            let freqs = frequencies(a[4])?;
-            // Refuse hazards before touching the instrument.
-            for (hz, report) in freqs.iter().zip(check_grid(&freqs, options.allow_hazard)?) {
-                if report.hazardous {
-                    let warning = hazard_error(*hz, &report).replace('\n', "\nwarning: ");
-                    eprintln!("warning: --allow-hazard: {warning}");
-                }
-            }
-            let mut d = Device::open(a[1], number(a[2])?, a[3])?;
+            hazard_precheck(&freqs, options.allow_hazard)?;
             d.selftest()?;
             d.rails()?;
             let grid = capture_grid(&freqs, options, |word, decimation, source_on| {
@@ -146,6 +503,14 @@ fn run(args: &[String]) -> Result<()> {
                 ));
             }
         }
+        ("tone-plan", 3) => {
+            let range: u32 = number(a[1])?;
+            let plan = frequencies(a[2])?
+                .into_iter()
+                .map(|hz| rev_e::tone_plan(range, hz))
+                .collect::<Result<Vec<_>>>()?;
+            println!("{}", json(&plan)?);
+        }
         ("advise-grid", 2) => {
             let frequencies = frequencies(a[1])?
                 .into_iter()
@@ -165,6 +530,23 @@ fn run(args: &[String]) -> Result<()> {
                 })?
             );
         }
+        ("calibrate", 7) if is_rev_e(a[1]) => {
+            let cal = rev_e::calibrate_e(
+                &sweep_e(a[1])?,
+                &sweep_e(a[2])?,
+                number(a[3])?,
+                &sweep_e(a[4])?,
+                number(a[5])?,
+            )?;
+            if flag("--allow-source-off-fail") {
+                return Err("--allow-source-off-fail does not apply to Rev E captures (no source-off record)".into());
+            }
+            write(a[6], &cal)?;
+            println!(
+                "Saved {} frequency-specific calibration points.",
+                cal.points.len()
+            );
+        }
         ("calibrate", 7) => {
             let short = sweep(a[1])?;
             let one = sweep(a[2])?;
@@ -182,6 +564,9 @@ fn run(args: &[String]) -> Result<()> {
                 "Saved {} frequency-specific calibration points.",
                 cal.points.len()
             );
+        }
+        ("analyze", 2 | 3) if is_rev_e(a[1]) => {
+            analyze_e_file(&a, flag("--allow-source-off-fail"))?
         }
         ("analyze", 2 | 3) => {
             let sweep = sweep(a[1])?;
@@ -211,6 +596,7 @@ fn run(args: &[String]) -> Result<()> {
                 ));
             }
         }
+        ("validate", 5) if is_rev_e(a[1]) => validate_e_file(&a, flag("--allow-source-off-fail"))?,
         ("validate", 5) => {
             let sweep = sweep(a[1])?;
             let cal = calibration(a[2])?;

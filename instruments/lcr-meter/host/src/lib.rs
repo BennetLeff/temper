@@ -1,9 +1,11 @@
-//! Acquisition and three-standard fixture correction for the TIDA-based Rev D.
+//! Acquisition and three-standard fixture correction for the TIDA-based Rev D (protocol 2) and,
+//! in [`rev_e`], the codec-based Rev E (protocol 3).
 //! Digital tests do not establish the accuracy of an unbuilt analog instrument.
 use serde::{Deserialize, Serialize};
 use std::f64::consts::{PI, TAU};
 use std::ops::{Add, Div, Mul, Sub};
 pub mod integrity;
+pub mod rev_e;
 pub mod transport;
 pub use integrity::*;
 pub type Result<T> = std::result::Result<T, String>;
@@ -230,9 +232,20 @@ pub fn decode_payload(bytes: &[u8]) -> Result<Payload> {
         .collect();
     Ok(([i16_at(0), i16_at(4)], [i16_at(2), i16_at(6)], sums))
 }
+/// `setup.revision` of a capture or calibration file, whichever revision wrote it.
+pub fn file_revision(value: &serde_json::Value) -> Option<String> {
+    value
+        .get("setup")?
+        .get("revision")?
+        .as_str()
+        .map(str::to_owned)
+}
 /// Version-checked capture loader: protocol-1 records fail with an explicit message.
 pub fn parse_sweep(text: &str) -> Result<Sweep> {
     let value: serde_json::Value = serde_json::from_str(text).map_err(|e| e.to_string())?;
+    if file_revision(&value).as_deref() == Some(rev_e::HARDWARE_REVISION_E) {
+        return Err("capture file is from a Rev E (E-codec, protocol 3) board; this is the Rev D loader: use the Rev E commands, which select the board from the file".into());
+    }
     let records = value
         .get("records")
         .and_then(serde_json::Value::as_array)
@@ -253,6 +266,9 @@ pub fn parse_sweep(text: &str) -> Result<Sweep> {
 /// Version-checked calibration loader: schema 3 and older fail with an explicit message.
 pub fn parse_calibration(text: &str) -> Result<Calibration> {
     let value: serde_json::Value = serde_json::from_str(text).map_err(|e| e.to_string())?;
+    if file_revision(&value).as_deref() == Some(rev_e::HARDWARE_REVISION_E) {
+        return Err("calibration belongs to a Rev E (E-codec) board and is not valid on Rev D; recalibrate with fresh standards".into());
+    }
     let schema = value
         .get("schema_version")
         .and_then(serde_json::Value::as_u64)

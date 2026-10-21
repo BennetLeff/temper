@@ -136,7 +136,7 @@ ASCII commands end in LF.
 - A capture needs a passing self-test, VBUS, and at most 60 s of frames.
 - It fails with `ERR stream_sync`, `ERR acquisition_overrun`, `ERR stream_fault` (a FIFO stall or drop) or `ERR codec_status` (the codec's power, mode or clock check failed after the capture). Each of these clears the self-test status.
 
-**Host.** Divide each bin by PERIODS and fit the tone at bin `CYCLES` (one DFT line). A/B gives the impedance as in Rev D. Frame alignment does not affect the ratio, and the codec's filter delay is common to both channels. Settling is the host's choice through SKIP. The source is DC-coupled, so a few periods cover the DAC and ADC filters (about 17 frames each); a coil load needs its L/R time constant. **The host does not speak protocol 3 yet.**
+**Host.** Divide each bin by PERIODS and fit the tone at bin `CYCLES` (one DFT line). A/B gives the impedance as in Rev D. Frame alignment does not affect the ratio, and the codec's filter delay is common to both channels. Settling is the host's choice through SKIP. The source is DC-coupled, so a few periods cover the DAC and ADC filters (about 17 frames each); a coil load needs its L/R time constant. **The host speaks protocol 3 from `../host/` 0.8.0** (`temper-lcr`; see its README, Rev E section).
 
 ## Self-test
 

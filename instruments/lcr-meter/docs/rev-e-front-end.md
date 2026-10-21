@@ -18,7 +18,7 @@ This is the circuit between the retained TIDA-060029 analog core and a TI TAC511
 | Codec channel | + input | − input | Measures |
 |---|---|---|---|
 | CH1 (IN1P/IN1M) | HIGH follower (highbuf) | LOW follower (lowbuf) | Voltage across the DUT, as Rev D channel A |
-| CH2 (IN2P/IN2M) | TIA output (tia) | LOW follower (lowbuf) | I·(R_iso + Z_f), as Rev D channel B |
+| CH2 (IN2P/IN2M) | LOW follower (lowbuf) | TIA output (tia) | I·(R_iso + Z_f), as Rev D channel B (LOW − TIA; the TIA inverts) |
 
 Each of the four legs is identical:
 1. 1.00 kΩ series from the op-amp output, 1.00 kΩ to ground (0.1 %): K = 0.5, Thevenin 500 Ω.
