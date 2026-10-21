@@ -4,7 +4,7 @@ RUSTC ?= rustc
 NGSPICE ?= ngspice
 KICAD_PYTHON ?= /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3
 
-.PHONY: all generate export check pcb pcb-generate pcb-check pcb-export pcb-oracle simulate
+.PHONY: all generate export check leads pcb pcb-generate pcb-check pcb-export pcb-oracle simulate
 all:
 	$(MAKE) generate
 	$(MAKE) export
@@ -24,6 +24,13 @@ export:
 check:
 	$(RUSTC) --edition 2021 tools/check.rs -o /tmp/temper-differential-probe-check
 	/tmp/temper-differential-probe-check
+	$(MAKE) leads
+
+# HV lead budget, setback gates, section view and FR4 part geometry; stage-53 probe points.
+leads:
+	$(RUSTC) --edition 2021 tools/leads.rs -o /tmp/temper-probe-leads
+	/tmp/temper-probe-leads > /dev/null
+	python3 tools/stage53_probe_points.py > /dev/null
 
 # Ordered recursive calls keep generation/export dependencies safe under make -j.
 pcb:
