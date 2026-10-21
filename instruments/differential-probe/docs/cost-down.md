@@ -86,7 +86,7 @@ The margin costs above are stated at 3 kV DC. The probe's job is the stage-53 ba
 
 The HV12 adds 133 ppm (about 0.01 %, under 0.01°) at 35 kHz, about a tenth of what the capacitors' own ±30 ppm/°C allowance can already contribute. Its larger penalties are DC-only: 52 dB instead of 64 dB DC rejection, and a 215 mV instead of 51 mV DC offset from SW_B's 85 V average, neither of which enters the AC bank or coil reading. **The $238 saving is worth it for this probe's purpose.** Fit the HVCB drop-in if the probe is later wanted as a precision DC instrument.
 
-The same calculation shows that the capacitor allowance alone permits 58.4 dB leg-to-leg rejection after a 10 °C change, below the 60 dB goal. That is independent of the cost-down (KEMET and Yageo share the 0 ± 30 ppm/°C limit); parts from one reel normally track far closer, and the bench temperature-tracking item measures it.
+The same calculation shows that the capacitor allowance alone permits 58.4 dB leg-to-leg rejection after a 10 °C change, below the 60 dB goal. That is independent of the cost-down (KEMET and Yageo share the 0 ± 30 ppm/°C limit); parts from one reel normally track far closer, and the bench temperature-tracking item measures it. The [CMRR calibration procedure](qualification.md#cmrr-calibration-procedure) handles it with same-reel capacitors, thermal symmetry and calibration at the operating temperature (60 dB holds within ±8.3 °C of calibration even at the worst case; `validation/tradeoff-stage53.txt`, E).
 
 ## 2. DC trim
 

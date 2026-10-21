@@ -38,3 +38,9 @@ C. Self-heating of the TIP+ leg (RES_A) at each operating point, if held: P per 
 
 D. Difference the cost-down makes, design case, 10 C ambient: worst A at 35 kHz (HV12 minus HVCB) vs the shared capacitor term.
    added by HV12: 133 ppm; shared NP0/C0G: 1198 ppm; ratio 0.11.
+
+E. CMRR procedure: how far from the calibration temperature, and how much leg-to-leg gradient, 60 dB allows.
+   35 kHz: NP0/C0G worst  119.7 ppm per C of uniform ambient change -> 60 dB within +/-8.4 C of calibration; with the HV12 resistor term (17.4 ppm/C) added: +/-7.3 C.
+   60 kHz: NP0/C0G worst  119.8 ppm per C of uniform ambient change -> 60 dB within +/-8.3 C of calibration; with the HV12 resistor term (10.2 ppm/C) added: +/-7.7 C.
+   35 kHz: leg-to-leg gradient   60.4 ppm per C (one leg warmer; worst C0G and resistor signs) -> 60 dB needs < 16.5 C, or < 8.3 C to leave half the budget for everything else.
+   60 kHz: leg-to-leg gradient   60.1 ppm per C (one leg warmer; worst C0G and resistor signs) -> 60 dB needs < 16.6 C, or < 8.3 C to leave half the budget for everything else.

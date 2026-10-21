@@ -48,6 +48,15 @@ Tie the tips together at the source. Measure the common-mode voltage to earth wi
 
 Use matching amplitude conventions (RMS or peak) and report frequency, range, excitation amplitude and noise floor. If the residual is below the measurement noise, report a lower bound. Test 35–60 kHz and the switching-edge spectrum through 5 MHz; do not label a single 60 kHz result “60 dB DC–5 MHz.” Repeat after temperature stabilization and permitted lead movement.
 
+### CMRR calibration procedure
+
+The 60 dB goal is a leg-to-leg match of 1000 ppm in complex gain. At 35–60 kHz the divider is capacitive, so the capacitors dominate the match, and the worst case allowed by their datasheets is the limit: with the NP0/C0G ±30 ppm/°C tolerance at opposite signs in the two legs, a 10 °C change from the calibration temperature leaves **58.4 dB** at both 35 and 60 kHz, below the goal on its own (`validation/tradeoff-stage53.txt`, A). Four measures address it; record each one.
+
+1. **Same-reel divider capacitors.** Fit both legs of a probe from one reel per capacitor MPN: the 33 pF upper capacitors (CC1812JKNPOEBN330), the 10 nF fixed bottoms (CC1206FKNPO9BN103), and the select-on-test C0G parts from one kit strip. Assemble both boards in one JLC order so each MPN is placed from one reel. Record the reel or lot codes where JLC reports them, and record "unknown" where it does not. Parts from one reel share a temperature coefficient, so the uniform-ambient term largely cancels between legs. The datasheets give no within-reel bound, so this lowers the expected drift, not the worst case; the temperature-tracking measurement (§2, and step 3 below) shows what was achieved.
+2. **Thermal symmetry.** The legs are mirror images about the slot (`validation/pcb-checks.txt`). Keep it so in use: lid closed, no airflow or heat source favouring one leg, the box in the same orientation as at calibration. During calibration and use, a thermocouple on each leg's low-leg capacitors must agree within 2 °C. A leg-to-leg difference costs up to 60.4 ppm/°C at 35 kHz (60.1 at 60 kHz) with worst C0G and resistor signs (`validation/tradeoff-stage53.txt`, E). So 2 °C uses 121 ppm (−78 dB); 60 dB alone would need less than 16.5 °C.
+3. **Calibrate at the operating temperature.** Warm the powered, closed probe for 30 minutes at the ambient where it will be used, then calibrate. With worst-case C0G drift the 60 dB window is ±8.3 °C around the calibration temperature (35 kHz: ±8.4 °C), or ±7.3 °C with the HV12 resistor term added (`validation/tradeoff-stage53.txt`, E). If use is more than 7 °C away, recalibrate. The alternative is to measure CMRR at both temperatures and show that the same-reel drift actually achieved is smaller.
+4. **Pair-matched calibration on the CM jig.** Dock both probes on the printed `cal-cm-jig` ([mech3d](../mech3d/README.md); [HV leads](hv-leads.md)) exactly as on stage 53: the same standoffs, spine and box position, so the lead stray capacitance is the one calibrated. Dock both probes even when calibrating one, because their leads share the spine. Drive the bused CM terminal against earth from a ground-referenced generator, at low energy only (Tough 2000 bench fixture; tens of volts). Calibrate each probe's two legs as a pair, against each other: after the §2 DC ratio (RV1/RV2) and the §3 compensation (S1/S2, CT1/CT2), measure the complex CM residual at 35, 40, 45, 50, 55 and 60 kHz on both ranges. Adjust CT1/CT2 to minimise the worst residual across the band, not to null one frequency. Withdraw the tool before every reading. Acceptance: CMRR ≥ 60 dB at every point on both ranges, or report the measured lower bound. Write the complex residual into the probe's correction file (§6), then re-dock on stage 53 and repeat one point (45 kHz) in place to confirm the dock transfer.
+
 The input-referred common-mode error is `|Vcm| / 10^(CMRR_dB/20)`. For example, at 1 kV common mode and 60 dB CMRR, the possible error is 1 V. It is 0.2% of a 500 V wanted signal but 10% of a 10 V wanted signal. Allocate this error alongside gain, offset, noise and reference uncertainty for each coil/capacitor measurement. The 60 dB goal does not override that calculation.
 
 Measure input-to-earth capacitance and the edge current in the shield return, with the intended physical assembly. Compare 33 pF and 15 pF segment populations using separately compensated low legs. The 15 pF population requires approximately 5.997 nF ideal total bottom capacitance; changing only the top capacitors invalidates compensation. Compare measured rejection, edge current and DUT perturbation before accepting 33 pF. The per-tip loading target includes the entire lead and enclosure, not just the 6.6 pF ideal ladder. The tentative 10 pF target cannot be met by a lead that reaches both stage-53 bank nodes; it is revised to **12 pF**, against estimates of 11.71–11.93 pF for the option-B probes (see [HV leads](hv-leads.md#capacitance-budget)). Measure each tip to GND at 1 MHz with the probe docked (section 7).
@@ -77,6 +86,37 @@ Measure R39 and the effective shunt capacitance across `ct_s1`–`ct_s2` on the 
 For the ideal CT/burden model use `Hct(f) = (Rb / 200) / (1 + j·2πf·Rb·Cb)`. Recover current as `I(f) = 200·(1/Rb + j·2πf·Cb)·Vburden(f)`; then obtain capacitor voltage from `Vc(f) = I(f)/(j·2πf·Cbank)` with measured bank capacitance and the verified current polarity. Include the measured downstream conditioning and acquisition transfer if observing CT_MON rather than directly across the burden. Do not add CT winding resistance to Rb in this signal correction; it belongs in a fuller CT model and the separate flux estimate.
 
 Nominal 3 Ω / 100 nF gives −6.4526° and 0.993665 voltage magnitude relative to the DC scale at 60 kHz; the inverse correction advances current by +6.4526° and multiplies its magnitude by 1.006375. These are calculated examples, **not calibration values**. Use the measured complex CT response where available and do not apply this RC correction twice. Integrate only within the characterized bandwidth; differentiation implicit in the inverse RC correction amplifies high-frequency noise. Record the integration constant/baseline for time-domain reconstruction. Allocate probe, CT, channel/cable and reference uncertainty together against the ≤1° residual target.
+
+### Per-probe complex correction file
+
+Each probe gets a correction file, in the same tabular form as the CT correction. Write one file per probe and calibration: `probe<N>-<board serial>-<YYYY-MM-DD>.csv`. Keep it with the qualification record, with its raw captures. The calibration belongs to the complete assembly (see the introduction), so a new lead, a re-fitted capacitor, a changed JP1 state or a trim adjustment makes a new file.
+
+Header lines start with `#` and give `key: value` pairs:
+
+- probe number and board serial; PCB revision and git commit of the design;
+- JP1 state;
+- fitted S1/S2 values and trim settings (RV1–RV4, CT1/CT2 as left);
+- dock and lead configuration;
+- calibration ambient, the two leg thermocouple readings, and both rails;
+- scope model, serial, channel, input setting, bandwidth limit and cable;
+- reference probe or source and its certificate;
+- date and operator.
+
+Columns, one row per range and frequency, comma-separated:
+
+| Column | Meaning |
+|---|---|
+| `range` | `wide` or `fine` |
+| `f_hz` | Frequency (35000 to 60000 Hz in 5 kHz steps at least; add points where the response bends) |
+| `gain_rel` | Measured differential gain divided by nominal (1/1000 or 1/200), magnitude |
+| `phase_deg` | Differential output phase relative to the input difference, degrees, positive = lead |
+| `u_gain_rel`, `u_phase_deg` | Expanded uncertainty (k = 2) of the two values above |
+| `cm_rel` | Common-mode residual, K·|Vout| / |Vcm|, from §4 step 4 |
+| `cm_phase_deg` | Phase of the common-mode residual relative to Vcm |
+| `u_cm_rel` | Expanded uncertainty (k = 2), or the noise-limited bound if the residual is below the floor |
+| `n_avg` | Number of averages behind the row |
+
+To apply it, divide the measured output spectrum by `gain_rel·e^(j·phase_deg)` and multiply by K, interpolating magnitude and phase linearly in frequency between rows. Never extrapolate beyond the table, and never apply one phase value across the band. The common-mode columns are for the error budget above. Subtract them only when the common-mode voltage was captured at the same time, and then include its own uncertainty. For the stage-53 cross-check the CT correction uses the same columns (`f_hz`, magnitude in V/A, `phase_deg`, uncertainties) with its own header (CT part, burden, measured C42, method). Apply each correction once: the probe file to the voltage channel, the CT file to the current channel.
 
 ## 7. Leads, feedthroughs and tips
 
@@ -131,6 +171,8 @@ These forces are chosen for this prototype, not quoted from a standard.
 | Rails-OK indicator D11: lit with healthy rails, UV/OV trip points on each rail, margin to the regulated rails, added battery current, battery loss | NOT RUN | |
 | Analog zero trims RV3/RV4: reach, settability (0.1 / 0.5 mV), SELECTED residual (±10 / ±45 mV), stability after power cycle, re-dock and ±10 °C | NOT RUN | |
 | 35–60 kHz amplitude and phase | NOT RUN | |
+| CMRR pair-matched on `cal-cm-jig`, 35–60 kHz in 5 kHz steps, both ranges, both probes docked; capacitor reel/lot codes; leg-to-leg temperature (≤ 2 °C); calibration ambient; re-dock check on stage 53 | NOT RUN | |
+| Per-probe correction file written (§6 format), one per probe and JP1 state | NOT RUN | |
 | Small-signal bandwidth and stability, JP1 bridged and cut | NOT RUN | |
 | Output noise, both ranges, full bandwidth and 20 MHz limit | NOT RUN | |
 | CMRR versus frequency and amplitude | NOT RUN | |

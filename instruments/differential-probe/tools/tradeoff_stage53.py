@@ -87,3 +87,23 @@ for label, vpk in POINTS:
 print("\nD. Difference the cost-down makes, design case, 10 C ambient: worst A at 35 kHz (HV12 minus HVCB) vs the shared capacitor term.")
 d = abs(err(35e3, dr=PARTS[1][2] * DT_AMB)) - abs(err(35e3, dr=PARTS[0][2] * DT_AMB))
 print(f"   added by HV12: {d * 1e6:.0f} ppm; shared NP0/C0G: {cap * 1e6:.0f} ppm; ratio {d / cap:.2f}.")
+
+
+# E. Numbers for the CMRR procedure (docs/qualification.md section 4). All linear in the
+# temperature change, so each window is the 60 dB (1000 ppm) target divided by the per-C term.
+print("\nE. CMRR procedure: how far from the calibration temperature, and how much leg-to-leg gradient, 60 dB allows.")
+GOAL = 1e-3  # 60 dB
+def cap_mis_dt(f, dt):
+    d = NP0_TCR * dt
+    return err(f, dc_top=d, dc_bot=-d) - err(f, dc_top=-d, dc_bot=d)
+for f in FREQS:
+    per_c = abs(cap_mis_dt(f, 1.0))
+    r_c = abs(err(f, dr=PARTS[1][2]))
+    print(f"   {f / 1e3:.0f} kHz: NP0/C0G worst {per_c * 1e6:6.1f} ppm per C of uniform ambient change -> 60 dB within +/-{GOAL / per_c:.1f} C of calibration;"
+          f" with the HV12 resistor term ({r_c * 1e6:.1f} ppm/C) added: +/-{GOAL / (per_c + r_c):.1f} C.")
+# One leg warmer than the other by dt: that leg's top C0G at +30 ppm/C, its bottom at -30 (worst),
+# its upper string at +100 ppm/C against the 25 ppm/C bottom resistor at -25.
+for f in FREQS:
+    g = abs(err(f, dr=(100e-6 + 25e-6), dc_top=NP0_TCR, dc_bot=-NP0_TCR))
+    print(f"   {f / 1e3:.0f} kHz: leg-to-leg gradient {g * 1e6:6.1f} ppm per C (one leg warmer; worst C0G and resistor signs) -> 60 dB needs < {GOAL / g:.1f} C,"
+          f" or < {GOAL / g / 2:.1f} C to leave half the budget for everything else.")

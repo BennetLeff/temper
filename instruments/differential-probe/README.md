@@ -37,9 +37,10 @@ Native KiCad DRC reports zero violations and zero unconnected items with the exp
 | Extended range to qualify | ±3 kV at 1000:1; ±600 V at 200:1 |
 | Initial tip-to-earth target | Each tip within ±1.5 kV; extend separately to ±3 kV |
 | Bandwidth | DC–5 MHz small-signal target; vendor-model −3 dB 5.77 MHz wide / 5.27 MHz fine (two-pole output filter; cutting JP1 gives 10.9 / 8.4 MHz) |
+| Output noise (vendor model, tip-referred) | 172 mV rms wide / 116 mV fine over 10 Hz–200 MHz; 127 / 109 mV to 20 MHz; 72 / 71 mV to 5 MHz ([output-filter study](validation/spice/output-filter-study.txt)); not yet measured ([qualification §3](docs/qualification.md#3-ac-compensation-and-frequency-response)) |
 | Initial-envelope warning | Nominal 1.363 kV per tip; 1.239 kV wide / 248 V fine differential, latched |
 | Main measurement band | 35–60 kHz; proposed acceptance ±2% amplitude, ≤1° phase after calibration |
-| Common-mode rejection | 60 dB goal; measure versus frequency and apply a measurement-specific error budget |
+| Common-mode rejection | 60 dB goal; measure versus frequency and apply a measurement-specific error budget. Worst-case C0G drift alone gives 58.4 dB after a 10 °C change, so calibrate pair-matched on the CM jig at the operating temperature, with same-reel divider capacitors ([qualification §4](docs/qualification.md#cmrr-calibration-procedure)) |
 | Input loading | Ideal 10.005 MΩ and about 6.6 pF per tip; with leads and enclosure 11.7–11.9 pF per tip (option-B estimates, target ≤ 12 pF; [HV leads](docs/hv-leads.md#capacitance-budget)) |
 | Scope | 1 MΩ input, short BNC cable; do not select 50 Ω termination |
 | Power | Two 9 V batteries, regulated to approximately +4.80 / −4.81 V |
