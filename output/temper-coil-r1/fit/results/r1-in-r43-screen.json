@@ -1,0 +1,612 @@
+{
+ "about": "R1 coil parts substituted into the frozen R43 enclosure: interference screen and clearances.\n\nMethod (the same as R43's src/check_integration.py --all-pairs, restricted to the pairs the substitution touches):\n  - R43's catalog.json and saved STEP parts, every file's sha256 checked against the catalog (read-only);\n  - the R43 parts sensor_coil_former, sensor_coil_litz_winding, harness_coil_lead_to_J2/J5, electronics_coil_lug_J2/J5\n    and sensor_coil_winding_NTC are replaced in memory by the R1 parts from r1_parts.py;\n  - every pair (replaced part, any other non-reference part) and (replaced, replaced) whose bounding boxes overlap is\n    intersected solid by solid; a positive volume > 1e-4 mm3 is a hit. A hit is dispositioned with R43's own\n    expected-interference row for that pair (subsystem-metadata.json, same vocabulary and volume limit); anything else is\n    REVIEW_REQUIRED and is dispositioned by hand in DISPOSITIONS below (same vocabulary), with the reason;\n  - clearances: exact minimum distance (OCCT) from each replaced part to every part within 3 mm of its box; pairs under\n    1.0 mm are listed, and the glass-underside gaps are reported for the comb top, winding top and both leads.\nConfigurations: former CNC / print x winding R1 / with the spare turn (the leads follow the winding's outer end).\nRun: .venv/bin/python -B fit/screen_r1_in_r43.py  -> fit/results/r1-in-r43-screen.json  (several minutes)",
+ "r43_root": "/Users/bennet/Desktop/temper/output/temper-manufacturing-r43",
+ "r43_catalog_sha256": "aca70907b7c8f45467a8abb1de5fad460410ad626cdc3493231c13981e9ddf6e",
+ "build123d": "0.11.1",
+ "replaced": [
+  "sensor_coil_former",
+  "sensor_coil_litz_winding",
+  "harness_coil_lead_to_J2",
+  "harness_coil_lead_to_J5",
+  "electronics_coil_lug_J2",
+  "electronics_coil_lug_J5",
+  "sensor_coil_winding_NTC"
+ ],
+ "lug": "Panduit_P14-8RHT6-C formed 90 deg up (barrel outboard), FIT-350 PVDF two layers over barrel and bend to the ring; on Wurth 7466004R (WP-SMBU REDCUBE SMT, M4 through thread) at Z32.6; ISO 7045 M4 x 8 A2 pan head + DIN 125-A M4 washer (\u00d89 x 0.8) + DIN 127-B M4 spring washer",
+ "sleeve": {
+  "part": "Varflex Varglas Silicone Rubber, Grade C-1, size No. 9 (200 C; 2500 V min avg)",
+  "id_mm": 3.15,
+  "wall_mm": 0.2,
+  "id_nominal_mm": 3.0
+ },
+ "bend_rule": "minimum bend radius 3 x the sleeved lead's OD (3.55 mm -> 10.65 mm): NASA-STD-8739.4A w/ Change 4 Table 7-1, installed harness of AWG 10 or smaller (minimum; optimum 10 x). Also reported: 5 x the bare bundle (11.45 mm), New England Wire's generic static guideline",
+ "winding": {
+  "R1": {
+   "state": "R1",
+   "inner_turns": 14.472222222222221,
+   "outer_turns": 6.4629354445786396,
+   "length_mm": 9252.967607980869,
+   "inner_mm": 4992.547892317354,
+   "outer_mm": 4208.622033461742,
+   "crossover_mm": 51.79768220177257,
+   "crossover_min_radius_mm": 35.58962374459219,
+   "crossover_span": {
+    "from_deg": 5108.735915073579,
+    "to_deg": 101.46834787953249,
+    "spokes_deg": [
+     67.0,
+     103.0
+    ],
+    "r_from": 82.53363196008858,
+    "r_to": 93.50548296114675,
+    "tangent_scale": 1.16
+   },
+   "kink_if_straight_chord_75_90_deg": {
+    "inner_end_deg": 17.06929761488034,
+    "outer_start_deg": 32.16709461399482
+   },
+   "outer_end": {
+    "r": 114.8,
+    "th": -103.34323995168961
+   },
+   "z_centre": 100.145,
+   "z_top": 101.29
+  },
+  "spare": {
+   "state": "spare",
+   "inner_turns": 14.472222222222221,
+   "outer_turns": 7.4629354445786396,
+   "length_mm": 9984.68705855552,
+   "inner_mm": 4992.547892317354,
+   "outer_mm": 4940.341484036394,
+   "crossover_mm": 51.79768220177257,
+   "crossover_min_radius_mm": 35.58962374459219,
+   "crossover_span": {
+    "from_deg": 5108.735915073579,
+    "to_deg": 101.46834787953249,
+    "spokes_deg": [
+     67.0,
+     103.0
+    ],
+    "r_from": 82.53363196008858,
+    "r_to": 93.50548296114675,
+    "tangent_scale": 1.16
+   },
+   "kink_if_straight_chord_75_90_deg": {
+    "inner_end_deg": 17.06929761488034,
+    "outer_start_deg": 32.16709461399482
+   },
+   "outer_end": {
+    "r": 118.11118888367531,
+    "th": -103.34323995168961
+   },
+   "z_centre": 100.145,
+   "z_top": 101.29
+  }
+ },
+ "leads": {
+  "J2_R1": {
+   "developed_mm": 72.67501501274232,
+   "tightest_bend_mm": 10.649999999999999,
+   "max_achievable_bend_mm": 15.98980942688768,
+   "bare_bundle_mm": 0
+  },
+  "J5_R1": {
+   "developed_mm": 163.6401639483546,
+   "tightest_bend_mm": 10.649999999999999,
+   "max_achievable_bend_mm": 13.214800231774918,
+   "bare_bundle_mm": 6.426600743622188
+  },
+  "J2_spare": {
+   "developed_mm": 72.45066873004603,
+   "tightest_bend_mm": 10.649999999999999,
+   "max_achievable_bend_mm": 16.20460903158436,
+   "bare_bundle_mm": 0
+  },
+  "J5_spare": {
+   "developed_mm": 163.6401639483546,
+   "tightest_bend_mm": 10.649999999999999,
+   "max_achievable_bend_mm": 13.214800231774918,
+   "bare_bundle_mm": 6.426600743622188
+  }
+ },
+ "former_info": {
+  "bundle": 2.29,
+  "clearance": 0.2,
+  "comb_top_z_local": 8.489999999999998,
+  "comb_top_world": 101.49,
+  "notch_width": 2.49,
+  "spare_outer_turns": 1.0,
+  "ntc": {
+   "last_inner_turn_r": 81.37097888675623,
+   "bead_centre_r": 86.27102924507041
+  }
+ },
+ "configs": [
+  {
+   "former": "cnc",
+   "winding": "R1",
+   "pairs_checked": 85,
+   "hits": [
+    {
+     "a": "sensor_coil_former",
+     "b": "harness_NTC_coil_to_thermal_sense",
+     "volume_mm3": 0.3905,
+     "disposition": "DOCUMENTED_BONDED_INTERFACE",
+     "basis": "R43 Sleeve end potted in the pad's \u00d82.5 counterbore.",
+     "limit_mm3": 3.0
+    },
+    {
+     "a": "sensor_coil_litz_winding",
+     "b": "harness_coil_lead_to_J2",
+     "volume_mm3": 17.86,
+     "disposition": "DOCUMENTED_CONDUCTOR_CONTINUITY",
+     "basis": "R1 fit: the lead is the winding's own Litz continuing out; the overlap is the 3.55 mm sleeved lead's start cap over the 2.29 mm bundle end (R43's 15 mm3 was for a 2.4 mm lead on a 2.4 mm bundle)",
+     "limit_mm3": 40.0
+    },
+    {
+     "a": "sensor_coil_litz_winding",
+     "b": "harness_coil_lead_to_J5",
+     "volume_mm3": 4.0273,
+     "disposition": "DOCUMENTED_CONDUCTOR_CONTINUITY",
+     "basis": "R43 The lead is the winding's own Litz continuing out (joint overlap).",
+     "limit_mm3": 15.0
+    },
+    {
+     "a": "harness_coil_lead_to_J2",
+     "b": "electronics_coil_lug_J2",
+     "volume_mm3": 111.2791,
+     "disposition": "DOCUMENTED_UNVERIFIED_CABLE_ENTRY",
+     "basis": "R1 fit: the sleeved lead runs inside the lug's PVDF heat-shrink for its last 10 mm and enters the barrel (R43's 60 mm3 limit was for a bare lead into a barrel, no shrink)",
+     "limit_mm3": 130.0
+    },
+    {
+     "a": "harness_coil_lead_to_J5",
+     "b": "electronics_coil_lug_J5",
+     "volume_mm3": 111.2791,
+     "disposition": "DOCUMENTED_UNVERIFIED_CABLE_ENTRY",
+     "basis": "R1 fit: the sleeved lead runs inside the lug's PVDF heat-shrink for its last 10 mm and enters the barrel (R43's 60 mm3 limit was for a bare lead into a barrel, no shrink)",
+     "limit_mm3": 130.0
+    }
+   ],
+   "under_1mm": [
+    {
+     "a": "sensor_coil_former",
+     "b": "electronics_TCO_under_glass",
+     "distance_mm": 0.6
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_sensor_PEEK_bayonet_body",
+     "distance_mm": 0.5
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_sensor_cartridge_wave_spring",
+     "distance_mm": 0.6
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "electronics_SELV_tray_spacers",
+     "distance_mm": 0.0
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_sensor_spring_gap_key",
+     "distance_mm": 0.592
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_coil_ear_M3_screws",
+     "distance_mm": 0.0
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "harness_coil_lead_to_J2",
+     "distance_mm": 0.797
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "harness_coil_lead_to_J5",
+     "distance_mm": 0.0
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_winding_NTC",
+     "distance_mm": 0.225
+    },
+    {
+     "a": "harness_coil_lead_to_J2",
+     "b": "sensor_coil_routed_insulating_carrier",
+     "distance_mm": 0.831
+    },
+    {
+     "a": "harness_coil_lead_to_J5",
+     "b": "sensor_coil_routed_insulating_carrier",
+     "distance_mm": 0.65
+    },
+    {
+     "a": "sensor_coil_winding_NTC",
+     "b": "harness_NTC_coil_to_thermal_sense",
+     "distance_mm": 0.196
+    }
+   ],
+   "unresolved": 0
+  },
+  {
+   "former": "cnc",
+   "winding": "spare",
+   "pairs_checked": 85,
+   "hits": [
+    {
+     "a": "sensor_coil_former",
+     "b": "harness_NTC_coil_to_thermal_sense",
+     "volume_mm3": 0.3905,
+     "disposition": "DOCUMENTED_BONDED_INTERFACE",
+     "basis": "R43 Sleeve end potted in the pad's \u00d82.5 counterbore.",
+     "limit_mm3": 3.0
+    },
+    {
+     "a": "sensor_coil_litz_winding",
+     "b": "harness_coil_lead_to_J2",
+     "volume_mm3": 18.489,
+     "disposition": "DOCUMENTED_CONDUCTOR_CONTINUITY",
+     "basis": "R1 fit: the lead is the winding's own Litz continuing out; the overlap is the 3.55 mm sleeved lead's start cap over the 2.29 mm bundle end (R43's 15 mm3 was for a 2.4 mm lead on a 2.4 mm bundle)",
+     "limit_mm3": 40.0
+    },
+    {
+     "a": "sensor_coil_litz_winding",
+     "b": "harness_coil_lead_to_J5",
+     "volume_mm3": 4.0273,
+     "disposition": "DOCUMENTED_CONDUCTOR_CONTINUITY",
+     "basis": "R43 The lead is the winding's own Litz continuing out (joint overlap).",
+     "limit_mm3": 15.0
+    },
+    {
+     "a": "harness_coil_lead_to_J2",
+     "b": "electronics_coil_lug_J2",
+     "volume_mm3": 111.2791,
+     "disposition": "DOCUMENTED_UNVERIFIED_CABLE_ENTRY",
+     "basis": "R1 fit: the sleeved lead runs inside the lug's PVDF heat-shrink for its last 10 mm and enters the barrel (R43's 60 mm3 limit was for a bare lead into a barrel, no shrink)",
+     "limit_mm3": 130.0
+    },
+    {
+     "a": "harness_coil_lead_to_J5",
+     "b": "electronics_coil_lug_J5",
+     "volume_mm3": 111.2791,
+     "disposition": "DOCUMENTED_UNVERIFIED_CABLE_ENTRY",
+     "basis": "R1 fit: the sleeved lead runs inside the lug's PVDF heat-shrink for its last 10 mm and enters the barrel (R43's 60 mm3 limit was for a bare lead into a barrel, no shrink)",
+     "limit_mm3": 130.0
+    }
+   ],
+   "under_1mm": [
+    {
+     "a": "sensor_coil_former",
+     "b": "electronics_TCO_under_glass",
+     "distance_mm": 0.6
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_sensor_PEEK_bayonet_body",
+     "distance_mm": 0.5
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_sensor_cartridge_wave_spring",
+     "distance_mm": 0.6
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "electronics_SELV_tray_spacers",
+     "distance_mm": 0.0
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_sensor_spring_gap_key",
+     "distance_mm": 0.592
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_coil_ear_M3_screws",
+     "distance_mm": 0.0
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "harness_coil_lead_to_J2",
+     "distance_mm": 0.119
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "harness_coil_lead_to_J5",
+     "distance_mm": 0.0
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_winding_NTC",
+     "distance_mm": 0.225
+    },
+    {
+     "a": "harness_coil_lead_to_J2",
+     "b": "sensor_coil_routed_insulating_carrier",
+     "distance_mm": 0.846
+    },
+    {
+     "a": "harness_coil_lead_to_J5",
+     "b": "sensor_coil_routed_insulating_carrier",
+     "distance_mm": 0.65
+    },
+    {
+     "a": "sensor_coil_winding_NTC",
+     "b": "harness_NTC_coil_to_thermal_sense",
+     "distance_mm": 0.196
+    }
+   ],
+   "unresolved": 0
+  },
+  {
+   "former": "print",
+   "winding": "R1",
+   "pairs_checked": 85,
+   "hits": [
+    {
+     "a": "sensor_coil_former",
+     "b": "harness_NTC_coil_to_thermal_sense",
+     "volume_mm3": 0.3905,
+     "disposition": "DOCUMENTED_BONDED_INTERFACE",
+     "basis": "R43 Sleeve end potted in the pad's \u00d82.5 counterbore.",
+     "limit_mm3": 3.0
+    },
+    {
+     "a": "sensor_coil_litz_winding",
+     "b": "harness_coil_lead_to_J2",
+     "volume_mm3": 17.86,
+     "disposition": "DOCUMENTED_CONDUCTOR_CONTINUITY",
+     "basis": "R1 fit: the lead is the winding's own Litz continuing out; the overlap is the 3.55 mm sleeved lead's start cap over the 2.29 mm bundle end (R43's 15 mm3 was for a 2.4 mm lead on a 2.4 mm bundle)",
+     "limit_mm3": 40.0
+    },
+    {
+     "a": "sensor_coil_litz_winding",
+     "b": "harness_coil_lead_to_J5",
+     "volume_mm3": 4.0273,
+     "disposition": "DOCUMENTED_CONDUCTOR_CONTINUITY",
+     "basis": "R43 The lead is the winding's own Litz continuing out (joint overlap).",
+     "limit_mm3": 15.0
+    },
+    {
+     "a": "harness_coil_lead_to_J2",
+     "b": "electronics_coil_lug_J2",
+     "volume_mm3": 111.2791,
+     "disposition": "DOCUMENTED_UNVERIFIED_CABLE_ENTRY",
+     "basis": "R1 fit: the sleeved lead runs inside the lug's PVDF heat-shrink for its last 10 mm and enters the barrel (R43's 60 mm3 limit was for a bare lead into a barrel, no shrink)",
+     "limit_mm3": 130.0
+    },
+    {
+     "a": "harness_coil_lead_to_J5",
+     "b": "electronics_coil_lug_J5",
+     "volume_mm3": 111.2791,
+     "disposition": "DOCUMENTED_UNVERIFIED_CABLE_ENTRY",
+     "basis": "R1 fit: the sleeved lead runs inside the lug's PVDF heat-shrink for its last 10 mm and enters the barrel (R43's 60 mm3 limit was for a bare lead into a barrel, no shrink)",
+     "limit_mm3": 130.0
+    }
+   ],
+   "under_1mm": [
+    {
+     "a": "sensor_coil_former",
+     "b": "electronics_TCO_under_glass",
+     "distance_mm": 0.6
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_sensor_PEEK_bayonet_body",
+     "distance_mm": 0.5
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_sensor_cartridge_wave_spring",
+     "distance_mm": 0.6
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "electronics_SELV_tray_spacers",
+     "distance_mm": 0.0
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_sensor_spring_gap_key",
+     "distance_mm": 0.592
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_coil_ear_M3_screws",
+     "distance_mm": 0.0
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "harness_coil_lead_to_J2",
+     "distance_mm": 0.797
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "harness_coil_lead_to_J5",
+     "distance_mm": 0.0
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_winding_NTC",
+     "distance_mm": 0.225
+    },
+    {
+     "a": "harness_coil_lead_to_J2",
+     "b": "sensor_coil_routed_insulating_carrier",
+     "distance_mm": 0.831
+    },
+    {
+     "a": "harness_coil_lead_to_J5",
+     "b": "sensor_coil_routed_insulating_carrier",
+     "distance_mm": 0.65
+    },
+    {
+     "a": "sensor_coil_winding_NTC",
+     "b": "harness_NTC_coil_to_thermal_sense",
+     "distance_mm": 0.196
+    }
+   ],
+   "unresolved": 0
+  },
+  {
+   "former": "print",
+   "winding": "spare",
+   "pairs_checked": 85,
+   "hits": [
+    {
+     "a": "sensor_coil_former",
+     "b": "harness_NTC_coil_to_thermal_sense",
+     "volume_mm3": 0.3905,
+     "disposition": "DOCUMENTED_BONDED_INTERFACE",
+     "basis": "R43 Sleeve end potted in the pad's \u00d82.5 counterbore.",
+     "limit_mm3": 3.0
+    },
+    {
+     "a": "sensor_coil_litz_winding",
+     "b": "harness_coil_lead_to_J2",
+     "volume_mm3": 18.489,
+     "disposition": "DOCUMENTED_CONDUCTOR_CONTINUITY",
+     "basis": "R1 fit: the lead is the winding's own Litz continuing out; the overlap is the 3.55 mm sleeved lead's start cap over the 2.29 mm bundle end (R43's 15 mm3 was for a 2.4 mm lead on a 2.4 mm bundle)",
+     "limit_mm3": 40.0
+    },
+    {
+     "a": "sensor_coil_litz_winding",
+     "b": "harness_coil_lead_to_J5",
+     "volume_mm3": 4.0273,
+     "disposition": "DOCUMENTED_CONDUCTOR_CONTINUITY",
+     "basis": "R43 The lead is the winding's own Litz continuing out (joint overlap).",
+     "limit_mm3": 15.0
+    },
+    {
+     "a": "harness_coil_lead_to_J2",
+     "b": "electronics_coil_lug_J2",
+     "volume_mm3": 111.2791,
+     "disposition": "DOCUMENTED_UNVERIFIED_CABLE_ENTRY",
+     "basis": "R1 fit: the sleeved lead runs inside the lug's PVDF heat-shrink for its last 10 mm and enters the barrel (R43's 60 mm3 limit was for a bare lead into a barrel, no shrink)",
+     "limit_mm3": 130.0
+    },
+    {
+     "a": "harness_coil_lead_to_J5",
+     "b": "electronics_coil_lug_J5",
+     "volume_mm3": 111.2791,
+     "disposition": "DOCUMENTED_UNVERIFIED_CABLE_ENTRY",
+     "basis": "R1 fit: the sleeved lead runs inside the lug's PVDF heat-shrink for its last 10 mm and enters the barrel (R43's 60 mm3 limit was for a bare lead into a barrel, no shrink)",
+     "limit_mm3": 130.0
+    }
+   ],
+   "under_1mm": [
+    {
+     "a": "sensor_coil_former",
+     "b": "electronics_TCO_under_glass",
+     "distance_mm": 0.6
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_sensor_PEEK_bayonet_body",
+     "distance_mm": 0.5
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_sensor_cartridge_wave_spring",
+     "distance_mm": 0.6
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "electronics_SELV_tray_spacers",
+     "distance_mm": 0.0
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_sensor_spring_gap_key",
+     "distance_mm": 0.592
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_coil_ear_M3_screws",
+     "distance_mm": 0.0
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "harness_coil_lead_to_J2",
+     "distance_mm": 0.119
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "harness_coil_lead_to_J5",
+     "distance_mm": 0.0
+    },
+    {
+     "a": "sensor_coil_former",
+     "b": "sensor_coil_winding_NTC",
+     "distance_mm": 0.225
+    },
+    {
+     "a": "harness_coil_lead_to_J2",
+     "b": "sensor_coil_routed_insulating_carrier",
+     "distance_mm": 0.846
+    },
+    {
+     "a": "harness_coil_lead_to_J5",
+     "b": "sensor_coil_routed_insulating_carrier",
+     "distance_mm": 0.65
+    },
+    {
+     "a": "sensor_coil_winding_NTC",
+     "b": "harness_NTC_coil_to_thermal_sense",
+     "distance_mm": 0.196
+    }
+   ],
+   "unresolved": 0
+  }
+ ],
+ "glass": {
+  "sensor_coil_former/cnc": {
+   "top_z": 101.49,
+   "gap_to_glass_underside_mm": 4.51
+  },
+  "sensor_coil_former/print": {
+   "top_z": 101.49,
+   "gap_to_glass_underside_mm": 4.51
+  },
+  "sensor_coil_litz_winding/R1": {
+   "top_z": 101.29,
+   "gap_to_glass_underside_mm": 4.71
+  },
+  "sensor_coil_litz_winding/spare": {
+   "top_z": 101.29,
+   "gap_to_glass_underside_mm": 4.71
+  },
+  "harness_coil_lead_to_J5/R1": {
+   "top_z": 104.84,
+   "gap_to_glass_underside_mm": 1.16
+  },
+  "harness_coil_lead_to_J2/R1": {
+   "top_z": 101.92,
+   "gap_to_glass_underside_mm": 4.08
+  }
+ },
+ "stack": {
+  "roof_top_z": 99.0,
+  "bundle_mm": 2.29,
+  "winding_centre_z": 100.145,
+  "winding_top_z": 101.29,
+  "comb_top_z": 101.49000000000001,
+  "glass_underside_z": 106.0,
+  "pan_base_z": 110.0,
+  "comb_top_to_glass_mm": 4.51,
+  "winding_top_to_glass_mm": 4.71,
+  "winding_centre_to_pan_mm": 9.855,
+  "em_model_winding_centre_z": 100.2,
+  "em_model_centre_to_pan_mm": 9.8,
+  "crossing_lead_centre_z": 103.065,
+  "crossing_lead_top_z": 104.84,
+  "crossing_lead_top_to_glass_mm": 1.16,
+  "lead_od_mm": 3.55
+ },
+ "runtime_s": 554
+}

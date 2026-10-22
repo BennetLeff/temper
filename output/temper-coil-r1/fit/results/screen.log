@@ -1,0 +1,87 @@
+parts built 15 s
+   slow pair ('sensor_coil_former', 'cnc') ('sensor_coil_litz_winding', 'R1'): 91 s
+   slow pair ('sensor_coil_former', 'cnc') ('harness_coil_lead_to_J5', 'R1'): 11 s
+   slow pair ('sensor_coil_litz_winding', 'R1') ('R43', 'harness_NTC_coil_to_thermal_sense'): 9 s
+   slow pair ('sensor_coil_litz_winding', 'R1') ('harness_coil_lead_to_J5', 'R1'): 32 s
+cnc/R1: pairs 85, hits 5, unresolved 0, under 1 mm 12 (193 s)
+   HIT sensor_coil_former harness_NTC_coil_to_thermal_sense 0.3905 DOCUMENTED_BONDED_INTERFACE 
+   HIT sensor_coil_litz_winding harness_coil_lead_to_J2 17.86 DOCUMENTED_CONDUCTOR_CONTINUITY 
+   HIT sensor_coil_litz_winding harness_coil_lead_to_J5 4.0273 DOCUMENTED_CONDUCTOR_CONTINUITY 
+   HIT harness_coil_lead_to_J2 electronics_coil_lug_J2 111.2791 DOCUMENTED_UNVERIFIED_CABLE_ENTRY 
+   HIT harness_coil_lead_to_J5 electronics_coil_lug_J5 111.2791 DOCUMENTED_UNVERIFIED_CABLE_ENTRY 
+   NEAR sensor_coil_former electronics_TCO_under_glass 0.6
+   NEAR sensor_coil_former sensor_coil_sensor_PEEK_bayonet_body 0.5
+   NEAR sensor_coil_former sensor_coil_sensor_cartridge_wave_spring 0.6
+   NEAR sensor_coil_former electronics_SELV_tray_spacers 0.0
+   NEAR sensor_coil_former sensor_coil_sensor_spring_gap_key 0.592
+   NEAR sensor_coil_former sensor_coil_coil_ear_M3_screws 0.0
+   NEAR sensor_coil_former harness_coil_lead_to_J2 0.797
+   NEAR sensor_coil_former harness_coil_lead_to_J5 0.0
+   NEAR sensor_coil_former sensor_coil_winding_NTC 0.225
+   NEAR harness_coil_lead_to_J2 sensor_coil_routed_insulating_carrier 0.831
+   NEAR harness_coil_lead_to_J5 sensor_coil_routed_insulating_carrier 0.65
+   NEAR sensor_coil_winding_NTC harness_NTC_coil_to_thermal_sense 0.196
+   slow pair ('sensor_coil_former', 'cnc') ('sensor_coil_litz_winding', 'spare'): 87 s
+   slow pair ('sensor_coil_former', 'cnc') ('harness_coil_lead_to_J5', 'spare'): 11 s
+   slow pair ('sensor_coil_litz_winding', 'spare') ('R43', 'harness_NTC_coil_to_thermal_sense'): 10 s
+   slow pair ('sensor_coil_litz_winding', 'spare') ('harness_coil_lead_to_J5', 'spare'): 34 s
+cnc/spare: pairs 85, hits 5, unresolved 0, under 1 mm 12 (349 s)
+   HIT sensor_coil_former harness_NTC_coil_to_thermal_sense 0.3905 DOCUMENTED_BONDED_INTERFACE 
+   HIT sensor_coil_litz_winding harness_coil_lead_to_J2 18.489 DOCUMENTED_CONDUCTOR_CONTINUITY 
+   HIT sensor_coil_litz_winding harness_coil_lead_to_J5 4.0273 DOCUMENTED_CONDUCTOR_CONTINUITY 
+   HIT harness_coil_lead_to_J2 electronics_coil_lug_J2 111.2791 DOCUMENTED_UNVERIFIED_CABLE_ENTRY 
+   HIT harness_coil_lead_to_J5 electronics_coil_lug_J5 111.2791 DOCUMENTED_UNVERIFIED_CABLE_ENTRY 
+   NEAR sensor_coil_former electronics_TCO_under_glass 0.6
+   NEAR sensor_coil_former sensor_coil_sensor_PEEK_bayonet_body 0.5
+   NEAR sensor_coil_former sensor_coil_sensor_cartridge_wave_spring 0.6
+   NEAR sensor_coil_former electronics_SELV_tray_spacers 0.0
+   NEAR sensor_coil_former sensor_coil_sensor_spring_gap_key 0.592
+   NEAR sensor_coil_former sensor_coil_coil_ear_M3_screws 0.0
+   NEAR sensor_coil_former harness_coil_lead_to_J2 0.119
+   NEAR sensor_coil_former harness_coil_lead_to_J5 0.0
+   NEAR sensor_coil_former sensor_coil_winding_NTC 0.225
+   NEAR harness_coil_lead_to_J2 sensor_coil_routed_insulating_carrier 0.846
+   NEAR harness_coil_lead_to_J5 sensor_coil_routed_insulating_carrier 0.65
+   NEAR sensor_coil_winding_NTC harness_NTC_coil_to_thermal_sense 0.196
+   slow pair ('sensor_coil_former', 'print') ('sensor_coil_litz_winding', 'R1'): 88 s
+print/R1: pairs 85, hits 5, unresolved 0, under 1 mm 12 (455 s)
+   HIT sensor_coil_former harness_NTC_coil_to_thermal_sense 0.3905 DOCUMENTED_BONDED_INTERFACE 
+   HIT sensor_coil_litz_winding harness_coil_lead_to_J2 17.86 DOCUMENTED_CONDUCTOR_CONTINUITY 
+   HIT sensor_coil_litz_winding harness_coil_lead_to_J5 4.0273 DOCUMENTED_CONDUCTOR_CONTINUITY 
+   HIT harness_coil_lead_to_J2 electronics_coil_lug_J2 111.2791 DOCUMENTED_UNVERIFIED_CABLE_ENTRY 
+   HIT harness_coil_lead_to_J5 electronics_coil_lug_J5 111.2791 DOCUMENTED_UNVERIFIED_CABLE_ENTRY 
+   NEAR sensor_coil_former electronics_TCO_under_glass 0.6
+   NEAR sensor_coil_former sensor_coil_sensor_PEEK_bayonet_body 0.5
+   NEAR sensor_coil_former sensor_coil_sensor_cartridge_wave_spring 0.6
+   NEAR sensor_coil_former electronics_SELV_tray_spacers 0.0
+   NEAR sensor_coil_former sensor_coil_sensor_spring_gap_key 0.592
+   NEAR sensor_coil_former sensor_coil_coil_ear_M3_screws 0.0
+   NEAR sensor_coil_former harness_coil_lead_to_J2 0.797
+   NEAR sensor_coil_former harness_coil_lead_to_J5 0.0
+   NEAR sensor_coil_former sensor_coil_winding_NTC 0.225
+   NEAR harness_coil_lead_to_J2 sensor_coil_routed_insulating_carrier 0.831
+   NEAR harness_coil_lead_to_J5 sensor_coil_routed_insulating_carrier 0.65
+   NEAR sensor_coil_winding_NTC harness_NTC_coil_to_thermal_sense 0.196
+   slow pair ('sensor_coil_former', 'print') ('sensor_coil_litz_winding', 'spare'): 94 s
+print/spare: pairs 85, hits 5, unresolved 0, under 1 mm 12 (553 s)
+   HIT sensor_coil_former harness_NTC_coil_to_thermal_sense 0.3905 DOCUMENTED_BONDED_INTERFACE 
+   HIT sensor_coil_litz_winding harness_coil_lead_to_J2 18.489 DOCUMENTED_CONDUCTOR_CONTINUITY 
+   HIT sensor_coil_litz_winding harness_coil_lead_to_J5 4.0273 DOCUMENTED_CONDUCTOR_CONTINUITY 
+   HIT harness_coil_lead_to_J2 electronics_coil_lug_J2 111.2791 DOCUMENTED_UNVERIFIED_CABLE_ENTRY 
+   HIT harness_coil_lead_to_J5 electronics_coil_lug_J5 111.2791 DOCUMENTED_UNVERIFIED_CABLE_ENTRY 
+   NEAR sensor_coil_former electronics_TCO_under_glass 0.6
+   NEAR sensor_coil_former sensor_coil_sensor_PEEK_bayonet_body 0.5
+   NEAR sensor_coil_former sensor_coil_sensor_cartridge_wave_spring 0.6
+   NEAR sensor_coil_former electronics_SELV_tray_spacers 0.0
+   NEAR sensor_coil_former sensor_coil_sensor_spring_gap_key 0.592
+   NEAR sensor_coil_former sensor_coil_coil_ear_M3_screws 0.0
+   NEAR sensor_coil_former harness_coil_lead_to_J2 0.119
+   NEAR sensor_coil_former harness_coil_lead_to_J5 0.0
+   NEAR sensor_coil_former sensor_coil_winding_NTC 0.225
+   NEAR harness_coil_lead_to_J2 sensor_coil_routed_insulating_carrier 0.846
+   NEAR harness_coil_lead_to_J5 sensor_coil_routed_insulating_carrier 0.65
+   NEAR sensor_coil_winding_NTC harness_NTC_coil_to_thermal_sense 0.196
+sensor_coil_former/cnc {'top_z': 101.49, 'gap_to_glass_underside_mm': 4.51}
+sensor_coil_litz_winding/R1 {'top_z': 101.29, 'gap_to_glass_underside_mm': 4.71}
+harness_coil_lead_to_J5/R1 {'top_z': 104.84, 'gap_to_glass_underside_mm': 1.16}
+{"roof_top_z": 99.0, "bundle_mm": 2.29, "winding_centre_z": 100.145, "winding_top_z": 101.29, "comb_top_z": 101.49000000000001, "glass_underside_z": 106.0, "pan_base_z": 110.0, "comb_top_to_glass_mm": 4.51, "winding_top_to_glass_mm": 4.71, "winding_centre_to_pan_mm": 9.855, "em_model_winding_centre_z": 100.2, "em_model_centre_to_pan_mm": 9.8, "crossing_lead_centre_z": 103.065, "crossing_lead_top_z": 104.84, "crossing_lead_top_to_glass_mm": 1.16, "lead_od_mm": 3.55}
