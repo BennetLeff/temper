@@ -56,7 +56,8 @@ def bars_mesh():
 
 def main():
     REN.mkdir(exist_ok=True)
-    body, info = F.former()
+    KW = dict(min_end_tooth=F.MIN_END_TOOTH, lead_hole_r=F.LEAD_HOLE_R, lead_slot=F.LEAD_SLOT)
+    body, info = F.former(**KW)
     fm = mesh(body)
     bars = bars_mesh()
     tubes = winding_tubes()
@@ -99,12 +100,12 @@ def main():
     phi = G.bar_angles()[4]
     c = K.P(108.0, phi, 7.0)
     p.camera_position = [(c[0] + 70, c[1] - 75, c[2] + 70), c, (0, 0, 1)]
-    p.add_text(f"comb at the {phi:.0f} deg spoke: outer notches 2.6 wide (bundle 2.4 + 0.2), teeth 0.71; spare notch beyond the last turn",
+    p.add_text(f"comb at the {phi:.0f} deg spoke: outer notches {info['notch_width']:.2f} wide (bundle {info['bundle']:.2f} + 0.2), teeth {3.311 - info['notch_width']:.2f}; spare notch beyond the last turn",
                font_size=11, color="black")
     p.screenshot(REN / "former_R1_notch_detail.png")
     p.close()
     # 5. printed segments, exploded
-    pr, _ = F.former(clearance=0.3)
+    pr, _ = F.former(clearance=0.3, **KW)
     segs, _ = F.segments(pr)
     p = plotter()
     cols = ["#e6e6e6", "#cfe3f7", "#f7dccf", "#d9f2d0", "#efe0f7"]

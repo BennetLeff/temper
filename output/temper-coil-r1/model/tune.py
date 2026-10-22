@@ -20,6 +20,15 @@ HERE = Path(__file__).resolve().parent
 FREE = json.loads((HERE / "results" / "free_air.json").read_text())
 TRIM = json.loads((HERE / "results" / "trim_heating.json").read_text())["rows"]
 STATES = ["R1_plus_spare", "R1", "R1_trim-0.5", "R1_trim-1", "R1_trim-1.5", "R1_trim-2"]
+# Fit study 2026-10-21 (fit/bench_leads.py trim_states): the J2 exit is fixed at -94.3 deg, so a half-turn trim leaves the
+# outer end 180 deg from it and the lead must come back ~171 deg clockwise along the rim, over the comb tops. That return
+# cancels part of a turn: the model gives 73.9 uH for "-0.5", not the 76.8 uH of a clean half-turn. Half-turn states are
+# listed with that estimate and flagged; whole outer turns (7.46 / 6.46 / 5.46) are preferred.
+FIT = HERE.parent / "fit" / "results" / "bench_leads.json"
+HALF_FIX = {}
+if FIT.exists():
+    _t = json.loads(FIT.read_text())["trim_states"]
+    HALF_FIX["R1_trim-0.5"] = _t["trim_0p5_cw_rim_return_uH"] / _t["trim_0p5_no_lead_uH"]
 WINDOW, MIN_OUTER = (76.0, 86.0), 5.46
 
 
@@ -30,7 +39,7 @@ def main():
     ap.add_argument("--target", type=float, default=81.0)
     a = ap.parse_args()
     c = FREE["candidates"]
-    model = {s: c[s]["L_free_uH"] for s in STATES}
+    model = {s: c[s]["L_free_uH"] * HALF_FIX.get(s, 1.0) for s in STATES}
     outer = {s: c[s]["sections"][1]["turns"] for s in STATES}
     now = min(STATES, key=lambda s: abs(outer[s] - a.outer))
     if abs(outer[now] - a.outer) > 0.05:
@@ -43,11 +52,13 @@ def main():
         th = {r["pan"]: r for r in TRIM if r["state"] == s}
         allowed = outer[s] >= MIN_OUTER - 1e-6 and outer[s] <= outer[now] + 1e-6
         flag = "" if allowed else ("  (needs turns added: not reachable)" if outer[s] > outer[now] else "  (below 5.46 outer: not allowed)")
+        if s.endswith(".5"):
+            flag += "  (half turn: lead returns CW along the rim" + (", L corrected" if s in HALF_FIX else ", NOT corrected") + "; prefer whole turns)"
         inwin = WINDOW[0] <= pred <= WINDOW[1]
         print(f"  {s:14s} outer {outer[s]:.2f}: predicted {pred:5.1f} uH {'in window' if inwin else 'outside':10s} "
               f"loaded CI {th['cast_iron']['L_loaded_uH'] * k:4.1f} / 430 {th['ss430']['L_loaded_uH'] * k:4.1f} uH, rim {th['ss430']['rim_share'] * 100:.0f} %{flag}")
         if allowed and inwin:
-            ok.append((abs(pred - a.target), s, pred))
+            ok.append((abs(pred - a.target) + (2.0 if s.endswith(".5") else 0.0), s, pred))   # whole turns preferred
     if ok:
         _, s, pred = min(ok)
         n = round((outer[now] - outer[s]) * 2)

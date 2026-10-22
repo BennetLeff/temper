@@ -1,0 +1,137 @@
+{
+ "about": "Bench lead lengths for coil 1 (coil on a non-conductive spacer beside the native-21 board, bench sink in place), and\nwhat the bench leads add to L and R so the M2/M3/M5 readings and the tune loop account for them.\n\nLayout (board frame: KiCad x right, y toward the front edge, z up from the board top; native-21 outline 290 x 140 plus\nthe SELV tongue x0-91 y140-190; J2 (132.0, 85.5), J5 (132.0, 70.5), DECISIONS 44 / c35 ENCLOSURE-REQUEST):\n  - the bench sink (bench-sink-r1: Wakefield-Vette 511-3M, x -12..120.33 along the rear edge y0, 76.2 mm tall) stays\n    on the rear edge; the coil goes in FRONT of the board, its lead exits (J2 r118.8, J5 r87.9, both near -95 deg on\n    the coil) pointing at the studs;\n  - placement rule (stated, senior-designer call): no part of the board, tongue included, sees more coil field than\n    the board does installed in R43. Reference: the installed R1 coil's |B| at R43's under-coil check point\n    (r60, Z80; study 06/09), from this study's axisymmetric model (coil_model, enclosure on). Bench field: the same\n    model in free air, evaluated at every board outline point at the board-top height. Both per amp: the ratio is\n    current-independent;\n  - the spacer is a plywood/MDF ring support under the former's rim and four lugs (no metal; M3 nylon screws), open\n    for ~70 deg over the lead exits. The leads drop straight from their R43 drop points (J2 through the rim hole, J5\n    between the -113/-77 deg spokes), bend level at the run height, run straight in plan to above the lug barrels and\n    bend down into them. Run height over the board: barrel top + the bend radius + 2 mm. The former underside sits\n    2 x the bend radius / 0.9 + 2 mm above the run, less the winding's own 7.1 mm, so both J2 bends (off the winding, and\n    level again) take the full bend radius.\nElectrical (litz.py constants with the Remington 260 x 0.1007 mm strand; lay 1.03): R_dc of each lead; R_ac adds strand\nproximity in the lead's own field and, where the two run together, in the neighbour's field; loop L of the paired run\nL' = (mu0 / pi) ln(s / GMR) per metre (GMR = 0.7788 a, a = bundle radius; s = sleeve OD, sleeves touching), plus the\nunpaired ends as pairs at their actual spacing (an upper-bound style estimate). The coil model's R_dc already counts\n0.4 m of lead (coil_geometry.Winding lead_centre 250 + lead_outer 150 mm); the delta against that is reported.\nAlso: the tune loop's half-turn states. The J2 exit is fixed at -94.3 deg, so a half-turn trim leaves the outer end 180\ndeg away and the lead must run back along the rim: it then carries the current over ~171 deg (CW) or ~189 deg (CCW)\nof a ring at r~118.6, and the \"-0.5\" state is not what tune.py lists. Estimated by adding that partial ring to the\naxisymmetric model (a ring of weight -171/360 or +189/360): a coarse, stated approximation.\nRun: .venv/bin/python -B fit/bench_leads.py  -> fit/results/bench_leads.json",
+ "bend_rule": "minimum bend radius 3 x the sleeved lead's OD (3.55 mm -> 10.65 mm): NASA-STD-8739.4A w/ Change 4 Table 7-1, installed harness of AWG 10 or smaller (minimum; optimum 10 x). Also reported: 5 x the bare bundle (11.45 mm), New England Wire's generic static guideline",
+ "lead_od_mm": 3.55,
+ "field": {
+  "reference_installed_r60_z80_uT_per_A": 11.88429813143397,
+  "bench_board_max_uT_per_A": 11.794326583844764,
+  "board_nearest_to_coil_axis_mm": 154.87091398968371,
+  "sink_nearest_to_coil_axis_mm": 308.9886549697254,
+  "sink_uT_per_A": 1.4629907256502,
+  "free_air_coil_plane_uT_per_A": {
+   "130": 83.58865431172292,
+   "150": 27.891491958259483,
+   "175": 12.644282947776846,
+   "200": 7.166382169120656,
+   "250": 3.107900798966075,
+   "300": 1.6636696569003453
+  }
+ },
+ "layout": {
+  "stud_mid_to_coil_axis_mm": 220.0,
+  "board_shift_along_x_mm": 70.0,
+  "coil_centre_board_xy": [
+   202.0,
+   298.0
+  ],
+  "winding_plane_above_board_top_mm": 58.95166666666666,
+  "former_underside_above_board_top_mm": 51.806666666666665,
+  "lead_run_height_mm": 33.285,
+  "lowest_run_for_the_bends_mm": 26.850885142487144,
+  "spacer": {
+   "kind": "ring support under the rim and lugs",
+   "open_over_lead_exits_deg": 70.0,
+   "height_above_board_top_mm": 51.806666666666665,
+   "material": "plywood or MDF, no metal; nylon M3 at the four former lugs"
+  }
+ },
+ "leads": {
+  "J2": {
+   "developed_mm": 159.6818910985498,
+   "tightest_bend_mm": 10.649999999999999,
+   "enclosure_developed_mm": 72.67501501274232,
+   "exit_r_mm": 118.74156812169865,
+   "plan_run_mm": 109.79596799482655,
+   "drop_below_former_mm": 18.521666666666675
+  },
+  "J5": {
+   "developed_mm": 304.4832218528885,
+   "tightest_bend_mm": 10.649999999999999,
+   "enclosure_developed_mm": 163.6401639483546,
+   "exit_r_mm": 88.06111514170144,
+   "plan_run_mm": 163.63214981355296,
+   "drop_below_former_mm": 18.521666666666675
+  }
+ },
+ "under_runs": {
+  "J2": {
+   "run_board_xy": [
+    [
+     200.4,
+     179.3
+    ],
+    [
+     132.0,
+     93.4
+    ]
+   ],
+   "tallest_part_under_run_mm": 25.01,
+   "box_board_local": [
+    146.5,
+    132.0,
+    1.6,
+    173.5,
+    137.0,
+    26.6
+   ],
+   "lead_bottom_mm": 31.51,
+   "clearance_mm": 6.5
+  },
+  "J5": {
+   "run_board_xy": [
+    [
+     203.2,
+     209.9
+    ],
+    [
+     132.0,
+     62.6
+    ]
+   ],
+   "tallest_part_under_run_mm": 29.51,
+   "box_board_local": [
+    161.0,
+    106.0,
+    2.1,
+    187.5,
+    120.5,
+    31.1
+   ],
+   "lead_bottom_mm": 31.51,
+   "clearance_mm": 2.0
+  }
+ },
+ "electrical": {
+  "total_lead_m": 0.46416511295143836,
+  "model_lead_m": 0.4,
+  "paired_run_mm": 129.6818910985498,
+  "unpaired_J5_mm": 144.8013307543387,
+  "L_pair_uH_per_m": 0.5526175887860856,
+  "L_loop_added_uH": 0.17443241869970708,
+  "by_temperature": {
+   "25C": {
+    "R_dc_per_m_mohm": 8.743864910871528,
+    "R_leads_dc_mohm": 4.058597043986801,
+    "R_leads_ac40k_mohm": 4.100396527462566,
+    "R_dc_delta_vs_model_0p4m_mohm": 0.5610510796381899,
+    "R_ac_delta_vs_model_0p4m_mohm": 0.570275141555554
+   },
+   "100C": {
+    "R_dc_per_m_mohm": 11.271452006913682,
+    "R_leads_dc_mohm": 5.231814793915806,
+    "R_leads_ac40k_mohm": 5.2642408767871265,
+    "R_dc_delta_vs_model_0p4m_mohm": 0.7232339911503328,
+    "R_ac_delta_vs_model_0p4m_mohm": 0.7303895866570586
+   }
+  },
+  "note": "R_dc from rho_cu(T) x lay 1.03 / (260 x pi d^2 / 4); the datasheet maximum (0.00281 ohm/ft at 20 C = 9.22 mOhm/m) is ~6 % above this nominal"
+ },
+ "trim_states": {
+  "R1_uH": 81.11825416848983,
+  "trim_0p5_no_lead_uH": 76.80352720836139,
+  "trim_0p5_cw_rim_return_uH": 73.93896528102343,
+  "trim_0p5_ccw_rim_run_uH": 80.38588023786022,
+  "trim_1_uH": 72.53904594533724,
+  "note": "2D x k_free; the partial lead ring is an axisymmetric weight, a coarse model of a 171/189 deg arc"
+ }
+}

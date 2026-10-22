@@ -29,6 +29,8 @@ BAR_CH_W, BAR_CH_R = G.BAR_W + 0.2, (G.BAR_R[0] - 0.1, G.BAR_R[1] + 0.1)     # c
 LUG_ANGLES, LUG_R, LUG_W, LUG_R1, LUG_T, LUG_HOLE = (45, 135, 225, 315), 127.0, 12.0, 134.0, 2.0, 3.4
 J2, J5 = (-9.0, 142.5 - 261.0), (-9.0, 173.5 - 261.0)
 D_LEAD = 2.4
+LEAD_HOLE_R1 = 2.3   # J2 lead hole radius for the sleeved R1 lead (Varglas No. 9, OD <= 3.55, + 0.5); fit study 2026-10-21
+BUNDLE_R1 = 2.29     # Remington 260/38LITZ, OD 0.090 in maximum (product page, read 2026-10-21); the design bundle from 2026-10-21
 # R40 coil-NTC pad on the -41 deg spoke
 NTC_PHI, NTC_TILT, NTC_WALL, BEAD_D, BEAD_L = -41.0, 20.0, 2.0, 1.35, 3.0
 

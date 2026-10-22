@@ -1,0 +1,219 @@
+{
+ "joints": [
+  {
+   "joint_deg": 301.0,
+   "nearest_spoke_deg": 18.0,
+   "comb_strip_mm": 7.89,
+   "bar_channel_mm": 1.49,
+   "spoke_roof_mm_at_r31": -0.02,
+   "roof_merge_radius_mm": 31.07,
+   "lug_mm": 24.72,
+   "J2_hole_mm": 66.55,
+   "ntc_pad_mm": 16.36
+  },
+  {
+   "joint_deg": 13.0,
+   "nearest_spoke_deg": 18.0,
+   "comb_strip_mm": 7.89,
+   "bar_channel_mm": 1.49,
+   "spoke_roof_mm_at_r31": -0.02,
+   "roof_merge_radius_mm": 31.07,
+   "lug_mm": 61.3,
+   "J2_hole_mm": 116.64,
+   "ntc_pad_mm": 58.36
+  },
+  {
+   "joint_deg": 85.0,
+   "nearest_spoke_deg": 18.0,
+   "comb_strip_mm": 7.89,
+   "bar_channel_mm": 1.49,
+   "spoke_roof_mm_at_r31": -0.02,
+   "roof_merge_radius_mm": 31.07,
+   "lug_mm": 75.63,
+   "J2_hole_mm": 116.64,
+   "ntc_pad_mm": 74.4
+  },
+  {
+   "joint_deg": 157.0,
+   "nearest_spoke_deg": 18.0,
+   "comb_strip_mm": 7.89,
+   "bar_channel_mm": 1.49,
+   "spoke_roof_mm_at_r31": -0.02,
+   "roof_merge_radius_mm": 31.07,
+   "lug_mm": 41.58,
+   "J2_hole_mm": 116.64,
+   "ntc_pad_mm": 74.4
+  },
+  {
+   "joint_deg": 229.0,
+   "nearest_spoke_deg": 18.0,
+   "comb_strip_mm": 7.89,
+   "bar_channel_mm": 1.49,
+   "spoke_roof_mm_at_r31": -0.02,
+   "roof_merge_radius_mm": 31.07,
+   "lug_mm": 2.86,
+   "J2_hole_mm": 68.75,
+   "ntc_pad_mm": 74.4
+  }
+ ],
+ "notches_on_a_joint": 0,
+ "bars_across_a_joint": 0,
+ "turns_crossing_a_roofed_joint": [
+  {
+   "joint_deg": 301.0,
+   "r_mm": 27.78
+  },
+  {
+   "joint_deg": 301.0,
+   "r_mm": 31.6
+  },
+  {
+   "joint_deg": 13.0,
+   "r_mm": 28.54
+  },
+  {
+   "joint_deg": 85.0,
+   "r_mm": 29.31
+  },
+  {
+   "joint_deg": 157.0,
+   "r_mm": 30.07
+  },
+  {
+   "joint_deg": 229.0,
+   "r_mm": 30.83
+  }
+ ],
+ "joint_features": {
+  "rim": {
+   "half_lap_deg": 6.0,
+   "pin_hole_d": 3.2,
+   "pin_r": 125.0,
+   "boss_r": [
+    120.0,
+    128.5
+   ],
+   "pin": "3 mm G10 rod or bamboo"
+  },
+  "hub": {
+   "boss_deg": 8.0,
+   "boss_r": [
+    22.0,
+    29.0
+   ],
+   "boss_z_local": [
+    0.0,
+    5.0
+   ],
+   "pin_hole_d": 2.2,
+   "pin_r": 25.5,
+   "wall_in_mm": 2.4,
+   "wall_out_mm": 2.4,
+   "boss_to_bar_channel_mm": 0.4,
+   "pin": "2 mm G10/glass-fibre rod"
+  }
+ },
+ "teeth_mm": {
+  "print_bundle2.15": {
+   "inner": 1.364,
+   "outer": 0.861,
+   "end_slivers_under_0.6mm": []
+  },
+  "print_bundle2.29": {
+   "inner": 1.224,
+   "outer": 0.721,
+   "end_slivers_under_0.6mm": []
+  },
+  "print_bundle2.4": {
+   "inner": 1.114,
+   "outer": 0.611,
+   "end_slivers_under_0.6mm": []
+  },
+  "print_bundle2.45": {
+   "inner": 1.064,
+   "outer": 0.561,
+   "end_slivers_under_0.6mm": []
+  },
+  "cnc_bundle2.15": {
+   "inner": 1.464,
+   "outer": 0.961,
+   "end_slivers_under_0.6mm": []
+  },
+  "cnc_bundle2.29": {
+   "inner": 1.324,
+   "outer": 0.821,
+   "end_slivers_under_0.6mm": []
+  },
+  "cnc_bundle2.4": {
+   "inner": 1.214,
+   "outer": 0.711,
+   "end_slivers_under_0.6mm": []
+  },
+  "cnc_bundle2.45": {
+   "inner": 1.164,
+   "outer": 0.661,
+   "end_slivers_under_0.6mm": []
+  }
+ },
+ "segments": {
+  "solids_each": [
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "adjacent_overlap_mm3": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "volume_sum_cm3": 69.536,
+  "printed_body_cm3": 69.536,
+  "footprint_mm": [
+   [
+    116.2,
+    152.0,
+    8.5
+   ],
+   [
+    127.4,
+    123.6,
+    8.5
+   ],
+   [
+    134.1,
+    119.9,
+    8.5
+   ],
+   [
+    109.1,
+    155.5,
+    8.5
+   ],
+   [
+    161.6,
+    106.9,
+    8.5
+   ]
+  ],
+  "carrier_lugs_deg": [
+   [
+    315
+   ],
+   [
+    45
+   ],
+   [
+    135
+   ],
+   [
+    225
+   ],
+   []
+  ]
+ },
+ "comb_top_world_z": 101.49
+}

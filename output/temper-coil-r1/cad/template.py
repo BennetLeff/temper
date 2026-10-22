@@ -95,7 +95,7 @@ def write_dxf(g):
     m2.add_circle((0, 0), K.HUB_R[0])
     for a in K.LUG_ANGLES:
         m2.add_circle(K.P(K.LUG_R, a)[:2], K.LUG_HOLE / 2)
-    m2.add_circle(K.J2, K.D_LEAD / 2 + 1.0)
+    m2.add_circle(K.J2, K.LEAD_HOLE_R1)       # sleeved R1 lead (fit study 2026-10-21)
     doc2.saveas(OUT / "roof_sheet_R1.dxf")
 
 
