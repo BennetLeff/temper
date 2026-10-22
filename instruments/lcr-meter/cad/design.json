@@ -495,20 +495,6 @@
         "power_in"
       ]
     },
-    "PMOS": {
-      "1": [
-        "G",
-        "passive"
-      ],
-      "2": [
-        "S",
-        "passive"
-      ],
-      "3": [
-        "D",
-        "passive"
-      ]
-    },
     "DIODE": {
       "1": [
         "K",
@@ -660,20 +646,6 @@
       ],
       "6": [
         "IO1",
-        "passive"
-      ]
-    },
-    "JACK": {
-      "4": [
-        "TIP",
-        "passive"
-      ],
-      "3": [
-        "SLEEVE",
-        "passive"
-      ],
-      "2": [
-        "SW",
         "passive"
       ]
     },
@@ -871,6 +843,32 @@
       "3": [
         "D",
         "passive"
+      ]
+    },
+    "USBSW": {
+      "1": [
+        "IN",
+        "power_in"
+      ],
+      "2": [
+        "GND",
+        "power_in"
+      ],
+      "3": [
+        "EN",
+        "input"
+      ],
+      "4": [
+        "~{FAULT}",
+        "open_collector"
+      ],
+      "5": [
+        "ILIM",
+        "passive"
+      ],
+      "6": [
+        "OUT",
+        "power_out"
       ]
     },
     "BAT54S": {
@@ -1222,31 +1220,6 @@
       "source_query": "TPS65131"
     },
     {
-      "ref": "Q1",
-      "value": "AO3401A",
-      "kind": "PMOS",
-      "footprint": "Package_TO_SOT_SMD:SOT-23",
-      "pins": {
-        "1": "GND",
-        "2": "5V",
-        "3": "5VIN"
-      },
-      "pcb": [
-        69,
-        121,
-        0
-      ],
-      "sheet": "power",
-      "mpn": "AO3401A",
-      "manufacturer": "Alpha & Omega Semicon",
-      "lcsc": "C15127",
-      "unit_usd": 0.1022,
-      "stock": 711122,
-      "library_type": "basic",
-      "assembly": "SMT",
-      "source_query": "AO3401A"
-    },
-    {
       "ref": "D2",
       "value": "SS14",
       "kind": "DIODE",
@@ -1529,31 +1502,6 @@
       "sheet": "digital",
       "library_type": "preferred",
       "source_query": "SRV05-4 C7420376"
-    },
-    {
-      "ref": "J2",
-      "value": "5V 1A CENTER+",
-      "kind": "JACK",
-      "footprint": "Connector_BarrelJack:BarrelJack_Horizontal",
-      "pins": {
-        "4": "5VIN",
-        "3": "GND",
-        "2": null
-      },
-      "pcb": [
-        64,
-        125,
-        0
-      ],
-      "sheet": "power",
-      "mpn": "DC-005 2.0",
-      "manufacturer": "BOOMELE(Boom Precision Elec)",
-      "lcsc": "C16214",
-      "unit_usd": 0.0564,
-      "stock": 60406,
-      "library_type": "extended",
-      "assembly": "Hand fit",
-      "source_query": "DC-005"
     },
     {
       "ref": "J4",
@@ -4508,6 +4456,82 @@
       "source_query": "Rev E"
     },
     {
+      "ref": "U16",
+      "value": "TPS2553",
+      "kind": "USBSW",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "pins": {
+        "1": "USB_VBUS",
+        "2": "GND",
+        "3": "USB_VBUS",
+        "4": null,
+        "5": "VBUS_ILIM",
+        "6": "5V"
+      },
+      "pcb": [
+        63.0,
+        121.0,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "TPS2553DBVR",
+      "manufacturer": "Texas Instruments",
+      "lcsc": "C55266",
+      "unit_usd": 0.5412,
+      "stock": null,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "TPS2553DBVR C55266"
+    },
+    {
+      "ref": "R110",
+      "value": "24k 1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "VBUS_ILIM",
+        "2": "GND"
+      },
+      "pcb": [
+        64.6,
+        123.6,
+        180
+      ],
+      "sheet": "power",
+      "mpn": "0603WAF2402T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23352",
+      "unit_usd": 0.0024,
+      "stock": null,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "Rev E"
+    },
+    {
+      "ref": "C113",
+      "value": "1uF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "pins": {
+        "1": "USB_VBUS",
+        "2": "GND"
+      },
+      "pcb": [
+        61.8625,
+        117.4,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "CL21B105KBFNNNE",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C28323",
+      "unit_usd": 0.0344,
+      "stock": null,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "Rev E"
+    },
+    {
       "ref": "R62",
       "value": "1k 0.1%",
       "kind": "R",
@@ -5887,14 +5911,13 @@
   ],
   "power_flags": [
     "GND",
-    "5VIN",
-    "5V",
     "5VA",
     "RAW_P",
     "RAW_N",
     "CONV_VIN",
     "LDOIN_P",
-    "LDOIN_N"
+    "LDOIN_N",
+    "USB_VBUS"
   ],
   "stage53": {
     "path": "worktrees/runs-native21/s53/c53int/section.kicad_pcb",
@@ -5931,7 +5954,7 @@
     }
   ],
   "notes": [
-    "One PCB; external regulated 5V 1A input and USB data; USB-ground referenced.",
+    "One PCB; USB-C power (5V, 1A current limit) and USB data; USB-ground referenced.",
     "ADC A=HIGH_BUF-LOW_BUF; ADC B=LOW_BUF-TIA_OUT; Z=Zf*A/B.",
     "Install exactly one matching pair of range jumpers with power removed.",
     "OPA2810 analog architecture from TIDA-060029; no BUF634A; feedback closes at actual OPA2810 output.",

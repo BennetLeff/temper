@@ -1,16 +1,15 @@
 {
  "boards": 2,
  "board_counts": {
-  "placements": 191,
-  "smt_joints": 594,
+  "placements": 193,
+  "smt_joints": 601,
   "leadless": [
    "U1",
    "U13",
    "U14"
   ],
-  "tht_joints": 29,
+  "tht_joints": 26,
   "tht_refs": [
-   "J2",
    "J3",
    "J4",
    "J5",
@@ -20,7 +19,7 @@
    "J9"
   ]
  },
- "extended_lines": 27,
+ "extended_lines": 28,
  "basic_or_preferred_lines": 33,
  "lines": [
   {
@@ -33,7 +32,7 @@
    "buy": 28,
    "unit": 0.0108,
    "cost": 0.3024,
-   "stock": 6412577
+   "stock": 6415478
   },
   {
    "lcsc": "C53987",
@@ -45,7 +44,7 @@
    "buy": 20,
    "unit": 0.0058,
    "cost": 0.116,
-   "stock": 949643
+   "stock": 949341
   },
   {
    "lcsc": "C22775",
@@ -57,7 +56,7 @@
    "buy": 22,
    "unit": 0.0026,
    "cost": 0.0572,
-   "stock": 10421410
+   "stock": 10417441
   },
   {
    "lcsc": "C21190",
@@ -69,7 +68,7 @@
    "buy": 20,
    "unit": 0.0018,
    "cost": 0.036,
-   "stock": 37220826
+   "stock": 37239605
   },
   {
    "lcsc": "C25804",
@@ -81,7 +80,7 @@
    "buy": 20,
    "unit": 0.0018,
    "cost": 0.036,
-   "stock": 37400565
+   "stock": 37378782
   },
   {
    "lcsc": "C25803",
@@ -93,7 +92,7 @@
    "buy": 26,
    "unit": 0.0031,
    "cost": 0.0806,
-   "stock": 18743398
+   "stock": 18739197
   },
   {
    "lcsc": "C22936",
@@ -105,7 +104,7 @@
    "buy": 20,
    "unit": 0.0026,
    "cost": 0.052,
-   "stock": 216473
+   "stock": 216243
   },
   {
    "lcsc": "C22807",
@@ -117,7 +116,7 @@
    "buy": 20,
    "unit": 0.0017,
    "cost": 0.034,
-   "stock": 988894
+   "stock": 988350
   },
   {
    "lcsc": "C422975",
@@ -141,7 +140,19 @@
    "buy": 20,
    "unit": 0.0034,
    "cost": 0.068,
-   "stock": 129368
+   "stock": 129388
+  },
+  {
+   "lcsc": "C23352",
+   "mpn": "0603WAF2402T5E",
+   "assembly": "SMT",
+   "library": "base",
+   "preferred": false,
+   "need": 2,
+   "buy": 20,
+   "unit": 0.0024,
+   "cost": 0.048,
+   "stock": 759518
   },
   {
    "lcsc": "C25190",
@@ -153,7 +164,7 @@
    "buy": 20,
    "unit": 0.0016,
    "cost": 0.032,
-   "stock": 580475
+   "stock": 580435
   },
   {
    "lcsc": "C23140",
@@ -165,7 +176,7 @@
    "buy": 20,
    "unit": 0.0024,
    "cost": 0.048,
-   "stock": 4765772
+   "stock": 4761622
   },
   {
    "lcsc": "C23179",
@@ -177,7 +188,7 @@
    "buy": 20,
    "unit": 0.0023,
    "cost": 0.046,
-   "stock": 5281220
+   "stock": 5280707
   },
   {
    "lcsc": "C23162",
@@ -189,7 +200,7 @@
    "buy": 20,
    "unit": 0.0028,
    "cost": 0.056,
-   "stock": 17817531
+   "stock": 17818506
   },
   {
    "lcsc": "C23182",
@@ -201,7 +212,7 @@
    "buy": 20,
    "unit": 0.002,
    "cost": 0.04,
-   "stock": 1839933
+   "stock": 1837337
   },
   {
    "lcsc": "C23186",
@@ -213,7 +224,7 @@
    "buy": 20,
    "unit": 0.0015,
    "cost": 0.03,
-   "stock": 22710529
+   "stock": 22660580
   },
   {
    "lcsc": "C2128",
@@ -225,7 +236,7 @@
    "buy": 20,
    "unit": 0.014,
    "cost": 0.28,
-   "stock": 2891425
+   "stock": 2869780
   },
   {
    "lcsc": "C20625731",
@@ -235,9 +246,9 @@
    "preferred": false,
    "need": 2,
    "buy": 5,
-   "unit": 0.6474,
-   "cost": 3.237,
-   "stock": 5094
+   "unit": 0.6458,
+   "cost": 3.229,
+   "stock": 4884
   },
   {
    "lcsc": "C20917",
@@ -249,19 +260,7 @@
    "buy": 14,
    "unit": 0.0973,
    "cost": 1.3622,
-   "stock": 1305936
-  },
-  {
-   "lcsc": "C15127",
-   "mpn": "AO3401A",
-   "assembly": "SMT",
-   "library": "base",
-   "preferred": false,
-   "need": 2,
-   "buy": 6,
-   "unit": 0.0959,
-   "cost": 0.5754,
-   "stock": 690258
+   "stock": 1310783
   },
   {
    "lcsc": "C51118",
@@ -273,7 +272,7 @@
    "buy": 5,
    "unit": 0.1773,
    "cost": 0.8865,
-   "stock": 17161
+   "stock": 16804
   },
   {
    "lcsc": "C7420333",
@@ -285,7 +284,7 @@
    "buy": 13,
    "unit": 0.0129,
    "cost": 0.1677,
-   "stock": 857448
+   "stock": 857408
   },
   {
    "lcsc": "C41416668",
@@ -321,7 +320,7 @@
    "buy": 20,
    "unit": 0.0092,
    "cost": 0.184,
-   "stock": 144386
+   "stock": 145396
   },
   {
    "lcsc": "C107054",
@@ -333,7 +332,7 @@
    "buy": 20,
    "unit": 0.0066,
    "cost": 0.132,
-   "stock": 190824
+   "stock": 190854
   },
   {
    "lcsc": "C14663",
@@ -345,7 +344,7 @@
    "buy": 60,
    "unit": 0.0082,
    "cost": 0.492,
-   "stock": 40039308
+   "stock": 40026460
   },
   {
    "lcsc": "C15849",
@@ -357,7 +356,7 @@
    "buy": 20,
    "unit": 0.0153,
    "cost": 0.306,
-   "stock": 14659300
+   "stock": 14645708
   },
   {
    "lcsc": "C21120",
@@ -369,7 +368,7 @@
    "buy": 20,
    "unit": 0.0093,
    "cost": 0.186,
-   "stock": 1151221
+   "stock": 1156934
   },
   {
    "lcsc": "C14858",
@@ -381,7 +380,7 @@
    "buy": 20,
    "unit": 0.0086,
    "cost": 0.172,
-   "stock": 3823995
+   "stock": 3820710
   },
   {
    "lcsc": "C1644",
@@ -393,7 +392,7 @@
    "buy": 20,
    "unit": 0.0111,
    "cost": 0.222,
-   "stock": 908013
+   "stock": 907273
   },
   {
    "lcsc": "C15850",
@@ -405,7 +404,7 @@
    "buy": 20,
    "unit": 0.0426,
    "cost": 0.852,
-   "stock": 9564060
+   "stock": 9562230
   },
   {
    "lcsc": "C28323",
@@ -413,11 +412,11 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 32,
-   "buy": 42,
-   "unit": 0.0344,
-   "cost": 1.4448,
-   "stock": 2140720
+   "need": 34,
+   "buy": 44,
+   "unit": 0.0342,
+   "cost": 1.5048,
+   "stock": 2163952
   },
   {
    "lcsc": "C12891",
@@ -429,7 +428,7 @@
    "buy": 8,
    "unit": 0.1402,
    "cost": 1.1216,
-   "stock": 1609842
+   "stock": 1607642
   },
   {
    "lcsc": "C138687",
@@ -439,21 +438,9 @@
    "preferred": false,
    "need": 20,
    "buy": 20,
-   "unit": 0.2672,
-   "cost": 5.344,
-   "stock": 125960
-  },
-  {
-   "lcsc": "C16214",
-   "mpn": "DC-005 2.0",
-   "assembly": "Hand fit",
-   "library": "expand",
-   "preferred": false,
-   "need": 2,
-   "buy": 3,
-   "unit": 0.0565,
-   "cost": 0.1695,
-   "stock": 57926
+   "unit": 0.267,
+   "cost": 5.34,
+   "stock": 125880
   },
   {
    "lcsc": "C167963",
@@ -477,7 +464,7 @@
    "buy": 20,
    "unit": 0.0256,
    "cost": 0.512,
-   "stock": 2209647
+   "stock": 2209109
   },
   {
    "lcsc": "C2286",
@@ -489,7 +476,7 @@
    "buy": 20,
    "unit": 0.0077,
    "cost": 0.154,
-   "stock": 8224851
+   "stock": 8229570
   },
   {
    "lcsc": "C2864204",
@@ -513,7 +500,7 @@
    "buy": 2,
    "unit": 3.0964,
    "cost": 6.1928,
-   "stock": 2766
+   "stock": 2764
   },
   {
    "lcsc": "C482643",
@@ -537,7 +524,7 @@
    "buy": 2,
    "unit": 1.0758,
    "cost": 2.1516,
-   "stock": 45508
+   "stock": 45275
   },
   {
    "lcsc": "C122538",
@@ -549,7 +536,7 @@
    "buy": 20,
    "unit": 0.0323,
    "cost": 0.646,
-   "stock": 1353099
+   "stock": 1352511
   },
   {
    "lcsc": "C122970",
@@ -561,7 +548,7 @@
    "buy": 20,
    "unit": 0.0319,
    "cost": 0.638,
-   "stock": 424507
+   "stock": 424163
   },
   {
    "lcsc": "C95204",
@@ -573,7 +560,7 @@
    "buy": 20,
    "unit": 0.0329,
    "cost": 0.658,
-   "stock": 1942331
+   "stock": 1941064
   },
   {
    "lcsc": "C110776",
@@ -585,7 +572,7 @@
    "buy": 28,
    "unit": 0.0313,
    "cost": 0.8764,
-   "stock": 1712866
+   "stock": 1714196
   },
   {
    "lcsc": "C861239",
@@ -597,7 +584,7 @@
    "buy": 20,
    "unit": 0.0404,
    "cost": 0.808,
-   "stock": 19431
+   "stock": 19411
   },
   {
    "lcsc": "C861295",
@@ -645,7 +632,7 @@
    "buy": 20,
    "unit": 0.0262,
    "cost": 0.524,
-   "stock": 82548
+   "stock": 82057
   },
   {
    "lcsc": "C7420376",
@@ -657,7 +644,7 @@
    "buy": 6,
    "unit": 0.0851,
    "cost": 0.5106,
-   "stock": 132716
+   "stock": 132678
   },
   {
    "lcsc": "C2480",
@@ -669,7 +656,7 @@
    "buy": 14,
    "unit": 0.0192,
    "cost": 0.2688,
-   "stock": 1299218
+   "stock": 1310962
   },
   {
    "lcsc": "C44853692",
@@ -684,6 +671,18 @@
    "stock": 136
   },
   {
+   "lcsc": "C55266",
+   "mpn": "TPS2553DBVR",
+   "assembly": "SMT",
+   "library": "expand",
+   "preferred": false,
+   "need": 2,
+   "buy": 5,
+   "unit": 0.5412,
+   "cost": 2.706,
+   "stock": 50619
+  },
+  {
    "lcsc": "C87663",
    "mpn": "TPS65131RGER",
    "assembly": "SMT",
@@ -693,7 +692,7 @@
    "buy": 2,
    "unit": 2.8757,
    "cost": 5.7514,
-   "stock": 833
+   "stock": 829
   },
   {
    "lcsc": "C33835",
@@ -705,7 +704,7 @@
    "buy": 2,
    "unit": 2.0207,
    "cost": 4.0414,
-   "stock": 8923
+   "stock": 8921
   },
   {
    "lcsc": "C16430",
@@ -717,7 +716,7 @@
    "buy": 2,
    "unit": 1.4502,
    "cost": 2.9004,
-   "stock": 10603
+   "stock": 10551
   },
   {
    "lcsc": "C2684450",
@@ -741,7 +740,7 @@
    "buy": 8,
    "unit": 0.0527,
    "cost": 0.4216,
-   "stock": 561672
+   "stock": 561192
   },
   {
    "lcsc": "C7402729",
@@ -765,7 +764,7 @@
    "buy": 2,
    "unit": 0.1867,
    "cost": 0.3734,
-   "stock": 334867
+   "stock": 336891
   },
   {
    "lcsc": "C97521",
@@ -777,7 +776,7 @@
    "buy": 2,
    "unit": 2.8512,
    "cost": 5.7024,
-   "stock": 56205
+   "stock": 56192
   }
  ],
  "stock_findings": [],
@@ -793,35 +792,35 @@
   }
  },
  "economic": {
-  "SMT parts": 104.59,
-  "SMT joints": 1.9,
+  "SMT parts": 106.82,
+  "SMT joints": 1.92,
   "X-ray": 9.84,
   "Confirm placement": 0.45,
   "PCB fabrication": 80.98,
   "Setup": 8.18,
   "Stencil": 1.53,
-  "Extended-part fee": 82.89
+  "Extended-part fee": 85.96
  },
  "standard": {
-  "SMT parts": 104.59,
-  "SMT joints": 1.9,
+  "SMT parts": 106.82,
+  "SMT joints": 1.92,
   "X-ray": 9.84,
   "Confirm placement": 0.45,
   "PCB fabrication": 80.98,
   "Setup": 25.56,
   "Stencil": 8.21,
-  "Feeder loading": 133.38,
+  "Feeder loading": 136.45,
   "Fixtures": 16.42
  },
  "jlc_hand_fit": {
-  "Hand-fit parts via JLC": 14.42,
-  "Manual joints": 0.95,
+  "Hand-fit parts via JLC": 14.25,
+  "Manual joints": 0.85,
   "Hand-soldering labour": 3.58
  },
  "totals": {
-  "economic": 290.36,
-  "standard": 381.33,
-  "jlc_hand_fit": 18.95
+  "economic": 295.68,
+  "standard": 386.65,
+  "jlc_hand_fit": 18.69
  },
  "excluded": [
   "shipping",

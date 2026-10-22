@@ -8,7 +8,7 @@ A single **140 × 105 mm, four-layer PCB** (Rev E; Rev D was 140 × 100 mm) for 
 - [TI reference conformance](docs/reference-conformance.md): retained, changed and added circuits, and physical layout review evidence.
 - [Bring-up procedure](docs/bring-up.md), [full-chain simulation evidence](docs/analog-validation-rev-c.md), [Rev D decision and in-box studies](docs/rev-d-decision.md), [cost estimate](docs/cost-estimate.md).
 - [Firmware](firmware/README.md) and [Rust host CLI](host/README.md), including prebuilt RP2040 UF2 and macOS ARM64 host binary.
-- [Complete revision D package](temper-lcr-rev-d-package.zip), [Gerber/drill ZIP](manufacturing/temper-lcr-gerbers.zip), [fabrication instructions](manufacturing/FABRICATION.md), and [verification receipt](validation/README.md). The BOM and CPL reside in `manufacturing/`.
+- [Complete revision E package](temper-lcr-rev-e-package.zip), [Gerber/drill ZIP](manufacturing/temper-lcr-gerbers.zip), [fabrication instructions](manufacturing/FABRICATION.md), and [verification receipt](validation/README.md). The BOM and CPL reside in `manufacturing/`.
 
 The board requires **filled, copper-capped, planarized via-in-pad fabrication**. Budget approximately **$320–450 for the minimum prototype assembly batch, plus the vendor's unquoted four-layer via-in-pad surcharge**; fitted components alone are about $76 per board. JLC's minimum batch is five bare boards and two assembled boards, even when only one working instrument is needed. See the cost estimate for inclusions and limits.
 
@@ -16,7 +16,7 @@ The board requires **filled, copper-capped, planarized via-in-pad fabrication**.
 
 AD9833 sine generator → two-stage RC reconstruction → AC coupling and OPA810 gain 6 → retained TIDA-060029 analog core → two THS4551 differential drivers → ADS9224R simultaneous 16-bit ADC → RP2040 USB CDC. The 24 MHz DDS clock derives from the MCU; acquisition uses two serial data lanes at 1 MSPS, and the firmware boxcar-sums 1–20 consecutive conversions per output sample at low frequencies instead of undersampling. The Rust host fits both waveforms at the actual DDS frequency, applies complex feedback impedance and fixture calibration, and reports complex impedance and equivalent series L/C/R.
 
-A regulated **5 V ±5%, 1 A, center-positive external supply** powers the board. USB carries data and ground. A forced-PWM TPS65131 and low-noise positive/negative postregulators supply approximately ±12 V. The instrument is ground referenced; it has no mains isolation. Neither DUT terminal should be connected to an external powered circuit.
+Revision E takes power and data from **one USB-C cable**: U16 (TPS2553) switches VBUS onto the 5 V rail with soft start and a 1.0–1.16 A current limit. A USB-C port or a USB 3 port (900 mA) supplies the estimated 0.45 A; a USB 2.0 type-A port (500 mA) is marginal. Revision D and earlier used a regulated 5 V, 1 A, center-positive external supply, with USB for data and ground. A forced-PWM TPS65131 and low-noise positive/negative postregulators supply approximately ±12 V. The instrument is ground referenced; it has no mains isolation. Neither DUT terminal should be connected to an external powered circuit.
 
 With power removed, fit exactly one matched pair of removable jumpers:
 

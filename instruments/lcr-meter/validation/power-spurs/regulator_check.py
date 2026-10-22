@@ -55,12 +55,17 @@ def farads(ref):
 
 RES_TOL = {r: (0.001 if "0.1%" in PARTS[r]["value"] else 0.01)
            for r in ("R81", "R82", "R83", "R84", "R85", "R86", "R87", "R88", "R89")}
-VIN_SUPPLY = (4.75, 5.0, 5.25)     # README: regulated 5 V +-5 %
+# Rev E: USB-C VBUS is the only input.  At the J1 receptacle: USB 2.0 device minimum 4.40 V (after
+# cable and hub drop), USB Type-C vSafe5V maximum 5.5 V.
+VIN_SUPPLY = (4.40, 5.0, 5.5)
 L_NOM, L_TOL, L_ISAT, L_DCR = 4.7e-6, 0.20, 3.8, 0.039   # FNR5040S4R7MT catalog
 DIODE_VR, DIODE_IF, DIODE_VF = 40.0, 1.0, 0.55           # SS14 catalog (0.55 V @ 1 A)
-Q1_RDS = 0.085     # AO3401A Rds(on) at |Vgs| ~ 2.5-4.5 V: ASSUMED 85 mOhm (no datasheet in sources/)
+U16_RDS = 0.135    # TPS2553 DBV rDS(on) max, -40..125 C (sources/ti/TPS2553.txt, SLVS841F 7.5)
+# J1 to U16 copper at 35 um and 1.72e-8 ohm m: 5.3 mm of 0.2 mm track around J1 (13 mOhm) plus 45 mm
+# of 0.8 mm track down the west strip (28 mOhm), rounded up.
+R_ENTRY = 0.045
 I_IN_EST = 0.45    # A, 5 V input current estimate (converters + 3V3 + 5VA), see README
-VIN = (VIN_SUPPLY[0] - Q1_RDS * I_IN_EST, VIN_SUPPLY[1], VIN_SUPPLY[2])   # after reverse-polarity FET
+VIN = (VIN_SUPPLY[0] - (U16_RDS + R_ENTRY) * I_IN_EST, VIN_SUPPLY[1], VIN_SUPPLY[2])   # after U16
 
 # Rail loads from datasheet maxima (OPA2810/OPA810 IQ max 4.5 mA/ch over temp at 24 V)
 IQ_OPA_MAX = 4.5e-3
@@ -205,10 +210,10 @@ def main():
           f"< ILIM min {s['ilim_a'][0]} A and Isat {L_ISAT} A", worst_pk < s["ilim_a"][0] < L_ISAT)
     check("Inductor Isat vs switch current limit max (start-up/short)", L_ISAT, s["ilim_a"][2], L_ISAT > s["ilim_a"][2],
           "inductor cannot saturate even at the 2.2 A switch limit")
-    # datasheet Eq. 3/4 output-current capability at 4.75 V
+    # datasheet Eq. 3/4 output-current capability at the minimum input
     ilp = vpos["max"] / (VIN[0] * 0.64) * LOAD["pos"] * 2
     iln = (VIN[0] + abs(vneg["max"])) / (VIN[0] * 0.64) * LOAD["neg"] * 2
-    check("Eq. 3/4 inductor current at 2x load, VIN 4.75 V", [round(ilp, 3), round(iln, 3)], s["ilim_a"][0],
+    check(f"Eq. 3/4 inductor current at 2x load, VIN {VIN[0]:.2f} V", [round(ilp, 3), round(iln, 3)], s["ilim_a"][0],
           max(ilp, iln) < s["ilim_a"][0])
     # input / output capacitance
     cin_nom = 2 * 10e-6 + 1e-6 + 100e-9
@@ -219,7 +224,7 @@ def main():
           f"C82 is {dist('C82', 'U13'):.1f} mm, C80 {dist('C80', 'U13'):.1f} mm from U13 (centres)")
     for rail, caps, vo, iout in (("RAW_P", ("C89", "C90", "C94"), vpos["max"], LOAD["pos"] * 2),
                                  ("RAW_N", ("C91", "C92", "C99"), abs(vneg["max"]), LOAD["neg"] * 2)):
-        # datasheet Eq. 7/8 for a 10 mV capacitive ripple at fsw min, VIN 4.75 V
+        # datasheet Eq. 7/8 for a 10 mV capacitive ripple at fsw min and minimum VIN
         if rail == "RAW_P":
             cmin = iout * (vo - VIN[0]) / (s["fsw_min_hz"] * 0.010 * vo)
         else:
@@ -238,8 +243,8 @@ def main():
     check("INP switch node (abs max 17 V)", round(vpos["max"] + DIODE_VF, 2), 17.0,
           vpos["max"] + DIODE_VF < s["inp_abs_max"],
           f"static margin {17 - vpos['max'] - DIODE_VF:.2f} V before ringing")
-    check("VIN/INN abs max 6 V vs 5.25 V supply", VIN[2], 6.0, VIN[2] < 6.0,
-          "0.75 V margin; hot-plug overshoot on ceramic input capacitance not analysed (no TVS on 5VIN)")
+    check(f"VIN/INN abs max 6 V vs {VIN[2]} V VBUS maximum", VIN[2], 6.0, VIN[2] < 6.0,
+          f"{6 - VIN[2]:.2f} V margin; VBUS hot-plug overshoot is behind U16's soft start; D1 (SRV05-4) clamps VBUS")
     # --------------------------------------------------------------- LDOs
     ldo = {}
     for kind, ref, spec, cout, cin_ref, r2, rup in (

@@ -17,6 +17,9 @@ redoes the four interference mechanisms for that chain:
    cancellation removes them except for the DUT's frequency dependence, as for Rev D's AD9833
    spurs (dds_spurs.py). Reported raw and after the short + two-resistor calibration.
 4. Crystal-locked digital activity and DAC harmonics (exact folding rules).
+5. USB VBUS (Rev E's only supply): the coherent ripple at the tone frequency that would make a
+   1e-4 error, through 5V -> FB1 -> U15 -> codec AVDD and through the TPS65131 and the
+   +-12 V LDOs into the op-amps.
 
 Constants cite their source. ESTIMATE marks an assumption; everything else is exact arithmetic.
 """
@@ -83,6 +86,10 @@ ASSUMPTIONS = {
                         "signal transfer function has notches at N*FMOD that attenuate N*FMOD +- 20 kHz by "
                         "> 100 dB. Credited only as a variant, and only for tones <= 20 kHz; TAC5112 wideband "
                         "mode is not covered by that note",
+    "E10_vbus_paths": "TPS65131 line rejection 0 dB (ripple_chain A9). U15 AP2112K PSRR read from DS39724 "
+                      "Rev 2-2 p.11 (typical, Vin 2.5 V, 100 mA; read to about 3 dB). Codec AVDD PSRR counted as "
+                      "60 dB over the tone band: TAC5212 SLASF23A gives 121 dB at 1 kHz and its Fig. 6-18 axis floor "
+                      "is 70 dB. FB1 credited 0 dB. Ripple riding on the source tone is ratiometric and not counted",
     "E8_amplifiers": "ideal followers, TIA and source driver at the image frequencies (OPA2810/OPA810 "
                      "GBW 70 MHz against 3-12 MHz images: loop gain 6-23, ESTIMATE)",
 }
@@ -328,6 +335,31 @@ def range_screen():
     return rows
 
 
+# ------------------------------------------------------------------ 5. USB VBUS
+# AP2112K PSRR vs frequency, read off the graph on p.11 of DS39724 (text: sources/new/AP2112.txt)
+PSRR_AP2112 = [(100, 66), (1e3, 67), (1e4, 65), (2e4, 61), (3e4, 56), (5e4, 47), (1e5, 39)]
+CODEC_AVDD_PSRR_BAND_DB = 60.0
+TOLERANCE = 1e-4
+
+
+def vbus_tolerance(p):
+    """Coherent VBUS ripple (V peak) at the tone frequency giving TOLERANCE |Z| error, per DUT and
+    path.  Only a VBUS line inside the DFT line response reaches the result; the source-off
+    capture (host) measures exactly that line on every point."""
+    f = p["f_hz"]
+    avdd = 10 ** (-(c.interp_loglog_db(PSRR_AP2112, f) + CODEC_AVDD_PSRR_BAND_DB) / 20)
+    rails = (10 ** (-c.interp_loglog_db(c.PSRR_TPS7A49, f) / 20) + 10 ** (-c.interp_loglog_db(c.PSRR_TPS7A30, f) / 20)) \
+        * 10 ** (-c.interp_loglog_db(c.PSRR_OPA2810, f) / 20) * K_DIV * abs(aa(f))
+    rows = {}
+    for dname, z in DUTS.items():
+        sa, sb = signals(z, f)
+        per_v = {"avdd": avdd * (1 / sa + 1 / sb), "rails_12v": rails * (2 / sa + 3 / sb)}
+        rows[dname] = {k: TOLERANCE / v for k, v in per_v.items()}
+    worst = min(min(r.values()) for r in rows.values())
+    return {"ap2112_psrr_db": c.interp_loglog_db(PSRR_AP2112, f), "ripple_v_for_1e-4": rows,
+            "worst_ripple_v_for_1e-4": worst}
+
+
 def source_cap_options():
     """C34/C35 (U5 feedback and ground-leg capacitors) alternatives: the tone level they leave at
     SOURCE_BUF and the calibrated DAC-image error on the coil. Ratiometric: the pole cancels in A/B."""
@@ -350,7 +382,8 @@ def main():
     for hz in GRID:
         p = plan(hz)
         out["points"][f"{p['f_hz']:.3f}"] = {"plan": p, "sof": sof(p), "switcher": switcher(p, ripple),
-                                             "dac_images": dac_images(p), "locked": locked(p)}
+                                             "dac_images": dac_images(p), "locked": locked(p),
+                                             "vbus": vbus_tolerance(p)}
     out["source_cap_options"] = source_cap_options()
     out["range_screen"] = range_screen()
     (HERE / "rev_e_spurs.json").write_text(json.dumps(out, indent=1, default=float))
@@ -378,6 +411,9 @@ def main():
             print(f"   DAC images f_mod {n}: " + "; ".join(
                 f"{dn.split()[0]} {dn.split()[1]} raw {100*v['raw']:.4f}% cal {100*v['calibrated']:.4f}%"
                 for dn, v in per.items()))
+        vb = d["vbus"]
+        print(f"   VBUS: coherent ripple at f for 1e-4, worst DUT and path {1e3*vb['worst_ripple_v_for_1e-4']:.0f} mV"
+              f" (AP2112K PSRR {vb['ap2112_psrr_db']:.0f} dB)")
         lk = d["locked"]
         print(f"   locked clocks alias to DC: {lk['all_alias_to_dc']}; lowest DAC harmonic on the bin: k={lk['lowest_dac_harmonic_on_tone_bin']}"
               f" ({lk['that_harmonic_attenuation_db']} dB extra)")

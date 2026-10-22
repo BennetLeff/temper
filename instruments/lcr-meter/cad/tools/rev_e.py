@@ -35,6 +35,7 @@ CAT = {
     'R2k01': ('2k 0.1%', R0603, 'RT0603BRD072KL', 'YAGEO', 'C728588', 0.035, 'extended'),
     'R2k201': ('2.2k 0.1%', R0603, 'RT0603BRD072K2L', 'YAGEO', 'C861295', 0.0363, 'extended'),
     'R470': ('470R', R0603, '0603WAF4700T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C23179', 0.002, 'basic'),
+    'R24k': ('24k 1%', R0603, '0603WAF2402T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C23352', 0.0024, 'basic'),
     'R4k7': ('4.7k', R0603, '0603WAF4701T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C23162', 0.002, 'basic'),
     'R100': ('100R', R0603, '0603WAF1000T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C22775', 0.0026, 'basic'),
     'R100k': ('100k', R0603, '0603WAF1003T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C25803', 0.0031, 'basic'),
@@ -72,7 +73,7 @@ def add_ic(ref, kind, value, fp, sheet, pins, at, mpn, mfr, lcsc, usd, lib, quer
 # ---------------------------------------------------------------- removals
 REMOVE = ('U4 C30 C31 C32 C33 FB2 C36 R34 R11 U8 U9 U10 JP1 JP2 JP3 JP4 JP5 JP6 '
           'R62 R63 R64 R65 R68 R69 R70 R71 R90 R91 R92 R93 C106 C107 C108 C109 '
-          'C60 C61 C62 C63 C64 C66 C67 C68 C69 C70 C72 C73 C74 C75 C76 C77 C78 C79').split()
+          'C60 C61 C62 C63 C64 C66 C67 C68 C69 C70 C72 C73 C74 C75 C76 C77 C78 C79 J2 Q1').split()
 for ref in REMOVE:
     del parts[ref]
 for ref in ('R30', 'R31', 'R32', 'C34', 'C35'):   # reused below with new values and nets
@@ -80,7 +81,7 @@ for ref in ('R30', 'R31', 'R32', 'C34', 'C35'):   # reused below with new values
 
 # ---------------------------------------------------------------- pinouts
 pinouts = design['pinouts']
-for kind in ('AD9833', 'THS4551', 'ADS9224R'):
+for kind in ('AD9833', 'THS4551', 'ADS9224R', 'JACK', 'PMOS'):
     del pinouts[kind]
 pinouts['TAC5112'] = {
     '1': ['DREG', 'power_out'], '2': ['BCLK', 'input'], '3': ['FSYNC', 'input'], '4': ['DOUT', 'output'],
@@ -98,6 +99,8 @@ pinouts['RELAY2L'] = {
 pinouts['BNC'] = {'1': ['GND', 'passive'], '2': ['GND', 'passive'], '3': ['GND', 'passive'],
                   '4': ['GND', 'passive'], '5': ['SIG', 'passive']}
 pinouts['NMOS'] = {'1': ['G', 'passive'], '2': ['S', 'passive'], '3': ['D', 'passive']}
+pinouts['USBSW'] = {'1': ['IN', 'power_in'], '2': ['GND', 'power_in'], '3': ['EN', 'input'],
+                    '4': ['~{FAULT}', 'open_collector'], '5': ['ILIM', 'passive'], '6': ['OUT', 'power_out']}
 pinouts['BAT54S'] = {'1': ['A1', 'passive'], '2': ['K2', 'passive'], '3': ['K1A2', 'passive']}
 
 # ---------------------------------------------------------------- MCU pins (firmware-rev-e/src/pins.h)
@@ -141,6 +144,19 @@ add('C65', 'C100n', 'codec', {'1': '3V3', '2': 'GND'}, (135.4, 99.1, 180))
 add('C66', 'C10u', 'codec', {'1': '3V3', '2': 'GND'}, (135.0, 101.0, 180))
 add('R72', 'R4k7', 'codec', {'1': '3V3', '2': 'I2C_SDA'}, (141.25, 101.7, 90))
 add('R73', 'R4k7', 'codec', {'1': '3V3', '2': 'I2C_SCL'}, (139.75, 101.7, 90))
+
+# ---------------------------------------------------------------- USB-C power entry
+# Rev E: the board runs from USB-C VBUS alone; the DC-005 jack J2 and its reverse-polarity PMOS Q1
+# are gone.  U16 TPS2553 (TI SLVS841F) is a current-limited switch from USB_VBUS to 5V: built-in soft
+# start, so the ~45 uF on 5V/5VA charges at the limit, not at whatever the host allows.
+# R110 24k: IOS 0.999 / 1.073 / 1.159 A min/nom/max (SLVS841F eq. 1), above the 0.45 A load and below
+# a 1.5 A USB-C advertisement.  EN tied to IN (always on); FAULT open, unused.
+add_ic('U16', 'USBSW', 'TPS2553', 'Package_TO_SOT_SMD:SOT-23-6', 'power',
+       {'1': 'USB_VBUS', '2': 'GND', '3': 'USB_VBUS', '4': None, '5': 'VBUS_ILIM', '6': '5V'},
+       (63.0, 121.0, 0), 'TPS2553DBVR', 'Texas Instruments', 'C55266', 0.5412, 'extended',
+       'TPS2553DBVR C55266')
+add('R110', 'R24k', 'power', {'1': 'VBUS_ILIM', '2': 'GND'}, (64.6, 123.6, 180))
+add('C113', 'C1u0805', 'power', {'1': 'USB_VBUS', '2': 'GND'}, (61.8625, 117.4, 90))   # IN bypass, 0.9 mm from pin 1
 
 # Input legs: R_series (kept at the Rev D FDA input positions) -> DIV (1k, 560 pF to GND) -> 1 uF ->
 # clamp (BAT54S to 3V3A/GND) -> 470R -> pin.  Rows run west to the codec in pin order.
@@ -265,7 +281,8 @@ for ref in ('SW1', 'SW2'):
                       source_query='TS-1088-AR02016 C720477')
 
 # ---------------------------------------------------------------- power flags, notes, ranges
-design['power_flags'] = [n for n in design['power_flags'] if n not in ('3V3_DDS',)]
+design['power_flags'] = [n for n in design['power_flags'] if n not in ('3V3_DDS', '5VIN', '5V')] + ['USB_VBUS']
+design['notes'][0] = 'One PCB; USB-C power (5V, 1A current limit) and USB data; USB-ground referenced.'
 design['ranges'] = [
     {'ohms': 100, 'rg': 'R40', 'rf': 'R43', 'relay': 'K1', 'cf': 1e-10},
     {'ohms': 5000, 'rg': 'R41', 'rf': 'R44', 'relay': 'K2', 'cf': 1e-10},

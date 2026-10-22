@@ -1,11 +1,11 @@
 {
  "revision": "E",
- "board_sha256": "80d44838c74637ec36cfbfc698f97a873b6be7c94604f3b49706651995aeddd5",
+ "board_sha256": "59c20647beec2d5a4480cda42255b8ca427aacd131cd31dc3989663aa7a9617a",
  "kicad_version": "10.0.4",
  "method": "Independent post-build audit of the native board against cad/design.json (read-only).",
- "source_pins_checked": 620,
- "native_pads": 620,
- "netlist_nodes": 620,
+ "source_pins_checked": 624,
+ "native_pads": 624,
+ "netlist_nodes": 624,
  "plane_relief": [
   {
    "pin": "U7.1",
@@ -158,17 +158,17 @@
  "pass": true,
  "limits": "Pad-centre and net checks on native data; not electromagnetic extraction or physical qualification.",
  "files_sha256": {
-  "cad/temper-lcr.kicad_pcb": "80d44838c74637ec36cfbfc698f97a873b6be7c94604f3b49706651995aeddd5",
+  "cad/temper-lcr.kicad_pcb": "59c20647beec2d5a4480cda42255b8ca427aacd131cd31dc3989663aa7a9617a",
   "cad/temper-lcr.kicad_pro": "2a88c5d30f3031b6fbcea98ba304bcf75032400ac3bee7344b46b61517301a33",
-  "cad/design.json": "22422e3e0dc71af4d531e43ccb327ef868448caff3331122fd301e32f1ba1c36",
-  "cad/routing.json": "625a5cdd0cba2eb8083777d2b0f23fe4b5ddea7a75b4ee89ddf45e9eed0ecc77",
+  "cad/design.json": "259b40c4297b15216e01e268d6a4b93f578a0847921d6fa8977cd1d5e4120d0c",
+  "cad/routing.json": "594992b762b841d7e45534d5f7bf2c0854aef78e91288212faf823a99d764873",
   "cad/temper-lcr.kicad_sch": "846d49be1efd5758c78c4a923d3c04813f4cfeeebeee0a9fa492c7a2360bfcea",
   "cad/adc.kicad_sch": "6d6360129cf91d93a9535f7501e108cccc343f8c19bdd4b8a9c4a114016a7aa8",
-  "cad/afe.kicad_sch": "d25da87687fb329cc63f9b5cd7a7e56f22285ec7fcec053a762bd438e3b80f3a",
-  "cad/codec.kicad_sch": "e34fed8e8413085804cf01caf1c567c5a126a3250c7e9e9f4b43f8f2ed18c14d",
-  "cad/digital.kicad_sch": "b63f017f0b68caa4771a391acfa89190b713ce801b642f5596fa8df2b3d2daa5",
-  "cad/power.kicad_sch": "20bf5d16fe354bef54e731eb324c9e5c5d5f19cd743062ddefe24f3f7f56149a",
-  "cad/range.kicad_sch": "23be9f2c8f5fb5f0f2871058c033f8201859e9ea84ff923b25298180cf60237c",
-  "cad/source.kicad_sch": "e194e556c733c30269aaf9174fd5f3baa34ee93ec3ad85e1cfea24de18278584"
+  "cad/afe.kicad_sch": "806b9a0062e7f095eb4cce37fb2cee195f65ead761087f423fa47785fa1f9bb1",
+  "cad/codec.kicad_sch": "d07fadd74ad83c163a935ea014f8b3c46775963c53a1feaed75e2f94250545a4",
+  "cad/digital.kicad_sch": "519c644258cc383b5ba4bc76782756553c2c499dd867c3078adefb29e9855f0f",
+  "cad/power.kicad_sch": "919b40a8603bc40a66aa28a4a62a424a14c286725dd2173c865859ccc5bcb1f2",
+  "cad/range.kicad_sch": "0d7ea69b8adabbbcdad853ba5d135f0c4869d68bc5282ca1aa13fe0f99a4d69a",
+  "cad/source.kicad_sch": "4872a06f504d892d24346adfc677d60cebadb073c628f6b1965e2aa73d8eac10"
  }
 }

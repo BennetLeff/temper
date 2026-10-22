@@ -76,7 +76,8 @@
     "D14": 180,
     "K4": 0,
     "Q6": 180,
-    "D9": 0
+    "D9": 0,
+    "U16": 180
   },
   "parts": [
     {
@@ -5710,6 +5711,40 @@
         {
           "offset": 180,
           "rms": 4.409907999999973
+        }
+      ]
+    },
+    {
+      "lcsc": "C55266",
+      "mpn": "TPS2553DBVR",
+      "references": [
+        "U16"
+      ],
+      "native_footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "source_url": "https://lceda.cn/api/products/C55266/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C55266-product.json",
+      "source_sha256": "4e54a1977a32e0b8febb6d3ed24f32598fd38f0189546324c9b3c09bec1da649",
+      "library_title": "SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BR",
+      "cpl_offset_ccw_deg": 180,
+      "matched_numbered_pads": 6,
+      "pad_center_fit_rms_mm": 0.21251000250969468,
+      "pad_center_fit_max_mm": 0.21251000376459442,
+      "candidate_rms_mm": [
+        {
+          "offset": 180,
+          "rms": 0.21251000250969468
+        },
+        {
+          "offset": 90,
+          "rms": 2.0783926284111027
+        },
+        {
+          "offset": 270,
+          "rms": 2.0783926284111027
+        },
+        {
+          "offset": 0,
+          "rms": 2.9315987676523116
         }
       ]
     }

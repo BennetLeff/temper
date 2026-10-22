@@ -8,6 +8,7 @@
   "E6_ap2112_psrr_at_MHz_db": 0.0,
   "E7_ripple": "ripple_chain.py corners: rails, LDO and op-amp PSRR exactly as Rev D (Rev D loads, which include the removed FDA bias current: conservative)",
   "E9_adc_stf_notch": "SBAA377 (TLV320ADCx140 family, same TI audio ADC architecture): the modulator signal transfer function has notches at N*FMOD that attenuate N*FMOD +- 20 kHz by > 100 dB. Credited only as a variant, and only for tones <= 20 kHz; TAC5112 wideband mode is not covered by that note",
+  "E10_vbus_paths": "TPS65131 line rejection 0 dB (ripple_chain A9). U15 AP2112K PSRR read from DS39724 Rev 2-2 p.11 (typical, Vin 2.5 V, 100 mA; read to about 3 dB). Codec AVDD PSRR counted as 60 dB over the tone band: TAC5212 SLASF23A gives 121 dB at 1 kHz and its Fig. 6-18 axis floor is 70 dB. FB1 credited 0 dB. Ripple riding on the source tone is ratiometric and not counted",
   "E8_amplifiers": "ideal followers, TIA and source driver at the image frequencies (OPA2810/OPA810 GBW 70 MHz against 3-12 MHz images: loop gain 6-23, ESTIMATE)"
  },
  "fs_hz": 187500.0,
@@ -304,44 +305,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256487566387579,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373573883859463,
-       "avdd_fb1_credit": 1.8162809517482937e-05,
-       "source_borne": 3.085440746542362e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962767956561666,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0015666855989656275,
+       "avdd_fb1_credit": 1.801084929254831e-05,
+       "source_borne": 3.1866072968429885e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.01233513665618122,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.04044392637835303,
-       "avdd_fb1_credit": 0.0004486346940256275,
-       "source_borne": 0.017807432132256558,
-       "source_borne_m": 8
+       "rails_12v": 0.011645879527719533,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.038698281433262934,
+       "avdd_fb1_credit": 0.00044488116520333885,
+       "source_borne": 0.016830311779150516,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.015502123598470132,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.03399394398680313,
-       "avdd_fb1_credit": 0.0003770865992725802,
-       "source_borne": 0.00922570811928611,
-       "source_borne_m": 8
+       "rails_12v": 0.014635903021077064,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.03252669385067391,
+       "avdd_fb1_credit": 0.0003739316818359283,
+       "source_borne": 0.0077767717764322805,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.0031302556808098353,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.006895836690375879,
-       "avdd_fb1_credit": 7.649384866087924e-05,
-       "source_borne": 0.0018456654736868077,
-       "source_borne_m": 8
+       "rails_12v": 0.002955344684519842,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.006598197871926134,
+       "avdd_fb1_credit": 7.585385833133063e-05,
+       "source_borne": 0.0015557957932894613,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.00022705601906484226,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0005405685382724335,
-       "avdd_fb1_credit": 5.9963960595462305e-06,
-       "source_borne": 0.0001118865178642025,
-       "source_borne_m": 8
+       "rails_12v": 0.00021436868660451217,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0005172364629570388,
+       "avdd_fb1_credit": 5.94622685565029e-06,
+       "source_borne": 9.43142598995418e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -1112,6 +1113,32 @@
     "lowest_dac_harmonic_on_tone_bin": null,
     "that_harmonic_attenuation_db": null,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 66.0,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 12.312085571773766,
+      "rails_12v": 2810.9623716471633
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 0.49845022683489326,
+      "rails_12v": 119.78617803753644
+     },
+     "C 100 nF": {
+      "avdd": 0.5930257543876012,
+      "rails_12v": 95.31461068730508
+     },
+     "C 500 nF": {
+      "avdd": 2.9233993179564326,
+      "rails_12v": 472.03136940954226
+     },
+     "C 9 uF": {
+      "avdd": 37.29274430548526,
+      "rails_12v": 6507.552108507201
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.49845022683489326
    }
   },
   "1000.000": {
@@ -1404,44 +1431,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.000525648756794739,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.001637357388727592,
-       "avdd_fb1_credit": 1.8162809521272732e-05,
-       "source_borne": 3.0853333508344325e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962767958034319,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.001566685599292527,
+       "avdd_fb1_credit": 1.8010849296306397e-05,
+       "source_borne": 3.186460180365763e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.01046043437516103,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.034284681938822406,
-       "avdd_fb1_credit": 0.00038031168505988933,
-       "source_borne": 0.015083319836782167,
-       "source_borne_m": 8
+       "rails_12v": 0.0098759310039501,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.03280488294105348,
+       "avdd_fb1_credit": 0.00037712978475138597,
+       "source_borne": 0.014256381567224396,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.0007483292570768728,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.001678911170397004,
-       "avdd_fb1_credit": 1.862375557162561e-05,
-       "source_borne": 0.0004246464243018326,
-       "source_borne_m": 8
+       "rails_12v": 0.0007065144568640022,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0016064458323276647,
+       "avdd_fb1_credit": 1.846793881414282e-05,
+       "source_borne": 0.0003579574706834886,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.00020127489215457064,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.000485712693662162,
-       "avdd_fb1_credit": 5.387893442069931e-06,
-       "source_borne": 9.561974638778287e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.00019002814572080683,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.00046474831200135316,
+       "avdd_fb1_credit": 5.342815311476058e-06,
+       "source_borne": 8.060305597191645e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.00042323048927456354,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0013077249106569116,
-       "avdd_fb1_credit": 1.450627616304513e-05,
-       "source_borne": 4.5084179730055306e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.00039958140942682294,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.001251280752429028,
+       "avdd_fb1_credit": 1.4384908541665944e-05,
+       "source_borne": 3.8003893400909006e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -2212,6 +2239,32 @@
     "lowest_dac_harmonic_on_tone_bin": 374,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 67.0,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 13.814387219592637,
+      "rails_12v": 1845.674115953026
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 0.6597432936699115,
+      "rails_12v": 92.7472291975449
+     },
+     "C 100 nF": {
+      "avdd": 13.47247512767182,
+      "rails_12v": 1296.4564666209155
+     },
+     "C 500 nF": {
+      "avdd": 46.56886525695116,
+      "rails_12v": 4820.155629515294
+     },
+     "C 9 uF": {
+      "avdd": 17.29651916883784,
+      "rails_12v": 2292.3119413298036
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.6597432936699115
    }
   },
   "1500.000": {
@@ -2504,44 +2557,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256487569901248,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373573891555456,
-       "avdd_fb1_credit": 1.8162809526019915e-05,
-       "source_borne": 3.0852805483556186e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962767959878999,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0015666855997020091,
+       "avdd_fb1_credit": 1.8010849301013864e-05,
+       "source_borne": 3.1863866784670504e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.009000867487866292,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.029489344859633355,
-       "avdd_fb1_credit": 0.0003271181705839258,
-       "source_borne": 0.01296295867598843,
-       "source_borne_m": 8
+       "rails_12v": 0.00849792112810772,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.028216522698237316,
+       "avdd_fb1_credit": 0.00032438131697467063,
+       "source_borne": 0.012252586500855964,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.0005145624768692963,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0011671681843340653,
-       "avdd_fb1_credit": 1.2947114391332352e-05,
-       "source_borne": 0.000285049051347532,
-       "source_borne_m": 8
+       "rails_12v": 0.00048580998996082417,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.001116790750105937,
+       "avdd_fb1_credit": 1.2838791589550646e-05,
+       "source_borne": 0.00024028453548306032,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.00016692369254487144,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0004162647914770539,
-       "avdd_fb1_credit": 4.617524658978341e-06,
-       "source_borne": 7.197270929870271e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0001575964067431332,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.00039829792737332954,
+       "avdd_fb1_credit": 4.578891864578107e-06,
+       "source_borne": 6.067000537069114e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.0005952535743464207,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0018731479087422754,
-       "avdd_fb1_credit": 2.0778376734290658e-05,
-       "source_borne": 4.494604916001784e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0005619922671719295,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.001792298904426706,
+       "avdd_fb1_credit": 2.0604533210837972e-05,
+       "source_borne": 3.788765297819218e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -3312,6 +3365,32 @@
     "lowest_dac_harmonic_on_tone_bin": 124,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 66.64781748188864,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 13.265465643705355,
+      "rails_12v": 1157.8463040497859
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 0.7365476681729184,
+      "rails_12v": 67.61797919254303
+     },
+     "C 100 nF": {
+      "avdd": 18.609407353493477,
+      "rails_12v": 1182.792173678018
+     },
+     "C 500 nF": {
+      "avdd": 52.17906639482694,
+      "rails_12v": 3646.099970774216
+     },
+     "C 9 uF": {
+      "avdd": 11.595618312327552,
+      "rails_12v": 1022.455801592852
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.7365476681729184
    }
   },
   "27000.000": {
@@ -3604,44 +3683,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256488705873127,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373576379676155,
-       "avdd_fb1_credit": 1.8162812286032033e-05,
-       "source_borne": 3.085747729384784e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962769032375561,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0015666858377748267,
+       "avdd_fb1_credit": 1.8010852037934177e-05,
+       "source_borne": 3.185900658070715e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.0007981079880818005,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0025394693966759563,
-       "avdd_fb1_credit": 2.816971985130879e-05,
-       "source_borne": 0.0010486152399128213,
-       "source_borne_m": 8
+       "rails_12v": 0.0007535116746885528,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0024298605551889172,
+       "avdd_fb1_credit": 2.7934036216525866e-05,
+       "source_borne": 0.0009924656069066303,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.0001894731965611291,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0005353116443682728,
-       "avdd_fb1_credit": 5.938082606837528e-06,
-       "source_borne": 4.741135832568232e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.00017888589987992545,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.000512206467652802,
+       "avdd_fb1_credit": 5.88840128590825e-06,
+       "source_borne": 3.997645372709018e-05,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.0005952536789365269,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0018731481378261223,
-       "avdd_fb1_credit": 2.077837927546237e-05,
-       "source_borne": 4.4875217718689106e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0005619923659177977,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0017922991236228123,
+       "avdd_fb1_credit": 2.060453573074882e-05,
+       "source_borne": 3.783801957370528e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.009410667762274439,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.030835967141142707,
-       "avdd_fb1_credit": 0.0003420559258745792,
-       "source_borne": 4.476676334495125e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.008884822770076328,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.02950502192916371,
+       "avdd_fb1_credit": 0.00033919409464818834,
+       "source_borne": 3.7746572552133655e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -4412,6 +4491,32 @@
     "lowest_dac_harmonic_on_tone_bin": 124,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 57.29925502282333,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 4.52162259326781,
+      "rails_12v": 27.293887793610956
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 2.9153780308535437,
+      "rails_12v": 17.976265752120216
+     },
+     "C 100 nF": {
+      "avdd": 13.830286277129192,
+      "rails_12v": 75.72047948227714
+     },
+     "C 500 nF": {
+      "avdd": 3.952444091093679,
+      "rails_12v": 24.102331157836137
+     },
+     "C 9 uF": {
+      "avdd": 0.24009343553930215,
+      "rails_12v": 1.5245465736409074
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.24009343553930215
    }
   },
   "27500.000": {
@@ -4704,44 +4809,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256488748467153,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373576472969906,
-       "avdd_fb1_credit": 1.8162812389520533e-05,
-       "source_borne": 3.0858187177542266e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962769072589538,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0015666858467015263,
+       "avdd_fb1_credit": 1.8010852140556836e-05,
+       "source_borne": 3.1859549408006477e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.0007850504501529402,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.002496565618755578,
-       "avdd_fb1_credit": 2.7693798619038065e-05,
-       "source_borne": 0.001029665476629888,
-       "source_borne_m": 8
+       "rails_12v": 0.0007411837598963048,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.002388808594581016,
+       "avdd_fb1_credit": 2.746209680752083e-05,
+       "source_borne": 0.0009745559036372773,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.0001911329664696555,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0005409352869747,
-       "avdd_fb1_credit": 6.000464314202971e-06,
-       "source_borne": 4.7318102552761323e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.00018045292592407927,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0005175873820137797,
+       "avdd_fb1_credit": 5.950261073012736e-06,
+       "source_borne": 3.9898030905398876e-05,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.0006048285881062776,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0019046132386383676,
-       "avdd_fb1_credit": 2.1127414028995664e-05,
-       "source_borne": 4.4870811173015926e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0005710322526890475,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0018224061244903143,
+       "avdd_fb1_credit": 2.0950650264279486e-05,
+       "source_borne": 3.783450211225384e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.009583544637681145,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.03140394582959367,
-       "avdd_fb1_credit": 0.00034835637610096127,
-       "source_borne": 4.476626133377869e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.009048039710450166,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.030048485462554352,
+       "avdd_fb1_credit": 0.00034544183178342283,
+       "source_borne": 3.7746346866208595e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -5512,6 +5617,32 @@
     "lowest_dac_harmonic_on_tone_bin": 74,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 57.07298230167832,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 4.405352570127163,
+      "rails_12v": 26.51549569160761
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 2.8892241668106355,
+      "rails_12v": 17.754069784408326
+     },
+     "C 100 nF": {
+      "avdd": 13.334566802025856,
+      "rails_12v": 72.92222128781358
+     },
+     "C 500 nF": {
+      "avdd": 3.787192892187354,
+      "rails_12v": 23.044281884783164
+     },
+     "C 9 uF": {
+      "avdd": 0.22968889829569844,
+      "rails_12v": 1.4543512868396156
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.22968889829569844
    }
   },
   "35000.000": {
@@ -5804,44 +5935,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256489481162162,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373578077792743,
-       "avdd_fb1_credit": 1.8162814169711697e-05,
-       "source_borne": 3.0871678663575095e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.000496276976434335,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0015666860002570573,
+       "avdd_fb1_credit": 1.8010853905853922e-05,
+       "source_borne": 3.187062512940849e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.0006338680602333471,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.001999796694435185,
-       "avdd_fb1_credit": 2.2183261084205488e-05,
-       "source_borne": 0.0008103075974988123,
-       "source_borne_m": 8
+       "rails_12v": 0.0005984490704647105,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0019134812620958282,
+       "avdd_fb1_credit": 2.1997663512370877e-05,
+       "source_borne": 0.0007672381075763414,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.00021709309509496626,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0006279915103817274,
-       "avdd_fb1_credit": 6.966157946069108e-06,
-       "source_borne": 4.635474540285349e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.00020496246634680123,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.000600886075676849,
+       "avdd_fb1_credit": 6.907875171733131e-06,
+       "source_borne": 3.9088812034118904e-05,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.0007485617025889975,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.002376915159668335,
-       "avdd_fb1_credit": 2.6366545013627434e-05,
-       "source_borne": 4.482746539613728e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0007067339138920367,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.002274322501018757,
+       "avdd_fb1_credit": 2.6145947748255958e-05,
+       "source_borne": 3.7800924092061495e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.012176702244480567,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.03992364074550514,
-       "avdd_fb1_credit": 0.0004428632913305723,
-       "source_borne": 4.4762897870686264e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.011496298041665519,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.03820045242286281,
+       "avdd_fb1_credit": 0.000439158049291828,
+       "source_borne": 3.7746477150069185e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -6612,6 +6743,32 @@
     "lowest_dac_harmonic_on_tone_bin": 74,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 53.28409059001928,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 2.847974153184891,
+      "rails_12v": 17.815382558422776
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 2.3318133933549143,
+      "rails_12v": 14.773795509866032
+     },
+     "C 100 nF": {
+      "avdd": 7.425502795788324,
+      "rails_12v": 43.1365037106611
+     },
+     "C 500 nF": {
+      "avdd": 1.9618507194516468,
+      "rails_12v": 12.51017393721066
+     },
+     "C 9 uF": {
+      "avdd": 0.11680179034262692,
+      "rails_12v": 0.7690618456542863
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.11680179034262692
    }
   },
   "35500.000": {
@@ -6904,44 +7061,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256489536260797,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373578198475357,
-       "avdd_fb1_credit": 1.8162814303582e-05,
-       "source_borne": 3.0872767427461706e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962769816363208,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0015666860118044269,
+       "avdd_fb1_credit": 1.8010854038604192e-05,
+       "source_borne": 3.187155882080758e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.0006260581595941728,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0019741326465799324,
-       "avdd_fb1_credit": 2.1898576008150095e-05,
-       "source_borne": 0.0007989786565104766,
-       "source_borne_m": 8
+       "rails_12v": 0.0005910755678840393,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.001888924928535918,
+       "avdd_fb1_credit": 2.1715360270918287e-05,
+       "source_borne": 0.0007565310334590922,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.0002188753409947798,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0006339275228771047,
-       "avdd_fb1_credit": 7.0320046970665905e-06,
-       "source_borne": 4.631101777638558e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0002066451247247771,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0006065658773852318,
+       "avdd_fb1_credit": 6.9731710119762415e-06,
+       "source_borne": 3.905214331717445e-05,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.0007581493282101498,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.002408418167226115,
-       "avdd_fb1_credit": 2.6716000257521272e-05,
-       "source_borne": 4.482571263065442e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0007157858065506286,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0023044657724969114,
+       "avdd_fb1_credit": 2.6492479254089583e-05,
+       "source_borne": 3.779964426601113e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.012349579644914989,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.04049162114566497,
-       "avdd_fb1_credit": 0.0004491637605445269,
-       "source_borne": 4.4762949769612644e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.011659515477729816,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.03874391759408138,
+       "avdd_fb1_credit": 0.00044540580525577445,
+       "source_borne": 3.7746718836369024e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -7712,6 +7869,32 @@
     "lowest_dac_harmonic_on_tone_bin": 374,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 53.03417807782688,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 2.7671991444210673,
+      "rails_12v": 17.392548971889997
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 2.2951320753662383,
+      "rails_12v": 14.60307645201949
+     },
+     "C 100 nF": {
+      "avdd": 7.147339395566233,
+      "rails_12v": 41.769781494857256
+     },
+     "C 500 nF": {
+      "avdd": 1.881274281953986,
+      "rails_12v": 12.058805340562367
+     },
+     "C 9 uF": {
+      "avdd": 0.11189710438843029,
+      "rails_12v": 0.7402984903805006
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.11189710438843029
    }
   },
   "40000.000": {
@@ -8004,44 +8187,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256490067317633,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373579361649844,
-       "avdd_fb1_credit": 1.8162815593863327e-05,
-       "source_borne": 3.0883629364291005e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962770317745893,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0015666861231013699,
+       "avdd_fb1_credit": 1.8010855318090302e-05,
+       "source_borne": 3.1881058507441976e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.000564559184051533,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0017720325939161881,
-       "avdd_fb1_credit": 1.965672900147837e-05,
-       "source_borne": 0.0007097818236409957,
-       "source_borne_m": 8
+       "rails_12v": 0.000533013003989471,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0016955479393065817,
+       "avdd_fb1_credit": 1.9492269810422694e-05,
+       "source_borne": 0.0006722306514677404,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.0002351026587447383,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0006878382050099508,
-       "avdd_fb1_credit": 7.630022855766621e-06,
-       "source_borne": 4.598871682066115e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.00022196569982998614,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0006581496610643725,
+       "avdd_fb1_credit": 7.5661858162214685e-06,
+       "source_borne": 3.878219145942947e-05,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.0008444582497093812,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0026920065044013968,
-       "avdd_fb1_credit": 2.9861777096487268e-05,
-       "source_borne": 4.481440507479072e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0007972719975806865,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0025758138404499272,
+       "avdd_fb1_credit": 2.96119367642324e-05,
+       "source_borne": 3.7791893373462546e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.01390547712420972,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.04560344760292217,
-       "avdd_fb1_credit": 0.0005058680151490245,
-       "source_borne": 4.4764960020211026e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.013128473228779048,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.04363510686760398,
+       "avdd_fb1_credit": 0.000501635640345155,
+       "source_borne": 3.775019632301881e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -8812,6 +8995,32 @@
     "lowest_dac_harmonic_on_tone_bin": 74,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 50.931462848363076,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 2.172224073415457,
+      "rails_12v": 14.205154555601709
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 2.007134822432984,
+      "rails_12v": 13.226116222283684
+     },
+     "C 100 nF": {
+      "avdd": 5.170850208420706,
+      "rails_12v": 31.760276223547102
+     },
+     "C 500 nF": {
+      "avdd": 1.3212108960064752,
+      "rails_12v": 8.842267080927861
+     },
+     "C 9 uF": {
+      "avdd": 0.0779920929817491,
+      "rails_12v": 0.5369772871455918
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.0779920929817491
    }
   },
   "40500.000": {
@@ -9104,44 +9313,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256490130231625,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.001637357949945044,
-       "avdd_fb1_credit": 1.8162815746722196e-05,
-       "source_borne": 3.088495426353185e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962770377144406,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.001566686136286653,
+       "avdd_fb1_credit": 1.801085546967027e-05,
+       "source_borne": 3.188223574562224e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.0005585704928281659,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0017523513373554087,
-       "avdd_fb1_credit": 1.9438409582325463e-05,
-       "source_borne": 0.0007010972910381329,
-       "source_borne_m": 8
+       "rails_12v": 0.0005273589461172305,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0016767161671827717,
+       "avdd_fb1_credit": 1.9275776973661134e-05,
+       "source_borne": 0.0006640228867590545,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.00023692323562738896,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0006938741359720677,
-       "avdd_fb1_credit": 7.696977978150547e-06,
-       "source_borne": 4.595948179629206e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0002236845473496588,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0006639250685482702,
+       "avdd_fb1_credit": 7.632580754595966e-06,
+       "source_borne": 3.875774105146732e-05,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.0008540500564858999,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0027235221557503075,
-       "avdd_fb1_credit": 3.0211372594898242e-05,
-       "source_borne": 4.481358724718954e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0008063278377619564,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.002605969209986588,
+       "avdd_fb1_credit": 2.9958607351135405e-05,
+       "source_borne": 3.779140205781428e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.014078354705944717,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.04617142859457149,
-       "avdd_fb1_credit": 0.000512168490924229,
-       "source_borne": 4.4765354455325506e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.013291690836013286,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0441785726047821,
+       "avdd_fb1_credit": 0.0005078834028154561,
+       "source_borne": 3.775072709247143e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -9912,6 +10121,32 @@
     "lowest_dac_harmonic_on_tone_bin": 124,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 50.71259622385282,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 2.11817231555153,
+      "rails_12v": 13.908500052534718
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 1.9791729011694104,
+      "rails_12v": 13.088749619104162
+     },
+     "C 100 nF": {
+      "avdd": 4.9983218863794265,
+      "rails_12v": 30.85805115689678
+     },
+     "C 500 nF": {
+      "avdd": 1.2734268648776013,
+      "rails_12v": 8.560375670870506
+     },
+     "C 9 uF": {
+      "avdd": 0.07511585380378652,
+      "rails_12v": 0.519307083672238
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.07511585380378652
    }
   },
   "50000.000": {
@@ -10204,44 +10439,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256491474088821,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373582442902618,
-       "avdd_fb1_credit": 1.816281901182251e-05,
-       "source_borne": 3.091460120023708e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962771645910163,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0015666864179273122,
+       "avdd_fb1_credit": 1.8010858707452928e-05,
+       "source_borne": 3.190921657254913e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.00046759716959539447,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.001453341210384081,
-       "avdd_fb1_credit": 1.612156255888351e-05,
-       "source_borne": 0.0005692080171917239,
-       "source_borne_m": 8
+       "rails_12v": 0.0004414689886618958,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.001390611946324398,
+       "avdd_fb1_credit": 1.598668054790457e-05,
+       "source_borne": 0.0005393752464082839,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.00027196252250045577,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0008097427630524658,
-       "avdd_fb1_credit": 8.982280635738384e-06,
-       "source_borne": 4.556655509850721e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.00025676592496507887,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0007747925619290064,
+       "avdd_fb1_credit": 8.907129851135435e-06,
+       "source_borne": 3.843022119870136e-05,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.0010363451265186718,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0033224743073820198,
-       "avdd_fb1_credit": 3.68554039574691e-05,
-       "source_borne": 4.4810977018365076e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0009784367071870076,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0031790693267276827,
+       "avdd_fb1_credit": 3.654705103056962e-05,
+       "source_borne": 3.779297340695789e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.0173630310262066,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.05696307483322736,
-       "avdd_fb1_credit": 0.0006318776127097817,
-       "source_borne": 4.47793159527988e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.016392827514069803,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.05450442868920128,
+       "avdd_fb1_credit": 0.0006265909711213146,
+       "source_borne": 3.776627075128553e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -11012,6 +11247,32 @@
     "lowest_dac_harmonic_on_tone_bin": 14,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 47.0,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 1.3814380001212634,
+      "rails_12v": 9.714349079529162
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 1.55635089840784,
+      "rails_12v": 10.920381138545407
+     },
+     "C 100 nF": {
+      "avdd": 2.793367229301,
+      "rails_12v": 18.77589332654541
+     },
+     "C 500 nF": {
+      "avdd": 0.6807904860088139,
+      "rails_12v": 4.9272575135661265
+     },
+     "C 9 uF": {
+      "avdd": 0.03970833570864401,
+      "rails_12v": 0.29409262147718307
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.03970833570864401
    }
   },
   "50500.000": {
@@ -11304,44 +11565,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256491552633464,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373582614939057,
-       "avdd_fb1_credit": 1.8162819202658372e-05,
-       "source_borne": 3.091639659160448e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962771720065926,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0015666864343884105,
+       "avdd_fb1_credit": 1.801085889669215e-05,
+       "source_borne": 3.1910878937093264e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.00046376077408429104,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.001440729812993057,
-       "avdd_fb1_credit": 1.598166737766822e-05,
-       "source_borne": 0.0005636478687559768,
-       "source_borne_m": 8
+       "rails_12v": 0.0004378469615057875,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0013785448833755895,
+       "avdd_fb1_credit": 1.58479558080345e-05,
+       "source_borne": 0.0005341204516236408,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.0002738247027305386,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0008158891406256954,
-       "avdd_fb1_credit": 9.050460915668072e-06,
-       "source_borne": 4.555226700509561e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0002585240511393502,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0007806736489159327,
+       "avdd_fb1_credit": 8.9747396967023e-06,
+       "source_borne": 3.8418372867394306e-05,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.001045941686304641,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0033540044858726098,
-       "avdd_fb1_credit": 3.7205160601949356e-05,
-       "source_borne": 4.481142815128707e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0009874970347912382,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0032092385963840273,
+       "avdd_fb1_credit": 3.6893881415303755e-05,
+       "source_borne": 3.7793552655211995e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.01753590882183772,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.05753105652268967,
-       "avdd_fb1_credit": 0.000638178096225657,
-       "source_borne": 4.478038998622315e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.016556045323248177,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.05504789509407332,
+       "avdd_fb1_credit": 0.0006328387412675238,
+       "source_borne": 3.776737520773959e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -12112,6 +12373,32 @@
     "lowest_dac_harmonic_on_tone_bin": 374,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 46.88515765618345,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 1.3632932251579244,
+      "rails_12v": 9.577891491989767
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 1.549353254801951,
+      "rails_12v": 10.856050906654188
+     },
+     "C 100 nF": {
+      "avdd": 2.735910203853372,
+      "rails_12v": 18.38625413180052
+     },
+     "C 500 nF": {
+      "avdd": 0.665532629563627,
+      "rails_12v": 4.813471571016469
+     },
+     "C 9 uF": {
+      "avdd": 0.03879990321698058,
+      "rails_12v": 0.28710291682736977
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.03879990321698058
    }
   },
   "60000.000": {
@@ -12404,44 +12691,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256493193472103,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373586208870078,
-       "avdd_fb1_credit": 1.8162823189319136e-05,
-       "source_borne": 3.095495773208469e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962773269218532,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0015666867782693503,
+       "avdd_fb1_credit": 1.8010862849998277e-05,
+       "source_borne": 3.1947049550904996e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.00040308827938686533,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0012412449733408743,
-       "avdd_fb1_credit": 1.3768830296449278e-05,
-       "source_borne": 0.000475735775508845,
-       "source_borne_m": 8
+       "rails_12v": 0.0003805646967374967,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.001187670229062566,
+       "avdd_fb1_credit": 1.3653632559726822e-05,
+       "source_borne": 0.0004510374964044601,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.00030942315105460055,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0009332573401340616,
-       "avdd_fb1_credit": 1.0352397967530517e-05,
-       "source_borne": 4.535568340418787e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.000292133345637764,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.000892975990023969,
+       "avdd_fb1_credit": 1.0265784014868378e-05,
+       "source_borne": 3.825640256619574e-05,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.0012283023774131104,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.003953158299793797,
-       "avdd_fb1_credit": 4.3851428955525706e-05,
-       "source_borne": 4.482920553328851e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0011596678585475103,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0037825316712459425,
+       "avdd_fb1_credit": 4.348454336982531e-05,
+       "source_borne": 3.781232806247025e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.020820588153985038,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.06832271258391452,
-       "avdd_fb1_credit": 0.0007578873269705918,
-       "source_borne": 4.480720282680342e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.019657184844893368,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.06537376057709875,
+       "avdd_fb1_credit": 0.0007515464176211492,
+       "source_borne": 3.779376918252156e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -13212,6 +13499,32 @@
     "lowest_dac_harmonic_on_tone_bin": 24,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 44.895724753329645,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 1.0842203041480976,
+      "rails_12v": 7.497434997162851
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 1.4302232839335696,
+      "rails_12v": 9.777068212212138
+     },
+     "C 100 nF": {
+      "avdd": 1.9022164472690961,
+      "rails_12v": 12.736673353873181
+     },
+     "C 500 nF": {
+      "avdd": 0.44907320357756014,
+      "rails_12v": 3.208510929864575
+     },
+     "C 9 uF": {
+      "avdd": 0.02598341597982128,
+      "rails_12v": 0.18928483546965982
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.02598341597982128
    }
   },
   "60500.000": {
@@ -13504,44 +13817,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256493287647296,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373586415142128,
-       "avdd_fb1_credit": 1.816282341813173e-05,
-       "source_borne": 3.0957220896159154e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962773358131447,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0015666867980062417,
+       "avdd_fb1_credit": 1.80108630768965e-05,
+       "source_borne": 3.1949194060526344e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.00040042675756798903,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.001232492169189534,
-       "avdd_fb1_credit": 1.3671737556848099e-05,
-       "source_borne": 0.0004718803005847984,
-       "source_borne_m": 8
+       "rails_12v": 0.00037805189421840203,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0011792952143518261,
+       "avdd_fb1_credit": 1.3557352152300085e-05,
+       "source_borne": 0.00044739387299904564,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.0003113059244839369,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.000939459585036232,
-       "avdd_fb1_credit": 1.0421197970228734e-05,
-       "source_borne": 4.5348476798827125e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0002939109143139128,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0008989105329883898,
+       "avdd_fb1_credit": 1.033400839825641e-05,
+       "source_borne": 3.825052555107524e-05,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.001237901429596163,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.003984696182595797,
-       "avdd_fb1_credit": 4.4201271062069165e-05,
-       "source_borne": 4.483059155830508e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0011687305392797992,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0038127083126794094,
+       "avdd_fb1_credit": 4.383145850159921e-05,
+       "source_borne": 3.781369641739311e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.020993466066513235,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.06889069465437284,
-       "avdd_fb1_credit": 0.0007641878147127636,
-       "source_borne": 4.480895011075031e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.019820402764436897,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0659172273465222,
+       "avdd_fb1_credit": 0.0007577941919582953,
+       "source_borne": 3.7795442154228e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -14312,6 +14625,32 @@
     "lowest_dac_harmonic_on_tone_bin": 374,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 44.799943620001045,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 1.0723300437426901,
+      "rails_12v": 7.409627421778305
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 1.424584194179493,
+      "rails_12v": 9.726786751989685
+     },
+     "C 100 nF": {
+      "avdd": 1.8689349618054005,
+      "rails_12v": 12.511376669464806
+     },
+     "C 500 nF": {
+      "avdd": 0.44063305788438145,
+      "rails_12v": 3.14634557125046
+     },
+     "C 9 uF": {
+      "avdd": 0.025486589625583908,
+      "rails_12v": 0.18552751929169128
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.025486589625583908
    }
   },
   "80000.000": {
@@ -14604,44 +14943,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256497570065605,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373595794928566,
-       "avdd_fb1_credit": 1.8162833822901977e-05,
-       "source_borne": 3.1063583697904535e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962777401258744,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.001566687695499754,
+       "avdd_fb1_credit": 1.801087339461462e-05,
+       "source_borne": 3.205147742266749e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.0003228431647532338,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0009772092982011631,
-       "avdd_fb1_credit": 1.0839946408668398e-05,
-       "source_borne": 0.0003595243317767886,
-       "source_borne_m": 8
+       "rails_12v": 0.0003048034819443862,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0009350308891183859,
+       "avdd_fb1_credit": 1.0749253353006775e-05,
+       "source_borne": 0.00034121616351827247,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.0003851571282512187,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.001182516712380163,
-       "avdd_fb1_credit": 1.3117371900934346e-05,
-       "source_borne": 4.5213058169023427e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.00036363549426981037,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0011314768033925963,
+       "avdd_fb1_credit": 1.300762462958305e-05,
+       "source_borne": 3.814415748181857e-05,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.0016123183990196378,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.005214841793535202,
-       "avdd_fb1_credit": 5.7846978815759397e-05,
-       "source_borne": 4.4915467811789834e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0015222260084081939,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0049897582511716785,
+       "avdd_fb1_credit": 5.736299863063606e-05,
+       "source_borne": 3.7893090931954e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.02773570727843344,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.09104200393206412,
-       "avdd_fb1_credit": 0.0010099069312766574,
-       "source_borne": 4.4903063809782416e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.026185904103370333,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.08711243951568878,
+       "avdd_fb1_credit": 0.0010014574849345529,
+       "source_borne": 3.788262611184618e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -15412,6 +15751,32 @@
     "lowest_dac_harmonic_on_tone_bin": 74,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 41.575424759098894,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 0.7397794823410099,
+      "rails_12v": 4.987712841202358
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 1.2395348922211855,
+      "rails_12v": 8.120940224955653
+     },
+     "C 100 nF": {
+      "avdd": 1.0243280365021237,
+      "rails_12v": 6.807066131426908
+     },
+     "C 500 nF": {
+      "avdd": 0.2322764659178998,
+      "rails_12v": 1.626099438293756
+     },
+     "C 9 uF": {
+      "avdd": 0.013304683221023829,
+      "rails_12v": 0.09452760719879519
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.013304683221023829
    }
   },
   "85000.000": {
@@ -15704,44 +16069,44 @@
     "error_if_collision": {
      "worst": {
       "R 15 ohm": {
-       "rails_12v": 0.0005256498859592555,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0016373598619381139,
-       "avdd_fb1_credit": 1.8162836955998908e-05,
-       "source_borne": 3.109650487358236e-05,
-       "source_borne_m": 21
+       "rails_12v": 0.0004962778618730096,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0015666879657540798,
+       "avdd_fb1_credit": 1.8010876501498306e-05,
+       "source_borne": 3.208352182048692e-05,
+       "source_borne_m": 16
       },
       "coil 50 uH + 0.5 ohm": {
-       "rails_12v": 0.0003087687381882878,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0009308526489155873,
-       "avdd_fb1_credit": 1.0325723309414144e-05,
-       "source_borne": 0.00033914486350267674,
-       "source_borne_m": 8
+       "rails_12v": 0.0002915154997545042,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0008906750903372753,
+       "avdd_fb1_credit": 1.0239332531863957e-05,
+       "source_borne": 0.00032195882827449837,
+       "source_borne_m": 16
       },
       "C 100 nF": {
-       "rails_12v": 0.00040418278903033727,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.0012450891926321793,
-       "avdd_fb1_credit": 1.3811473291330337e-05,
-       "source_borne": 4.521018376635969e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0003815980478713421,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.0011913485237621067,
+       "avdd_fb1_credit": 1.3695918779457661e-05,
+       "source_borne": 3.8143751668311636e-05,
+       "source_borne_m": 9
       },
       "C 500 nF": {
-       "rails_12v": 0.0017083345218600493,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.005530300628321725,
-       "avdd_fb1_credit": 6.134628737690547e-05,
-       "source_borne": 4.494627980105214e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.0016128769862194382,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.005291601219012506,
+       "avdd_fb1_credit": 6.083303001880096e-05,
+       "source_borne": 3.7921092973883256e-05,
+       "source_borne_m": 9
       },
       "C 9 uF": {
-       "rails_12v": 0.029464487662574885,
-       "rails_m": 8,
-       "avdd_no_fb1": 0.09672182872502076,
-       "avdd_fb1_credit": 0.001072911854049713,
-       "source_borne": 4.493528420394321e-05,
-       "source_borne_m": 8
+       "rails_12v": 0.02781808448732312,
+       "rails_m": 16,
+       "avdd_no_fb1": 0.09254711112183393,
+       "avdd_fb1_credit": 0.0010639352732779175,
+       "source_borne": 3.7911815868279853e-05,
+       "source_borne_m": 9
       }
      },
      "typ": {
@@ -16512,6 +16877,32 @@
     "lowest_dac_harmonic_on_tone_bin": 74,
     "that_harmonic_attenuation_db": 90.5,
     "dac_thd_dbc": -94.0
+   },
+   "vbus": {
+    "ap2112_psrr_db": 40.87572202909618,
+    "ripple_v_for_1e-4": {
+     "R 15 ohm": {
+      "avdd": 0.6825226536502854,
+      "rails_12v": 4.5784781761377005
+     },
+     "coil 50 uH + 0.5 ohm": {
+      "avdd": 1.2005500540309555,
+      "rails_12v": 7.794430696821796
+     },
+     "C 100 nF": {
+      "avdd": 0.8975543314996915,
+      "rails_12v": 5.954426057892043
+     },
+     "C 500 nF": {
+      "avdd": 0.20207494547897728,
+      "rails_12v": 1.4087852820145041
+     },
+     "C 9 uF": {
+      "avdd": 0.011554115680831555,
+      "rails_12v": 0.08168058303659656
+     }
+    },
+    "worst_ripple_v_for_1e-4": 0.011554115680831555
    }
   }
  },

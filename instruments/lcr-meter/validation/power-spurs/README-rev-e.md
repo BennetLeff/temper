@@ -7,7 +7,7 @@ python3 regulator_check.py   # design rules and tolerance stacks on the Rev E ca
 python3 rev_e_spurs.py       # -> rev_e_spurs.json, about 1 s; log in rev_e_spurs.log
 ```
 
-`regulator_check.py` needed one change: its nearest-analog-IC distance looked for the removed ADS9224R (U4). It now uses the parts that exist, and includes U14, the codec. 44 of its 45 rows pass on Rev E: the regulators, their dividers and their capacitors are the Rev D parts. The one FLAG row is the R5 option, which Rev D fitted as R95/R96. The switcher is 64.6 mm from the codec (D3 to U14). The Rev D loads include the removed FDAs' bias current, so the rail loads are conservative for Rev E.
+`regulator_check.py` needed one change: its nearest-analog-IC distance looked for the removed ADS9224R (U4). It now uses the parts that exist, and includes U14, the codec. 44 of its 45 rows pass on Rev E: the regulators, their dividers and their capacitors are the Rev D parts. **USB-C power (2026-10-21):** the DC jack and Q1 are gone and U16 (TPS2553, 1.0–1.16 A limit) feeds 5V from USB_VBUS. The input corners are now 4.40 V (USB 2.0 device minimum) and 5.5 V (Type-C vSafe5V maximum); after U16's 135 mΩ maximum and 45 mΩ of entry copper at 0.45 A the converter sees 4.32 V. The same 44 rows pass: duty 0.612–0.779 (limit 0.875), inductor current 0.38/0.55 A at 2× load (limit 1.8 A), VIN abs-max margin 0.50 V. The one FLAG row is the R5 option, which Rev D fitted as R95/R96. The switcher is 64.6 mm from the codec (D3 to U14). The Rev D loads include the removed FDAs' bias current, so the rail loads are conservative for Rev E.
 
 ## Verdict
 
@@ -19,6 +19,7 @@ python3 rev_e_spurs.py       # -> rev_e_spurs.json, about 1 s; log in rev_e_spur
 | 2 | Switcher harmonic lands on the tone | 2 % chance per frequency (any of 40 harmonics, SAR folds everything) | 0.010–0.091 % chance per frequency (only harmonics within the decimation passband of a modulator multiple reach the line). Every other alias is ≥ 90.5 dB down | None. Bring-up R4 unchanged |
 | 3 | Source spurs fold onto the tone | AD9833 harmonics k = 9/11 at 50 kHz etc. | DAC harmonics fold onto the line only through the ≥ 90.5 dB stop band (lowest folding order k = 14 at 50 kHz, k = 24 at 60 kHz). Crystal-locked clocks are all multiples of fs and alias to DC | None |
 | 4 | **DAC images at N·f_mod ± f (new)** | AD9833 images at 24 MHz: −125 to −167 dBc | Fold exactly onto f. Pessimistic estimate up to 0.75 % on a coil (table below); the datasheet says both converters reject these bands, by an amount not published | No board change. Bring-up gate B-E1; BOM fallback C34/C35 |
+| 5 | **USB VBUS as the only supply (new, USB-C power)** | External regulated adapter; the adapter–USB ground loop was not modelled | A host VBUS line must sit inside the tone's DFT line response (16 Hz of offsets with response > 0.1, 0.25 s record) and be at least 25 mV (9 µF at 60.5 kHz, 12 mV at 85 kHz) or 0.44 V (the other reference parts at 60.5 kHz) to reach 10⁻⁴. The adapter ground loop is gone | None. Source-off check (R-E2) sees such a line; bring-up §5 step 3 on the real host |
 
 ## 1. USB start-of-frame lines
 
@@ -43,11 +44,13 @@ TPS65131 fsw is 1.25–1.50 MHz, free-running and unknown per unit. For a harmon
 
 | Target | ±12 V path, pessimistic / typical | 5 V → AVDD path, no FB1 credit / FB1 ≥ 1 Ω | Source-borne, pessimistic |
 |---|---|---|---|
-| 15 Ω resistor | 0.053 % / 0.008 % | 0.16 % / 0.002 % | 0.003 % |
-| Coil 50 µH, 27.5 kHz | 0.079 % / 0.012 % | 0.25 % / 0.003 % | 0.10 % |
-| 100 nF, 35.5–60.5 kHz | 0.022–0.031 % / ≤ 0.005 % | 0.06–0.09 % / 0.001 % | 0.005 % |
-| 500 nF, 35.5–60.5 kHz | 0.076–0.124 % / ≤ 0.020 % | 0.24–0.40 % / 0.004 % | 0.005 % |
-| 9 µF, 1.5 kHz | 0.060 % / 0.009 % | 0.19 % / 0.002 % | 0.005 % |
+| 15 Ω resistor | 0.050 % / 0.008 % | 0.16 % / 0.002 % | 0.003 % |
+| Coil 50 µH, 27.5 kHz | 0.074 % / 0.012 % | 0.24 % / 0.003 % | 0.098 % |
+| 100 nF, 35.5–60.5 kHz | 0.021–0.029 % / ≤ 0.005 % | 0.06–0.09 % / 0.001 % | 0.004 % |
+| 500 nF, 35.5–60.5 kHz | 0.072–0.117 % / ≤ 0.020 % | 0.23–0.38 % / 0.004 % | 0.004 % |
+| 9 µF, 1.5 kHz | 0.056 % / 0.009 % | 0.18 % / 0.002 % | 0.004 % |
+
+These are at the USB input corners (4.32 V worst, after U16). The adapter-era values were up to 16 % higher.
 
 The AVDD column with no FB1 credit also takes 0 dB from the AP2112K at MHz (E6) and 30 dB from the codec's AVDD (E5; 107 dB is specified only at 1 kHz). These are the Rev D-style upper estimates, now multiplied by a collision chance 20–200 times smaller.
 
@@ -90,6 +93,21 @@ Neither number is published. TI's note for the sibling ADC family, [SBAA377](htt
 
 **85 kHz.** Above 0.429 fs = 80.4 kHz, the DAC interpolation image at fs − f lands in the ADC's unspecified 0.456–0.571 fs transition band and folds onto f. Neither attenuation is published. Treat 80–85 kHz as unverified until the bench sweep in the firmware README (step 9) also checks a reactive DUT there.
 
+## 5. USB VBUS, the only supply (new with USB-C power)
+
+Since 2026-10-21 the board runs from USB-C VBUS through U16 (TPS2553). A host's VBUS noise has no fixed spectrum, so `vbus_tolerance` reports the reverse: the coherent VBUS ripple at the tone frequency that makes a 10⁻⁴ |Z| error, through two paths (E10):
+
+- **5V → FB1 → U15 (AP2112K) → codec AVDD.** AP2112K PSRR from its datasheet curve (DS39724 p.11: 67 dB to 3 kHz, 45 dB at 60 kHz, 41 dB at 85 kHz). Codec AVDD PSRR counted as 60 dB across the tone band (121 dB is specified at 1 kHz). FB1 credited 0 dB.
+- **5V → TPS65131 (0 dB) → TPS7A49/TPS7A30 → op-amps.** Rev D's digitized PSRR curves.
+
+Ripple riding on the source tone is ratiometric and cancels. The AVDD path dominates everywhere. Worst DUT and path, from `rev_e_spurs.json`:
+
+| Tone | 45.8 Hz | 1.5 kHz | 27.5 kHz | 35.5 kHz | 40.5 kHz | 50.5 kHz | 60.5 kHz | 85 kHz |
+|---|---|---|---|---|---|---|---|---|
+| VBUS line for 10⁻⁴ | 498 mV | 737 mV | 230 mV | 112 mV | 75 mV | 39 mV | 25 mV | 12 mV |
+
+The worst DUT is the 9 µF capacitor, whose impedance is small at high frequency; the stage53 plan measures it at 1.5 kHz. The 15 Ω resistor, the coil and the 100/500 nF capacitors need 0.44 V or more at 60.5 kHz. A line also has to fall within the line response, 16 Hz of offsets around the tone with response > 0.1 (`line_response_width_hz`, 0.25 s record), to count at full weight. The source-off capture (R-E2) measures exactly that bin on every point, so a host that does have such a line fails the check rather than biasing the result.
+
 ## Recommendations
 
 | ID | Change | Basis | Cost |
@@ -102,6 +120,6 @@ Neither number is published. TI's note for the sibling ADC family, [SBAA377](htt
 ## Method and limits
 
 - **Exact:** the host's tone rule and capture length, the coherent DFT line response, crystal-locked aliasing, the harmonic folding rule, and the circuit values from `cad/design.json` (R30/R31 2.2 kΩ, C34/C35 270 pF, divider 1 kΩ/1 kΩ, C69/C70/C72/C73 560 pF, R104 47 Ω, R94 22 Ω, C104 100 pF).
-- **Assumptions E1–E9:** listed in the script header and in `rev_e_spurs.json`. The ripple chain keeps Rev D's A1–A9.
-- **Not modelled:** magnetic and capacitive pickup from the switcher (64.6 mm to the codec); ground-return and USB-cable currents; the adapter; amplifier loop gain at 1.5–12 MHz (ideal followers, TIA and driver; OPA2810/OPA810 GBW 70 MHz). DUT self-resonance above the tone is also excluded: the coil and capacitors are ideal up to the images.
+- **Assumptions E1–E10:** listed in the script header and in `rev_e_spurs.json`. The ripple chain keeps Rev D's A1–A9.
+- **Not modelled:** magnetic and capacitive pickup from the switcher (64.6 mm to the codec); ground-return and USB-cable currents; the spectrum of any particular host's VBUS (§5 gives the tolerance instead); amplifier loop gain at 1.5–12 MHz (ideal followers, TIA and driver; OPA2810/OPA810 GBW 70 MHz). DUT self-resonance above the tone is also excluded: the coil and capacitors are ideal up to the images.
 - **DUTs:** the Rev D stage53 set on the 100 Ω range, at the frequencies each is measured at.

@@ -51,25 +51,6 @@ usb_text=usb_text.replace('(at -4.32 -3.13)', '(at -4.325 -3.1)').replace('(at 4
 usb_text=usb_text.replace('(at -4.32 1.05)', '(at -4.325 1.08)').replace('(at 4.32 1.05)', '(at 4.325 1.08)')
 usb_text=usb_text.replace('(layer "F.SilkS")', '(layer "F.Fab")')
 usb_path.write_text(usb_text)
-# BOOMELE DC-005 C16214 drawing: manufacturer pin 4=tip, 3=sleeve,
-# 2=switched sleeve. The stock KiCad jack uses unrelated generic numbers.
-jack_path=LOCAL/'BarrelJack_Horizontal.kicad_mod'
-jack=k.FootprintLoad(str(LOCAL),'BarrelJack_Horizontal')
-for pad in jack.Pads():
-    number=pad.GetNumber()
-    if number=='1':
-        pad.SetNumber('4')
-    elif number=='2':
-        pad.SetNumber('3');pad.SetPosition(pos(-6.3,0))
-    elif number=='3':
-        pad.SetNumber('2');pad.SetPosition(pos(-3,4.6))
-for item in jack.GraphicalItems():
-    if isinstance(item,k.PCB_SHAPE) and item.GetLayer()==k.F_Fab:
-        for getter,setter in [(item.GetStart,item.SetStart),(item.GetEnd,item.SetEnd)]:
-            point=getter();x=round(k.ToMM(point.x),3)
-            if x in {-13.7,-10.2,.8}:
-                setter(pos({-13.7:-13.8,-10.2:-10.5,.8:.4}[x],k.ToMM(point.y)))
-k.FootprintSave(str(LOCAL),jack)
 # Schematic symbols and instances. All pin names/types are explicit in design.json.
 FX = '(effects (font (size 1.27 1.27)))'
 rootid = uid('schematic')
@@ -124,6 +105,7 @@ for p in PARTS:
     if ref == 'U13': f.Reference().SetPosition(pos(80,135))
     if ref == 'U7': f.Reference().SetPosition(pos(170.2,105.6))  # Rev D: clear of R94
     if ref == 'U14': f.Reference().SetPosition(pos(141,104.2))  # Rev E: clear of the decoupling pads
+    if ref == 'U16': f.Reference().SetPosition(pos(58.3,121.0))  # Rev E: west of the EN/IN tie, clear of C113
     if not ref.startswith('U'):
         f.Reference().SetLayer(k.F_Fab)
     for name,value in {'MPN':p['mpn'],'Manufacturer':p['manufacturer'],'LCSC':p['lcsc'],'Unit_USD':str(p['unit_usd']),'Assembly':p['assembly']}.items():
@@ -148,7 +130,7 @@ for a,c in [((50,45),(190,45)),((190,45),(190,150)),((190,150),(50,150)),((50,15
     s=k.PCB_SHAPE();s.SetShape(k.SHAPE_T_SEGMENT);s.SetStart(pos(*a));s.SetEnd(pos(*c));s.SetLayer(k.Edge_Cuts);s.SetWidth(mm(.05));b.Add(s)
 for i,(x,y) in enumerate([(54,54),(186,54),(54,146),(186,146)],1):
     f=k.FootprintLoad(str(LIBS/'MountingHole.pretty'),'MountingHole_3.2mm_M3');f.SetReference('H'+str(i));f.SetPosition(pos(x,y));f.Reference().SetLayer(k.F_Fab);f.SetAttributes(k.FP_EXCLUDE_FROM_BOM|k.FP_EXCLUDE_FROM_POS_FILES|k.FP_BOARD_ONLY);b.Add(f)
-for text,x,y,size in [('TEMPER LCR / REV E / TIDA-060029 + TAC5112',79,47.6,1.2),('USB DATA',62,64,1),('DISCHARGED DUT ONLY',79,50.4,1),('HCUR',108,58.6,1),('HPOT',130,58.6,1),('LPOT',152,58.6,1),('LCUR',174,58.6,1),('K4 REF',182,70,.8),('K2 5k',152.5,128,.8),('K1 100R',167.5,128,.8),('K3 100k',182.3,128,.8),('BOOTSEL',60,84,.8),('RESET',60,95,.8),('J4 CLK/DIO',64,105,.8),('J5 GND/3V3',60,115,.8),('J6 TX/RX',77,111,.8),('5V 1A / CENTER +',69,140,1),('USB GND REFERENCED',111,147,1)]:
+for text,x,y,size in [('TEMPER LCR / REV E / TIDA-060029 + TAC5112',79,47.6,1.2),('USB-C 5V + DATA',62,64,1),('DISCHARGED DUT ONLY',79,50.4,1),('HCUR',108,58.6,1),('HPOT',130,58.6,1),('LPOT',152,58.6,1),('LCUR',174,58.6,1),('K4 REF',182,70,.8),('K2 5k',152.5,128,.8),('K1 100R',167.5,128,.8),('K3 100k',182.3,128,.8),('BOOTSEL',60,84,.8),('RESET',60,95,.8),('J4 CLK/DIO',64,105,.8),('J5 GND/3V3',60,115,.8),('J6 TX/RX',77,111,.8),('USB GND REFERENCED',111,147,1)]:
     t=k.PCB_TEXT(b);t.SetText(text);t.SetPosition(pos(x,y));t.SetTextSize(pos(size,size));t.SetTextThickness(mm(.15));t.SetLayer(k.F_SilkS);b.Add(t)
 # Explicit human-authored track list. All segments are in board millimetres.
 routing=ROOT/'routing.json'

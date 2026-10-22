@@ -64,8 +64,8 @@ K4 is only ever set right after a RESET and a range SET, so it is never closed w
 
 **Coil-current budget.** The worst pulse is RESET: four coils at 28.1 mA each (TQ2SA-L2-5V, 178 Ω; `../sources/rev-e/TQ2SA.txt` line 156) through the 2.2 Ω coil-supply resistor (R101; [range switching](../docs/rev-e-range-switching.md) 3.2):
 - 4 × 28.1 mA = 112 mA, so the resistor drops 0.25 V.
-- At the 4.75 V minimum of the 5 V supply, each coil still sees at least 4.5 V. The set and reset voltage is at most 3.75 V.
-- The 28.1 mA figure is at 5 V on the coil, so it overstates the current at 4.5 V; the AO3400A adds about 6 mV at 112 mA.
+- At the 4.40 V USB minimum, the 5 V rail is at least 4.30 V during the pulse (U16's 135 mΩ maximum and 45 mΩ of entry copper at 0.45 + 0.11 A), so each coil still sees at least 4.05 V. The set and reset voltage is at most 3.75 V.
+- The 28.1 mA figure is at 5 V on the coil, so it overstates the current at 4.05 V; the AO3400A adds about 6 mV at 112 mA.
 - SET pulses drive one coil (28.1 mA, 0.06 V drop).
 - With three relays the worst pulse was 84 mA and 0.18 V.
 

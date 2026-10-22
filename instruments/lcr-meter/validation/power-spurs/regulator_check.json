@@ -163,8 +163,8 @@
   {
    "item": "TPS65131 duty cycle at all corners (2x estimated load)",
    "value": [
-    0.641,
-    0.764
+    0.612,
+    0.779
    ],
    "limit": [
     0.125,
@@ -188,10 +188,10 @@
    "note": "inductor cannot saturate even at the 2.2 A switch limit"
   },
   {
-   "item": "Eq. 3/4 inductor current at 2x load, VIN 4.75 V",
+   "item": "Eq. 3/4 inductor current at 2x load, VIN 4.32 V",
    "value": [
-    0.349,
-    0.511
+    0.381,
+    0.546
    ],
    "limit": 1.8,
    "status": "PASS",
@@ -206,14 +206,14 @@
   },
   {
    "item": "TPS65131 RAW_P output caps vs Eq. 7/8 (10 mV)",
-   "value": "need 3.87 uF; break-even retention 0.168",
+   "value": "need 4.02 uF; break-even retention 0.175",
    "limit": "<= assumed 0.4",
    "status": "PASS",
    "note": "3 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V"
   },
   {
    "item": "TPS65131 RAW_N output caps vs Eq. 7/8 (10 mV)",
-   "value": "need 4.79 uF; break-even retention 0.209",
+   "value": "need 4.89 uF; break-even retention 0.213",
    "limit": "<= assumed 0.4",
    "status": "PASS",
    "note": "3 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V"
@@ -222,7 +222,7 @@
    "item": "SS14 reverse voltage: boost / inverter",
    "value": [
     14.87,
-    20.06
+    20.31
    ],
    "limit": 40.0,
    "status": "PASS",
@@ -230,10 +230,10 @@
   },
   {
    "item": "OUTN-to-INN differential (abs max 24 V)",
-   "value": 20.61,
+   "value": 20.86,
    "limit": 24.0,
    "status": "PASS",
-   "note": "static margin 3.39 V before switch-node ringing; scope at bring-up"
+   "note": "static margin 3.14 V before switch-node ringing; scope at bring-up"
   },
   {
    "item": "INP switch node (abs max 17 V)",
@@ -243,11 +243,11 @@
    "note": "static margin 1.58 V before ringing"
   },
   {
-   "item": "VIN/INN abs max 6 V vs 5.25 V supply",
-   "value": 5.25,
+   "item": "VIN/INN abs max 6 V vs 5.5 V VBUS maximum",
+   "value": 5.5,
    "limit": 6.0,
    "status": "PASS",
-   "note": "0.75 V margin; hot-plug overshoot on ceramic input capacitance not analysed (no TVS on 5VIN)"
+   "note": "0.50 V margin; VBUS hot-plug overshoot is behind U16's soft start; D1 (SRV05-4) clamps VBUS"
   },
   {
    "item": "U11 output voltage range",
@@ -447,33 +447,33 @@
   }
  ],
  "operating_points_2x_load": {
-  "pos vin=4.71175 fsw=1250000 L=3.76u": {
-   "duty": 0.6923740543466519,
-   "ripple_a": 0.6941049894825185,
-   "ipk_a": 0.5770666167781819,
+  "pos vin=4.319 fsw=1250000 L=3.76u": {
+   "duty": 0.718016350766316,
+   "ripple_a": 0.6598111955233443,
+   "ipk_a": 0.5808361463857681,
    "mode": "CCM (forced)",
-   "t_on_s": 5.538992434773215e-07
+   "t_on_s": 5.744130806130528e-07
   },
-  "pos vin=4.71175 fsw=1250000 L=5.64u": {
-   "duty": 0.6923740543466519,
-   "ripple_a": 0.4627366596550125,
-   "ipk_a": 0.46138245186442883,
+  "pos vin=4.319 fsw=1250000 L=5.64u": {
+   "duty": 0.718016350766316,
+   "ripple_a": 0.43987413034889633,
+   "ipk_a": 0.470867613798544,
    "mode": "CCM (forced)",
-   "t_on_s": 5.538992434773215e-07
+   "t_on_s": 5.744130806130528e-07
   },
-  "pos vin=4.71175 fsw=1500000 L=3.76u": {
-   "duty": 0.6923740543466519,
-   "ripple_a": 0.5784208245687655,
-   "ipk_a": 0.5192245343213053,
+  "pos vin=4.319 fsw=1500000 L=3.76u": {
+   "duty": 0.718016350766316,
+   "ripple_a": 0.5498426629361204,
+   "ipk_a": 0.5258518800921561,
    "mode": "CCM (forced)",
-   "t_on_s": 4.6158270289776793e-07
+   "t_on_s": 4.786775671775439e-07
   },
-  "pos vin=4.71175 fsw=1500000 L=5.64u": {
-   "duty": 0.6923740543466519,
-   "ripple_a": 0.3856138830458437,
-   "ipk_a": 0.4228210635598445,
+  "pos vin=4.319 fsw=1500000 L=5.64u": {
+   "duty": 0.718016350766316,
+   "ripple_a": 0.3665617752907469,
+   "ipk_a": 0.43421143626946934,
    "mode": "CCM (forced)",
-   "t_on_s": 4.6158270289776793e-07
+   "t_on_s": 4.786775671775439e-07
   },
   "pos vin=5.0 fsw=1250000 L=3.76u": {
    "duty": 0.6735544695141422,
@@ -503,61 +503,61 @@
    "mode": "CCM (forced)",
    "t_on_s": 4.4903631300942813e-07
   },
-  "pos vin=5.25 fsw=1250000 L=3.76u": {
-   "duty": 0.6572321929898493,
-   "ripple_a": 0.7341423432333423,
-   "ipk_a": 0.573503369618094,
+  "pos vin=5.5 fsw=1250000 L=3.76u": {
+   "duty": 0.6409099164655565,
+   "ripple_a": 0.7500009660767151,
+   "ipk_a": 0.5720493993124431,
    "mode": "CCM (forced)",
-   "t_on_s": 5.257857543918794e-07
+   "t_on_s": 5.127279331724452e-07
   },
-  "pos vin=5.25 fsw=1250000 L=5.64u": {
-   "duty": 0.6572321929898493,
-   "ripple_a": 0.48942822882222825,
-   "ipk_a": 0.451146312412537,
+  "pos vin=5.5 fsw=1250000 L=5.64u": {
+   "duty": 0.6409099164655565,
+   "ripple_a": 0.5000006440511434,
+   "ipk_a": 0.44704923829965726,
    "mode": "CCM (forced)",
-   "t_on_s": 5.257857543918794e-07
+   "t_on_s": 5.127279331724452e-07
   },
-  "pos vin=5.25 fsw=1500000 L=3.76u": {
-   "duty": 0.6572321929898493,
-   "ripple_a": 0.6117852860277853,
-   "ipk_a": 0.5123248410153155,
+  "pos vin=5.5 fsw=1500000 L=3.76u": {
+   "duty": 0.6409099164655565,
+   "ripple_a": 0.6250008050639293,
+   "ipk_a": 0.5095493188060503,
    "mode": "CCM (forced)",
-   "t_on_s": 4.3815479532656616e-07
+   "t_on_s": 4.2727327764370435e-07
   },
-  "pos vin=5.25 fsw=1500000 L=5.64u": {
-   "duty": 0.6572321929898493,
-   "ripple_a": 0.40785685735185684,
-   "ipk_a": 0.4103606266773513,
+  "pos vin=5.5 fsw=1500000 L=5.64u": {
+   "duty": 0.6409099164655565,
+   "ripple_a": 0.41666720337595287,
+   "ipk_a": 0.405382517962062,
    "mode": "CCM (forced)",
-   "t_on_s": 4.3815479532656616e-07
+   "t_on_s": 4.2727327764370435e-07
   },
-  "neg vin=4.71175 fsw=1250000 L=3.76u": {
-   "duty": 0.7141115705556599,
+  "neg vin=4.319 fsw=1250000 L=3.76u": {
+   "duty": 0.779049593092297,
    "ripple_a": 0.7158968494820491,
    "ipk_a": 0.7158968494820491,
    "mode": "DCM",
-   "t_on_s": 5.712892564445279e-07
+   "t_on_s": 6.232396744738376e-07
   },
-  "neg vin=4.71175 fsw=1250000 L=5.64u": {
-   "duty": 0.7640213057236577,
-   "ripple_a": 0.510620905991978,
-   "ipk_a": 0.5898758765709595,
+  "neg vin=4.319 fsw=1250000 L=5.64u": {
+   "duty": 0.7793512286956881,
+   "ripple_a": 0.4774493555654861,
+   "ipk_a": 0.5965345642305,
    "mode": "CCM",
-   "t_on_s": 6.112170445789261e-07
+   "t_on_s": 6.234809829565505e-07
   },
-  "neg vin=4.71175 fsw=1500000 L=3.76u": {
-   "duty": 0.7640213057236577,
-   "ripple_a": 0.6382761324899724,
-   "ipk_a": 0.6537034898199567,
+  "neg vin=4.319 fsw=1500000 L=3.76u": {
+   "duty": 0.7793512286956881,
+   "ripple_a": 0.5968116944568577,
+   "ipk_a": 0.6562157336761858,
    "mode": "CCM",
-   "t_on_s": 5.093475371491051e-07
+   "t_on_s": 5.195674857971254e-07
   },
-  "neg vin=4.71175 fsw=1500000 L=5.64u": {
-   "duty": 0.7640213057236577,
-   "ripple_a": 0.42551742165998163,
-   "ipk_a": 0.5473241344049613,
+  "neg vin=4.319 fsw=1500000 L=5.64u": {
+   "duty": 0.7793512286956881,
+   "ripple_a": 0.39787446297123846,
+   "ipk_a": 0.5567471179333762,
    "mode": "CCM",
-   "t_on_s": 5.093475371491051e-07
+   "t_on_s": 5.195674857971254e-07
   },
   "neg vin=5.0 fsw=1250000 L=3.76u": {
    "duty": 0.6729430385131262,
@@ -587,33 +587,33 @@
    "mode": "CCM",
    "t_on_s": 5.020990187911653e-07
   },
-  "neg vin=5.25 fsw=1250000 L=3.76u": {
-   "duty": 0.6408981319172631,
+  "neg vin=5.5 fsw=1250000 L=3.76u": {
+   "duty": 0.6117663986482965,
    "ripple_a": 0.7158968494820491,
    "ipk_a": 0.7158968494820491,
    "mode": "DCM",
-   "t_on_s": 5.127185055338105e-07
+   "t_on_s": 4.894131189186372e-07
   },
-  "neg vin=5.25 fsw=1250000 L=5.64u": {
-   "duty": 0.7439660721917647,
-   "ripple_a": 0.554017287802378,
-   "ipk_a": 0.5853674324456716,
+  "neg vin=5.5 fsw=1250000 L=5.64u": {
+   "duty": 0.7350048258808936,
+   "ripple_a": 0.5734080201907681,
+   "ipk_a": 0.5846351406062643,
    "mode": "CCM",
-   "t_on_s": 5.951728577534117e-07
+   "t_on_s": 5.880038607047148e-07
   },
-  "neg vin=5.25 fsw=1500000 L=3.76u": {
-   "duty": 0.7020687278280132,
+  "neg vin=5.5 fsw=1500000 L=3.76u": {
+   "duty": 0.6701565129267398,
    "ripple_a": 0.6535214221803315,
    "ipk_a": 0.6535214221803315,
    "mode": "DCM",
-   "t_on_s": 4.680458185520088e-07
+   "t_on_s": 4.4677100861782655e-07
   },
-  "neg vin=5.25 fsw=1500000 L=5.64u": {
-   "duty": 0.7439660721917647,
-   "ripple_a": 0.46168107316864837,
-   "ipk_a": 0.5391993251288068,
+  "neg vin=5.5 fsw=1500000 L=5.64u": {
+   "duty": 0.7350048258808936,
+   "ripple_a": 0.47784001682564003,
+   "ipk_a": 0.5368511389237003,
    "mode": "CCM",
-   "t_on_s": 4.959773814611765e-07
+   "t_on_s": 4.90003217253929e-07
   }
  }
 }

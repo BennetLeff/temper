@@ -12,3 +12,5 @@ Read-only public EasyEDA API responses, retrieved 2026-10-20. Geometry is source
 Revision-A-only IC and oscillator records are retained under `archive/rev-a/superseded/sources/placement-library/`, outside the revision B package. The current part-specific authority is `sources/placement-rev-b.json`.
 
 Rev E keyed parts, retrieved 2026-10-21 by `cad/tools/placement_offsets.py` as `<LCSC>-product.json` from the lceda.cn mirror of the product API, `https://lceda.cn/api/products/<LCSC>/components?version=6.4.19.5`. easyeda.com answered 403 that day; the mirror's PAD records for C2684450 and C44853692 match the easyeda.com records fetched on 2026-10-20. C15127 (Q1) and C51118 (U3) were refetched to confirm that the tool reproduces their audited offsets (180° and 270°). Each file's SHA-256 is in `sources/placement-rev-c.json`.
+
+Rev E USB-C power entry: C55266 (U16 TPS2553DBVR) fetched the same way on 2026-10-21; offset 180°, RMS 0.21 mm over 6 pads against native SOT-23-6 (next candidate 2.08 mm). C15127 (Q1) and the DC-005 jack left the board with this change; their records stay as audit history.

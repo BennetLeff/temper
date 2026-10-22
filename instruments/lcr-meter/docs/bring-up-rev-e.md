@@ -3,7 +3,8 @@
 Applies to the Rev E board (`E-codec`, protocol 3): TAC5112 codec, latching range relays K1–K3, K4 internal 1 kΩ reference, four BNC jacks, 140 × 105 mm. Rev D's procedure ([bring-up.md](bring-up.md)) does not apply: Rev E has no jumpers, no ADS9224R/THS4551/AD9833 and no DDS. No Rev E board has been tested. Each step says what to record. A step that fails stops the sequence until it is understood.
 
 **Equipment.**
-- Regulated **5 V, 1 A, centre-positive** supply with a current limit.
+- A bench supply with a current limit, feeding a **USB-C power-only breakout** (5.1 kΩ on CC is on the board, so any breakout that passes VBUS and GND works). It powers the board through J1 for section 2, before any computer is attached.
+- An inline **USB-C current meter** (VBUS voltage and current) for section 3 onward.
 - 6½-digit DMM (also used to characterize the cal kit, [CHARACTERIZE.md](../calkit/CHARACTERIZE.md)).
 - Oscilloscope, ≥ 100 MHz, short ground springs; a logic analyser (≥ 100 MS/s) for the TDM bus.
 - The cal kit card, Kelvin clip leads (jaws < 14 mm) and four BNC–clip leads.
@@ -16,16 +17,18 @@ Applies to the Rev E board (`E-codec`, protocol 3): TAC5112 codec, latching rang
 ## 1. Inspection, before power
 
 1. Compare the board with `previews/assembly-top.png` and the JLC placement preview. Pay most attention to keyed parts: U1 (RP2040), U13 (TPS65131), U14 (TAC5112), U5–U7, U11/U12, U15, K1–K4 (pin-1 bar), D-parts and Q2–Q6.
-2. Check that the BNCs (J3 HCUR, J7 HPOT, J8 LPOT, J9 LCUR) face the top edge and match their silk. J2 is the DC jack: tip to `5VIN`, sleeve to GND.
+2. Check that the BNCs (J3 HCUR, J7 HPOT, J8 LPOT, J9 LCUR) face the top edge and match their silk. Power enters only through J1 (USB-C); there is no DC jack. Check U16 (TPS2553, pin-1 mark) and R110 (24 kΩ).
 3. DMM, power off:
-   - no short from 5VIN, 5V, 3V3, 3V3A, RAW_P/RAW_N or ±12V to GND;
+   - no short from USB_VBUS, 5V, 3V3, 3V3A, RAW_P/RAW_N or ±12V to GND;
+   - USB_VBUS to 5V is open (U16 off), not a short;
    - each BNC shell to GND is 0 Ω;
    - J3 to J7 centre about 1 kΩ (R105), and J8 to J9 centre about 1 kΩ (R106).
 
-## 2. Power and rails, no USB
+## 2. Power and rails, no computer
 
-1. Leave the jacks open. Apply 5 V through J2 with a 0.5 A limit. Record the current, and watch for heating.
-2. Measure and record each rail:
+1. Leave the jacks open. Apply 5.0 V through the USB-C breakout into J1 with a 0.5 A limit. Record the current, and watch for heating. U16 soft-starts the 5 V rail and limits it at 1.0–1.16 A (R110, TPS2553 datasheet eq. 1); the bench limit is the tighter one here.
+2. Lower the supply to 4.40 V (the USB minimum at the device) and confirm 12 V/−12 V and 3V3A stay in range. Record the 5V node: it should sit about 0.08 V below VBUS (U16 and the entry copper, `validation/power-spurs/regulator_check.py`).
+3. At 5.0 V, measure and record each rail:
 
 | Net | Expect | Note |
 |---|---|---|
@@ -38,7 +41,8 @@ Applies to the Rev E board (`E-codec`, protocol 3): TAC5112 codec, latching rang
 | 12V / −12V | 11.65–12.29 / −11.67…−12.32 V | |
 | VRLY | about 5 V | relay coil supply (R101, C112) |
 
-3. Measure fsw on SW_P (1.25–1.50 MHz) and record it. Scope RAW_P/N, ±12 V and 3V3A for ripple and spikes (Rev D R4). Hot-plug the adapter once and scope 5VIN: the abs-max is 6 V and there is no TVS.
+4. Measure fsw on SW_P (1.25–1.50 MHz) and record it. Scope RAW_P/N, ±12 V and 3V3A for ripple and spikes (Rev D R4). Hot-plug the USB-C cable once and scope USB_VBUS and 5V: TPS65131 VIN abs-max is 6 V. U16 ramps 5V in about 1 ms; record the ramp and any overshoot.
+5. Move to the computer through the inline USB-C meter. Record VBUS and current at idle, during a capture, and during a range change (relay pulses add about 0.11 A for milliseconds). The estimate is 0.45 A; a USB-C port or a USB 3 port (900 mA) is needed, and a USB 2.0 type-A port (500 mA) is marginal. If the computer's VBUS at the board is below 4.40 V under load, use a powered hub or a USB-C charger port.
 
 ## 3. Firmware and digital
 
@@ -70,7 +74,7 @@ The Rev E host does the zero-waveform check itself on `capture` ([power-spurs Re
 
 1. Silence the source with `temper-lcr off PORT`, then run `temper-lcr raw PORT 8192 quiet.json` with the jacks open and again with the Kelvin short. Compare the RMS per channel with [rev-e-codec](../validation/rev-e-codec/README.md).
 2. `temper-lcr capture` now does this at every point: after each source-on capture it uploads `PERIOD` zero words, captures again with the same SKIP and PERIODS, and requires the line at the tone bin below 10⁻⁴ of the source-on line on A and B (it doubles the capture time). It exits non-zero and saves the file if any point fails, and `analyze`, `calibrate` and `validate` refuse that point unless `--allow-source-off-fail`. Read the per-point `source_off_check` ratios and `noise_sigma_codes` in the capture file as a record of the quiet board. The manual method still serves for spectra, where the check only sees one bin: for each grid period, upload a waveform of that many zero words with `temper-lcr wave PORT zeros-P.txt`, then take `raw` again. The grid periods are 125 (1.5 kHz), 75 (27.5 kHz), 375 (35.5, 50.5 and 60.5 kHz) and 125 (40.5 kHz). This catches activity locked to the waveform period. Take the DFT of the record at the grid frequencies (23 Hz bins at 8192 frames). Any line standing above the noise floor at a grid frequency is interference: find it before calibrating.
-3. Repeat step 2 with the real adapter, USB to the real host, and the coil and leads in their working position.
+3. Repeat step 2 powered from the real host's USB-C port (and, if it will be used, its charger or hub), with the coil and leads in their working position. VBUS is now the only supply: a host VBUS line inside the tone bin needs at least 25 mV (9 µF at 60.5 kHz) to 0.44 V (the other reference parts) to reach 10⁻⁴ ([power-spurs Rev E](../validation/power-spurs/README-rev-e.md), mechanism 5). Any line found here is recorded with the host model.
 
 ## 6. Source, analog levels and stability
 

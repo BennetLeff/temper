@@ -15,9 +15,9 @@ Revision E is the **TI TIDA-060029 based, 140 × 105 mm board** with the TAC5112
 
 ## Assembly
 
-The JLC BOM and CPL cover **191 top-side SMT placements**, including the four TQ2SA relays and the TAC5112. The complete BOM contains **199 fitted components**. JLC hand fits J2–J9: one DC jack, three TSW-102-07-G-S 2-pin headers (J4–J6) and four SAMZO BNC-KYWE-295-W4-N right-angle BNCs (J3, J7, J8, J9; C41416668). Each BNC's barrel faces the top edge; its square pad pattern does not key it, so follow the silk opening mark. DUT leads/fixture, regulated 5 V supply and USB cable are external accessories, not fitted PCB components.
+The JLC BOM and CPL cover **193 top-side SMT placements**, including the four TQ2SA relays, the TAC5112 and the U16 TPS2553 USB power switch. The complete BOM contains **200 fitted components**. JLC hand fits J3–J9: three TSW-102-07-G-S 2-pin headers (J4–J6) and four SAMZO BNC-KYWE-295-W4-N right-angle BNCs (J3, J7, J8, J9; C41416668). Each BNC's barrel faces the top edge; its square pad pattern does not key it, so follow the silk opening mark. DUT leads/fixture and the USB-C cable are external accessories, not fitted PCB components. There is no DC jack: the board is powered from USB-C VBUS.
 
-J1 is a mixed-technology USB connector included in SMT assembly; its shield anchors must be soldered. J2 uses the exact DC-005 2.0 mechanical drawing and custom numbered pads: pad4 tip/input, pad3 sleeve/ground, pad2 switched contact left unconnected. Do not substitute a similarly named jack without checking its drawing.
+J1 is a mixed-technology USB connector included in SMT assembly; its shield anchors must be soldered. It carries power as well as data.
 
 Ranges are latching relays K1 (100 Ω), K2 (5 kΩ) and K3 (100 kΩ) under firmware control; the firmware selects 100 kΩ at boot because a latching relay keeps its last state through power-off. K4 switches the on-board 1 kΩ reference across the jacks for `REFCAPTURE`; every RESET opens it. The DUT connects to the four BNCs, left to right on the top edge J3 HCUR, J7 HPOT, J8 LPOT, J9 LCUR (silk labels); J4/J5 are debug and J6 UART.
 
