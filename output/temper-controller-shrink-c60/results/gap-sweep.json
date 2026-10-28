@@ -1,0 +1,113 @@
+{
+ "schema": "temper.controller-shrink-c60.gap-sweep.v1",
+ "outline": "acut",
+ "rows": [
+  {
+   "gap_mm": 0.9,
+   "status": "FIT",
+   "placed": 289,
+   "unplaced": [],
+   "l2_to_rtd_mm": 10.9,
+   "decoupling_worst_mm": 3.75
+  },
+  {
+   "gap_mm": 1.2,
+   "status": "FIT",
+   "placed": 289,
+   "unplaced": [],
+   "l2_to_rtd_mm": 10.2,
+   "decoupling_worst_mm": 3.75
+  },
+  {
+   "gap_mm": 1.5,
+   "status": "FIT",
+   "placed": 289,
+   "unplaced": [],
+   "l2_to_rtd_mm": 11.4,
+   "decoupling_worst_mm": 3.75
+  },
+  {
+   "gap_mm": 1.8,
+   "status": "NO-FIT",
+   "placed": 288,
+   "unplaced": [
+    "R77 r_runaway_bot"
+   ],
+   "l2_to_rtd_mm": 11.0,
+   "decoupling_worst_mm": 3.75
+  },
+  {
+   "gap_mm": 2.0,
+   "status": "NO-FIT",
+   "placed": 280,
+   "unplaced": [
+    "R39 rtd_pan.r_ref",
+    "R50 rtd_pan.r_high_bottom",
+    "R51 rtd_pan.r_window_sense_p",
+    "R53 rtd_pan.r_avdd_top",
+    "R54 rtd_pan.r_avdd_bottom",
+    "R76 r_runaway_top",
+    "R77 r_runaway_bot",
+    "R121 r_v5_drop",
+    "R21 r_fan_pwm_filt"
+   ],
+   "l2_to_rtd_mm": 12.5,
+   "decoupling_worst_mm": 3.75
+  },
+  {
+   "gap_mm": 2.5,
+   "status": "NO-FIT",
+   "placed": 243,
+   "unplaced": [
+    "R44 rtd_pan.r_cs",
+    "R45 rtd_pan.r_miso",
+    "R99 r_rim_th_top",
+    "C59 c_runaway_th",
+    "C91 c_en",
+    "R11 r_en3_top",
+    "R12 r_en3_bot",
+    "R13 r_fb3_top",
+    "R14 r_fb3_bot",
+    "R18 r_en12_bot",
+    "R20 r_fan_pwm_pd",
+    "R3 r_pwm_hb",
+    "R34 thermal.coil_top",
+    "R35 thermal.coil_bottom",
+    "R36 thermal.coil_hyst",
+    "R39 rtd_pan.r_ref",
+    "R4 r_pwm_lb",
+    "R46 rtd_pan.fb_power",
+    "R47 rtd_pan.r_low_top",
+    "R48 rtd_pan.r_low_bottom",
+    "R49 rtd_pan.r_high_top",
+    "R50 rtd_pan.r_high_bottom",
+    "R51 rtd_pan.r_window_sense_p",
+    "R52 rtd_pan.r_window_ok_pulldown",
+    "R53 rtd_pan.r_avdd_top",
+    "R54 rtd_pan.r_avdd_bottom",
+    "R55 rtd_pan.r_rail_ok_pullup",
+    "R56 rtd_pan.r_fault_pullup",
+    "R6 rpd_pwm_la",
+    "R76 r_runaway_top",
+    "R77 r_runaway_bot",
+    "R78 r_rx_n",
+    "R79 r_rx_p",
+    "R8 rpd_pwm_lb",
+    "R80 r_rx_f",
+    "R81 r_rx_b",
+    "R82 r_ref",
+    "R83 r_bias_top",
+    "R84 r_bias_bot",
+    "R86 r_ct_mon_def",
+    "R87 r_ct_adc",
+    "R93 r_m12_pu",
+    "R94 r_m12_filt",
+    "R121 r_v5_drop",
+    "R123 r_bias_pd",
+    "R21 r_fan_pwm_filt"
+   ],
+   "l2_to_rtd_mm": 14.8,
+   "decoupling_worst_mm": 3.75
+  }
+ ]
+}

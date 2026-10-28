@@ -1,0 +1,5855 @@
+{
+ "schema": "temper.controller-shrink-c60.floorplan.v1",
+ "outline": "acut",
+ "board_world": [
+  -38.0,
+  14.0,
+  93.0,
+  90.0
+ ],
+ "holes": [
+  [
+   -34.0,
+   18.0
+  ],
+  [
+   -26.0,
+   74.0
+  ],
+  [
+   65.0,
+   18.0
+  ],
+  [
+   75.0,
+   86.0
+  ]
+ ],
+ "gap_mm": 0.9,
+ "status": "FIT",
+ "summary": {
+  "hole_keepout": true,
+  "ufl_clear": true,
+  "overlaps": true,
+  "decoupling": true,
+  "partition": true,
+  "rtd_input_cap": true,
+  "kept_landings": true,
+  "all_placed": true,
+  "explicit_problems": true
+ },
+ "checks": {
+  "hole_keepout": {
+   "ok": true,
+   "intrusions": []
+  },
+  "ufl_clear": {
+   "ok": true,
+   "ufl_world": [
+    40.4,
+    47.84
+   ],
+   "parts_within_3mm": []
+  },
+  "overlaps": {
+   "ok": true,
+   "pairs": []
+  },
+  "decoupling": {
+   "ok": true,
+   "limit_mm": 5.0,
+   "worst_mm": 3.75,
+   "pins": 45,
+   "fails": []
+  },
+  "partition": {
+   "ok": true,
+   "separations_mm": {
+    "L2/U2 (blower buck) -> RTD front end": {
+     "mm": 10.9,
+     "nearest": [
+      "L2",
+      "R39"
+     ]
+    },
+    "L2/U2 (blower buck) -> thermal-sense": {
+     "mm": 44.7,
+     "nearest": [
+      "L2",
+      "R33"
+     ]
+    },
+    "L2/U2 (blower buck) -> J4 analog": {
+     "mm": 63.9,
+     "nearest": [
+      "L2",
+      "U7"
+     ]
+    },
+    "L1/U1 (3.3 V buck) -> RTD front end": {
+     "mm": 10.9,
+     "nearest": [
+      "L1",
+      "U10"
+     ]
+    },
+    "L1/U1 (3.3 V buck) -> thermal-sense": {
+     "mm": 52.2,
+     "nearest": [
+      "U1",
+      "R35"
+     ]
+    },
+    "L1/U1 (3.3 V buck) -> J4 analog": {
+     "mm": 36.1,
+     "nearest": [
+      "U1",
+      "U15"
+     ]
+    }
+   },
+   "rule": "L2/U2 >= 10 mm from the RTD analog parts (gated, check_layout.py:434); this floorplan also holds L1/U1 >= 10 mm (C49: 76.7 mm; ENCLOSURE-HANDOFF item 7)",
+   "l1_rtd_ok": true
+  },
+  "rtd_input_cap": {
+   "ok": true,
+   "pin_to_pad_centre_mm_c60": [
+    3.908,
+    3.908
+   ],
+   "pin_to_pad_centre_mm_c49": [
+    3.908,
+    3.908
+   ],
+   "note": "C34 rule <= 3 mm is pad to pin as LAYOUT.md measures it (~2.1 mm); centre to centre is reported here and must equal C49's (rigid group)"
+  },
+  "kept_landings": {
+   "ok": true,
+   "rows": {
+    "J1": {
+     "c49": [
+      53.75,
+      84.5741,
+      0.0
+     ],
+     "c60": [
+      53.75,
+      84.5741,
+      0.0
+     ],
+     "unchanged": true
+    },
+    "J2": {
+     "c49": [
+      -21.25,
+      84.5741,
+      0.0
+     ],
+     "c60": [
+      -21.25,
+      84.5741,
+      0.0
+     ],
+     "unchanged": true
+    },
+    "J4": {
+     "c49": [
+      -28.565,
+      31.9,
+      90.0
+     ],
+     "c60": [
+      -28.565,
+      31.9,
+      90.0
+     ],
+     "unchanged": true
+    },
+    "J7": {
+     "c49": [
+      32.25,
+      60.5741,
+      0.0
+     ],
+     "c60": [
+      32.25,
+      60.5741,
+      0.0
+     ],
+     "unchanged": true
+    },
+    "J9": {
+     "c49": [
+      -35.5,
+      86.5741,
+      0.0
+     ],
+     "c60": [
+      -35.5,
+      86.5741,
+      0.0
+     ],
+     "unchanged": true
+    },
+    "J13": {
+     "c49": [
+      86.02,
+      86.2491,
+      0.0
+     ],
+     "c60": [
+      86.02,
+      86.2491,
+      0.0
+     ],
+     "unchanged": true
+    }
+   }
+  },
+  "all_placed": {
+   "ok": true,
+   "placed": 289,
+   "total": 289,
+   "unplaced": []
+  },
+  "explicit_problems": {
+   "ok": true,
+   "rows": []
+  }
+ },
+ "utilisation": {
+  "board_mm": [
+   131.0,
+   76.0
+  ],
+  "board_area_mm2": 9956.0,
+  "crtyd_placed_mm2": 4005.6,
+  "utilisation_pct": 40.2,
+  "utilisation_pct_less_hole_keepouts": 41.1,
+  "placement_rect_mm2": 4135.8,
+  "blocks": {
+   "blower_buck": {
+    "parts": 27,
+    "crtyd": 424.0,
+    "bbox": [
+     20.3,
+     19.3,
+     92.2,
+     88.9
+    ]
+   },
+   "trip_glue": {
+    "parts": 23,
+    "crtyd": 189.1,
+    "bbox": [
+     10.2,
+     18.5,
+     65.5,
+     74.1
+    ]
+   },
+   "ntc_afe": {
+    "parts": 25,
+    "crtyd": 148.6,
+    "bbox": [
+     -37.1,
+     24.1,
+     84.3,
+     81.8
+    ]
+   },
+   "rms": {
+    "parts": 18,
+    "crtyd": 192.0,
+    "bbox": [
+     -20.4,
+     22.4,
+     7.0,
+     38.8
+    ]
+   },
+   "d11_ctmon": {
+    "parts": 17,
+    "crtyd": 147.1,
+    "bbox": [
+     -23.4,
+     32.5,
+     61.3,
+     57.0
+    ]
+   },
+   "buck_3v3": {
+    "parts": 14,
+    "crtyd": 192.7,
+    "bbox": [
+     22.7,
+     15.1,
+     53.5,
+     27.2
+    ]
+   },
+   "mcu": {
+    "parts": 8,
+    "crtyd": 400.9,
+    "bbox": [
+     21.0,
+     26.6,
+     54.3,
+     51.5
+    ]
+   },
+   "expander": {
+    "parts": 4,
+    "crtyd": 76.2,
+    "bbox": [
+     45.8,
+     40.9,
+     59.1,
+     51.3
+    ]
+   },
+   "interlock": {
+    "parts": 27,
+    "crtyd": 308.0,
+    "bbox": [
+     -35.5,
+     22.4,
+     23.1,
+     74.8
+    ]
+   },
+   "ui_bus": {
+    "parts": 15,
+    "crtyd": 99.6,
+    "bbox": [
+     38.0,
+     47.3,
+     69.9,
+     67.3
+    ]
+   },
+   "capmode": {
+    "parts": 14,
+    "crtyd": 128.7,
+    "bbox": [
+     6.7,
+     19.5,
+     21.8,
+     42.5
+    ]
+   },
+   "thermal_sense": {
+    "parts": 24,
+    "crtyd": 151.9,
+    "bbox": [
+     -12.0,
+     75.3,
+     36.1,
+     88.2
+    ]
+   },
+   "rtd": {
+    "parts": 50,
+    "crtyd": 328.1,
+    "bbox": [
+     12.2,
+     16.2,
+     90.8,
+     72.5
+    ]
+   },
+   "connectors": {
+    "parts": 10,
+    "crtyd": 1162.5,
+    "bbox": [
+     -38.5,
+     23.8,
+     92.4,
+     90.4
+    ]
+   },
+   "j4_if": {
+    "parts": 13,
+    "crtyd": 56.2,
+    "bbox": [
+     -29.2,
+     26.1,
+     52.5,
+     60.9
+    ]
+   }
+  }
+ },
+ "channels": [
+  [
+   22.6,
+   30.0,
+   25.0,
+   50.0
+  ],
+  [
+   43.9,
+   30.0,
+   45.6,
+   50.0
+  ],
+  [
+   82.3,
+   75.4,
+   84.6,
+   84.4
+  ],
+  [
+   74.0,
+   72.9,
+   80.6,
+   74.9
+  ]
+ ],
+ "rtd_stitch_region": [
+  56.0,
+  14.0,
+  93.0,
+  46.0
+ ],
+ "placement": {
+  "C1": {
+   "world": [
+    28.0,
+    21.0,
+    -180.0
+   ],
+   "how": "kept C49 pose",
+   "block": "buck_3v3",
+   "path": "c_in_bulk",
+   "rect": [
+    22.7,
+    16.6,
+    33.3,
+    25.4
+   ]
+  },
+  "C10": {
+   "world": [
+    90.6932,
+    75.986,
+    0
+   ],
+   "how": "anchored to R22.1 (decap)",
+   "block": "blower_buck",
+   "path": "c_fan_ctl",
+   "rect": [
+    89.213,
+    75.256,
+    92.173,
+    76.716
+   ]
+  },
+  "C11": {
+   "world": [
+    70.1771,
+    77.9965,
+    180
+   ],
+   "how": "anchored to U2.7 (auto)",
+   "block": "blower_buck",
+   "path": "c_ss_12",
+   "rect": [
+    68.697,
+    77.266,
+    71.657,
+    78.727
+   ]
+  },
+  "C12": {
+   "world": [
+    88.1,
+    74.2,
+    -90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "blower_buck",
+   "path": "c_bst_12",
+   "rect": [
+    87.37,
+    72.72,
+    88.83,
+    75.68
+   ]
+  },
+  "C13": {
+   "world": [
+    81.8,
+    72.4,
+    -90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "blower_buck",
+   "path": "c_in12a",
+   "rect": [
+    80.65,
+    70.1,
+    82.95,
+    74.7
+   ]
+  },
+  "C14": {
+   "world": [
+    83.8,
+    72.6,
+    -90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "blower_buck",
+   "path": "c_in12b",
+   "rect": [
+    83.07,
+    71.12,
+    84.53,
+    74.08
+   ]
+  },
+  "C15": {
+   "world": [
+    79.4,
+    72.4,
+    -90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "blower_buck",
+   "path": "c_in12c",
+   "rect": [
+    78.25,
+    70.1,
+    80.55,
+    74.7
+   ]
+  },
+  "C16": {
+   "world": [
+    90.0246,
+    52.8008,
+    270
+   ],
+   "how": "anchored to L2.2 (decap)",
+   "block": "blower_buck",
+   "path": "c_out12a",
+   "rect": [
+    88.875,
+    50.501,
+    91.175,
+    55.101
+   ]
+  },
+  "C17": {
+   "world": [
+    90.5261,
+    71.7926,
+    90
+   ],
+   "how": "anchored to L2.2 (decap)",
+   "block": "blower_buck",
+   "path": "c_out12b",
+   "rect": [
+    89.376,
+    69.493,
+    91.676,
+    74.093
+   ]
+  },
+  "C18": {
+   "world": [
+    64.2039,
+    58.6863,
+    270
+   ],
+   "how": "anchored to R26.2 (decap)",
+   "block": "blower_buck",
+   "path": "c_tach",
+   "rect": [
+    63.474,
+    57.206,
+    64.934,
+    60.166
+   ]
+  },
+  "C19": {
+   "world": [
+    24.7719,
+    72.6193,
+    90
+   ],
+   "how": "anchored to U3.1 (auto)",
+   "block": "trip_glue",
+   "path": "c_rail_sense",
+   "rect": [
+    24.042,
+    71.139,
+    25.502,
+    74.099
+   ]
+  },
+  "C2": {
+   "world": [
+    42.9789,
+    25.6903,
+    90
+   ],
+   "how": "anchored to U1.7 (auto)",
+   "block": "buck_3v3",
+   "path": "c_ss_3v3",
+   "rect": [
+    42.249,
+    24.21,
+    43.709,
+    27.17
+   ]
+  },
+  "C20": {
+   "world": [
+    24.6945,
+    68.7608,
+    90
+   ],
+   "how": "anchored to U3.2 (decap)",
+   "block": "trip_glue",
+   "path": "c_rail",
+   "rect": [
+    23.965,
+    67.281,
+    25.425,
+    70.241
+   ]
+  },
+  "C21": {
+   "world": [
+    -4.2445,
+    78.1479,
+    0
+   ],
+   "how": "anchored to U17.4 (decap)",
+   "block": "thermal_sense",
+   "path": "thermal.hs_filter",
+   "rect": [
+    -5.725,
+    77.418,
+    -2.765,
+    78.878
+   ]
+  },
+  "C22": {
+   "world": [
+    -2.1125,
+    81.95,
+    0
+   ],
+   "how": "anchored to U17.5 (decap)",
+   "block": "thermal_sense",
+   "path": "thermal.hs_bypass",
+   "rect": [
+    -3.592,
+    81.22,
+    -0.632,
+    82.68
+   ]
+  },
+  "C23": {
+   "world": [
+    31.7555,
+    78.1479,
+    0
+   ],
+   "how": "anchored to U18.4 (decap)",
+   "block": "thermal_sense",
+   "path": "thermal.coil_filter",
+   "rect": [
+    30.276,
+    77.418,
+    33.236,
+    78.878
+   ]
+  },
+  "C24": {
+   "world": [
+    33.8875,
+    81.95,
+    0
+   ],
+   "how": "anchored to U18.5 (decap)",
+   "block": "thermal_sense",
+   "path": "thermal.coil_bypass",
+   "rect": [
+    32.408,
+    81.22,
+    35.367,
+    82.68
+   ]
+  },
+  "C25": {
+   "world": [
+    3.7555,
+    83.8521,
+    0
+   ],
+   "how": "anchored to U19.5 (decap)",
+   "block": "thermal_sense",
+   "path": "thermal.hs_open_bypass",
+   "rect": [
+    2.276,
+    83.122,
+    5.236,
+    84.582
+   ]
+  },
+  "C26": {
+   "world": [
+    22.7555,
+    83.8521,
+    0
+   ],
+   "how": "anchored to U26.5 (decap)",
+   "block": "thermal_sense",
+   "path": "thermal.coil_open_bypass",
+   "rect": [
+    21.276,
+    83.122,
+    24.236,
+    84.582
+   ]
+  },
+  "C27": {
+   "world": [
+    -2.1125,
+    87.45,
+    0
+   ],
+   "how": "anchored to U27.5 (decap)",
+   "block": "thermal_sense",
+   "path": "thermal.hs_or_bypass",
+   "rect": [
+    -3.592,
+    86.72,
+    -0.632,
+    88.18
+   ]
+  },
+  "C28": {
+   "world": [
+    33.8875,
+    87.45,
+    0
+   ],
+   "how": "anchored to U28.5 (decap)",
+   "block": "thermal_sense",
+   "path": "thermal.coil_or_bypass",
+   "rect": [
+    32.408,
+    86.72,
+    35.367,
+    88.18
+   ]
+  },
+  "C29": {
+   "world": [
+    73.8509,
+    35.0875,
+    180
+   ],
+   "how": "anchored to U30.3 (decap)",
+   "block": "rtd",
+   "path": "rtd_pan.c_vdd",
+   "rect": [
+    72.371,
+    34.358,
+    75.331,
+    35.817
+   ]
+  },
+  "C3": {
+   "world": [
+    42.1,
+    21.7,
+    -90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "buck_3v3",
+   "path": "c_bst_3v3",
+   "rect": [
+    41.37,
+    20.22,
+    42.83,
+    23.18
+   ]
+  },
+  "C30": {
+   "world": [
+    73.8672,
+    36.9582,
+    180
+   ],
+   "how": "anchored to U30.2 (decap)",
+   "block": "rtd",
+   "path": "rtd_pan.c_dvdd",
+   "rect": [
+    72.387,
+    36.228,
+    75.347,
+    37.688
+   ]
+  },
+  "C31": {
+   "world": [
+    79.2009,
+    26.9,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.c_rtd_input",
+   "rect": [
+    76.901,
+    25.75,
+    81.501,
+    28.05
+   ]
+  },
+  "C32": {
+   "world": [
+    65.8875,
+    43.55,
+    0
+   ],
+   "how": "anchored to U29.4 (decap)",
+   "block": "rtd",
+   "path": "rtd_pan.c_reference",
+   "rect": [
+    64.407,
+    42.82,
+    67.368,
+    44.28
+   ]
+  },
+  "C33": {
+   "world": [
+    69.7555,
+    41.8521,
+    0
+   ],
+   "how": "anchored to U31.5 (decap)",
+   "block": "rtd",
+   "path": "rtd_pan.c_low_window",
+   "rect": [
+    68.275,
+    41.122,
+    71.236,
+    42.582
+   ]
+  },
+  "C34": {
+   "world": [
+    69.7555,
+    35.8521,
+    0
+   ],
+   "how": "anchored to U32.5 (decap)",
+   "block": "rtd",
+   "path": "rtd_pan.c_high_window",
+   "rect": [
+    68.275,
+    35.122,
+    71.236,
+    36.582
+   ]
+  },
+  "C35": {
+   "world": [
+    63.5129,
+    36.2188,
+    0
+   ],
+   "how": "anchored to U33.5 (decap)",
+   "block": "rtd",
+   "path": "rtd_pan.c_window_and",
+   "rect": [
+    62.033,
+    35.489,
+    64.993,
+    36.949
+   ]
+  },
+  "C36": {
+   "world": [
+    69.6717,
+    24.8113,
+    0
+   ],
+   "how": "anchored to U34.4 (decap)",
+   "block": "rtd",
+   "path": "rtd_pan.c_rail_monitor",
+   "rect": [
+    68.192,
+    24.081,
+    71.152,
+    25.541
+   ]
+  },
+  "C37": {
+   "world": [
+    60.0458,
+    36.0723,
+    180
+   ],
+   "how": "anchored to U35.5 (decap)",
+   "block": "rtd",
+   "path": "rtd_pan.c_fault_nand",
+   "rect": [
+    58.566,
+    35.342,
+    61.526,
+    36.802
+   ]
+  },
+  "C38": {
+   "world": [
+    74.0009,
+    20.2,
+    -90.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.c_s1",
+   "rect": [
+    72.851,
+    17.9,
+    75.151,
+    22.5
+   ]
+  },
+  "C39": {
+   "world": [
+    73.8509,
+    30.6425,
+    180
+   ],
+   "how": "anchored to U30.10 (decap)",
+   "block": "rtd",
+   "path": "rtd_pan.c_cm_p",
+   "rect": [
+    72.371,
+    29.912,
+    75.331,
+    31.372
+   ]
+  },
+  "C4": {
+   "world": [
+    35.8,
+    19.9,
+    -90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "buck_3v3",
+   "path": "c_in3a",
+   "rect": [
+    34.65,
+    17.6,
+    36.95,
+    22.2
+   ]
+  },
+  "C40": {
+   "world": [
+    83.4509,
+    25.0,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.c_cm_n",
+   "rect": [
+    81.971,
+    24.27,
+    84.931,
+    25.73
+   ]
+  },
+  "C41": {
+   "world": [
+    71.2497,
+    39.0513,
+    90
+   ],
+   "how": "anchored to U31.3 (decap)",
+   "block": "rtd",
+   "path": "rtd_pan.c_window",
+   "rect": [
+    70.52,
+    37.571,
+    71.98,
+    40.531
+   ]
+  },
+  "C42": {
+   "world": [
+    84.2009,
+    38.85,
+    -90.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.c_j_fp",
+   "rect": [
+    83.471,
+    37.37,
+    84.931,
+    40.33
+   ]
+  },
+  "C43": {
+   "world": [
+    84.5509,
+    33.95,
+    -90.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.c_j_sp",
+   "rect": [
+    83.821,
+    32.47,
+    85.281,
+    35.43
+   ]
+  },
+  "C44": {
+   "world": [
+    84.5509,
+    29.3,
+    -90.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.c_j_sn",
+   "rect": [
+    83.821,
+    27.82,
+    85.281,
+    30.78
+   ]
+  },
+  "C45": {
+   "world": [
+    89.3009,
+    22.6,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.c_j_fn",
+   "rect": [
+    87.821,
+    21.87,
+    90.781,
+    23.33
+   ]
+  },
+  "C46": {
+   "world": [
+    -22.5132,
+    68.9697,
+    180
+   ],
+   "how": "anchored to U23.14 (decap)",
+   "block": "interlock",
+   "path": "interlock.fault_inv_bypass",
+   "rect": [
+    -23.993,
+    68.24,
+    -21.033,
+    69.7
+   ]
+  },
+  "C47": {
+   "world": [
+    12.6628,
+    69.4512,
+    90
+   ],
+   "how": "anchored to U24.14 (decap)",
+   "block": "interlock",
+   "path": "interlock.control_inv_bypass",
+   "rect": [
+    11.933,
+    67.971,
+    13.393,
+    70.931
+   ]
+  },
+  "C48": {
+   "world": [
+    3.3,
+    69.8625,
+    180
+   ],
+   "how": "anchored to U22.14 (decap)",
+   "block": "interlock",
+   "path": "interlock.aggregate_bypass",
+   "rect": [
+    1.82,
+    69.132,
+    4.78,
+    70.593
+   ]
+  },
+  "C49": {
+   "world": [
+    -15.9607,
+    61.879,
+    0
+   ],
+   "how": "anchored to U20.8 (decap)",
+   "block": "interlock",
+   "path": "interlock.latch_bypass",
+   "rect": [
+    -17.441,
+    61.149,
+    -14.481,
+    62.609
+   ]
+  },
+  "C5": {
+   "world": [
+    37.8,
+    20.1,
+    -90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "buck_3v3",
+   "path": "c_in3b",
+   "rect": [
+    37.07,
+    18.62,
+    38.53,
+    21.58
+   ]
+  },
+  "C50": {
+   "world": [
+    -8.2445,
+    62.3521,
+    0
+   ],
+   "how": "anchored to U21.5 (decap)",
+   "block": "interlock",
+   "path": "interlock.watchdog_bypass",
+   "rect": [
+    -9.725,
+    61.622,
+    -6.764,
+    63.082
+   ]
+  },
+  "C51": {
+   "world": [
+    -0.2445,
+    62.3521,
+    0
+   ],
+   "how": "anchored to U25.5 (decap)",
+   "block": "interlock",
+   "path": "interlock.common_bypass",
+   "rect": [
+    -1.724,
+    61.622,
+    1.236,
+    63.082
+   ]
+  },
+  "C52": {
+   "world": [
+    9.1904,
+    40.4737,
+    90
+   ],
+   "how": "anchored to U45.5 (decap)",
+   "block": "capmode",
+   "path": "c_cm_inv_ha",
+   "rect": [
+    8.46,
+    38.994,
+    9.92,
+    41.954
+   ]
+  },
+  "C53": {
+   "world": [
+    17.5262,
+    41.7647,
+    0
+   ],
+   "how": "anchored to U46.5 (decap)",
+   "block": "capmode",
+   "path": "c_cm_inv_la",
+   "rect": [
+    16.046,
+    41.035,
+    19.006,
+    42.495
+   ]
+  },
+  "C54": {
+   "world": [
+    9.6904,
+    27.2737,
+    90
+   ],
+   "how": "anchored to U43.5 (decap)",
+   "block": "capmode",
+   "path": "c_cm_pol",
+   "rect": [
+    8.96,
+    25.794,
+    10.42,
+    28.754
+   ]
+  },
+  "C55": {
+   "world": [
+    10.3,
+    34.8625,
+    180
+   ],
+   "how": "anchored to U42.14 (decap)",
+   "block": "capmode",
+   "path": "c_cm_ff",
+   "rect": [
+    8.82,
+    34.133,
+    11.78,
+    35.592
+   ]
+  },
+  "C56": {
+   "world": [
+    18.8733,
+    29.5251,
+    90
+   ],
+   "how": "anchored to U44.5 (decap)",
+   "block": "capmode",
+   "path": "c_cm_or",
+   "rect": [
+    18.143,
+    28.045,
+    19.603,
+    31.005
+   ]
+  },
+  "C57": {
+   "world": [
+    40.7555,
+    71.3521,
+    0
+   ],
+   "how": "anchored to U12.5 (decap)",
+   "block": "trip_glue",
+   "path": "c_rail_inv",
+   "rect": [
+    39.276,
+    70.622,
+    42.235,
+    72.082
+   ]
+  },
+  "C58": {
+   "world": [
+    34.7555,
+    71.3521,
+    0
+   ],
+   "how": "anchored to U11.5 (decap)",
+   "block": "trip_glue",
+   "path": "c_live",
+   "rect": [
+    33.276,
+    70.622,
+    36.235,
+    72.082
+   ]
+  },
+  "C59": {
+   "world": [
+    64.0058,
+    23.7056,
+    0
+   ],
+   "how": "anchored to U10.4 (auto)",
+   "block": "trip_glue",
+   "path": "c_runaway_th",
+   "rect": [
+    62.526,
+    22.976,
+    65.486,
+    24.436
+   ]
+  },
+  "C6": {
+   "world": [
+    51.8,
+    18.4,
+    0
+   ],
+   "how": "anchored to L1.2 (decap)",
+   "block": "buck_3v3",
+   "path": "c_out3a",
+   "rect": [
+    50.1,
+    17.42,
+    53.5,
+    19.38
+   ]
+  },
+  "C60": {
+   "world": [
+    63.7555,
+    29.8521,
+    0
+   ],
+   "how": "anchored to U10.5 (decap)",
+   "block": "trip_glue",
+   "path": "c_runaway",
+   "rect": [
+    62.276,
+    29.122,
+    65.236,
+    30.582
+   ]
+  },
+  "C61": {
+   "world": [
+    17.9342,
+    55.6137,
+    0
+   ],
+   "how": "anchored to U9.20 (decap)",
+   "block": "trip_glue",
+   "path": "c_rb",
+   "rect": [
+    16.454,
+    54.884,
+    19.414,
+    56.344
+   ]
+  },
+  "C62": {
+   "world": [
+    47.2537,
+    54.0137,
+    90
+   ],
+   "how": "anchored to U4.38 (auto)",
+   "block": "d11_ctmon",
+   "path": "c_vbus_adc",
+   "rect": [
+    46.524,
+    52.534,
+    47.984,
+    55.494
+   ]
+  },
+  "C63": {
+   "world": [
+    -9.907,
+    47.8071,
+    0
+   ],
+   "how": "anchored to U5.8 (decap)",
+   "block": "d11_ctmon",
+   "path": "c_rx",
+   "rect": [
+    -11.387,
+    47.077,
+    -8.427,
+    48.537
+   ]
+  },
+  "C64": {
+   "world": [
+    36.2532,
+    53.2248,
+    90
+   ],
+   "how": "anchored to U4.39 (auto)",
+   "block": "d11_ctmon",
+   "path": "c_ct_adc",
+   "rect": [
+    35.523,
+    51.745,
+    36.983,
+    54.705
+   ]
+  },
+  "C65": {
+   "world": [
+    -8.1869,
+    52.0427,
+    90
+   ],
+   "how": "anchored to U6.5 (decap)",
+   "block": "ntc_afe",
+   "path": "c_hs_filt",
+   "rect": [
+    -8.917,
+    50.563,
+    -7.457,
+    53.523
+   ]
+  },
+  "C66": {
+   "world": [
+    -9.907,
+    56.3071,
+    0
+   ],
+   "how": "anchored to U6.8 (decap)",
+   "block": "d11_ctmon",
+   "path": "c_buf1",
+   "rect": [
+    -11.387,
+    55.577,
+    -8.427,
+    57.037
+   ]
+  },
+  "C67": {
+   "world": [
+    26.5265,
+    52.2195,
+    0
+   ],
+   "how": "anchored to U4.6 (auto)",
+   "block": "ntc_afe",
+   "path": "c_hs_adc",
+   "rect": [
+    25.046,
+    51.489,
+    28.006,
+    52.949
+   ]
+  },
+  "C68": {
+   "world": [
+    6.1397,
+    76.1134,
+    90
+   ],
+   "how": "anchored to U7.3 (decap)",
+   "block": "ntc_afe",
+   "path": "c_coil_filt",
+   "rect": [
+    5.41,
+    74.633,
+    6.87,
+    77.593
+   ]
+  },
+  "C69": {
+   "world": [
+    14.093,
+    79.8071,
+    0
+   ],
+   "how": "anchored to U7.8 (decap)",
+   "block": "ntc_afe",
+   "path": "c_buf2",
+   "rect": [
+    12.613,
+    79.077,
+    15.573,
+    80.537
+   ]
+  },
+  "C7": {
+   "world": [
+    51.7861,
+    20.7511,
+    0
+   ],
+   "how": "anchored to L1.2 (decap)",
+   "block": "buck_3v3",
+   "path": "c_out3b",
+   "rect": [
+    50.086,
+    19.771,
+    53.486,
+    21.731
+   ]
+  },
+  "C70": {
+   "world": [
+    -34.8096,
+    24.9013,
+    270
+   ],
+   "how": "anchored to U37.5 (decap)",
+   "block": "interlock",
+   "path": "c_permit",
+   "rect": [
+    -35.54,
+    23.421,
+    -34.08,
+    26.381
+   ]
+  },
+  "C71": {
+   "world": [
+    14.7362,
+    44.2197,
+    180
+   ],
+   "how": "anchored to U4.7 (auto)",
+   "block": "ntc_afe",
+   "path": "c_coil_adc",
+   "rect": [
+    13.256,
+    43.49,
+    16.216,
+    44.95
+   ]
+  },
+  "C72": {
+   "world": [
+    16.3036,
+    75.0944,
+    90
+   ],
+   "how": "anchored to U7.5 (auto)",
+   "block": "ntc_afe",
+   "path": "c_m12_filt",
+   "rect": [
+    15.574,
+    73.614,
+    17.034,
+    76.574
+   ]
+  },
+  "C73": {
+   "world": [
+    26.9002,
+    29.0163,
+    0
+   ],
+   "how": "anchored to U4.12 (auto)",
+   "block": "ntc_afe",
+   "path": "c_m12_adc",
+   "rect": [
+    25.42,
+    28.286,
+    28.38,
+    29.746
+   ]
+  },
+  "C74": {
+   "world": [
+    80.4805,
+    44.6479,
+    0
+   ],
+   "how": "anchored to U36.3 (decap)",
+   "block": "ntc_afe",
+   "path": "c_rim_filt",
+   "rect": [
+    79.001,
+    43.918,
+    81.961,
+    45.378
+   ]
+  },
+  "C75": {
+   "world": [
+    82.7555,
+    50.3521,
+    0
+   ],
+   "how": "anchored to U36.5 (decap)",
+   "block": "ntc_afe",
+   "path": "c_buf3",
+   "rect": [
+    81.275,
+    49.622,
+    84.236,
+    51.082
+   ]
+  },
+  "C76": {
+   "world": [
+    35.1158,
+    25.5683,
+    270
+   ],
+   "how": "anchored to U4.17 (auto)",
+   "block": "ntc_afe",
+   "path": "c_rim_adc",
+   "rect": [
+    34.386,
+    24.088,
+    35.846,
+    27.048
+   ]
+  },
+  "C77": {
+   "world": [
+    58.6647,
+    25.9262,
+    90
+   ],
+   "how": "anchored to U40.5 (decap)",
+   "block": "trip_glue",
+   "path": "c_rim_trip",
+   "rect": [
+    57.935,
+    24.446,
+    59.395,
+    27.406
+   ]
+  },
+  "C78": {
+   "world": [
+    51.6125,
+    23.05,
+    180
+   ],
+   "how": "anchored to U40.3 (decap)",
+   "block": "trip_glue",
+   "path": "c_rim_th",
+   "rect": [
+    50.133,
+    22.32,
+    53.092,
+    23.78
+   ]
+  },
+  "C79": {
+   "world": [
+    57.2555,
+    32.3521,
+    0
+   ],
+   "how": "anchored to U41.5 (decap)",
+   "block": "trip_glue",
+   "path": "c_runaway_or",
+   "rect": [
+    55.776,
+    31.622,
+    58.735,
+    33.082
+   ]
+  },
+  "C8": {
+   "world": [
+    51.7861,
+    16.0489,
+    0
+   ],
+   "how": "anchored to L1.2 (decap)",
+   "block": "buck_3v3",
+   "path": "c_out3c",
+   "rect": [
+    50.086,
+    15.069,
+    53.486,
+    17.029
+   ]
+  },
+  "C80": {
+   "world": [
+    -17.88,
+    30.9343,
+    0
+   ],
+   "how": "anchored to U14.6 (auto)",
+   "block": "rms",
+   "path": "c_rms_in",
+   "rect": [
+    -20.18,
+    29.784,
+    -15.58,
+    32.084
+   ]
+  },
+  "C81": {
+   "world": [
+    -18.0613,
+    34.3173,
+    0
+   ],
+   "how": "anchored to U14.3 (auto)",
+   "block": "rms",
+   "path": "c_rms_core",
+   "rect": [
+    -20.361,
+    33.167,
+    -15.761,
+    35.467
+   ]
+  },
+  "C82": {
+   "world": [
+    -7.1264,
+    37.6617,
+    0
+   ],
+   "how": "anchored to U14.20 (auto)",
+   "block": "rms",
+   "path": "c_rms_avg",
+   "rect": [
+    -9.426,
+    36.512,
+    -4.826,
+    38.812
+   ]
+  },
+  "C83": {
+   "world": [
+    -8.4889,
+    24.0292,
+    270
+   ],
+   "how": "anchored to U14.12 (auto)",
+   "block": "rms",
+   "path": "c_rms_ignd",
+   "rect": [
+    -9.219,
+    22.549,
+    -7.759,
+    25.509
+   ]
+  },
+  "C84": {
+   "world": [
+    -17.1282,
+    27.887,
+    180
+   ],
+   "how": "anchored to U14.10 (auto)",
+   "block": "rms",
+   "path": "c_rms_lpf",
+   "rect": [
+    -18.608,
+    27.157,
+    -15.648,
+    28.617
+   ]
+  },
+  "C85": {
+   "world": [
+    -6.1689,
+    33.0882,
+    90
+   ],
+   "how": "anchored to U14.18 (decap)",
+   "block": "rms",
+   "path": "c_rms_vcc",
+   "rect": [
+    -6.899,
+    31.608,
+    -5.439,
+    34.568
+   ]
+  },
+  "C86": {
+   "world": [
+    -6.1381,
+    29.5685,
+    270
+   ],
+   "how": "anchored to U14.18 (decap)",
+   "block": "rms",
+   "path": "c_rms_vcc2",
+   "rect": [
+    -6.868,
+    28.088,
+    -5.408,
+    31.049
+   ]
+  },
+  "C87": {
+   "world": [
+    -4.2321,
+    24.6927,
+    180
+   ],
+   "how": "anchored to U15.2 (auto)",
+   "block": "rms",
+   "path": "c_rms_adc",
+   "rect": [
+    -5.712,
+    23.963,
+    -2.752,
+    25.423
+   ]
+  },
+  "C88": {
+   "world": [
+    2.093,
+    32.8071,
+    0
+   ],
+   "how": "anchored to U15.8 (decap)",
+   "block": "rms",
+   "path": "c_adc",
+   "rect": [
+    0.613,
+    32.077,
+    3.573,
+    33.537
+   ]
+  },
+  "C89": {
+   "world": [
+    22.6608,
+    48.0944,
+    180
+   ],
+   "how": "anchored to U4.2 (decap)",
+   "block": "mcu",
+   "path": "c_mcu_bulk",
+   "rect": [
+    20.961,
+    47.114,
+    24.361,
+    49.074
+   ]
+  },
+  "C9": {
+   "world": [
+    72.6,
+    72.0,
+    -180.0
+   ],
+   "how": "kept C49 pose",
+   "block": "blower_buck",
+   "path": "c_blw_bulk",
+   "rect": [
+    67.3,
+    67.6,
+    77.9,
+    76.4
+   ]
+  },
+  "C90": {
+   "world": [
+    23.0207,
+    45.9297,
+    180
+   ],
+   "how": "anchored to U4.2 (decap)",
+   "block": "mcu",
+   "path": "c_mcu_hf",
+   "rect": [
+    21.541,
+    45.2,
+    24.501,
+    46.66
+   ]
+  },
+  "C91": {
+   "world": [
+    53.5866,
+    33.7383,
+    90
+   ],
+   "how": "anchored to J11.2 (auto)",
+   "block": "mcu",
+   "path": "c_en",
+   "rect": [
+    52.857,
+    32.258,
+    54.317,
+    35.218
+   ]
+  },
+  "C92": {
+   "world": [
+    53.5342,
+    50.2637,
+    0
+   ],
+   "how": "anchored to U8.24 (decap)",
+   "block": "expander",
+   "path": "c_io",
+   "rect": [
+    52.054,
+    49.534,
+    55.014,
+    50.994
+   ]
+  },
+  "C93": {
+   "world": [
+    43.8875,
+    53.5,
+    0
+   ],
+   "how": "anchored to U38.5 (decap)",
+   "block": "ui_bus",
+   "path": "c_esd_ui1",
+   "rect": [
+    42.408,
+    52.77,
+    45.367,
+    54.23
+   ]
+  },
+  "C94": {
+   "world": [
+    55.8875,
+    53.5,
+    0
+   ],
+   "how": "anchored to U39.5 (decap)",
+   "block": "ui_bus",
+   "path": "c_esd_ui2",
+   "rect": [
+    54.408,
+    52.77,
+    57.367,
+    54.23
+   ]
+  },
+  "C95": {
+   "world": [
+    67.6805,
+    59.1479,
+    0
+   ],
+   "how": "anchored to U16.2 (decap)",
+   "block": "ui_bus",
+   "path": "c_v5_in",
+   "rect": [
+    66.2,
+    58.418,
+    69.16,
+    59.878
+   ]
+  },
+  "C96": {
+   "world": [
+    67.6805,
+    64.8521,
+    0
+   ],
+   "how": "anchored to U16.1 (decap)",
+   "block": "ui_bus",
+   "path": "c_v5_out",
+   "rect": [
+    66.2,
+    64.122,
+    69.16,
+    65.582
+   ]
+  },
+  "C97": {
+   "world": [
+    45.62,
+    31.5894,
+    90
+   ],
+   "how": "anchored to R124.2 (decap)",
+   "block": "j4_if",
+   "path": "c_bias",
+   "rect": [
+    44.89,
+    30.109,
+    46.35,
+    33.069
+   ]
+  },
+  "D1": {
+   "world": [
+    69.2121,
+    56.096,
+    270
+   ],
+   "how": "anchored to J10.3 (auto)",
+   "block": "blower_buck",
+   "path": "d_tach",
+   "rect": [
+    68.512,
+    54.846,
+    69.912,
+    57.346
+   ]
+  },
+  "D2": {
+   "world": [
+    84.0309,
+    36.5,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.d_j_fp",
+   "rect": [
+    82.781,
+    35.8,
+    85.281,
+    37.2
+   ]
+  },
+  "D3": {
+   "world": [
+    84.0309,
+    31.65,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.d_j_sp",
+   "rect": [
+    82.781,
+    30.95,
+    85.281,
+    32.35
+   ]
+  },
+  "D4": {
+   "world": [
+    84.0309,
+    27.0,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.d_j_sn",
+   "rect": [
+    82.781,
+    26.3,
+    85.281,
+    27.7
+   ]
+  },
+  "D5": {
+   "world": [
+    89.3009,
+    20.8,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.d_j_fn",
+   "rect": [
+    88.051,
+    20.1,
+    90.551,
+    21.5
+   ]
+  },
+  "D6": {
+   "world": [
+    -35.8753,
+    81.0869,
+    180
+   ],
+   "how": "anchored to J9.1 (auto)",
+   "block": "ntc_afe",
+   "path": "d_m12",
+   "rect": [
+    -37.125,
+    80.387,
+    -34.625,
+    81.787
+   ]
+  },
+  "D7": {
+   "world": [
+    83.0301,
+    42.2586,
+    180
+   ],
+   "how": "anchored to J12.1 (auto)",
+   "block": "ntc_afe",
+   "path": "d_rim",
+   "rect": [
+    81.78,
+    41.559,
+    84.28,
+    42.959
+   ]
+  },
+  "D8": {
+   "world": [
+    5.256,
+    28.9643,
+    270
+   ],
+   "how": "anchored to U15.8 (auto)",
+   "block": "rms",
+   "path": "d_rms_clamp",
+   "rect": [
+    3.556,
+    27.034,
+    6.956,
+    30.894
+   ]
+  },
+  "D9": {
+   "world": [
+    78.6965,
+    79.8126,
+    0
+   ],
+   "how": "anchored to J13.1 (auto)",
+   "block": "blower_buck",
+   "path": "d_merge",
+   "rect": [
+    75.197,
+    78.063,
+    82.197,
+    81.563
+   ]
+  },
+  "J1": {
+   "world": [
+    53.75,
+    84.5741,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "connectors",
+   "path": "thermal.coil_probe",
+   "rect": [
+    50.8,
+    80.674,
+    59.2,
+    87.424
+   ]
+  },
+  "J10": {
+   "world": [
+    73.875,
+    58.5,
+    90
+   ],
+   "how": "moved (MOVE)",
+   "block": "connectors",
+   "path": "j_fan",
+   "rect": [
+    71.025,
+    55.55,
+    77.775,
+    66.45
+   ]
+  },
+  "J11": {
+   "world": [
+    49.6,
+    34.0,
+    90
+   ],
+   "how": "moved (MOVE)",
+   "block": "connectors",
+   "path": "j_dbg",
+   "rect": [
+    47.3,
+    28.67,
+    51.9,
+    39.33
+   ]
+  },
+  "J12": {
+   "world": [
+    88.225,
+    41.5,
+    90
+   ],
+   "how": "moved (MOVE)",
+   "block": "connectors",
+   "path": "j_rim",
+   "rect": [
+    85.375,
+    38.55,
+    92.125,
+    49.45
+   ]
+  },
+  "J13": {
+   "world": [
+    86.02,
+    86.2491,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "connectors",
+   "path": "j_blw",
+   "rect": [
+    83.57,
+    80.949,
+    92.43,
+    90.449
+   ]
+  },
+  "J2": {
+   "world": [
+    -21.25,
+    84.5741,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "connectors",
+   "path": "thermal.heatsink_probe",
+   "rect": [
+    -24.2,
+    80.674,
+    -15.8,
+    87.424
+   ]
+  },
+  "J3": {
+   "world": [
+    89.275,
+    34.25,
+    -90.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "connectors",
+   "path": "rtd_pan.j_rtd1",
+   "rect": [
+    85.375,
+    23.8,
+    92.125,
+    37.2
+   ]
+  },
+  "J4": {
+   "world": [
+    -28.565,
+    31.9,
+    90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "connectors",
+   "path": "j4",
+   "rect": [
+    -37.985,
+    27.82,
+    -24.315,
+    56.98
+   ]
+  },
+  "J7": {
+   "world": [
+    32.25,
+    60.5741,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "connectors",
+   "path": "j_ui",
+   "rect": [
+    29.3,
+    56.674,
+    62.7,
+    63.424
+   ]
+  },
+  "J9": {
+   "world": [
+    -35.5,
+    86.5741,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "connectors",
+   "path": "j_m12",
+   "rect": [
+    -38.45,
+    82.674,
+    -27.55,
+    89.424
+   ]
+  },
+  "L1": {
+   "world": [
+    46.3,
+    18.4,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "buck_3v3",
+   "path": "l_3v3",
+   "rect": [
+    42.95,
+    15.15,
+    49.65,
+    21.65
+   ]
+  },
+  "L2": {
+   "world": [
+    85.2,
+    62.3,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "blower_buck",
+   "path": "l_12",
+   "rect": [
+    78.45,
+    55.55,
+    91.95,
+    69.05
+   ]
+  },
+  "Q1": {
+   "world": [
+    80.9523,
+    86.9676,
+    270
+   ],
+   "how": "anchored to U2.2 (auto)",
+   "block": "blower_buck",
+   "path": "q_fan_off",
+   "rect": [
+    79.252,
+    85.038,
+    82.652,
+    88.898
+   ]
+  },
+  "R1": {
+   "world": [
+    29.6561,
+    53.0791,
+    90
+   ],
+   "how": "anchored to U4.4 (auto)",
+   "block": "j4_if",
+   "path": "r_pwm_ha",
+   "rect": [
+    28.926,
+    51.599,
+    30.386,
+    54.559
+   ]
+  },
+  "R10": {
+   "world": [
+    -21.815,
+    52.9,
+    0
+   ],
+   "how": "anchored to J4.16 (auto)",
+   "block": "j4_if",
+   "path": "r_line_zc",
+   "rect": [
+    -23.295,
+    52.17,
+    -20.335,
+    53.63
+   ]
+  },
+  "R100": {
+   "world": [
+    55.3668,
+    19.9591,
+    270
+   ],
+   "how": "anchored to U40.3 (auto)",
+   "block": "trip_glue",
+   "path": "r_rim_th_bot",
+   "rect": [
+    54.637,
+    18.479,
+    56.097,
+    21.439
+   ]
+  },
+  "R101": {
+   "world": [
+    -16.4415,
+    24.8184,
+    270
+   ],
+   "how": "anchored to U14.6 (auto)",
+   "block": "rms",
+   "path": "r_rms_bias",
+   "rect": [
+    -17.172,
+    23.338,
+    -15.712,
+    26.298
+   ]
+  },
+  "R102": {
+   "world": [
+    -28.6484,
+    24.3708,
+    90
+   ],
+   "how": "anchored to U37.2 (auto)",
+   "block": "interlock",
+   "path": "r_run_en_pd",
+   "rect": [
+    -29.378,
+    22.891,
+    -27.918,
+    25.851
+   ]
+  },
+  "R103": {
+   "world": [
+    -25.55,
+    25.6375,
+    0
+   ],
+   "how": "anchored to U37.4 (auto)",
+   "block": "interlock",
+   "path": "r_permit_pd",
+   "rect": [
+    -27.03,
+    24.907,
+    -24.07,
+    26.367
+   ]
+  },
+  "R104": {
+   "world": [
+    -10.9334,
+    23.9036,
+    270
+   ],
+   "how": "anchored to U14.15 (auto)",
+   "block": "rms",
+   "path": "r_rms_gf",
+   "rect": [
+    -11.663,
+    22.424,
+    -10.203,
+    25.384
+   ]
+  },
+  "R105": {
+   "world": [
+    -13.4619,
+    23.8834,
+    270
+   ],
+   "how": "anchored to U14.14 (auto)",
+   "block": "rms",
+   "path": "r_rms_gg",
+   "rect": [
+    -14.192,
+    22.403,
+    -12.732,
+    25.363
+   ]
+  },
+  "R106": {
+   "world": [
+    -2.6057,
+    33.2828,
+    180
+   ],
+   "how": "anchored to U15.2 (auto)",
+   "block": "rms",
+   "path": "r_rms_adc",
+   "rect": [
+    -4.086,
+    32.553,
+    -1.126,
+    34.013
+   ]
+  },
+  "R107": {
+   "world": [
+    2.3443,
+    24.7172,
+    0
+   ],
+   "how": "anchored to U15.6 (auto)",
+   "block": "rms",
+   "path": "r_adc_dout",
+   "rect": [
+    0.864,
+    23.987,
+    3.824,
+    25.447
+   ]
+  },
+  "R108": {
+   "world": [
+    5.2853,
+    33.2991,
+    90
+   ],
+   "how": "anchored to U15.8 (auto)",
+   "block": "rms",
+   "path": "r_adc_cs_pu",
+   "rect": [
+    4.555,
+    31.819,
+    6.015,
+    34.779
+   ]
+  },
+  "R109": {
+   "world": [
+    22.4624,
+    50.7415,
+    0
+   ],
+   "how": "anchored to U4.3 (auto)",
+   "block": "mcu",
+   "path": "r_en",
+   "rect": [
+    20.982,
+    50.012,
+    23.942,
+    51.471
+   ]
+  },
+  "R11": {
+   "world": [
+    40.379,
+    17.615,
+    90
+   ],
+   "how": "anchored to U1.2 (auto)",
+   "block": "buck_3v3",
+   "path": "r_en3_top",
+   "rect": [
+    39.649,
+    16.135,
+    41.109,
+    19.095
+   ]
+  },
+  "R110": {
+   "world": [
+    42.2533,
+    29.0056,
+    0
+   ],
+   "how": "anchored to U4.26 (auto)",
+   "block": "mcu",
+   "path": "r_dc_pd",
+   "rect": [
+    40.773,
+    28.276,
+    43.733,
+    29.736
+   ]
+  },
+  "R111": {
+   "world": [
+    55.0815,
+    47.1119,
+    270
+   ],
+   "how": "anchored to U8.24 (auto)",
+   "block": "expander",
+   "path": "r_scl_pu",
+   "rect": [
+    54.352,
+    45.632,
+    55.811,
+    48.592
+   ]
+  },
+  "R112": {
+   "world": [
+    57.6017,
+    50.5343,
+    0
+   ],
+   "how": "anchored to U8.24 (auto)",
+   "block": "expander",
+   "path": "r_sda_pu",
+   "rect": [
+    56.122,
+    49.804,
+    59.082,
+    51.264
+   ]
+  },
+  "R113": {
+   "world": [
+    40.2538,
+    65.0458,
+    180
+   ],
+   "how": "anchored to J7.4 (auto)",
+   "block": "ui_bus",
+   "path": "rs_ui_sck",
+   "rect": [
+    38.774,
+    64.316,
+    41.734,
+    65.776
+   ]
+  },
+  "R114": {
+   "world": [
+    44.8769,
+    65.8226,
+    270
+   ],
+   "how": "anchored to J7.6 (auto)",
+   "block": "ui_bus",
+   "path": "rs_ui_mosi",
+   "rect": [
+    44.147,
+    64.343,
+    45.607,
+    67.303
+   ]
+  },
+  "R115": {
+   "world": [
+    47.3769,
+    65.8226,
+    270
+   ],
+   "how": "anchored to J7.7 (auto)",
+   "block": "ui_bus",
+   "path": "rs_ui_miso",
+   "rect": [
+    46.647,
+    64.343,
+    48.107,
+    67.303
+   ]
+  },
+  "R116": {
+   "world": [
+    52.3769,
+    65.8226,
+    270
+   ],
+   "how": "anchored to J7.9 (auto)",
+   "block": "ui_bus",
+   "path": "rs_ui_cs_oled",
+   "rect": [
+    51.647,
+    64.343,
+    53.107,
+    67.303
+   ]
+  },
+  "R117": {
+   "world": [
+    59.8769,
+    65.8226,
+    270
+   ],
+   "how": "anchored to J7.12 (auto)",
+   "block": "ui_bus",
+   "path": "rs_ui_cs_exp",
+   "rect": [
+    59.147,
+    64.343,
+    60.607,
+    67.303
+   ]
+  },
+  "R118": {
+   "world": [
+    54.8769,
+    65.8226,
+    270
+   ],
+   "how": "anchored to J7.10 (auto)",
+   "block": "ui_bus",
+   "path": "rs_ui_dc",
+   "rect": [
+    54.147,
+    64.343,
+    55.607,
+    67.303
+   ]
+  },
+  "R119": {
+   "world": [
+    38.845,
+    28.1,
+    90
+   ],
+   "how": "anchored to U4.24 (auto)",
+   "block": "mcu",
+   "path": "r_cs_oled_pu",
+   "rect": [
+    38.115,
+    26.62,
+    39.575,
+    29.58
+   ]
+  },
+  "R12": {
+   "world": [
+    45.4291,
+    24.0026,
+    90
+   ],
+   "how": "anchored to U1.2 (auto)",
+   "block": "buck_3v3",
+   "path": "r_en3_bot",
+   "rect": [
+    44.699,
+    22.523,
+    46.159,
+    25.483
+   ]
+  },
+  "R120": {
+   "world": [
+    35.7433,
+    28.9235,
+    0
+   ],
+   "how": "anchored to U4.25 (auto)",
+   "block": "mcu",
+   "path": "r_cs_exp_pu",
+   "rect": [
+    34.263,
+    28.194,
+    37.223,
+    29.654
+   ]
+  },
+  "R121": {
+   "world": [
+    66.1841,
+    49.6283,
+    90
+   ],
+   "how": "anchored to R122.1 (auto)",
+   "block": "ui_bus",
+   "path": "r_v5_drop",
+   "rect": [
+    65.054,
+    47.348,
+    67.314,
+    51.908
+   ]
+  },
+  "R122": {
+   "world": [
+    66.4353,
+    55.0829,
+    90
+   ],
+   "how": "anchored to U16.2 (auto)",
+   "block": "ui_bus",
+   "path": "r_v5_drop2",
+   "rect": [
+    65.305,
+    52.803,
+    67.565,
+    57.363
+   ]
+  },
+  "R123": {
+   "world": [
+    51.0326,
+    26.8779,
+    0
+   ],
+   "how": "anchored to R124.2 (auto)",
+   "block": "j4_if",
+   "path": "r_bias_pd",
+   "rect": [
+    49.553,
+    26.148,
+    52.513,
+    27.608
+   ]
+  },
+  "R124": {
+   "world": [
+    45.3663,
+    28.0261,
+    90
+   ],
+   "how": "anchored to U4.28 (auto)",
+   "block": "j4_if",
+   "path": "r_bias_ser",
+   "rect": [
+    44.636,
+    26.546,
+    46.096,
+    29.506
+   ]
+  },
+  "R13": {
+   "world": [
+    47.835,
+    24.991,
+    270
+   ],
+   "how": "anchored to U1.8 (auto)",
+   "block": "buck_3v3",
+   "path": "r_fb3_top",
+   "rect": [
+    47.105,
+    23.511,
+    48.565,
+    26.471
+   ]
+  },
+  "R14": {
+   "world": [
+    37.0844,
+    15.8262,
+    180
+   ],
+   "how": "anchored to U1.8 (auto)",
+   "block": "buck_3v3",
+   "path": "r_fb3_bot",
+   "rect": [
+    35.604,
+    15.096,
+    38.564,
+    16.556
+   ]
+  },
+  "R15": {
+   "world": [
+    80.27,
+    76.2898,
+    180
+   ],
+   "how": "anchored to J13.1 (auto)",
+   "block": "blower_buck",
+   "path": "r_blw_pg_top",
+   "rect": [
+    78.79,
+    75.56,
+    81.75,
+    77.02
+   ]
+  },
+  "R16": {
+   "world": [
+    73.5276,
+    78.9796,
+    90
+   ],
+   "how": "anchored to R15.2 (auto)",
+   "block": "blower_buck",
+   "path": "r_blw_pg_bot",
+   "rect": [
+    72.798,
+    77.5,
+    74.258,
+    80.46
+   ]
+  },
+  "R17": {
+   "world": [
+    69.205,
+    86.2812,
+    0
+   ],
+   "how": "anchored to Q1.3 (auto)",
+   "block": "blower_buck",
+   "path": "r_en12_top",
+   "rect": [
+    67.725,
+    85.551,
+    70.685,
+    87.011
+   ]
+  },
+  "R18": {
+   "world": [
+    70.3659,
+    80.932,
+    180
+   ],
+   "how": "anchored to Q1.3 (auto)",
+   "block": "blower_buck",
+   "path": "r_en12_bot",
+   "rect": [
+    68.886,
+    80.202,
+    71.846,
+    81.662
+   ]
+  },
+  "R19": {
+   "world": [
+    80.775,
+    83.2908,
+    180
+   ],
+   "how": "anchored to Q1.1 (auto)",
+   "block": "blower_buck",
+   "path": "r_fan_off_pd",
+   "rect": [
+    79.295,
+    82.561,
+    82.255,
+    84.021
+   ]
+  },
+  "R2": {
+   "world": [
+    23.1595,
+    53.9728,
+    90
+   ],
+   "how": "anchored to U4.5 (auto)",
+   "block": "j4_if",
+   "path": "r_pwm_la",
+   "rect": [
+    22.43,
+    52.493,
+    23.89,
+    55.453
+   ]
+  },
+  "R20": {
+   "world": [
+    21.0641,
+    20.8181,
+    270
+   ],
+   "how": "anchored to U4.16 (auto)",
+   "block": "blower_buck",
+   "path": "r_fan_pwm_pd",
+   "rect": [
+    20.334,
+    19.338,
+    21.794,
+    22.298
+   ]
+  },
+  "R21": {
+   "world": [
+    69.1885,
+    83.3534,
+    0
+   ],
+   "how": "anchored to C10.1 (auto)",
+   "block": "blower_buck",
+   "path": "r_fan_pwm_filt",
+   "rect": [
+    67.709,
+    82.623,
+    70.669,
+    84.083
+   ]
+  },
+  "R22": {
+   "world": [
+    86.9932,
+    71.0064,
+    180
+   ],
+   "how": "anchored to U2.8 (auto)",
+   "block": "blower_buck",
+   "path": "r_fan_inj",
+   "rect": [
+    85.513,
+    70.276,
+    88.473,
+    71.736
+   ]
+  },
+  "R23": {
+   "world": [
+    88.9,
+    80.05,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "blower_buck",
+   "path": "r_fb12_top",
+   "rect": [
+    87.42,
+    79.32,
+    90.38,
+    80.78
+   ]
+  },
+  "R24": {
+   "world": [
+    88.9,
+    78.45,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "blower_buck",
+   "path": "r_fb12_bot",
+   "rect": [
+    87.42,
+    77.72,
+    90.38,
+    79.18
+   ]
+  },
+  "R25": {
+   "world": [
+    64.9409,
+    67.4044,
+    0
+   ],
+   "how": "anchored to J10.3 (auto)",
+   "block": "blower_buck",
+   "path": "r_tach_pu",
+   "rect": [
+    63.461,
+    66.674,
+    66.421,
+    68.134
+   ]
+  },
+  "R26": {
+   "world": [
+    64.4576,
+    62.2496,
+    270
+   ],
+   "how": "anchored to J10.3 (auto)",
+   "block": "blower_buck",
+   "path": "r_tach_series",
+   "rect": [
+    63.728,
+    60.77,
+    65.188,
+    63.73
+   ]
+  },
+  "R27": {
+   "world": [
+    27.3103,
+    71.8862,
+    90
+   ],
+   "how": "anchored to U3.2 (auto)",
+   "block": "trip_glue",
+   "path": "r_rail_sense",
+   "rect": [
+    26.58,
+    70.406,
+    28.04,
+    73.366
+   ]
+  },
+  "R28": {
+   "world": [
+    27.7023,
+    65.0027,
+    90
+   ],
+   "how": "anchored to U3.4 (auto)",
+   "block": "trip_glue",
+   "path": "r_rail_pu",
+   "rect": [
+    26.972,
+    63.523,
+    28.432,
+    66.483
+   ]
+  },
+  "R29": {
+   "world": [
+    -1.3375,
+    84.3242,
+    0
+   ],
+   "how": "anchored to U17.5 (auto)",
+   "block": "thermal_sense",
+   "path": "thermal.hs_fixed",
+   "rect": [
+    -2.817,
+    83.594,
+    0.143,
+    85.054
+   ]
+  },
+  "R3": {
+   "world": [
+    32.1659,
+    53.1735,
+    90
+   ],
+   "how": "anchored to U4.8 (auto)",
+   "block": "j4_if",
+   "path": "r_pwm_hb",
+   "rect": [
+    31.436,
+    51.694,
+    32.896,
+    54.653
+   ]
+  },
+  "R30": {
+   "world": [
+    -10.3875,
+    80.05,
+    0
+   ],
+   "how": "anchored to U17.3 (auto)",
+   "block": "thermal_sense",
+   "path": "thermal.hs_top",
+   "rect": [
+    -11.867,
+    79.32,
+    -8.907,
+    80.78
+   ]
+  },
+  "R31": {
+   "world": [
+    -7.6459,
+    76.84,
+    270
+   ],
+   "how": "anchored to U17.3 (auto)",
+   "block": "thermal_sense",
+   "path": "thermal.hs_bottom",
+   "rect": [
+    -8.376,
+    75.36,
+    -6.916,
+    78.32
+   ]
+  },
+  "R32": {
+   "world": [
+    -10.5538,
+    82.711,
+    0
+   ],
+   "how": "anchored to U17.1 (auto)",
+   "block": "thermal_sense",
+   "path": "thermal.hs_hyst",
+   "rect": [
+    -12.034,
+    81.981,
+    -9.074,
+    83.441
+   ]
+  },
+  "R33": {
+   "world": [
+    34.6625,
+    84.3242,
+    0
+   ],
+   "how": "anchored to U18.5 (auto)",
+   "block": "thermal_sense",
+   "path": "thermal.coil_fixed",
+   "rect": [
+    33.183,
+    83.594,
+    36.142,
+    85.054
+   ]
+  },
+  "R34": {
+   "world": [
+    25.6125,
+    80.05,
+    0
+   ],
+   "how": "anchored to U18.3 (auto)",
+   "block": "thermal_sense",
+   "path": "thermal.coil_top",
+   "rect": [
+    24.133,
+    79.32,
+    27.093,
+    80.78
+   ]
+  },
+  "R35": {
+   "world": [
+    28.3541,
+    76.84,
+    270
+   ],
+   "how": "anchored to U18.3 (auto)",
+   "block": "thermal_sense",
+   "path": "thermal.coil_bottom",
+   "rect": [
+    27.624,
+    75.36,
+    29.084,
+    78.32
+   ]
+  },
+  "R36": {
+   "world": [
+    26.1288,
+    83.1857,
+    270
+   ],
+   "how": "anchored to U18.1 (auto)",
+   "block": "thermal_sense",
+   "path": "thermal.coil_hyst",
+   "rect": [
+    25.399,
+    81.706,
+    26.859,
+    84.666
+   ]
+  },
+  "R37": {
+   "world": [
+    3.1375,
+    76.8,
+    90
+   ],
+   "how": "anchored to U19.4 (auto)",
+   "block": "thermal_sense",
+   "path": "thermal.open_top",
+   "rect": [
+    2.408,
+    75.32,
+    3.868,
+    78.28
+   ]
+  },
+  "R38": {
+   "world": [
+    5.6375,
+    80.05,
+    90
+   ],
+   "how": "anchored to U19.4 (auto)",
+   "block": "thermal_sense",
+   "path": "thermal.open_bottom",
+   "rect": [
+    4.908,
+    78.57,
+    6.367,
+    81.53
+   ]
+  },
+  "R39": {
+   "world": [
+    74.3629,
+    43.9524,
+    0
+   ],
+   "how": "anchored to U30.6 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_ref",
+   "rect": [
+    72.683,
+    43.002,
+    76.043,
+    44.902
+   ]
+  },
+  "R4": {
+   "world": [
+    11.6611,
+    43.6269,
+    90
+   ],
+   "how": "anchored to U4.9 (auto)",
+   "block": "j4_if",
+   "path": "r_pwm_lb",
+   "rect": [
+    10.931,
+    42.147,
+    12.391,
+    45.107
+   ]
+  },
+  "R40": {
+   "world": [
+    74.0009,
+    16.9,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.r_rtdin_p_bias",
+   "rect": [
+    72.521,
+    16.17,
+    75.481,
+    17.63
+   ]
+  },
+  "R41": {
+   "world": [
+    74.3009,
+    25.1,
+    -90.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.r_rtdin_n_bias",
+   "rect": [
+    73.571,
+    23.62,
+    75.031,
+    26.58
+   ]
+  },
+  "R42": {
+   "world": [
+    80.2989,
+    39.7633,
+    0
+   ],
+   "how": "anchored to U30.15 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_sclk",
+   "rect": [
+    78.819,
+    39.033,
+    81.779,
+    40.493
+   ]
+  },
+  "R43": {
+   "world": [
+    80.3044,
+    23.4194,
+    90
+   ],
+   "how": "anchored to U30.14 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_mosi",
+   "rect": [
+    79.574,
+    21.939,
+    81.034,
+    24.899
+   ]
+  },
+  "R44": {
+   "world": [
+    76.9721,
+    40.5066,
+    270
+   ],
+   "how": "anchored to U30.16 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_cs",
+   "rect": [
+    76.242,
+    39.027,
+    77.702,
+    41.987
+   ]
+  },
+  "R45": {
+   "world": [
+    74.6138,
+    40.6651,
+    90
+   ],
+   "how": "anchored to U30.17 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_miso",
+   "rect": [
+    73.884,
+    39.185,
+    75.344,
+    42.145
+   ]
+  },
+  "R46": {
+   "world": [
+    72.8717,
+    28.2937,
+    0
+   ],
+   "how": "anchored to U30.3 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.fb_power",
+   "rect": [
+    71.392,
+    27.564,
+    74.352,
+    29.024
+   ]
+  },
+  "R47": {
+   "world": [
+    61.7308,
+    47.7944,
+    0
+   ],
+   "how": "anchored to U29.1 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_low_top",
+   "rect": [
+    60.251,
+    47.064,
+    63.211,
+    48.524
+   ]
+  },
+  "R48": {
+   "world": [
+    69.8909,
+    44.2544,
+    0
+   ],
+   "how": "anchored to U31.4 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_low_bottom",
+   "rect": [
+    68.411,
+    43.524,
+    71.371,
+    44.984
+   ]
+  },
+  "R49": {
+   "world": [
+    58.2982,
+    46.4434,
+    90
+   ],
+   "how": "anchored to U29.1 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_high_top",
+   "rect": [
+    57.568,
+    44.963,
+    59.028,
+    47.923
+   ]
+  },
+  "R5": {
+   "world": [
+    -22.7193,
+    47.275,
+    90
+   ],
+   "how": "anchored to J4.5 (auto)",
+   "block": "j4_if",
+   "path": "rpd_pwm_ha",
+   "rect": [
+    -23.449,
+    45.795,
+    -21.989,
+    48.755
+   ]
+  },
+  "R50": {
+   "world": [
+    67.7308,
+    29.7056,
+    0
+   ],
+   "how": "anchored to U32.3 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_high_bottom",
+   "rect": [
+    66.251,
+    28.976,
+    69.211,
+    30.436
+   ]
+  },
+  "R51": {
+   "world": [
+    56.94,
+    35.5198,
+    270
+   ],
+   "how": "anchored to U10.3 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_window_sense_p",
+   "rect": [
+    56.21,
+    34.04,
+    57.67,
+    37.0
+   ]
+  },
+  "R52": {
+   "world": [
+    58.3668,
+    39.5468,
+    90
+   ],
+   "how": "anchored to U33.4 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_window_ok_pulldown",
+   "rect": [
+    57.637,
+    38.067,
+    59.097,
+    41.027
+   ]
+  },
+  "R53": {
+   "world": [
+    70.0245,
+    21.5316,
+    90
+   ],
+   "how": "anchored to U34.1 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_avdd_top",
+   "rect": [
+    69.294,
+    20.052,
+    70.755,
+    23.012
+   ]
+  },
+  "R54": {
+   "world": [
+    70.4254,
+    17.6914,
+    270
+   ],
+   "how": "anchored to U34.1 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_avdd_bottom",
+   "rect": [
+    69.695,
+    16.211,
+    71.155,
+    19.171
+   ]
+  },
+  "R55": {
+   "world": [
+    30.7324,
+    71.8125,
+    0
+   ],
+   "how": "anchored to U11.2 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_rail_ok_pullup",
+   "rect": [
+    29.252,
+    71.082,
+    32.212,
+    72.543
+   ]
+  },
+  "R56": {
+   "world": [
+    13.7055,
+    56.1782,
+    0
+   ],
+   "how": "anchored to U9.13 (auto)",
+   "block": "rtd",
+   "path": "rtd_pan.r_fault_pullup",
+   "rect": [
+    12.226,
+    55.448,
+    15.186,
+    56.908
+   ]
+  },
+  "R57": {
+   "world": [
+    77.1009,
+    19.5,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.r_s1p",
+   "rect": [
+    75.621,
+    18.77,
+    78.581,
+    20.23
+   ]
+  },
+  "R58": {
+   "world": [
+    77.1009,
+    21.25,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.r_s1n",
+   "rect": [
+    75.621,
+    20.52,
+    78.581,
+    21.98
+   ]
+  },
+  "R59": {
+   "world": [
+    77.1009,
+    23.0,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.r_s2p",
+   "rect": [
+    75.621,
+    22.27,
+    78.581,
+    23.73
+   ]
+  },
+  "R6": {
+   "world": [
+    -21.8262,
+    41.3187,
+    0
+   ],
+   "how": "anchored to J4.6 (auto)",
+   "block": "j4_if",
+   "path": "rpd_pwm_la",
+   "rect": [
+    -23.306,
+    40.589,
+    -20.346,
+    42.049
+   ]
+  },
+  "R60": {
+   "world": [
+    77.1009,
+    24.75,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.r_s2n",
+   "rect": [
+    75.621,
+    24.02,
+    78.581,
+    25.48
+   ]
+  },
+  "R61": {
+   "world": [
+    -19.9353,
+    73.2229,
+    90
+   ],
+   "how": "anchored to U23.14 (auto)",
+   "block": "interlock",
+   "path": "interlock.ocp_pullup",
+   "rect": [
+    -20.665,
+    71.743,
+    -19.205,
+    74.703
+   ]
+  },
+  "R62": {
+   "world": [
+    -17.4159,
+    73.2853,
+    90
+   ],
+   "how": "anchored to U23.14 (auto)",
+   "block": "interlock",
+   "path": "interlock.ovp_pullup",
+   "rect": [
+    -18.146,
+    71.805,
+    -16.686,
+    74.765
+   ]
+  },
+  "R63": {
+   "world": [
+    -22.2041,
+    65.6647,
+    270
+   ],
+   "how": "anchored to U23.14 (auto)",
+   "block": "interlock",
+   "path": "interlock.hs_pullup",
+   "rect": [
+    -22.934,
+    64.185,
+    -21.474,
+    67.145
+   ]
+  },
+  "R64": {
+   "world": [
+    -14.2759,
+    72.3795,
+    0
+   ],
+   "how": "anchored to U23.14 (auto)",
+   "block": "interlock",
+   "path": "interlock.coil_pullup",
+   "rect": [
+    -15.756,
+    71.649,
+    -12.796,
+    73.109
+   ]
+  },
+  "R65": {
+   "world": [
+    -25.3441,
+    66.5705,
+    180
+   ],
+   "how": "anchored to U23.14 (auto)",
+   "block": "interlock",
+   "path": "interlock.rtd_pullup",
+   "rect": [
+    -26.824,
+    65.84,
+    -23.864,
+    67.3
+   ]
+  },
+  "R66": {
+   "world": [
+    -26.5411,
+    68.9706,
+    180
+   ],
+   "how": "anchored to U23.14 (auto)",
+   "block": "interlock",
+   "path": "interlock.runaway_pullup",
+   "rect": [
+    -28.021,
+    68.241,
+    -25.061,
+    69.701
+   ]
+  },
+  "R67": {
+   "world": [
+    16.1655,
+    71.3708,
+    0
+   ],
+   "how": "anchored to U24.14 (auto)",
+   "block": "interlock",
+   "path": "interlock.aux_pullup",
+   "rect": [
+    14.686,
+    70.641,
+    17.646,
+    72.101
+   ]
+  },
+  "R68": {
+   "world": [
+    19.3922,
+    72.2019,
+    90
+   ],
+   "how": "anchored to U24.14 (auto)",
+   "block": "interlock",
+   "path": "interlock.reset_pullup",
+   "rect": [
+    18.662,
+    70.722,
+    20.122,
+    73.682
+   ]
+  },
+  "R69": {
+   "world": [
+    -6.2982,
+    57.5566,
+    270
+   ],
+   "how": "anchored to U21.4 (auto)",
+   "block": "interlock",
+   "path": "interlock.wdi_pulldown",
+   "rect": [
+    -7.028,
+    56.077,
+    -5.568,
+    59.037
+   ]
+  },
+  "R7": {
+   "world": [
+    -21.8262,
+    55.4813,
+    0
+   ],
+   "how": "anchored to J4.7 (auto)",
+   "block": "j4_if",
+   "path": "rpd_pwm_hb",
+   "rect": [
+    -23.306,
+    54.751,
+    -20.346,
+    56.211
+   ]
+  },
+  "R70": {
+   "world": [
+    21.9093,
+    72.1228,
+    90
+   ],
+   "how": "anchored to U24.9 (auto)",
+   "block": "interlock",
+   "path": "interlock.live_pulldown",
+   "rect": [
+    21.179,
+    70.643,
+    22.639,
+    73.603
+   ]
+  },
+  "R71": {
+   "world": [
+    -14.0357,
+    57.7566,
+    270
+   ],
+   "how": "anchored to U20.5 (auto)",
+   "block": "interlock",
+   "path": "interlock.permit_pulldown",
+   "rect": [
+    -14.766,
+    56.277,
+    -13.306,
+    59.237
+   ]
+  },
+  "R72": {
+   "world": [
+    12.5,
+    21.0125,
+    270
+   ],
+   "how": "anchored to U43.2 (auto)",
+   "block": "capmode",
+   "path": "r_cm_pol",
+   "rect": [
+    11.77,
+    19.532,
+    13.23,
+    22.492
+   ]
+  },
+  "R73": {
+   "world": [
+    8.1719,
+    23.9586,
+    180
+   ],
+   "how": "anchored to U43.5 (auto)",
+   "block": "capmode",
+   "path": "r_cm_pol_pu",
+   "rect": [
+    6.692,
+    23.229,
+    9.652,
+    24.689
+   ]
+  },
+  "R74": {
+   "world": [
+    19.346,
+    33.5423,
+    90
+   ],
+   "how": "anchored to U42.5 (auto)",
+   "block": "capmode",
+   "path": "r_cm_ha_rb",
+   "rect": [
+    18.616,
+    32.062,
+    20.076,
+    35.022
+   ]
+  },
+  "R75": {
+   "world": [
+    21.0538,
+    37.7188,
+    90
+   ],
+   "how": "anchored to U42.8 (auto)",
+   "block": "capmode",
+   "path": "r_cm_la_rb",
+   "rect": [
+    20.324,
+    36.239,
+    21.784,
+    39.199
+   ]
+  },
+  "R76": {
+   "world": [
+    54.4936,
+    37.6918,
+    270
+   ],
+   "how": "anchored to U10.4 (auto)",
+   "block": "trip_glue",
+   "path": "r_runaway_top",
+   "rect": [
+    53.764,
+    36.212,
+    55.224,
+    39.172
+   ]
+  },
+  "R77": {
+   "world": [
+    55.8473,
+    41.6838,
+    90
+   ],
+   "how": "anchored to U10.4 (auto)",
+   "block": "trip_glue",
+   "path": "r_runaway_bot",
+   "rect": [
+    55.117,
+    40.204,
+    56.577,
+    43.164
+   ]
+  },
+  "R78": {
+   "world": [
+    -22.6491,
+    38.1618,
+    270
+   ],
+   "how": "anchored to J4.12 (auto)",
+   "block": "d11_ctmon",
+   "path": "r_rx_n",
+   "rect": [
+    -23.379,
+    36.682,
+    -21.919,
+    39.642
+   ]
+  },
+  "R79": {
+   "world": [
+    -22.5045,
+    33.9461,
+    270
+   ],
+   "how": "anchored to J4.11 (auto)",
+   "block": "d11_ctmon",
+   "path": "r_rx_p",
+   "rect": [
+    -23.235,
+    32.466,
+    -21.774,
+    35.426
+   ]
+  },
+  "R8": {
+   "world": [
+    -28.439,
+    59.3988,
+    90
+   ],
+   "how": "anchored to J4.8 (auto)",
+   "block": "j4_if",
+   "path": "rpd_pwm_lb",
+   "rect": [
+    -29.169,
+    57.919,
+    -27.709,
+    60.879
+   ]
+  },
+  "R80": {
+   "world": [
+    -18.5667,
+    43.7827,
+    270
+   ],
+   "how": "anchored to U5.1 (auto)",
+   "block": "d11_ctmon",
+   "path": "r_rx_f",
+   "rect": [
+    -19.297,
+    42.303,
+    -17.837,
+    45.263
+   ]
+  },
+  "R81": {
+   "world": [
+    -7.6964,
+    44.3644,
+    90
+   ],
+   "how": "anchored to U5.6 (auto)",
+   "block": "d11_ctmon",
+   "path": "r_rx_b",
+   "rect": [
+    -8.426,
+    42.884,
+    -6.966,
+    45.844
+   ]
+  },
+  "R82": {
+   "world": [
+    -18.3834,
+    52.8657,
+    270
+   ],
+   "how": "anchored to U13.1 (auto)",
+   "block": "d11_ctmon",
+   "path": "r_ref",
+   "rect": [
+    -19.113,
+    51.386,
+    -17.653,
+    54.346
+   ]
+  },
+  "R83": {
+   "world": [
+    -11.0334,
+    38.885,
+    90
+   ],
+   "how": "anchored to U5.5 (auto)",
+   "block": "d11_ctmon",
+   "path": "r_bias_top",
+   "rect": [
+    -11.763,
+    37.405,
+    -10.303,
+    40.365
+   ]
+  },
+  "R84": {
+   "world": [
+    -6.9082,
+    41.1043,
+    0
+   ],
+   "how": "anchored to U5.5 (auto)",
+   "block": "d11_ctmon",
+   "path": "r_bias_bot",
+   "rect": [
+    -8.388,
+    40.374,
+    -5.428,
+    41.834
+   ]
+  },
+  "R85": {
+   "world": [
+    46.523,
+    50.9143,
+    180
+   ],
+   "how": "anchored to U4.38 (auto)",
+   "block": "d11_ctmon",
+   "path": "r_vbus_adc",
+   "rect": [
+    45.043,
+    50.184,
+    48.003,
+    51.644
+   ]
+  },
+  "R86": {
+   "world": [
+    -18.6285,
+    39.6969,
+    270
+   ],
+   "how": "anchored to J4.14 (auto)",
+   "block": "d11_ctmon",
+   "path": "r_ct_mon_def",
+   "rect": [
+    -19.358,
+    38.217,
+    -17.898,
+    41.177
+   ]
+  },
+  "R87": {
+   "world": [
+    59.7857,
+    53.2717,
+    180
+   ],
+   "how": "anchored to U4.39 (auto)",
+   "block": "d11_ctmon",
+   "path": "r_ct_adc",
+   "rect": [
+    58.306,
+    52.542,
+    61.266,
+    54.002
+   ]
+  },
+  "R88": {
+   "world": [
+    -6.7147,
+    48.2009,
+    90
+   ],
+   "how": "anchored to U6.5 (auto)",
+   "block": "ntc_afe",
+   "path": "r_hs_filt",
+   "rect": [
+    -7.445,
+    46.721,
+    -5.985,
+    49.681
+   ]
+  },
+  "R89": {
+   "world": [
+    21.9084,
+    42.5095,
+    90
+   ],
+   "how": "anchored to U4.6 (auto)",
+   "block": "ntc_afe",
+   "path": "r_hs_adc",
+   "rect": [
+    21.178,
+    41.03,
+    22.638,
+    43.989
+   ]
+  },
+  "R9": {
+   "world": [
+    -21.815,
+    43.9,
+    0
+   ],
+   "how": "anchored to J4.13 (auto)",
+   "block": "j4_if",
+   "path": "r_ct_zc",
+   "rect": [
+    -23.295,
+    43.17,
+    -20.335,
+    44.63
+   ]
+  },
+  "R90": {
+   "world": [
+    18.6107,
+    44.495,
+    180
+   ],
+   "how": "anchored to U4.6 (auto)",
+   "block": "ntc_afe",
+   "path": "r_hs_adc_bot",
+   "rect": [
+    17.131,
+    43.765,
+    20.091,
+    45.225
+   ]
+  },
+  "R91": {
+   "world": [
+    4.7147,
+    72.9709,
+    0
+   ],
+   "how": "anchored to U7.3 (auto)",
+   "block": "ntc_afe",
+   "path": "r_coil_filt",
+   "rect": [
+    3.235,
+    72.241,
+    6.195,
+    73.701
+   ]
+  },
+  "R92": {
+   "world": [
+    21.8698,
+    33.5987,
+    90
+   ],
+   "how": "anchored to U4.7 (auto)",
+   "block": "ntc_afe",
+   "path": "r_coil_adc",
+   "rect": [
+    21.14,
+    32.119,
+    22.6,
+    35.079
+   ]
+  },
+  "R93": {
+   "world": [
+    -32.676,
+    80.169,
+    90
+   ],
+   "how": "anchored to J9.1 (auto)",
+   "block": "ntc_afe",
+   "path": "r_m12_pu",
+   "rect": [
+    -33.406,
+    78.689,
+    -31.946,
+    81.649
+   ]
+  },
+  "R94": {
+   "world": [
+    19.5434,
+    75.5907,
+    180
+   ],
+   "how": "anchored to U7.5 (auto)",
+   "block": "ntc_afe",
+   "path": "r_m12_filt",
+   "rect": [
+    18.063,
+    74.861,
+    21.023,
+    76.321
+   ]
+  },
+  "R95": {
+   "world": [
+    21.8476,
+    29.5629,
+    90
+   ],
+   "how": "anchored to U4.12 (auto)",
+   "block": "ntc_afe",
+   "path": "r_m12_adc",
+   "rect": [
+    21.118,
+    28.083,
+    22.578,
+    31.043
+   ]
+  },
+  "R96": {
+   "world": [
+    78.9014,
+    50.8011,
+    180
+   ],
+   "how": "anchored to U36.5 (auto)",
+   "block": "ntc_afe",
+   "path": "r_rim_pu",
+   "rect": [
+    77.421,
+    50.071,
+    80.381,
+    51.531
+   ]
+  },
+  "R97": {
+   "world": [
+    76.6125,
+    46.55,
+    0
+   ],
+   "how": "anchored to U36.3 (auto)",
+   "block": "ntc_afe",
+   "path": "r_rim_filt",
+   "rect": [
+    75.132,
+    45.82,
+    78.093,
+    47.28
+   ]
+  },
+  "R98": {
+   "world": [
+    30.8233,
+    29.0056,
+    180
+   ],
+   "how": "anchored to U4.17 (auto)",
+   "block": "ntc_afe",
+   "path": "r_rim_adc",
+   "rect": [
+    29.343,
+    28.276,
+    32.303,
+    29.736
+   ]
+  },
+  "R99": {
+   "world": [
+    59.1872,
+    21.8679,
+    270
+   ],
+   "how": "anchored to U40.5 (auto)",
+   "block": "trip_glue",
+   "path": "r_rim_th_top",
+   "rect": [
+    58.457,
+    20.388,
+    59.917,
+    23.348
+   ]
+  },
+  "U1": {
+   "world": [
+    40.0,
+    22.75,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "buck_3v3",
+   "path": "u_3v3",
+   "rect": [
+    38.68,
+    21.45,
+    41.32,
+    24.05
+   ]
+  },
+  "U10": {
+   "world": [
+    62.0,
+    27.0,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "trip_glue",
+   "path": "u_runaway",
+   "rect": [
+    59.95,
+    25.3,
+    64.05,
+    28.7
+   ]
+  },
+  "U11": {
+   "world": [
+    33.0,
+    68.5,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "trip_glue",
+   "path": "u_live",
+   "rect": [
+    30.95,
+    66.8,
+    35.05,
+    70.2
+   ]
+  },
+  "U12": {
+   "world": [
+    39.0,
+    68.5,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "trip_glue",
+   "path": "u_rail_inv",
+   "rect": [
+    36.95,
+    66.8,
+    41.05,
+    70.2
+   ]
+  },
+  "U13": {
+   "world": [
+    -19.4,
+    48.4,
+    90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "d11_ctmon",
+   "path": "u_ref",
+   "rect": [
+    -21.1,
+    46.47,
+    -17.7,
+    50.33
+   ]
+  },
+  "U14": {
+   "world": [
+    -11.0,
+    31.0,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "rms",
+   "path": "u_rms",
+   "rect": [
+    -14.7,
+    26.4,
+    -7.3,
+    35.6
+   ]
+  },
+  "U15": {
+   "world": [
+    -1.0,
+    29.0,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "rms",
+   "path": "u_adc",
+   "rect": [
+    -4.7,
+    26.3,
+    2.7,
+    31.7
+   ]
+  },
+  "U16": {
+   "world": [
+    68.0,
+    62.0,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "ui_bus",
+   "path": "u_v5",
+   "rect": [
+    66.07,
+    60.3,
+    69.93,
+    63.7
+   ]
+  },
+  "U17": {
+   "world": [
+    -6.0,
+    81.0,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "thermal_sense",
+   "path": "thermal.hs_comp",
+   "rect": [
+    -8.05,
+    79.3,
+    -3.95,
+    82.7
+   ]
+  },
+  "U18": {
+   "world": [
+    30.0,
+    81.0,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "thermal_sense",
+   "path": "thermal.coil_comp",
+   "rect": [
+    27.95,
+    79.3,
+    32.05,
+    82.7
+   ]
+  },
+  "U19": {
+   "world": [
+    2.0,
+    81.0,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "thermal_sense",
+   "path": "thermal.hs_open_comp",
+   "rect": [
+    -0.05,
+    79.3,
+    4.05,
+    82.7
+   ]
+  },
+  "U2": {
+   "world": [
+    86.0,
+    75.25,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "blower_buck",
+   "path": "u_12",
+   "rect": [
+    84.68,
+    73.95,
+    87.32,
+    76.55
+   ]
+  },
+  "U20": {
+   "world": [
+    -18.0,
+    59.5,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "interlock",
+   "path": "interlock.latch",
+   "rect": [
+    -20.28,
+    58.25,
+    -15.72,
+    60.75
+   ]
+  },
+  "U21": {
+   "world": [
+    -10.0,
+    59.5,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "interlock",
+   "path": "interlock.watchdog",
+   "rect": [
+    -12.05,
+    57.8,
+    -7.95,
+    61.2
+   ]
+  },
+  "U22": {
+   "world": [
+    8.0,
+    67.0,
+    90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "interlock",
+   "path": "interlock.aggregate",
+   "rect": [
+    5.25,
+    63.15,
+    10.75,
+    70.85
+   ]
+  },
+  "U23": {
+   "world": [
+    -16.0,
+    67.0,
+    90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "interlock",
+   "path": "interlock.fault_inv",
+   "rect": [
+    -20.58,
+    63.3,
+    -11.42,
+    70.7
+   ]
+  },
+  "U24": {
+   "world": [
+    18.5,
+    66.0,
+    90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "interlock",
+   "path": "interlock.control_inv",
+   "rect": [
+    13.92,
+    62.3,
+    23.08,
+    69.7
+   ]
+  },
+  "U25": {
+   "world": [
+    -2.0,
+    59.5,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "interlock",
+   "path": "interlock.common",
+   "rect": [
+    -4.05,
+    57.8,
+    0.05,
+    61.2
+   ]
+  },
+  "U26": {
+   "world": [
+    21.0,
+    81.0,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "thermal_sense",
+   "path": "thermal.coil_open_comp",
+   "rect": [
+    18.95,
+    79.3,
+    23.05,
+    82.7
+   ]
+  },
+  "U27": {
+   "world": [
+    -6.0,
+    86.5,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "thermal_sense",
+   "path": "thermal.hs_or",
+   "rect": [
+    -8.05,
+    84.8,
+    -3.95,
+    88.2
+   ]
+  },
+  "U28": {
+   "world": [
+    30.0,
+    86.5,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "thermal_sense",
+   "path": "thermal.coil_or",
+   "rect": [
+    27.95,
+    84.8,
+    32.05,
+    88.2
+   ]
+  },
+  "U29": {
+   "world": [
+    62.0,
+    44.5,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "rtd",
+   "path": "rtd_pan.reference",
+   "rect": [
+    59.95,
+    42.8,
+    64.05,
+    46.2
+   ]
+  },
+  "U3": {
+   "world": [
+    27.0,
+    68.5,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "trip_glue",
+   "path": "u_rail",
+   "rect": [
+    25.8,
+    67.48,
+    28.2,
+    69.52
+   ]
+  },
+  "U30": {
+   "world": [
+    79.2009,
+    33.5,
+    0.0
+   ],
+   "how": "rigid group rtd_core",
+   "block": "rtd",
+   "path": "rtd_pan.adc",
+   "rect": [
+    75.751,
+    28.85,
+    82.651,
+    38.15
+   ]
+  },
+  "U31": {
+   "world": [
+    68.0,
+    39.0,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "rtd",
+   "path": "rtd_pan.low_window",
+   "rect": [
+    65.95,
+    37.3,
+    70.05,
+    40.7
+   ]
+  },
+  "U32": {
+   "world": [
+    68.0,
+    33.0,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "rtd",
+   "path": "rtd_pan.high_window",
+   "rect": [
+    65.95,
+    31.3,
+    70.05,
+    34.7
+   ]
+  },
+  "U33": {
+   "world": [
+    62.0,
+    39.0,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "rtd",
+   "path": "rtd_pan.window_and",
+   "rect": [
+    59.95,
+    37.3,
+    64.05,
+    40.7
+   ]
+  },
+  "U34": {
+   "world": [
+    68.0,
+    27.0,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "rtd",
+   "path": "rtd_pan.rail_monitor",
+   "rect": [
+    66.8,
+    25.95,
+    69.2,
+    28.05
+   ]
+  },
+  "U35": {
+   "world": [
+    62.0,
+    33.0,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "rtd",
+   "path": "rtd_pan.fault_nand",
+   "rect": [
+    59.95,
+    31.3,
+    64.05,
+    34.7
+   ]
+  },
+  "U36": {
+   "world": [
+    81.0,
+    47.5,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "ntc_afe",
+   "path": "u_buf3",
+   "rect": [
+    78.95,
+    45.8,
+    83.05,
+    49.2
+   ]
+  },
+  "U37": {
+   "world": [
+    -32.0,
+    24.5,
+    90.0
+   ],
+   "how": "kept C49 pose",
+   "block": "interlock",
+   "path": "u_permit",
+   "rect": [
+    -33.7,
+    22.45,
+    -30.3,
+    26.55
+   ]
+  },
+  "U38": {
+   "world": [
+    40.0,
+    53.5,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "ui_bus",
+   "path": "u_esd_ui1",
+   "rect": [
+    37.95,
+    51.8,
+    42.05,
+    55.2
+   ]
+  },
+  "U39": {
+   "world": [
+    52.0,
+    53.5,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "ui_bus",
+   "path": "u_esd_ui2",
+   "rect": [
+    49.95,
+    51.8,
+    54.05,
+    55.2
+   ]
+  },
+  "U4": {
+   "world": [
+    34.4,
+    40.7,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "mcu",
+   "path": "mcu",
+   "rect": [
+    24.9,
+    30.6,
+    43.9,
+    50.6
+   ]
+  },
+  "U40": {
+   "world": [
+    55.5,
+    24.0,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "trip_glue",
+   "path": "u_rim_trip",
+   "rect": [
+    53.45,
+    22.3,
+    57.55,
+    25.7
+   ]
+  },
+  "U41": {
+   "world": [
+    55.5,
+    29.5,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "trip_glue",
+   "path": "u_runaway_or",
+   "rect": [
+    53.45,
+    27.8,
+    57.55,
+    31.2
+   ]
+  },
+  "U42": {
+   "world": [
+    15.0,
+    32.0,
+    90.0
+   ],
+   "how": "rigid group capmode",
+   "block": "capmode",
+   "path": "u_cm_ff",
+   "rect": [
+    12.25,
+    28.15,
+    17.75,
+    35.85
+   ]
+  },
+  "U43": {
+   "world": [
+    12.5,
+    25.4,
+    90.0
+   ],
+   "how": "rigid group capmode",
+   "block": "capmode",
+   "path": "u_cm_pol",
+   "rect": [
+    10.8,
+    23.35,
+    14.2,
+    27.45
+   ]
+  },
+  "U44": {
+   "world": [
+    18.0,
+    25.4,
+    90.0
+   ],
+   "how": "rigid group capmode",
+   "block": "capmode",
+   "path": "u_cm_or",
+   "rect": [
+    16.3,
+    23.35,
+    19.7,
+    27.45
+   ]
+  },
+  "U45": {
+   "world": [
+    12.0,
+    38.6,
+    90.0
+   ],
+   "how": "rigid group capmode",
+   "block": "capmode",
+   "path": "u_cm_inv_ha",
+   "rect": [
+    10.3,
+    36.55,
+    13.7,
+    40.65
+   ]
+  },
+  "U46": {
+   "world": [
+    17.5,
+    38.6,
+    90.0
+   ],
+   "how": "rigid group capmode",
+   "block": "capmode",
+   "path": "u_cm_inv_la",
+   "rect": [
+    15.8,
+    36.55,
+    19.2,
+    40.65
+   ]
+  },
+  "U5": {
+   "world": [
+    -13.0,
+    44.0,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "d11_ctmon",
+   "path": "u_rx",
+   "rect": [
+    -16.7,
+    41.3,
+    -9.3,
+    46.7
+   ]
+  },
+  "U6": {
+   "world": [
+    -13.0,
+    52.5,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "d11_ctmon",
+   "path": "u_buf1",
+   "rect": [
+    -16.7,
+    49.8,
+    -9.3,
+    55.2
+   ]
+  },
+  "U7": {
+   "world": [
+    11.0,
+    76.0,
+    0.0
+   ],
+   "how": "kept C49 pose",
+   "block": "ntc_afe",
+   "path": "u_buf2",
+   "rect": [
+    7.3,
+    73.3,
+    14.7,
+    78.7
+   ]
+  },
+  "U8": {
+   "world": [
+    49.6,
+    45.0,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "expander",
+   "path": "u_io",
+   "rect": [
+    45.75,
+    40.85,
+    53.45,
+    49.15
+   ]
+  },
+  "U9": {
+   "world": [
+    14.0,
+    51.0,
+    0
+   ],
+   "how": "moved (MOVE)",
+   "block": "trip_glue",
+   "path": "u_rb",
+   "rect": [
+    10.15,
+    47.5,
+    17.85,
+    54.5
+   ]
+  }
+ },
+ "anchors": {
+  "C16": {
+   "anchor": "L2.2",
+   "pad_to_anchor_mm": 8.03
+  },
+  "C17": {
+   "anchor": "L2.2",
+   "pad_to_anchor_mm": 8.03
+  },
+  "C20": {
+   "anchor": "U3.2",
+   "pad_to_anchor_mm": 1.81
+  },
+  "C21": {
+   "anchor": "U17.4",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C22": {
+   "anchor": "U17.5",
+   "pad_to_anchor_mm": 1.98
+  },
+  "C23": {
+   "anchor": "U18.4",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C24": {
+   "anchor": "U18.5",
+   "pad_to_anchor_mm": 1.98
+  },
+  "C25": {
+   "anchor": "U19.5",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C26": {
+   "anchor": "U26.5",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C27": {
+   "anchor": "U27.5",
+   "pad_to_anchor_mm": 1.98
+  },
+  "C28": {
+   "anchor": "U28.5",
+   "pad_to_anchor_mm": 1.98
+  },
+  "C29": {
+   "anchor": "U30.3",
+   "pad_to_anchor_mm": 1.97
+  },
+  "C30": {
+   "anchor": "U30.2",
+   "pad_to_anchor_mm": 2.32
+  },
+  "C32": {
+   "anchor": "U29.4",
+   "pad_to_anchor_mm": 1.97
+  },
+  "C33": {
+   "anchor": "U31.5",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C34": {
+   "anchor": "U32.5",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C35": {
+   "anchor": "U33.5",
+   "pad_to_anchor_mm": 3.75
+  },
+  "C36": {
+   "anchor": "U34.4",
+   "pad_to_anchor_mm": 1.71
+  },
+  "C37": {
+   "anchor": "U35.5",
+   "pad_to_anchor_mm": 3.14
+  },
+  "C39": {
+   "anchor": "U30.10",
+   "pad_to_anchor_mm": 1.97
+  },
+  "C41": {
+   "anchor": "U31.3",
+   "pad_to_anchor_mm": 4.39
+  },
+  "C46": {
+   "anchor": "U23.14",
+   "pad_to_anchor_mm": 1.99
+  },
+  "C47": {
+   "anchor": "U24.14",
+   "pad_to_anchor_mm": 2.04
+  },
+  "C48": {
+   "anchor": "U22.14",
+   "pad_to_anchor_mm": 1.97
+  },
+  "C49": {
+   "anchor": "U20.8",
+   "pad_to_anchor_mm": 1.63
+  },
+  "C50": {
+   "anchor": "U21.5",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C51": {
+   "anchor": "U25.5",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C52": {
+   "anchor": "U45.5",
+   "pad_to_anchor_mm": 1.86
+  },
+  "C53": {
+   "anchor": "U46.5",
+   "pad_to_anchor_mm": 2.04
+  },
+  "C54": {
+   "anchor": "U43.5",
+   "pad_to_anchor_mm": 1.86
+  },
+  "C55": {
+   "anchor": "U42.14",
+   "pad_to_anchor_mm": 1.97
+  },
+  "C56": {
+   "anchor": "U44.5",
+   "pad_to_anchor_mm": 2.87
+  },
+  "C57": {
+   "anchor": "U12.5",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C58": {
+   "anchor": "U11.5",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C6": {
+   "anchor": "L1.2",
+   "pad_to_anchor_mm": 2.3
+  },
+  "C60": {
+   "anchor": "U10.5",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C61": {
+   "anchor": "U9.20",
+   "pad_to_anchor_mm": 1.71
+  },
+  "C63": {
+   "anchor": "U5.8",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C65": {
+   "anchor": "U6.5",
+   "pad_to_anchor_mm": 2.43
+  },
+  "C66": {
+   "anchor": "U6.8",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C68": {
+   "anchor": "U7.3",
+   "pad_to_anchor_mm": 2.39
+  },
+  "C69": {
+   "anchor": "U7.8",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C7": {
+   "anchor": "L1.2",
+   "pad_to_anchor_mm": 3.28
+  },
+  "C70": {
+   "anchor": "U37.5",
+   "pad_to_anchor_mm": 1.86
+  },
+  "C74": {
+   "anchor": "U36.3",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C75": {
+   "anchor": "U36.5",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C77": {
+   "anchor": "U40.5",
+   "pad_to_anchor_mm": 2.04
+  },
+  "C78": {
+   "anchor": "U40.3",
+   "pad_to_anchor_mm": 1.98
+  },
+  "C79": {
+   "anchor": "U41.5",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C8": {
+   "anchor": "L1.2",
+   "pad_to_anchor_mm": 3.28
+  },
+  "C85": {
+   "anchor": "U14.18",
+   "pad_to_anchor_mm": 2.21
+  },
+  "C86": {
+   "anchor": "U14.18",
+   "pad_to_anchor_mm": 3.16
+  },
+  "C88": {
+   "anchor": "U15.8",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C89": {
+   "anchor": "U4.2",
+   "pad_to_anchor_mm": 2.06
+  },
+  "C90": {
+   "anchor": "U4.2",
+   "pad_to_anchor_mm": 2.66
+  },
+  "C92": {
+   "anchor": "U8.24",
+   "pad_to_anchor_mm": 1.71
+  },
+  "C93": {
+   "anchor": "U38.5",
+   "pad_to_anchor_mm": 1.98
+  },
+  "C94": {
+   "anchor": "U39.5",
+   "pad_to_anchor_mm": 1.98
+  },
+  "C95": {
+   "anchor": "U16.2",
+   "pad_to_anchor_mm": 1.91
+  },
+  "C96": {
+   "anchor": "U16.1",
+   "pad_to_anchor_mm": 1.91
+  },
+  "D1": {
+   "anchor": "J10.3",
+   "pad_to_anchor_mm": 8.17
+  },
+  "D7": {
+   "anchor": "J12.1",
+   "pad_to_anchor_mm": 4.56
+  },
+  "D8": {
+   "anchor": "U15.8",
+   "pad_to_anchor_mm": 3.0
+  },
+  "D9": {
+   "anchor": "J13.1",
+   "pad_to_anchor_mm": 8.35
+  },
+  "Q1": {
+   "anchor": "U2.2",
+   "pad_to_anchor_mm": 11.38
+  },
+  "R10": {
+   "anchor": "J4.16",
+   "pad_to_anchor_mm": 2.93
+  },
+  "R100": {
+   "anchor": "U40.3",
+   "pad_to_anchor_mm": 2.48
+  },
+  "R102": {
+   "anchor": "U37.2",
+   "pad_to_anchor_mm": 3.36
+  },
+  "R103": {
+   "anchor": "U37.4",
+   "pad_to_anchor_mm": 4.68
+  },
+  "R106": {
+   "anchor": "U15.2",
+   "pad_to_anchor_mm": 3.65
+  },
+  "R108": {
+   "anchor": "U15.8",
+   "pad_to_anchor_mm": 4.12
+  },
+  "R109": {
+   "anchor": "U4.3",
+   "pad_to_anchor_mm": 4.79
+  },
+  "R110": {
+   "anchor": "U4.26",
+   "pad_to_anchor_mm": 2.34
+  },
+  "R111": {
+   "anchor": "U8.24",
+   "pad_to_anchor_mm": 2.7
+  },
+  "R112": {
+   "anchor": "U8.24",
+   "pad_to_anchor_mm": 4.74
+  },
+  "R113": {
+   "anchor": "J7.4",
+   "pad_to_anchor_mm": 4.48
+  },
+  "R114": {
+   "anchor": "J7.6",
+   "pad_to_anchor_mm": 4.43
+  },
+  "R115": {
+   "anchor": "J7.7",
+   "pad_to_anchor_mm": 4.43
+  },
+  "R116": {
+   "anchor": "J7.9",
+   "pad_to_anchor_mm": 4.43
+  },
+  "R117": {
+   "anchor": "J7.12",
+   "pad_to_anchor_mm": 4.43
+  },
+  "R118": {
+   "anchor": "J7.10",
+   "pad_to_anchor_mm": 4.43
+  },
+  "R119": {
+   "anchor": "U4.24",
+   "pad_to_anchor_mm": 2.43
+  },
+  "R120": {
+   "anchor": "U4.25",
+   "pad_to_anchor_mm": 4.3
+  },
+  "R122": {
+   "anchor": "U16.2",
+   "pad_to_anchor_mm": 4.55
+  },
+  "R124": {
+   "anchor": "U4.28",
+   "pad_to_anchor_mm": 5.49
+  },
+  "R15": {
+   "anchor": "J13.1",
+   "pad_to_anchor_mm": 11.11
+  },
+  "R16": {
+   "anchor": "R15.2",
+   "pad_to_anchor_mm": 6.2
+  },
+  "R19": {
+   "anchor": "Q1.1",
+   "pad_to_anchor_mm": 4.62
+  },
+  "R22": {
+   "anchor": "U2.8",
+   "pad_to_anchor_mm": 5.03
+  },
+  "R25": {
+   "anchor": "J10.3",
+   "pad_to_anchor_mm": 9.0
+  },
+  "R26": {
+   "anchor": "J10.3",
+   "pad_to_anchor_mm": 9.43
+  },
+  "R27": {
+   "anchor": "U3.2",
+   "pad_to_anchor_mm": 2.71
+  },
+  "R28": {
+   "anchor": "U3.4",
+   "pad_to_anchor_mm": 2.18
+  },
+  "R29": {
+   "anchor": "U17.5",
+   "pad_to_anchor_mm": 3.6
+  },
+  "R33": {
+   "anchor": "U18.5",
+   "pad_to_anchor_mm": 3.6
+  },
+  "R42": {
+   "anchor": "U30.15",
+   "pad_to_anchor_mm": 6.62
+  },
+  "R43": {
+   "anchor": "U30.14",
+   "pad_to_anchor_mm": 8.44
+  },
+  "R44": {
+   "anchor": "U30.16",
+   "pad_to_anchor_mm": 7.6
+  },
+  "R45": {
+   "anchor": "U30.17",
+   "pad_to_anchor_mm": 8.98
+  },
+  "R61": {
+   "anchor": "U23.14",
+   "pad_to_anchor_mm": 2.93
+  },
+  "R62": {
+   "anchor": "U23.14",
+   "pad_to_anchor_mm": 3.83
+  },
+  "R63": {
+   "anchor": "U23.14",
+   "pad_to_anchor_mm": 3.83
+  },
+  "R64": {
+   "anchor": "U23.14",
+   "pad_to_anchor_mm": 5.53
+  },
+  "R65": {
+   "anchor": "U23.14",
+   "pad_to_anchor_mm": 5.53
+  },
+  "R66": {
+   "anchor": "U23.14",
+   "pad_to_anchor_mm": 5.93
+  },
+  "R67": {
+   "anchor": "U24.14",
+   "pad_to_anchor_mm": 2.97
+  },
+  "R68": {
+   "anchor": "U24.14",
+   "pad_to_anchor_mm": 5.53
+  },
+  "R69": {
+   "anchor": "U21.4",
+   "pad_to_anchor_mm": 2.57
+  },
+  "R70": {
+   "anchor": "U24.9",
+   "pad_to_anchor_mm": 2.95
+  },
+  "R71": {
+   "anchor": "U20.5",
+   "pad_to_anchor_mm": 2.57
+  },
+  "R72": {
+   "anchor": "U43.2",
+   "pad_to_anchor_mm": 2.43
+  },
+  "R73": {
+   "anchor": "U43.5",
+   "pad_to_anchor_mm": 3.63
+  },
+  "R74": {
+   "anchor": "U42.5",
+   "pad_to_anchor_mm": 5.15
+  },
+  "R75": {
+   "anchor": "U42.8",
+   "pad_to_anchor_mm": 4.58
+  },
+  "R85": {
+   "anchor": "U4.38",
+   "pad_to_anchor_mm": 5.04
+  },
+  "R88": {
+   "anchor": "U6.5",
+   "pad_to_anchor_mm": 4.12
+  },
+  "R89": {
+   "anchor": "U4.6",
+   "pad_to_anchor_mm": 3.79
+  },
+  "R9": {
+   "anchor": "J4.13",
+   "pad_to_anchor_mm": 2.93
+  },
+  "R90": {
+   "anchor": "U4.6",
+   "pad_to_anchor_mm": 6.45
+  },
+  "R91": {
+   "anchor": "U7.3",
+   "pad_to_anchor_mm": 3.83
+  },
+  "R92": {
+   "anchor": "U4.7",
+   "pad_to_anchor_mm": 8.01
+  },
+  "R95": {
+   "anchor": "U4.12",
+   "pad_to_anchor_mm": 6.09
+  },
+  "R96": {
+   "anchor": "U36.5",
+   "pad_to_anchor_mm": 3.37
+  },
+  "R97": {
+   "anchor": "U36.3",
+   "pad_to_anchor_mm": 2.42
+  },
+  "R98": {
+   "anchor": "U4.17",
+   "pad_to_anchor_mm": 2.34
+  },
+  "R99": {
+   "anchor": "U40.5",
+   "pad_to_anchor_mm": 3.41
+  },
+  "C11": {
+   "anchor": "U2.7",
+   "pad_to_anchor_mm": 15.98
+  },
+  "C19": {
+   "anchor": "U3.1",
+   "pad_to_anchor_mm": 3.32
+  },
+  "C2": {
+   "anchor": "U1.7",
+   "pad_to_anchor_mm": 2.95
+  },
+  "C59": {
+   "anchor": "U10.4",
+   "pad_to_anchor_mm": 2.35
+  },
+  "C62": {
+   "anchor": "U4.38",
+   "pad_to_anchor_mm": 7.83
+  },
+  "C64": {
+   "anchor": "U4.39",
+   "pad_to_anchor_mm": 8.3
+  },
+  "C67": {
+   "anchor": "U4.6",
+   "pad_to_anchor_mm": 9.46
+  },
+  "C71": {
+   "anchor": "U4.7",
+   "pad_to_anchor_mm": 10.5
+  },
+  "C72": {
+   "anchor": "U7.5",
+   "pad_to_anchor_mm": 2.84
+  },
+  "C73": {
+   "anchor": "U4.12",
+   "pad_to_anchor_mm": 6.14
+  },
+  "C76": {
+   "anchor": "U4.17",
+   "pad_to_anchor_mm": 7.19
+  },
+  "C80": {
+   "anchor": "U14.6",
+   "pad_to_anchor_mm": 2.78
+  },
+  "C81": {
+   "anchor": "U14.3",
+   "pad_to_anchor_mm": 3.42
+  },
+  "C82": {
+   "anchor": "U14.20",
+   "pad_to_anchor_mm": 3.81
+  },
+  "C83": {
+   "anchor": "U14.12",
+   "pad_to_anchor_mm": 3.98
+  },
+  "C84": {
+   "anchor": "U14.10",
+   "pad_to_anchor_mm": 2.73
+  },
+  "C87": {
+   "anchor": "U15.2",
+   "pad_to_anchor_mm": 4.94
+  },
+  "C91": {
+   "anchor": "J11.2",
+   "pad_to_anchor_mm": 3.36
+  },
+  "D6": {
+   "anchor": "J9.1",
+   "pad_to_anchor_mm": 5.5
+  },
+  "R1": {
+   "anchor": "U4.4",
+   "pad_to_anchor_mm": 8.03
+  },
+  "R101": {
+   "anchor": "U14.6",
+   "pad_to_anchor_mm": 5.77
+  },
+  "R104": {
+   "anchor": "U14.15",
+   "pad_to_anchor_mm": 6.49
+  },
+  "R105": {
+   "anchor": "U14.14",
+   "pad_to_anchor_mm": 7.38
+  },
+  "R107": {
+   "anchor": "U15.6",
+   "pad_to_anchor_mm": 3.65
+  },
+  "R11": {
+   "anchor": "U1.2",
+   "pad_to_anchor_mm": 4.7
+  },
+  "R12": {
+   "anchor": "U1.2",
+   "pad_to_anchor_mm": 6.17
+  },
+  "R13": {
+   "anchor": "U1.8",
+   "pad_to_anchor_mm": 7.13
+  },
+  "R14": {
+   "anchor": "U1.8",
+   "pad_to_anchor_mm": 8.18
+  },
+  "R17": {
+   "anchor": "Q1.3",
+   "pad_to_anchor_mm": 10.93
+  },
+  "R18": {
+   "anchor": "Q1.3",
+   "pad_to_anchor_mm": 11.01
+  },
+  "R2": {
+   "anchor": "U4.5",
+   "pad_to_anchor_mm": 9.45
+  },
+  "R20": {
+   "anchor": "U4.16",
+   "pad_to_anchor_mm": 12.34
+  },
+  "R3": {
+   "anchor": "U4.8",
+   "pad_to_anchor_mm": 13.77
+  },
+  "R30": {
+   "anchor": "U17.3",
+   "pad_to_anchor_mm": 2.42
+  },
+  "R31": {
+   "anchor": "U17.3",
+   "pad_to_anchor_mm": 2.44
+  },
+  "R32": {
+   "anchor": "U17.1",
+   "pad_to_anchor_mm": 2.7
+  },
+  "R34": {
+   "anchor": "U18.3",
+   "pad_to_anchor_mm": 2.43
+  },
+  "R35": {
+   "anchor": "U18.3",
+   "pad_to_anchor_mm": 2.44
+  },
+  "R36": {
+   "anchor": "U18.1",
+   "pad_to_anchor_mm": 2.76
+  },
+  "R37": {
+   "anchor": "U19.4",
+   "pad_to_anchor_mm": 2.42
+  },
+  "R38": {
+   "anchor": "U19.4",
+   "pad_to_anchor_mm": 2.63
+  },
+  "R39": {
+   "anchor": "U30.6",
+   "pad_to_anchor_mm": 10.85
+  },
+  "R4": {
+   "anchor": "U4.9",
+   "pad_to_anchor_mm": 14.51
+  },
+  "R46": {
+   "anchor": "U30.3",
+   "pad_to_anchor_mm": 7.4
+  },
+  "R47": {
+   "anchor": "U29.1",
+   "pad_to_anchor_mm": 2.34
+  },
+  "R48": {
+   "anchor": "U31.4",
+   "pad_to_anchor_mm": 6.2
+  },
+  "R49": {
+   "anchor": "U29.1",
+   "pad_to_anchor_mm": 2.57
+  },
+  "R5": {
+   "anchor": "J4.5",
+   "pad_to_anchor_mm": 6.38
+  },
+  "R50": {
+   "anchor": "U32.3",
+   "pad_to_anchor_mm": 2.34
+  },
+  "R51": {
+   "anchor": "U10.3",
+   "pad_to_anchor_mm": 9.49
+  },
+  "R52": {
+   "anchor": "U33.4",
+   "pad_to_anchor_mm": 4.82
+  },
+  "R53": {
+   "anchor": "U34.1",
+   "pad_to_anchor_mm": 5.75
+  },
+  "R54": {
+   "anchor": "U34.1",
+   "pad_to_anchor_mm": 9.46
+  },
+  "R55": {
+   "anchor": "U11.2",
+   "pad_to_anchor_mm": 3.33
+  },
+  "R56": {
+   "anchor": "U9.13",
+   "pad_to_anchor_mm": 7.19
+  },
+  "R6": {
+   "anchor": "J4.6",
+   "pad_to_anchor_mm": 8.13
+  },
+  "R7": {
+   "anchor": "J4.7",
+   "pad_to_anchor_mm": 8.13
+  },
+  "R76": {
+   "anchor": "U10.4",
+   "pad_to_anchor_mm": 13.85
+  },
+  "R77": {
+   "anchor": "U10.4",
+   "pad_to_anchor_mm": 16.51
+  },
+  "R78": {
+   "anchor": "J4.12",
+   "pad_to_anchor_mm": 3.49
+  },
+  "R79": {
+   "anchor": "J4.11",
+   "pad_to_anchor_mm": 4.38
+  },
+  "R8": {
+   "anchor": "J4.8",
+   "pad_to_anchor_mm": 5.68
+  },
+  "R80": {
+   "anchor": "U5.1",
+   "pad_to_anchor_mm": 3.35
+  },
+  "R81": {
+   "anchor": "U5.6",
+   "pad_to_anchor_mm": 2.83
+  },
+  "R82": {
+   "anchor": "U13.1",
+   "pad_to_anchor_mm": 4.98
+  },
+  "R83": {
+   "anchor": "U5.5",
+   "pad_to_anchor_mm": 2.44
+  },
+  "R84": {
+   "anchor": "U5.5",
+   "pad_to_anchor_mm": 2.96
+  },
+  "R86": {
+   "anchor": "J4.14",
+   "pad_to_anchor_mm": 9.42
+  },
+  "R87": {
+   "anchor": "U4.39",
+   "pad_to_anchor_mm": 16.72
+  },
+  "R93": {
+   "anchor": "J9.1",
+   "pad_to_anchor_mm": 6.25
+  },
+  "R94": {
+   "anchor": "U7.5",
+   "pad_to_anchor_mm": 5.45
+  },
+  "C10": {
+   "anchor": "R22.1",
+   "pad_to_anchor_mm": 5.4
+  },
+  "C18": {
+   "anchor": "R26.2",
+   "pad_to_anchor_mm": 1.98
+  },
+  "C97": {
+   "anchor": "R124.2",
+   "pad_to_anchor_mm": 1.98
+  },
+  "R121": {
+   "anchor": "R122.1",
+   "pad_to_anchor_mm": 2.54
+  },
+  "R123": {
+   "anchor": "R124.2",
+   "pad_to_anchor_mm": 5.23
+  },
+  "R21": {
+   "anchor": "C10.1",
+   "pad_to_anchor_mm": 21.22
+  }
+ }
+}
