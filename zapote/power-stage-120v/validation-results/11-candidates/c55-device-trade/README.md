@@ -5,6 +5,10 @@ this folder was edited: no DECISIONS, ledger, BOM or board file. Nothing was bui
 below comes from a script in `scripts/` and its file in `results/`, or from a cited datasheet page. [EST] marks an
 estimate; [VEN, 2026-10-27] marks a DigiKey list-price read (not a quote).
 
+**Owner decision (2026-10-28, DECISIONS 81):** the prototype lot stays on IPW65R018CFD7, unchanged. The SiC
+recommendation below is the production alternative, decided by the D-8 double pulse; the mixed 14 / 6 lot proposed
+under "Prototype lot" was not adopted.
+
 ## Answer
 
 **Recommended production device: Infineon IMW65R026M2H (650 V CoolSiC G2, 26 mΩ) on the board's +15 / −1.6 V
