@@ -1,0 +1,13223 @@
+{
+ "what": "native-22 floorplan: placement only (courtyards), no copper, no routing",
+ "board_of_record_in": {
+  "pcb": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s53/c53int/section.kicad_pcb",
+  "sha256": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27",
+  "geom": "zapote/power-stage-120v/native-21/verification/native21s53-all-copper.json.gz"
+ },
+ "recipe": "B",
+ "rules": {
+  "gap_mm": 0.5,
+  "edge_mm": 0.5,
+  "barrier_mm": 8.0,
+  "raster_mm": 0.25,
+  "keepouts": [
+   [
+    "jet strip, parts > 4 mm (run_basis.JET_REGION)",
+    [
+     0.0,
+     7.0,
+     90.0,
+     23.5
+    ]
+   ]
+  ],
+  "stud_keepout_mm": 10.0
+ },
+ "summary": {
+  "j1n_centre_to_br1_ac_pins_mm": {
+   "BR1.2": 107.2,
+   "BR1.3": 99.7
+  },
+  "outline_mm": [
+   210.0,
+   140.0
+  ],
+  "outline_mm2": 29400.0,
+  "courtyard_union_mm2": 12855.4,
+  "courtyard_union_F_mm2": 12772.4,
+  "utilisation_union_pct": 43.7,
+  "fits": true,
+  "unplaced": [],
+  "n_fixed": 398,
+  "n_moved": 29,
+  "n_new": 2,
+  "n_removed": 17
+ },
+ "barrier_audit": {
+  "min_hot_low_pad_mm_other_parts": 8.17,
+  "pair": [
+   "R129",
+   "U23"
+  ],
+  "min_moved_low_pad_to_res_a_outer_mm": 29.527,
+  "res_a_rule_mm": 12.6,
+  "res_a_nearest_moved_part": "U36",
+  "min_involving_moved_or_new_mm": 9.204,
+  "pair_moved": [
+   "C152",
+   "U36"
+  ],
+  "note": "pads only, exact polygons, pairs within 10 mm searched; pours are checked on the raster at placement time (fixed copper) and by the proxy's moat rule"
+ },
+ "displaced": {
+  "C176": "clears J4's front-edge slot",
+  "TP19": "clears J4's front-edge slot"
+ },
+ "removed": [
+  {
+   "ref": "C1",
+   "why": "inlet module: X2 cx1",
+   "block": "mains_emi_fuse_mov",
+   "courtyard_mm2": 315.9
+  },
+  {
+   "ref": "C2",
+   "why": "inlet module: X2 cx2",
+   "block": "mains_emi_fuse_mov",
+   "courtyard_mm2": 315.9
+  },
+  {
+   "ref": "C3",
+   "why": "inlet module: Y1 cy1 (L_FILT-PE)",
+   "block": "mains_emi_fuse_mov",
+   "courtyard_mm2": 68.8
+  },
+  {
+   "ref": "C4",
+   "why": "inlet module: Y1 cy2 (N_FILT-PE)",
+   "block": "mains_emi_fuse_mov",
+   "courtyard_mm2": 68.8
+  },
+  {
+   "ref": "F1",
+   "why": "inlet module: fuse KLDR025.TXP + clips",
+   "block": "mains_emi_fuse_mov",
+   "courtyard_mm2": 610.2
+  },
+  {
+   "ref": "F2",
+   "why": "inlet module: blower fuse",
+   "block": "blower_ac_tap",
+   "courtyard_mm2": 109.8
+  },
+  {
+   "ref": "H2",
+   "why": "dropped: empty in R43 (DECISIONS 76)",
+   "block": "mech_test",
+   "courtyard_mm2": 37.2
+  },
+  {
+   "ref": "H9",
+   "why": "dropped: empty in R43 (DECISIONS 76)",
+   "block": "mech_test",
+   "courtyard_mm2": 37.2
+  },
+  {
+   "ref": "J1",
+   "why": "inlet module: mains input terminal (cord L/N)",
+   "block": "mains_emi_fuse_mov",
+   "courtyard_mm2": 254.0
+  },
+  {
+   "ref": "J11",
+   "why": "inlet module: blower AC tap terminal",
+   "block": "blower_ac_tap",
+   "courtyard_mm2": 121.8
+  },
+  {
+   "ref": "J3",
+   "why": "inlet module: TCO loop terminal (L_FILT -> TCO_L)",
+   "block": "connectors_selv_tco",
+   "courtyard_mm2": 121.8
+  },
+  {
+   "ref": "L1",
+   "why": "inlet module: CM/DM choke B82726S22x3A020",
+   "block": "mains_emi_fuse_mov",
+   "courtyard_mm2": 1380.0
+  },
+  {
+   "ref": "PS2",
+   "why": "inlet module: MEAN WELL MPM-20-24 gate-drive supply (TCO_L in)",
+   "block": "ps2_isolated_bias",
+   "courtyard_mm2": 1465.3
+  },
+  {
+   "ref": "R1",
+   "why": "inlet module: X bleed rb1a",
+   "block": "mains_emi_fuse_mov",
+   "courtyard_mm2": 10.3
+  },
+  {
+   "ref": "R130",
+   "why": "inlet module: blower series resistor",
+   "block": "blower_ac_tap",
+   "courtyard_mm2": 83.4
+  },
+  {
+   "ref": "R2",
+   "why": "inlet module: X bleed rb1b",
+   "block": "mains_emi_fuse_mov",
+   "courtyard_mm2": 10.3
+  },
+  {
+   "ref": "RV1",
+   "why": "inlet module: MOV TMOV20RP175E",
+   "block": "mains_emi_fuse_mov",
+   "courtyard_mm2": 449.5
+  }
+ ],
+ "new": {
+  "J1N": {
+   "template": "J1",
+   "nets": {
+    "1": "l_filt",
+    "2": "n_filt"
+   },
+   "why": "filtered L/N from the inlet module to BR1 and the LINE_ZC string"
+  },
+  "J3N": {
+   "template": "J3",
+   "nets": {
+    "1": "v24_raw",
+    "2": "n_ls"
+   },
+   "why": "PS2's 24 V output (HOT, N_LS-referenced) from the inlet module"
+  }
+ },
+ "anchors": {
+  "C6": [
+   128.0,
+   22.0,
+   null
+  ],
+  "C5": [
+   167.0,
+   17.5,
+   null
+  ],
+  "J1N": [
+   199.0,
+   7.0,
+   "top"
+  ],
+  "J3N": [
+   204.0,
+   26.0,
+   null
+  ],
+  "J4": [
+   60.0,
+   135.0,
+   "bottom"
+  ],
+  "D3": [
+   198.0,
+   62.0,
+   null
+  ],
+  "D17": [
+   198.0,
+   80.0,
+   null
+  ],
+  "R3": [
+   204.0,
+   52.0,
+   null
+  ],
+  "R4": [
+   204.0,
+   56.0,
+   null
+  ],
+  "U36": [
+   196.0,
+   124.0,
+   null
+  ],
+  "R67": [
+   204.0,
+   100.0,
+   null
+  ],
+  "R68": [
+   204.0,
+   104.0,
+   null
+  ],
+  "R69": [
+   204.0,
+   108.0,
+   null
+  ],
+  "R70": [
+   204.0,
+   112.0,
+   null
+  ],
+  "R146": [
+   52.0,
+   128.0,
+   null
+  ],
+  "C174": [
+   55.0,
+   128.0,
+   null
+  ],
+  "C178": [
+   58.0,
+   128.0,
+   null
+  ],
+  "C156": [
+   61.0,
+   128.0,
+   null
+  ],
+  "C155": [
+   64.0,
+   128.0,
+   null
+  ],
+  "C177": [
+   67.0,
+   128.0,
+   null
+  ],
+  "TP20": [
+   50.0,
+   128.0,
+   null
+  ],
+  "TP39": [
+   53.0,
+   128.0,
+   null
+  ],
+  "TP34": [
+   62.0,
+   138.0,
+   null
+  ],
+  "TP13": [
+   65.0,
+   138.0,
+   null
+  ],
+  "TP19": [
+   68.0,
+   138.0,
+   null
+  ],
+  "C176": [
+   70.0,
+   136.0,
+   null
+  ],
+  "H1": [
+   205.0,
+   135.0,
+   null
+  ],
+  "H3": [
+   5.0,
+   135.0,
+   null
+  ],
+  "H4": [
+   205.0,
+   40.0,
+   null
+  ],
+  "FID2": [
+   207.0,
+   137.0,
+   null
+  ],
+  "FID3": [
+   3.0,
+   137.0,
+   null
+  ],
+  "H8": [
+   205.0,
+   128.0,
+   null
+  ]
+ },
+ "parts": [
+  {
+   "ref": "BR1",
+   "status": "fixed",
+   "block": "rectifier_bus",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    81.7,
+    4.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    81.7,
+    4.6,
+    0.0
+   ],
+   "bbox": [
+    79.4,
+    2.1,
+    109.4,
+    7.1
+   ],
+   "courtyard_mm2": 150.0
+  },
+  {
+   "ref": "C10",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    76.83,
+    43.95,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    76.83,
+    43.95,
+    0.0
+   ],
+   "bbox": [
+    75.13,
+    42.97,
+    78.53,
+    44.93
+   ],
+   "courtyard_mm2": 6.66
+  },
+  {
+   "ref": "C100",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    103.345,
+    95.225,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    103.345,
+    95.225,
+    0.0
+   ],
+   "bbox": [
+    101.045,
+    93.625,
+    105.645,
+    96.825
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C102",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    54.7,
+    56.6,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    54.7,
+    56.6,
+    90.0
+   ],
+   "bbox": [
+    53.1,
+    54.3,
+    56.3,
+    58.9
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C103",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    64.099999,
+    56.65,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    64.099999,
+    56.65,
+    90.0
+   ],
+   "bbox": [
+    62.5,
+    54.35,
+    65.7,
+    58.95
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C104",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    55.93,
+    75.39,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    55.93,
+    75.39,
+    270.0
+   ],
+   "bbox": [
+    54.33,
+    73.09,
+    57.53,
+    77.69
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C105",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    61.2,
+    57.45,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    61.2,
+    57.45,
+    90.0
+   ],
+   "bbox": [
+    60.47,
+    55.97,
+    61.93,
+    58.93
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C106",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    8.4,
+    51.6,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    8.4,
+    51.6,
+    90.0
+   ],
+   "bbox": [
+    6.8,
+    49.3,
+    10.0,
+    53.9
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C107",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    17.8,
+    51.65,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    17.8,
+    51.65,
+    90.0
+   ],
+   "bbox": [
+    16.2,
+    49.35,
+    19.4,
+    53.95
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C108",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    9.985,
+    70.39,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    9.985,
+    70.39,
+    270.0
+   ],
+   "bbox": [
+    8.385,
+    68.09,
+    11.585,
+    72.69
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C109",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    14.9,
+    52.45,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    14.9,
+    52.45,
+    90.0
+   ],
+   "bbox": [
+    14.17,
+    50.97,
+    15.63,
+    53.93
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C11",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    76.83,
+    39.75,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    76.83,
+    39.75,
+    0.0
+   ],
+   "bbox": [
+    75.13,
+    38.77,
+    78.53,
+    40.73
+   ],
+   "courtyard_mm2": 6.66
+  },
+  {
+   "ref": "C110",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    71.3,
+    43.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    71.3,
+    43.6,
+    0.0
+   ],
+   "bbox": [
+    70.39,
+    43.14,
+    72.21,
+    44.06
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C111",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    73.4,
+    43.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    73.4,
+    43.6,
+    0.0
+   ],
+   "bbox": [
+    72.49,
+    43.14,
+    74.31,
+    44.06
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C112",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    71.3,
+    45.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    71.3,
+    45.0,
+    0.0
+   ],
+   "bbox": [
+    70.39,
+    44.54,
+    72.21,
+    45.46
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C113",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    73.4,
+    45.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    73.4,
+    45.0,
+    0.0
+   ],
+   "bbox": [
+    72.49,
+    44.54,
+    74.31,
+    45.46
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C114",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    89.1,
+    43.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    89.1,
+    43.6,
+    0.0
+   ],
+   "bbox": [
+    88.19,
+    43.14,
+    90.01,
+    44.06
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C115",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    87.0,
+    43.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    87.0,
+    43.6,
+    0.0
+   ],
+   "bbox": [
+    86.09,
+    43.14,
+    87.91,
+    44.06
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C116",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    89.1,
+    45.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    89.1,
+    45.0,
+    0.0
+   ],
+   "bbox": [
+    88.19,
+    44.54,
+    90.01,
+    45.46
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C117",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    87.0,
+    45.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    87.0,
+    45.0,
+    0.0
+   ],
+   "bbox": [
+    86.09,
+    44.54,
+    87.91,
+    45.46
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C118",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    24.3,
+    43.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    24.3,
+    43.6,
+    0.0
+   ],
+   "bbox": [
+    23.39,
+    43.14,
+    25.21,
+    44.06
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C119",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    26.4,
+    43.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    26.4,
+    43.6,
+    0.0
+   ],
+   "bbox": [
+    25.49,
+    43.14,
+    27.31,
+    44.06
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C12",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    70.78,
+    9.7,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    70.78,
+    9.7,
+    0.0
+   ],
+   "bbox": [
+    68.48,
+    8.55,
+    73.08,
+    10.85
+   ],
+   "courtyard_mm2": 10.58
+  },
+  {
+   "ref": "C120",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    24.3,
+    45.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    24.3,
+    45.0,
+    0.0
+   ],
+   "bbox": [
+    23.39,
+    44.54,
+    25.21,
+    45.46
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C121",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    26.4,
+    45.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    26.4,
+    45.0,
+    0.0
+   ],
+   "bbox": [
+    25.49,
+    44.54,
+    27.31,
+    45.46
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C122",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    42.1,
+    43.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    42.1,
+    43.6,
+    0.0
+   ],
+   "bbox": [
+    41.19,
+    43.14,
+    43.01,
+    44.06
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C123",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    40.0,
+    43.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    40.0,
+    43.6,
+    0.0
+   ],
+   "bbox": [
+    39.09,
+    43.14,
+    40.91,
+    44.06
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C124",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    42.1,
+    45.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    42.1,
+    45.0,
+    0.0
+   ],
+   "bbox": [
+    41.19,
+    44.54,
+    43.01,
+    45.46
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C125",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    40.0,
+    45.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    40.0,
+    45.0,
+    0.0
+   ],
+   "bbox": [
+    39.09,
+    44.54,
+    40.91,
+    45.46
+   ],
+   "courtyard_mm2": 1.67
+  },
+  {
+   "ref": "C126",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    64.849999,
+    37.1,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    64.849999,
+    37.1,
+    0.0
+   ],
+   "bbox": [
+    60.05,
+    33.55,
+    69.65,
+    40.65
+   ],
+   "courtyard_mm2": 59.15
+  },
+  {
+   "ref": "C127",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    95.55,
+    37.1,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    95.55,
+    37.1,
+    0.0
+   ],
+   "bbox": [
+    90.75,
+    33.55,
+    100.35,
+    40.65
+   ],
+   "courtyard_mm2": 59.15
+  },
+  {
+   "ref": "C128",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    17.85,
+    37.1,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    17.85,
+    37.1,
+    0.0
+   ],
+   "bbox": [
+    13.05,
+    33.55,
+    22.65,
+    40.65
+   ],
+   "courtyard_mm2": 59.15
+  },
+  {
+   "ref": "C129",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    48.55,
+    37.1,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    48.55,
+    37.1,
+    0.0
+   ],
+   "bbox": [
+    43.75,
+    33.55,
+    53.35,
+    40.65
+   ],
+   "courtyard_mm2": 59.15
+  },
+  {
+   "ref": "C13",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    52.78,
+    9.7,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    52.78,
+    9.7,
+    0.0
+   ],
+   "bbox": [
+    50.48,
+    8.55,
+    55.08,
+    10.85
+   ],
+   "courtyard_mm2": 10.58
+  },
+  {
+   "ref": "C131",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    106.125,
+    105.335,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    106.125,
+    105.335,
+    0.0
+   ],
+   "bbox": [
+    104.645,
+    104.605,
+    107.605,
+    106.065
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C132",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    108.585,
+    95.225,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    108.585,
+    95.225,
+    0.0
+   ],
+   "bbox": [
+    106.285,
+    93.625,
+    110.885,
+    96.825
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C133",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    97.25,
+    112.85,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    97.25,
+    112.85,
+    90.0
+   ],
+   "bbox": [
+    96.52,
+    111.37,
+    97.98,
+    114.33
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C134",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    97.5,
+    128.4,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    97.5,
+    128.4,
+    0.0
+   ],
+   "bbox": [
+    96.02,
+    127.67,
+    98.98,
+    129.13
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C135",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    51.675,
+    107.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    51.675,
+    107.635,
+    0.0
+   ],
+   "bbox": [
+    50.195,
+    106.905,
+    53.155,
+    108.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C136",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    48.745,
+    96.735,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    48.745,
+    96.735,
+    0.0
+   ],
+   "bbox": [
+    46.445,
+    95.135,
+    51.045,
+    98.335
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C139",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    6.375,
+    104.435,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    6.375,
+    104.435,
+    0.0
+   ],
+   "bbox": [
+    4.895,
+    103.705,
+    7.855,
+    105.165
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C14",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    31.075,
+    57.85,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    31.075,
+    57.85,
+    0.0
+   ],
+   "bbox": [
+    29.595,
+    57.12,
+    32.555,
+    58.58
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C140",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    3.145,
+    92.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    3.145,
+    92.635,
+    0.0
+   ],
+   "bbox": [
+    0.845,
+    91.035,
+    5.445,
+    94.235
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C144",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    74.6,
+    135.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    74.6,
+    135.6,
+    0.0
+   ],
+   "bbox": [
+    73.12,
+    134.87,
+    76.08,
+    136.33
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C145",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    76.83,
+    41.85,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    76.83,
+    41.85,
+    0.0
+   ],
+   "bbox": [
+    75.13,
+    40.87,
+    78.53,
+    42.83
+   ],
+   "courtyard_mm2": 6.66
+  },
+  {
+   "ref": "C146",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    83.17,
+    41.85,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    83.17,
+    41.85,
+    0.0
+   ],
+   "bbox": [
+    81.47,
+    40.87,
+    84.87,
+    42.83
+   ],
+   "courtyard_mm2": 6.66
+  },
+  {
+   "ref": "C147",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    29.83,
+    41.85,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    29.83,
+    41.85,
+    0.0
+   ],
+   "bbox": [
+    28.13,
+    40.87,
+    31.53,
+    42.83
+   ],
+   "courtyard_mm2": 6.66
+  },
+  {
+   "ref": "C148",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    36.17,
+    41.85,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    36.17,
+    41.85,
+    0.0
+   ],
+   "bbox": [
+    34.47,
+    40.87,
+    37.87,
+    42.83
+   ],
+   "courtyard_mm2": 6.66
+  },
+  {
+   "ref": "C149",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    99.5,
+    111.0,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    99.5,
+    111.0,
+    90.0
+   ],
+   "bbox": [
+    98.52,
+    109.3,
+    100.48,
+    112.7
+   ],
+   "courtyard_mm2": 6.66
+  },
+  {
+   "ref": "C15",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    36.17,
+    43.95,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    36.17,
+    43.95,
+    0.0
+   ],
+   "bbox": [
+    34.47,
+    42.97,
+    37.87,
+    44.93
+   ],
+   "courtyard_mm2": 6.66
+  },
+  {
+   "ref": "C150",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    106.6,
+    131.25,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    106.6,
+    131.25,
+    0.0
+   ],
+   "bbox": [
+    104.9,
+    130.27,
+    108.3,
+    132.23
+   ],
+   "courtyard_mm2": 6.66
+  },
+  {
+   "ref": "C151",
+   "status": "fixed",
+   "block": "tank_bank_studs_ct",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    163.0,
+    98.2,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    163.0,
+    98.2,
+    0.0
+   ],
+   "bbox": [
+    160.25,
+    90.75,
+    193.25,
+    105.65
+   ],
+   "courtyard_mm2": 491.7
+  },
+  {
+   "ref": "C152",
+   "status": "fixed",
+   "block": "tank_bank_studs_ct",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    163.0,
+    113.2,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    163.0,
+    113.2,
+    0.0
+   ],
+   "bbox": [
+    160.25,
+    105.75,
+    193.25,
+    120.65
+   ],
+   "courtyard_mm2": 491.7
+  },
+  {
+   "ref": "C153",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    41.85,
+    128.78,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    41.85,
+    128.78,
+    0.0
+   ],
+   "bbox": [
+    40.37,
+    128.05,
+    43.33,
+    129.51
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C154",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    57.05,
+    128.68,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    57.05,
+    128.68,
+    0.0
+   ],
+   "bbox": [
+    55.57,
+    127.95,
+    58.53,
+    129.41
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C155",
+   "status": "moved",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    58.05,
+    157.38,
+    0.0
+   ],
+   "transform": [
+    90,
+    -85.0,
+    186.0
+   ],
+   "at": [
+    72.38,
+    127.95,
+    90.0
+   ],
+   "bbox": [
+    71.65,
+    126.47,
+    73.11,
+    129.43
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C156",
+   "status": "moved",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    57.85,
+    175.0,
+    0.0
+   ],
+   "transform": [
+    90,
+    -104.5,
+    185.75
+   ],
+   "at": [
+    70.5,
+    127.9,
+    90.0
+   ],
+   "bbox": [
+    69.77,
+    126.42,
+    71.23,
+    129.38
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C157",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    47.0,
+    71.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    47.0,
+    71.0,
+    0.0
+   ],
+   "bbox": [
+    45.52,
+    70.27,
+    48.48,
+    71.73
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C158",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    47.85,
+    61.5,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    47.85,
+    61.5,
+    0.0
+   ],
+   "bbox": [
+    46.37,
+    60.77,
+    49.33,
+    62.23
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C159",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    3.25,
+    42.2,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    3.25,
+    42.2,
+    180.0
+   ],
+   "bbox": [
+    1.77,
+    41.47,
+    4.73,
+    42.93
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C16",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    49.345,
+    52.645,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    49.345,
+    52.645,
+    0.0
+   ],
+   "bbox": [
+    47.045,
+    51.045,
+    51.645,
+    54.245
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C160",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    3.25,
+    52.2,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    3.25,
+    52.2,
+    180.0
+   ],
+   "bbox": [
+    1.77,
+    51.47,
+    4.73,
+    52.93
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C161",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    99.8,
+    96.11,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    99.8,
+    96.11,
+    90.0
+   ],
+   "bbox": [
+    99.07,
+    94.63,
+    100.53,
+    97.59
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C162",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    109.25,
+    99.89,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    109.25,
+    99.89,
+    0.0
+   ],
+   "bbox": [
+    107.77,
+    99.16,
+    110.73,
+    100.62
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C163",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    94.5,
+    134.9,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    94.5,
+    134.9,
+    0.0
+   ],
+   "bbox": [
+    93.02,
+    134.17,
+    95.98,
+    135.63
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C164",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    86.6,
+    132.0,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    86.6,
+    132.0,
+    180.0
+   ],
+   "bbox": [
+    85.12,
+    131.27,
+    88.08,
+    132.73
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C165",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    82.95,
+    132.0,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    82.95,
+    132.0,
+    180.0
+   ],
+   "bbox": [
+    81.47,
+    131.27,
+    84.43,
+    132.73
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C166",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    78.4,
+    135.6,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    78.4,
+    135.6,
+    180.0
+   ],
+   "bbox": [
+    76.92,
+    134.87,
+    79.88,
+    136.33
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C167",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    31.4,
+    133.5,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    31.4,
+    133.5,
+    180.0
+   ],
+   "bbox": [
+    29.92,
+    132.77,
+    32.88,
+    134.23
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C168",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    31.85,
+    110.75,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    31.85,
+    110.75,
+    270.0
+   ],
+   "bbox": [
+    31.12,
+    109.27,
+    32.58,
+    112.23
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C169",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    32.1,
+    119.4,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    32.1,
+    119.4,
+    90.0
+   ],
+   "bbox": [
+    31.37,
+    117.92,
+    32.83,
+    120.88
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C17",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    29.83,
+    43.95,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    29.83,
+    43.95,
+    0.0
+   ],
+   "bbox": [
+    28.13,
+    42.97,
+    31.53,
+    44.93
+   ],
+   "courtyard_mm2": 6.66
+  },
+  {
+   "ref": "C170",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    35.1,
+    135.9,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    35.1,
+    135.9,
+    90.0
+   ],
+   "bbox": [
+    34.37,
+    134.42,
+    35.83,
+    137.38
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C171",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    76.0,
+    122.512,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    76.0,
+    122.512,
+    0.0
+   ],
+   "bbox": [
+    74.52,
+    121.782,
+    77.48,
+    123.242
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C172",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    67.8,
+    128.199999,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    67.8,
+    128.199999,
+    0.0
+   ],
+   "bbox": [
+    66.32,
+    127.47,
+    69.28,
+    128.93
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C173",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    78.73,
+    125.78,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    78.73,
+    125.78,
+    0.0
+   ],
+   "bbox": [
+    77.25,
+    125.05,
+    80.21,
+    126.51
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C174",
+   "status": "moved",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    36.5,
+    175.4,
+    90.0
+   ],
+   "transform": [
+    90,
+    -115.0,
+    164.5
+   ],
+   "at": [
+    60.400000000000006,
+    128.0,
+    180.0
+   ],
+   "bbox": [
+    58.92,
+    127.27,
+    61.88,
+    128.73
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C175",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    33.0,
+    73.1,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    33.0,
+    73.1,
+    90.0
+   ],
+   "bbox": [
+    32.27,
+    71.62,
+    33.73,
+    74.58
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C176",
+   "status": "moved",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    66.06,
+    133.4,
+    0.0
+   ],
+   "transform": [
+    0,
+    8.0,
+    4.0
+   ],
+   "at": [
+    74.06,
+    137.4,
+    0.0
+   ],
+   "bbox": [
+    72.58,
+    136.67,
+    75.54,
+    138.13
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C177",
+   "status": "moved",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    61.7,
+    141.94,
+    90.0
+   ],
+   "transform": [
+    0,
+    12.5,
+    -14.0
+   ],
+   "at": [
+    74.2,
+    127.94,
+    90.0
+   ],
+   "bbox": [
+    73.47,
+    126.46,
+    74.93,
+    129.42
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C178",
+   "status": "moved",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    44.3,
+    152.14,
+    0.0
+   ],
+   "transform": [
+    0,
+    19.75,
+    -24.25
+   ],
+   "at": [
+    64.05,
+    127.88999999999999,
+    0.0
+   ],
+   "bbox": [
+    62.57,
+    127.16,
+    65.53,
+    128.62
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C18",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    29.83,
+    39.75,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    29.83,
+    39.75,
+    0.0
+   ],
+   "bbox": [
+    28.13,
+    38.77,
+    31.53,
+    40.73
+   ],
+   "courtyard_mm2": 6.66
+  },
+  {
+   "ref": "C19",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    12.68,
+    9.7,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    12.68,
+    9.7,
+    0.0
+   ],
+   "bbox": [
+    10.38,
+    8.55,
+    14.98,
+    10.85
+   ],
+   "courtyard_mm2": 10.58
+  },
+  {
+   "ref": "C20",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    30.68,
+    9.7,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    30.68,
+    9.7,
+    0.0
+   ],
+   "bbox": [
+    28.38,
+    8.55,
+    32.98,
+    10.85
+   ],
+   "courtyard_mm2": 10.58
+  },
+  {
+   "ref": "C21",
+   "status": "fixed",
+   "block": "tank_bank_studs_ct",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    163.0,
+    53.2,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    163.0,
+    53.2,
+    0.0
+   ],
+   "bbox": [
+    160.25,
+    45.75,
+    193.25,
+    60.65
+   ],
+   "courtyard_mm2": 491.7
+  },
+  {
+   "ref": "C22",
+   "status": "fixed",
+   "block": "tank_bank_studs_ct",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    163.0,
+    68.2,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    163.0,
+    68.2,
+    0.0
+   ],
+   "bbox": [
+    160.25,
+    60.75,
+    193.25,
+    75.65
+   ],
+   "courtyard_mm2": 491.7
+  },
+  {
+   "ref": "C23",
+   "status": "fixed",
+   "block": "tank_bank_studs_ct",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    163.0,
+    83.2,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    163.0,
+    83.2,
+    0.0
+   ],
+   "bbox": [
+    160.25,
+    75.75,
+    193.25,
+    90.65
+   ],
+   "courtyard_mm2": 491.7
+  },
+  {
+   "ref": "C24",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    103.345,
+    62.225,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    103.345,
+    62.225,
+    0.0
+   ],
+   "bbox": [
+    101.045,
+    60.625,
+    105.645,
+    63.825
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C25",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    106.675,
+    65.745,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    106.675,
+    65.745,
+    0.0
+   ],
+   "bbox": [
+    105.195,
+    65.015,
+    108.155,
+    66.475
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C26",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    118.975,
+    57.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    118.975,
+    57.635,
+    0.0
+   ],
+   "bbox": [
+    116.675,
+    56.035,
+    121.275,
+    59.235
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C27",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    108.315,
+    61.355,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    108.315,
+    61.355,
+    0.0
+   ],
+   "bbox": [
+    106.835,
+    60.625,
+    109.795,
+    62.085
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C28",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    109.35,
+    113.65,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    109.35,
+    113.65,
+    0.0
+   ],
+   "bbox": [
+    107.87,
+    112.92,
+    110.83,
+    114.38
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C29",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    106.6,
+    128.85,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    106.6,
+    128.85,
+    0.0
+   ],
+   "bbox": [
+    105.12,
+    128.12,
+    108.08,
+    129.58
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C30",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    99.76,
+    63.09,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    99.76,
+    63.09,
+    270.0
+   ],
+   "bbox": [
+    99.03,
+    61.61,
+    100.49,
+    64.57
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C31",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    102.93,
+    64.78,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    102.93,
+    64.78,
+    180.0
+   ],
+   "bbox": [
+    101.45,
+    64.05,
+    104.41,
+    65.51
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C32",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    119.125,
+    65.745,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    119.125,
+    65.745,
+    0.0
+   ],
+   "bbox": [
+    117.645,
+    65.015,
+    120.605,
+    66.475
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C33",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    102.525,
+    68.395,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    102.525,
+    68.395,
+    0.0
+   ],
+   "bbox": [
+    101.045,
+    67.665,
+    104.005,
+    69.125
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C34",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    106.675,
+    68.395,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    106.675,
+    68.395,
+    0.0
+   ],
+   "bbox": [
+    105.195,
+    67.665,
+    108.155,
+    69.125
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C35",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    110.825,
+    65.745,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    110.825,
+    65.745,
+    0.0
+   ],
+   "bbox": [
+    109.345,
+    65.015,
+    112.305,
+    66.475
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C36",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    115.5,
+    113.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    115.5,
+    113.6,
+    0.0
+   ],
+   "bbox": [
+    114.02,
+    112.87,
+    116.98,
+    114.33
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C37",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    114.75,
+    129.15,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    114.75,
+    129.15,
+    90.0
+   ],
+   "bbox": [
+    114.02,
+    127.67,
+    115.48,
+    130.63
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C38",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    61.0,
+    28.2,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    61.0,
+    28.2,
+    180.0
+   ],
+   "bbox": [
+    44.25,
+    23.45,
+    62.75,
+    32.95
+   ],
+   "courtyard_mm2": 175.75
+  },
+  {
+   "ref": "C39",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    82.8,
+    28.2,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    82.8,
+    28.2,
+    180.0
+   ],
+   "bbox": [
+    66.05,
+    23.45,
+    84.55,
+    32.95
+   ],
+   "courtyard_mm2": 175.75
+  },
+  {
+   "ref": "C40",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    24.2,
+    28.2,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    24.2,
+    28.2,
+    0.0
+   ],
+   "bbox": [
+    22.45,
+    23.45,
+    40.95,
+    32.95
+   ],
+   "courtyard_mm2": 175.75
+  },
+  {
+   "ref": "C41",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    2.4,
+    28.2,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    2.4,
+    28.2,
+    0.0
+   ],
+   "bbox": [
+    0.65,
+    23.45,
+    19.15,
+    32.95
+   ],
+   "courtyard_mm2": 175.75
+  },
+  {
+   "ref": "C42",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    118.345,
+    130.195,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    118.345,
+    130.195,
+    0.0
+   ],
+   "bbox": [
+    116.045,
+    129.045,
+    120.645,
+    131.345
+   ],
+   "courtyard_mm2": 10.58
+  },
+  {
+   "ref": "C43",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    37.875,
+    129.195,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    37.875,
+    129.195,
+    0.0
+   ],
+   "bbox": [
+    35.575,
+    128.045,
+    40.175,
+    130.345
+   ],
+   "courtyard_mm2": 10.58
+  },
+  {
+   "ref": "C44",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    23.618,
+    127.1,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    23.618,
+    127.1,
+    180.0
+   ],
+   "bbox": [
+    22.138,
+    126.37,
+    25.098,
+    127.83
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C45",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    18.828,
+    127.1,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    18.828,
+    127.1,
+    180.0
+   ],
+   "bbox": [
+    17.348,
+    126.37,
+    20.308,
+    127.83
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C46",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    28.408,
+    127.1,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    28.408,
+    127.1,
+    180.0
+   ],
+   "bbox": [
+    26.928,
+    126.37,
+    29.888,
+    127.83
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C47",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    33.198,
+    127.1,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    33.198,
+    127.1,
+    180.0
+   ],
+   "bbox": [
+    31.718,
+    126.37,
+    34.678,
+    127.83
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C48",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    121.3,
+    61.9,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    121.3,
+    61.9,
+    270.0
+   ],
+   "bbox": [
+    120.57,
+    60.42,
+    122.03,
+    63.38
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C49",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    100.03,
+    54.2,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    100.03,
+    54.2,
+    270.0
+   ],
+   "bbox": [
+    99.3,
+    52.72,
+    100.76,
+    55.68
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C5",
+   "status": "moved",
+   "block": "rectifier_bus",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    205.25,
+    65.45,
+    0.0
+   ],
+   "transform": [
+    0,
+    -57.0,
+    -58.0
+   ],
+   "at": [
+    148.25,
+    7.450000000000003,
+    0.0
+   ],
+   "bbox": [
+    145.75,
+    0.85,
+    188.25,
+    34.35
+   ],
+   "courtyard_mm2": 1423.75
+  },
+  {
+   "ref": "C50",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    71.6,
+    39.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    71.6,
+    39.6,
+    0.0
+   ],
+   "bbox": [
+    70.12,
+    38.87,
+    73.08,
+    40.33
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C51",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    71.6,
+    41.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    71.6,
+    41.6,
+    0.0
+   ],
+   "bbox": [
+    70.12,
+    40.87,
+    73.08,
+    42.33
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C52",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    88.8,
+    39.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    88.8,
+    39.6,
+    0.0
+   ],
+   "bbox": [
+    87.32,
+    38.87,
+    90.28,
+    40.33
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C53",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    88.8,
+    41.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    88.8,
+    41.6,
+    0.0
+   ],
+   "bbox": [
+    87.32,
+    40.87,
+    90.28,
+    42.33
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C54",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    76.525,
+    63.865,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    76.525,
+    63.865,
+    0.0
+   ],
+   "bbox": [
+    75.045,
+    63.135,
+    78.005,
+    64.595
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C55",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    63.6,
+    21.8,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    63.6,
+    21.8,
+    0.0
+   ],
+   "bbox": [
+    62.12,
+    21.07,
+    65.08,
+    22.53
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C56",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    45.6,
+    21.8,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    45.6,
+    21.8,
+    0.0
+   ],
+   "bbox": [
+    44.12,
+    21.07,
+    47.08,
+    22.53
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C57",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    24.6,
+    39.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    24.6,
+    39.6,
+    0.0
+   ],
+   "bbox": [
+    23.12,
+    38.87,
+    26.08,
+    40.33
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C58",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    24.6,
+    41.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    24.6,
+    41.6,
+    0.0
+   ],
+   "bbox": [
+    23.12,
+    40.87,
+    26.08,
+    42.33
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C59",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    41.8,
+    39.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    41.8,
+    39.6,
+    0.0
+   ],
+   "bbox": [
+    40.32,
+    38.87,
+    43.28,
+    40.33
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C6",
+   "status": "moved",
+   "block": "rectifier_bus",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    248.25,
+    73.85,
+    0.0
+   ],
+   "transform": [
+    90,
+    44.0,
+    289.0
+   ],
+   "at": [
+    117.85,
+    40.75,
+    90.0
+   ],
+   "bbox": [
+    111.25,
+    0.75,
+    144.75,
+    43.25
+   ],
+   "courtyard_mm2": 1423.75
+  },
+  {
+   "ref": "C60",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    41.8,
+    41.6,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    41.8,
+    41.6,
+    0.0
+   ],
+   "bbox": [
+    40.32,
+    40.87,
+    43.28,
+    42.33
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C61",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    29.525,
+    63.865,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    29.525,
+    63.865,
+    0.0
+   ],
+   "bbox": [
+    28.045,
+    63.135,
+    31.005,
+    64.595
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C62",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    5.5,
+    21.8,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    5.5,
+    21.8,
+    0.0
+   ],
+   "bbox": [
+    4.02,
+    21.07,
+    6.98,
+    22.53
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C63",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    23.5,
+    21.8,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    23.5,
+    21.8,
+    0.0
+   ],
+   "bbox": [
+    22.02,
+    21.07,
+    24.98,
+    22.53
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C64",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    120.15,
+    80.4,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    120.15,
+    80.4,
+    0.0
+   ],
+   "bbox": [
+    118.67,
+    79.67,
+    121.63,
+    81.13
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C65",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    113.325,
+    101.135,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    113.325,
+    101.135,
+    0.0
+   ],
+   "bbox": [
+    111.845,
+    100.405,
+    114.805,
+    101.865
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C66",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    106.125,
+    107.435,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    106.125,
+    107.435,
+    0.0
+   ],
+   "bbox": [
+    104.645,
+    106.705,
+    107.605,
+    108.165
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C67",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    113.325,
+    105.335,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    113.325,
+    105.335,
+    0.0
+   ],
+   "bbox": [
+    111.845,
+    104.605,
+    114.805,
+    106.065
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C68",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    102.525,
+    107.435,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    102.525,
+    107.435,
+    0.0
+   ],
+   "bbox": [
+    101.045,
+    106.705,
+    104.005,
+    108.165
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C69",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    116.925,
+    105.335,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    116.925,
+    105.335,
+    0.0
+   ],
+   "bbox": [
+    115.445,
+    104.605,
+    118.405,
+    106.065
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C7",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    78.075,
+    57.85,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    78.075,
+    57.85,
+    0.0
+   ],
+   "bbox": [
+    76.595,
+    57.12,
+    79.555,
+    58.58
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C70",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    100.07,
+    78.2,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    100.07,
+    78.2,
+    90.0
+   ],
+   "bbox": [
+    99.34,
+    76.72,
+    100.8,
+    79.68
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C71",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    61.6,
+    74.57,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    61.6,
+    74.57,
+    270.0
+   ],
+   "bbox": [
+    60.87,
+    73.09,
+    62.33,
+    76.05
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C72",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    14.0,
+    70.42,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    14.0,
+    70.42,
+    0.0
+   ],
+   "bbox": [
+    12.52,
+    69.69,
+    15.48,
+    71.15
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C74",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    58.5,
+    58.2,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    58.5,
+    58.2,
+    0.0
+   ],
+   "bbox": [
+    57.02,
+    57.47,
+    59.98,
+    58.93
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C75",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    59.15,
+    73.82,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    59.15,
+    73.82,
+    0.0
+   ],
+   "bbox": [
+    57.67,
+    73.09,
+    60.63,
+    74.55
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C76",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    51.675,
+    109.885,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    51.675,
+    109.885,
+    0.0
+   ],
+   "bbox": [
+    50.195,
+    109.155,
+    53.155,
+    110.615
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C77",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    59.175,
+    107.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    59.175,
+    107.635,
+    0.0
+   ],
+   "bbox": [
+    57.695,
+    106.905,
+    60.655,
+    108.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C78",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    47.925,
+    109.885,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    47.925,
+    109.885,
+    0.0
+   ],
+   "bbox": [
+    46.445,
+    109.155,
+    49.405,
+    110.615
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C79",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    62.925,
+    107.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    62.925,
+    107.635,
+    0.0
+   ],
+   "bbox": [
+    61.445,
+    106.905,
+    64.405,
+    108.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C8",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    83.17,
+    43.95,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    83.17,
+    43.95,
+    0.0
+   ],
+   "bbox": [
+    81.47,
+    42.97,
+    84.87,
+    44.93
+   ],
+   "courtyard_mm2": 6.66
+  },
+  {
+   "ref": "C80",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    45.47,
+    76.48,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    45.47,
+    76.48,
+    90.0
+   ],
+   "bbox": [
+    44.74,
+    75.0,
+    46.2,
+    77.96
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C81",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    12.2,
+    53.2,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    12.2,
+    53.2,
+    0.0
+   ],
+   "bbox": [
+    10.72,
+    52.47,
+    13.68,
+    53.93
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C82",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    13.205,
+    68.82,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    13.205,
+    68.82,
+    0.0
+   ],
+   "bbox": [
+    11.725,
+    68.09,
+    14.685,
+    69.55
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C83",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    10.425,
+    106.985,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    10.425,
+    106.985,
+    0.0
+   ],
+   "bbox": [
+    8.945,
+    106.255,
+    11.905,
+    107.715
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C84",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    14.475,
+    104.435,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    14.475,
+    104.435,
+    0.0
+   ],
+   "bbox": [
+    12.995,
+    103.705,
+    15.955,
+    105.165
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C85",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    6.375,
+    106.985,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    6.375,
+    106.985,
+    0.0
+   ],
+   "bbox": [
+    4.895,
+    106.255,
+    7.855,
+    107.715
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C86",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    2.325,
+    106.985,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    2.325,
+    106.985,
+    0.0
+   ],
+   "bbox": [
+    0.845,
+    106.255,
+    3.805,
+    107.715
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C87",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    2.069999,
+    67.25,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    2.069999,
+    67.25,
+    90.0
+   ],
+   "bbox": [
+    1.34,
+    65.77,
+    2.8,
+    68.73
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C89",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    9.248,
+    127.1,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    9.248,
+    127.1,
+    180.0
+   ],
+   "bbox": [
+    7.768,
+    126.37,
+    10.728,
+    127.83
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "C9",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    96.345,
+    52.645,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    96.345,
+    52.645,
+    0.0
+   ],
+   "bbox": [
+    94.045,
+    51.045,
+    98.645,
+    54.245
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C90",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    62.4,
+    42.75,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    62.4,
+    42.75,
+    0.0
+   ],
+   "bbox": [
+    60.1,
+    41.15,
+    64.7,
+    44.35
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C91",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    67.4,
+    42.75,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    67.4,
+    42.75,
+    0.0
+   ],
+   "bbox": [
+    65.1,
+    41.15,
+    69.7,
+    44.35
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C92",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    98.0,
+    42.75,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    98.0,
+    42.75,
+    0.0
+   ],
+   "bbox": [
+    95.7,
+    41.15,
+    100.3,
+    44.35
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C93",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    93.0,
+    42.75,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    93.0,
+    42.75,
+    0.0
+   ],
+   "bbox": [
+    90.7,
+    41.15,
+    95.3,
+    44.35
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C94",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    15.4,
+    42.75,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    15.4,
+    42.75,
+    0.0
+   ],
+   "bbox": [
+    13.1,
+    41.15,
+    17.7,
+    44.35
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C95",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    20.4,
+    42.75,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    20.4,
+    42.75,
+    0.0
+   ],
+   "bbox": [
+    18.1,
+    41.15,
+    22.7,
+    44.35
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C96",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    51.0,
+    42.75,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    51.0,
+    42.75,
+    0.0
+   ],
+   "bbox": [
+    48.7,
+    41.15,
+    53.3,
+    44.35
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C97",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    46.0,
+    42.75,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    46.0,
+    42.75,
+    0.0
+   ],
+   "bbox": [
+    43.7,
+    41.15,
+    48.3,
+    44.35
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C98",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    118.9,
+    76.165,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    118.9,
+    76.165,
+    0.0
+   ],
+   "bbox": [
+    116.6,
+    74.565,
+    121.2,
+    77.765
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "C99",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    110.23,
+    81.05,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    110.23,
+    81.05,
+    270.0
+   ],
+   "bbox": [
+    108.63,
+    78.75,
+    111.83,
+    83.35
+   ],
+   "courtyard_mm2": 14.72
+  },
+  {
+   "ref": "D17",
+   "status": "moved",
+   "block": "rectifier_bus",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    270.54,
+    106.0,
+    0.0
+   ],
+   "transform": [
+    90,
+    92.5,
+    356.75
+   ],
+   "at": [
+    198.5,
+    86.20999999999998,
+    90.0
+   ],
+   "bbox": [
+    193.65,
+    71.66,
+    203.35,
+    88.06
+   ],
+   "courtyard_mm2": 159.08
+  },
+  {
+   "ref": "D18",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    57.35,
+    49.5,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    57.35,
+    49.5,
+    270.0
+   ],
+   "bbox": [
+    55.65,
+    47.57,
+    59.05,
+    51.43
+   ],
+   "courtyard_mm2": 11.73
+  },
+  {
+   "ref": "D19",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    79.0,
+    132.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    79.0,
+    132.0,
+    0.0
+   ],
+   "bbox": [
+    77.07,
+    130.3,
+    80.93,
+    133.7
+   ],
+   "courtyard_mm2": 11.73
+  },
+  {
+   "ref": "D20",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    53.75,
+    51.5,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    53.75,
+    51.5,
+    270.0
+   ],
+   "bbox": [
+    52.05,
+    49.57,
+    55.45,
+    53.43
+   ],
+   "courtyard_mm2": 11.73
+  },
+  {
+   "ref": "D3",
+   "status": "moved",
+   "block": "rectifier_bus",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    254.0,
+    106.0,
+    0.0
+   ],
+   "transform": [
+    90,
+    92.5,
+    322.25
+   ],
+   "at": [
+    198.5,
+    68.25,
+    90.0
+   ],
+   "bbox": [
+    193.65,
+    53.7,
+    203.35,
+    70.1
+   ],
+   "courtyard_mm2": 159.08
+  },
+  {
+   "ref": "D4",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    123.535,
+    130.195,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    123.535,
+    130.195,
+    0.0
+   ],
+   "bbox": [
+    121.335,
+    129.045,
+    125.735,
+    131.345
+   ],
+   "courtyard_mm2": 10.12
+  },
+  {
+   "ref": "D5",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    128.625,
+    130.195,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    128.625,
+    130.195,
+    0.0
+   ],
+   "bbox": [
+    126.425,
+    129.045,
+    130.825,
+    131.345
+   ],
+   "courtyard_mm2": 10.12
+  },
+  {
+   "ref": "D6",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    67.2,
+    17.9,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    67.2,
+    17.9,
+    0.0
+   ],
+   "bbox": [
+    64.05,
+    16.4,
+    70.35,
+    19.4
+   ],
+   "courtyard_mm2": 18.9
+  },
+  {
+   "ref": "D7",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    49.2,
+    17.9,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    49.2,
+    17.9,
+    0.0
+   ],
+   "bbox": [
+    46.05,
+    16.4,
+    52.35,
+    19.4
+   ],
+   "courtyard_mm2": 18.9
+  },
+  {
+   "ref": "D8",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    9.1,
+    17.9,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    9.1,
+    17.9,
+    0.0
+   ],
+   "bbox": [
+    5.95,
+    16.4,
+    12.25,
+    19.4
+   ],
+   "courtyard_mm2": 18.9
+  },
+  {
+   "ref": "D9",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    27.1,
+    17.9,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    27.1,
+    17.9,
+    0.0
+   ],
+   "bbox": [
+    23.95,
+    16.4,
+    30.25,
+    19.4
+   ],
+   "courtyard_mm2": 18.9
+  },
+  {
+   "ref": "FID1",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": null,
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    4.0,
+    36.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    4.0,
+    36.0,
+    0.0
+   ],
+   "bbox": [
+    2.25,
+    34.25,
+    5.75,
+    37.75
+   ],
+   "courtyard_mm2": 9.56
+  },
+  {
+   "ref": "FID2",
+   "status": "moved",
+   "block": "mech_test",
+   "domain": null,
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    278.0,
+    128.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    -78.0,
+    9.75
+   ],
+   "at": [
+    200.0,
+    137.75,
+    0.0
+   ],
+   "bbox": [
+    198.25,
+    136.0,
+    201.75,
+    139.5
+   ],
+   "courtyard_mm2": 9.56
+  },
+  {
+   "ref": "FID3",
+   "status": "moved",
+   "block": "mech_test",
+   "domain": null,
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    6.0,
+    186.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    -3.0,
+    -49.0
+   ],
+   "at": [
+    3.0,
+    137.0,
+    0.0
+   ],
+   "bbox": [
+    1.25,
+    135.25,
+    4.75,
+    138.75
+   ],
+   "courtyard_mm2": 9.56
+  },
+  {
+   "ref": "H1",
+   "status": "moved",
+   "block": "mech_test",
+   "domain": null,
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    285.0,
+    135.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    -80.0,
+    0.0
+   ],
+   "at": [
+    205.0,
+    135.0,
+    0.0
+   ],
+   "bbox": [
+    201.55,
+    131.55,
+    208.45,
+    138.45
+   ],
+   "courtyard_mm2": 37.15
+  },
+  {
+   "ref": "H10",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": null,
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    152.0,
+    122.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    152.0,
+    122.0,
+    0.0
+   ],
+   "bbox": [
+    148.55,
+    118.55,
+    155.45,
+    125.45
+   ],
+   "courtyard_mm2": 37.15
+  },
+  {
+   "ref": "H3",
+   "status": "moved",
+   "block": "mech_test",
+   "domain": null,
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    6.0,
+    180.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    -2.0,
+    -54.75
+   ],
+   "at": [
+    4.0,
+    125.25,
+    0.0
+   ],
+   "bbox": [
+    0.55,
+    121.8,
+    7.45,
+    128.7
+   ],
+   "courtyard_mm2": 37.15
+  },
+  {
+   "ref": "H4",
+   "status": "moved",
+   "block": "mech_test",
+   "domain": null,
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    86.0,
+    180.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    119.0,
+    -140.0
+   ],
+   "at": [
+    205.0,
+    40.0,
+    0.0
+   ],
+   "bbox": [
+    201.55,
+    36.55,
+    208.45,
+    43.45
+   ],
+   "courtyard_mm2": 37.15
+  },
+  {
+   "ref": "H5",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": null,
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    24.0,
+    74.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    24.0,
+    74.0,
+    0.0
+   ],
+   "bbox": [
+    20.55,
+    70.55,
+    27.45,
+    77.45
+   ],
+   "courtyard_mm2": 37.15
+  },
+  {
+   "ref": "H6",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": null,
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    88.0,
+    100.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    88.0,
+    100.0,
+    0.0
+   ],
+   "bbox": [
+    84.55,
+    96.55,
+    91.45,
+    103.45
+   ],
+   "courtyard_mm2": 37.15
+  },
+  {
+   "ref": "H7",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": null,
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    128.0,
+    54.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    128.0,
+    54.0,
+    0.0
+   ],
+   "bbox": [
+    124.55,
+    50.55,
+    131.45,
+    57.45
+   ],
+   "courtyard_mm2": 37.15
+  },
+  {
+   "ref": "H8",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": null,
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    194.0,
+    130.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    194.0,
+    130.0,
+    0.0
+   ],
+   "bbox": [
+    190.55,
+    126.55,
+    197.45,
+    133.45
+   ],
+   "courtyard_mm2": 37.15
+  },
+  {
+   "ref": "J1N",
+   "status": "new",
+   "block": "inlet_connectors",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    274.6,
+    9.2,
+    0.0
+   ],
+   "transform": [
+    0,
+    -80.5,
+    -0.5
+   ],
+   "at": [
+    194.10000000000002,
+    8.7,
+    0.0
+   ],
+   "bbox": [
+    189.09,
+    0.55,
+    208.63,
+    13.55
+   ],
+   "courtyard_mm2": 254.02
+  },
+  {
+   "ref": "J2",
+   "status": "fixed",
+   "block": "tank_bank_studs_ct",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    132.0,
+    85.5,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    132.0,
+    85.5,
+    0.0
+   ],
+   "bbox": [
+    127.25,
+    80.75,
+    136.75,
+    90.25
+   ],
+   "courtyard_mm2": 70.43
+  },
+  {
+   "ref": "J3N",
+   "status": "new",
+   "block": "inlet_connectors",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    217.65,
+    11.81,
+    90.0
+   ],
+   "transform": [
+    0,
+    -14.25,
+    18.0
+   ],
+   "at": [
+    203.4,
+    29.810000000000002,
+    90.0
+   ],
+   "bbox": [
+    199.2,
+    19.44,
+    208.7,
+    32.26
+   ],
+   "courtyard_mm2": 121.79
+  },
+  {
+   "ref": "J4",
+   "status": "moved",
+   "block": "connectors_selv_tco",
+   "domain": "LOW",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    34.5,
+    180.08,
+    0.0
+   ],
+   "transform": [
+    0,
+    12.5,
+    -47.0
+   ],
+   "at": [
+    47.0,
+    133.08,
+    0.0
+   ],
+   "bbox": [
+    42.92,
+    130.11,
+    72.08,
+    139.89
+   ],
+   "courtyard_mm2": 285.18
+  },
+  {
+   "ref": "J5",
+   "status": "fixed",
+   "block": "tank_bank_studs_ct",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    132.0,
+    70.5,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    132.0,
+    70.5,
+    0.0
+   ],
+   "bbox": [
+    127.25,
+    65.75,
+    136.75,
+    75.25
+   ],
+   "courtyard_mm2": 70.43
+  },
+  {
+   "ref": "J6",
+   "status": "fixed",
+   "block": "mains_emi_fuse_mov",
+   "domain": "LOW",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    150.6,
+    134.5,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    150.6,
+    134.5,
+    90.0
+   ],
+   "bbox": [
+    146.25,
+    131.71,
+    173.75,
+    137.29
+   ],
+   "courtyard_mm2": 153.45
+  },
+  {
+   "ref": "Q2",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    62.6,
+    4.215,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    62.6,
+    4.215,
+    0.0
+   ],
+   "bbox": [
+    59.85,
+    1.635,
+    76.25,
+    7.165
+   ],
+   "courtyard_mm2": 90.69
+  },
+  {
+   "ref": "Q3",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    44.6,
+    4.215,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    44.6,
+    4.215,
+    0.0
+   ],
+   "bbox": [
+    41.85,
+    1.635,
+    58.25,
+    7.165
+   ],
+   "courtyard_mm2": 90.69
+  },
+  {
+   "ref": "Q5",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    4.5,
+    4.215,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    4.5,
+    4.215,
+    0.0
+   ],
+   "bbox": [
+    1.75,
+    1.635,
+    18.15,
+    7.165
+   ],
+   "courtyard_mm2": 90.69
+  },
+  {
+   "ref": "Q6",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": true,
+   "s53_at": [
+    22.5,
+    4.215,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    22.5,
+    4.215,
+    0.0
+   ],
+   "bbox": [
+    19.75,
+    1.635,
+    36.15,
+    7.165
+   ],
+   "courtyard_mm2": 90.69
+  },
+  {
+   "ref": "R10",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    62.6,
+    12.4,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    62.6,
+    12.4,
+    270.0
+   ],
+   "bbox": [
+    60.67,
+    8.57,
+    64.53,
+    16.23
+   ],
+   "courtyard_mm2": 29.57
+  },
+  {
+   "ref": "R100",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    59.175,
+    114.385,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    59.175,
+    114.385,
+    0.0
+   ],
+   "bbox": [
+    57.695,
+    113.655,
+    60.655,
+    115.115
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R101",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    55.425,
+    112.135,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    55.425,
+    112.135,
+    0.0
+   ],
+   "bbox": [
+    53.945,
+    111.405,
+    56.905,
+    112.865
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R102",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    51.675,
+    112.135,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    51.675,
+    112.135,
+    0.0
+   ],
+   "bbox": [
+    50.195,
+    111.405,
+    53.155,
+    112.865
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R103",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    55.425,
+    114.385,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    55.425,
+    114.385,
+    0.0
+   ],
+   "bbox": [
+    53.945,
+    113.655,
+    56.905,
+    115.115
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R104",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    51.675,
+    114.385,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    51.675,
+    114.385,
+    0.0
+   ],
+   "bbox": [
+    50.195,
+    113.655,
+    53.155,
+    115.115
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R105",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    47.925,
+    114.385,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    47.925,
+    114.385,
+    0.0
+   ],
+   "bbox": [
+    46.445,
+    113.655,
+    49.405,
+    115.115
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R106",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    62.925,
+    112.135,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    62.925,
+    112.135,
+    0.0
+   ],
+   "bbox": [
+    61.445,
+    111.405,
+    64.405,
+    112.865
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R109",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    59.175,
+    112.135,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    59.175,
+    112.135,
+    0.0
+   ],
+   "bbox": [
+    57.695,
+    111.405,
+    60.655,
+    112.865
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R11",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    59.4,
+    11.6,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    59.4,
+    11.6,
+    270.0
+   ],
+   "bbox": [
+    58.67,
+    10.12,
+    60.13,
+    13.08
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R110",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    14.475,
+    117.185,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    14.475,
+    117.185,
+    0.0
+   ],
+   "bbox": [
+    12.995,
+    116.455,
+    15.955,
+    117.915
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R111",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    10.425,
+    117.185,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    10.425,
+    117.185,
+    0.0
+   ],
+   "bbox": [
+    8.945,
+    116.455,
+    11.905,
+    117.915
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R112",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    6.375,
+    109.535,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    6.375,
+    109.535,
+    0.0
+   ],
+   "bbox": [
+    4.895,
+    108.805,
+    7.855,
+    110.265
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R113",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    2.325,
+    109.535,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    2.325,
+    109.535,
+    0.0
+   ],
+   "bbox": [
+    0.845,
+    108.805,
+    3.805,
+    110.265
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R114",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    14.475,
+    114.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    14.475,
+    114.635,
+    0.0
+   ],
+   "bbox": [
+    12.995,
+    113.905,
+    15.955,
+    115.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R115",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    10.425,
+    114.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    10.425,
+    114.635,
+    0.0
+   ],
+   "bbox": [
+    8.945,
+    113.905,
+    11.905,
+    115.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R116",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    2.325,
+    112.085,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    2.325,
+    112.085,
+    0.0
+   ],
+   "bbox": [
+    0.845,
+    111.355,
+    3.805,
+    112.815
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R117",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    14.475,
+    109.535,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    14.475,
+    109.535,
+    0.0
+   ],
+   "bbox": [
+    12.995,
+    108.805,
+    15.955,
+    110.265
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R118",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    6.375,
+    114.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    6.375,
+    114.635,
+    0.0
+   ],
+   "bbox": [
+    4.895,
+    113.905,
+    7.855,
+    115.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R119",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    2.325,
+    114.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    2.325,
+    114.635,
+    0.0
+   ],
+   "bbox": [
+    0.845,
+    113.905,
+    3.805,
+    115.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R12",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    44.6,
+    12.4,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    44.6,
+    12.4,
+    270.0
+   ],
+   "bbox": [
+    42.67,
+    8.57,
+    46.53,
+    16.23
+   ],
+   "courtyard_mm2": 29.57
+  },
+  {
+   "ref": "R120",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    14.475,
+    112.085,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    14.475,
+    112.085,
+    0.0
+   ],
+   "bbox": [
+    12.995,
+    111.355,
+    15.955,
+    112.815
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R121",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    10.425,
+    112.085,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    10.425,
+    112.085,
+    0.0
+   ],
+   "bbox": [
+    8.945,
+    111.355,
+    11.905,
+    112.815
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R124",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    6.375,
+    112.085,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    6.375,
+    112.085,
+    0.0
+   ],
+   "bbox": [
+    4.895,
+    111.355,
+    7.855,
+    112.815
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R125",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    78.845,
+    128.775,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    78.845,
+    128.775,
+    0.0
+   ],
+   "bbox": [
+    77.365,
+    128.045,
+    80.325,
+    129.505
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R127",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    64.5,
+    64.65,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    64.5,
+    64.65,
+    90.0
+   ],
+   "bbox": [
+    63.77,
+    63.17,
+    65.23,
+    66.13
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R128",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    18.4,
+    57.0,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    18.4,
+    57.0,
+    90.0
+   ],
+   "bbox": [
+    17.67,
+    55.52,
+    19.13,
+    58.48
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R129",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    18.9,
+    59.9,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    18.9,
+    59.9,
+    0.0
+   ],
+   "bbox": [
+    17.42,
+    59.17,
+    20.38,
+    60.63
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R13",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    41.4,
+    11.6,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    41.4,
+    11.6,
+    90.0
+   ],
+   "bbox": [
+    40.67,
+    10.12,
+    42.13,
+    13.08
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R131",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    107.75,
+    98.25,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    107.75,
+    98.25,
+    0.0
+   ],
+   "bbox": [
+    106.27,
+    97.52,
+    109.23,
+    98.98
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R132",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    90.25,
+    132.0,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    90.25,
+    132.0,
+    180.0
+   ],
+   "bbox": [
+    88.77,
+    131.27,
+    91.73,
+    132.73
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R133",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    78.4,
+    137.7,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    78.4,
+    137.7,
+    180.0
+   ],
+   "bbox": [
+    76.92,
+    136.97,
+    79.88,
+    138.43
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R134",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    35.0,
+    133.5,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    35.0,
+    133.5,
+    180.0
+   ],
+   "bbox": [
+    33.52,
+    132.77,
+    36.48,
+    134.23
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R135",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    31.7,
+    108.3,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    31.7,
+    108.3,
+    180.0
+   ],
+   "bbox": [
+    30.22,
+    107.57,
+    33.18,
+    109.03
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R136",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    113.3,
+    63.1,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    113.3,
+    63.1,
+    270.0
+   ],
+   "bbox": [
+    112.57,
+    61.62,
+    114.03,
+    64.58
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R137",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    115.0,
+    63.1,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    115.0,
+    63.1,
+    90.0
+   ],
+   "bbox": [
+    114.27,
+    61.62,
+    115.73,
+    64.58
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R138",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    108.158,
+    89.845,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    108.158,
+    89.845,
+    0.0
+   ],
+   "bbox": [
+    106.678,
+    89.115,
+    109.638,
+    90.575
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R139",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    108.921,
+    91.895,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    108.921,
+    91.895,
+    180.0
+   ],
+   "bbox": [
+    107.441,
+    91.165,
+    110.401,
+    92.625
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R14",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    33.174999,
+    68.165,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    33.174999,
+    68.165,
+    0.0
+   ],
+   "bbox": [
+    31.695,
+    67.435,
+    34.655,
+    68.895
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R140",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    57.958,
+    100.545,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    57.958,
+    100.545,
+    270.0
+   ],
+   "bbox": [
+    57.228,
+    99.065,
+    58.688,
+    102.025
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R141",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    56.25,
+    100.807,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    56.25,
+    100.807,
+    90.0
+   ],
+   "bbox": [
+    55.52,
+    99.327,
+    56.98,
+    102.287
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R142",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    14.958,
+    94.195,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    14.958,
+    94.195,
+    0.0
+   ],
+   "bbox": [
+    13.478,
+    93.465,
+    16.438,
+    94.925
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R143",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    15.07,
+    92.445,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    15.07,
+    92.445,
+    180.0
+   ],
+   "bbox": [
+    13.59,
+    91.715,
+    16.55,
+    93.175
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R144",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    112.4,
+    52.4,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    112.4,
+    52.4,
+    180.0
+   ],
+   "bbox": [
+    110.92,
+    51.67,
+    113.88,
+    53.13
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R145",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    112.4,
+    54.1,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    112.4,
+    54.1,
+    0.0
+   ],
+   "bbox": [
+    110.92,
+    53.37,
+    113.88,
+    54.83
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R146",
+   "status": "moved",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    33.0,
+    173.5,
+    -90.0
+   ],
+   "transform": [
+    90,
+    -121.5,
+    161.0
+   ],
+   "at": [
+    52.0,
+    128.0,
+    0.0
+   ],
+   "bbox": [
+    49.72,
+    126.87,
+    54.28,
+    129.13
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R15",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    29.525,
+    70.315,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    29.525,
+    70.315,
+    0.0
+   ],
+   "bbox": [
+    28.045,
+    69.585,
+    31.005,
+    71.045
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R17",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    29.525,
+    68.165,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    29.525,
+    68.165,
+    0.0
+   ],
+   "bbox": [
+    28.045,
+    67.435,
+    31.005,
+    68.895
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R18",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    4.5,
+    12.4,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    4.5,
+    12.4,
+    270.0
+   ],
+   "bbox": [
+    2.57,
+    8.57,
+    6.43,
+    16.23
+   ],
+   "courtyard_mm2": 29.57
+  },
+  {
+   "ref": "R19",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    1.3,
+    11.6,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    1.3,
+    11.6,
+    90.0
+   ],
+   "bbox": [
+    0.57,
+    10.12,
+    2.03,
+    13.08
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R20",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    22.5,
+    12.4,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    22.5,
+    12.4,
+    270.0
+   ],
+   "bbox": [
+    20.57,
+    8.57,
+    24.43,
+    16.23
+   ],
+   "courtyard_mm2": 29.57
+  },
+  {
+   "ref": "R21",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    19.3,
+    11.6,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    19.3,
+    11.6,
+    90.0
+   ],
+   "bbox": [
+    18.57,
+    10.12,
+    20.03,
+    13.08
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R22",
+   "status": "fixed",
+   "block": "tank_bank_studs_ct",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    158.0,
+    41.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    158.0,
+    41.0,
+    0.0
+   ],
+   "bbox": [
+    155.72,
+    39.87,
+    160.28,
+    42.13
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R23",
+   "status": "fixed",
+   "block": "tank_bank_studs_ct",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    168.0,
+    41.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    168.0,
+    41.0,
+    0.0
+   ],
+   "bbox": [
+    165.72,
+    39.87,
+    170.28,
+    42.13
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R24",
+   "status": "fixed",
+   "block": "tank_bank_studs_ct",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    178.0,
+    41.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    178.0,
+    41.0,
+    0.0
+   ],
+   "bbox": [
+    175.72,
+    39.87,
+    180.28,
+    42.13
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R25",
+   "status": "fixed",
+   "block": "tank_bank_studs_ct",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    188.0,
+    41.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    188.0,
+    41.0,
+    0.0
+   ],
+   "bbox": [
+    185.72,
+    39.87,
+    190.28,
+    42.13
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R26",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    95.2,
+    64.0,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    95.2,
+    64.0,
+    270.0
+   ],
+   "bbox": [
+    94.07,
+    61.72,
+    96.33,
+    66.28
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R27",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    95.2,
+    73.0,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    95.2,
+    73.0,
+    270.0
+   ],
+   "bbox": [
+    94.07,
+    70.72,
+    96.33,
+    75.28
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R28",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    95.2,
+    82.0,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    95.2,
+    82.0,
+    270.0
+   ],
+   "bbox": [
+    94.07,
+    79.72,
+    96.33,
+    84.28
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R29",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    95.2,
+    91.0,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    95.2,
+    91.0,
+    270.0
+   ],
+   "bbox": [
+    94.07,
+    88.72,
+    96.33,
+    93.28
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R3",
+   "status": "moved",
+   "block": "rectifier_bus",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    249.5,
+    106.0,
+    180.0
+   ],
+   "transform": [
+    0,
+    -45.5,
+    -54.0
+   ],
+   "at": [
+    204.0,
+    52.0,
+    180.0
+   ],
+   "bbox": [
+    201.72,
+    50.87,
+    206.28,
+    53.13
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R30",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    119.125,
+    68.395,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    119.125,
+    68.395,
+    0.0
+   ],
+   "bbox": [
+    117.645,
+    67.665,
+    120.605,
+    69.125
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R31",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    110.825,
+    73.695,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    110.825,
+    73.695,
+    0.0
+   ],
+   "bbox": [
+    109.345,
+    72.965,
+    112.305,
+    74.425
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R32",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    114.975,
+    71.045,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    114.975,
+    71.045,
+    0.0
+   ],
+   "bbox": [
+    113.495,
+    70.315,
+    116.455,
+    71.775
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R33",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    119.125,
+    71.045,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    119.125,
+    71.045,
+    0.0
+   ],
+   "bbox": [
+    117.645,
+    70.315,
+    120.605,
+    71.775
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R34",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    119.125,
+    73.695,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    119.125,
+    73.695,
+    0.0
+   ],
+   "bbox": [
+    117.645,
+    72.965,
+    120.605,
+    74.425
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R35",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    114.975,
+    73.695,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    114.975,
+    73.695,
+    0.0
+   ],
+   "bbox": [
+    113.495,
+    72.965,
+    116.455,
+    74.425
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R36",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    106.675,
+    73.695,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    106.675,
+    73.695,
+    0.0
+   ],
+   "bbox": [
+    105.195,
+    72.965,
+    108.155,
+    74.425
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R37",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    102.525,
+    73.695,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    102.525,
+    73.695,
+    0.0
+   ],
+   "bbox": [
+    101.045,
+    72.965,
+    104.005,
+    74.425
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R38",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    25.425,
+    132.865,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    25.425,
+    132.865,
+    0.0
+   ],
+   "bbox": [
+    23.945,
+    132.135,
+    26.905,
+    133.595
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R39",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    133.794999,
+    130.175,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    133.794999,
+    130.175,
+    0.0
+   ],
+   "bbox": [
+    131.515,
+    129.045,
+    136.075,
+    131.305
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R4",
+   "status": "moved",
+   "block": "rectifier_bus",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    288.0,
+    103.5,
+    -90.0
+   ],
+   "transform": [
+    0,
+    -83.0,
+    -47.5
+   ],
+   "at": [
+    205.0,
+    56.0,
+    270.0
+   ],
+   "bbox": [
+    203.87,
+    53.72,
+    206.13,
+    58.28
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R40",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    3.525,
+    132.865,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    3.525,
+    132.865,
+    0.0
+   ],
+   "bbox": [
+    2.045,
+    132.135,
+    5.005,
+    133.595
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R41",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    86.145,
+    128.775,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    86.145,
+    128.775,
+    0.0
+   ],
+   "bbox": [
+    84.665,
+    128.045,
+    87.625,
+    129.505
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R42",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    139.045,
+    130.175,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    139.045,
+    130.175,
+    0.0
+   ],
+   "bbox": [
+    136.765,
+    129.045,
+    141.325,
+    131.305
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R43",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    10.825,
+    132.865,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    10.825,
+    132.865,
+    0.0
+   ],
+   "bbox": [
+    9.345,
+    132.135,
+    12.305,
+    133.595
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R44",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    7.175,
+    132.865,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    7.175,
+    132.865,
+    0.0
+   ],
+   "bbox": [
+    5.695,
+    132.135,
+    8.655,
+    133.595
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R45",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    18.125,
+    132.865,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    18.125,
+    132.865,
+    0.0
+   ],
+   "bbox": [
+    16.645,
+    132.135,
+    19.605,
+    133.595
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R46",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    14.475,
+    132.865,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    14.475,
+    132.865,
+    0.0
+   ],
+   "bbox": [
+    12.995,
+    132.135,
+    15.955,
+    133.595
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R47",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    21.775,
+    132.865,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    21.775,
+    132.865,
+    0.0
+   ],
+   "bbox": [
+    20.295,
+    132.135,
+    23.255,
+    133.595
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R48",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    110.825,
+    71.045,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    110.825,
+    71.045,
+    0.0
+   ],
+   "bbox": [
+    109.345,
+    70.315,
+    112.305,
+    71.775
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R49",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    102.525,
+    71.045,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    102.525,
+    71.045,
+    0.0
+   ],
+   "bbox": [
+    101.045,
+    70.315,
+    104.005,
+    71.775
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R5",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    38.5,
+    12.6,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    38.5,
+    12.6,
+    270.0
+   ],
+   "bbox": [
+    35.05,
+    8.85,
+    40.45,
+    16.35
+   ],
+   "courtyard_mm2": 40.5
+  },
+  {
+   "ref": "R50",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    106.675,
+    71.045,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    106.675,
+    71.045,
+    0.0
+   ],
+   "bbox": [
+    105.195,
+    70.315,
+    108.155,
+    71.775
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R51",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    71.0,
+    36.0,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    71.0,
+    36.0,
+    90.0
+   ],
+   "bbox": [
+    69.87,
+    33.72,
+    72.13,
+    38.28
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R52",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    89.4,
+    36.0,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    89.4,
+    36.0,
+    90.0
+   ],
+   "bbox": [
+    88.27,
+    33.72,
+    90.53,
+    38.28
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R53",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    73.6,
+    17.9,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    73.6,
+    17.9,
+    0.0
+   ],
+   "bbox": [
+    71.32,
+    16.77,
+    75.88,
+    19.03
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R54",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    55.6,
+    17.9,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    55.6,
+    17.9,
+    0.0
+   ],
+   "bbox": [
+    53.32,
+    16.77,
+    57.88,
+    19.03
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R55",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    24.0,
+    36.0,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    24.0,
+    36.0,
+    90.0
+   ],
+   "bbox": [
+    22.87,
+    33.72,
+    25.13,
+    38.28
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R56",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    42.4,
+    36.0,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    42.4,
+    36.0,
+    90.0
+   ],
+   "bbox": [
+    41.27,
+    33.72,
+    43.53,
+    38.28
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R57",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    15.5,
+    17.9,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    15.5,
+    17.9,
+    0.0
+   ],
+   "bbox": [
+    13.22,
+    16.77,
+    17.78,
+    19.03
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R58",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    33.5,
+    17.9,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    33.5,
+    17.9,
+    0.0
+   ],
+   "bbox": [
+    31.22,
+    16.77,
+    35.78,
+    19.03
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R59",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    118.965,
+    98.595,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    118.965,
+    98.595,
+    0.0
+   ],
+   "bbox": [
+    116.685,
+    97.465,
+    121.245,
+    99.725
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R6",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    80.175,
+    68.165,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    80.175,
+    68.165,
+    0.0
+   ],
+   "bbox": [
+    78.695,
+    67.435,
+    81.655,
+    68.895
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R61",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    16.9,
+    69.95,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    16.9,
+    69.95,
+    90.0
+   ],
+   "bbox": [
+    16.17,
+    68.47,
+    17.63,
+    71.43
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R62",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    64.5,
+    61.0,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    64.5,
+    61.0,
+    90.0
+   ],
+   "bbox": [
+    63.77,
+    59.52,
+    65.23,
+    62.48
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R63",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    61.305,
+    104.245,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    61.305,
+    104.245,
+    0.0
+   ],
+   "bbox": [
+    59.025,
+    103.115,
+    63.585,
+    105.375
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R65",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    16.305,
+    100.745,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    16.305,
+    100.745,
+    0.0
+   ],
+   "bbox": [
+    14.025,
+    99.615,
+    18.585,
+    101.875
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R67",
+   "status": "moved",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    241.5,
+    101.5,
+    180.0
+   ],
+   "transform": [
+    0,
+    -37.5,
+    -1.5
+   ],
+   "at": [
+    204.0,
+    100.0,
+    180.0
+   ],
+   "bbox": [
+    201.72,
+    98.87,
+    206.28,
+    101.13
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R68",
+   "status": "moved",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    233.0,
+    101.5,
+    180.0
+   ],
+   "transform": [
+    0,
+    -29.0,
+    2.5
+   ],
+   "at": [
+    204.0,
+    104.0,
+    180.0
+   ],
+   "bbox": [
+    201.72,
+    102.87,
+    206.28,
+    105.13
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R69",
+   "status": "moved",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    233.0,
+    95.5,
+    0.0
+   ],
+   "transform": [
+    0,
+    -29.0,
+    12.5
+   ],
+   "at": [
+    204.0,
+    108.0,
+    0.0
+   ],
+   "bbox": [
+    201.72,
+    106.87,
+    206.28,
+    109.13
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R7",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    76.525,
+    70.315,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    76.525,
+    70.315,
+    0.0
+   ],
+   "bbox": [
+    75.045,
+    69.585,
+    78.005,
+    71.045
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R70",
+   "status": "moved",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    241.5,
+    95.5,
+    0.0
+   ],
+   "transform": [
+    0,
+    -40.5,
+    15.5
+   ],
+   "at": [
+    201.0,
+    111.0,
+    0.0
+   ],
+   "bbox": [
+    198.72,
+    109.87,
+    203.28,
+    112.13
+   ],
+   "courtyard_mm2": 10.31
+  },
+  {
+   "ref": "R71",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    75.6,
+    34.6,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    75.6,
+    34.6,
+    90.0
+   ],
+   "bbox": [
+    74.87,
+    33.12,
+    76.33,
+    36.08
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R72",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    86.8,
+    35.2,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    86.8,
+    35.2,
+    90.0
+   ],
+   "bbox": [
+    86.07,
+    33.72,
+    87.53,
+    36.68
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R73",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    80.175,
+    66.015,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    80.175,
+    66.015,
+    0.0
+   ],
+   "bbox": [
+    78.695,
+    65.285,
+    81.655,
+    66.745
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R74",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    26.6,
+    35.2,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    26.6,
+    35.2,
+    90.0
+   ],
+   "bbox": [
+    25.87,
+    33.72,
+    27.33,
+    36.68
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R75",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    39.8,
+    35.2,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    39.8,
+    35.2,
+    90.0
+   ],
+   "bbox": [
+    39.07,
+    33.72,
+    40.53,
+    36.68
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R76",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    33.174999,
+    66.015,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    33.174999,
+    66.015,
+    0.0
+   ],
+   "bbox": [
+    31.695,
+    65.285,
+    34.655,
+    66.745
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R77",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    106.125,
+    103.235,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    106.125,
+    103.235,
+    0.0
+   ],
+   "bbox": [
+    104.645,
+    102.505,
+    107.605,
+    103.965
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R78",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    102.525,
+    103.235,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    102.525,
+    103.235,
+    0.0
+   ],
+   "bbox": [
+    101.045,
+    102.505,
+    104.005,
+    103.965
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R79",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    116.925,
+    107.435,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    116.925,
+    107.435,
+    0.0
+   ],
+   "bbox": [
+    115.445,
+    106.705,
+    118.405,
+    108.165
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R80",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    113.325,
+    107.435,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    113.325,
+    107.435,
+    0.0
+   ],
+   "bbox": [
+    111.845,
+    106.705,
+    114.805,
+    108.165
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R81",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    116.925,
+    111.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    116.925,
+    111.635,
+    0.0
+   ],
+   "bbox": [
+    115.445,
+    110.905,
+    118.405,
+    112.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R82",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    113.325,
+    111.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    113.325,
+    111.635,
+    0.0
+   ],
+   "bbox": [
+    111.845,
+    110.905,
+    114.805,
+    112.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R83",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    109.725,
+    109.535,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    109.725,
+    109.535,
+    0.0
+   ],
+   "bbox": [
+    108.245,
+    108.805,
+    111.205,
+    110.265
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R84",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    106.125,
+    109.535,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    106.125,
+    109.535,
+    0.0
+   ],
+   "bbox": [
+    104.645,
+    108.805,
+    107.605,
+    110.265
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R85",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    109.725,
+    111.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    109.725,
+    111.635,
+    0.0
+   ],
+   "bbox": [
+    108.245,
+    110.905,
+    111.205,
+    112.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R86",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    106.125,
+    111.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    106.125,
+    111.635,
+    0.0
+   ],
+   "bbox": [
+    104.645,
+    110.905,
+    107.605,
+    112.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R87",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    102.525,
+    111.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    102.525,
+    111.635,
+    0.0
+   ],
+   "bbox": [
+    101.045,
+    110.905,
+    104.005,
+    112.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R88",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    116.925,
+    109.535,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    116.925,
+    109.535,
+    0.0
+   ],
+   "bbox": [
+    115.445,
+    108.805,
+    118.405,
+    110.265
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R9",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    76.525,
+    68.165,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    76.525,
+    68.165,
+    0.0
+   ],
+   "bbox": [
+    75.045,
+    67.435,
+    78.005,
+    68.895
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R91",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    113.325,
+    109.535,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    113.325,
+    109.535,
+    0.0
+   ],
+   "bbox": [
+    111.845,
+    108.805,
+    114.805,
+    110.265
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R92",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    59.15,
+    75.42,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    59.15,
+    75.42,
+    0.0
+   ],
+   "bbox": [
+    57.67,
+    74.69,
+    60.63,
+    76.15
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R93",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    63.2,
+    74.95,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    63.2,
+    74.95,
+    90.0
+   ],
+   "bbox": [
+    62.47,
+    73.47,
+    63.93,
+    76.43
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R94",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    14.0,
+    72.02,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    14.0,
+    72.02,
+    0.0
+   ],
+   "bbox": [
+    12.52,
+    71.29,
+    15.48,
+    72.75
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R95",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    59.175,
+    116.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    59.175,
+    116.635,
+    0.0
+   ],
+   "bbox": [
+    57.695,
+    115.905,
+    60.655,
+    117.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R96",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    55.425,
+    116.635,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    55.425,
+    116.635,
+    0.0
+   ],
+   "bbox": [
+    53.945,
+    115.905,
+    56.905,
+    117.365
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R97",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    62.925,
+    109.885,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    62.925,
+    109.885,
+    0.0
+   ],
+   "bbox": [
+    61.445,
+    109.155,
+    64.405,
+    110.615
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R98",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    59.175,
+    109.885,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    59.175,
+    109.885,
+    0.0
+   ],
+   "bbox": [
+    57.695,
+    109.155,
+    60.655,
+    110.615
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "R99",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    62.925,
+    114.385,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    62.925,
+    114.385,
+    0.0
+   ],
+   "bbox": [
+    61.445,
+    113.655,
+    64.405,
+    115.115
+   ],
+   "courtyard_mm2": 4.32
+  },
+  {
+   "ref": "T1",
+   "status": "fixed",
+   "block": "tank_bank_studs_ct",
+   "domain": "X",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    135.0,
+    110.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    135.0,
+    110.0,
+    0.0
+   ],
+   "bbox": [
+    123.25,
+    93.7,
+    146.75,
+    126.3
+   ],
+   "courtyard_mm2": 766.1
+  },
+  {
+   "ref": "TP1",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    82.0,
+    37.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    82.0,
+    37.0,
+    0.0
+   ],
+   "bbox": [
+    81.0,
+    36.0,
+    83.0,
+    38.0
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP10",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    4.312,
+    115.797,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    4.312,
+    115.797,
+    0.0
+   ],
+   "bbox": [
+    3.312,
+    114.797,
+    5.312,
+    116.797
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP11",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    11.65,
+    116.685,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    11.65,
+    116.685,
+    0.0
+   ],
+   "bbox": [
+    10.65,
+    115.685,
+    12.65,
+    117.685
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP12",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    11.248,
+    128.287,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    11.248,
+    128.287,
+    0.0
+   ],
+   "bbox": [
+    10.248,
+    127.287,
+    12.248,
+    129.287
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP13",
+   "status": "moved",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    64.5,
+    142.075,
+    0.0
+   ],
+   "transform": [
+    0,
+    9.0,
+    -4.0
+   ],
+   "at": [
+    73.5,
+    138.075,
+    0.0
+   ],
+   "bbox": [
+    72.5,
+    137.075,
+    74.5,
+    139.075
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP14",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    79.768,
+    60.768,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    79.768,
+    60.768,
+    0.0
+   ],
+   "bbox": [
+    78.768,
+    59.768,
+    80.768,
+    61.768
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP15",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    34.354,
+    124.154,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    34.354,
+    124.154,
+    0.0
+   ],
+   "bbox": [
+    33.354,
+    123.154,
+    35.354,
+    125.154
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP16",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    36.225,
+    125.7,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    36.225,
+    125.7,
+    0.0
+   ],
+   "bbox": [
+    35.225,
+    124.7,
+    37.225,
+    126.7
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP17",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    33.15,
+    113.265,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    33.15,
+    113.265,
+    0.0
+   ],
+   "bbox": [
+    32.15,
+    112.265,
+    34.15,
+    114.265
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP18",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    34.0,
+    64.989999,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    34.0,
+    64.989999,
+    0.0
+   ],
+   "bbox": [
+    33.0,
+    63.99,
+    35.0,
+    65.99
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP19",
+   "status": "moved",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    62.897,
+    138.541,
+    0.0
+   ],
+   "transform": [
+    0,
+    10.5,
+    -3.0
+   ],
+   "at": [
+    73.39699999999999,
+    135.541,
+    0.0
+   ],
+   "bbox": [
+    72.397,
+    134.541,
+    74.397,
+    136.541
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP2",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    113.625,
+    89.295,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    113.625,
+    89.295,
+    0.0
+   ],
+   "bbox": [
+    112.625,
+    88.295,
+    114.625,
+    90.295
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP20",
+   "status": "moved",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    35.772,
+    172.995,
+    0.0
+   ],
+   "transform": [
+    0,
+    14.25,
+    -45.0
+   ],
+   "at": [
+    50.022,
+    127.995,
+    0.0
+   ],
+   "bbox": [
+    49.022,
+    126.995,
+    51.022,
+    128.995
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP21",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    30.089,
+    133.181999,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    30.089,
+    133.181999,
+    0.0
+   ],
+   "bbox": [
+    29.089,
+    132.182,
+    31.089,
+    134.182
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP22",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    23.8,
+    134.565,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    23.8,
+    134.565,
+    0.0
+   ],
+   "bbox": [
+    22.8,
+    133.565,
+    24.8,
+    135.565
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP23",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    86.708,
+    41.735,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    86.708,
+    41.735,
+    0.0
+   ],
+   "bbox": [
+    85.708,
+    40.735,
+    87.708,
+    42.735
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP24",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    115.515,
+    88.095,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    115.515,
+    88.095,
+    0.0
+   ],
+   "bbox": [
+    114.515,
+    87.095,
+    116.515,
+    89.095
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP25",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    112.9,
+    96.295,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    112.9,
+    96.295,
+    0.0
+   ],
+   "bbox": [
+    111.9,
+    95.295,
+    113.9,
+    97.295
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP26",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    116.4,
+    80.05,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    116.4,
+    80.05,
+    0.0
+   ],
+   "bbox": [
+    115.4,
+    79.05,
+    117.4,
+    81.05
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP27",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    117.225,
+    73.695,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    117.225,
+    73.695,
+    0.0
+   ],
+   "bbox": [
+    116.225,
+    72.695,
+    118.225,
+    74.695
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP28",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    111.2,
+    55.4,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    111.2,
+    55.4,
+    0.0
+   ],
+   "bbox": [
+    110.2,
+    54.4,
+    112.2,
+    56.4
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP29",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    103.396,
+    74.449,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    103.396,
+    74.449,
+    0.0
+   ],
+   "bbox": [
+    102.396,
+    73.449,
+    104.396,
+    75.449
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP3",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    113.95,
+    98.595,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    113.95,
+    98.595,
+    0.0
+   ],
+   "bbox": [
+    112.95,
+    97.595,
+    114.95,
+    99.595
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP30",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    62.487,
+    49.9,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    62.487,
+    49.9,
+    0.0
+   ],
+   "bbox": [
+    61.487,
+    48.9,
+    63.487,
+    50.9
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP31",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    2.0,
+    112.085,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    2.0,
+    112.085,
+    0.0
+   ],
+   "bbox": [
+    1.0,
+    111.085,
+    3.0,
+    113.085
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP32",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    14.476,
+    118.011,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    14.476,
+    118.011,
+    0.0
+   ],
+   "bbox": [
+    13.476,
+    117.011,
+    15.476,
+    119.011
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP33",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    8.898,
+    127.836,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    8.898,
+    127.836,
+    0.0
+   ],
+   "bbox": [
+    7.898,
+    126.836,
+    9.898,
+    128.836
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP34",
+   "status": "moved",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    62.5,
+    140.86,
+    0.0
+   ],
+   "transform": [
+    0,
+    -0.5,
+    -12.25
+   ],
+   "at": [
+    62.0,
+    128.61,
+    0.0
+   ],
+   "bbox": [
+    61.0,
+    127.61,
+    63.0,
+    129.61
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP35",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    80.328,
+    63.02,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    80.328,
+    63.02,
+    0.0
+   ],
+   "bbox": [
+    79.328,
+    62.02,
+    81.328,
+    64.02
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP36",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    30.829,
+    124.399,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    30.829,
+    124.399,
+    0.0
+   ],
+   "bbox": [
+    29.829,
+    123.399,
+    31.829,
+    125.399
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP37",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    30.475,
+    114.045,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    30.475,
+    114.045,
+    0.0
+   ],
+   "bbox": [
+    29.475,
+    113.045,
+    31.475,
+    115.045
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP38",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    30.35,
+    69.665,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    30.35,
+    69.665,
+    0.0
+   ],
+   "bbox": [
+    29.35,
+    68.665,
+    31.35,
+    70.665
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP39",
+   "status": "moved",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    37.35,
+    174.625,
+    0.0
+   ],
+   "transform": [
+    0,
+    15.75,
+    -46.75
+   ],
+   "at": [
+    53.1,
+    127.875,
+    0.0
+   ],
+   "bbox": [
+    52.1,
+    126.875,
+    54.1,
+    128.875
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP4",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    118.6,
+    80.55,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    118.6,
+    80.55,
+    0.0
+   ],
+   "bbox": [
+    117.6,
+    79.55,
+    119.6,
+    81.55
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP40",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "LOW",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    27.675,
+    132.865,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    27.675,
+    132.865,
+    0.0
+   ],
+   "bbox": [
+    26.675,
+    131.865,
+    28.675,
+    133.865
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP41",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    105.75,
+    107.835,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    105.75,
+    107.835,
+    0.0
+   ],
+   "bbox": [
+    104.75,
+    106.835,
+    106.75,
+    108.835
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP42",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    106.846,
+    84.319,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    106.846,
+    84.319,
+    0.0
+   ],
+   "bbox": [
+    105.846,
+    83.319,
+    107.846,
+    85.319
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP43",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    116.926,
+    110.361,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    116.926,
+    110.361,
+    0.0
+   ],
+   "bbox": [
+    115.926,
+    109.361,
+    117.926,
+    111.361
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP44",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    52.3,
+    111.085,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    52.3,
+    111.085,
+    0.0
+   ],
+   "bbox": [
+    51.3,
+    110.085,
+    53.3,
+    112.085
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP45",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    52.154,
+    115.289,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    52.154,
+    115.289,
+    0.0
+   ],
+   "bbox": [
+    51.154,
+    114.289,
+    53.154,
+    116.289
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP46",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    47.2,
+    109.265,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    47.2,
+    109.265,
+    0.0
+   ],
+   "bbox": [
+    46.2,
+    108.265,
+    48.2,
+    110.265
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP47",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    51.174,
+    79.196,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    51.174,
+    79.196,
+    0.0
+   ],
+   "bbox": [
+    50.174,
+    78.196,
+    52.174,
+    80.196
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP48",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    9.2,
+    104.535,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    9.2,
+    104.535,
+    0.0
+   ],
+   "bbox": [
+    8.2,
+    103.535,
+    10.2,
+    105.535
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP49",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    8.196,
+    98.796,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    8.196,
+    98.796,
+    0.0
+   ],
+   "bbox": [
+    7.196,
+    97.796,
+    9.196,
+    99.796
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP5",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    116.16,
+    71.615,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    116.16,
+    71.615,
+    0.0
+   ],
+   "bbox": [
+    115.16,
+    70.615,
+    117.16,
+    72.615
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP50",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    5.4,
+    105.365,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    5.4,
+    105.365,
+    0.0
+   ],
+   "bbox": [
+    4.4,
+    104.365,
+    6.4,
+    106.365
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP51",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    7.354,
+    110.149,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    7.354,
+    110.149,
+    0.0
+   ],
+   "bbox": [
+    6.354,
+    109.149,
+    8.354,
+    111.149
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP52",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    115.75,
+    56.85,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    115.75,
+    56.85,
+    0.0
+   ],
+   "bbox": [
+    114.75,
+    55.85,
+    116.75,
+    57.85
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP53",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    107.526,
+    105.923,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    107.526,
+    105.923,
+    0.0
+   ],
+   "bbox": [
+    106.526,
+    104.923,
+    108.526,
+    106.923
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP54",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    105.125,
+    82.395,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    105.125,
+    82.395,
+    0.0
+   ],
+   "bbox": [
+    104.125,
+    81.395,
+    106.125,
+    83.395
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP55",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    119.175,
+    109.535,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    119.175,
+    109.535,
+    0.0
+   ],
+   "bbox": [
+    118.175,
+    108.535,
+    120.175,
+    110.535
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP56",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    53.637,
+    108.822,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    53.637,
+    108.822,
+    0.0
+   ],
+   "bbox": [
+    52.637,
+    107.822,
+    54.637,
+    109.822
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP57",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    50.735,
+    76.474,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    50.735,
+    76.474,
+    0.0
+   ],
+   "bbox": [
+    49.735,
+    75.474,
+    51.735,
+    77.474
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP58",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    8.337,
+    108.172,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    8.337,
+    108.172,
+    0.0
+   ],
+   "bbox": [
+    7.337,
+    107.172,
+    9.337,
+    109.172
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP59",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    11.879,
+    94.774,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    11.879,
+    94.774,
+    0.0
+   ],
+   "bbox": [
+    10.879,
+    93.774,
+    12.879,
+    95.774
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP6",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    110.465,
+    57.632,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    110.465,
+    57.632,
+    0.0
+   ],
+   "bbox": [
+    109.465,
+    56.632,
+    111.465,
+    58.632
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP7",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "B",
+   "tht": false,
+   "s53_at": [
+    101.1,
+    74.9,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    101.1,
+    74.9,
+    0.0
+   ],
+   "bbox": [
+    100.1,
+    73.9,
+    102.1,
+    75.9
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP8",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    64.8,
+    50.0,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    64.8,
+    50.0,
+    0.0
+   ],
+   "bbox": [
+    63.8,
+    49.0,
+    65.8,
+    51.0
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "TP9",
+   "status": "fixed",
+   "block": "mech_test",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    71.561,
+    46.989,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    71.561,
+    46.989,
+    0.0
+   ],
+   "bbox": [
+    70.561,
+    45.989,
+    72.561,
+    47.989
+   ],
+   "courtyard_mm2": 3.12
+  },
+  {
+   "ref": "U1",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "X",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    80.0,
+    51.0,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    80.0,
+    51.0,
+    90.0
+   ],
+   "bbox": [
+    74.6,
+    45.05,
+    85.4,
+    56.95
+   ],
+   "courtyard_mm2": 126.96
+  },
+  {
+   "ref": "U10",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    23.255,
+    129.745,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    23.255,
+    129.745,
+    0.0
+   ],
+   "bbox": [
+    21.205,
+    128.045,
+    25.305,
+    131.445
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U11",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    18.465,
+    129.745,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    18.465,
+    129.745,
+    0.0
+   ],
+   "bbox": [
+    16.415,
+    128.045,
+    20.515,
+    131.445
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U12",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    28.045,
+    129.745,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    28.045,
+    129.745,
+    0.0
+   ],
+   "bbox": [
+    25.995,
+    128.045,
+    30.095,
+    131.445
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U13",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    32.835,
+    129.745,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    32.835,
+    129.745,
+    0.0
+   ],
+   "bbox": [
+    30.785,
+    128.045,
+    34.885,
+    131.445
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U14",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    108.385,
+    53.145,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    108.385,
+    53.145,
+    0.0
+   ],
+   "bbox": [
+    106.335,
+    51.445,
+    110.435,
+    54.845
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U15",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    103.095,
+    53.145,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    103.095,
+    53.145,
+    0.0
+   ],
+   "bbox": [
+    101.045,
+    51.445,
+    105.145,
+    54.845
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U16",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    114.615,
+    87.145,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    114.615,
+    87.145,
+    0.0
+   ],
+   "bbox": [
+    112.685,
+    85.445,
+    116.545,
+    88.845
+   ],
+   "courtyard_mm2": 11.73
+  },
+  {
+   "ref": "U17",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    102.975,
+    91.285,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    102.975,
+    91.285,
+    0.0
+   ],
+   "bbox": [
+    101.045,
+    89.585,
+    104.905,
+    92.985
+   ],
+   "courtyard_mm2": 11.73
+  },
+  {
+   "ref": "U18",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    53.025,
+    92.645,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    53.025,
+    92.645,
+    0.0
+   ],
+   "bbox": [
+    51.095,
+    90.945,
+    54.955,
+    94.345
+   ],
+   "courtyard_mm2": 11.73
+  },
+  {
+   "ref": "U19",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    48.375,
+    92.645,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    48.375,
+    92.645,
+    0.0
+   ],
+   "bbox": [
+    46.445,
+    90.945,
+    50.305,
+    94.345
+   ],
+   "courtyard_mm2": 11.73
+  },
+  {
+   "ref": "U2",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "X",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    33.0,
+    51.0,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    33.0,
+    51.0,
+    90.0
+   ],
+   "bbox": [
+    27.6,
+    45.05,
+    38.4,
+    56.95
+   ],
+   "courtyard_mm2": 126.96
+  },
+  {
+   "ref": "U20",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    7.725,
+    88.245,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    7.725,
+    88.245,
+    0.0
+   ],
+   "bbox": [
+    5.795,
+    86.545,
+    9.655,
+    89.945
+   ],
+   "courtyard_mm2": 11.73
+  },
+  {
+   "ref": "U21",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    2.775,
+    88.245,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    2.775,
+    88.245,
+    0.0
+   ],
+   "bbox": [
+    0.845,
+    86.545,
+    4.705,
+    89.945
+   ],
+   "courtyard_mm2": 11.73
+  },
+  {
+   "ref": "U22",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    77.095,
+    60.745,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    77.095,
+    60.745,
+    0.0
+   ],
+   "bbox": [
+    75.045,
+    59.045,
+    79.145,
+    62.445
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U23",
+   "status": "fixed",
+   "block": "bridge_fets_gate_drive",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    30.095,
+    60.745,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    30.095,
+    60.745,
+    0.0
+   ],
+   "bbox": [
+    28.045,
+    59.045,
+    32.145,
+    62.445
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U24",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    8.885,
+    129.745,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    8.885,
+    129.745,
+    0.0
+   ],
+   "bbox": [
+    6.835,
+    128.045,
+    10.935,
+    131.445
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U26",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    115.4,
+    81.05,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    115.4,
+    81.05,
+    0.0
+   ],
+   "bbox": [
+    112.27,
+    77.92,
+    118.53,
+    84.18
+   ],
+   "courtyard_mm2": 37.06
+  },
+  {
+   "ref": "U29",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    104.745,
+    80.225,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    104.745,
+    80.225,
+    0.0
+   ],
+   "bbox": [
+    101.045,
+    75.645,
+    108.445,
+    84.805
+   ],
+   "courtyard_mm2": 67.12
+  },
+  {
+   "ref": "U3",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    118.3,
+    61.75,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    118.3,
+    61.75,
+    0.0
+   ],
+   "bbox": [
+    116.25,
+    60.05,
+    120.35,
+    63.45
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U30",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    50.145,
+    78.525,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    50.145,
+    78.525,
+    0.0
+   ],
+   "bbox": [
+    46.445,
+    73.945,
+    53.845,
+    83.105
+   ],
+   "courtyard_mm2": 67.12
+  },
+  {
+   "ref": "U31",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    4.545,
+    73.525,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    4.545,
+    73.525,
+    0.0
+   ],
+   "bbox": [
+    0.845,
+    68.945,
+    8.245,
+    78.105
+   ],
+   "courtyard_mm2": 67.12
+  },
+  {
+   "ref": "U32",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "X",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    95.0,
+    121.0,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    95.0,
+    121.0,
+    270.0
+   ],
+   "bbox": [
+    89.6,
+    115.05,
+    100.4,
+    126.95
+   ],
+   "courtyard_mm2": 126.96
+  },
+  {
+   "ref": "U36",
+   "status": "moved",
+   "block": "sensing_protection_isolators",
+   "domain": "X",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    220.0,
+    95.0,
+    180.0
+   ],
+   "transform": [
+    90,
+    101.0,
+    338.75
+   ],
+   "at": [
+    196.0,
+    118.75,
+    270.0
+   ],
+   "bbox": [
+    193.7,
+    113.1,
+    198.3,
+    124.4
+   ],
+   "courtyard_mm2": 51.98
+  },
+  {
+   "ref": "U37",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    109.995,
+    87.145,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    109.995,
+    87.145,
+    0.0
+   ],
+   "bbox": [
+    107.945,
+    85.445,
+    112.045,
+    88.845
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U38",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    60.995,
+    100.645,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    60.995,
+    100.645,
+    0.0
+   ],
+   "bbox": [
+    58.945,
+    98.945,
+    63.045,
+    102.345
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U39",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    15.895,
+    96.895,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    15.895,
+    96.895,
+    0.0
+   ],
+   "bbox": [
+    13.845,
+    95.195,
+    17.945,
+    98.595
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U4",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "X",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    104.0,
+    121.0,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    104.0,
+    121.0,
+    270.0
+   ],
+   "bbox": [
+    100.82,
+    114.52,
+    107.18,
+    127.48
+   ],
+   "courtyard_mm2": 78.85
+  },
+  {
+   "ref": "U40",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    74.6,
+    132.949999,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    74.6,
+    132.949999,
+    180.0
+   ],
+   "bbox": [
+    72.55,
+    131.25,
+    76.65,
+    134.65
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U41",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    56.5,
+    66.2,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    56.5,
+    66.2,
+    270.0
+   ],
+   "bbox": [
+    49.835,
+    59.45,
+    63.165,
+    72.95
+   ],
+   "courtyard_mm2": 179.95
+  },
+  {
+   "ref": "U42",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    10.2,
+    61.2,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    10.2,
+    61.2,
+    270.0
+   ],
+   "bbox": [
+    3.535,
+    54.45,
+    16.865,
+    67.95
+   ],
+   "courtyard_mm2": 179.95
+  },
+  {
+   "ref": "U43",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    47.0,
+    66.25,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    47.0,
+    66.25,
+    90.0
+   ],
+   "bbox": [
+    44.3,
+    62.55,
+    49.7,
+    69.95
+   ],
+   "courtyard_mm2": 39.24
+  },
+  {
+   "ref": "U44",
+   "status": "fixed",
+   "block": "ps2_isolated_bias",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    3.25,
+    47.25,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    3.25,
+    47.25,
+    270.0
+   ],
+   "bbox": [
+    0.55,
+    43.55,
+    5.95,
+    50.95
+   ],
+   "courtyard_mm2": 39.24
+  },
+  {
+   "ref": "U45",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    102.5,
+    100.25,
+    90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    102.5,
+    100.25,
+    90.0
+   ],
+   "bbox": [
+    100.8,
+    98.2,
+    104.2,
+    102.3
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U46",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "LOW",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    94.5,
+    132.0,
+    180.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    94.5,
+    132.0,
+    180.0
+   ],
+   "bbox": [
+    92.45,
+    130.3,
+    96.55,
+    133.7
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U5",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    113.555,
+    57.735,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    113.555,
+    57.735,
+    0.0
+   ],
+   "bbox": [
+    111.625,
+    56.035,
+    115.485,
+    59.435
+   ],
+   "courtyard_mm2": 11.73
+  },
+  {
+   "ref": "U6",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    103.095,
+    57.735,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    103.095,
+    57.735,
+    0.0
+   ],
+   "bbox": [
+    101.045,
+    56.035,
+    105.145,
+    59.435
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U7",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    108.385,
+    57.735,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    108.385,
+    57.735,
+    0.0
+   ],
+   "bbox": [
+    106.335,
+    56.035,
+    110.435,
+    59.435
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U8",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "HOT",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    118.965,
+    53.145,
+    0.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    118.965,
+    53.145,
+    0.0
+   ],
+   "bbox": [
+    116.915,
+    51.445,
+    121.015,
+    54.845
+   ],
+   "courtyard_mm2": 13.54
+  },
+  {
+   "ref": "U9",
+   "status": "fixed",
+   "block": "sensing_protection_isolators",
+   "domain": "X",
+   "side": "F",
+   "tht": false,
+   "s53_at": [
+    113.0,
+    121.0,
+    -90.0
+   ],
+   "transform": [
+    0,
+    0.0,
+    0.0
+   ],
+   "at": [
+    113.0,
+    121.0,
+    270.0
+   ],
+   "bbox": [
+    107.6,
+    115.05,
+    118.4,
+    126.95
+   ],
+   "courtyard_mm2": 126.96
+  }
+ ]
+}

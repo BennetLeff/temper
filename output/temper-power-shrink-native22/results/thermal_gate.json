@@ -1,0 +1,1877 @@
+{
+ "basis": "B3 body-level model (b3-ratings, unchanged code), bay 61 C, I_line 13.5 A, hot copper, FET drain-lead path, both meshes, K_MESH extrapolation and every gated row of b3_ratings_gate; 17.5 A = c17.5 (18.375 A trip) with h on both faces; 28 A = c28 (29.4 A) with the S24 jets (h_top 100 on JET_REGION) plus base h on both faces. native-22 boards are transplant proxies (proxy.py).",
+ "boards": {
+  "s53": {
+   "17.5A": {
+    "margin_k_by_h": {
+     "10": 1.3,
+     "12": 4.2,
+     "16": 4.2,
+     "19": 4.2,
+     "25": 4.2
+    },
+    "binding_by_h": {
+     "10": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "12": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "16": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "19": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "25": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)"
+    },
+    "margin_k_by_h_ron2w": {
+     "10": 3.8,
+     "12": 4.2,
+     "16": 4.2,
+     "19": 4.2,
+     "25": 4.2
+    },
+    "binding_by_h_ron2w": {
+     "10": "laminate: 1 mm-block copper peak",
+     "12": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "16": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "19": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "25": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)"
+    },
+    "h_for_margin_ge_0": "<= 10",
+    "h_for_margin_ge_0_ron2w": "<= 10",
+    "board_rows_margin_k_by_h": {
+     "10": 1.3,
+     "12": 6.3,
+     "16": 13.3,
+     "19": 17.1,
+     "25": 22.3
+    },
+    "board_rows_binding_by_h": {
+     "10": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "12": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "16": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "19": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "25": "U26: TJ max (TI SBVS204G p.4)"
+    },
+    "board_rows_margin_k_by_h_ron2w": {
+     "10": 3.8,
+     "12": 8.9,
+     "16": 15.0,
+     "19": 18.1,
+     "25": 22.3
+    },
+    "board_rows_binding_by_h_ron2w": {
+     "10": "laminate: 1 mm-block copper peak",
+     "12": "laminate: 1 mm-block copper peak",
+     "16": "U26: TJ max (TI SBVS204G p.4)",
+     "19": "U26: TJ max (TI SBVS204G p.4)",
+     "25": "U26: TJ max (TI SBVS204G p.4)"
+    },
+    "h_for_board_rows_ge_0": "<= 10",
+    "h_for_board_rows_ge_0_ron2w": "<= 10",
+    "mean_face_rise_k_by_h": {
+     "10": 14.76,
+     "12": 12.42,
+     "16": 9.46,
+     "19": 8.03,
+     "25": 6.19
+    },
+    "advisory_by_h": {
+     "10": [
+      [
+       "C21",
+       82.4,
+       125.0
+      ],
+      [
+       "C22",
+       80.6,
+       125.0
+      ],
+      [
+       "C23",
+       79.0,
+       125.0
+      ],
+      [
+       "C151",
+       77.6,
+       125.0
+      ],
+      [
+       "C152",
+       76.8,
+       125.0
+      ],
+      [
+       "C5",
+       80.8,
+       105.0
+      ],
+      [
+       "C6",
+       78.2,
+       105.0
+      ]
+     ],
+     "12": [
+      [
+       "C21",
+       79.4,
+       125.0
+      ],
+      [
+       "C22",
+       77.8,
+       125.0
+      ],
+      [
+       "C23",
+       76.5,
+       125.0
+      ],
+      [
+       "C151",
+       75.2,
+       125.0
+      ],
+      [
+       "C152",
+       74.6,
+       125.0
+      ],
+      [
+       "C5",
+       78.6,
+       105.0
+      ],
+      [
+       "C6",
+       76.3,
+       105.0
+      ]
+     ],
+     "16": [
+      [
+       "C21",
+       75.8,
+       125.0
+      ],
+      [
+       "C22",
+       74.5,
+       125.0
+      ],
+      [
+       "C23",
+       73.4,
+       125.0
+      ],
+      [
+       "C151",
+       72.4,
+       125.0
+      ],
+      [
+       "C152",
+       72.0,
+       125.0
+      ],
+      [
+       "C5",
+       75.9,
+       105.0
+      ],
+      [
+       "C6",
+       74.0,
+       105.0
+      ]
+     ],
+     "19": [
+      [
+       "C21",
+       74.0,
+       125.0
+      ],
+      [
+       "C22",
+       72.9,
+       125.0
+      ],
+      [
+       "C23",
+       72.0,
+       125.0
+      ],
+      [
+       "C151",
+       71.2,
+       125.0
+      ],
+      [
+       "C152",
+       70.9,
+       125.0
+      ],
+      [
+       "C5",
+       74.6,
+       105.0
+      ],
+      [
+       "C6",
+       73.0,
+       105.0
+      ]
+     ],
+     "25": [
+      [
+       "C21",
+       71.9,
+       125.0
+      ],
+      [
+       "C22",
+       71.0,
+       125.0
+      ],
+      [
+       "C23",
+       70.2,
+       125.0
+      ],
+      [
+       "C151",
+       69.6,
+       125.0
+      ],
+      [
+       "C152",
+       69.4,
+       125.0
+      ],
+      [
+       "C5",
+       73.1,
+       105.0
+      ],
+      [
+       "C6",
+       71.7,
+       105.0
+      ]
+     ]
+    },
+    "source_w_by_h": {
+     "10": 16.631,
+     "12": 16.54,
+     "16": 16.416,
+     "19": 16.353,
+     "25": 16.264
+    }
+   },
+   "28A": {
+    "margin_k_by_h": {
+     "10": -9.8,
+     "12": -5.5,
+     "16": 0.9,
+     "19": 4.2,
+     "25": 4.2
+    },
+    "binding_by_h": {
+     "10": "laminate: FET-row copper",
+     "12": "laminate: FET-row copper",
+     "16": "laminate: FET-row copper",
+     "19": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "25": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)"
+    },
+    "margin_k_by_h_ron2w": {
+     "10": -9.8,
+     "12": -5.5,
+     "16": 0.9,
+     "19": 4.2,
+     "25": 4.2
+    },
+    "binding_by_h_ron2w": {
+     "10": "laminate: FET-row copper",
+     "12": "laminate: FET-row copper",
+     "16": "laminate: FET-row copper",
+     "19": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "25": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)"
+    },
+    "h_for_margin_ge_0": 15.4,
+    "h_for_margin_ge_0_ron2w": 15.4,
+    "board_rows_margin_k_by_h": {
+     "10": -9.8,
+     "12": -5.5,
+     "16": 0.9,
+     "19": 4.5,
+     "25": 10.1
+    },
+    "board_rows_binding_by_h": {
+     "10": "laminate: FET-row copper",
+     "12": "laminate: FET-row copper",
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper",
+     "25": "laminate: FET-row copper"
+    },
+    "board_rows_margin_k_by_h_ron2w": {
+     "10": -9.8,
+     "12": -5.5,
+     "16": 0.9,
+     "19": 4.5,
+     "25": 10.1
+    },
+    "board_rows_binding_by_h_ron2w": {
+     "10": "laminate: FET-row copper",
+     "12": "laminate: FET-row copper",
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper",
+     "25": "laminate: FET-row copper"
+    },
+    "h_for_board_rows_ge_0": 15.4,
+    "h_for_board_rows_ge_0_ron2w": 15.4,
+    "mean_face_rise_k_by_h": {
+     "10": null,
+     "12": null,
+     "16": null,
+     "19": null,
+     "25": null
+    },
+    "advisory_by_h": {
+     "10": [
+      [
+       "C21",
+       108.8,
+       125.0
+      ],
+      [
+       "C22",
+       106.3,
+       125.0
+      ],
+      [
+       "C23",
+       103.8,
+       125.0
+      ],
+      [
+       "C151",
+       101.1,
+       125.0
+      ],
+      [
+       "C152",
+       99.6,
+       125.0
+      ],
+      [
+       "C5",
+       102.4,
+       105.0
+      ],
+      [
+       "C6",
+       96.6,
+       105.0
+      ]
+     ],
+     "12": [
+      [
+       "C21",
+       103.0,
+       125.0
+      ],
+      [
+       "C22",
+       100.7,
+       125.0
+      ],
+      [
+       "C23",
+       98.4,
+       125.0
+      ],
+      [
+       "C151",
+       96.0,
+       125.0
+      ],
+      [
+       "C152",
+       94.8,
+       125.0
+      ],
+      [
+       "C5",
+       98.6,
+       105.0
+      ],
+      [
+       "C6",
+       93.5,
+       105.0
+      ]
+     ],
+     "16": [
+      [
+       "C21",
+       95.6,
+       125.0
+      ],
+      [
+       "C22",
+       93.5,
+       125.0
+      ],
+      [
+       "C23",
+       91.6,
+       125.0
+      ],
+      [
+       "C151",
+       89.6,
+       125.0
+      ],
+      [
+       "C152",
+       88.7,
+       125.0
+      ],
+      [
+       "C5",
+       93.9,
+       105.0
+      ],
+      [
+       "C6",
+       89.8,
+       105.0
+      ]
+     ],
+     "19": [
+      [
+       "C21",
+       92.0,
+       125.0
+      ],
+      [
+       "C22",
+       90.1,
+       125.0
+      ],
+      [
+       "C23",
+       88.3,
+       125.0
+      ],
+      [
+       "C151",
+       86.6,
+       125.0
+      ],
+      [
+       "C152",
+       85.9,
+       125.0
+      ],
+      [
+       "C5",
+       91.7,
+       105.0
+      ],
+      [
+       "C6",
+       88.1,
+       105.0
+      ]
+     ],
+     "25": [
+      [
+       "C21",
+       87.4,
+       125.0
+      ],
+      [
+       "C22",
+       85.7,
+       125.0
+      ],
+      [
+       "C23",
+       84.2,
+       125.0
+      ],
+      [
+       "C151",
+       82.7,
+       125.0
+      ],
+      [
+       "C152",
+       82.4,
+       125.0
+      ],
+      [
+       "C5",
+       89.0,
+       105.0
+      ],
+      [
+       "C6",
+       86.0,
+       105.0
+      ]
+     ]
+    },
+    "source_w_by_h": {
+     "10": 30.495,
+     "12": 30.23,
+     "16": 29.861,
+     "19": 29.666,
+     "25": 29.387
+    }
+   }
+  },
+  "native22_218": {
+   "17.5A": {
+    "margin_k_by_h": {
+     "10": 0.2,
+     "12": 5.4,
+     "16": 12.6,
+     "19": 16.6,
+     "25": 22.1
+    },
+    "binding_by_h": {
+     "10": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "12": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "16": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "19": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "25": "laminate: 1 mm-block copper peak"
+    },
+    "margin_k_by_h_ron2w": {
+     "10": 3.4,
+     "12": 8.5,
+     "16": 14.8,
+     "19": 17.9,
+     "25": 22.1
+    },
+    "binding_by_h_ron2w": {
+     "10": "laminate: 1 mm-block copper peak",
+     "12": "laminate: 1 mm-block copper peak",
+     "16": "U26: TJ max (TI SBVS204G p.4)",
+     "19": "laminate: 1 mm-block copper peak",
+     "25": "laminate: 1 mm-block copper peak"
+    },
+    "h_for_margin_ge_0": "<= 10",
+    "h_for_margin_ge_0_ron2w": "<= 10",
+    "board_rows_margin_k_by_h": {
+     "10": 0.2,
+     "12": 5.4,
+     "16": 12.6,
+     "19": 16.6,
+     "25": 22.1
+    },
+    "board_rows_binding_by_h": {
+     "10": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "12": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "16": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "19": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "25": "laminate: 1 mm-block copper peak"
+    },
+    "board_rows_margin_k_by_h_ron2w": {
+     "10": 3.4,
+     "12": 8.5,
+     "16": 14.8,
+     "19": 17.9,
+     "25": 22.1
+    },
+    "board_rows_binding_by_h_ron2w": {
+     "10": "laminate: 1 mm-block copper peak",
+     "12": "laminate: 1 mm-block copper peak",
+     "16": "U26: TJ max (TI SBVS204G p.4)",
+     "19": "laminate: 1 mm-block copper peak",
+     "25": "laminate: 1 mm-block copper peak"
+    },
+    "h_for_board_rows_ge_0": "<= 10",
+    "h_for_board_rows_ge_0_ron2w": "<= 10",
+    "mean_face_rise_k_by_h": {
+     "10": 18.96,
+     "12": 16.03,
+     "16": 12.29,
+     "19": 10.49,
+     "25": 8.14
+    },
+    "advisory_by_h": {
+     "10": [
+      [
+       "C21",
+       81.8,
+       125.0
+      ],
+      [
+       "C22",
+       80.4,
+       125.0
+      ],
+      [
+       "C23",
+       79.3,
+       125.0
+      ],
+      [
+       "C151",
+       78.2,
+       125.0
+      ],
+      [
+       "C152",
+       77.6,
+       125.0
+      ],
+      [
+       "C5",
+       83.0,
+       105.0
+      ],
+      [
+       "C6",
+       87.7,
+       105.0
+      ]
+     ],
+     "12": [
+      [
+       "C21",
+       78.9,
+       125.0
+      ],
+      [
+       "C22",
+       77.7,
+       125.0
+      ],
+      [
+       "C23",
+       76.7,
+       125.0
+      ],
+      [
+       "C151",
+       75.8,
+       125.0
+      ],
+      [
+       "C152",
+       75.3,
+       125.0
+      ],
+      [
+       "C5",
+       80.1,
+       105.0
+      ],
+      [
+       "C6",
+       84.3,
+       105.0
+      ]
+     ],
+     "16": [
+      [
+       "C21",
+       75.4,
+       125.0
+      ],
+      [
+       "C22",
+       74.4,
+       125.0
+      ],
+      [
+       "C23",
+       73.6,
+       125.0
+      ],
+      [
+       "C151",
+       72.9,
+       125.0
+      ],
+      [
+       "C152",
+       72.6,
+       125.0
+      ],
+      [
+       "C5",
+       76.7,
+       105.0
+      ],
+      [
+       "C6",
+       79.9,
+       105.0
+      ]
+     ],
+     "19": [
+      [
+       "C21",
+       73.8,
+       125.0
+      ],
+      [
+       "C22",
+       72.8,
+       125.0
+      ],
+      [
+       "C23",
+       72.2,
+       125.0
+      ],
+      [
+       "C151",
+       71.6,
+       125.0
+      ],
+      [
+       "C152",
+       71.3,
+       125.0
+      ],
+      [
+       "C5",
+       75.2,
+       105.0
+      ],
+      [
+       "C6",
+       77.9,
+       105.0
+      ]
+     ],
+     "25": [
+      [
+       "C21",
+       71.7,
+       125.0
+      ],
+      [
+       "C22",
+       70.9,
+       125.0
+      ],
+      [
+       "C23",
+       70.4,
+       125.0
+      ],
+      [
+       "C151",
+       69.9,
+       125.0
+      ],
+      [
+       "C152",
+       69.7,
+       125.0
+      ],
+      [
+       "C5",
+       73.4,
+       105.0
+      ],
+      [
+       "C6",
+       75.4,
+       105.0
+      ]
+     ]
+    },
+    "source_w_by_h": {
+     "10": 13.569,
+     "12": 13.48,
+     "16": 13.36,
+     "19": 13.298,
+     "25": 13.212
+    },
+    "delta_vs_s53_board_rows_k_by_h": {
+     "10": -1.1,
+     "12": -0.9,
+     "16": -0.7,
+     "19": -0.5,
+     "25": -0.2
+    },
+    "s53_board_rows_margin_at_h10_k": 1.3,
+    "h_to_match_s53_at_h10": 10.4
+   },
+   "28A": {
+    "margin_k_by_h": {
+     "10": -11.3,
+     "12": -6.9,
+     "16": -0.2,
+     "19": 3.5,
+     "25": 9.2
+    },
+    "binding_by_h": {
+     "10": "laminate: FET-row copper",
+     "12": "laminate: FET-row copper",
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper",
+     "25": "laminate: FET-row copper"
+    },
+    "margin_k_by_h_ron2w": {
+     "10": -11.3,
+     "12": -6.9,
+     "16": -0.2,
+     "19": 3.5,
+     "25": 9.2
+    },
+    "binding_by_h_ron2w": {
+     "10": "laminate: FET-row copper",
+     "12": "laminate: FET-row copper",
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper",
+     "25": "laminate: FET-row copper"
+    },
+    "h_for_margin_ge_0": 16.2,
+    "h_for_margin_ge_0_ron2w": 16.2,
+    "board_rows_margin_k_by_h": {
+     "10": -11.3,
+     "12": -6.9,
+     "16": -0.2,
+     "19": 3.5,
+     "25": 9.2
+    },
+    "board_rows_binding_by_h": {
+     "10": "laminate: FET-row copper",
+     "12": "laminate: FET-row copper",
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper",
+     "25": "laminate: FET-row copper"
+    },
+    "board_rows_margin_k_by_h_ron2w": {
+     "10": -11.3,
+     "12": -6.9,
+     "16": -0.2,
+     "19": 3.5,
+     "25": 9.2
+    },
+    "board_rows_binding_by_h_ron2w": {
+     "10": "laminate: FET-row copper",
+     "12": "laminate: FET-row copper",
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper",
+     "25": "laminate: FET-row copper"
+    },
+    "h_for_board_rows_ge_0": 16.2,
+    "h_for_board_rows_ge_0_ron2w": 16.2,
+    "mean_face_rise_k_by_h": {
+     "10": null,
+     "12": null,
+     "16": null,
+     "19": null,
+     "25": null
+    },
+    "advisory_by_h": {
+     "10": [
+      [
+       "C21",
+       111.5,
+       125.0
+      ],
+      [
+       "C22",
+       108.0,
+       125.0
+      ],
+      [
+       "C23",
+       104.7,
+       125.0
+      ],
+      [
+       "C151",
+       101.9,
+       125.0
+      ],
+      [
+       "C152",
+       100.4,
+       125.0
+      ],
+      [
+       "C5",
+       113.3,
+       105.0
+      ],
+      [
+       "C6",
+       121.3,
+       105.0
+      ]
+     ],
+     "12": [
+      [
+       "C21",
+       104.9,
+       125.0
+      ],
+      [
+       "C22",
+       101.7,
+       125.0
+      ],
+      [
+       "C23",
+       98.9,
+       125.0
+      ],
+      [
+       "C151",
+       96.3,
+       125.0
+      ],
+      [
+       "C152",
+       95.2,
+       125.0
+      ],
+      [
+       "C5",
+       107.2,
+       105.0
+      ],
+      [
+       "C6",
+       114.4,
+       105.0
+      ]
+     ],
+     "16": [
+      [
+       "C21",
+       96.7,
+       125.0
+      ],
+      [
+       "C22",
+       94.0,
+       125.0
+      ],
+      [
+       "C23",
+       91.7,
+       125.0
+      ],
+      [
+       "C151",
+       89.6,
+       125.0
+      ],
+      [
+       "C152",
+       88.9,
+       125.0
+      ],
+      [
+       "C5",
+       99.8,
+       105.0
+      ],
+      [
+       "C6",
+       105.6,
+       105.0
+      ]
+     ],
+     "19": [
+      [
+       "C21",
+       92.9,
+       125.0
+      ],
+      [
+       "C22",
+       90.4,
+       125.0
+      ],
+      [
+       "C23",
+       88.3,
+       125.0
+      ],
+      [
+       "C151",
+       86.5,
+       125.0
+      ],
+      [
+       "C152",
+       86.0,
+       125.0
+      ],
+      [
+       "C5",
+       96.4,
+       105.0
+      ],
+      [
+       "C6",
+       101.4,
+       105.0
+      ]
+     ],
+     "25": [
+      [
+       "C21",
+       88.0,
+       125.0
+      ],
+      [
+       "C22",
+       85.8,
+       125.0
+      ],
+      [
+       "C23",
+       84.1,
+       125.0
+      ],
+      [
+       "C151",
+       82.6,
+       125.0
+      ],
+      [
+       "C152",
+       82.4,
+       125.0
+      ],
+      [
+       "C5",
+       92.2,
+       105.0
+      ],
+      [
+       "C6",
+       95.9,
+       105.0
+      ]
+     ]
+    },
+    "source_w_by_h": {
+     "10": 27.514,
+     "12": 27.238,
+     "16": 26.856,
+     "19": 26.656,
+     "25": 26.37
+    },
+    "delta_vs_s53_board_rows_k_by_h": {
+     "10": -1.5,
+     "12": -1.4,
+     "16": -1.1,
+     "19": -1.0,
+     "25": -0.9
+    }
+   }
+  },
+  "native22_210B": {
+   "17.5A": {
+    "margin_k_by_h": {
+     "10": 0.5,
+     "12": 5.6,
+     "16": 12.8,
+     "19": 16.7,
+     "25": 22.3
+    },
+    "binding_by_h": {
+     "10": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "12": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "16": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "19": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "25": "U26: TJ max (TI SBVS204G p.4)"
+    },
+    "margin_k_by_h_ron2w": {
+     "10": 3.5,
+     "12": 8.6,
+     "16": 14.8,
+     "19": 18.0,
+     "25": 22.3
+    },
+    "binding_by_h_ron2w": {
+     "10": "laminate: 1 mm-block copper peak",
+     "12": "laminate: 1 mm-block copper peak",
+     "16": "U26: TJ max (TI SBVS204G p.4)",
+     "19": "U26: TJ max (TI SBVS204G p.4)",
+     "25": "U26: TJ max (TI SBVS204G p.4)"
+    },
+    "h_for_margin_ge_0": "<= 10",
+    "h_for_margin_ge_0_ron2w": "<= 10",
+    "board_rows_margin_k_by_h": {
+     "10": 0.5,
+     "12": 5.6,
+     "16": 12.8,
+     "19": 16.7,
+     "25": 22.3
+    },
+    "board_rows_binding_by_h": {
+     "10": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "12": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "16": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "19": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "25": "U26: TJ max (TI SBVS204G p.4)"
+    },
+    "board_rows_margin_k_by_h_ron2w": {
+     "10": 3.5,
+     "12": 8.6,
+     "16": 14.8,
+     "19": 18.0,
+     "25": 22.3
+    },
+    "board_rows_binding_by_h_ron2w": {
+     "10": "laminate: 1 mm-block copper peak",
+     "12": "laminate: 1 mm-block copper peak",
+     "16": "U26: TJ max (TI SBVS204G p.4)",
+     "19": "U26: TJ max (TI SBVS204G p.4)",
+     "25": "U26: TJ max (TI SBVS204G p.4)"
+    },
+    "h_for_board_rows_ge_0": "<= 10",
+    "h_for_board_rows_ge_0_ron2w": "<= 10",
+    "mean_face_rise_k_by_h": {
+     "10": 19.71,
+     "12": 16.66,
+     "16": 12.77,
+     "19": 10.9,
+     "25": 8.45
+    },
+    "advisory_by_h": {
+     "10": [
+      [
+       "C21",
+       82.7,
+       125.0
+      ],
+      [
+       "C22",
+       81.5,
+       125.0
+      ],
+      [
+       "C23",
+       80.7,
+       125.0
+      ],
+      [
+       "C151",
+       80.1,
+       125.0
+      ],
+      [
+       "C152",
+       79.6,
+       125.0
+      ],
+      [
+       "C5",
+       87.3,
+       105.0
+      ],
+      [
+       "C6",
+       95.3,
+       105.0
+      ]
+     ],
+     "12": [
+      [
+       "C21",
+       79.6,
+       125.0
+      ],
+      [
+       "C22",
+       78.6,
+       125.0
+      ],
+      [
+       "C23",
+       77.9,
+       125.0
+      ],
+      [
+       "C151",
+       77.4,
+       125.0
+      ],
+      [
+       "C152",
+       77.1,
+       125.0
+      ],
+      [
+       "C5",
+       83.7,
+       105.0
+      ],
+      [
+       "C6",
+       90.9,
+       105.0
+      ]
+     ],
+     "16": [
+      [
+       "C21",
+       75.8,
+       125.0
+      ],
+      [
+       "C22",
+       75.1,
+       125.0
+      ],
+      [
+       "C23",
+       74.6,
+       125.0
+      ],
+      [
+       "C151",
+       74.2,
+       125.0
+      ],
+      [
+       "C152",
+       74.0,
+       125.0
+      ],
+      [
+       "C5",
+       79.3,
+       105.0
+      ],
+      [
+       "C6",
+       85.4,
+       105.0
+      ]
+     ],
+     "19": [
+      [
+       "C21",
+       74.1,
+       125.0
+      ],
+      [
+       "C22",
+       73.4,
+       125.0
+      ],
+      [
+       "C23",
+       73.0,
+       125.0
+      ],
+      [
+       "C151",
+       72.7,
+       125.0
+      ],
+      [
+       "C152",
+       72.6,
+       125.0
+      ],
+      [
+       "C5",
+       77.3,
+       105.0
+      ],
+      [
+       "C6",
+       82.7,
+       105.0
+      ]
+     ],
+     "25": [
+      [
+       "C21",
+       71.9,
+       125.0
+      ],
+      [
+       "C22",
+       71.4,
+       125.0
+      ],
+      [
+       "C23",
+       71.0,
+       125.0
+      ],
+      [
+       "C151",
+       70.8,
+       125.0
+      ],
+      [
+       "C152",
+       70.7,
+       125.0
+      ],
+      [
+       "C5",
+       74.8,
+       105.0
+      ],
+      [
+       "C6",
+       79.3,
+       105.0
+      ]
+     ]
+    },
+    "source_w_by_h": {
+     "10": 13.57,
+     "12": 13.481,
+     "16": 13.361,
+     "19": 13.299,
+     "25": 13.213
+    },
+    "delta_vs_s53_board_rows_k_by_h": {
+     "10": -0.8,
+     "12": -0.7,
+     "16": -0.5,
+     "19": -0.4,
+     "25": 0.0
+    },
+    "s53_board_rows_margin_at_h10_k": 1.3,
+    "h_to_match_s53_at_h10": 10.3
+   },
+   "28A": {
+    "margin_k_by_h": {
+     "10": -11.5,
+     "12": -6.9,
+     "16": -0.2,
+     "19": 3.6,
+     "25": 9.3
+    },
+    "binding_by_h": {
+     "10": "laminate: FET-row copper",
+     "12": "laminate: FET-row copper",
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper",
+     "25": "laminate: FET-row copper"
+    },
+    "margin_k_by_h_ron2w": {
+     "10": -11.5,
+     "12": -6.9,
+     "16": -0.2,
+     "19": 3.6,
+     "25": 9.3
+    },
+    "binding_by_h_ron2w": {
+     "10": "laminate: FET-row copper",
+     "12": "laminate: FET-row copper",
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper",
+     "25": "laminate: FET-row copper"
+    },
+    "h_for_margin_ge_0": 16.2,
+    "h_for_margin_ge_0_ron2w": 16.2,
+    "board_rows_margin_k_by_h": {
+     "10": -11.5,
+     "12": -6.9,
+     "16": -0.2,
+     "19": 3.6,
+     "25": 9.3
+    },
+    "board_rows_binding_by_h": {
+     "10": "laminate: FET-row copper",
+     "12": "laminate: FET-row copper",
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper",
+     "25": "laminate: FET-row copper"
+    },
+    "board_rows_margin_k_by_h_ron2w": {
+     "10": -11.5,
+     "12": -6.9,
+     "16": -0.2,
+     "19": 3.6,
+     "25": 9.3
+    },
+    "board_rows_binding_by_h_ron2w": {
+     "10": "laminate: FET-row copper",
+     "12": "laminate: FET-row copper",
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper",
+     "25": "laminate: FET-row copper"
+    },
+    "h_for_board_rows_ge_0": 16.2,
+    "h_for_board_rows_ge_0_ron2w": 16.2,
+    "mean_face_rise_k_by_h": {
+     "10": null,
+     "12": null,
+     "16": null,
+     "19": null,
+     "25": null
+    },
+    "advisory_by_h": {
+     "10": [
+      [
+       "C21",
+       113.5,
+       125.0
+      ],
+      [
+       "C22",
+       110.7,
+       125.0
+      ],
+      [
+       "C23",
+       107.6,
+       125.0
+      ],
+      [
+       "C151",
+       104.7,
+       125.0
+      ],
+      [
+       "C152",
+       103.3,
+       125.0
+      ],
+      [
+       "C5",
+       120.0,
+       105.0
+      ],
+      [
+       "C6",
+       134.4,
+       105.0
+      ]
+     ],
+     "12": [
+      [
+       "C21",
+       106.5,
+       125.0
+      ],
+      [
+       "C22",
+       103.9,
+       125.0
+      ],
+      [
+       "C23",
+       101.2,
+       125.0
+      ],
+      [
+       "C151",
+       98.7,
+       125.0
+      ],
+      [
+       "C152",
+       97.6,
+       125.0
+      ],
+      [
+       "C5",
+       113.1,
+       105.0
+      ],
+      [
+       "C6",
+       126.8,
+       105.0
+      ]
+     ],
+     "16": [
+      [
+       "C21",
+       97.8,
+       125.0
+      ],
+      [
+       "C22",
+       95.6,
+       125.0
+      ],
+      [
+       "C23",
+       93.4,
+       125.0
+      ],
+      [
+       "C151",
+       91.4,
+       125.0
+      ],
+      [
+       "C152",
+       90.7,
+       125.0
+      ],
+      [
+       "C5",
+       104.3,
+       105.0
+      ],
+      [
+       "C6",
+       116.7,
+       105.0
+      ]
+     ],
+     "19": [
+      [
+       "C21",
+       93.7,
+       125.0
+      ],
+      [
+       "C22",
+       91.8,
+       125.0
+      ],
+      [
+       "C23",
+       89.8,
+       125.0
+      ],
+      [
+       "C151",
+       88.0,
+       125.0
+      ],
+      [
+       "C152",
+       87.5,
+       125.0
+      ],
+      [
+       "C5",
+       100.2,
+       105.0
+      ],
+      [
+       "C6",
+       111.6,
+       105.0
+      ]
+     ],
+     "25": [
+      [
+       "C21",
+       88.6,
+       125.0
+      ],
+      [
+       "C22",
+       86.9,
+       125.0
+      ],
+      [
+       "C23",
+       85.2,
+       125.0
+      ],
+      [
+       "C151",
+       83.8,
+       125.0
+      ],
+      [
+       "C152",
+       83.6,
+       125.0
+      ],
+      [
+       "C5",
+       94.9,
+       105.0
+      ],
+      [
+       "C6",
+       104.8,
+       105.0
+      ]
+     ]
+    },
+    "source_w_by_h": {
+     "10": 27.567,
+     "12": 27.281,
+     "16": 26.889,
+     "19": 26.684,
+     "25": 26.393
+    },
+    "delta_vs_s53_board_rows_k_by_h": {
+     "10": -1.7,
+     "12": -1.4,
+     "16": -1.1,
+     "19": -0.9,
+     "25": -0.8
+    }
+   }
+  },
+  "native22_218_nofill": {
+   "17.5A": {
+    "margin_k_by_h": {
+     "10": -2.1,
+     "12": 3.4
+    },
+    "binding_by_h": {
+     "10": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "12": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    },
+    "margin_k_by_h_ron2w": {
+     "10": -0.5,
+     "12": 4.8
+    },
+    "binding_by_h_ron2w": {
+     "10": "laminate: 1 mm-block copper peak",
+     "12": "laminate: 1 mm-block copper peak"
+    },
+    "h_for_margin_ge_0": 10.8,
+    "h_for_margin_ge_0_ron2w": 10.2,
+    "board_rows_margin_k_by_h": {
+     "10": -2.1,
+     "12": 3.4
+    },
+    "board_rows_binding_by_h": {
+     "10": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "12": "R10: 2512 terminal derating at 0.217 W (20 % margin)"
+    },
+    "board_rows_margin_k_by_h_ron2w": {
+     "10": -0.5,
+     "12": 4.8
+    },
+    "board_rows_binding_by_h_ron2w": {
+     "10": "laminate: 1 mm-block copper peak",
+     "12": "laminate: 1 mm-block copper peak"
+    },
+    "h_for_board_rows_ge_0": 10.8,
+    "h_for_board_rows_ge_0_ron2w": 10.2,
+    "mean_face_rise_k_by_h": {
+     "10": 18.89,
+     "12": 15.98
+    },
+    "advisory_by_h": {
+     "10": [
+      [
+       "C21",
+       82.8,
+       125.0
+      ],
+      [
+       "C22",
+       80.6,
+       125.0
+      ],
+      [
+       "C23",
+       79.0,
+       125.0
+      ],
+      [
+       "C151",
+       77.8,
+       125.0
+      ],
+      [
+       "C152",
+       77.1,
+       125.0
+      ],
+      [
+       "C5",
+       78.4,
+       105.0
+      ],
+      [
+       "C6",
+       79.7,
+       105.0
+      ]
+     ],
+     "12": [
+      [
+       "C21",
+       80.0,
+       125.0
+      ],
+      [
+       "C22",
+       78.0,
+       125.0
+      ],
+      [
+       "C23",
+       76.6,
+       125.0
+      ],
+      [
+       "C151",
+       75.4,
+       125.0
+      ],
+      [
+       "C152",
+       74.9,
+       125.0
+      ],
+      [
+       "C5",
+       76.6,
+       105.0
+      ],
+      [
+       "C6",
+       77.7,
+       105.0
+      ]
+     ]
+    },
+    "source_w_by_h": {
+     "10": 13.625,
+     "12": 13.53
+    },
+    "delta_vs_s53_board_rows_k_by_h": {
+     "10": -3.4,
+     "12": -2.9
+    },
+    "s53_board_rows_margin_at_h10_k": 1.3,
+    "h_to_match_s53_at_h10": 11.2
+   },
+   "28A": {
+    "margin_k_by_h": {
+     "16": -2.7,
+     "19": 1.3
+    },
+    "binding_by_h": {
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper"
+    },
+    "margin_k_by_h_ron2w": {
+     "16": -2.7,
+     "19": 1.3
+    },
+    "binding_by_h_ron2w": {
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper"
+    },
+    "h_for_margin_ge_0": 18.0,
+    "h_for_margin_ge_0_ron2w": 18.0,
+    "board_rows_margin_k_by_h": {
+     "16": -2.7,
+     "19": 1.3
+    },
+    "board_rows_binding_by_h": {
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper"
+    },
+    "board_rows_margin_k_by_h_ron2w": {
+     "16": -2.7,
+     "19": 1.3
+    },
+    "board_rows_binding_by_h_ron2w": {
+     "16": "laminate: FET-row copper",
+     "19": "laminate: FET-row copper"
+    },
+    "h_for_board_rows_ge_0": 18.0,
+    "h_for_board_rows_ge_0_ron2w": 18.0,
+    "mean_face_rise_k_by_h": {
+     "16": null,
+     "19": null
+    },
+    "advisory_by_h": {
+     "16": [
+      [
+       "C21",
+       101.9,
+       125.0
+      ],
+      [
+       "C22",
+       97.1,
+       125.0
+      ],
+      [
+       "C23",
+       93.8,
+       125.0
+      ],
+      [
+       "C151",
+       91.1,
+       125.0
+      ],
+      [
+       "C152",
+       90.0,
+       125.0
+      ],
+      [
+       "C5",
+       94.8,
+       105.0
+      ],
+      [
+       "C6",
+       95.2,
+       105.0
+      ]
+     ],
+     "19": [
+      [
+       "C21",
+       97.3,
+       125.0
+      ],
+      [
+       "C22",
+       93.0,
+       125.0
+      ],
+      [
+       "C23",
+       90.1,
+       125.0
+      ],
+      [
+       "C151",
+       87.7,
+       125.0
+      ],
+      [
+       "C152",
+       86.8,
+       125.0
+      ],
+      [
+       "C5",
+       92.5,
+       105.0
+      ],
+      [
+       "C6",
+       92.6,
+       105.0
+      ]
+     ]
+    },
+    "source_w_by_h": {
+     "16": 27.096,
+     "19": 26.866
+    },
+    "delta_vs_s53_board_rows_k_by_h": {
+     "16": -3.6,
+     "19": -3.2
+    }
+   }
+  }
+ }
+}

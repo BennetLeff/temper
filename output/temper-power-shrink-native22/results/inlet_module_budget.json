@@ -1,0 +1,97 @@
+{
+ "parts": [
+  {
+   "ref": "C1",
+   "what": "X2 cx1",
+   "board_courtyard_mm2": 315.9
+  },
+  {
+   "ref": "C2",
+   "what": "X2 cx2",
+   "board_courtyard_mm2": 315.9
+  },
+  {
+   "ref": "C3",
+   "what": "Y1 cy1 (L_FILT-PE)",
+   "board_courtyard_mm2": 68.8
+  },
+  {
+   "ref": "C4",
+   "what": "Y1 cy2 (N_FILT-PE)",
+   "board_courtyard_mm2": 68.8
+  },
+  {
+   "ref": "F1",
+   "what": "fuse KLDR025.TXP + clips",
+   "board_courtyard_mm2": 610.2
+  },
+  {
+   "ref": "F2",
+   "what": "blower fuse",
+   "board_courtyard_mm2": 109.8
+  },
+  {
+   "ref": "J1",
+   "what": "mains input terminal (cord L/N)",
+   "board_courtyard_mm2": 254.0
+  },
+  {
+   "ref": "J11",
+   "what": "blower AC tap terminal",
+   "board_courtyard_mm2": 121.8
+  },
+  {
+   "ref": "J3",
+   "what": "TCO loop terminal (L_FILT -> TCO_L)",
+   "board_courtyard_mm2": 121.8
+  },
+  {
+   "ref": "L1",
+   "what": "CM/DM choke B82726S22x3A020",
+   "board_courtyard_mm2": 1380.0
+  },
+  {
+   "ref": "PS2",
+   "what": "MEAN WELL MPM-20-24 gate-drive supply (TCO_L in)",
+   "board_courtyard_mm2": 1465.3
+  },
+  {
+   "ref": "R1",
+   "what": "X bleed rb1a",
+   "board_courtyard_mm2": 10.3
+  },
+  {
+   "ref": "R130",
+   "what": "blower series resistor",
+   "board_courtyard_mm2": 83.4
+  },
+  {
+   "ref": "R2",
+   "what": "X bleed rb1b",
+   "board_courtyard_mm2": 10.3
+  },
+  {
+   "ref": "RV1",
+   "what": "MOV TMOV20RP175E",
+   "board_courtyard_mm2": 449.5
+  }
+ ],
+ "board_courtyard_leaving_mm2": 5385.8,
+ "module_area_added_mm2_est": [
+  8286,
+  10772
+ ],
+ "module_area_note": "[EST] courtyard / 0.50-0.65 packing (a carrier with mains spacing); D-22 reserved 110 x 80 x 50 mm (8,800 mm2 plan) before these parts",
+ "heat_leaving_board_w": {
+  "L1 at 13.5 A (B3 heat row, c28 file x (13.5/11.1)^2)": 1.292,
+  "PS2 MPM-20-24 whole loss (B3 module row)": 1.348,
+  "board line copper J1-F1-L1 at 13.5 A, 20 C (A4 cells owned by removed parts)": 0.344
+ },
+ "heat_not_quantified": [
+  "F1 fuse element I2R (no B3 row)",
+  "R130 blower resistor (no B3 row)",
+  "RV1, C1-C4, R1/R2: small (no B3 rows)"
+ ],
+ "d22_allowance_w": 8.0,
+ "module_heat_total_w_est_min": 10.64
+}
