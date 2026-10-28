@@ -1,0 +1,137 @@
+{
+ "_meta": {
+  "read_date": "2026-10-27 local (2026-10-28 UTC)",
+  "download_root": "/Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl",
+  "note": "Downloads are outside git. Infineon files fetched through Chrome (plain curl gets an empty 202). Encryption check = grep for vendor encryption blocks. 'SIMPLIS Encryption' tags in the CoolSiC lib are markers only; the enclosed text is plaintext."
+ },
+ "IPW65R018CM8XKSA1 (exact part, NEW)": {
+  "model_url": "https://www.infineon.com/content/dam/infineon/row/public/documents/24/50/infineon-spice-model-library-650-v-coolmos-8-simulationmodels-en.zip",
+  "source_page": "https://www.infineon.com/part/IPW65R018CM8 (Design resources > Simulation models: '650 V CoolMOS 8 SPICE Model Library', v01_00, dated May 7, 2025)",
+  "archive_local": "cm8/infineon-spice-model-library-650-v-coolmos-8-simulationmodels-en.zip",
+  "archive_sha256": "2330c7629ddc9dde9ede9b7e8c1b7139cfc1e28b336dcce5fd5a7b9733dadba1",
+  "lib_local": "cm8/c8_650/IFX_C8_650V.lib",
+  "lib_sha256": "b9d1c19ea90cf886d758b46b732951d925464b147f0294e1e91439a77998345f",
+  "lib_header": "Technology C8 650V; Date and time 24.04.2025 10:37:04; Version 1253; model types L0 L1 L3",
+  "subckts": {
+   "IPW65R018CM8_L0": "drain gate source",
+   "IPW65R018CM8_L1": "drain gate source PARAMS: dVth=0 dRdson=0",
+   "IPW65R018CM8_L3": "drain gate source Tj Tcase PARAMS: dVth=0 dRdson=0 Zthtype=0"
+  },
+  "core_subckt": "cool_C8_650_var dd g s Tj t1 (act=29.67, Rmax=18m, Rg=0.86 ohm, Ls=3.12n, Ld=1.94n, Lg=8.38n)",
+  "format": "SIMetrix/PSpice-style SPICE (PARAMS:, limit(), tanh(), VALUE={TEMP}); header says evaluated with SIMetrix",
+  "thermal_pins": "L3 only: Tj, Tcase (5-stage Cauer/Foster RC to Tcase); L1 temperature from .TEMP via E1 Tj w VALUE={TEMP}",
+  "temperature_param": "L1: global TEMP; L3: self-heating (heat=1), Zthtype param 0/1 scales RC",
+  "encrypted": false,
+  "also_contains": "IPDQ65R008CM8, IPDQ65R018CM8, IPT65R018/025/040CM8, IPW65R018/025/040/060CM8, IPZA65R018/025/040CM8",
+  "note": "This is a vendor model of the exact 650 V part; it supersedes the 600 V IPW60R016CM8 proxy. The IPW65R018CM8 wrapper values (act, Rs, Rg, L) are nearly identical to IPW60R016CM8 in the 600 V lib; the technology subckt differs (fpar1 4.95 vs 5.05 etc.)."
+ },
+ "IPW65R018CM8 proxy (600 V CM8 lib, as requested)": {
+  "model_url": "https://www.infineon.com/assets/row/public/documents/24/50/infineon-600-v-coolmos-8-simulationmodels-en.zip",
+  "archive_local": "cm8/infineon-600-v-coolmos-8-simulationmodels-en.zip",
+  "archive_sha256": "32050b46b1904af3a6e838503104d9da95d6c7058de3a710f8ce9f6415fb2f69",
+  "archive_sha256_expected": "32050b46b1904af3a6e838503104d9da95d6c7058de3a710f8ce9f6415fb2f69",
+  "lib_local": "cm8/c8_600/IFX_C8_600V.lib",
+  "lib_sha256": "21bcfd85a40af191ea4dfec21913d693b00daa12a5823a5b2a51b30fbeb7c9ab",
+  "lib_header": "Technology C8 600V; Date and time 13.11.2025 10:45:24; Version 1336",
+  "subckts": {
+   "IPW60R016CM8_L0": "drain gate source",
+   "IPW60R016CM8_L1": "drain gate source PARAMS: dVth=0 dRdson=0",
+   "IPW60R016CM8_L3": "drain gate source Tj Tcase PARAMS: dVth=0 dRdson=0 Zthtype=0"
+  },
+  "core_subckt": "cool_C8_600_var dd g s Tj t1 (act=29.66, Rmax=16.0m, Rg=0.86)",
+  "format": "SIMetrix/PSpice-style SPICE",
+  "thermal_pins": "L3: Tj, Tcase",
+  "temperature_param": "L1 via TEMP",
+  "encrypted": false,
+  "note": "zip has no folder; unzipped into cm8/c8_600/ so cm8/c8_600/IFX_C8_600V.lib exists"
+ },
+ "IMW65R026M2HXKSA1": {
+  "model_url": "https://www.infineon.com/content/dam/infineon/row/public/documents/24/50/infineon-coolsic-mosfet-g2-650-v-g2-spice-simulationmodels-en.zip",
+  "source_page": "https://www.infineon.com/part/IMW65R026M2H (Simulation models: 'CoolSiC MOSFET 650 V G2 - SPICE', v04_00, Aug 25, 2026)",
+  "archive_local": "IMW65R026M2H/infineon-coolsic-mosfet-g2-650-v-g2-spice-simulationmodels-en.zip",
+  "archive_sha256": "71f9ba14e2ee378c8c149e67bf14fd3b2d183b9af984812003a47f3d92d2e55d",
+  "lib_local": "IMW65R026M2H/model/infineon-coolsic-mosfet-650-v-g2-spice-simulationmodels-v1380-en.lib",
+  "lib_sha256": "60a00c18f31246d6dcc2ed81050bd875ba601dc8f40d914e6d9a00dd86b28f43",
+  "lib_header": "Level0/1/3 SPICE library for 650V SiC Trench MOSFETs, CoolSiC Gen2_650V; Date and time 23.06.2026 10:30:53; Version 1380",
+  "subckts": {
+   "IMW65R026M2H_L1": "drain gate source PARAMS: dVth=0 Ls=3.52E-09 Ld=2.25E-09 Lg=8.95E-09",
+   "IMW65R026M2H_L3": "drain gate source Tj Tcase PARAMS: dVth=0 Ls=3.52E-09 Ld=2.25E-09 Lg=8.95E-09"
+  },
+  "core_subckt": "SiCMOS_650V_gen2 dd gg ss Pj Tj PARAMS: dVth fpar127 (IMW65R026M2H: fpar127=5.00, Rg(ext wrapper)=0.045, internal RGint={LIMIT(-1.306*ln(fpar127)+5.0069,0.1,25)}); body diode BodyDiodeModel_qrr_v1",
+  "format": "SIMetrix/PSpice-style SPICE (.FUNC, PARAMS:, LIMIT, IF(time>0..)); marked with '*?@ Start SIMPLIS Encryption' tags but content is plaintext",
+  "thermal_pins": "L3: Tj, Tcase (power fed into Tj node via GPOW, 5-stage RC Zth to Tcase); L1: Tj from TEMP",
+  "temperature_param": "L1: global TEMP (ETj VALUE={TEMP}); L3: self-heating; Zthtype=1 in L3",
+  "encrypted": false,
+  "also_covers": "IMW65R033M2H, IMW65R040M2H, IMW65R020M2H and other G2 650 V parts (no L0 for IMW parts listed in .SUBCKT lines read)"
+ },
+ "C3M0025065D": {
+  "model_url": "not downloaded",
+  "source_page": "https://www.wolfspeed.com/tools-and-support/power/ltspice-and-plecs-models/ ('All SPICE Models (ZIP)', listed 10/2026)",
+  "status": "NOT OBTAINED: the download button opens a modal 'By downloading CAD models from Wolfspeed, you agree to our Terms of Use and Privacy Policy' with an 'I Accept' button. Accepting terms needs the user's explicit OK, so it was not clicked and the direct URL was not extracted. No account is needed: the user can click I Accept on that page, or allow the agent to.",
+  "archive_local": null,
+  "lib_local": null
+ },
+ "NTHL032N065M3S": {
+  "model_url": "not available",
+  "status": "NOT OBTAINED: onsemi technical-documentation search (Simulation Models) lists SiC MOSFET SPICE models only for 900 V (ONSEMI_SiCMOSFET_900_ltspice/pspice/simetrix, Rev 1.3, Jul 2021); nothing for M3S/650 V ('N065M3S' search: no matches). The product page offers only the PLECS Model Generator, the Elite Power Simulator and CAD models.",
+  "archive_local": null,
+  "lib_local": null
+ },
+ "IHW40N65R5XKSA1": {
+  "model_url": "https://www.infineon.com/content/dam/infineon/row/public/documents/24/50/infineon-spice-l1-igbt-650v-trenchstop5-r5-simulationmodels-en.zip",
+  "source_page": "https://www.infineon.com/part/IHW40N65R5 (Simulation models: 'IGBT 650V TRENCHSTOP5 R5 SPICE model (L1)', v01_01, Jul 28, 2023; only L1 is listed for R5)",
+  "archive_local": "IHW40N65R5/infineon-spice-l1-igbt-650v-trenchstop5-r5-simulationmodels-en.zip",
+  "archive_sha256": "f24885b4ffeaf3506c789d395bcc8f20286308465a93b6284341c936b1991f2a",
+  "lib_local": "IHW40N65R5/model_l1/Infineon-SPICE-L1-IGBT_650V_TRENCHSTOP5_R5-v01_01-EN/model/IGBT_650V_TRENCHSTOP5_R5_L1.lib",
+  "lib_sha256": "b54e89a2215278201e8b24a20e12c5a2c4b8dc30301ea1a7c263bed65f5eca55",
+  "lib_header": "Behavioral model of IGBT 650V TRENCHSTOP 5 R5 Level 1 version 1.1 (changelog 1.1 2021-07-09); covers IHW20/30/40/50N65R5",
+  "subckts": {
+   "IHW40N65R5_L1": "C G E PARAMS: TJ= {TEMP}"
+  },
+  "format": "SPICE behavioral (readme: tested SIMetrix 8.20, OrCAD PSpice 17.2, LTspice XVII); LF line endings; non-ASCII TM char in comments",
+  "thermal_pins": "none (3 pins C G E); integrated RC diode modelled inside (X... E C Z01BE)",
+  "temperature_param": "TJ param defaults to TEMP; valid 25 C .. Tj max per header",
+  "encrypted": false
+ },
+ "IHW40N65R6XKSA1": {
+  "model_url": {
+   "L1": "https://www.infineon.com/content/dam/infineon/row/public/documents/24/50/infineon-spice-l1-igbt-650v-trenchstop5-r6-simulationmodels-en.zip",
+   "L2": "https://www.infineon.com/content/dam/infineon/row/public/documents/24/50/infineon-spice-l2-igbt-650v-trenchstop5-r6-simulationmodels-en.zip"
+  },
+  "source_page": "https://www.infineon.com/part/IHW40N65R6 (L1 v01_01 Aug 20 2025 listing; L2 v01_01 Jul 28 2023; PLECS also listed)",
+  "archive_local": {
+   "L1": "IHW40N65R6/infineon-spice-l1-igbt-650v-trenchstop5-r6-simulationmodels-en.zip",
+   "L2": "IHW40N65R6/infineon-spice-l2-igbt-650v-trenchstop5-r6-simulationmodels-en.zip"
+  },
+  "archive_sha256": {
+   "L1": "cb39edccae04adc7a9af6cc085c21e9134a20fedb3806374a07571bf7964fc26",
+   "L2": "d3550a5b37705c3d7de60f54ced200be8418db5e54b8a9719e84029864ee8205"
+  },
+  "lib_local": {
+   "L1": "IHW40N65R6/model_l1/Infineon-IGBT_650V_TRENCHSTOP5_R6-SPICE-L1-v01_01-EN/model/IGBT_650V_TRENCHSTOP5_R6_L1.lib",
+   "L2": "IHW40N65R6/model_l2/Infineon-SPICE-L2-IGBT_650V_TRENCHSTOP5_R6-v01_01-EN/model/IGBT_650V_TRENCHSTOP5_R6_L2.lib"
+  },
+  "lib_sha256": {
+   "L1": "35c3b4215348929aba2889f060f0945b575ef590e2afecd349e68810c14ee9e3",
+   "L2": "63b4801745fe0894a01d621c5e83449cc3a9816a3e4b06df43be5c96969704fe"
+  },
+  "lib_header": "L1: Behavioral model IGBT 650V TRENCHSTOP 5 R6 Level 1 v1.1 (1.1 2023-04-14 modified for PSpice 17.4); L2: Physics-based model Level 2 v1.1 for SIMetrix (1.1 2021-06-30)",
+  "subckts": {
+   "IHW40N65R6_L1": "C G E PARAMS: TJ={TEMP}",
+   "IHW40N65R6_L2": "C G E PARAMS: TJ={TEMP}"
+  },
+  "format": "L1: SPICE behavioral (tested SIMetrix 8.20, OrCAD PSpice 17.4, LTspice XVII, TINA 12), CRLF line endings, plaintext. L2: SIMetrix only, body ENCRYPTED ('START ENCRYPTION: SMX_AES') - not usable in ngspice/LTspice",
+  "thermal_pins": "none on L1 or L2 (C G E only)",
+  "temperature_param": "TJ defaults to TEMP; L1 has explicit linear TJ coefficients",
+  "encrypted": {
+   "L1": false,
+   "L2": true
+  }
+ },
+ "STGWA50IH65DF": {
+  "model_url": "not sought (task: non-Infineon IGBT datasheet + DigiKey only)"
+ },
+ "TP65H035G4WS": {
+  "model_url": "not obtained (optional item D, time-boxed): Renesas product page document list is loaded dynamically; no SPICE link found in the static docs block"
+ }
+}

@@ -1,0 +1,109 @@
+{
+ "source": "market/distributor-2026-10-27.csv (DigiKey list prices, read 2026-10-27 local) [VEN, 2026-10-27]",
+ "parts": {
+  "IPW65R018CFD7XKSA1": {
+   "unit_80": 11.4205,
+   "break_80": "60",
+   "unit_2000": 10.17612,
+   "break_2000": "510",
+   "per_board_20": 45.68,
+   "per_board_500": 40.7,
+   "delta_vs_cfd7_20": 0.0,
+   "delta_vs_cfd7_500": 0.0,
+   "stock": "459",
+   "lead_time": "8 weeks",
+   "lifecycle": "active"
+  },
+  "IPW65R018CM8XKSA1": {
+   "unit_80": 9.766,
+   "break_80": "60",
+   "unit_2000": 8.48325,
+   "break_2000": "510",
+   "per_board_20": 39.06,
+   "per_board_500": 33.93,
+   "delta_vs_cfd7_20": -6.62,
+   "delta_vs_cfd7_500": -6.77,
+   "stock": "2",
+   "lead_time": "24 weeks",
+   "lifecycle": "active"
+  },
+  "IMW65R026M2HXKSA1": {
+   "unit_80": 8.3755,
+   "break_80": "60",
+   "unit_2000": 7.08863,
+   "break_2000": "510",
+   "per_board_20": 33.5,
+   "per_board_500": 28.35,
+   "delta_vs_cfd7_20": -12.18,
+   "delta_vs_cfd7_500": -12.35,
+   "stock": "270",
+   "lead_time": "not shown",
+   "lifecycle": "active"
+  },
+  "C3M0025065D": {
+   "unit_80": 7.93217,
+   "break_80": "60",
+   "unit_2000": 6.65018,
+   "break_2000": "510",
+   "per_board_20": 31.73,
+   "per_board_500": 26.6,
+   "delta_vs_cfd7_20": -13.95,
+   "delta_vs_cfd7_500": -14.1,
+   "stock": "430",
+   "lead_time": "22 weeks",
+   "lifecycle": "active"
+  },
+  "NTHL032N065M3S": {
+   "unit_80": 5.6038,
+   "break_80": "50",
+   "unit_2000": 4.29362,
+   "break_2000": "900",
+   "per_board_20": 22.42,
+   "per_board_500": 17.17,
+   "delta_vs_cfd7_20": -23.27,
+   "delta_vs_cfd7_500": -23.53,
+   "stock": "845 (+5,850 factory stock shown)",
+   "lead_time": "29 weeks",
+   "lifecycle": "active"
+  },
+  "IHW40N65R6XKSA1": {
+   "unit_80": 2.15467,
+   "break_80": "30",
+   "unit_2000": 1.36523,
+   "break_2000": "1020",
+   "per_board_20": 8.62,
+   "per_board_500": 5.46,
+   "delta_vs_cfd7_20": -37.06,
+   "delta_vs_cfd7_500": -35.24,
+   "stock": "104",
+   "lead_time": "36 weeks",
+   "lifecycle": "active"
+  },
+  "IHW40N65R5XKSA1": {
+   "unit_80": 2.19133,
+   "break_80": "30",
+   "unit_2000": 1.39053,
+   "break_2000": "1020",
+   "per_board_20": 8.77,
+   "per_board_500": 5.56,
+   "delta_vs_cfd7_20": -36.92,
+   "delta_vs_cfd7_500": -35.14,
+   "stock": "239",
+   "lead_time": "36 weeks",
+   "lifecycle": "active"
+  },
+  "TP65H035G4WS": {
+   "unit_80": 7.13967,
+   "break_80": "60",
+   "unit_2000": 5.875,
+   "break_2000": "510",
+   "per_board_20": 28.56,
+   "per_board_500": 23.5,
+   "delta_vs_cfd7_20": -17.12,
+   "delta_vs_cfd7_500": -17.2,
+   "stock": "803",
+   "lead_time": "16 weeks",
+   "lifecycle": "active"
+  }
+ }
+}

@@ -1,0 +1,31 @@
+* Table 8 clamped-inductive commutation; ideal constant-current load limit.
+.include IFX_CFD7_650V.lib
+.include /Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl/_c55_clean/rc_h5.lib
+.SUBCKT IHW40N65R5_C55 drain gate source
+L_Ld drain ldrd 1.88n
+R_Ld drain ldrd 10
+R_Rd dd ldrd 1e-4
+L_Lg gate g 8.32n
+R_Lg gate g 10
+R_Ls s source 1e-6
+X1 dd g s IHW40N65R5_L1
+.ENDS
+
+.include /Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-plan/sim-kit/common/options.inc
+.param RG=100 TJ=25 STEP=0.2n IFWD=58.2
+.include params.inc
+.param TJDECK={TJ}
+.temp {TJ}
+Vbus bus 0 400
+XQH bus gh sw IHW40N65R5_C55
+Vprobe sw drain 0
+XQD drain gd 0 IHW40N65R5_C55
+* Equal external gate resistors, as datasheet Table 8.
+Roff gd 0 {RG}
+Vcmd cmd sw PULSE(0 13 2u 5n 5n 20u 40u)
+Ron cmd gh {RG}
+Iload sw 0 PWL(0 0 1u {IFWD})
+.tran {STEP} 12u 0 {STEP}
+.save v(sw) v(xqd.dd) v(xqd.s) v(xqd.g) i(vprobe)
+.meas tran peak MAX i(vprobe) from=2u to=12u
+.end
