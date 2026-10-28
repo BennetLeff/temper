@@ -10,7 +10,7 @@ Fill the `[ ]` fields. Facts below come from the repo (sources in brackets); not
 >
 > We are preparing a countertop, cord-and-plug induction cooktop for certification in the US and Canada: 120–127 V~ 60 Hz, NEMA 5-15P, 15 A input limit, one circular coil, resonant full-bridge stage, ESP32-S3 controller, glass top, built-in blower. We are at prototype stage and would like closed answers before we freeze the design. If a question is out of scope for a free pre-submission contact, please tell us which need a quoted preliminary review.
 >
-> **Q1 (standard).** We are working to UL 858 (and CSA C22.2 No. 61 for Canada, which we understand covers household ranges; No. 64 excludes them). Is UL 858 correct for a portable induction cooktop of this kind, or does UL 1026 or another standard apply?
+> **Q1 (standard).** We are working to UL 858 (and CSA C22.2 No. 61 for Canada, which we understand covers household ranges; No. 64 excludes them). Is UL 858 correct for a portable induction cooktop of this kind, or does UL 1026 or another standard apply? On the IEC side, do you evaluate it to IEC 60335-2-6 or -2-9, and against which edition of IEC 60335-1 (2020 + A1)?
 >
 > **Q2 (new oil-ignition clause).** Intertek's notice for UL 858 Ed. 16 lists clause 60A, a cooking-oil ignition test for induction units of 350 W or more, effective 2 August 2026. (a) Does it apply to a portable unit with one circular coil? (b) What cast-iron pan and oil are specified, and where is the pan placed? (c) Our firmware holds a frying set-point of 230 °C (pan-glass) and trips a runaway fault at about 308 °C; under 60A.8.4, is a temperature limiter built into the appliance evaluated with the specified pan, and would our limiter be evaluated as a closed-loop control or as a single-fault protection?
 >
@@ -18,7 +18,12 @@ Fill the `[ ]` fields. Facts below come from the repo (sources in brackets); not
 >
 > **Q4 (stuck-on stage).** For UL 858 25.3.1, the only firmware-independent cut for a power stage stuck on is a thermal cut-off (TCO) loop that opens the supply to the gate drivers; it does not open the mains path. Over-current, over-voltage, and bus-fault trips are separate. Is a gate-drive-only cut acceptable as the backstop for a stuck-on solid-state control, or do you require a power-path device (relay or contactor) in the mains line?
 >
-> **Q5 (insulation at the heat sink).** The switching devices (HOT, up to 400 V bus, tank envelope 345–362 V rms with a pan, 818 V pk worst fault) are electrically insulated from the grounded sink by aluminium-nitride tiles plus thermal compound. (a) Is reinforced insulation required at that interface? (b) On what working-voltage basis: line-cycle RMS, or carrier-crest? (c) Do you accept a ceramic of our supplier's datasheet rating, or must it be UL-Recognized?
+> **Q5 (insulation at the heat sink).** The four TO-247 MOSFET tabs (HOT, up to 400 V bus, tank envelope 345–362 V rms with a pan, 818 V pk worst fault; two tabs are switch nodes at 33–40 kHz, about 470 V peak) sit on an aluminium sink inside the metal Class I enclosure. The sink is bonded to the chassis earth star by a 14 AWG strap with toothed-washer joints, to be tested at ≤ 0.1 Ω / 25 A, and the Ø5 mm vent openings do not admit test probe B. Our prototype uses 2 mm aluminium-nitride tiles (reinforced by thickness); for production we would like to use a thin catalogue insulator (polyimide-carrier film or 0.635 mm ceramic).
+> (a) Is **basic** insulation tab-to-sink sufficient for this protectively earthed internal sink, and is the bond accepted as protective rather than functional?
+> (b) The controller's ELV return is tied to PE by a 0 Ω link on a separate PE branch, not in series with the sink's fault path. Do you treat the controller as PELV, or that link as a functional earth on a SELV circuit (which would make the sink part of a reinforced barrier)?
+> (c) For basic solid insulation 0.1–0.65 mm thick: the dielectric type and routine test voltages, confirmation that no minimum thickness applies, and whether a high-frequency field-strength check (IEC 60664-4 type) applies to the switch-node tabs.
+> (d) Which spacings apply between the live tab and grounded dead metal, and is a Recognized thermally conductive insulator accepted in place of spacings? With what material ratings (RTI, flammability, file)?
+> (e) Working-voltage basis for all of the above: line-cycle RMS, or carrier crest?
 >
 > **Q6 (firmware-only protections).** Several protections are firmware-only: the 15 A line-current limit (estimated, about ±10 %), the runaway trip, and the no-pan shutoff (2.0 s; UL 858 47.8 allows up to 30 s). (a) Which of these require a hardware backup, and which can rely on software evaluated to a software class (UL 1998, UL 60730-1 Annex H, or other)? (b) For 47.8, may a pan returned within the allowed time restart without a manual reset?
 >
@@ -32,7 +37,7 @@ Fill the `[ ]` fields. Facts below come from the repo (sources in brackets); not
 **Things in the email to check before sending:**
 - Fry hold of 230 °C and runaway trip of about 308 °C come from the checklist (FW rows); the ignition margin is not analysed (`ASKS-AND-HEDGES.md` section 3).
 - Q1's claim that C22.2 No. 64 excludes ranges is from a search result, not the standard text. Rephrase as a question if you prefer.
-- Q5 numbers: DECISIONS.md:248, 257 and `owner-items/m6m10/coil-voltage-28a/`.
+- Q5 numbers: DECISIONS.md:248, 257 and `owner-items/m6m10/coil-voltage-28a/`. Q5 (a)–(e) were rewritten on 2026-10-27 from `output/temper-insulation-basis-r1/README.md` §5 (basic vs reinforced at an earthed internal sink; the R38 / PELV question is the one that decides it).
 
 **Rows answered by the replies:** Q1 → CMP-01; Q2 → CMP-28, FW-16; Q3 → CMP-09, CMP-10; Q4 → CMP-12, PWR-58; Q5 → CMP-14, CMP-15; Q6 → CMP-13, FW-34.
 **Chase** after 1 week. If no answer in 3 weeks, proceed on the fallbacks in `ASKS-AND-HEDGES.md` section 4.
