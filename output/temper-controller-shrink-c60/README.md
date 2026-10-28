@@ -201,8 +201,8 @@ Unchanged:
 |---|---|---|
 | D1 | The enclosure has a use for the freed X93…168 strip. The owner approved the shrink; the enclosure line confirms it takes the space | Owner / enclosure |
 | D2 | The enclosure revision for the new landings: R44 is reserved for Codex controls, so either **R45**, or fold into R44 if that has not started | Enclosure |
-| D3 | Pan-RTD lead: a route of ≤ 500 mm to J3 at (88.75, 30.5), or the RTD owner relaxes the 500 mm limit. If neither, J3 must move | Enclosure + RTD unit |
-| D4 | Coax: 250 mm U.FL coax (or an antenna move), routed out under the UI board. E4 / T4 re-test | Enclosure |
+| D3 | **Decided 2026-10-27 (owner: the enclosure adapts): raise the pan-RTD lead limit to 600 mm.** The 500 mm figure is an underived guideline (`docs/CONNECTORS_AND_WIRING.md` §3.3 on origin/main, "Max 500mm", no basis given). The 4-wire connection cancels lead resistance: 0.54 m of AWG28 is about 0.12 Ω per conductor [EST, 0.21 Ω/m], about 0.5 mV at the MAX31865's ~3–5 mA bias, carried on the force leads. Cable capacitance of about 30–55 pF [EST, 50–100 pF/m] is small next to the planned differential RC. Pickup from the coil depends on routing and the shield, not on 40 mm of extra length. Keep it shielded twisted, drain at the controller end only, routed away from the winding. | Closed |
+| D4 | **Decided 2026-10-27: 250 mm U.FL 1.13 mm coax,** a stock length, routed out sideways under the UI board below Z43. The extra 100 mm adds roughly 0.3–0.4 dB at 2.4 GHz [EST, ~3–4 dB/m for 1.13 mm coax]. Wi-Fi is optional and its range is unqualified (C21), so this is not a constraint. Keep the antenna board's placement clear of metal; that matters far more than the cable. Re-run E4 when the antenna position is final | Enclosure |
 | D5 | Keep 0603 and 4 layers (recommended on this study's numbers; 0402 only as a module-escape fallback) | Controller |
 
 ### Phase 1 (hand-routed in the layout source, never autorouted)
