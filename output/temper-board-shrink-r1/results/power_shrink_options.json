@@ -1,0 +1,281 @@
+{
+ "assumptions": {
+  "RECOVER": 0.5,
+  "RECOVER_RANGE": [
+   0.3,
+   0.7
+  ],
+  "DEPTH_MM": 140.0,
+  "TAMB_MODEL_C": 50.0,
+  "R10_FAR_K": 27.7,
+  "TERRITORY_PER_COURTYARD_ADDED": 2.0,
+  "QDPAK_COURTYARD_MM": [
+   17.1,
+   23.06
+  ],
+  "CTRL_PACKING": [
+   0.3,
+   0.45
+  ]
+ },
+ "board_sha256": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27",
+ "s53_area_mm2": 45150.0,
+ "b3_run": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/c17.5_h10_p0p25.json",
+ "b3_convection_w": 13.325,
+ "h": 10,
+ "board_mean_rise_k": 14.76,
+ "release_margin_k": 1.3,
+ "release_binding_row": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+ "duty_apportionment_w_sum": 14.72,
+ "duty_overshoot_pct": 10.5,
+ "duty_share_by_block": {
+  "blower_ac_tap": 0.005,
+  "bridge_fets_gate_drive": 0.264,
+  "connectors_selv_tco": 0.003,
+  "mains_emi_fuse_mov": 0.128,
+  "mech_test": 0.0,
+  "ps2_isolated_bias": 0.241,
+  "rectifier_bus": 0.116,
+  "sensing_protection_isolators": 0.082,
+  "tank_bank_studs_ct": 0.161
+ },
+ "moat_territory_mm2": 4105.7,
+ "empty_not_moat_mm2": 4698.5,
+ "options": [
+  {
+   "name": "O0 same circuit, re-laid (recover empty area only)",
+   "removed_refs": [],
+   "removed_territory_mm2": 0,
+   "also_removed_area_mm2": 0.0,
+   "added_mm2": 0.0,
+   "cut_only_mm2": 45150.0,
+   "repacked_mm2": 42801.2,
+   "repacked_range_mm2": [
+    41861.8,
+    43740.8
+   ],
+   "kept_empty_mm2": 4697.5,
+   "repacked_pct_of_s53": 94.8,
+   "width_at_140_mm": 305.7,
+   "thermal_lumped": {
+    "board_heat_removed_w": 0.0,
+    "duty_share_removed": 0.0,
+    "F": 1.0,
+    "release_margin_low_est_k": 1.3,
+    "release_margin_high_est_k": 1.3,
+    "h_to_restore_w_m2k": 10.0,
+    "h_for_28A_lumped_w_m2k": 16.0
+   },
+   "note": ""
+  },
+  {
+   "name": "O1 drop the SELV tongue (290 x 140 rectangle)",
+   "removed_refs": [],
+   "removed_territory_mm2": 0,
+   "also_removed_area_mm2": 4550.0,
+   "added_mm2": 634.2,
+   "cut_only_mm2": 41234.2,
+   "repacked_mm2": 38922.6,
+   "repacked_range_mm2": [
+    37998.0,
+    39847.2
+   ],
+   "kept_empty_mm2": 4623.1,
+   "repacked_pct_of_s53": 86.2,
+   "width_at_140_mm": 278.0,
+   "thermal_lumped": {
+    "board_heat_removed_w": 0.0,
+    "duty_share_removed": 0.0038,
+    "F": 1.0039,
+    "release_margin_low_est_k": 1.24,
+    "release_margin_high_est_k": 1.19,
+    "h_to_restore_w_m2k": 10.0,
+    "h_for_28A_lumped_w_m2k": 16.1
+   },
+   "note": "tongue parts C155, C156, C174, C177, C178, J4, R146 (territory 3680 mm2) move into the main body"
+  },
+  {
+   "name": "O2 inlet module: EMI + fuse + MOV + PS2 + blower tap off-board",
+   "removed_refs": [
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "F1",
+    "F2",
+    "J1",
+    "J11",
+    "J3",
+    "J6",
+    "L1",
+    "PS2",
+    "R1",
+    "R130",
+    "R2",
+    "RV1"
+   ],
+   "removed_territory_mm2": 10383.5,
+   "also_removed_area_mm2": 0.0,
+   "added_mm2": 751.6,
+   "cut_only_mm2": 35518.1,
+   "repacked_mm2": 34381.3,
+   "repacked_range_mm2": [
+    33926.5,
+    34836.0
+   ],
+   "kept_empty_mm2": 2273.7,
+   "repacked_pct_of_s53": 76.1,
+   "width_at_140_mm": 245.6,
+   "thermal_lumped": {
+    "board_heat_removed_w": 1.284,
+    "duty_share_removed": 0.2305,
+    "F": 1.1743,
+    "release_margin_low_est_k": -1.27,
+    "release_margin_high_est_k": -3.53,
+    "h_to_restore_w_m2k": 11.7,
+    "h_for_28A_lumped_w_m2k": 18.8
+   },
+   "note": "adds back one J1-class 2-pole terminal and one J3-class 2-pin gate-supply input"
+  },
+  {
+   "name": "O1+O2 tongue dropped and inlet module",
+   "removed_refs": [
+    "C1",
+    "C155",
+    "C156",
+    "C174",
+    "C177",
+    "C178",
+    "C2",
+    "C3",
+    "C4",
+    "F1",
+    "F2",
+    "J1",
+    "J11",
+    "J3",
+    "J4",
+    "J6",
+    "L1",
+    "PS2",
+    "R1",
+    "R130",
+    "R146",
+    "R2",
+    "RV1"
+   ],
+   "removed_territory_mm2": 14063.8,
+   "also_removed_area_mm2": 869.7,
+   "added_mm2": 1385.8,
+   "cut_only_mm2": 31602.3,
+   "repacked_mm2": 30502.6,
+   "repacked_range_mm2": [
+    30062.8,
+    30942.5
+   ],
+   "kept_empty_mm2": 2199.3,
+   "repacked_pct_of_s53": 67.6,
+   "width_at_140_mm": 217.9,
+   "thermal_lumped": {
+    "board_heat_removed_w": 1.284,
+    "duty_share_removed": 0.2343,
+    "F": 1.1802,
+    "release_margin_low_est_k": -1.36,
+    "release_margin_high_est_k": -3.69,
+    "h_to_restore_w_m2k": 11.8,
+    "h_for_28A_lumped_w_m2k": 18.9
+   },
+   "note": "tongue parts re-added in the main body at 2x courtyard; inlet parts as O2"
+  },
+  {
+   "name": "O3 merge the controller into the SELV zone",
+   "controller_pcb": "/Users/bennet/Desktop/temper/worktrees/ctrl-j13/zapote/controller/pcb/controller-routed.kicad_pcb",
+   "controller_footprints": 289,
+   "controller_courtyard_mm2": 4070.6,
+   "controller_J4_courtyard_mm2": 390.8,
+   "controller_board_mm2": 15656,
+   "controller_own_packing": 0.26,
+   "added_mm2_range": [
+    8177.1,
+    12265.7
+   ],
+   "power_J4_territory_mm2": 1689.9,
+   "merged_mm2_range": [
+    51637.2,
+    55725.8
+   ],
+   "merged_on_O1O2_mm2_range": [
+    38679.7,
+    42768.3
+   ],
+   "two_boards_today_mm2": 60806.0,
+   "note": "power board grows; the system loses one board, two J4 headers and the harness"
+  },
+  {
+   "name": "O4 QDPAK top-side-cooled FETs",
+   "qdpak_courtyard_each_mm2": 394.3,
+   "to247_courtyard_each_mm2": 90.69,
+   "courtyard_delta_mm2": 1214.5,
+   "courtyard_delta_pct_of_s53": 2.69,
+   "note": "area roughly neutral (+courtyard); value is freedom from the rear-edge row (L13) and the edge sink keep-out (L14)"
+  },
+  {
+   "name": "O5 denser resonant bank",
+   "bank_courtyard_mm2": 2458.5,
+   "bank_territory_mm2": 3856.4,
+   "bank_pct_of_s53": 8.5,
+   "note": "upper bound on the gain: the whole bank territory; a realistic 2-3 larger caps saves a fraction of it"
+  },
+  {
+   "name": "O6 R_on 2 W class (or 2 x 1 W in parallel)",
+   "limit_1w_c": 131.9,
+   "limit_2w_c": 143.5,
+   "r10_margin_gain_k_from_limit_only": 11.5,
+   "release_rows_by_margin": [
+    {
+     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "margin_k": 1.3
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "margin_k": 3.8
+    },
+    {
+     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "margin_k": 4.2
+    },
+    {
+     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-",
+     "margin_k": 4.2
+    },
+    {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "margin_k": 4.4
+    },
+    {
+     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     "margin_k": 5.3
+    }
+   ],
+   "next_binding_rows_without_r_on": [
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "margin_k": 3.8
+    },
+    {
+     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-",
+     "margin_k": 4.2
+    },
+    {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "margin_k": 4.4
+    }
+   ],
+   "on_O1O2_next_row_low_high_k": [
+    1.14,
+    -1.19
+   ],
+   "note": "limit change only; the part's own temperature also falls with 2 x 1 W (half the heat each), not credited"
+  }
+ ]
+}
