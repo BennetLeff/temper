@@ -1,4 +1,6 @@
-# Certifier emails A1–A6 (drafts, not sent), 2026-10-20
+# Certifier emails A1–A6 (drafted 2026-10-20)
+
+**SENT 2026-10-27** to Intertek via the "Have a Question? Functional Safety for Residential and Commercial Appliances" form (intertek.com/appliances/functional-safety/contact/), form submission ID `04e7c0a6-df4f-4080-ba0e-79059d632474`. Sender Bennet Leff, Founder, Temper, bennetleff@gmail.com. The text sent is the block below with Q5 as rewritten on 2026-10-27, plain text, plus a line asking to route it to the North America household appliances team. No attachments. Intertek states a reply "in most cases" within 48 hours. **Chase 2026-11-03**; with no answer by 2026-11-17, use the fallbacks in `ASKS-AND-HEDGES.md` section 4. Not sent to any other lab.
 
 Send as **one email** to the lab's engineering or preliminary-review contact. Recommended lab: Intertek (ETL), via the Contact Intertek form on [intertek.com/appliances](https://www.intertek.com/appliances/functional-safety/); ask for North America household appliances, UL 858. UL Solutions is the fallback. Do not send the same email to several labs (`F1-CERTIFIER.md`). A7 (JLC) is already send-ready in `zapote/power-stage-120v/validation-results/08-manufacturing-package/native-21/owner-items/JLC-LAMINATE-QUESTION.md`. The F1 fuse questions are in `.../sourcing/inquiries/F1-CERTIFIER.md`; attach them as a second section if you want one round trip.
 
