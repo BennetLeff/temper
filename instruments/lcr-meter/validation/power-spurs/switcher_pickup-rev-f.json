@@ -33,23 +33,23 @@
    },
    "TIA C104 loop (U7.1-C104-U7.2)": {
     "rev_e_area_mm2": 1.851,
-    "rev_f_area_mm2": 3.325,
-    "loops_sum_ratio_db": 12.2,
+    "rev_f_area_mm2": 1.637,
+    "loops_sum_ratio_db": 5.99,
     "inductor_ratio_db": {
-     "L1": 12.33,
-     "L2": 12.13
+     "L1": 6.11,
+     "L2": 5.97
     },
-    "worst_source_ratio_db": 32.77
+    "worst_source_ratio_db": 26.5
    },
    "TIA RF100K loop (U7.1-K3-R45-U7.2)": {
     "rev_e_area_mm2": 149.589,
-    "rev_f_area_mm2": 75.442,
-    "loops_sum_ratio_db": 4.34,
+    "rev_f_area_mm2": 74.72,
+    "loops_sum_ratio_db": 4.3,
     "inductor_ratio_db": {
-     "L1": 4.51,
-     "L2": 2.64
+     "L1": 4.46,
+     "L2": 2.58
     },
-    "worst_source_ratio_db": 36.41
+    "worst_source_ratio_db": 36.37
    },
    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": {
     "rev_e_area_mm2": 572.202,
@@ -89,8 +89,8 @@
     "ratio_db_by_victim": {
      "codec ch1 input legs (R71-U14.15/16-R70)": -2.47,
      "codec ch2 input legs (R69-U14.17/18-R68)": -3.23,
-     "TIA C104 loop (U7.1-C104-U7.2)": 13.09,
-     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 5.84,
+     "TIA C104 loop (U7.1-C104-U7.2)": 6.86,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 5.79,
      "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -41.41,
      "HPOT input (J7.5-U6.5, GND return)": -28.2,
      "LPOT input (J8.5-U7.5, GND return)": -22.56
@@ -102,8 +102,8 @@
     "ratio_db_by_victim": {
      "codec ch1 input legs (R71-U14.15/16-R70)": 23.95,
      "codec ch2 input legs (R69-U14.17/18-R68)": 13.49,
-     "TIA C104 loop (U7.1-C104-U7.2)": 32.77,
-     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 36.41,
+     "TIA C104 loop (U7.1-C104-U7.2)": 26.5,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 36.37,
      "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -33.55,
      "HPOT input (J7.5-U6.5, GND return)": -18.28,
      "LPOT input (J8.5-U7.5, GND return)": -13.14
@@ -115,8 +115,8 @@
     "ratio_db_by_victim": {
      "codec ch1 input legs (R71-U14.15/16-R70)": -3.1,
      "codec ch2 input legs (R69-U14.17/18-R68)": -4.23,
-     "TIA C104 loop (U7.1-C104-U7.2)": 11.03,
-     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 3.69,
+     "TIA C104 loop (U7.1-C104-U7.2)": 4.79,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 3.64,
      "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -43.57,
      "HPOT input (J7.5-U6.5, GND return)": -30.02,
      "LPOT input (J8.5-U7.5, GND return)": -24.96
@@ -128,8 +128,8 @@
     "ratio_db_by_victim": {
      "codec ch1 input legs (R71-U14.15/16-R70)": -4.72,
      "codec ch2 input legs (R69-U14.17/18-R68)": -4.45,
-     "TIA C104 loop (U7.1-C104-U7.2)": 12.75,
-     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 4.12,
+     "TIA C104 loop (U7.1-C104-U7.2)": 6.56,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 4.07,
      "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -41.1,
      "HPOT input (J7.5-U6.5, GND return)": -28.06,
      "LPOT input (J8.5-U7.5, GND return)": -21.98
@@ -141,8 +141,8 @@
     "ratio_db_by_victim": {
      "codec ch1 input legs (R71-U14.15/16-R70)": -4.52,
      "codec ch2 input legs (R69-U14.17/18-R68)": -4.27,
-     "TIA C104 loop (U7.1-C104-U7.2)": 12.32,
-     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 3.38,
+     "TIA C104 loop (U7.1-C104-U7.2)": 6.13,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 3.33,
      "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -41.3,
      "HPOT input (J7.5-U6.5, GND return)": -28.1,
      "LPOT input (J8.5-U7.5, GND return)": -22.41
@@ -154,8 +154,8 @@
     "ratio_db_by_victim": {
      "codec ch1 input legs (R71-U14.15/16-R70)": -1.73,
      "codec ch2 input legs (R69-U14.17/18-R68)": -2.63,
-     "TIA C104 loop (U7.1-C104-U7.2)": 12.33,
-     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 4.51,
+     "TIA C104 loop (U7.1-C104-U7.2)": 6.11,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 4.46,
      "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -41.94,
      "HPOT input (J7.5-U6.5, GND return)": -28.3,
      "LPOT input (J8.5-U7.5, GND return)": -23.46
@@ -167,8 +167,8 @@
     "ratio_db_by_victim": {
      "codec ch1 input legs (R71-U14.15/16-R70)": -5.41,
      "codec ch2 input legs (R69-U14.17/18-R68)": -4.76,
-     "TIA C104 loop (U7.1-C104-U7.2)": 12.13,
-     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 2.64,
+     "TIA C104 loop (U7.1-C104-U7.2)": 5.97,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 2.58,
      "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -41.17,
      "HPOT input (J7.5-U6.5, GND return)": -28.04,
      "LPOT input (J8.5-U7.5, GND return)": -22.2
@@ -290,115 +290,115 @@
    },
    "TIA C104 loop (U7.1-C104-U7.2) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
     "rev_e_r_mm": 85.23,
-    "rev_f_r_mm": 62.73,
+    "rev_f_r_mm": 62.9,
     "rev_e_M_nH": 8.276142974417014e-06,
-    "rev_f_M_nH": 3.737400389792168e-05,
-    "ratio_db": 13.09,
-    "dipole_ratio_db": 13.08
+    "rev_f_M_nH": 1.8240864045512112e-05,
+    "ratio_db": 6.86,
+    "dipole_ratio_db": 6.85
    },
    "TIA C104 loop (U7.1-C104-U7.2) | boost on-phase (C5V-L1-SW_P-PGND)": {
     "rev_e_r_mm": 123.19,
-    "rev_f_r_mm": 77.41,
+    "rev_f_r_mm": 77.68,
     "rev_e_M_nH": -6.80477981942492e-08,
-    "rev_f_M_nH": -2.961418508074659e-06,
-    "ratio_db": 32.77,
-    "dipole_ratio_db": 24.88
+    "rev_f_M_nH": -1.4387724092494477e-06,
+    "ratio_db": 26.5,
+    "dipole_ratio_db": 18.64
    },
    "TIA C104 loop (U7.1-C104-U7.2) | boost off-phase (C5V-L1-D2-C_RAWP)": {
     "rev_e_r_mm": 90.49,
-    "rev_f_r_mm": 67.37,
+    "rev_f_r_mm": 67.57,
     "rev_e_M_nH": -1.600221194879753e-05,
-    "rev_f_M_nH": -5.694326190566697e-05,
-    "ratio_db": 11.03,
-    "dipole_ratio_db": 11.01
+    "rev_f_M_nH": -2.778489726186164e-05,
+    "ratio_db": 4.79,
+    "dipole_ratio_db": 4.78
    },
    "TIA C104 loop (U7.1-C104-U7.2) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
     "rev_e_r_mm": 84.32,
-    "rev_f_r_mm": 62.96,
+    "rev_f_r_mm": 63.05,
     "rev_e_M_nH": -5.359301548286507e-06,
-    "rev_f_M_nH": -2.3271547220783702e-05,
-    "ratio_db": 12.75,
-    "dipole_ratio_db": 12.7
+    "rev_f_M_nH": -1.1409374881604602e-05,
+    "ratio_db": 6.56,
+    "dipole_ratio_db": 6.51
    },
    "TIA C104 loop (U7.1-C104-U7.2) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
     "rev_e_r_mm": 86.99,
-    "rev_f_r_mm": 65.9,
+    "rev_f_r_mm": 65.98,
     "rev_e_M_nH": 9.481065891366039e-06,
-    "rev_f_M_nH": 3.915530720946159e-05,
-    "ratio_db": 12.32,
-    "dipole_ratio_db": 12.32
+    "rev_f_M_nH": 1.9209511436002718e-05,
+    "ratio_db": 6.13,
+    "dipole_ratio_db": 6.14
    },
    "TIA C104 loop (U7.1-C104-U7.2) | L1 shielded inductor (vertical dipole)": {
     "rev_e_r_mm": 92.6,
-    "rev_f_r_mm": 70.13,
+    "rev_f_r_mm": 70.31,
     "rev_e_M_nH": 0.2331285228925676,
-    "rev_f_M_nH": 0.9640842335184688,
-    "ratio_db": 12.33,
-    "dipole_ratio_db": 12.33
+    "rev_f_M_nH": 0.471018148656701,
+    "ratio_db": 6.11,
+    "dipole_ratio_db": 6.11
    },
    "TIA C104 loop (U7.1-C104-U7.2) | L2 shielded inductor (vertical dipole)": {
     "rev_e_r_mm": 85.96,
-    "rev_f_r_mm": 65.59,
+    "rev_f_r_mm": 65.62,
     "rev_e_M_nH": 0.2914820018247253,
-    "rev_f_M_nH": 1.1785557574727705,
-    "ratio_db": 12.13,
-    "dipole_ratio_db": 12.14
+    "rev_f_M_nH": 0.57927605006408,
+    "ratio_db": 5.97,
+    "dipole_ratio_db": 5.97
    },
    "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
     "rev_e_r_mm": 84.42,
-    "rev_f_r_mm": 55.59,
+    "rev_f_r_mm": 55.49,
     "rev_e_M_nH": 0.0006958054743226767,
-    "rev_f_M_nH": 0.001362235925286701,
-    "ratio_db": 5.84,
-    "dipole_ratio_db": 4.94
+    "rev_f_M_nH": 0.0013553144433168303,
+    "ratio_db": 5.79,
+    "dipole_ratio_db": 4.9
    },
    "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost on-phase (C5V-L1-SW_P-PGND)": {
     "rev_e_r_mm": 124.93,
-    "rev_f_r_mm": 68.96,
+    "rev_f_r_mm": 68.85,
     "rev_e_M_nH": -1.6723987830821654e-06,
-    "rev_f_M_nH": -0.000110648801238697,
-    "ratio_db": 36.41,
-    "dipole_ratio_db": 17.22
+    "rev_f_M_nH": -0.00011006159982939584,
+    "ratio_db": 36.37,
+    "dipole_ratio_db": 17.18
    },
    "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost off-phase (C5V-L1-D2-C_RAWP)": {
     "rev_e_r_mm": 89.94,
-    "rev_f_r_mm": 59.89,
+    "rev_f_r_mm": 59.8,
     "rev_e_M_nH": -0.0013325810997063408,
-    "rev_f_M_nH": -0.0020373606173528964,
-    "ratio_db": 3.69,
-    "dipole_ratio_db": 2.88
+    "rev_f_M_nH": -0.002026649960821543,
+    "ratio_db": 3.64,
+    "dipole_ratio_db": 2.84
    },
    "TIA RF100K loop (U7.1-K3-R45-U7.2) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
     "rev_e_r_mm": 82.46,
-    "rev_f_r_mm": 57.2,
+    "rev_f_r_mm": 57.12,
     "rev_e_M_nH": -0.0004673310199237648,
-    "rev_f_M_nH": -0.0007508623532059247,
-    "ratio_db": 4.12,
-    "dipole_ratio_db": 3.59
+    "rev_f_M_nH": -0.0007466302713152396,
+    "ratio_db": 4.07,
+    "dipole_ratio_db": 3.54
    },
    "TIA RF100K loop (U7.1-K3-R45-U7.2) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
     "rev_e_r_mm": 84.89,
-    "rev_f_r_mm": 60.37,
+    "rev_f_r_mm": 60.29,
     "rev_e_M_nH": 0.000829311345863868,
-    "rev_f_M_nH": 0.0012237301873547653,
-    "ratio_db": 3.38,
-    "dipole_ratio_db": 2.94
+    "rev_f_M_nH": 0.0012165390807376303,
+    "ratio_db": 3.33,
+    "dipole_ratio_db": 2.89
    },
    "TIA RF100K loop (U7.1-K3-R45-U7.2) | L1 shielded inductor (vertical dipole)": {
     "rev_e_r_mm": 91.68,
-    "rev_f_r_mm": 62.96,
+    "rev_f_r_mm": 62.86,
     "rev_e_M_nH": 19.58917105246498,
-    "rev_f_M_nH": 32.91215620726078,
-    "ratio_db": 4.51,
-    "dipole_ratio_db": 3.85
+    "rev_f_M_nH": 32.73031347373543,
+    "ratio_db": 4.46,
+    "dipole_ratio_db": 3.81
    },
    "TIA RF100K loop (U7.1-K3-R45-U7.2) | L2 shielded inductor (vertical dipole)": {
     "rev_e_r_mm": 83.38,
-    "rev_f_r_mm": 60.77,
+    "rev_f_r_mm": 60.69,
     "rev_e_M_nH": 25.92021242651032,
-    "rev_f_M_nH": 35.10981853785751,
-    "ratio_db": 2.64,
-    "dipole_ratio_db": 2.3
+    "rev_f_M_nH": 34.89461070961628,
+    "ratio_db": 2.58,
+    "dipole_ratio_db": 2.25
    },
    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
     "rev_e_r_mm": 87.53,
@@ -1012,22 +1012,22 @@
      "perimeter_mm": 24.35
     },
     "TIA C104 loop (U7.1-C104-U7.2)": {
-     "area_mm2": 3.325,
+     "area_mm2": 1.637,
      "centroid_mm": [
-      113.18,
-      73.5
+      113.65,
+      73.19
      ],
      "copper_routed": true,
-     "perimeter_mm": 8.31
+     "perimeter_mm": 6.31
     },
     "TIA RF100K loop (U7.1-K3-R45-U7.2)": {
-     "area_mm2": 75.442,
+     "area_mm2": 74.72,
      "centroid_mm": [
-      108.46,
-      82.61
+      108.44,
+      82.72
      ],
      "copper_routed": true,
-     "perimeter_mm": 71.92
+     "perimeter_mm": 73.76
     },
     "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": {
      "area_mm2": 2.122,
@@ -1129,74 +1129,74 @@
      "M_dipole_H": 2.0111622096527095e-09
     },
     "TIA C104 loop (U7.1-C104-U7.2) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
-     "M_H": 3.737400389792168e-14,
-     "r_mm": 62.73,
-     "M_dipole_H": 3.7239374457632714e-14
+     "M_H": 1.824086404551211e-14,
+     "r_mm": 62.9,
+     "M_dipole_H": 1.8176160993925138e-14
     },
     "TIA C104 loop (U7.1-C104-U7.2) | boost on-phase (C5V-L1-SW_P-PGND)": {
-     "M_H": -2.961418508074659e-15,
-     "r_mm": 77.41,
-     "M_dipole_H": 3.0707924268518568e-15
+     "M_H": -1.4387724092494476e-15,
+     "r_mm": 77.68,
+     "M_dipole_H": 1.4960171241233966e-15
     },
     "TIA C104 loop (U7.1-C104-U7.2) | boost off-phase (C5V-L1-D2-C_RAWP)": {
-     "M_H": -5.694326190566697e-14,
-     "r_mm": 67.37,
-     "M_dipole_H": 5.657047733036291e-14
+     "M_H": -2.778489726186164e-14,
+     "r_mm": 67.57,
+     "M_dipole_H": 2.760234231932901e-14
     },
     "TIA C104 loop (U7.1-C104-U7.2) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
-     "M_H": -2.3271547220783702e-14,
-     "r_mm": 62.96,
-     "M_dipole_H": 2.2816183228309375e-14
+     "M_H": -1.1409374881604602e-14,
+     "r_mm": 63.05,
+     "M_dipole_H": 1.1184162020363268e-14
     },
     "TIA C104 loop (U7.1-C104-U7.2) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
-     "M_H": 3.915530720946159e-14,
-     "r_mm": 65.9,
-     "M_dipole_H": 3.916730082362654e-14
+     "M_H": 1.920951143600272e-14,
+     "r_mm": 65.98,
+     "M_dipole_H": 1.921701236787665e-14
     },
     "TIA C104 loop (U7.1-C104-U7.2) | L1 shielded inductor (vertical dipole)": {
-     "M_H": 9.640842335184688e-10,
-     "r_mm": 70.13,
-     "M_dipole_H": 9.639197300283156e-10
+     "M_H": 4.71018148656701e-10,
+     "r_mm": 70.31,
+     "M_dipole_H": 4.709245728798667e-10
     },
     "TIA C104 loop (U7.1-C104-U7.2) | L2 shielded inductor (vertical dipole)": {
-     "M_H": 1.1785557574727705e-09,
-     "r_mm": 65.59,
-     "M_dipole_H": 1.1784019029645553e-09
+     "M_H": 5.7927605006408e-10,
+     "r_mm": 65.62,
+     "M_dipole_H": 5.792891395937442e-10
     },
     "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
-     "M_H": 1.362235925286701e-12,
-     "r_mm": 55.59,
-     "M_dipole_H": 1.214023590134452e-12
+     "M_H": 1.3553144433168303e-12,
+     "r_mm": 55.49,
+     "M_dipole_H": 1.2086405624346401e-12
     },
     "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost on-phase (C5V-L1-SW_P-PGND)": {
-     "M_H": -1.10648801238697e-13,
-     "r_mm": 68.96,
-     "M_dipole_H": 9.855796459757736e-14
+     "M_H": -1.1006159982939584e-13,
+     "r_mm": 68.85,
+     "M_dipole_H": 9.806711673473717e-14
     },
     "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost off-phase (C5V-L1-D2-C_RAWP)": {
-     "M_H": -2.0373606173528963e-12,
-     "r_mm": 59.89,
-     "M_dipole_H": 1.8262048049402247e-12
+     "M_H": -2.026649960821543e-12,
+     "r_mm": 59.8,
+     "M_dipole_H": 1.8177012742556063e-12
     },
     "TIA RF100K loop (U7.1-K3-R45-U7.2) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
-     "M_H": -7.508623532059247e-13,
-     "r_mm": 57.2,
-     "M_dipole_H": 6.903646652907454e-13
+     "M_H": -7.466302713152395e-13,
+     "r_mm": 57.12,
+     "M_dipole_H": 6.867676641773396e-13
     },
     "TIA RF100K loop (U7.1-K3-R45-U7.2) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
-     "M_H": 1.2237301873547654e-12,
-     "r_mm": 60.37,
-     "M_dipole_H": 1.1558436801754275e-12
+     "M_H": 1.2165390807376303e-12,
+     "r_mm": 60.29,
+     "M_dipole_H": 1.149449273711587e-12
     },
     "TIA RF100K loop (U7.1-K3-R45-U7.2) | L1 shielded inductor (vertical dipole)": {
-     "M_H": 3.291215620726078e-08,
-     "r_mm": 62.96,
-     "M_dipole_H": 3.0232390006618247e-08
+     "M_H": 3.273031347373543e-08,
+     "r_mm": 62.86,
+     "M_dipole_H": 3.008114405568906e-08
     },
     "TIA RF100K loop (U7.1-K3-R45-U7.2) | L2 shielded inductor (vertical dipole)": {
-     "M_H": 3.510981853785751e-08,
-     "r_mm": 60.77,
-     "M_dipole_H": 3.361899984426635e-08
+     "M_H": 3.489461070961628e-08,
+     "r_mm": 60.69,
+     "M_dipole_H": 3.342118079299516e-08
     },
     "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
      "M_H": 2.0655105942263925e-14,
