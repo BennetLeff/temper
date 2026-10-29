@@ -40,6 +40,14 @@ def record(lcsc):
     return json.loads(raw)['result'], hashlib.sha256(raw).hexdigest(), path.name
 
 
+# Parts whose EasyEDA pad numbers mean other pins than the KiCad footprint's. The fit matches pads
+# by number, so these are renumbered to KiCad's meaning first. C2286 (KT-0603R LED): EasyEDA pad 1 =
+# anode, pad 2 = cathode (symbol pins A/K in the same record); KiCad LED_0603 pad 1 = K, pad 2 = A.
+# Without this the fit turns D4 by 180 deg, which would reverse the LED. (Diodes C2480 and C2128 use
+# 1 = K on both sides and need no entry.)
+VENDOR_TO_KICAD_PAD = {'C2286': {'1': '2', '2': '1'}}
+
+
 def easyeda_pads(result):
     pads = {}
     for item in result['packageDetail']['dataStr']['shape']:
@@ -79,7 +87,10 @@ def main():
                 rel = pad.GetFPRelativePosition()
                 native.setdefault(pad.GetNumber(), (k.ToMM(rel.x), k.ToMM(rel.y)))
         result, sha, name = record(lcsc)
-        ranked, common = fit(native, easyeda_pads(result))
+        vendor = easyeda_pads(result)
+        swap = VENDOR_TO_KICAD_PAD.get(lcsc, {})
+        vendor = {swap.get(n, n): xy for n, xy in vendor.items()}
+        ranked, common = fit(native, vendor)
         rms, worst, offset = ranked[0]
         # native lands and the LCSC lands differ by up to 0.3 mm (U3 0.159, Q1 0.200 in the Rev C
         # audit; TQ2SA 0.300: Panasonic's 9.56 mm row span against the library's 10.16 mm, every

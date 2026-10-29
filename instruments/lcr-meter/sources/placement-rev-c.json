@@ -5815,6 +5815,74 @@
           "rms": 2.931227000880255
         }
       ]
+    },
+    {
+      "lcsc": "C1015",
+      "mpn": "GZ2012D101TF",
+      "references": [
+        "FB1"
+      ],
+      "native_footprint": "Inductor_SMD:L_0805_2012Metric",
+      "source_url": "https://lceda.cn/api/products/C1015/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C1015-product.json",
+      "source_sha256": "0325e9c91f516405e53d71522568558e3a864f0bed0c99416bade548b5349343",
+      "library_title": "L0805",
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.09628400000002557,
+      "pad_center_fit_max_mm": 0.09628400000008241,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.09628400000002557
+        },
+        {
+          "offset": 90,
+          "rms": 1.4361335622622118
+        },
+        {
+          "offset": 270,
+          "rms": 1.4361335622622118
+        },
+        {
+          "offset": 180,
+          "rms": 2.0287159999999744
+        }
+      ]
+    },
+    {
+      "lcsc": "C2286",
+      "mpn": "KT-0603R",
+      "references": [
+        "D4"
+      ],
+      "native_footprint": "LED_SMD:LED_0603_1608Metric",
+      "source_url": "https://lceda.cn/api/products/C2286/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C2286-product.json",
+      "source_sha256": "ca2355b0930e5861b4ed49c0a72610820b9dfbc3744348a0b6d8dc6260cf6f06",
+      "library_title": "LED-SMD_L1.6-W0.8-R-RD",
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.03743800000000874,
+      "pad_center_fit_max_mm": 0.037438000000065585,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.03743800000000874
+        },
+        {
+          "offset": 90,
+          "rms": 1.0875427595474383
+        },
+        {
+          "offset": 270,
+          "rms": 1.0875427595474383
+        },
+        {
+          "offset": 180,
+          "rms": 1.537562000000037
+        }
+      ]
     }
   ],
   "unresolved_primary_mechanical_reviews": [],

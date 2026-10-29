@@ -27,6 +27,11 @@ import pcbnew as k
 ROOT = Path(__file__).resolve().parents[1]
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 MFG = ROOT / 'manufacturing'
+# Rev F (manufacturing/rev-f/, cad/package_rev_f.sh): LCR_MFG_DIR names the folder holding the BOM/CPL
+# and receiving the estimate; LCR_FAB_QUOTE a JSON file replacing FAB_QUOTE. The price snapshot stays
+# in manufacturing/prices/.
+import os
+PKG = ROOT / os.environ['LCR_MFG_DIR'] if os.environ.get('LCR_MFG_DIR') else MFG
 
 # JLC fabrication quote, 2026-10-20: 4 layers, 140 x 100 mm, qty 5, 1.6 mm, 1 oz outer /
 # 0.5 oz inner, ENIG 1 u", epoxy filled & capped vias, 3-4 days.  Rev E has only 0.3 mm vias
@@ -43,6 +48,8 @@ FAB_QUOTE = {
         'Board': 8.70,
     },
 }
+if os.environ.get('LCR_FAB_QUOTE'):
+    FAB_QUOTE = json.loads((ROOT / os.environ['LCR_FAB_QUOTE']).read_text())
 ECONOMIC = {'setup': 8.18, 'stencil': 1.53, 'extended_line': 3.07}
 STANDARD = {'setup': 25.56, 'stencil': 8.21, 'extended_line': 3.07, 'basic_line': 1.53,
             'fixtures_1_29': 16.42}
@@ -64,7 +71,7 @@ def tier_price(tiers, qty):
 
 def board_counts():
     board = k.LoadBoard(str(ROOT / 'cad/temper-lcr.kicad_pcb'))
-    placed = {row['Designator'] for row in csv.DictReader(open(MFG / 'cpl-jlcpcb.csv'))}
+    placed = {row['Designator'] for row in csv.DictReader(open(PKG / 'cpl-jlcpcb.csv'))}
     smt_joints = tht_joints = 0
     leadless, tht_refs = [], []
     for fp in board.GetFootprints():
@@ -85,7 +92,7 @@ def main():
     snapshot = json.loads((MFG / 'prices/jlc-parts-2026-10-29.json').read_text())['parts']
     placements, smt_joints, leadless, tht_joints, tht_refs = board_counts()
     lines, findings = [], []
-    for row in csv.DictReader(open(MFG / 'bom-complete.csv')):
+    for row in csv.DictReader(open(PKG / 'bom-complete.csv')):
         part = snapshot[row['LCSC']]
         need = N * int(row['Quantity'])
         qty = max(need + part['loss'], part['least'])
@@ -142,7 +149,7 @@ def main():
         },
         'excluded': ['shipping', 'sales tax / VAT / import duty', 'coupons'],
     }
-    (MFG / f'order-estimate-{N}.json').write_text(json.dumps(result, indent=1) + '\n')
+    (PKG / f'order-estimate-{N}.json').write_text(json.dumps(result, indent=1) + '\n')
 
     print(f'{N} boards: {placements} placements, {smt_joints} SMT joints/board, '
           f'leadless {leadless}, THT {tht_joints} joints/board {tht_refs}')

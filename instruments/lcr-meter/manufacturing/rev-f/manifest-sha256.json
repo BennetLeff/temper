@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "status": "Rev F study package; not ordered; re-quote and JLC preview at upload",
+  "files": {
+    "bom-complete.csv": "3e463907411e5dafd43c650b44ea22f54d57185cffd2de5d75814d9e713b23f3",
+    "bom-jlcpcb.csv": "aab0e6ac0874c135a37c33f9b6566e3b25a21439d714a5cef764e8c1df337176",
+    "cpl-jlcpcb.csv": "29632065d2713a7dd51e27ba5871d72dde4491458ebeea482fffb4bbbc5c5fa6",
+    "drc.json": "40c421d4d56586c4bab906e57a2d370bc1f3f8665bb7b77d11ee4721b6782f82",
+    "drill-report.txt": "357d2ff127240fa7da719a4a20b510c4f88cbbc6e40e27dfbc1d30bda2bb80f7",
+    "erc.json": "d9c11f5af754c9a661d250acce66e61f6827d454f9ced3a578407dc8d5c94e92",
+    "fab-quote.json": "ea7b5e138aad57e93cb8ff45080495797f305c5ae1d58c47db939a02ea4ffb65",
+    "gerbers/temper-lcr-B_Cu.gbl": "c641f96ab48ed4f098de5f0fc46b9fdfc83413af6ac1d9d38d4df586eb9332cb",
+    "gerbers/temper-lcr-B_Mask.gbs": "f70c4eee499b64b23aab1365a3946953e67be0ac558a17d85e905dd182c3eb54",
+    "gerbers/temper-lcr-B_Silkscreen.gbo": "4fe7b7068aab45bbcfdae864b0903d68262a6759b72d623fcb52d12557fa4230",
+    "gerbers/temper-lcr-Edge_Cuts.gm1": "f14f552a03af7722050752a47ce74e99cd4de5db5e786220b2cd37f9c0a70eaf",
+    "gerbers/temper-lcr-F_Cu.gtl": "99d35d9718acf3d7150df15ccb3f4cfed72f74cca2312881a0cdad30ea446682",
+    "gerbers/temper-lcr-F_Mask.gts": "568e0b7710ce020cb4e0d3a0b3b553fe2e297041e5d834ea5c730c0a0a0b2073",
+    "gerbers/temper-lcr-F_Paste.gtp": "082213968ef20ffe0b088ce0dad55fc559885b0f959e23c807cff97f85ca57ba",
+    "gerbers/temper-lcr-F_Silkscreen.gto": "72e19c6351697ca24eccf137c078367f369321a111c83a60e4a02454143b04a5",
+    "gerbers/temper-lcr-In1_Cu.g1": "ff045bb82caedf6b217def8d08a602ae21bd07f8869badab5bdb7d3c8cc2d30d",
+    "gerbers/temper-lcr-In2_Cu.g2": "768b57f9603b86be68b21e8dd76d38f55bfce4632d2ae6cf11f3cd57d2608b85",
+    "gerbers/temper-lcr-NPTH-drl_map.pdf": "fca39de066f25c5165840f79bd43b015c826390017c6aba471bd17e1ff69de97",
+    "gerbers/temper-lcr-NPTH.drl": "f85a20b4b9844496facb9ba1c6af5fa1259f2b2587e6a51a84fdf88dad9d2841",
+    "gerbers/temper-lcr-PTH-drl_map.pdf": "392b632adecb6f5e19a181d1e2d21c8590745f843335ebbf8abb5de44ea8e021",
+    "gerbers/temper-lcr-PTH.drl": "dfd202b9f5ff1539adec5cf73ebab97581ade8a28e70f3dd680c75e4611b9159",
+    "gerbers/temper-lcr-job.gbrjob": "c1bd170df7c9c318ffcdd616ed02e0ec5a4719907a5c14f57f86e14ab43d5f52",
+    "order-estimate-2.json": "7615e70b6e972a9108cbdf222998cb16035b833363fc0974be5d0098349e4602",
+    "order-estimate-5.json": "95cb27a9626c378e0383751429f9ed135abdd0c5be97a58770b6467e6e538fed",
+    "orientation-audit.csv": "3f2f3289361015c7f113d406bc0abfe19bf0d277769e4a6f49152ae723d44b2b",
+    "temper-lcr-rev-f-gerbers.zip": "1ca1a2723b935773a615c6bbcf6401d742478b7f8887ed1795d8fae6d4b4c151",
+    "via-in-pad-process.json": "b8248c1e73229728204023c247347ef6d933b5e527e5bfa6ad581970bdae5ee4"
+  }
+}

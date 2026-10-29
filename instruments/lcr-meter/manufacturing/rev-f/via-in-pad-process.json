@@ -1,0 +1,340 @@
+{
+  "board_sha256": "0d2394061c20c8a751f3651e14f98f7608e7cd163c918b7e75b24f26acfc197b",
+  "method": "native pcbnew PAD.HitTest with drill-radius accuracy; all SMT pads/all through vias",
+  "required_process": "standard tented vias (no POFV); thermal vias in the five exposed pads stay open on top under paste, per the TI package notes (filled, plugged or tented); obtain vendor DFM approval",
+  "unexpected_via_ring_smt_overlaps": [],
+  "intended_overlaps": [
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 73.0,
+      "y_mm": 122.5,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 73.0,
+      "y_mm": 123.5,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 73.0,
+      "y_mm": 124.5,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 74.0,
+      "y_mm": 122.5,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 74.0,
+      "y_mm": 123.5,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.6,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 74.0,
+      "y_mm": 124.5,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 75.0,
+      "y_mm": 122.5,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U1",
+      "pad": "57",
+      "net": "GND",
+      "x_mm": 75.0,
+      "y_mm": 123.5,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U11",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 129.6,
+      "y_mm": 99.45,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U11",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 129.6,
+      "y_mm": 100.0,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U11",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 129.6,
+      "y_mm": 100.55,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U11",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 130.4,
+      "y_mm": 99.45,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U11",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 130.4,
+      "y_mm": 100.0,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U11",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 130.4,
+      "y_mm": 100.55,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U12",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 142.6,
+      "y_mm": 99.45,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U12",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 142.6,
+      "y_mm": 100.0,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U12",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 142.6,
+      "y_mm": 100.55,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U12",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 143.4,
+      "y_mm": 99.45,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U12",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 143.4,
+      "y_mm": 100.0,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U12",
+      "pad": "9",
+      "net": "GND",
+      "x_mm": 143.4,
+      "y_mm": 100.55,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 136.8,
+      "y_mm": 134.3,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 136.8,
+      "y_mm": 135.0,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 136.8,
+      "y_mm": 135.7,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 137.5,
+      "y_mm": 134.3,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 137.5,
+      "y_mm": 135.0,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.6,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 137.5,
+      "y_mm": 135.7,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 138.2,
+      "y_mm": 134.3,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 138.2,
+      "y_mm": 135.0,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U13",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 138.2,
+      "y_mm": 135.7,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.55,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U14",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 63.5,
+      "y_mm": 88.0,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.45,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U14",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 63.5,
+      "y_mm": 89.0,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.45,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U14",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 64.5,
+      "y_mm": 88.0,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.45,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    },
+    {
+      "reference": "U14",
+      "pad": "25",
+      "net": "GND",
+      "x_mm": 64.5,
+      "y_mm": 89.0,
+      "drill_mm": 0.3,
+      "diameter_mm": 0.45,
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
+    }
+  ],
+  "unexpected_drill_smt_overlaps": [],
+  "vendor_dfm_approval": "NOT PERFORMED"
+}
