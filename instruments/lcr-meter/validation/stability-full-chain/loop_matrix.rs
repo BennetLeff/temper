@@ -1038,6 +1038,11 @@ fn main() {
     if let Some(cng) = mode.strip_prefix("revfpesscng") {
         cases = kelvin_cases_on(cng.parse().unwrap(), "revfpessrelay", REVF_PESS_BOARD_NOM, REVF_PESS_BOARD_HIGH, REVF_PESS_LEAD, REVF_PESS_CAPLEAD);
     }
+    // revfcng{C}: the kelvincng{C} grid on the EXTRACTED, hand-routed Rev F board (revf_extracted.rs,
+    // assemble_reve.py LP_VARIANT=revf); case prefix revfrelay_.
+    if let Some(cng) = mode.strip_prefix("revfcng") {
+        cases = kelvin_cases_on(cng.parse().unwrap(), "revfrelay", REVF_BOARD_NOM, REVF_BOARD_HIGH, REVF_LEAD, REVF_CAPLEAD);
+    }
     let mut report="# Strict full-chain bilateral loop matrix\n\nAll printed cases pass internal DC bias checks. All unity crossings are reported. Angles are signed principal angular separation from -1, not a stability verdict; downward crossings with the usual negative-phase branch correspond to conventional phase margin. Upward crossings must be assessed with the complete return trajectory.\n\n| Case / loop | Unity crossings / signed angle from -1 | Minimum return difference |\n|---|---|---|\n".to_string();
     if final_design {
         for c in &mut cases {
@@ -1090,7 +1095,7 @@ fn main() {
         {
             // The heaviest fixture loads also load the source driver and both sense followers.
             vec!["tia", "drive", "high", "low"]
-        } else if mode.starts_with("kelvin") || mode.starts_with("revfest") || mode.starts_with("revfpess") {
+        } else if mode.starts_with("kelvin") || mode.starts_with("revfest") || mode.starts_with("revfpess") || mode.starts_with("revfcng") {
             vec!["tia", "drive", "high", "low"]
         } else if (mode.starts_with("fixedrelay") || mode.starts_with("reverelay")) && c.name.contains("_loops_") {
             vec!["drive", "high", "low"]
@@ -1270,6 +1275,8 @@ include!("reve_r104_extracted.rs");
 include!("reve_bnc_extracted.rs");
 // Rev F (100 x 100 mm) phase-1 FORECAST boards (../rev-f-floorplan/forecast_harness.py): not an extraction.
 include!("revf_est_extracted.rs");
+// Rev F hand-routed board, FD-extracted (../layout-parasitics/run_reve.sh revf).
+include!("revf_extracted.rs");
 /// `reverelaycng{C}`: `fixedrelaycng{C}` with the Rev E extraction in place of REVD_BOARD and the
 /// Rev D RF leads. The board netlist already holds all TIA_OUT copper (relay pads included), so
 /// `dc` = 0; coc/ccc/cpp/lrel/rc stay the relay-internal NOMINAL/STRESS estimates. Nominal relay

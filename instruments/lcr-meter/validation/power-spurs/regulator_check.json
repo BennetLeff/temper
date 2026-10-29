@@ -69,6 +69,18 @@
   }
  },
  "retention_pass_threshold": 0.3,
+ "five_volt_trunk": {
+  "ohm": 0.043075102323930366,
+  "path_mm": 33.522613448285355,
+  "routed": true,
+  "pads": "/Users/bennet/Desktop/temper/worktrees/lcr-rev-f-100/instruments/lcr-meter/validation/rev-f-floorplan/rev-e-inventory.json",
+  "routing": "/private/tmp/claude-501/-Users-bennet-Desktop-temper/786b719e-4ace-4e01-b253-18bb13157e8f/scratchpad/rev-f/reve-tree/instruments/lcr-meter/cad/routing.json"
+ },
+ "vin_at_u13": [
+  4.299616203954232,
+  5.0,
+  5.5
+ ],
  "checks": [
   {
    "item": "TPS65131 VPOS range (VFBP limits, R81 / R82)",
@@ -178,7 +190,7 @@
    "item": "TPS65131 duty cycle at all corners (2x estimated load)",
    "value": [
     0.612,
-    0.779
+    0.78
    ],
    "limit": [
     0.125,
@@ -202,10 +214,10 @@
    "note": "inductor cannot saturate even at the 2.2 A switch limit"
   },
   {
-   "item": "Eq. 3/4 inductor current at 2x load, VIN 4.32 V",
+   "item": "Eq. 3/4 inductor current at 2x load, VIN 4.30 V",
    "value": [
-    0.377,
-    0.546
+    0.379,
+    0.548
    ],
    "limit": 1.8,
    "status": "PASS",
@@ -220,7 +232,7 @@
   },
   {
    "item": "TPS65131 RAW_P output caps vs Eq. 7/8 (10 mV)",
-   "value": "need 4.00 uF; break-even retention 0.174",
+   "value": "need 4.01 uF; break-even retention 0.175",
    "limit": "<= assumed 0.4",
    "status": "PASS",
    "note": "3 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V"
@@ -465,6 +477,38 @@
    "note": "information: 0.1 % parts 25 ppm/C, 1 % parts 100 ppm/C, opposite drift of top and bottom"
   },
   {
+   "item": "5V trunk U16.6 -> U13.5/6 copper (routing.json, 60 C)",
+   "value": 43.1,
+   "limit": "added to R_ENTRY in VIN",
+   "status": "PASS",
+   "note": "mOhm over 33.5 mm; least-resistance single path (upper bound on the strip model); 19.4 mV at 0.45 A; VIN min 4.300 V at U13"
+  },
+  {
+   "item": "TPS2553 current limit (R110 24k 1%) min vs 2x input estimate",
+   "value": [
+    0.989,
+    1.074,
+    1.17
+   ],
+   "limit": ">= 2 x 0.45 A",
+   "status": "PASS",
+   "note": "A, SLVS841F eq. 1 with R110 at +-1 % (min at R high, max at R low); constant-current limit, so a converter start-up surge is limited, not latched off"
+  },
+  {
+   "item": "USB-C input budget vs USB 2.0 / Type-C Default USB Power",
+   "value": 0.45,
+   "limit": 0.5,
+   "status": "PASS",
+   "note": "A estimate, not a bound; 50 mA margin. CC1/CC2 carry Rd 5.1k (R1/R2) and nothing reads CC, so the board may count only on Default USB Power: 500 mA (USB Type-C 4.6.2.1, USB 2.0 7.2.1, after configuration). U16 limits at 0.99-1.17 A, above that budget, so it protects the board, not the host"
+  },
+  {
+   "item": "USB 2.0 unconfigured draw (U16 EN tied to VBUS: full load from attach)",
+   "value": 0.45,
+   "limit": 0.1,
+   "status": "FLAG",
+   "note": "A; USB 2.0 7.2.1 allows one unit load (100 mA) before configuration. The board powers everything at attach (TPS2553 SOT-23 pin 3 EN, active high, on USB_VBUS). Hosts commonly tolerate it; a strict hub may not. firmware-rev-e also declares PICO_STDIO_USB_DEVICE_SELF_POWERED=1 on a bus-powered board (should be bus-powered, 500 mA max power)"
+  },
+  {
    "item": "Switcher magnetics/switch nodes to nearest analog IC (CPL centres)",
    "value": "64.6 mm (D3-U14)",
    "limit": "information only: magnetic pickup not modelled",
@@ -473,33 +517,33 @@
   }
  ],
  "operating_points_2x_load": {
-  "pos vin=4.319 fsw=1250000 L=3.76u": {
-   "duty": 0.7155913792874711,
-   "ripple_a": 0.6575828015196995,
-   "ipk_a": 0.577582424140091,
+  "pos vin=4.299616203954232 fsw=1250000 L=3.76u": {
+   "duty": 0.7168678133457138,
+   "ripple_a": 0.6557992481605252,
+   "ipk_a": 0.5778122625597273,
    "mode": "CCM (forced)",
-   "t_on_s": 5.724731034299769e-07
+   "t_on_s": 5.734942506765711e-07
   },
-  "pos vin=4.319 fsw=1250000 L=5.64u": {
-   "duty": 0.7155913792874711,
-   "ripple_a": 0.4383885343464664,
-   "ipk_a": 0.46798529055347443,
+  "pos vin=4.299616203954232 fsw=1250000 L=5.64u": {
+   "duty": 0.7168678133457138,
+   "ripple_a": 0.4371994987736835,
+   "ipk_a": 0.46851238786630645,
    "mode": "CCM (forced)",
-   "t_on_s": 5.724731034299769e-07
+   "t_on_s": 5.734942506765711e-07
   },
-  "pos vin=4.319 fsw=1500000 L=3.76u": {
-   "duty": 0.7155913792874711,
-   "ripple_a": 0.5479856679330829,
-   "ipk_a": 0.5227838573467827,
+  "pos vin=4.299616203954232 fsw=1500000 L=3.76u": {
+   "duty": 0.7168678133457138,
+   "ripple_a": 0.5464993734671044,
+   "ipk_a": 0.5231623252130169,
    "mode": "CCM (forced)",
-   "t_on_s": 4.770609195249807e-07
+   "t_on_s": 4.779118755638092e-07
   },
-  "pos vin=4.319 fsw=1500000 L=5.64u": {
-   "duty": 0.7155913792874711,
-   "ripple_a": 0.36532377862205534,
-   "ipk_a": 0.4314529126912689,
+  "pos vin=4.299616203954232 fsw=1500000 L=5.64u": {
+   "duty": 0.7168678133457138,
+   "ripple_a": 0.36433291564473624,
+   "ipk_a": 0.43207909630183283,
    "mode": "CCM (forced)",
-   "t_on_s": 4.770609195249807e-07
+   "t_on_s": 4.779118755638092e-07
   },
   "pos vin=5.0 fsw=1250000 L=3.76u": {
    "duty": 0.6707471397169149,
@@ -557,33 +601,33 @@
    "mode": "CCM (forced)",
    "t_on_s": 4.2521456912573763e-07
   },
-  "neg vin=4.319 fsw=1250000 L=3.76u": {
-   "duty": 0.779049593092297,
-   "ripple_a": 0.7158968494820491,
-   "ipk_a": 0.7158968494820491,
-   "mode": "DCM",
-   "t_on_s": 6.232396744738376e-07
-  },
-  "neg vin=4.319 fsw=1250000 L=5.64u": {
-   "duty": 0.7793512286956881,
-   "ripple_a": 0.4774493555654861,
-   "ipk_a": 0.5965345642305,
+  "neg vin=4.299616203954232 fsw=1250000 L=3.76u": {
+   "duty": 0.7801237681183626,
+   "ripple_a": 0.7136665520194777,
+   "ipk_a": 0.715900334461664,
    "mode": "CCM",
-   "t_on_s": 6.234809829565505e-07
+   "t_on_s": 6.240990144946901e-07
   },
-  "neg vin=4.319 fsw=1500000 L=3.76u": {
-   "duty": 0.7793512286956881,
-   "ripple_a": 0.5968116944568577,
-   "ipk_a": 0.6562157336761858,
+  "neg vin=4.299616203954232 fsw=1250000 L=5.64u": {
+   "duty": 0.7801237681183626,
+   "ripple_a": 0.4757777013463186,
+   "ipk_a": 0.5969559091250844,
    "mode": "CCM",
-   "t_on_s": 5.195674857971254e-07
+   "t_on_s": 6.240990144946901e-07
   },
-  "neg vin=4.319 fsw=1500000 L=5.64u": {
-   "duty": 0.7793512286956881,
-   "ripple_a": 0.39787446297123846,
-   "ipk_a": 0.5567471179333762,
+  "neg vin=4.299616203954232 fsw=1500000 L=3.76u": {
+   "duty": 0.7801237681183626,
+   "ripple_a": 0.5947221266828981,
+   "ipk_a": 0.6564281217933743,
    "mode": "CCM",
-   "t_on_s": 5.195674857971254e-07
+   "t_on_s": 5.200825120789084e-07
+  },
+  "neg vin=4.299616203954232 fsw=1500000 L=5.64u": {
+   "duty": 0.7801237681183626,
+   "ripple_a": 0.3964814177885988,
+   "ipk_a": 0.5573077673462246,
+   "mode": "CCM",
+   "t_on_s": 5.200825120789084e-07
   },
   "neg vin=5.0 fsw=1250000 L=3.76u": {
    "duty": 0.6729430385131262,

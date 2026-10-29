@@ -1,0 +1,277 @@
+{
+ "board_sha256": "b583100cadf34baa293b4051b36cc854a04b6e74805ad801932999ab08bb8af7",
+ "method": "Rev E loop inductance: C104 branch and the three relay-switched RF branches.",
+ "assumptions": {
+  "header_bridge_z": {
+   "low": 4.5,
+   "nom": 6.9,
+   "high": 8.4
+  },
+  "post_side": 0.635,
+  "shunt_strip_w": 0.8,
+  "res_film_z": 0.45,
+  "res_body_w": 0.8,
+  "cap_mid_z": {
+   "low": 0.3,
+   "nom": 0.4,
+   "high": 0.5
+  },
+  "cap_body_w": 0.8,
+  "pkg": {
+   "low": {
+    "lead_tip_dx": 0.75,
+    "bond_dx": 0.35,
+    "die_z": 0.55,
+    "pad_pitch_frac": 0.6
+   },
+   "nom": {
+    "lead_tip_dx": 0.95,
+    "bond_dx": 0.6,
+    "die_z": 0.6,
+    "pad_pitch_frac": 0.8
+   },
+   "high": {
+    "lead_tip_dx": 1.05,
+    "bond_dx": 0.9,
+    "die_z": 0.65,
+    "pad_pitch_frac": 1.0
+   }
+  },
+  "relay_hop_z_mm": {
+   "low": 0.3,
+   "nom": 0.6,
+   "high": 1.0
+  },
+  "relay_lead_gmd_mm": 0.15645
+ },
+ "validation": {
+  "circle_R5_r0.1_nH": {
+   "numeric": 26.651393540028046,
+   "analytic": 26.649907723311994,
+   "rel_err": 5.575316550721077e-05
+  },
+  "microstrip_w0.2_nH_per_mm": {
+   "numeric": 0.4321496837580123,
+   "hammerstad_air_Z0_over_c": 0.3920602813038616,
+   "rel_err": 0.10225315943973401
+  },
+  "microstrip_w0.3_nH_per_mm": {
+   "numeric": 0.36124086282295964,
+   "hammerstad_air_Z0_over_c": 0.33029404599418694,
+   "rel_err": 0.09369474625442487
+  },
+  "strip_w0.2_below_In1_h1.3081_nH_per_mm": {
+   "two_sided": 0.781221285765438,
+   "single_sided_mirror": 0.781221285765438,
+   "rel_err": 0.0
+  }
+ },
+ "loops": {
+  "C104": {
+   "planar_board_path_mm": 6.107489791209988,
+   "layers": [
+    "F.Cu"
+   ],
+   "path_mm": null,
+   "low": {
+    "stackup": "JLC04161H-1080",
+    "geometry": {
+     "pkg": "low",
+     "hop": "low",
+     "cap": "low"
+    },
+    "free_with_package_nH": 3.8052752265216068,
+    "free_board_and_part_only_nH": 3.7954841481974375,
+    "solid_plane_with_package_nH": 1.7592482778590568
+   },
+   "nom": {
+    "stackup": "JLC04161H-7628",
+    "geometry": {
+     "pkg": "nom",
+     "hop": "nom",
+     "cap": "nom"
+    },
+    "free_with_package_nH": 3.8311318245731907,
+    "free_board_and_part_only_nH": 3.8213556090316163,
+    "solid_plane_with_package_nH": 2.804796796632132
+   },
+   "high": {
+    "stackup": "JLC04161H-7628",
+    "geometry": {
+     "pkg": "high",
+     "hop": "high",
+     "cap": "high"
+    },
+    "free_with_package_nH": 3.862737393091395,
+    "free_board_and_part_only_nH": 3.852975784345994,
+    "solid_plane_with_package_nH": 2.8614600133827315
+   },
+   "summary_nH": {
+    "low": 1.7592482778590568,
+    "nom": null,
+    "high": 3.862737393091395,
+    "nom_geometry_free": 3.8311318245731907,
+    "nom_geometry_solid_plane": 2.804796796632132
+   }
+  },
+  "RF_100R": {
+   "planar_board_path_mm": 33.24073829037881,
+   "layers": [
+    "F.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ],
+   "path_mm": {
+    "TIA_OUT": 17.257679131276653,
+    "RF100": 10.341700935788385,
+    "TIA_SUM": 5.641358223313772
+   },
+   "low": {
+    "stackup": "JLC04161H-1080",
+    "geometry": {
+     "pkg": "low",
+     "hop": "low",
+     "cap": "low"
+    },
+    "free_with_package_nH": 25.053940200436767,
+    "free_board_and_part_only_nH": 25.04393392651797,
+    "solid_plane_with_package_nH": 15.847789808147038
+   },
+   "nom": {
+    "stackup": "JLC04161H-7628",
+    "geometry": {
+     "pkg": "nom",
+     "hop": "nom",
+     "cap": "nom"
+    },
+    "free_with_package_nH": 25.15138505336819,
+    "free_board_and_part_only_nH": 25.141383046058518,
+    "solid_plane_with_package_nH": 19.70727815721764
+   },
+   "high": {
+    "stackup": "JLC04161H-7628",
+    "geometry": {
+     "pkg": "high",
+     "hop": "high",
+     "cap": "high"
+    },
+    "free_with_package_nH": 25.534243377923765,
+    "free_board_and_part_only_nH": 25.524237203722276,
+    "solid_plane_with_package_nH": 20.173368573302586
+   },
+   "summary_nH": {
+    "low": 15.847789808147038,
+    "nom": null,
+    "high": 25.534243377923765,
+    "nom_geometry_free": 25.15138505336819,
+    "nom_geometry_solid_plane": 19.70727815721764
+   }
+  },
+  "RF_5k": {
+   "planar_board_path_mm": 35.60921592146383,
+   "layers": [
+    "F.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ],
+   "path_mm": {
+    "TIA_OUT": 19.457679131276645,
+    "RF5K": 8.885178566873414,
+    "TIA_SUM": 7.266358223313772
+   },
+   "low": {
+    "stackup": "JLC04161H-1080",
+    "geometry": {
+     "pkg": "low",
+     "hop": "low",
+     "cap": "low"
+    },
+    "free_with_package_nH": 27.747563940386407,
+    "free_board_and_part_only_nH": 27.737563543813824,
+    "solid_plane_with_package_nH": 17.59945493786194
+   },
+   "nom": {
+    "stackup": "JLC04161H-7628",
+    "geometry": {
+     "pkg": "nom",
+     "hop": "nom",
+     "cap": "nom"
+    },
+    "free_with_package_nH": 27.81546384550534,
+    "free_board_and_part_only_nH": 27.805474059889704,
+    "solid_plane_with_package_nH": 21.3244970907654
+   },
+   "high": {
+    "stackup": "JLC04161H-7628",
+    "geometry": {
+     "pkg": "high",
+     "hop": "high",
+     "cap": "high"
+    },
+    "free_with_package_nH": 28.148603874027085,
+    "free_board_and_part_only_nH": 28.138617922128187,
+    "solid_plane_with_package_nH": 21.775814704671067
+   },
+   "summary_nH": {
+    "low": 17.59945493786194,
+    "nom": null,
+    "high": 28.148603874027085,
+    "nom_geometry_free": 27.81546384550534,
+    "nom_geometry_solid_plane": 21.3244970907654
+   }
+  },
+  "RF_100k": {
+   "planar_board_path_mm": 67.08432140882368,
+   "layers": [
+    "F.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ],
+   "path_mm": {
+    "TIA_OUT": 34.45767913127664,
+    "RF100K": 23.660284054233266,
+    "TIA_SUM": 8.966358223313776
+   },
+   "low": {
+    "stackup": "JLC04161H-1080",
+    "geometry": {
+     "pkg": "low",
+     "hop": "low",
+     "cap": "low"
+    },
+    "free_with_package_nH": 52.93240105589138,
+    "free_board_and_part_only_nH": 52.92243194246274,
+    "solid_plane_with_package_nH": 41.172192036890884
+   },
+   "nom": {
+    "stackup": "JLC04161H-7628",
+    "geometry": {
+     "pkg": "nom",
+     "hop": "nom",
+     "cap": "nom"
+    },
+    "free_with_package_nH": 52.98927049070433,
+    "free_board_and_part_only_nH": 52.979308504295034,
+    "solid_plane_with_package_nH": 43.9454969860749
+   },
+   "high": {
+    "stackup": "JLC04161H-7628",
+    "geometry": {
+     "pkg": "high",
+     "hop": "high",
+     "cap": "high"
+    },
+    "free_with_package_nH": 53.32067958694706,
+    "free_board_and_part_only_nH": 53.31071864122661,
+    "solid_plane_with_package_nH": 44.408057279232644
+   },
+   "summary_nH": {
+    "low": 41.172192036890884,
+    "nom": null,
+    "high": 53.32067958694706,
+    "nom_geometry_free": 52.98927049070433,
+    "nom_geometry_solid_plane": 43.9454969860749
+   }
+  }
+ }
+}

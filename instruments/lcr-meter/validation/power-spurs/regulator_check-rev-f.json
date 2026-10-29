@@ -1,0 +1,689 @@
+{
+ "r5_option": {
+  "rc_corner_hz": 52011.419311076905,
+  "headroom_pos_2x_load": 1.2038480718793076,
+  "headroom_neg_2x_load": 1.0829988750053428,
+  "drop_est_load_v": [
+   0.03537915590261647,
+   0.03947515590261647
+  ],
+  "with_tcr": {
+   "pos": {
+    "raw_min": 13.568342925235687,
+    "vout_min": 11.289091787652406,
+    "vout_max": 12.459155822699856,
+    "headroom_2x_load_r5": 1.038428790730598
+   },
+   "neg": {
+    "raw_min": 13.254182930439072,
+    "vout_min": 11.531220881302104,
+    "vout_max": 12.204752194455512,
+    "headroom_2x_load_r5": 0.9704804241783266
+   }
+  }
+ },
+ "nearest_switcher_to_analog_mm": [
+  63.56099432828282,
+  "D3",
+  "U7"
+ ],
+ "r83_alternative": {
+  "min": -13.347469306930693,
+  "nom": -14.0708,
+  "max": -14.80509494949495,
+  "tps7a30_headroom_min": 1.1619491868105758
+ },
+ "loads_a": {
+  "pos": 0.03537915590261647,
+  "neg": 0.03947515590261647
+ },
+ "load_note": "5 amplifier channels x 4.5 mA IQ max; source buffer and TIA each 18 mA peak (README short-circuit limit) as half-wave average 18/pi mA; negative rail also sinks four 1 kOhm FDA input resistors at ~1.024 V; OPA810 feedback 0.3 mA; LDO ground 1 mA; divider 0.12 mA.",
+ "vpos": {
+  "min": 13.655314467267624,
+  "nom": 14.187875621890548,
+  "max": 14.735896929493945
+ },
+ "vneg": {
+  "min": -13.347469306930693,
+  "nom": -14.0708,
+  "max": -14.80509494949495
+ },
+ "ldo": {
+  "pos": {
+   "vout": [
+    11.360286598302688,
+    11.863021978021978,
+    12.380708083583084
+   ],
+   "raw_min": 13.655314467267624,
+   "headroom_min": 1.2746063836845405
+  },
+  "neg": {
+   "vout": [
+    11.549409917355371,
+    11.866909090909092,
+    12.185520120120117
+   ],
+   "raw_min": 13.347469306930693,
+   "headroom_min": 1.1619491868105758
+  }
+ },
+ "retention_pass_threshold": 0.3,
+ "five_volt_trunk": {
+  "ohm": 0.08422507728901486,
+  "path_mm": 110.52448204630781,
+  "routed": true,
+  "pads": "/Users/bennet/Desktop/temper/worktrees/lcr-rev-f-100/instruments/lcr-meter/build/pad-coordinates.json",
+  "routing": "/Users/bennet/Desktop/temper/worktrees/lcr-rev-f-100/instruments/lcr-meter/cad/routing.json"
+ },
+ "vin_at_u13": [
+  4.281098715219944,
+  5.0,
+  5.5
+ ],
+ "checks": [
+  {
+   "item": "TPS65131 VPOS range (VFBP limits, R81 / R82)",
+   "value": [
+    13.655,
+    14.188,
+    14.736
+   ],
+   "limit": "<= 15 V recommended, 17 V abs max",
+   "status": "PASS",
+   "note": "margin to 15 V: 0.264 V"
+  },
+  {
+   "item": "TPS65131 VNEG range (VREF, VFBN limits, R83+R111 / R84)",
+   "value": [
+    -13.347,
+    -14.071,
+    -14.805
+   ],
+   "limit": ">= -15 V recommended, -17 V abs max",
+   "status": "PASS",
+   "note": "worst-case stack -14.805 V is -0.195 V beyond the recommended range; 2.19 V inside abs max"
+  },
+  {
+   "item": "TPS65131 feedback lower resistors R82/R84 < 200 kOhm",
+   "value": 150000.0,
+   "limit": 200000.0,
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "TPS65131 C87 (boost CFF) vs Eq. 11/12",
+   "value": 15.0,
+   "limit": 15.81,
+   "status": "PASS",
+   "note": "pF; within 10 % of the datasheet rule"
+  },
+  {
+   "item": "TPS65131 C88 (inverter CFF) vs Eq. 11/12",
+   "value": 4.7,
+   "limit": 4.31,
+   "status": "PASS",
+   "note": "pF; within 10 % of the datasheet rule"
+  },
+  {
+   "item": "TPS65131 CP / CN / VREF caps",
+   "value": [
+    "10nF 50V",
+    "4.7nF 50V",
+    "220nF 25V"
+   ],
+   "limit": "10 nF / 4.7 nF / 220 nF",
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "TPS65131 PSP/PSN tied to GND (forced PWM)",
+   "value": [
+    "GND",
+    "GND"
+   ],
+   "limit": "LOW disables power-save",
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "TPS65131 VIN RC filter R80/C81",
+   "value": [
+    "100R",
+    "100nF 50V"
+   ],
+   "limit": ">= 100 ohm, 0.1 uF (8.2.3.1)",
+   "status": "PASS",
+   "note": "matches the datasheet RC option; the LC option is only advised for >= 275 mV/us input slew while running"
+  },
+  {
+   "item": "TPS65131 BSW pin",
+   "value": null,
+   "limit": "leave floating if no PMOS (8.2.2.5)",
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "TPS65131 ENP/ENN from 3V3",
+   "value": [
+    "3V3",
+    "3V3"
+   ],
+   "limit": "VIH >= 1.4 V; abs max VIN + 0.3 V",
+   "status": "PASS",
+   "note": "3.3 V > 1.4 V. Abs-max relies on 3V3 collapsing with 5 V at power-down; any excess current flows through R80 100 ohm. Low risk; scope at bring-up."
+  },
+  {
+   "item": "TPS65131 inductance incl. +-20 %",
+   "value": [
+    3.76e-06,
+    5.639999999999999e-06
+   ],
+   "limit": [
+    3.3e-06,
+    6.8e-06
+   ],
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "TPS65131 duty cycle at all corners (2x estimated load)",
+   "value": [
+    0.612,
+    0.781
+   ],
+   "limit": [
+    0.125,
+    0.875
+   ],
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "Inductor peak current, worst corner, 2x estimated load",
+   "value": 0.716,
+   "limit": "< ILIM min 1.8 A and Isat 3.8 A",
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "Inductor Isat vs switch current limit max (start-up/short)",
+   "value": 3.8,
+   "limit": 2.2,
+   "status": "PASS",
+   "note": "inductor cannot saturate even at the 2.2 A switch limit"
+  },
+  {
+   "item": "Eq. 3/4 inductor current at 2x load, VIN 4.28 V",
+   "value": [
+    0.381,
+    0.55
+   ],
+   "limit": 1.8,
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "TPS65131 input caps C80+C82 (10uF 50V X7R, SMD:C, at 5 V) >= 2 x 4.7 uF (INP and INN)",
+   "value": "break-even retention 0.61",
+   "limit": "<= assumed 0.75",
+   "status": "PASS",
+   "note": "C82 is 7.5 mm, C80 14.3 mm from U13 (centres)"
+  },
+  {
+   "item": "TPS65131 RAW_P output caps vs Eq. 7/8 (10 mV)",
+   "value": "need 4.02 uF; break-even retention 0.175",
+   "limit": "<= assumed 0.4",
+   "status": "PASS",
+   "note": "3 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V"
+  },
+  {
+   "item": "TPS65131 RAW_N output caps vs Eq. 7/8 (10 mV)",
+   "value": "need 4.90 uF; break-even retention 0.213",
+   "limit": "<= assumed 0.4",
+   "status": "PASS",
+   "note": "3 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V"
+  },
+  {
+   "item": "SS14 reverse voltage: boost / inverter",
+   "value": [
+    14.74,
+    20.31
+   ],
+   "limit": 40.0,
+   "status": "PASS",
+   "note": "80 % derating"
+  },
+  {
+   "item": "OUTN-to-INN differential (abs max 24 V)",
+   "value": 20.86,
+   "limit": 24.0,
+   "status": "PASS",
+   "note": "static margin 3.14 V before switch-node ringing; scope at bring-up"
+  },
+  {
+   "item": "INP switch node (abs max 17 V)",
+   "value": 15.29,
+   "limit": 17.0,
+   "status": "PASS",
+   "note": "static margin 1.71 V before ringing"
+  },
+  {
+   "item": "VIN/INN abs max 6 V vs 5.5 V VBUS maximum",
+   "value": 5.5,
+   "limit": 6.0,
+   "status": "PASS",
+   "note": "0.50 V margin; VBUS hot-plug overshoot is behind U16's soft start; D1 (SRV05-4) clamps VBUS"
+  },
+  {
+   "item": "U11 output voltage range (R85 / R86)",
+   "value": [
+    11.36,
+    11.863,
+    12.381
+   ],
+   "limit": "+-2.5 % overall + divider tolerance; OPA2810 4.75-27 V supply (SBOS799)",
+   "status": "PASS",
+   "note": "host monitor window: rail_monitor_window.py"
+  },
+  {
+   "item": "U11 headroom at worst corner (raw min - out max)",
+   "value": 1.275,
+   "limit": ">= dropout 0.6 V and >= 1 V PSRR-curve condition",
+   "status": "PASS",
+   "note": "load 35.4 mA est."
+  },
+  {
+   "item": "U11 COUT (C95 10 uF 50 V 1210 alone) >= 2.2 uF",
+   "value": "break-even retention 0.288",
+   "limit": "<= assumed 0.4",
+   "status": "PASS",
+   "note": "C95 is 6.1 mm from U11; plus 3 x 1 uF 0805 + 100 nF at the amplifiers"
+  },
+  {
+   "item": "U11 COUT placement <= 10 mm",
+   "value": 6.13,
+   "limit": 10.0,
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "U11 CIN (C94) placement <= 10 mm",
+   "value": 5.58,
+   "limit": 10.0,
+   "status": "PASS",
+   "note": "part-centre distance; layout edge distance is shorter"
+  },
+  {
+   "item": "U11 CNR/SS and CFF",
+   "value": [
+    "10nF 50V",
+    "10nF 50V"
+   ],
+   "limit": "<= 10 nF (10 nF recommended)",
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "U11 divider: R2 <= 237 kOhm and Ifb >= 5 uA",
+   "value": [
+    9100.0,
+    130.2
+   ],
+   "limit": [
+    237000.0,
+    5
+   ],
+   "status": "PASS",
+   "note": "uA"
+  },
+  {
+   "item": "U11 EN tied to IN",
+   "value": "LDOIN_P",
+   "limit": "allowed (pin table: EN may connect to IN)",
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "U11 load vs current limit min",
+   "value": 35.4,
+   "limit": 220.0,
+   "status": "PASS",
+   "note": "mA; 2x margin required"
+  },
+  {
+   "item": "U11 dissipation at max raw / min out",
+   "value": 0.239,
+   "limit": "W (2x load); RthJA ~63 C/W",
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "U12 output voltage range (R87 / R89+R88+R112)",
+   "value": [
+    11.549,
+    11.867,
+    12.186
+   ],
+   "limit": "+-2.5 % overall + divider tolerance; OPA2810 4.75-27 V supply (SBOS799)",
+   "status": "PASS",
+   "note": "host monitor window: rail_monitor_window.py"
+  },
+  {
+   "item": "U12 headroom at worst corner (raw min - out max)",
+   "value": 1.162,
+   "limit": ">= dropout 0.6 V and >= 1 V PSRR-curve condition",
+   "status": "PASS",
+   "note": "load 39.5 mA est."
+  },
+  {
+   "item": "U12 COUT (C100 10 uF 50 V 1210 alone) >= 2.2 uF",
+   "value": "break-even retention 0.288",
+   "limit": "<= assumed 0.4",
+   "status": "PASS",
+   "note": "C100 is 6.1 mm from U12; plus 3 x 1 uF 0805 + 100 nF at the amplifiers"
+  },
+  {
+   "item": "U12 COUT placement <= 10 mm",
+   "value": 6.13,
+   "limit": 10.0,
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "U12 CIN (C99) placement <= 10 mm",
+   "value": 5.58,
+   "limit": 10.0,
+   "status": "PASS",
+   "note": "part-centre distance; layout edge distance is shorter"
+  },
+  {
+   "item": "U12 CNR/SS and CFF",
+   "value": [
+    "10nF 50V",
+    "10nF 50V"
+   ],
+   "limit": "<= 10 nF (10 nF recommended)",
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "U12 divider: R2 <= 237 kOhm and Ifb >= 5 uA",
+   "value": [
+    11000.0,
+    106.9
+   ],
+   "limit": [
+    237000.0,
+    5
+   ],
+   "status": "PASS",
+   "note": "uA"
+  },
+  {
+   "item": "U12 EN tied to IN",
+   "value": "LDOIN_N",
+   "limit": "allowed (pin table: EN may connect to IN)",
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "U12 load vs current limit min",
+   "value": 39.5,
+   "limit": 220.0,
+   "status": "PASS",
+   "note": "mA; 2x margin required"
+  },
+  {
+   "item": "U12 dissipation at max raw / min out",
+   "value": 0.257,
+   "limit": "W (2x load); RthJA ~63 C/W",
+   "status": "PASS",
+   "note": ""
+  },
+  {
+   "item": "Option R83 = 1.74 MOhm: VNEG range and U12 headroom",
+   "value": [
+    -13.347,
+    -14.071,
+    -14.805,
+    1.162
+   ],
+   "limit": ">= -15 V and >= 1 V headroom",
+   "status": "PASS",
+   "note": "fitted since Rev D; Rev E builds it as R83+R111 = 1.740 MOhm"
+  },
+  {
+   "item": "Option R5: 1 ohm before U11/U12 - headroom at 2x load, RC corner",
+   "value": [
+    1.204,
+    1.083,
+    52011
+   ],
+   "limit": ">= 1 V",
+   "status": "PASS",
+   "note": "R95/R96 are fitted (Rev D); the row name is historical"
+  },
+  {
+   "item": "R95/R96 headroom at 2x load incl. divider TCR (board 25 +- 35 C)",
+   "value": [
+    1.038,
+    0.97,
+    11.289,
+    11.531
+   ],
+   "limit": ">= 0.6 V dropout (FLAG below the 1 V PSRR-curve condition); the readings vs the host window are in rail_monitor_window.py",
+   "status": "FLAG",
+   "note": "information: 0.1 % parts 25 ppm/C, 1 % parts 100 ppm/C, opposite drift of top and bottom"
+  },
+  {
+   "item": "5V trunk U16.6 -> U13.5/6 copper (routing.json, 60 C)",
+   "value": 84.2,
+   "limit": "added to R_ENTRY in VIN",
+   "status": "PASS",
+   "note": "mOhm over 110.5 mm; least-resistance single path (upper bound on the strip model); 37.9 mV at 0.45 A; VIN min 4.281 V at U13"
+  },
+  {
+   "item": "TPS2553 current limit (R110 24k 1%) min vs 2x input estimate",
+   "value": [
+    0.989,
+    1.074,
+    1.17
+   ],
+   "limit": ">= 2 x 0.45 A",
+   "status": "PASS",
+   "note": "A, SLVS841F eq. 1 with R110 at +-1 % (min at R high, max at R low); constant-current limit, so a converter start-up surge is limited, not latched off"
+  },
+  {
+   "item": "USB-C input budget vs USB 2.0 / Type-C Default USB Power",
+   "value": 0.45,
+   "limit": 0.5,
+   "status": "PASS",
+   "note": "A estimate, not a bound; 50 mA margin. CC1/CC2 carry Rd 5.1k (R1/R2) and nothing reads CC, so the board may count only on Default USB Power: 500 mA (USB Type-C 4.6.2.1, USB 2.0 7.2.1, after configuration). U16 limits at 0.99-1.17 A, above that budget, so it protects the board, not the host"
+  },
+  {
+   "item": "USB 2.0 unconfigured draw (U16 EN tied to VBUS: full load from attach)",
+   "value": 0.45,
+   "limit": 0.1,
+   "status": "FLAG",
+   "note": "A; USB 2.0 7.2.1 allows one unit load (100 mA) before configuration. The board powers everything at attach (TPS2553 SOT-23 pin 3 EN, active high, on USB_VBUS). Hosts commonly tolerate it; a strict hub may not. firmware-rev-e also declares PICO_STDIO_USB_DEVICE_SELF_POWERED=1 on a bus-powered board (should be bus-powered, 500 mA max power)"
+  },
+  {
+   "item": "Switcher magnetics/switch nodes to nearest analog IC (CPL centres)",
+   "value": "63.6 mm (D3-U7)",
+   "limit": "information only: magnetic pickup not modelled",
+   "status": "PASS",
+   "note": ""
+  }
+ ],
+ "operating_points_2x_load": {
+  "pos vin=4.281098715219944 fsw=1250000 L=3.76u": {
+   "duty": 0.7180872005719185,
+   "ripple_a": 0.6540855727200695,
+   "ipk_a": 0.5780363983875157,
+   "mode": "CCM (forced)",
+   "t_on_s": 5.744697604575349e-07
+  },
+  "pos vin=4.281098715219944 fsw=1250000 L=5.64u": {
+   "duty": 0.7180872005719185,
+   "ripple_a": 0.4360570484800464,
+   "ipk_a": 0.4690221362675042,
+   "mode": "CCM (forced)",
+   "t_on_s": 5.744697604575349e-07
+  },
+  "pos vin=4.281098715219944 fsw=1500000 L=3.76u": {
+   "duty": 0.7180872005719185,
+   "ripple_a": 0.545071310600058,
+   "ipk_a": 0.52352926732751,
+   "mode": "CCM (forced)",
+   "t_on_s": 4.78724800381279e-07
+  },
+  "pos vin=4.281098715219944 fsw=1500000 L=5.64u": {
+   "duty": 0.7180872005719185,
+   "ripple_a": 0.36338087373337197,
+   "ipk_a": 0.432684048894167,
+   "mode": "CCM (forced)",
+   "t_on_s": 4.78724800381279e-07
+  },
+  "pos vin=5.0 fsw=1250000 L=3.76u": {
+   "duty": 0.6707471397169149,
+   "ripple_a": 0.7135607869328882,
+   "ipk_a": 0.5716860794622964,
+   "mode": "CCM (forced)",
+   "t_on_s": 5.365977117735319e-07
+  },
+  "pos vin=5.0 fsw=1250000 L=5.64u": {
+   "duty": 0.6707471397169149,
+   "ripple_a": 0.4757071912885922,
+   "ipk_a": 0.45275928164014845,
+   "mode": "CCM (forced)",
+   "t_on_s": 5.365977117735319e-07
+  },
+  "pos vin=5.0 fsw=1500000 L=3.76u": {
+   "duty": 0.6707471397169149,
+   "ripple_a": 0.5946339891107402,
+   "ipk_a": 0.5122226805512224,
+   "mode": "CCM (forced)",
+   "t_on_s": 4.471647598112766e-07
+  },
+  "pos vin=5.0 fsw=1500000 L=5.64u": {
+   "duty": 0.6707471397169149,
+   "ripple_a": 0.39642265940716015,
+   "ipk_a": 0.4131170156994325,
+   "mode": "CCM (forced)",
+   "t_on_s": 4.471647598112766e-07
+  },
+  "pos vin=5.5 fsw=1250000 L=3.76u": {
+   "duty": 0.6378218536886064,
+   "ripple_a": 0.7463872755930501,
+   "ipk_a": 0.5685624432473,
+   "mode": "CCM (forced)",
+   "t_on_s": 5.102574829508852e-07
+  },
+  "pos vin=5.5 fsw=1250000 L=5.64u": {
+   "duty": 0.6378218536886064,
+   "ripple_a": 0.4975915170620335,
+   "ipk_a": 0.44416456398179166,
+   "mode": "CCM (forced)",
+   "t_on_s": 5.102574829508852e-07
+  },
+  "pos vin=5.5 fsw=1500000 L=3.76u": {
+   "duty": 0.6378218536886064,
+   "ripple_a": 0.6219893963275418,
+   "ipk_a": 0.5063635036145459,
+   "mode": "CCM (forced)",
+   "t_on_s": 4.2521456912573763e-07
+  },
+  "pos vin=5.5 fsw=1500000 L=5.64u": {
+   "duty": 0.6378218536886064,
+   "ripple_a": 0.4146595975516945,
+   "ipk_a": 0.4026986042266222,
+   "mode": "CCM (forced)",
+   "t_on_s": 4.2521456912573763e-07
+  },
+  "neg vin=4.281098715219944 fsw=1250000 L=3.76u": {
+   "duty": 0.7808632127274512,
+   "ripple_a": 0.71126648867447,
+   "ipk_a": 0.7159119213584483,
+   "mode": "CCM",
+   "t_on_s": 6.246905701819609e-07
+  },
+  "neg vin=4.281098715219944 fsw=1250000 L=5.64u": {
+   "duty": 0.7808632127274512,
+   "ripple_a": 0.47417765911631343,
+   "ipk_a": 0.59736750657937,
+   "mode": "CCM",
+   "t_on_s": 6.246905701819609e-07
+  },
+  "neg vin=4.281098715219944 fsw=1500000 L=3.76u": {
+   "duty": 0.7808632127274512,
+   "ripple_a": 0.5927220738953917,
+   "ipk_a": 0.6566397139689091,
+   "mode": "CCM",
+   "t_on_s": 5.205754751516342e-07
+  },
+  "neg vin=4.281098715219944 fsw=1500000 L=5.64u": {
+   "duty": 0.7808632127274512,
+   "ripple_a": 0.3951480492635945,
+   "ipk_a": 0.5578527016530106,
+   "mode": "CCM",
+   "t_on_s": 5.205754751516342e-07
+  },
+  "neg vin=5.0 fsw=1250000 L=3.76u": {
+   "duty": 0.6729430385131262,
+   "ripple_a": 0.7158968494820491,
+   "ipk_a": 0.7158968494820491,
+   "mode": "DCM",
+   "t_on_s": 5.383544308105009e-07
+  },
+  "neg vin=5.0 fsw=1250000 L=5.64u": {
+   "duty": 0.7531485281867478,
+   "ripple_a": 0.5341478923310269,
+   "ipk_a": 0.5869031585469586,
+   "mode": "CCM",
+   "t_on_s": 6.025188225493982e-07
+  },
+  "neg vin=5.0 fsw=1500000 L=3.76u": {
+   "duty": 0.7371721642194139,
+   "ripple_a": 0.6535214221803315,
+   "ipk_a": 0.6535214221803315,
+   "mode": "DCM",
+   "t_on_s": 4.914481094796092e-07
+  },
+  "neg vin=5.0 fsw=1500000 L=5.64u": {
+   "duty": 0.7531485281867478,
+   "ripple_a": 0.4451232436091891,
+   "ipk_a": 0.5423908341860397,
+   "mode": "CCM",
+   "t_on_s": 5.020990187911653e-07
+  },
+  "neg vin=5.5 fsw=1250000 L=3.76u": {
+   "duty": 0.6117663986482965,
+   "ripple_a": 0.7158968494820491,
+   "ipk_a": 0.7158968494820491,
+   "mode": "DCM",
+   "t_on_s": 4.894131189186372e-07
+  },
+  "neg vin=5.5 fsw=1250000 L=5.64u": {
+   "duty": 0.7350048258808936,
+   "ripple_a": 0.5734080201907681,
+   "ipk_a": 0.5846351406062643,
+   "mode": "CCM",
+   "t_on_s": 5.880038607047148e-07
+  },
+  "neg vin=5.5 fsw=1500000 L=3.76u": {
+   "duty": 0.6701565129267398,
+   "ripple_a": 0.6535214221803315,
+   "ipk_a": 0.6535214221803315,
+   "mode": "DCM",
+   "t_on_s": 4.4677100861782655e-07
+  },
+  "neg vin=5.5 fsw=1500000 L=5.64u": {
+   "duty": 0.7350048258808936,
+   "ripple_a": 0.47784001682564003,
+   "ipk_a": 0.5368511389237003,
+   "mode": "CCM",
+   "t_on_s": 4.90003217253929e-07
+  }
+ }
+}

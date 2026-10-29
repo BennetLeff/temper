@@ -59,7 +59,18 @@ WINDOWS['bnc_corner'] = (170.0, 190.0, 55.0, 75.0)   # DUT_LO/LPOT F.Cu, R106, R
 WINDOWS['bnc_vert'] = (169.0, 191.0, 75.0, 85.0)     # HPOT/LPOT In2, DUT_LO/DUT_HI B.Cu verticals
 WINDOWS['reve_bnc_box'] = WINDOWS['reve_bnc']             # full bounding box: L-domain validation only
 DOMAINS = {'reve_bnc': [(102.5, 190.5, 45.5, 66.0), (150.5, 190.5, 45.5, 139.5)]}
-ZOOM_WINDOWS = {'zoom', 'reve_relay', 'reve_hiside', 'reve_hiside_r104', 'bnc_band', 'bnc_corner', 'bnc_vert'}
+# Rev F (100 x 100 mm re-layout of reve_bnc, commit 418377699, geometry_revf.json): conductor copper
+# spans x 66.10-134.69, y 50.10-98.04 mm, so the plain bounding box is the domain (3.6e3 mm2, smaller
+# than the Rev E L-domain).  The zooms sit on the Rev F analogues of the Rev E zoom features.
+WINDOWS['revf'] = (64.5, 136.5, 48.5, 99.5)
+WINDOWS['revf_u7'] = (107.5, 121.0, 63.5, 80.5)      # U7 / C104 / R43-R45 / R94: TIA_SUM
+WINDOWS['revf_relay'] = (91.0, 111.0, 63.0, 82.0)    # K1 pins, In2 SOURCE_BUF x 93.2 / TIA_OUT x 106.9, RF100, RF100K start
+WINDOWS['revf_hiside'] = (87.0, 97.0, 74.0, 90.0)    # DUT_HI F.Cu x 90.2 beside SOURCE_BUF In2 x 93.2
+WINDOWS['revf_band'] = (80.0, 98.0, 50.0, 62.0)      # DUT_HI B.Cu y 56.9, HPOT F.Cu x 87.5-89, R105, DUT_HI F.Cu start
+WINDOWS['revf_corner'] = (114.0, 136.0, 49.0, 67.0)  # DUT_LO/LPOT F.Cu, R106, R107, K4, DUT_HI B.Cu x 131.5
+WINDOWS['revf_vert'] = (113.0, 126.0, 59.0, 79.0)    # LPOT F.Cu x 116.3 and DUT_LO F.Cu x 122.6 verticals
+ZOOM_WINDOWS = {'zoom', 'reve_relay', 'reve_hiside', 'reve_hiside_r104', 'bnc_band', 'bnc_corner', 'bnc_vert',
+                'revf_u7', 'revf_relay', 'revf_hiside', 'revf_band', 'revf_corner', 'revf_vert'}
 MARGIN_MM = 1.4
 
 

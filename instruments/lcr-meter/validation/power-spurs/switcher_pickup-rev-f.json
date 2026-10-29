@@ -1,0 +1,3516 @@
+{
+ "note": "RELATIVE estimate, NOT a bound: Rev F/Rev E change in magnetic near-field coupling for the same circuit and currents. The absolute switcher leakage is unknown. The GND plane's shielding, conducted and capacitive paths and the enclosure are not modelled.",
+ "method": "Part A, pickup. Sources: the TPS65131 switching loops, each a closed polyline through pad centres, and L1/L2 as vertical point dipoles at the part centre (semi-shielded drum cores; same part and current in both revisions, so only position matters). Victims: closed polylines through pad centres. Between two pads on the same net the polyline follows the routed copper (shortest path over routing.json tracks and vias) in board mode, or the straight pad-to-pad line in plan mode (both revisions alike, so the ratio compares like with like). Between two pins of one part, and on the closing edge, and on GND hops (the In1.Cu plane), it is straight: the plane return is taken to run along that line. That is the low-frequency return; at the MHz switching harmonics a plane return follows the trace and the true area of those plane-return loops is smaller (both revisions alike). Coupling = mutual inductance by the Neumann double line integral over the two polylines (loops) or the flux of the point dipole's vector potential round the victim (inductors); the coplanar dipole estimate mu0 A_s A_v / (4 pi r^3) is reported beside it as a cross-check.",
+ "pickup": {
+  "mode": "board: routed copper on both revisions",
+  "units": "M_nH is mutual inductance in nH for loop sources; for the inductor dipoles it is the flux per unit dipole moment, Wb/(A m^2) x 1e9. Only the ratios carry meaning.",
+  "inputs": {
+   "rev_e_pads": "/Users/bennet/Desktop/temper/worktrees/lcr-rev-f-100/instruments/lcr-meter/validation/rev-f-floorplan/rev-e-inventory.json",
+   "rev_e_routing": "git 48b012771:instruments/lcr-meter/cad/routing.json",
+   "rev_f_pads": "../../build/pad-coordinates.json",
+   "rev_f_routing": "../../cad/routing.json"
+  },
+  "by_victim": {
+   "codec ch1 input legs (R71-U14.15/16-R70)": {
+    "rev_e_area_mm2": 15.115,
+    "rev_f_area_mm2": 15.115,
+    "loops_sum_ratio_db": -3.18,
+    "inductor_ratio_db": {
+     "L1": -1.73,
+     "L2": -5.41
+    },
+    "worst_source_ratio_db": 23.95
+   },
+   "codec ch2 input legs (R69-U14.17/18-R68)": {
+    "rev_e_area_mm2": 15.595,
+    "rev_f_area_mm2": 15.595,
+    "loops_sum_ratio_db": -3.79,
+    "inductor_ratio_db": {
+     "L1": -2.63,
+     "L2": -4.76
+    },
+    "worst_source_ratio_db": 13.49
+   },
+   "TIA C104 loop (U7.1-C104-U7.2)": {
+    "rev_e_area_mm2": 1.851,
+    "rev_f_area_mm2": 3.325,
+    "loops_sum_ratio_db": 12.2,
+    "inductor_ratio_db": {
+     "L1": 12.33,
+     "L2": 12.13
+    },
+    "worst_source_ratio_db": 32.77
+   },
+   "TIA RF100K loop (U7.1-K3-R45-U7.2)": {
+    "rev_e_area_mm2": 149.589,
+    "rev_f_area_mm2": 75.442,
+    "loops_sum_ratio_db": 4.34,
+    "inductor_ratio_db": {
+     "L1": 4.51,
+     "L2": 2.64
+    },
+    "worst_source_ratio_db": 36.41
+   },
+   "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": {
+    "rev_e_area_mm2": 572.202,
+    "rev_f_area_mm2": 2.122,
+    "loops_sum_ratio_db": -42.12,
+    "inductor_ratio_db": {
+     "L1": -41.94,
+     "L2": -41.17
+    },
+    "worst_source_ratio_db": -33.55
+   },
+   "HPOT input (J7.5-U6.5, GND return)": {
+    "rev_e_area_mm2": 588.232,
+    "rev_f_area_mm2": 19.93,
+    "loops_sum_ratio_db": -28.76,
+    "inductor_ratio_db": {
+     "L1": -28.3,
+     "L2": -28.04
+    },
+    "worst_source_ratio_db": -18.28
+   },
+   "LPOT input (J8.5-U7.5, GND return)": {
+    "rev_e_area_mm2": 456.633,
+    "rev_f_area_mm2": 8.723,
+    "loops_sum_ratio_db": -23.28,
+    "inductor_ratio_db": {
+     "L1": -23.46,
+     "L2": -22.2
+    },
+    "worst_source_ratio_db": -13.14
+   }
+  },
+  "by_source": {
+   "boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+    "rev_e_area_mm2": 27.64,
+    "rev_f_area_mm2": 27.638,
+    "ratio_db_by_victim": {
+     "codec ch1 input legs (R71-U14.15/16-R70)": -2.47,
+     "codec ch2 input legs (R69-U14.17/18-R68)": -3.23,
+     "TIA C104 loop (U7.1-C104-U7.2)": 13.09,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 5.84,
+     "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -41.41,
+     "HPOT input (J7.5-U6.5, GND return)": -28.2,
+     "LPOT input (J8.5-U7.5, GND return)": -22.56
+    }
+   },
+   "boost on-phase (C5V-L1-SW_P-PGND)": {
+    "rev_e_area_mm2": 1.768,
+    "rev_f_area_mm2": 4.283,
+    "ratio_db_by_victim": {
+     "codec ch1 input legs (R71-U14.15/16-R70)": 23.95,
+     "codec ch2 input legs (R69-U14.17/18-R68)": 13.49,
+     "TIA C104 loop (U7.1-C104-U7.2)": 32.77,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 36.41,
+     "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -33.55,
+     "HPOT input (J7.5-U6.5, GND return)": -18.28,
+     "LPOT input (J8.5-U7.5, GND return)": -13.14
+    }
+   },
+   "boost off-phase (C5V-L1-D2-C_RAWP)": {
+    "rev_e_area_mm2": 63.773,
+    "rev_f_area_mm2": 52.012,
+    "ratio_db_by_victim": {
+     "codec ch1 input legs (R71-U14.15/16-R70)": -3.1,
+     "codec ch2 input legs (R69-U14.17/18-R68)": -4.23,
+     "TIA C104 loop (U7.1-C104-U7.2)": 11.03,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 3.69,
+     "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -43.57,
+     "HPOT input (J7.5-U6.5, GND return)": -30.02,
+     "LPOT input (J8.5-U7.5, GND return)": -24.96
+    }
+   },
+   "inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+    "rev_e_area_mm2": 17.125,
+    "rev_f_area_mm2": 17.125,
+    "ratio_db_by_victim": {
+     "codec ch1 input legs (R71-U14.15/16-R70)": -4.72,
+     "codec ch2 input legs (R69-U14.17/18-R68)": -4.45,
+     "TIA C104 loop (U7.1-C104-U7.2)": 12.75,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 4.12,
+     "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -41.1,
+     "HPOT input (J7.5-U6.5, GND return)": -28.06,
+     "LPOT input (J8.5-U7.5, GND return)": -21.98
+    }
+   },
+   "inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+    "rev_e_area_mm2": 33.715,
+    "rev_f_area_mm2": 33.715,
+    "ratio_db_by_victim": {
+     "codec ch1 input legs (R71-U14.15/16-R70)": -4.52,
+     "codec ch2 input legs (R69-U14.17/18-R68)": -4.27,
+     "TIA C104 loop (U7.1-C104-U7.2)": 12.32,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 3.38,
+     "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -41.3,
+     "HPOT input (J7.5-U6.5, GND return)": -28.1,
+     "LPOT input (J8.5-U7.5, GND return)": -22.41
+    }
+   },
+   "L1 shielded inductor (vertical dipole)": {
+    "rev_e_area_mm2": null,
+    "rev_f_area_mm2": null,
+    "ratio_db_by_victim": {
+     "codec ch1 input legs (R71-U14.15/16-R70)": -1.73,
+     "codec ch2 input legs (R69-U14.17/18-R68)": -2.63,
+     "TIA C104 loop (U7.1-C104-U7.2)": 12.33,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 4.51,
+     "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -41.94,
+     "HPOT input (J7.5-U6.5, GND return)": -28.3,
+     "LPOT input (J8.5-U7.5, GND return)": -23.46
+    }
+   },
+   "L2 shielded inductor (vertical dipole)": {
+    "rev_e_area_mm2": null,
+    "rev_f_area_mm2": null,
+    "ratio_db_by_victim": {
+     "codec ch1 input legs (R71-U14.15/16-R70)": -5.41,
+     "codec ch2 input legs (R69-U14.17/18-R68)": -4.76,
+     "TIA C104 loop (U7.1-C104-U7.2)": 12.13,
+     "TIA RF100K loop (U7.1-K3-R45-U7.2)": 2.64,
+     "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": -41.17,
+     "HPOT input (J7.5-U6.5, GND return)": -28.04,
+     "LPOT input (J8.5-U7.5, GND return)": -22.2
+    }
+   }
+  },
+  "pairs": {
+   "codec ch1 input legs (R71-U14.15/16-R70) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+    "rev_e_r_mm": 67.1,
+    "rev_f_r_mm": 73.89,
+    "rev_e_M_nH": -0.000138718594999865,
+    "rev_f_M_nH": -0.00010440572762736868,
+    "ratio_db": -2.47,
+    "dipole_ratio_db": -2.51
+   },
+   "codec ch1 input legs (R71-U14.15/16-R70) | boost on-phase (C5V-L1-SW_P-PGND)": {
+    "rev_e_r_mm": 102.83,
+    "rev_f_r_mm": 77.45,
+    "rev_e_M_nH": 9.369382841364144e-07,
+    "rev_f_M_nH": 1.4765290985822865e-05,
+    "ratio_db": 23.95,
+    "dipole_ratio_db": 15.07
+   },
+   "codec ch1 input legs (R71-U14.15/16-R70) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+    "rev_e_r_mm": 71.99,
+    "rev_f_r_mm": 75.76,
+    "rev_e_M_nH": 0.0002600109315730569,
+    "rev_f_M_nH": 0.0001819111342759215,
+    "ratio_db": -3.1,
+    "dipole_ratio_db": -3.1
+   },
+   "codec ch1 input legs (R71-U14.15/16-R70) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+    "rev_e_r_mm": 67.67,
+    "rev_f_r_mm": 80.65,
+    "rev_e_M_nH": 8.486856378051263e-05,
+    "rev_f_M_nH": 4.930548326160598e-05,
+    "ratio_db": -4.72,
+    "dipole_ratio_db": -4.57
+   },
+   "codec ch1 input legs (R71-U14.15/16-R70) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+    "rev_e_r_mm": 70.66,
+    "rev_f_r_mm": 84.12,
+    "rev_e_M_nH": -0.00014436088807850378,
+    "rev_f_M_nH": -8.578738144081623e-05,
+    "ratio_db": -4.52,
+    "dipole_ratio_db": -4.54
+   },
+   "codec ch1 input legs (R71-U14.15/16-R70) | L1 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 74.5,
+    "rev_f_r_mm": 79.68,
+    "rev_e_M_nH": -3.6539287695415146,
+    "rev_f_M_nH": -2.9931803224745033,
+    "ratio_db": -1.73,
+    "dipole_ratio_db": -1.75
+   },
+   "codec ch1 input legs (R71-U14.15/16-R70) | L2 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 70.46,
+    "rev_f_r_mm": 86.76,
+    "rev_e_M_nH": -4.321599770818452,
+    "rev_f_M_nH": -2.3171711851373895,
+    "ratio_db": -5.41,
+    "dipole_ratio_db": -5.42
+   },
+   "codec ch2 input legs (R69-U14.17/18-R68) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+    "rev_e_r_mm": 71.0,
+    "rev_f_r_mm": 80.37,
+    "rev_e_M_nH": -0.00012112701618096433,
+    "rev_f_M_nH": -8.346366820079055e-05,
+    "ratio_db": -3.23,
+    "dipole_ratio_db": -3.23
+   },
+   "codec ch2 input legs (R69-U14.17/18-R68) | boost on-phase (C5V-L1-SW_P-PGND)": {
+    "rev_e_r_mm": 102.16,
+    "rev_f_r_mm": 85.75,
+    "rev_e_M_nH": 2.360773093435946e-06,
+    "rev_f_M_nH": 1.1151913535084631e-05,
+    "ratio_db": 13.49,
+    "dipole_ratio_db": 12.25
+   },
+   "codec ch2 input legs (R69-U14.17/18-R68) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+    "rev_e_r_mm": 75.36,
+    "rev_f_r_mm": 82.76,
+    "rev_e_M_nH": 0.00023393487284860826,
+    "rev_f_M_nH": 0.0001436734297692945,
+    "ratio_db": -4.23,
+    "dipole_ratio_db": -4.21
+   },
+   "codec ch2 input legs (R69-U14.17/18-R68) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+    "rev_e_r_mm": 73.0,
+    "rev_f_r_mm": 86.22,
+    "rev_e_M_nH": 6.951255569488229e-05,
+    "rev_f_M_nH": 4.165094520254509e-05,
+    "ratio_db": -4.45,
+    "dipole_ratio_db": -4.34
+   },
+   "codec ch2 input legs (R69-U14.17/18-R68) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+    "rev_e_r_mm": 76.2,
+    "rev_f_r_mm": 89.71,
+    "rev_e_M_nH": -0.00011906988683426257,
+    "rev_f_M_nH": -7.286630598730397e-05,
+    "ratio_db": -4.27,
+    "dipole_ratio_db": -4.25
+   },
+   "codec ch2 input legs (R69-U14.17/18-R68) | L1 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 78.31,
+    "rev_f_r_mm": 86.62,
+    "rev_e_M_nH": -3.2512956412266325,
+    "rev_f_M_nH": -2.4008804054062196,
+    "ratio_db": -2.63,
+    "dipole_ratio_db": -2.63
+   },
+   "codec ch2 input legs (R69-U14.17/18-R68) | L2 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 76.61,
+    "rev_f_r_mm": 91.87,
+    "rev_e_M_nH": -3.477277370087316,
+    "rev_f_M_nH": -2.0110683715508224,
+    "ratio_db": -4.76,
+    "dipole_ratio_db": -4.73
+   },
+   "TIA C104 loop (U7.1-C104-U7.2) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+    "rev_e_r_mm": 85.23,
+    "rev_f_r_mm": 62.73,
+    "rev_e_M_nH": 8.276142974417014e-06,
+    "rev_f_M_nH": 3.737400389792168e-05,
+    "ratio_db": 13.09,
+    "dipole_ratio_db": 13.08
+   },
+   "TIA C104 loop (U7.1-C104-U7.2) | boost on-phase (C5V-L1-SW_P-PGND)": {
+    "rev_e_r_mm": 123.19,
+    "rev_f_r_mm": 77.41,
+    "rev_e_M_nH": -6.80477981942492e-08,
+    "rev_f_M_nH": -2.961418508074659e-06,
+    "ratio_db": 32.77,
+    "dipole_ratio_db": 24.88
+   },
+   "TIA C104 loop (U7.1-C104-U7.2) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+    "rev_e_r_mm": 90.49,
+    "rev_f_r_mm": 67.37,
+    "rev_e_M_nH": -1.600221194879753e-05,
+    "rev_f_M_nH": -5.694326190566697e-05,
+    "ratio_db": 11.03,
+    "dipole_ratio_db": 11.01
+   },
+   "TIA C104 loop (U7.1-C104-U7.2) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+    "rev_e_r_mm": 84.32,
+    "rev_f_r_mm": 62.96,
+    "rev_e_M_nH": -5.359301548286507e-06,
+    "rev_f_M_nH": -2.3271547220783702e-05,
+    "ratio_db": 12.75,
+    "dipole_ratio_db": 12.7
+   },
+   "TIA C104 loop (U7.1-C104-U7.2) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+    "rev_e_r_mm": 86.99,
+    "rev_f_r_mm": 65.9,
+    "rev_e_M_nH": 9.481065891366039e-06,
+    "rev_f_M_nH": 3.915530720946159e-05,
+    "ratio_db": 12.32,
+    "dipole_ratio_db": 12.32
+   },
+   "TIA C104 loop (U7.1-C104-U7.2) | L1 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 92.6,
+    "rev_f_r_mm": 70.13,
+    "rev_e_M_nH": 0.2331285228925676,
+    "rev_f_M_nH": 0.9640842335184688,
+    "ratio_db": 12.33,
+    "dipole_ratio_db": 12.33
+   },
+   "TIA C104 loop (U7.1-C104-U7.2) | L2 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 85.96,
+    "rev_f_r_mm": 65.59,
+    "rev_e_M_nH": 0.2914820018247253,
+    "rev_f_M_nH": 1.1785557574727705,
+    "ratio_db": 12.13,
+    "dipole_ratio_db": 12.14
+   },
+   "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+    "rev_e_r_mm": 84.42,
+    "rev_f_r_mm": 55.59,
+    "rev_e_M_nH": 0.0006958054743226767,
+    "rev_f_M_nH": 0.001362235925286701,
+    "ratio_db": 5.84,
+    "dipole_ratio_db": 4.94
+   },
+   "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost on-phase (C5V-L1-SW_P-PGND)": {
+    "rev_e_r_mm": 124.93,
+    "rev_f_r_mm": 68.96,
+    "rev_e_M_nH": -1.6723987830821654e-06,
+    "rev_f_M_nH": -0.000110648801238697,
+    "ratio_db": 36.41,
+    "dipole_ratio_db": 17.22
+   },
+   "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+    "rev_e_r_mm": 89.94,
+    "rev_f_r_mm": 59.89,
+    "rev_e_M_nH": -0.0013325810997063408,
+    "rev_f_M_nH": -0.0020373606173528964,
+    "ratio_db": 3.69,
+    "dipole_ratio_db": 2.88
+   },
+   "TIA RF100K loop (U7.1-K3-R45-U7.2) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+    "rev_e_r_mm": 82.46,
+    "rev_f_r_mm": 57.2,
+    "rev_e_M_nH": -0.0004673310199237648,
+    "rev_f_M_nH": -0.0007508623532059247,
+    "ratio_db": 4.12,
+    "dipole_ratio_db": 3.59
+   },
+   "TIA RF100K loop (U7.1-K3-R45-U7.2) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+    "rev_e_r_mm": 84.89,
+    "rev_f_r_mm": 60.37,
+    "rev_e_M_nH": 0.000829311345863868,
+    "rev_f_M_nH": 0.0012237301873547653,
+    "ratio_db": 3.38,
+    "dipole_ratio_db": 2.94
+   },
+   "TIA RF100K loop (U7.1-K3-R45-U7.2) | L1 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 91.68,
+    "rev_f_r_mm": 62.96,
+    "rev_e_M_nH": 19.58917105246498,
+    "rev_f_M_nH": 32.91215620726078,
+    "ratio_db": 4.51,
+    "dipole_ratio_db": 3.85
+   },
+   "TIA RF100K loop (U7.1-K3-R45-U7.2) | L2 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 83.38,
+    "rev_f_r_mm": 60.77,
+    "rev_e_M_nH": 25.92021242651032,
+    "rev_f_M_nH": 35.10981853785751,
+    "ratio_db": 2.64,
+    "dipole_ratio_db": 2.3
+   },
+   "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+    "rev_e_r_mm": 87.53,
+    "rev_f_r_mm": 62.35,
+    "rev_e_M_nH": -0.002429453320838479,
+    "rev_f_M_nH": 2.0655105942263925e-05,
+    "ratio_db": -41.41,
+    "dipole_ratio_db": -39.78
+   },
+   "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | boost on-phase (C5V-L1-SW_P-PGND)": {
+    "rev_e_r_mm": 111.17,
+    "rev_f_r_mm": 78.88,
+    "rev_e_M_nH": 9.762731088058329e-05,
+    "rev_f_M_nH": -2.0508217292092225e-06,
+    "ratio_db": -33.55,
+    "dipole_ratio_db": -31.99
+   },
+   "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+    "rev_e_r_mm": 91.13,
+    "rev_f_r_mm": 67.38,
+    "rev_e_M_nH": 0.004977834716776529,
+    "rev_f_M_nH": -3.2987686989650545e-05,
+    "ratio_db": -43.57,
+    "dipole_ratio_db": -42.52
+   },
+   "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+    "rev_e_r_mm": 91.07,
+    "rev_f_r_mm": 60.65,
+    "rev_e_M_nH": 0.0013218120353411108,
+    "rev_f_M_nH": -1.1643005345536905e-05,
+    "ratio_db": -41.1,
+    "dipole_ratio_db": -38.02
+   },
+   "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+    "rev_e_r_mm": 94.43,
+    "rev_f_r_mm": 63.21,
+    "rev_e_M_nH": -0.0023224745257146326,
+    "rev_f_M_nH": 1.999293484856486e-05,
+    "ratio_db": -41.3,
+    "dipole_ratio_db": -38.16
+   },
+   "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | L1 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 94.55,
+    "rev_f_r_mm": 69.62,
+    "rev_e_M_nH": -69.37351480374296,
+    "rev_f_M_nH": 0.5547575861952314,
+    "ratio_db": -41.94,
+    "dipole_ratio_db": -40.64
+   },
+   "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | L2 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 95.46,
+    "rev_f_r_mm": 62.02,
+    "rev_e_M_nH": -66.44588697864239,
+    "rev_f_M_nH": 0.5804237173074434,
+    "ratio_db": -41.17,
+    "dipole_ratio_db": -37.38
+   },
+   "HPOT input (J7.5-U6.5, GND return) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+    "rev_e_r_mm": 94.08,
+    "rev_f_r_mm": 89.43,
+    "rev_e_M_nH": -0.001981474392471116,
+    "rev_f_M_nH": -7.707335534015641e-05,
+    "ratio_db": -28.2,
+    "dipole_ratio_db": -28.08
+   },
+   "HPOT input (J7.5-U6.5, GND return) | boost on-phase (C5V-L1-SW_P-PGND)": {
+    "rev_e_r_mm": 119.41,
+    "rev_f_r_mm": 100.81,
+    "rev_e_M_nH": 6.967737478161521e-05,
+    "rev_f_M_nH": 8.49082060620758e-06,
+    "ratio_db": -18.28,
+    "dipole_ratio_db": -17.3
+   },
+   "HPOT input (J7.5-U6.5, GND return) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+    "rev_e_r_mm": 97.95,
+    "rev_f_r_mm": 93.37,
+    "rev_e_M_nH": 0.004044013695502082,
+    "rev_f_M_nH": 0.0001275237699655522,
+    "ratio_db": -30.02,
+    "dipole_ratio_db": -29.92
+   },
+   "HPOT input (J7.5-U6.5, GND return) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+    "rev_e_r_mm": 97.0,
+    "rev_f_r_mm": 91.74,
+    "rev_e_M_nH": 0.0011235391675136724,
+    "rev_f_M_nH": 4.441106967859504e-05,
+    "ratio_db": -28.06,
+    "dipole_ratio_db": -27.95
+   },
+   "HPOT input (J7.5-U6.5, GND return) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+    "rev_e_r_mm": 100.28,
+    "rev_f_r_mm": 94.95,
+    "rev_e_M_nH": -0.001990489820520927,
+    "rev_f_M_nH": -7.836441762337198e-05,
+    "ratio_db": -28.1,
+    "dipole_ratio_db": -27.98
+   },
+   "HPOT input (J7.5-U6.5, GND return) | L1 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 101.23,
+    "rev_f_r_mm": 96.69,
+    "rev_e_M_nH": -57.27149790437824,
+    "rev_f_M_nH": -2.2015466649137894,
+    "ratio_db": -28.3,
+    "dipole_ratio_db": -28.21
+   },
+   "HPOT input (J7.5-U6.5, GND return) | L2 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 100.99,
+    "rev_f_r_mm": 95.39,
+    "rev_e_M_nH": -57.86500455821084,
+    "rev_f_M_nH": -2.293531306515239,
+    "ratio_db": -28.04,
+    "dipole_ratio_db": -27.91
+   },
+   "LPOT input (J8.5-U7.5, GND return) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+    "rev_e_r_mm": 98.5,
+    "rev_f_r_mm": 56.46,
+    "rev_e_M_nH": -0.0013219305658385614,
+    "rev_f_M_nH": -9.844897853378933e-05,
+    "ratio_db": -22.56,
+    "dipole_ratio_db": -19.88
+   },
+   "LPOT input (J8.5-U7.5, GND return) | boost on-phase (C5V-L1-SW_P-PGND)": {
+    "rev_e_r_mm": 128.65,
+    "rev_f_r_mm": 71.84,
+    "rev_e_M_nH": 3.506290322756846e-05,
+    "rev_f_M_nH": 7.728264196016617e-06,
+    "ratio_db": -13.14,
+    "dipole_ratio_db": -11.51
+   },
+   "LPOT input (J8.5-U7.5, GND return) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+    "rev_e_r_mm": 102.97,
+    "rev_f_r_mm": 61.24,
+    "rev_e_M_nH": 0.0026672972114017285,
+    "rev_f_M_nH": 0.00015068913219209965,
+    "ratio_db": -24.96,
+    "dipole_ratio_db": -22.61
+   },
+   "LPOT input (J8.5-U7.5, GND return) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+    "rev_e_r_mm": 99.95,
+    "rev_f_r_mm": 56.21,
+    "rev_e_M_nH": 0.0007933710069221527,
+    "rev_f_M_nH": 6.314611721942245e-05,
+    "ratio_db": -21.98,
+    "dipole_ratio_db": -19.38
+   },
+   "LPOT input (J8.5-U7.5, GND return) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+    "rev_e_r_mm": 103.04,
+    "rev_f_r_mm": 59.09,
+    "rev_e_M_nH": -0.001416824295439521,
+    "rev_f_M_nH": -0.00010735967336064994,
+    "ratio_db": -22.41,
+    "dipole_ratio_db": -19.89
+   },
+   "LPOT input (J8.5-U7.5, GND return) | L1 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 105.85,
+    "rev_f_r_mm": 63.85,
+    "rev_e_M_nH": -38.45635281471562,
+    "rev_f_M_nH": -2.580771738053532,
+    "ratio_db": -23.46,
+    "dipole_ratio_db": -21.21
+   },
+   "LPOT input (J8.5-U7.5, GND return) | L2 shielded inductor (vertical dipole)": {
+    "rev_e_r_mm": 103.03,
+    "rev_f_r_mm": 58.63,
+    "rev_e_M_nH": -42.190917885295235,
+    "rev_f_M_nH": -3.275901478884013,
+    "ratio_db": -22.2,
+    "dipole_ratio_db": -19.69
+   }
+  },
+  "rev_e_geometry": {
+   "sources": {
+    "boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "area_mm2": 27.64,
+     "centroid_mm": [
+      80.92,
+      121.96
+     ],
+     "copper_routed": true
+    },
+    "boost on-phase (C5V-L1-SW_P-PGND)": {
+     "area_mm2": 1.768,
+     "centroid_mm": [
+      42.82,
+      90.51
+     ],
+     "copper_routed": true
+    },
+    "boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "area_mm2": 63.773,
+     "centroid_mm": [
+      75.28,
+      120.01
+     ],
+     "copper_routed": true
+    },
+    "inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "area_mm2": 17.125,
+     "centroid_mm": [
+      84.2,
+      131.77
+     ],
+     "copper_routed": true
+    },
+    "inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "area_mm2": 33.715,
+     "centroid_mm": [
+      82.34,
+      134.72
+     ],
+     "copper_routed": true
+    },
+    "L1 shielded inductor (vertical dipole)": {
+     "centroid_mm": [
+      73.8,
+      124.0
+     ]
+    },
+    "L2 shielded inductor (vertical dipole)": {
+     "centroid_mm": [
+      85.0,
+      139.0
+     ]
+    }
+   },
+   "victims": {
+    "codec ch1 input legs (R71-U14.15/16-R70)": {
+     "area_mm2": 15.115,
+     "centroid_mm": [
+      145.0,
+      102.06
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 22.75
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68)": {
+     "area_mm2": 15.595,
+     "centroid_mm": [
+      144.97,
+      91.32
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 24.35
+    },
+    "TIA C104 loop (U7.1-C104-U7.2)": {
+     "area_mm2": 1.851,
+     "centroid_mm": [
+      164.87,
+      107.23
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 6.4
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2)": {
+     "area_mm2": 149.589,
+     "centroid_mm": [
+      165.13,
+      115.95
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 112.81
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": {
+     "area_mm2": 572.202,
+     "centroid_mm": [
+      152.32,
+      71.33
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 127.22
+    },
+    "HPOT input (J7.5-U6.5, GND return)": {
+     "area_mm2": 588.232,
+     "centroid_mm": [
+      160.84,
+      72.31
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 141.84
+    },
+    "LPOT input (J8.5-U7.5, GND return)": {
+     "area_mm2": 456.633,
+     "centroid_mm": [
+      171.22,
+      82.6
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 152.34
+    }
+   },
+   "coupling": {
+    "codec ch1 input legs (R71-U14.15/16-R70) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": -1.38718594999865e-13,
+     "r_mm": 67.1,
+     "M_dipole_H": 1.3831061416057482e-13
+    },
+    "codec ch1 input legs (R71-U14.15/16-R70) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": 9.369382841364144e-16,
+     "r_mm": 102.83,
+     "M_dipole_H": 2.4580630562748065e-15
+    },
+    "codec ch1 input legs (R71-U14.15/16-R70) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": 2.600109315730569e-13,
+     "r_mm": 71.99,
+     "M_dipole_H": 2.5835633718054393e-13
+    },
+    "codec ch1 input legs (R71-U14.15/16-R70) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": 8.486856378051263e-14,
+     "r_mm": 67.67,
+     "M_dipole_H": 8.351820668827863e-14
+    },
+    "codec ch1 input legs (R71-U14.15/16-R70) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": -1.4436088807850377e-13,
+     "r_mm": 70.66,
+     "M_dipole_H": 1.444265942444153e-13
+    },
+    "codec ch1 input legs (R71-U14.15/16-R70) | L1 shielded inductor (vertical dipole)": {
+     "M_H": -3.6539287695415146e-09,
+     "r_mm": 74.5,
+     "M_dipole_H": 3.654815881577647e-09
+    },
+    "codec ch1 input legs (R71-U14.15/16-R70) | L2 shielded inductor (vertical dipole)": {
+     "M_H": -4.3215997708184514e-09,
+     "r_mm": 70.46,
+     "M_dipole_H": 4.320958181182791e-09
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": -1.2112701618096433e-13,
+     "r_mm": 71.0,
+     "M_dipole_H": 1.2044676638797067e-13
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": 2.3607730934359457e-15,
+     "r_mm": 102.16,
+     "M_dipole_H": 2.586946087650943e-15
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": 2.3393487284860827e-13,
+     "r_mm": 75.36,
+     "M_dipole_H": 2.3237428620861127e-13
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": 6.951255569488229e-14,
+     "r_mm": 73.0,
+     "M_dipole_H": 6.864262491473047e-14
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": -1.1906988683426256e-13,
+     "r_mm": 76.2,
+     "M_dipole_H": 1.1883777777078707e-13
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | L1 shielded inductor (vertical dipole)": {
+     "M_H": -3.2512956412266325e-09,
+     "r_mm": 78.31,
+     "M_dipole_H": 3.2468753941952576e-09
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | L2 shielded inductor (vertical dipole)": {
+     "M_H": -3.477277370087316e-09,
+     "r_mm": 76.61,
+     "M_dipole_H": 3.467844371009558e-09
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": 8.276142974417014e-15,
+     "r_mm": 85.23,
+     "M_dipole_H": 8.262351857617847e-15
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": -6.80477981942492e-17,
+     "r_mm": 123.19,
+     "M_dipole_H": 1.7504921789955824e-16
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": -1.600221194879753e-14,
+     "r_mm": 90.49,
+     "M_dipole_H": 1.5926496806416602e-14
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": -5.359301548286507e-15,
+     "r_mm": 84.32,
+     "M_dipole_H": 5.286126752551769e-15
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": 9.481065891366039e-15,
+     "r_mm": 86.99,
+     "M_dipole_H": 9.478933084959134e-15
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | L1 shielded inductor (vertical dipole)": {
+     "M_H": 2.331285228925676e-10,
+     "r_mm": 92.6,
+     "M_dipole_H": 2.330697695148772e-10
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | L2 shielded inductor (vertical dipole)": {
+     "M_H": 2.914820018247253e-10,
+     "r_mm": 85.96,
+     "M_dipole_H": 2.9141431129433593e-10
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": 6.958054743226767e-13,
+     "r_mm": 84.42,
+     "M_dipole_H": 6.872374650873638e-13
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": -1.6723987830821653e-15,
+     "r_mm": 124.93,
+     "M_dipole_H": 1.3567812092752902e-14
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": -1.3325810997063408e-12,
+     "r_mm": 89.94,
+     "M_dipole_H": 1.3113918086859588e-12
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": -4.673310199237648e-13,
+     "r_mm": 82.46,
+     "M_dipole_H": 4.568285841540181e-13
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": 8.29311345863868e-13,
+     "r_mm": 84.89,
+     "M_dipole_H": 8.243924774532302e-13
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | L1 shielded inductor (vertical dipole)": {
+     "M_H": 1.9589171052464982e-08,
+     "r_mm": 91.68,
+     "M_dipole_H": 1.9410837027029306e-08
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | L2 shielded inductor (vertical dipole)": {
+     "M_H": 2.5920212426510323e-08,
+     "r_mm": 83.38,
+     "M_dipole_H": 2.5808027029239492e-08
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": -2.4294533208384788e-12,
+     "r_mm": 87.53,
+     "M_dipole_H": 2.3585067903944326e-12
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": 9.762731088058329e-14,
+     "r_mm": 111.17,
+     "M_dipole_H": 7.364624349460593e-14
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": 4.977834716776529e-12,
+     "r_mm": 91.13,
+     "M_dipole_H": 4.821519865738007e-12
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": 1.3218120353411109e-12,
+     "r_mm": 91.07,
+     "M_dipole_H": 1.2972039043518247e-12
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": -2.3224745257146324e-12,
+     "r_mm": 94.43,
+     "M_dipole_H": 2.2912536136445122e-12
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | L1 shielded inductor (vertical dipole)": {
+     "M_H": -6.937351480374297e-08,
+     "r_mm": 94.55,
+     "M_dipole_H": 6.76910028235886e-08
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | L2 shielded inductor (vertical dipole)": {
+     "M_H": -6.64458869786424e-08,
+     "r_mm": 95.46,
+     "M_dipole_H": 6.578547882875897e-08
+    },
+    "HPOT input (J7.5-U6.5, GND return) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": -1.981474392471116e-12,
+     "r_mm": 94.08,
+     "M_dipole_H": 1.9526755693199684e-12
+    },
+    "HPOT input (J7.5-U6.5, GND return) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": 6.967737478161522e-14,
+     "r_mm": 119.41,
+     "M_dipole_H": 6.10910695861112e-14
+    },
+    "HPOT input (J7.5-U6.5, GND return) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": 4.044013695502082e-12,
+     "r_mm": 97.95,
+     "M_dipole_H": 3.991901363655711e-12
+    },
+    "HPOT input (J7.5-U6.5, GND return) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": 1.1235391675136724e-12,
+     "r_mm": 97.0,
+     "M_dipole_H": 1.1038211503975391e-12
+    },
+    "HPOT input (J7.5-U6.5, GND return) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": -1.990489820520927e-12,
+     "r_mm": 100.28,
+     "M_dipole_H": 1.9665085885934353e-12
+    },
+    "HPOT input (J7.5-U6.5, GND return) | L1 shielded inductor (vertical dipole)": {
+     "M_H": -5.727149790437824e-08,
+     "r_mm": 101.23,
+     "M_dipole_H": 5.6711456844797916e-08
+    },
+    "HPOT input (J7.5-U6.5, GND return) | L2 shielded inductor (vertical dipole)": {
+     "M_H": -5.786500455821084e-08,
+     "r_mm": 100.99,
+     "M_dipole_H": 5.711687700395244e-08
+    },
+    "LPOT input (J8.5-U7.5, GND return) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": -1.3219305658385615e-12,
+     "r_mm": 98.5,
+     "M_dipole_H": 1.320636919215662e-12
+    },
+    "LPOT input (J8.5-U7.5, GND return) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": 3.506290322756846e-14,
+     "r_mm": 128.65,
+     "M_dipole_H": 3.7928825916493834e-14
+    },
+    "LPOT input (J8.5-U7.5, GND return) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": 2.6672972114017285e-12,
+     "r_mm": 102.97,
+     "M_dipole_H": 2.6671819300312775e-12
+    },
+    "LPOT input (J8.5-U7.5, GND return) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": 7.933710069221527e-13,
+     "r_mm": 99.95,
+     "M_dipole_H": 7.830987140846545e-13
+    },
+    "LPOT input (J8.5-U7.5, GND return) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": -1.4168242954395211e-12,
+     "r_mm": 103.04,
+     "M_dipole_H": 1.4074137062968935e-12
+    },
+    "LPOT input (J8.5-U7.5, GND return) | L1 shielded inductor (vertical dipole)": {
+     "M_H": -3.845635281471562e-08,
+     "r_mm": 105.85,
+     "M_dipole_H": 3.8501673255456284e-08
+    },
+    "LPOT input (J8.5-U7.5, GND return) | L2 shielded inductor (vertical dipole)": {
+     "M_H": -4.219091788529523e-08,
+     "r_mm": 103.03,
+     "M_dipole_H": 4.1754636909432e-08
+    }
+   }
+  },
+  "rev_f_geometry": {
+   "sources": {
+    "boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "area_mm2": 27.638,
+     "centroid_mm": [
+      129.46,
+      134.08
+     ],
+     "copper_routed": true
+    },
+    "boost on-phase (C5V-L1-SW_P-PGND)": {
+     "area_mm2": 4.283,
+     "centroid_mm": [
+      119.82,
+      150.62
+     ],
+     "copper_routed": true
+    },
+    "boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "area_mm2": 52.012,
+     "centroid_mm": [
+      128.09,
+      139.2
+     ],
+     "copper_routed": true
+    },
+    "inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "area_mm2": 17.125,
+     "centroid_mm": [
+      139.27,
+      130.8
+     ],
+     "copper_routed": true
+    },
+    "inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "area_mm2": 33.715,
+     "centroid_mm": [
+      142.22,
+      132.66
+     ],
+     "copper_routed": true
+    },
+    "L1 shielded inductor (vertical dipole)": {
+     "centroid_mm": [
+      131.5,
+      141.2
+     ]
+    },
+    "L2 shielded inductor (vertical dipole)": {
+     "centroid_mm": [
+      146.5,
+      130.0
+     ]
+    }
+   },
+   "victims": {
+    "codec ch1 input legs (R71-U14.15/16-R70)": {
+     "area_mm2": 15.115,
+     "centroid_mm": [
+      68.0,
+      93.06
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 22.75
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68)": {
+     "area_mm2": 15.595,
+     "centroid_mm": [
+      67.97,
+      82.32
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 24.35
+    },
+    "TIA C104 loop (U7.1-C104-U7.2)": {
+     "area_mm2": 3.325,
+     "centroid_mm": [
+      113.18,
+      73.5
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 8.31
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2)": {
+     "area_mm2": 75.442,
+     "centroid_mm": [
+      108.46,
+      82.61
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 71.92
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads)": {
+     "area_mm2": 2.122,
+     "centroid_mm": [
+      124.8,
+      71.9
+     ],
+     "copper_routed": false,
+     "perimeter_mm": 47.02
+    },
+    "HPOT input (J7.5-U6.5, GND return)": {
+     "area_mm2": 19.93,
+     "centroid_mm": [
+      87.31,
+      55.2
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 35.05
+    },
+    "LPOT input (J8.5-U7.5, GND return)": {
+     "area_mm2": 8.723,
+     "centroid_mm": [
+      117.9,
+      78.81
+     ],
+     "copper_routed": true,
+     "perimeter_mm": 39.87
+    }
+   },
+   "coupling": {
+    "codec ch1 input legs (R71-U14.15/16-R70) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": -1.0440572762736868e-13,
+     "r_mm": 73.89,
+     "M_dipole_H": 1.0356620442332418e-13
+    },
+    "codec ch1 input legs (R71-U14.15/16-R70) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": 1.4765290985822865e-14,
+     "r_mm": 77.45,
+     "M_dipole_H": 1.3936134159542852e-14
+    },
+    "codec ch1 input legs (R71-U14.15/16-R70) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": 1.819111342759215e-13,
+     "r_mm": 75.76,
+     "M_dipole_H": 1.8082846753084682e-13
+    },
+    "codec ch1 input legs (R71-U14.15/16-R70) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": 4.930548326160598e-14,
+     "r_mm": 80.65,
+     "M_dipole_H": 4.93518531814354e-14
+    },
+    "codec ch1 input legs (R71-U14.15/16-R70) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": -8.578738144081622e-14,
+     "r_mm": 84.12,
+     "M_dipole_H": 8.559829577915739e-14
+    },
+    "codec ch1 input legs (R71-U14.15/16-R70) | L1 shielded inductor (vertical dipole)": {
+     "M_H": -2.9931803224745033e-09,
+     "r_mm": 79.68,
+     "M_dipole_H": 2.9873742815461985e-09
+    },
+    "codec ch1 input legs (R71-U14.15/16-R70) | L2 shielded inductor (vertical dipole)": {
+     "M_H": -2.3171711851373897e-09,
+     "r_mm": 86.76,
+     "M_dipole_H": 2.314742610185634e-09
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": -8.346366820079056e-14,
+     "r_mm": 80.37,
+     "M_dipole_H": 8.302390810757957e-14
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": 1.1151913535084631e-14,
+     "r_mm": 85.75,
+     "M_dipole_H": 1.0593562692976643e-14
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": 1.4367342976929452e-13,
+     "r_mm": 82.76,
+     "M_dipole_H": 1.4310311955922684e-13
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": 4.165094520254509e-14,
+     "r_mm": 86.22,
+     "M_dipole_H": 4.166522204019897e-14
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": -7.286630598730396e-14,
+     "r_mm": 89.71,
+     "M_dipole_H": 7.283157890411736e-14
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | L1 shielded inductor (vertical dipole)": {
+     "M_H": -2.4008804054062194e-09,
+     "r_mm": 86.62,
+     "M_dipole_H": 2.3996273685908986e-09
+    },
+    "codec ch2 input legs (R69-U14.17/18-R68) | L2 shielded inductor (vertical dipole)": {
+     "M_H": -2.0110683715508223e-09,
+     "r_mm": 91.87,
+     "M_dipole_H": 2.0111622096527095e-09
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": 3.737400389792168e-14,
+     "r_mm": 62.73,
+     "M_dipole_H": 3.7239374457632714e-14
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": -2.961418508074659e-15,
+     "r_mm": 77.41,
+     "M_dipole_H": 3.0707924268518568e-15
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": -5.694326190566697e-14,
+     "r_mm": 67.37,
+     "M_dipole_H": 5.657047733036291e-14
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": -2.3271547220783702e-14,
+     "r_mm": 62.96,
+     "M_dipole_H": 2.2816183228309375e-14
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": 3.915530720946159e-14,
+     "r_mm": 65.9,
+     "M_dipole_H": 3.916730082362654e-14
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | L1 shielded inductor (vertical dipole)": {
+     "M_H": 9.640842335184688e-10,
+     "r_mm": 70.13,
+     "M_dipole_H": 9.639197300283156e-10
+    },
+    "TIA C104 loop (U7.1-C104-U7.2) | L2 shielded inductor (vertical dipole)": {
+     "M_H": 1.1785557574727705e-09,
+     "r_mm": 65.59,
+     "M_dipole_H": 1.1784019029645553e-09
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": 1.362235925286701e-12,
+     "r_mm": 55.59,
+     "M_dipole_H": 1.214023590134452e-12
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": -1.10648801238697e-13,
+     "r_mm": 68.96,
+     "M_dipole_H": 9.855796459757736e-14
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": -2.0373606173528963e-12,
+     "r_mm": 59.89,
+     "M_dipole_H": 1.8262048049402247e-12
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": -7.508623532059247e-13,
+     "r_mm": 57.2,
+     "M_dipole_H": 6.903646652907454e-13
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": 1.2237301873547654e-12,
+     "r_mm": 60.37,
+     "M_dipole_H": 1.1558436801754275e-12
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | L1 shielded inductor (vertical dipole)": {
+     "M_H": 3.291215620726078e-08,
+     "r_mm": 62.96,
+     "M_dipole_H": 3.0232390006618247e-08
+    },
+    "TIA RF100K loop (U7.1-K3-R45-U7.2) | L2 shielded inductor (vertical dipole)": {
+     "M_H": 3.510981853785751e-08,
+     "r_mm": 60.77,
+     "M_dipole_H": 3.361899984426635e-08
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": 2.0655105942263925e-14,
+     "r_mm": 62.35,
+     "M_dipole_H": 2.4195802395578405e-14
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": -2.0508217292092223e-15,
+     "r_mm": 78.88,
+     "M_dipole_H": 1.8520681138332744e-15
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": -3.298768698965054e-14,
+     "r_mm": 67.38,
+     "M_dipole_H": 3.608538548707551e-14
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": -1.1643005345536906e-14,
+     "r_mm": 60.65,
+     "M_dipole_H": 1.6286072393896835e-14
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": 1.999293484856486e-14,
+     "r_mm": 63.21,
+     "M_dipole_H": 2.8329230186400995e-14
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | L1 shielded inductor (vertical dipole)": {
+     "M_H": 5.547575861952314e-10,
+     "r_mm": 69.62,
+     "M_dipole_H": 6.288115869148405e-10
+    },
+    "U6 EXCITE input (U5.1-U6.3, return via the nearest GND capacitor pads) | L2 shielded inductor (vertical dipole)": {
+     "M_H": 5.804237173074433e-10,
+     "r_mm": 62.02,
+     "M_dipole_H": 8.895429977371721e-10
+    },
+    "HPOT input (J7.5-U6.5, GND return) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": -7.707335534015641e-14,
+     "r_mm": 89.43,
+     "M_dipole_H": 7.700527044837127e-14
+    },
+    "HPOT input (J7.5-U6.5, GND return) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": 8.49082060620758e-15,
+     "r_mm": 100.81,
+     "M_dipole_H": 8.33292614843343e-15
+    },
+    "HPOT input (J7.5-U6.5, GND return) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": 1.2752376996555218e-13,
+     "r_mm": 93.37,
+     "M_dipole_H": 1.2733400881494889e-13
+    },
+    "HPOT input (J7.5-U6.5, GND return) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": 4.441106967859504e-14,
+     "r_mm": 91.74,
+     "M_dipole_H": 4.420661737350648e-14
+    },
+    "HPOT input (J7.5-U6.5, GND return) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": -7.836441762337199e-14,
+     "r_mm": 94.95,
+     "M_dipole_H": 7.849054476865438e-14
+    },
+    "HPOT input (J7.5-U6.5, GND return) | L1 shielded inductor (vertical dipole)": {
+     "M_H": -2.2015466649137892e-09,
+     "r_mm": 96.69,
+     "M_dipole_H": 2.2047543270085976e-09
+    },
+    "HPOT input (J7.5-U6.5, GND return) | L2 shielded inductor (vertical dipole)": {
+     "M_H": -2.2935313065152393e-09,
+     "r_mm": 95.39,
+     "M_dipole_H": 2.296284706239371e-09
+    },
+    "LPOT input (J8.5-U7.5, GND return) | boost hot loop (SW_P-D2-C_RAWP-GND-PGND)": {
+     "M_H": -9.844897853378934e-14,
+     "r_mm": 56.46,
+     "M_dipole_H": 1.339490595561358e-13
+    },
+    "LPOT input (J8.5-U7.5, GND return) | boost on-phase (C5V-L1-SW_P-PGND)": {
+     "M_H": 7.728264196016618e-15,
+     "r_mm": 71.84,
+     "M_dipole_H": 1.0078818254234745e-14
+    },
+    "LPOT input (J8.5-U7.5, GND return) | boost off-phase (C5V-L1-D2-C_RAWP)": {
+     "M_H": 1.5068913219209966e-13,
+     "r_mm": 61.24,
+     "M_dipole_H": 1.9755966701192148e-13
+    },
+    "LPOT input (J8.5-U7.5, GND return) | inverter hot loop (C5V-VIN-SW_N-D3-C_RAWN)": {
+     "M_H": 6.314611721942246e-14,
+     "r_mm": 56.21,
+     "M_dipole_H": 8.411199383558932e-14
+    },
+    "LPOT input (J8.5-U7.5, GND return) | inverter on-phase (C5V-VIN-SW_N-L2-GND)": {
+     "M_H": -1.0735967336064994e-13,
+     "r_mm": 59.09,
+     "M_dipole_H": 1.4257371873687183e-13
+    },
+    "LPOT input (J8.5-U7.5, GND return) | L1 shielded inductor (vertical dipole)": {
+     "M_H": -2.580771738053532e-09,
+     "r_mm": 63.85,
+     "M_dipole_H": 3.3507057593316344e-09
+    },
+    "LPOT input (J8.5-U7.5, GND return) | L2 shielded inductor (vertical dipole)": {
+     "M_H": -3.2759014788840132e-09,
+     "r_mm": 58.63,
+     "M_dipole_H": 4.327340434841683e-09
+    }
+   }
+  }
+ },
+ "harmonics": {
+  "1500.0": {
+   "record_s": 0.25,
+   "line_response_width_hz": 16.264799999962094,
+   "transition_band_image": false,
+   "by_modulator_rate": {
+    "8 fs (1.5 MHz)": {
+     "probability_unattenuated": 0.0009135447819038493,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 274,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 1,
+       "k": 1,
+       "fsw_hz": 1498500.0,
+       "half_width_hz": 8.13,
+       "probability": 6.505919999984838e-05
+      },
+      {
+       "m": 2,
+       "k": 2,
+       "fsw_hz": 1499250.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 3,
+       "k": 3,
+       "fsw_hz": 1499500.0,
+       "half_width_hz": 2.71,
+       "probability": 2.168639999994946e-05
+      },
+      {
+       "m": 4,
+       "k": 4,
+       "fsw_hz": 1499625.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 5,
+       "k": 5,
+       "fsw_hz": 1499700.0,
+       "half_width_hz": 1.63,
+       "probability": 1.3011839999969675e-05
+      },
+      {
+       "m": 6,
+       "k": 5,
+       "fsw_hz": 1250250.0,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 6,
+       "k": 6,
+       "fsw_hz": 1499750.0,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 6,
+       "fsw_hz": 1285928.6,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 6,
+       "fsw_hz": 1285500.0,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 7,
+       "fsw_hz": 1499785.7,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      }
+     ]
+    },
+    "16 fs (3.0 MHz)": {
+     "probability_unattenuated": 0.00043426542667271623,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 137,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 2,
+       "k": 1,
+       "fsw_hz": 1499250.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 4,
+       "k": 2,
+       "fsw_hz": 1499625.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 6,
+       "k": 3,
+       "fsw_hz": 1499750.0,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1285928.6,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1285500.0,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 8,
+       "k": 4,
+       "fsw_hz": 1499812.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 4,
+       "fsw_hz": 1333500.0,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 4,
+       "fsw_hz": 1333166.7,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 10,
+       "k": 5,
+       "fsw_hz": 1499850.0,
+       "half_width_hz": 0.81,
+       "probability": 6.505919999984838e-06
+      },
+      {
+       "m": 11,
+       "k": 5,
+       "fsw_hz": 1363772.7,
+       "half_width_hz": 0.74,
+       "probability": 5.914472727258943e-06
+      }
+     ]
+    },
+    "32 fs (6.0 MHz)": {
+     "probability_unattenuated": 0.0001998892328552756,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 67,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 4,
+       "k": 1,
+       "fsw_hz": 1499625.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 8,
+       "k": 2,
+       "fsw_hz": 1499812.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1333500.0,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1333166.7,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 12,
+       "k": 3,
+       "fsw_hz": 1499875.0,
+       "half_width_hz": 0.68,
+       "probability": 5.421599999987365e-06
+      },
+      {
+       "m": 13,
+       "k": 3,
+       "fsw_hz": 1384730.8,
+       "half_width_hz": 0.63,
+       "probability": 5.004553846142183e-06
+      },
+      {
+       "m": 13,
+       "k": 3,
+       "fsw_hz": 1384500.0,
+       "half_width_hz": 0.63,
+       "probability": 5.004553846142183e-06
+      },
+      {
+       "m": 14,
+       "k": 3,
+       "fsw_hz": 1285821.4,
+       "half_width_hz": 0.58,
+       "probability": 4.647085714274885e-06
+      },
+      {
+       "m": 14,
+       "k": 3,
+       "fsw_hz": 1285607.1,
+       "half_width_hz": 0.58,
+       "probability": 4.647085714274885e-06
+      },
+      {
+       "m": 16,
+       "k": 4,
+       "fsw_hz": 1499906.2,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      }
+     ]
+    },
+    "64 fs (12.0 MHz)": {
+     "probability_unattenuated": 9.647626002061416e-05,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 33,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 8,
+       "k": 1,
+       "fsw_hz": 1499812.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1333500.0,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1333166.7,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 16,
+       "k": 2,
+       "fsw_hz": 1499906.2,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1411852.9,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1411676.5,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 18,
+       "k": 2,
+       "fsw_hz": 1333416.7,
+       "half_width_hz": 0.45,
+       "probability": 3.6143999999915763e-06
+      },
+      {
+       "m": 18,
+       "k": 2,
+       "fsw_hz": 1333250.0,
+       "half_width_hz": 0.45,
+       "probability": 3.6143999999915763e-06
+      },
+      {
+       "m": 19,
+       "k": 2,
+       "fsw_hz": 1263236.8,
+       "half_width_hz": 0.43,
+       "probability": 3.4241684210446516e-06
+      },
+      {
+       "m": 19,
+       "k": 2,
+       "fsw_hz": 1263078.9,
+       "half_width_hz": 0.43,
+       "probability": 3.4241684210446516e-06
+      }
+     ]
+    }
+   }
+  },
+  "27500.0": {
+   "record_s": 0.25,
+   "line_response_width_hz": 16.264799999962094,
+   "transition_band_image": false,
+   "by_modulator_rate": {
+    "8 fs (1.5 MHz)": {
+     "probability_unattenuated": 0.0009135447819038493,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 274,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 1,
+       "k": 1,
+       "fsw_hz": 1472500.0,
+       "half_width_hz": 8.13,
+       "probability": 6.505919999984838e-05
+      },
+      {
+       "m": 2,
+       "k": 2,
+       "fsw_hz": 1486250.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 3,
+       "k": 3,
+       "fsw_hz": 1490833.3,
+       "half_width_hz": 2.71,
+       "probability": 2.168639999994946e-05
+      },
+      {
+       "m": 4,
+       "k": 4,
+       "fsw_hz": 1493125.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 5,
+       "k": 5,
+       "fsw_hz": 1494500.0,
+       "half_width_hz": 1.63,
+       "probability": 1.3011839999969675e-05
+      },
+      {
+       "m": 6,
+       "k": 5,
+       "fsw_hz": 1254583.3,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 6,
+       "k": 6,
+       "fsw_hz": 1495416.7,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 6,
+       "fsw_hz": 1289642.9,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 6,
+       "fsw_hz": 1281785.7,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 7,
+       "fsw_hz": 1496071.4,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      }
+     ]
+    },
+    "16 fs (3.0 MHz)": {
+     "probability_unattenuated": 0.00043426542667271623,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 137,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 2,
+       "k": 1,
+       "fsw_hz": 1486250.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 4,
+       "k": 2,
+       "fsw_hz": 1493125.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 6,
+       "k": 3,
+       "fsw_hz": 1495416.7,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1289642.9,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1281785.7,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 8,
+       "k": 4,
+       "fsw_hz": 1496562.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 4,
+       "fsw_hz": 1336388.9,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 4,
+       "fsw_hz": 1330277.8,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 10,
+       "k": 5,
+       "fsw_hz": 1497250.0,
+       "half_width_hz": 0.81,
+       "probability": 6.505919999984838e-06
+      },
+      {
+       "m": 11,
+       "k": 5,
+       "fsw_hz": 1366136.4,
+       "half_width_hz": 0.74,
+       "probability": 5.914472727258943e-06
+      }
+     ]
+    },
+    "32 fs (6.0 MHz)": {
+     "probability_unattenuated": 0.0001998892328552756,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 67,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 4,
+       "k": 1,
+       "fsw_hz": 1493125.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 8,
+       "k": 2,
+       "fsw_hz": 1496562.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1336388.9,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1330277.8,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 12,
+       "k": 3,
+       "fsw_hz": 1497708.3,
+       "half_width_hz": 0.68,
+       "probability": 5.421599999987365e-06
+      },
+      {
+       "m": 13,
+       "k": 3,
+       "fsw_hz": 1386730.8,
+       "half_width_hz": 0.63,
+       "probability": 5.004553846142183e-06
+      },
+      {
+       "m": 13,
+       "k": 3,
+       "fsw_hz": 1382500.0,
+       "half_width_hz": 0.63,
+       "probability": 5.004553846142183e-06
+      },
+      {
+       "m": 14,
+       "k": 3,
+       "fsw_hz": 1287678.6,
+       "half_width_hz": 0.58,
+       "probability": 4.647085714274885e-06
+      },
+      {
+       "m": 14,
+       "k": 3,
+       "fsw_hz": 1283750.0,
+       "half_width_hz": 0.58,
+       "probability": 4.647085714274885e-06
+      },
+      {
+       "m": 16,
+       "k": 4,
+       "fsw_hz": 1498281.2,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      }
+     ]
+    },
+    "64 fs (12.0 MHz)": {
+     "probability_unattenuated": 9.647626002061416e-05,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 33,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 8,
+       "k": 1,
+       "fsw_hz": 1496562.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1336388.9,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1330277.8,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 16,
+       "k": 2,
+       "fsw_hz": 1498281.2,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1413382.4,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1410147.1,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 18,
+       "k": 2,
+       "fsw_hz": 1334861.1,
+       "half_width_hz": 0.45,
+       "probability": 3.6143999999915763e-06
+      },
+      {
+       "m": 18,
+       "k": 2,
+       "fsw_hz": 1331805.6,
+       "half_width_hz": 0.45,
+       "probability": 3.6143999999915763e-06
+      },
+      {
+       "m": 19,
+       "k": 2,
+       "fsw_hz": 1264605.3,
+       "half_width_hz": 0.43,
+       "probability": 3.4241684210446516e-06
+      },
+      {
+       "m": 19,
+       "k": 2,
+       "fsw_hz": 1261710.5,
+       "half_width_hz": 0.43,
+       "probability": 3.4241684210446516e-06
+      }
+     ]
+    }
+   }
+  },
+  "35500.0": {
+   "record_s": 0.25,
+   "line_response_width_hz": 16.264799999962094,
+   "transition_band_image": false,
+   "by_modulator_rate": {
+    "8 fs (1.5 MHz)": {
+     "probability_unattenuated": 0.0009135447819038493,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 274,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 1,
+       "k": 1,
+       "fsw_hz": 1464500.0,
+       "half_width_hz": 8.13,
+       "probability": 6.505919999984838e-05
+      },
+      {
+       "m": 2,
+       "k": 2,
+       "fsw_hz": 1482250.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 3,
+       "k": 3,
+       "fsw_hz": 1488166.7,
+       "half_width_hz": 2.71,
+       "probability": 2.168639999994946e-05
+      },
+      {
+       "m": 4,
+       "k": 4,
+       "fsw_hz": 1491125.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 5,
+       "k": 5,
+       "fsw_hz": 1492900.0,
+       "half_width_hz": 1.63,
+       "probability": 1.3011839999969675e-05
+      },
+      {
+       "m": 6,
+       "k": 5,
+       "fsw_hz": 1255916.7,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 6,
+       "k": 6,
+       "fsw_hz": 1494083.3,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 6,
+       "fsw_hz": 1290785.7,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 6,
+       "fsw_hz": 1280642.9,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 7,
+       "fsw_hz": 1494928.6,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      }
+     ]
+    },
+    "16 fs (3.0 MHz)": {
+     "probability_unattenuated": 0.00043426542667271623,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 137,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 2,
+       "k": 1,
+       "fsw_hz": 1482250.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 4,
+       "k": 2,
+       "fsw_hz": 1491125.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 6,
+       "k": 3,
+       "fsw_hz": 1494083.3,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1290785.7,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1280642.9,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 8,
+       "k": 4,
+       "fsw_hz": 1495562.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 4,
+       "fsw_hz": 1337277.8,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 4,
+       "fsw_hz": 1329388.9,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 10,
+       "k": 5,
+       "fsw_hz": 1496450.0,
+       "half_width_hz": 0.81,
+       "probability": 6.505919999984838e-06
+      },
+      {
+       "m": 11,
+       "k": 5,
+       "fsw_hz": 1366863.6,
+       "half_width_hz": 0.74,
+       "probability": 5.914472727258943e-06
+      }
+     ]
+    },
+    "32 fs (6.0 MHz)": {
+     "probability_unattenuated": 0.0001998892328552756,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 67,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 4,
+       "k": 1,
+       "fsw_hz": 1491125.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 8,
+       "k": 2,
+       "fsw_hz": 1495562.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1337277.8,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1329388.9,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 12,
+       "k": 3,
+       "fsw_hz": 1497041.7,
+       "half_width_hz": 0.68,
+       "probability": 5.421599999987365e-06
+      },
+      {
+       "m": 13,
+       "k": 3,
+       "fsw_hz": 1387346.2,
+       "half_width_hz": 0.63,
+       "probability": 5.004553846142183e-06
+      },
+      {
+       "m": 13,
+       "k": 3,
+       "fsw_hz": 1381884.6,
+       "half_width_hz": 0.63,
+       "probability": 5.004553846142183e-06
+      },
+      {
+       "m": 14,
+       "k": 3,
+       "fsw_hz": 1288250.0,
+       "half_width_hz": 0.58,
+       "probability": 4.647085714274885e-06
+      },
+      {
+       "m": 14,
+       "k": 3,
+       "fsw_hz": 1283178.6,
+       "half_width_hz": 0.58,
+       "probability": 4.647085714274885e-06
+      },
+      {
+       "m": 16,
+       "k": 4,
+       "fsw_hz": 1497781.2,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      }
+     ]
+    },
+    "64 fs (12.0 MHz)": {
+     "probability_unattenuated": 9.647626002061416e-05,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 33,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 8,
+       "k": 1,
+       "fsw_hz": 1495562.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1337277.8,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1329388.9,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 16,
+       "k": 2,
+       "fsw_hz": 1497781.2,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1413852.9,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1409676.5,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 18,
+       "k": 2,
+       "fsw_hz": 1335305.6,
+       "half_width_hz": 0.45,
+       "probability": 3.6143999999915763e-06
+      },
+      {
+       "m": 18,
+       "k": 2,
+       "fsw_hz": 1331361.1,
+       "half_width_hz": 0.45,
+       "probability": 3.6143999999915763e-06
+      },
+      {
+       "m": 19,
+       "k": 2,
+       "fsw_hz": 1265026.3,
+       "half_width_hz": 0.43,
+       "probability": 3.4241684210446516e-06
+      },
+      {
+       "m": 19,
+       "k": 2,
+       "fsw_hz": 1261289.5,
+       "half_width_hz": 0.43,
+       "probability": 3.4241684210446516e-06
+      }
+     ]
+    }
+   }
+  },
+  "40500.0": {
+   "record_s": 0.25,
+   "line_response_width_hz": 16.264799999962094,
+   "transition_band_image": false,
+   "by_modulator_rate": {
+    "8 fs (1.5 MHz)": {
+     "probability_unattenuated": 0.0009135447819038493,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 274,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 1,
+       "k": 1,
+       "fsw_hz": 1459500.0,
+       "half_width_hz": 8.13,
+       "probability": 6.505919999984838e-05
+      },
+      {
+       "m": 2,
+       "k": 2,
+       "fsw_hz": 1479750.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 3,
+       "k": 3,
+       "fsw_hz": 1486500.0,
+       "half_width_hz": 2.71,
+       "probability": 2.168639999994946e-05
+      },
+      {
+       "m": 4,
+       "k": 4,
+       "fsw_hz": 1489875.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 5,
+       "k": 5,
+       "fsw_hz": 1491900.0,
+       "half_width_hz": 1.63,
+       "probability": 1.3011839999969675e-05
+      },
+      {
+       "m": 6,
+       "k": 5,
+       "fsw_hz": 1256750.0,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 6,
+       "k": 6,
+       "fsw_hz": 1493250.0,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 6,
+       "fsw_hz": 1291500.0,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 6,
+       "fsw_hz": 1279928.6,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 7,
+       "fsw_hz": 1494214.3,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      }
+     ]
+    },
+    "16 fs (3.0 MHz)": {
+     "probability_unattenuated": 0.00043426542667271623,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 137,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 2,
+       "k": 1,
+       "fsw_hz": 1479750.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 4,
+       "k": 2,
+       "fsw_hz": 1489875.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 6,
+       "k": 3,
+       "fsw_hz": 1493250.0,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1291500.0,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1279928.6,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 8,
+       "k": 4,
+       "fsw_hz": 1494937.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 4,
+       "fsw_hz": 1337833.3,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 4,
+       "fsw_hz": 1328833.3,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 10,
+       "k": 5,
+       "fsw_hz": 1495950.0,
+       "half_width_hz": 0.81,
+       "probability": 6.505919999984838e-06
+      },
+      {
+       "m": 11,
+       "k": 5,
+       "fsw_hz": 1367318.2,
+       "half_width_hz": 0.74,
+       "probability": 5.914472727258943e-06
+      }
+     ]
+    },
+    "32 fs (6.0 MHz)": {
+     "probability_unattenuated": 0.0001998892328552756,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 67,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 4,
+       "k": 1,
+       "fsw_hz": 1489875.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 8,
+       "k": 2,
+       "fsw_hz": 1494937.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1337833.3,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1328833.3,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 12,
+       "k": 3,
+       "fsw_hz": 1496625.0,
+       "half_width_hz": 0.68,
+       "probability": 5.421599999987365e-06
+      },
+      {
+       "m": 13,
+       "k": 3,
+       "fsw_hz": 1387730.8,
+       "half_width_hz": 0.63,
+       "probability": 5.004553846142183e-06
+      },
+      {
+       "m": 13,
+       "k": 3,
+       "fsw_hz": 1381500.0,
+       "half_width_hz": 0.63,
+       "probability": 5.004553846142183e-06
+      },
+      {
+       "m": 14,
+       "k": 3,
+       "fsw_hz": 1288607.1,
+       "half_width_hz": 0.58,
+       "probability": 4.647085714274885e-06
+      },
+      {
+       "m": 14,
+       "k": 3,
+       "fsw_hz": 1282821.4,
+       "half_width_hz": 0.58,
+       "probability": 4.647085714274885e-06
+      },
+      {
+       "m": 16,
+       "k": 4,
+       "fsw_hz": 1497468.8,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      }
+     ]
+    },
+    "64 fs (12.0 MHz)": {
+     "probability_unattenuated": 9.647626002061416e-05,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 33,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 8,
+       "k": 1,
+       "fsw_hz": 1494937.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1337833.3,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1328833.3,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 16,
+       "k": 2,
+       "fsw_hz": 1497468.8,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1414147.1,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1409382.4,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 18,
+       "k": 2,
+       "fsw_hz": 1335583.3,
+       "half_width_hz": 0.45,
+       "probability": 3.6143999999915763e-06
+      },
+      {
+       "m": 18,
+       "k": 2,
+       "fsw_hz": 1331083.3,
+       "half_width_hz": 0.45,
+       "probability": 3.6143999999915763e-06
+      },
+      {
+       "m": 19,
+       "k": 2,
+       "fsw_hz": 1265289.5,
+       "half_width_hz": 0.43,
+       "probability": 3.4241684210446516e-06
+      },
+      {
+       "m": 19,
+       "k": 2,
+       "fsw_hz": 1261026.3,
+       "half_width_hz": 0.43,
+       "probability": 3.4241684210446516e-06
+      }
+     ]
+    }
+   }
+  },
+  "50500.0": {
+   "record_s": 0.25,
+   "line_response_width_hz": 16.264799999962094,
+   "transition_band_image": false,
+   "by_modulator_rate": {
+    "8 fs (1.5 MHz)": {
+     "probability_unattenuated": 0.0009135447819038493,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 274,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 1,
+       "k": 1,
+       "fsw_hz": 1449500.0,
+       "half_width_hz": 8.13,
+       "probability": 6.505919999984838e-05
+      },
+      {
+       "m": 2,
+       "k": 2,
+       "fsw_hz": 1474750.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 3,
+       "k": 3,
+       "fsw_hz": 1483166.7,
+       "half_width_hz": 2.71,
+       "probability": 2.168639999994946e-05
+      },
+      {
+       "m": 4,
+       "k": 4,
+       "fsw_hz": 1487375.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 5,
+       "k": 5,
+       "fsw_hz": 1489900.0,
+       "half_width_hz": 1.63,
+       "probability": 1.3011839999969675e-05
+      },
+      {
+       "m": 6,
+       "k": 5,
+       "fsw_hz": 1258416.7,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 6,
+       "k": 6,
+       "fsw_hz": 1491583.3,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 6,
+       "fsw_hz": 1292928.6,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 6,
+       "fsw_hz": 1278500.0,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 7,
+       "fsw_hz": 1492785.7,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      }
+     ]
+    },
+    "16 fs (3.0 MHz)": {
+     "probability_unattenuated": 0.00043426542667271623,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 137,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 2,
+       "k": 1,
+       "fsw_hz": 1474750.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 4,
+       "k": 2,
+       "fsw_hz": 1487375.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 6,
+       "k": 3,
+       "fsw_hz": 1491583.3,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1292928.6,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1278500.0,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 8,
+       "k": 4,
+       "fsw_hz": 1493687.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 4,
+       "fsw_hz": 1338944.4,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 4,
+       "fsw_hz": 1327722.2,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 10,
+       "k": 5,
+       "fsw_hz": 1494950.0,
+       "half_width_hz": 0.81,
+       "probability": 6.505919999984838e-06
+      },
+      {
+       "m": 11,
+       "k": 5,
+       "fsw_hz": 1368227.3,
+       "half_width_hz": 0.74,
+       "probability": 5.914472727258943e-06
+      }
+     ]
+    },
+    "32 fs (6.0 MHz)": {
+     "probability_unattenuated": 0.0001998892328552756,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 67,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 4,
+       "k": 1,
+       "fsw_hz": 1487375.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 8,
+       "k": 2,
+       "fsw_hz": 1493687.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1338944.4,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1327722.2,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 12,
+       "k": 3,
+       "fsw_hz": 1495791.7,
+       "half_width_hz": 0.68,
+       "probability": 5.421599999987365e-06
+      },
+      {
+       "m": 13,
+       "k": 3,
+       "fsw_hz": 1388500.0,
+       "half_width_hz": 0.63,
+       "probability": 5.004553846142183e-06
+      },
+      {
+       "m": 13,
+       "k": 3,
+       "fsw_hz": 1380730.8,
+       "half_width_hz": 0.63,
+       "probability": 5.004553846142183e-06
+      },
+      {
+       "m": 14,
+       "k": 3,
+       "fsw_hz": 1289321.4,
+       "half_width_hz": 0.58,
+       "probability": 4.647085714274885e-06
+      },
+      {
+       "m": 14,
+       "k": 3,
+       "fsw_hz": 1282107.1,
+       "half_width_hz": 0.58,
+       "probability": 4.647085714274885e-06
+      },
+      {
+       "m": 16,
+       "k": 4,
+       "fsw_hz": 1496843.8,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      }
+     ]
+    },
+    "64 fs (12.0 MHz)": {
+     "probability_unattenuated": 9.647626002061416e-05,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 33,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 8,
+       "k": 1,
+       "fsw_hz": 1493687.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1338944.4,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1327722.2,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 16,
+       "k": 2,
+       "fsw_hz": 1496843.8,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1414735.3,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1408794.1,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 18,
+       "k": 2,
+       "fsw_hz": 1336138.9,
+       "half_width_hz": 0.45,
+       "probability": 3.6143999999915763e-06
+      },
+      {
+       "m": 18,
+       "k": 2,
+       "fsw_hz": 1330527.8,
+       "half_width_hz": 0.45,
+       "probability": 3.6143999999915763e-06
+      },
+      {
+       "m": 19,
+       "k": 2,
+       "fsw_hz": 1265815.8,
+       "half_width_hz": 0.43,
+       "probability": 3.4241684210446516e-06
+      },
+      {
+       "m": 19,
+       "k": 2,
+       "fsw_hz": 1260500.0,
+       "half_width_hz": 0.43,
+       "probability": 3.4241684210446516e-06
+      }
+     ]
+    }
+   }
+  },
+  "60500.0": {
+   "record_s": 0.25,
+   "line_response_width_hz": 16.264799999962094,
+   "transition_band_image": false,
+   "by_modulator_rate": {
+    "8 fs (1.5 MHz)": {
+     "probability_unattenuated": 0.0009135447819038493,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 274,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 1,
+       "k": 1,
+       "fsw_hz": 1439500.0,
+       "half_width_hz": 8.13,
+       "probability": 6.505919999984838e-05
+      },
+      {
+       "m": 2,
+       "k": 2,
+       "fsw_hz": 1469750.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 3,
+       "k": 3,
+       "fsw_hz": 1479833.3,
+       "half_width_hz": 2.71,
+       "probability": 2.168639999994946e-05
+      },
+      {
+       "m": 4,
+       "k": 4,
+       "fsw_hz": 1484875.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 5,
+       "k": 5,
+       "fsw_hz": 1487900.0,
+       "half_width_hz": 1.63,
+       "probability": 1.3011839999969675e-05
+      },
+      {
+       "m": 6,
+       "k": 5,
+       "fsw_hz": 1260083.3,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 6,
+       "k": 6,
+       "fsw_hz": 1489916.7,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 6,
+       "fsw_hz": 1294357.1,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 6,
+       "fsw_hz": 1277071.4,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 7,
+       "fsw_hz": 1491357.1,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      }
+     ]
+    },
+    "16 fs (3.0 MHz)": {
+     "probability_unattenuated": 0.00043426542667271623,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 137,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 2,
+       "k": 1,
+       "fsw_hz": 1469750.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 4,
+       "k": 2,
+       "fsw_hz": 1484875.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 6,
+       "k": 3,
+       "fsw_hz": 1489916.7,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1294357.1,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1277071.4,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 8,
+       "k": 4,
+       "fsw_hz": 1492437.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 4,
+       "fsw_hz": 1340055.6,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 4,
+       "fsw_hz": 1326611.1,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 10,
+       "k": 5,
+       "fsw_hz": 1493950.0,
+       "half_width_hz": 0.81,
+       "probability": 6.505919999984838e-06
+      },
+      {
+       "m": 11,
+       "k": 5,
+       "fsw_hz": 1369136.4,
+       "half_width_hz": 0.74,
+       "probability": 5.914472727258943e-06
+      }
+     ]
+    },
+    "32 fs (6.0 MHz)": {
+     "probability_unattenuated": 0.0001998892328552756,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 67,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 4,
+       "k": 1,
+       "fsw_hz": 1484875.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 8,
+       "k": 2,
+       "fsw_hz": 1492437.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1340055.6,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1326611.1,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 12,
+       "k": 3,
+       "fsw_hz": 1494958.3,
+       "half_width_hz": 0.68,
+       "probability": 5.421599999987365e-06
+      },
+      {
+       "m": 13,
+       "k": 3,
+       "fsw_hz": 1389269.2,
+       "half_width_hz": 0.63,
+       "probability": 5.004553846142183e-06
+      },
+      {
+       "m": 13,
+       "k": 3,
+       "fsw_hz": 1379961.5,
+       "half_width_hz": 0.63,
+       "probability": 5.004553846142183e-06
+      },
+      {
+       "m": 14,
+       "k": 3,
+       "fsw_hz": 1290035.7,
+       "half_width_hz": 0.58,
+       "probability": 4.647085714274885e-06
+      },
+      {
+       "m": 14,
+       "k": 3,
+       "fsw_hz": 1281392.9,
+       "half_width_hz": 0.58,
+       "probability": 4.647085714274885e-06
+      },
+      {
+       "m": 16,
+       "k": 4,
+       "fsw_hz": 1496218.8,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      }
+     ]
+    },
+    "64 fs (12.0 MHz)": {
+     "probability_unattenuated": 9.647626002061416e-05,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 33,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 8,
+       "k": 1,
+       "fsw_hz": 1492437.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1340055.6,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1326611.1,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 16,
+       "k": 2,
+       "fsw_hz": 1496218.8,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1415323.5,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1408205.9,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 18,
+       "k": 2,
+       "fsw_hz": 1336694.4,
+       "half_width_hz": 0.45,
+       "probability": 3.6143999999915763e-06
+      },
+      {
+       "m": 18,
+       "k": 2,
+       "fsw_hz": 1329972.2,
+       "half_width_hz": 0.45,
+       "probability": 3.6143999999915763e-06
+      },
+      {
+       "m": 19,
+       "k": 2,
+       "fsw_hz": 1266342.1,
+       "half_width_hz": 0.43,
+       "probability": 3.4241684210446516e-06
+      },
+      {
+       "m": 19,
+       "k": 2,
+       "fsw_hz": 1259973.7,
+       "half_width_hz": 0.43,
+       "probability": 3.4241684210446516e-06
+      }
+     ]
+    }
+   }
+  },
+  "85000.0": {
+   "record_s": 0.25,
+   "line_response_width_hz": 16.264799999962094,
+   "transition_band_image": true,
+   "by_modulator_rate": {
+    "8 fs (1.5 MHz)": {
+     "probability_unattenuated": 0.0018270895638076985,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 548,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 1,
+       "k": 1,
+       "fsw_hz": 1415000.0,
+       "half_width_hz": 8.13,
+       "probability": 6.505919999984838e-05
+      },
+      {
+       "m": 1,
+       "k": 1,
+       "fsw_hz": 1397500.0,
+       "half_width_hz": 8.13,
+       "probability": 6.505919999984838e-05
+      },
+      {
+       "m": 2,
+       "k": 2,
+       "fsw_hz": 1457500.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 2,
+       "k": 2,
+       "fsw_hz": 1448750.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 3,
+       "k": 3,
+       "fsw_hz": 1471666.7,
+       "half_width_hz": 2.71,
+       "probability": 2.168639999994946e-05
+      },
+      {
+       "m": 3,
+       "k": 3,
+       "fsw_hz": 1465833.3,
+       "half_width_hz": 2.71,
+       "probability": 2.168639999994946e-05
+      },
+      {
+       "m": 4,
+       "k": 4,
+       "fsw_hz": 1478750.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 4,
+       "k": 4,
+       "fsw_hz": 1474375.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 5,
+       "k": 5,
+       "fsw_hz": 1483000.0,
+       "half_width_hz": 1.63,
+       "probability": 1.3011839999969675e-05
+      },
+      {
+       "m": 5,
+       "k": 5,
+       "fsw_hz": 1479500.0,
+       "half_width_hz": 1.63,
+       "probability": 1.3011839999969675e-05
+      }
+     ]
+    },
+    "16 fs (3.0 MHz)": {
+     "probability_unattenuated": 0.0008685308533454325,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 274,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 2,
+       "k": 1,
+       "fsw_hz": 1457500.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 2,
+       "k": 1,
+       "fsw_hz": 1448750.0,
+       "half_width_hz": 4.07,
+       "probability": 3.252959999992419e-05
+      },
+      {
+       "m": 4,
+       "k": 2,
+       "fsw_hz": 1478750.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 4,
+       "k": 2,
+       "fsw_hz": 1474375.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 6,
+       "k": 3,
+       "fsw_hz": 1485833.3,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 6,
+       "k": 3,
+       "fsw_hz": 1482916.7,
+       "half_width_hz": 1.36,
+       "probability": 1.084319999997473e-05
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1297857.1,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1273571.4,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1300357.1,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      },
+      {
+       "m": 7,
+       "k": 3,
+       "fsw_hz": 1271071.4,
+       "half_width_hz": 1.16,
+       "probability": 9.29417142854977e-06
+      }
+     ]
+    },
+    "32 fs (6.0 MHz)": {
+     "probability_unattenuated": 0.0003997784657105512,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 134,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 4,
+       "k": 1,
+       "fsw_hz": 1478750.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 4,
+       "k": 1,
+       "fsw_hz": 1474375.0,
+       "half_width_hz": 2.03,
+       "probability": 1.6264799999962094e-05
+      },
+      {
+       "m": 8,
+       "k": 2,
+       "fsw_hz": 1489375.0,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 8,
+       "k": 2,
+       "fsw_hz": 1487187.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1342777.8,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1323888.9,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1344722.2,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 2,
+       "fsw_hz": 1321944.4,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 12,
+       "k": 3,
+       "fsw_hz": 1492916.7,
+       "half_width_hz": 0.68,
+       "probability": 5.421599999987365e-06
+      },
+      {
+       "m": 12,
+       "k": 3,
+       "fsw_hz": 1491458.3,
+       "half_width_hz": 0.68,
+       "probability": 5.421599999987365e-06
+      }
+     ]
+    },
+    "64 fs (12.0 MHz)": {
+     "probability_unattenuated": 0.00019295252004122832,
+     "probability_stopband_any_at_-90.5_dB": 0.006939647999983827,
+     "collision_count": 66,
+     "fsw_windows_hz_top10": [
+      {
+       "m": 8,
+       "k": 1,
+       "fsw_hz": 1489375.0,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 8,
+       "k": 1,
+       "fsw_hz": 1487187.5,
+       "half_width_hz": 1.02,
+       "probability": 8.132399999981047e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1342777.8,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1323888.9,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1344722.2,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 9,
+       "k": 1,
+       "fsw_hz": 1321944.4,
+       "half_width_hz": 0.9,
+       "probability": 7.228799999983153e-06
+      },
+      {
+       "m": 16,
+       "k": 2,
+       "fsw_hz": 1494687.5,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      },
+      {
+       "m": 16,
+       "k": 2,
+       "fsw_hz": 1493593.8,
+       "half_width_hz": 0.51,
+       "probability": 4.0661999999905235e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1416764.7,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      },
+      {
+       "m": 17,
+       "k": 2,
+       "fsw_hz": 1406764.7,
+       "half_width_hz": 0.48,
+       "probability": 3.827011764696963e-06
+      }
+     ]
+    }
+   }
+  }
+ }
+}
