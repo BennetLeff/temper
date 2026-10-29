@@ -31,11 +31,13 @@ for p in parts:
         else:
             assert sch == pcb and sch.startswith("unconnected-"), (p["ref"], pin, sch, pcb)
 positions = {r["Ref"]: r for r in csv.DictReader((ROOT / "build/positions.csv").open())}
+# drill/place origin: lower-left outline corner (Rev E default x 50, y 150; Rev F from design.json)
+X0, _, _, Y1 = json.loads((ROOT / "cad/design.json").read_text()).get("board", {}).get("outline", [50, 45, 190, 150])
 assert set(positions) == set(source), "Native placement membership mismatch"
 for ref, row in positions.items():
     x, y, angle = source[ref]["pcb"]
-    assert abs(float(row["PosX"]) - (x - 50)) < 1e-5
-    assert abs(float(row["PosY"]) - (150 - y)) < 1e-5
+    assert abs(float(row["PosX"]) - (x - X0)) < 1e-5
+    assert abs(float(row["PosY"]) - (Y1 - y)) < 1e-5
     assert (float(row["Rot"]) - angle) % 360 == 0
     assert row["Side"] == "top"
 out = ROOT / "manufacturing"

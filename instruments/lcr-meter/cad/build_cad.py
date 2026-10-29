@@ -15,6 +15,13 @@ k.KIID.SeedGenerator(60029)
 ROOT = Path(__file__).resolve().parent
 DATA = json.loads((ROOT / 'design.json').read_text())
 PARTS = DATA['parts']
+# Board-level geometry. Rev E's design.json carries none of these keys, so the defaults below are the
+# Rev E values and its build is unchanged; Rev F (cad/tools/rev_f.py) writes its own.
+BOARD = DATA.get('board', {})
+OUTLINE = BOARD.get('outline', [50, 45, 190, 150])          # x0, y0, x1, y1 (mm)
+HOLES = BOARD.get('holes', [[54, 54], [186, 54], [54, 146], [186, 146]])
+REF_TEXT = BOARD.get('ref_text', {'U13': [80, 135], 'U7': [170.2, 105.6], 'U14': [141, 104.2], 'U16': [58.3, 121.0]})
+SILK = BOARD.get('silk', [['TEMPER LCR / REV E / TIDA-060029 + TAC5112',79,47.6,1.2],['USB-C 5V + DATA',62,64,1],['DISCHARGED DUT ONLY',79,50.4,1],['HCUR',108,58.6,1],['HPOT',130,58.6,1],['LPOT',152,58.6,1],['LCUR',174,58.6,1],['K4 REF',182,70,.8],['K2 5k',152.5,128,.8],['K1 100R',167.5,128,.8],['K3 100k',182.3,128,.8],['BOOTSEL',60,84,.8],['RESET',60,95,.8],['J4 CLK/DIO',64,105,.8],['J5 GND/3V3',60,115,.8],['J6 TX/RX',77,111,.8],['USB GND REFERENCED',111,147,1]])
 LIBS = Path('/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints')
 LOCAL = ROOT / 'LCR.pretty'
 LOCAL.mkdir(exist_ok=True)
@@ -91,7 +98,7 @@ from schematic_pages import write_pages
 write_pages(ROOT, DATA, symbols, geometry, pinout, local_fp, uid, q)
 # pcbnew provides footprint geometry, rotation and pad placement.
 b=k.BOARD();b.SetCopperLayerCount(4)
-settings=b.GetDesignSettings();settings.SetAuxOrigin(pos(50,150));settings.m_SolderMaskMargin=mm(0.05)
+settings=b.GetDesignSettings();settings.SetAuxOrigin(pos(OUTLINE[0],OUTLINE[3]));settings.m_SolderMaskMargin=mm(0.05)
 settings.m_MinClearance=mm(0.15);settings.m_TrackMinWidth=mm(0.15);settings.m_ViasMinSize=mm(0.45);settings.m_MinThroughDrill=mm(0.2)
 nets={}
 for n in sorted({n for p in PARTS for n in p['pins'].values() if n is not None}):
@@ -102,10 +109,7 @@ for p in PARTS:
     f=k.FootprintLoad(str(LOCAL),name);f.SetReference(ref);f.SetValue(p['value']);f.SetFPID(k.LIB_ID('LCR',name));f.SetPosition(pos(*p['pcb'][:2]));f.SetOrientationDegrees(p['pcb'][2])
     path=k.KIID_PATH();path.push_back(k.KIID(rootid));path.push_back(k.KIID(uid("sheet-"+p["sheet"])));path.push_back(k.KIID(uid(ref)));f.SetPath(path)
     f.Reference().SetTextSize(pos(.8,.8));f.Reference().SetTextThickness(mm(.12))
-    if ref == 'U13': f.Reference().SetPosition(pos(80,135))
-    if ref == 'U7': f.Reference().SetPosition(pos(170.2,105.6))  # Rev D: clear of R94
-    if ref == 'U14': f.Reference().SetPosition(pos(141,104.2))  # Rev E: clear of the decoupling pads
-    if ref == 'U16': f.Reference().SetPosition(pos(58.3,121.0))  # Rev E: west of the EN/IN tie, clear of C113
+    if ref in REF_TEXT: f.Reference().SetPosition(pos(*REF_TEXT[ref]))  # Rev E: U13; U7 clear of R94; U14 clear of decoupling; U16 west of the EN/IN tie
     if not ref.startswith('U'):
         f.Reference().SetLayer(k.F_Fab)
     for name,value in {'MPN':p['mpn'],'Manufacturer':p['manufacturer'],'LCSC':p['lcsc'],'Unit_USD':str(p['unit_usd']),'Assembly':p['assembly']}.items():
@@ -127,11 +131,12 @@ for p in PARTS:
     b.Add(f);fps[ref]=f
 # Board edge, mechanical fixing holes and clear labels.
 # Rev E: top edge at y 45 (was 50) so the four BNC jacks sit on it; the holes stay put.
-for a,c in [((50,45),(190,45)),((190,45),(190,150)),((190,150),(50,150)),((50,150),(50,45))]:
+X0,Y0,X1,Y1=OUTLINE
+for a,c in [((X0,Y0),(X1,Y0)),((X1,Y0),(X1,Y1)),((X1,Y1),(X0,Y1)),((X0,Y1),(X0,Y0))]:
     s=k.PCB_SHAPE();s.SetShape(k.SHAPE_T_SEGMENT);s.SetStart(pos(*a));s.SetEnd(pos(*c));s.SetLayer(k.Edge_Cuts);s.SetWidth(mm(.05));b.Add(s)
-for i,(x,y) in enumerate([(54,54),(186,54),(54,146),(186,146)],1):
+for i,(x,y) in enumerate(HOLES,1):
     f=k.FootprintLoad(str(LIBS/'MountingHole.pretty'),'MountingHole_3.2mm_M3');f.SetReference('H'+str(i));f.SetPosition(pos(x,y));f.Reference().SetLayer(k.F_Fab);f.SetAttributes(k.FP_EXCLUDE_FROM_BOM|k.FP_EXCLUDE_FROM_POS_FILES|k.FP_BOARD_ONLY);b.Add(f)
-for text,x,y,size in [('TEMPER LCR / REV E / TIDA-060029 + TAC5112',79,47.6,1.2),('USB-C 5V + DATA',62,64,1),('DISCHARGED DUT ONLY',79,50.4,1),('HCUR',108,58.6,1),('HPOT',130,58.6,1),('LPOT',152,58.6,1),('LCUR',174,58.6,1),('K4 REF',182,70,.8),('K2 5k',152.5,128,.8),('K1 100R',167.5,128,.8),('K3 100k',182.3,128,.8),('BOOTSEL',60,84,.8),('RESET',60,95,.8),('J4 CLK/DIO',64,105,.8),('J5 GND/3V3',60,115,.8),('J6 TX/RX',77,111,.8),('USB GND REFERENCED',111,147,1)]:
+for text,x,y,size in SILK:
     t=k.PCB_TEXT(b);t.SetText(text);t.SetPosition(pos(x,y));t.SetTextSize(pos(size,size));t.SetTextThickness(mm(.15));t.SetLayer(k.F_SilkS);b.Add(t)
 # Explicit human-authored track list. All segments are in board millimetres.
 routing=ROOT/'routing.json'
