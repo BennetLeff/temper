@@ -13,18 +13,25 @@ for the requirement to hold. A check is called a pass only when the break-even
 retention is at or below 30 %, a level 50 V-rated X7R parts in these case
 sizes exceed at the biases involved (assumption stated in the README).
 Writes regulator_check.json.
+
+The board tree is LCR_ROOT (default: this checkout) and the output LCR_OUT (default:
+regulator_check.json here), so a scratch tree can be checked without touching the committed result:
+  LCR_ROOT=/path/to/tree/instruments/lcr-meter LCR_OUT=/tmp/rc.json python3 regulator_check.py
 """
 from __future__ import annotations
 
 import csv
 import json
 import math
+import os
 import pathlib
 
 import common as c
+import copper as cu
 
 HERE = pathlib.Path(__file__).resolve().parent
-ROOT = HERE.parents[1]
+ROOT = pathlib.Path(os.environ.get("LCR_ROOT", HERE.parents[1])).resolve()
+OUT = pathlib.Path(os.environ.get("LCR_OUT", HERE / "regulator_check.json"))
 DESIGN = json.loads((ROOT / "cad/design.json").read_text())
 PARTS = {p["ref"]: p for p in DESIGN["parts"]}
 POS = {}
@@ -108,7 +115,32 @@ U16_RDS = 0.135    # TPS2553 DBV rDS(on) max, -40..125 C (sources/ti/TPS2553.txt
 # of 0.8 mm track down the west strip (28 mOhm), rounded up.
 R_ENTRY = 0.045
 I_IN_EST = 0.45    # A, 5 V input current estimate (converters + 3V3 + 5VA), see README
-VIN = (VIN_SUPPLY[0] - (U16_RDS + R_ENTRY) * I_IN_EST, VIN_SUPPLY[1], VIN_SUPPLY[2])   # after U16
+
+
+def five_volt_trunk():
+    """U16 OUT (pin 6) to the TPS65131 power input (U13 pins 5/6; pin 4 is CONV_VIN behind R80): the
+    least-resistance 5V path over routing.json tracks and vias, copper at a 60 C board (25 C +
+    DT_BOARD, from the 20 C resistivity), outer 35 um, inner 15.2 um (copper.py). The whole input
+    current is charged to it, though 3V3 and 5VA branch off on the way (pessimistic)."""
+    pads, half, pad_src = cu.load_pads(ROOT)
+    routing, rt_src = cu.load_routing(ROOT)
+    cop = cu.Copper(routing, pads, half, dt_from_20c=25 + DT_BOARD - 20)
+    p = cop.path("5V", [("U16", "6")], [("U13", "5"), ("U13", "6")])
+    if not p["routed"]:   # unrouted tree: Manhattan pad distance on 0.2 mm outer copper as a stand-in
+        (x1, y1), (x2, y2) = p["points"]
+        mm = abs(x1 - x2) + abs(y1 - y2)
+        p = {"ohm": cop._seg_ohm("F.Cu", mm, 0.2), "mm": mm, "routed": False}
+    return {"ohm": p["ohm"], "path_mm": p["mm"], "routed": p["routed"], "pads": pad_src, "routing": rt_src}
+
+
+TRUNK = five_volt_trunk()
+VIN = (VIN_SUPPLY[0] - (U16_RDS + R_ENTRY + TRUNK["ohm"]) * I_IN_EST, VIN_SUPPLY[1], VIN_SUPPLY[2])   # at U13
+# TPS2553 current limit, SLVS841F eq. 1 (RILIM in kOhm, 15-232 kOhm): IOS(mA) = K / RILIM^E.  The
+# equations leave out resistor tolerance, so RILIM is taken at its own +-1 % too.
+TPS2553_IOS = {"min": (25230.0, 1.016), "nom": (23950.0, 0.977), "max": (22980.0, 0.94)}
+USB2_CONFIGURED_A = 0.500    # USB 2.0 7.2.1: high-power bus-powered function, 5 unit loads after configuration
+USB2_UNCONFIGURED_A = 0.100  # USB 2.0 7.2.1: one unit load until configured
+TYPEC_DEFAULT_A = 0.500      # USB Type-C 2.x 4.6.2.1: "Default USB Power" for a USB 2.0 port (Rp 56k)
 
 # Rail loads from datasheet maxima (OPA2810/OPA810 IQ max 4.5 mA/ch over temp at 24 V)
 IQ_OPA_MAX = 4.5e-3
@@ -362,14 +394,40 @@ def main():
           True if min(tc[k]["headroom_2x_load_r5"] for k in tc) >= 1.0 else
           ("FLAG" if min(tc[k]["headroom_2x_load_r5"] for k in tc) >= 0.6 else False),
           "information: 0.1 % parts 25 ppm/C, 1 % parts 100 ppm/C, opposite drift of top and bottom")
+    check("5V trunk U16.6 -> U13.5/6 copper (routing.json, 60 C)", round(TRUNK["ohm"] * 1e3, 1),
+          "added to R_ENTRY in VIN", True if TRUNK["routed"] else "FLAG",
+          f"mOhm over {TRUNK['path_mm']:.1f} mm; least-resistance single path (upper bound on the strip model); "
+          f"{TRUNK['ohm'] * I_IN_EST * 1e3:.1f} mV at {I_IN_EST} A; VIN min {VIN[0]:.3f} V at U13"
+          + ("" if TRUNK["routed"] else "; NOT ROUTED: Manhattan distance at 0.2 mm stand-in"))
+    r_ilim = ohms("R110") / 1e3
+    tol = 0.01 if "1%" in val("R110") else 0.05
+    ios = {k: K / (r_ilim * (1 + sg * tol)) ** E / 1e3
+           for (k, (K, E)), sg in zip(TPS2553_IOS.items(), (1, 0, -1))}
+    check(f"TPS2553 current limit (R110 {val('R110')}) min vs 2x input estimate",
+          [round(ios[k], 3) for k in ("min", "nom", "max")], f">= 2 x {I_IN_EST} A",
+          ios["min"] >= 2 * I_IN_EST,
+          "A, SLVS841F eq. 1 with R110 at +-1 % (min at R high, max at R low); constant-current limit, "
+          "so a converter start-up surge is limited, not latched off")
+    check("USB-C input budget vs USB 2.0 / Type-C Default USB Power", I_IN_EST, TYPEC_DEFAULT_A,
+          I_IN_EST <= min(USB2_CONFIGURED_A, TYPEC_DEFAULT_A),
+          f"A estimate, not a bound; {1e3 * (TYPEC_DEFAULT_A - I_IN_EST):.0f} mA margin. CC1/CC2 carry Rd "
+          f"5.1k (R1/R2) and nothing reads CC, so the board may count only on Default USB Power: 500 mA "
+          f"(USB Type-C 4.6.2.1, USB 2.0 7.2.1, after configuration). U16 limits at "
+          f"{ios['min']:.2f}-{ios['max']:.2f} A, above that budget, so it protects the board, not the host")
+    check("USB 2.0 unconfigured draw (U16 EN tied to VBUS: full load from attach)", I_IN_EST, USB2_UNCONFIGURED_A,
+          I_IN_EST <= USB2_UNCONFIGURED_A,
+          "A; USB 2.0 7.2.1 allows one unit load (100 mA) before configuration. The board powers everything at "
+          "attach (TPS2553 SOT-23 pin 3 EN, active high, on USB_VBUS). Hosts commonly tolerate it; a strict hub may not. firmware-rev-e also declares "
+          "PICO_STDIO_USB_DEVICE_SELF_POWERED=1 on a bus-powered board (should be bus-powered, 500 mA max power)")
     near = min((dist(l, u), l, u) for l in ("L1", "L2", "D2", "D3", "U13")
                for u in ("U4", "U5", "U6", "U7", "U8", "U9", "U10", "U14") if u in POS)   # U14: Rev E codec
     check("Switcher magnetics/switch nodes to nearest analog IC (CPL centres)", f"{near[0]:.1f} mm ({near[1]}-{near[2]})",
           "information only: magnetic pickup not modelled", True)
     out = {"r5_option": r5, "nearest_switcher_to_analog_mm": near, "r83_alternative": alt, "loads_a": LOAD, "load_note": LOAD_NOTE, "vpos": vpos, "vneg": vneg, "ldo": ldo,
-           "retention_pass_threshold": RETENTION_PASS, "checks": rows,
+           "retention_pass_threshold": RETENTION_PASS, "five_volt_trunk": TRUNK, "vin_at_u13": VIN,
+           "checks": rows,
            "operating_points_2x_load": ops}
-    (HERE / "regulator_check.json").write_text(json.dumps(out, indent=1, default=float))
+    OUT.write_text(json.dumps(out, indent=1, default=float))
     for r in rows:
         print(f"[{r['status']:<8}] {r['item']}: {r['value']} (limit {r['limit']}) {r['note']}")
     print("loads (A):", {k: round(v, 4) for k, v in LOAD.items()})
