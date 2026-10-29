@@ -111,10 +111,10 @@ V('VRLY', 145.4, 143.6)
 T('VRLY', 'F.Cu', (145.4, 143.6), (145.4, 145.2))
 T('VRLY', 'F.Cu', (144.025, 145.2), (146.725, 145.2), w=0.4)
 T('VRLY', 'F.Cu', (162.25, 135.6), (162.42, 135.0))                      # D5 cathode to K1 pin 1 via
-# 5 V to R101 on B.Cu from the FB1 feed via
-T('5V', 'B.Cu', (105.6906, 122.7729), (141.8, 122.7729), (141.8, 145.2), w=0.3)
-V('5V', 141.8, 145.2)
-T('5V', 'F.Cu', (141.8, 145.2), (142.375, 145.2), w=0.3)
+# 5 V to R101 on B.Cu from the FB1 feed via; the via sits 0.275 mm off the R101.1 land (no via-in-pad)
+T('5V', 'B.Cu', (105.6906, 122.7729), (141.4, 122.7729), (141.4, 145.2), w=0.3)
+V('5V', 141.4, 145.2)
+T('5V', 'F.Cu', (141.4, 145.2), (142.375, 145.2), w=0.3)
 
 
 def drive(x, qx, gate_r_x):
@@ -429,8 +429,8 @@ T('BOOTSEL', 'F.Cu', (57.775, 87.0), (56.5, 88.275), (56.5, 93.9), (57.6, 93.9),
 T('USB_VBUS', 'F.Cu', (56.2386, 82.0767), (56.2386, 82.7), w=0.25)          # under the shield tab
 T('USB_VBUS', 'F.Cu', (56.2386, 82.7), (55.0, 83.9386), (55.0, 119.25), (55.8, 120.05), (61.8625, 120.05), w=0.8)
 T('USB_VBUS', 'F.Cu', (61.8625, 121.95), (60.0, 121.95), (60.0, 120.05))   # EN to IN, west of the GND via
-T('GND', 'F.Cu', (61.8625, 121.0), (60.9, 121.0), w=0.3)
-V('GND', 60.9, 121.0)
+T('GND', 'F.Cu', (61.8625, 121.0), (60.6, 121.0), w=0.3)    # via 0.35 mm off the U16.2 land
+V('GND', 60.6, 121.0)
 T('USB_VBUS', 'F.Cu', (61.8625, 118.35), (61.8625, 120.05), w=0.6)          # C113 on pin 1
 T('GND', 'F.Cu', (61.8625, 116.45), (61.8625, 115.3), w=0.4)
 V('GND', 61.8625, 115.3)
@@ -447,3 +447,29 @@ T('5V', 'B.Cu', (65.65, 119.65), (66.1, 120.1), (70.2, 120.1), w=0.6)
 T('5V', 'B.Cu', (65.65, 120.55), (66.1, 120.1), w=0.6)
 T('5V', 'F.Cu', (69.2, 120.1), (69.2, 118.6), w=0.6)
 T('5V', 'F.Cu', (70.2, 120.1), (70.2, 118.6), w=0.6)
+
+# ------------------------------------------------------------ no via in an SMD land outside the exposed pads
+# Without POFV a via drill inside a small land wicks solder from the joint.  The thermal-pad vias of U1, U11,
+# U12, U13 and U14 stay (bottom-tented, per the TI package notes); these Rev D vias move off their lands.
+# R3.2 (USB_DM_MCU): the via sat in the land; dog-bone to the gap between R3's lands, 0.2 mm from each.
+dropvia('USB_DM_MCU', 83.9, 92.45)
+drop('USB_DM_MCU', 'B.Cu', (83.65, 92.5), (83.7, 92.45))
+drop('USB_DM_MCU', 'B.Cu', (83.7, 92.45), (83.9, 92.45))
+drop('USB_DM_MCU', 'F.Cu', (83.9, 92.45), (83.9, 92.25))
+drop('USB_DM_MCU', 'F.Cu', (83.9, 92.25), (84.0, 92.15))
+drop('USB_DM_MCU', 'F.Cu', (84.0, 92.15), (84.0, 92.175))
+T('USB_DM_MCU', 'B.Cu', (83.65, 92.5), (84.0, 92.85), (84.0, 93.0), w=0.15)
+V('USB_DM_MCU', 84.0, 93.0, 0.45)
+T('USB_DM_MCU', 'F.Cu', (84.0, 93.0), (84.0, 92.175), w=0.15)
+# C44.1 (12 V): the via ring overlapped the land's north edge (R66 is 0.55 mm north); move it south of the
+# land, beside the C44.2 ground via, and carry the B.Cu feed under the capacitor.
+dropvia('12V', 160.05, 93.0)
+drop('12V', 'F.Cu', (160.05, 93.0), (160.05, 94.0))
+T('12V', 'B.Cu', (160.05, 93.0), (160.05, 95.2))
+V('12V', 160.05, 95.2, 0.55)
+T('12V', 'F.Cu', (160.05, 95.2), (160.05, 94.0))
+# Y1.4 (GND): the via ring overlapped the crystal land; 0.3 mm further west
+dropvia('GND', 81.0, 75.65)
+drop('GND', 'F.Cu', (81.9, 75.65), (81.0, 75.65))
+T('GND', 'F.Cu', (81.9, 75.65), (80.7, 75.65))
+V('GND', 80.7, 75.65, 0.45)

@@ -1872,14 +1872,14 @@
         0
       ],
       "sheet": "source",
-      "mpn": "RT0603BRD072KL",
-      "manufacturer": "YAGEO",
-      "lcsc": "C728588",
-      "unit_usd": 0.035,
-      "stock": 85568,
+      "mpn": "AR03BTCX2001",
+      "manufacturer": "Viking Tech",
+      "lcsc": "C318130",
+      "unit_usd": 0.0364,
+      "stock": 57336,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "Rev E difference stage feedback, 0.1 %"
+      "source_query": "2k 0.1% 25ppm 0603 C318130"
     },
     {
       "ref": "R40",
@@ -1920,14 +1920,14 @@
         270
       ],
       "sheet": "afe",
-      "mpn": "RT0603BRE075KL",
-      "manufacturer": "YAGEO",
-      "lcsc": "C862232",
-      "unit_usd": 0.0262,
-      "stock": 85568,
+      "mpn": "AR03BTCX5001",
+      "manufacturer": "Viking Tech",
+      "lcsc": "C2828621",
+      "unit_usd": 0.0318,
+      "stock": 55599,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "5kohm 0.1% 0603"
+      "source_query": "5k 0.1% 25ppm 0603 C2828621"
     },
     {
       "ref": "R42",
@@ -1992,14 +1992,14 @@
         180
       ],
       "sheet": "afe",
-      "mpn": "RT0603BRE075KL",
-      "manufacturer": "YAGEO",
-      "lcsc": "C862232",
-      "unit_usd": 0.0262,
-      "stock": 85568,
+      "mpn": "AR03BTCX5001",
+      "manufacturer": "Viking Tech",
+      "lcsc": "C2828621",
+      "unit_usd": 0.0318,
+      "stock": 55599,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "5kohm 0.1% 0603"
+      "source_query": "5k 0.1% 25ppm 0603 C2828621"
     },
     {
       "ref": "R45",
@@ -2123,7 +2123,7 @@
     },
     {
       "ref": "R81",
-      "value": "1.62M",
+      "value": "430k",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -2136,18 +2136,18 @@
         270
       ],
       "sheet": "power",
-      "mpn": "RC0603FR-071M62L",
-      "manufacturer": "YAGEO",
-      "lcsc": "C482643",
-      "unit_usd": 0.0018,
-      "stock": 2912,
-      "library_type": "extended",
+      "mpn": "0603WAF4303T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25969",
+      "unit_usd": 0.0031,
+      "stock": 188296,
+      "library_type": "preferred",
       "assembly": "SMT",
-      "source_query": "RC0603FR-071M62L"
+      "source_query": "430k 1% 0603 C25969"
     },
     {
       "ref": "R82",
-      "value": "150k",
+      "value": "40.2k",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -2160,14 +2160,14 @@
         270
       ],
       "sheet": "power",
-      "mpn": "0603WAF1503T5E",
+      "mpn": "0603WAF4022T5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C22807",
-      "unit_usd": 0.0017,
-      "stock": 1005853,
-      "library_type": "basic",
+      "lcsc": "C12447",
+      "unit_usd": 0.0021,
+      "stock": 157370,
+      "library_type": "preferred",
       "assembly": "SMT",
-      "source_query": "150kohm 0603"
+      "source_query": "40.2k 1% 0603 C12447"
     },
     {
       "ref": "R83",
@@ -3323,7 +3323,7 @@
     },
     {
       "ref": "C87",
-      "value": "4.3pF C0G",
+      "value": "15pF C0G",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
@@ -3336,18 +3336,18 @@
         270
       ],
       "sheet": "power",
-      "mpn": "CC0603CRNPO9BN4R3",
-      "manufacturer": "YAGEO",
-      "lcsc": "C519375",
-      "unit_usd": 0.0072,
-      "stock": 20276,
-      "library_type": "extended",
+      "mpn": "CL10C150JB8NNNC",
+      "manufacturer": "Samsung Electro-Mechanics",
+      "lcsc": "C1644",
+      "unit_usd": 0.0111,
+      "stock": 1076606,
+      "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "4.3pF C0G 0603"
+      "source_query": "15pF C0G C1644"
     },
     {
       "ref": "C88",
-      "value": "4.3pF C0G",
+      "value": "4.7pF C0G",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
@@ -3360,14 +3360,14 @@
         0
       ],
       "sheet": "power",
-      "mpn": "CC0603CRNPO9BN4R3",
-      "manufacturer": "YAGEO",
-      "lcsc": "C519375",
-      "unit_usd": 0.0072,
-      "stock": 20276,
-      "library_type": "extended",
+      "mpn": "0603CG4R7C500NT",
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "lcsc": "C1669",
+      "unit_usd": 0.0054,
+      "stock": 608277,
+      "library_type": "preferred",
       "assembly": "SMT",
-      "source_query": "4.3pF C0G 0603"
+      "source_query": "4.7pF C0G C1669"
     },
     {
       "ref": "C89",
@@ -4056,14 +4056,14 @@
         0
       ],
       "sheet": "source",
-      "mpn": "RT0603BRD072KL",
-      "manufacturer": "YAGEO",
-      "lcsc": "C728588",
-      "unit_usd": 0.035,
-      "stock": null,
+      "mpn": "AR03BTCX2001",
+      "manufacturer": "Viking Tech",
+      "lcsc": "C318130",
+      "unit_usd": 0.0364,
+      "stock": 57336,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "Rev E"
+      "source_query": "2k 0.1% 25ppm 0603 C318130"
     },
     {
       "ref": "C34",

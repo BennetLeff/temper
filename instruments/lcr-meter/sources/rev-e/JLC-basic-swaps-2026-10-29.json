@@ -1,0 +1,528 @@
+{
+ "source": "POST https://jlcpcb.com/api/overseas-pcb-order/v1/shoppingCart/smtGood/selectSmtComponentList, exact componentCode match",
+ "fetched": "2026-10-29",
+ "parts": {
+  "C2864204": {
+   "group": "current",
+   "model": "OPA2810IDGKR",
+   "library": "expand",
+   "preferred": false,
+   "stock": 204,
+   "price_q1": 5.1013,
+   "describe": "-13.5V~-2.375V\u30012.375V~13.5V -40\u2103~+125\u2103 100dB 180V/us 1pA 2 2pA 2uV/\u2103 3.5mA 4.75V~27V 5.7nV/\u221aHz@100kHz 500uV 50mA 70MHz Rail-to-Rail Input, Rail-to-Rail Output Short-Circuit  Protection\u3001Built-in compensation\u3001High capacitive load driving\u3001ESD protection VSSOP-8 FET Input Amplifiers ROHS",
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2302212330_Texas-Instruments-OPA2810IDGKR_C2864204.pdf"
+  },
+  "C2684450": {
+   "group": "current",
+   "model": "TQ2SA-L2-5V-Z",
+   "library": "expand",
+   "preferred": false,
+   "stock": 1560,
+   "price_q1": 2.2731,
+   "describe": "-40\u2103~+85\u2103 125V@AC\u3001220V@DC 2 Form C: 2C (DPDT-CO) 2A 4ms 4ms 5V AgNi + Gold plated Dual Coil SMD,14x9mm Magnetic Latching Relays ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2106070334_PANASONIC-TQ2SA-L2-5V-Z_C2684450.pdf"
+  },
+  "C44853692": {
+   "group": "current",
+   "model": "TAC5112IRGER",
+   "library": "expand",
+   "preferred": false,
+   "stock": 109,
+   "price_q1": 5.9382,
+   "describe": "Built-in phase-locked loop\u3001On-chip digital gain VQFN-24(4x4) Audio Interface ICs ROHS",
+   "datasheet": null
+  },
+  "C2833513": {
+   "group": "current",
+   "model": "OPA810IDBVR",
+   "library": "expand",
+   "preferred": false,
+   "stock": 4208,
+   "price_q1": 2.9609,
+   "describe": "-40\u2103~+125\u2103 1 100dB 1pA 2.5uV/\u2103 200V/us 2pA 3.7mA 4.75V~27V 500uV 6.3nV/\u221aHz@500kHz 70MHz 75mA Rail-to-Rail Input, Rail-to-Rail Output Short-Circuit  Protection\u3001Built-in compensation SOT-23-5 FET Input Amplifiers ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Texas-Instruments-OPA810IDBVR_C2833513.pdf"
+  },
+  "C87663": {
+   "group": "current",
+   "model": "TPS65131RGER",
+   "library": "expand",
+   "preferred": false,
+   "stock": 1909,
+   "price_q1": 2.8807,
+   "describe": "-15V~-2V\u3001500mV~15V -40\u2103~+85\u2103@(TA)\u3001-40\u2103~+125\u2103@(TJ) 1.25MHz~1.5MHz 1.95A 2 2.7V~5.5V 500uA Adjustable Boost\u3001Inverting Buck-Boost Built-in No QFN-24-EP(4x4) DC-DC Converters ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410010302_Texas-Instruments-TPS65131RGER_C87663.pdf"
+  },
+  "C138687": {
+   "group": "current",
+   "model": "CL32B106KBJNNNE",
+   "library": "expand",
+   "preferred": false,
+   "stock": 108688,
+   "price_q1": 0.3266,
+   "describe": "10uF 50V X7R \u00b110% 1210 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "datasheet": "https://datasheet.lcsc.com/lcsc/1912112237_Samsung-Electro-Mechanics-CL32B106KBJNNNE_C138687.pdf"
+  },
+  "C33835": {
+   "group": "current",
+   "model": "TPS7A3001DGNR",
+   "library": "expand",
+   "preferred": false,
+   "stock": 6788,
+   "price_q1": 2.0242,
+   "describe": "-40\u2103~+125\u2103@(Tj) 1 1.18V~33V 15.1uVrms 200mA 216mV@(100mA) 36V 55uA 72dB@(120Hz) Adjustable Negative Over Current Protection\u3001Enable\u3001Thermal Shutdown HVSSOP-8 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_1809192323_Texas-Instruments-TPS7A3001DGNR_C33835.pdf"
+  },
+  "C16430": {
+   "group": "current",
+   "model": "TPS7A4901DGNR",
+   "library": "expand",
+   "preferred": false,
+   "stock": 2141,
+   "price_q1": 1.4526,
+   "describe": "-40\u2103~+125\u2103@(Tj) 1 1.194V~33V 15.4uVrms 150mA 260mV@(100mA) 35V 49uA 72dB@(120Hz) Adjustable Positive Under Voltage Lockout\u3001Over Current Protection\u3001Over Temperature Protection\u3001Enable HVSSOP-8 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_1810171908_Texas-Instruments-TPS7A4901DGNR_C16430.pdf"
+  },
+  "C2040": {
+   "group": "current",
+   "model": "RP2040",
+   "library": "expand",
+   "preferred": false,
+   "stock": 65659,
+   "price_q1": 1.0874,
+   "describe": "12bit 133MHz 30 LQFN-56(7x7) Microcontrollers (MCU/MPU/SOC) ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2201101600_Raspberry-Pi-RP2040_C2040.pdf"
+  },
+  "C20625731": {
+   "group": "current",
+   "model": "ABM8-272-T3",
+   "library": "expand",
+   "preferred": false,
+   "stock": 890,
+   "price_q1": 0.6584,
+   "describe": "-40\u2103~+85\u2103 10pF 12MHz 50\u03a9 Crystal Oscillator \u00b130ppm \u00b130ppm SMD3225-4P Crystals ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410121909_Abracon-LLC-ABM8-272-T3_C20625731.pdf"
+  },
+  "C55266": {
+   "group": "current",
+   "model": "TPS2553DBVR",
+   "library": "expand",
+   "preferred": false,
+   "stock": 48439,
+   "price_q1": 0.5421,
+   "describe": "-40\u2103~+150\u2103 1 1.5A 2.5V~6.5V 85m\u03a9 Active High High Side Switch \u8fc7\u538b\u4fdd\u62a4\u3001\u8f6f\u542f\u52a8\u3001\u6b20\u538b\u9501\u5b9a\u3001\u53cd\u5411\u7535\u538b\u4fdd\u62a4\u3001\u96c6\u6210\u7535\u8377\u6cf5\u3001Overcurrent Protection\u3001Over temperature protection\u3001\u9501\u5b58\u4fdd\u62a4\u3001Short-Circuit  Protection SOT-23-6 Power Distribution Switches ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_1810221710_Texas-Instruments-TPS2553DBVR_C55266.pdf"
+  },
+  "C110776": {
+   "group": "current",
+   "model": "RT0603BRD071KL",
+   "library": "expand",
+   "preferred": false,
+   "stock": 1574088,
+   "price_q1": 0.0281,
+   "describe": "-55\u2103~+155\u2103 100mW 1k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_1811082117_YAGEO-RT0603BRD071KL_C110776.pdf"
+  },
+  "C51118": {
+   "group": "current",
+   "model": "AP2112K-3.3TRG1",
+   "library": "expand",
+   "preferred": false,
+   "stock": 3609,
+   "price_q1": 0.1775,
+   "describe": "-40\u2103~+85\u2103@(Ta) 1 250mV@(600mA) 3.3V 50uVrms 55uA 600mA 65dB@(1kHz) 6V Fixed Over Current Protection\u3001Thermal Shutdown\u3001Enable control Positive SOT-25-5 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Diodes-Incorporated-AP2112K-3-3TRG1_C51118.pdf"
+  },
+  "C326721": {
+   "group": "current",
+   "model": "RT0603BRD0791KL",
+   "library": "expand",
+   "preferred": false,
+   "stock": 40606,
+   "price_q1": 0.0477,
+   "describe": "-55\u2103~+155\u2103 100mW 75V 91k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2204261415_YAGEO-RT0603BRD0791KL_C326721.pdf"
+  },
+  "C165948": {
+   "group": "current",
+   "model": "TYPE-C-31-M-12",
+   "library": "expand",
+   "preferred": false,
+   "stock": 290134,
+   "price_q1": 0.1871,
+   "describe": "-30\u2103~+80\u2103 1 10,000 cycles 16P 20V 5A 7.35mm Female Surface Mount, Right Angle Type-C SMD USB Connectors ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2205251630_Korean-Hroparts-Elec-TYPE-C-31-M-12_C165948.pdf"
+  },
+  "C167963": {
+   "group": "current",
+   "model": "FNR5040S4R7MT",
+   "library": "expand",
+   "preferred": false,
+   "stock": 33997,
+   "price_q1": 0.0623,
+   "describe": "3.3A 3.8A 39m\u03a9 4.7uH Magnetic Shielded Inductor \u00b120% SMD,5x5mm Power Inductors ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_cjiang--Changjiang-Microelectronics-Tech-FNR5040S4R7MT_C167963.pdf"
+  },
+  "C861239": {
+   "group": "current",
+   "model": "RT0603BRD0722RL",
+   "library": "expand",
+   "preferred": false,
+   "stock": 13863,
+   "price_q1": 0.0405,
+   "describe": "-55\u2103~+155\u2103 100mW 22\u03a9 75V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2202281730_YAGEO-RT0603BRD0722RL_C861239.pdf"
+  },
+  "C861295": {
+   "group": "current",
+   "model": "RT0603BRD072K2L",
+   "library": "expand",
+   "preferred": false,
+   "stock": 129896,
+   "price_q1": 0.0556,
+   "describe": "-55\u2103~+155\u2103 100mW 2.2k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2202281730_YAGEO-RT0603BRD072K2L_C861295.pdf"
+  },
+  "C728588": {
+   "group": "current",
+   "model": "RT0603BRD072KL",
+   "library": "expand",
+   "preferred": false,
+   "stock": 22,
+   "price_q1": 0.0351,
+   "describe": "-55\u2103~+155\u2103 100mW 2k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_YAGEO-RT0603BRD072KL_C728588.pdf"
+  },
+  "C95204": {
+   "group": "current",
+   "model": "RT0603BRD0710KL",
+   "library": "expand",
+   "preferred": false,
+   "stock": 1850603,
+   "price_q1": 0.0302,
+   "describe": "-55\u2103~+155\u2103 100mW 10k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/1811082117_YAGEO-RT0603BRD0710KL_C95204.pdf"
+  },
+  "C122538": {
+   "group": "current",
+   "model": "RT0603BRD07100KL",
+   "library": "expand",
+   "preferred": false,
+   "stock": 1337576,
+   "price_q1": 0.0274,
+   "describe": "-55\u2103~+155\u2103 100k\u03a9 100mW 75V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_1810241722_YAGEO-RT0603BRD07100KL_C122538.pdf"
+  },
+  "C122970": {
+   "group": "current",
+   "model": "RT0603BRD07100RL",
+   "library": "expand",
+   "preferred": false,
+   "stock": 359903,
+   "price_q1": 0.032,
+   "describe": "-55\u2103~+155\u2103 100mW 100\u03a9 75V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_YAGEO-RT0603BRD07100RL_C122970.pdf"
+  },
+  "C862232": {
+   "group": "current",
+   "model": "RT0603BRE075KL",
+   "library": "expand",
+   "preferred": false,
+   "stock": 69999,
+   "price_q1": 0.0312,
+   "describe": "-55\u2103~+155\u2103 100mW 5k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b150ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311211102_YAGEO-RT0603BRE075KL_C862232.pdf"
+  },
+  "C107054": {
+   "group": "current",
+   "model": "CC0603JRNPO9BN561",
+   "library": "expand",
+   "preferred": false,
+   "stock": 257385,
+   "price_q1": 0.007,
+   "describe": "50V 560pF NP0 \u00b15% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_YAGEO-CC0603JRNPO9BN561_C107054.pdf"
+  },
+  "C107046": {
+   "group": "current",
+   "model": "CC0603JRNPO9BN271",
+   "library": "expand",
+   "preferred": false,
+   "stock": 132767,
+   "price_q1": 0.0092,
+   "describe": "270pF 50V NP0 \u00b15% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_YAGEO-CC0603JRNPO9BN271_C107046.pdf"
+  },
+  "C519375": {
+   "group": "current",
+   "model": "CC0603CRNPO9BN4R3",
+   "library": "expand",
+   "preferred": false,
+   "stock": 19946,
+   "price_q1": 0.0072,
+   "describe": "4.3pF 50V NP0 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2008031233_YAGEO-CC0603CRNPO9BN4R3_C519375.pdf"
+  },
+  "C482643": {
+   "group": "current",
+   "model": "RC0603FR-071M62L",
+   "library": "expand",
+   "preferred": false,
+   "stock": 2417,
+   "price_q1": 0.0018,
+   "describe": "-55\u2103~+155\u2103 1.62M\u03a9 100mW 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2007151213_YAGEO-RC0603FR-071M62L_C482643.pdf"
+  },
+  "C422975": {
+   "group": "current",
+   "model": "0603WAF1744T5E",
+   "library": "expand",
+   "preferred": false,
+   "stock": 3931,
+   "price_q1": 0.0011,
+   "describe": "-55\u2103~+155\u2103 1.74M\u03a9 100mW 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2205312216_UNI-ROYAL-Uniroyal-Elec-0603WAF1744T5E_C422975.pdf"
+  },
+  "C25969": {
+   "group": "candidates",
+   "model": "0603WAF4303T5E",
+   "library": "expand",
+   "preferred": true,
+   "stock": 188296,
+   "price_q1": 0.0031,
+   "describe": "-55\u2103~+155\u2103 100mW 430k\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010045_UNI-ROYAL-Uniroyal-Elec-0603WAF4303T5E_C25969.pdf"
+  },
+  "C12447": {
+   "group": "candidates",
+   "model": "0603WAF4022T5E",
+   "library": "expand",
+   "preferred": true,
+   "stock": 157370,
+   "price_q1": 0.0021,
+   "describe": "-55\u2103~+155\u2103 100mW 40.2k\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010216_UNI-ROYAL-Uniroyal-Elec-0603WAF4022T5E_C12447.pdf"
+  },
+  "C1644": {
+   "group": "candidates",
+   "model": "CL10C150JB8NNNC",
+   "library": "base",
+   "preferred": false,
+   "stock": 1076606,
+   "price_q1": 0.0111,
+   "describe": "15pF 50V C0G \u00b15% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL10C150JB8NNNC_C1644.pdf"
+  },
+  "C1669": {
+   "group": "candidates",
+   "model": "0603CG4R7C500NT",
+   "library": "expand",
+   "preferred": true,
+   "stock": 608277,
+   "price_q1": 0.0054,
+   "describe": "4.7pF 50V C0G 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_FH--Guangdong-Fenghua-Advanced-Tech-0603CG4R7C500NT_C1669.pdf"
+  },
+  "C4172": {
+   "group": "candidates",
+   "model": "0603WAF1504T5E",
+   "library": "expand",
+   "preferred": true,
+   "stock": 82976,
+   "price_q1": 0.0019,
+   "describe": "-55\u2103~+155\u2103 1.5M\u03a9 100mW 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010230_UNI-ROYAL-Uniroyal-Elec-0603WAF1504T5E_C4172.pdf"
+  },
+  "C4197": {
+   "group": "candidates",
+   "model": "0603WAF2403T5E",
+   "library": "expand",
+   "preferred": true,
+   "stock": 163523,
+   "price_q1": 0.0018,
+   "describe": "-55\u2103~+155\u2103 100mW 240k\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010230_UNI-ROYAL-Uniroyal-Elec-0603WAF2403T5E_C4197.pdf"
+  },
+  "C25808": {
+   "group": "candidates",
+   "model": "0603WAF1203T5E",
+   "library": "base",
+   "preferred": false,
+   "stock": 821693,
+   "price_q1": 0.0015,
+   "describe": "-55\u2103~+155\u2103 100mW 120k\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010045_UNI-ROYAL-Uniroyal-Elec-0603WAF1203T5E_C25808.pdf"
+  },
+  "C23265": {
+   "group": "candidates",
+   "model": "0603WAF9102T5E",
+   "library": "expand",
+   "preferred": true,
+   "stock": 182362,
+   "price_q1": 0.0019,
+   "describe": "-55\u2103~+155\u2103 100mW 75V 91k\u03a9 Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010100_UNI-ROYAL-Uniroyal-Elec-0603WAF9102T5E_C23265.pdf"
+  },
+  "C25804": {
+   "group": "candidates",
+   "model": "0603WAF1002T5E",
+   "library": "base",
+   "preferred": false,
+   "stock": 37267730,
+   "price_q1": 0.0022,
+   "describe": "-55\u2103~+155\u2103 100mW 10k\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010045_UNI-ROYAL-Uniroyal-Elec-0603WAF1002T5E_C25804.pdf"
+  },
+  "C4190": {
+   "group": "candidates",
+   "model": "0603WAF2201T5E",
+   "library": "base",
+   "preferred": false,
+   "stock": 5647091,
+   "price_q1": 0.0018,
+   "describe": "-55\u2103~+155\u2103 100mW 2.2k\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010230_UNI-ROYAL-Uniroyal-Elec-0603WAF2201T5E_C4190.pdf"
+  },
+  "C22975": {
+   "group": "candidates",
+   "model": "0603WAF2001T5E",
+   "library": "base",
+   "preferred": false,
+   "stock": 10020767,
+   "price_q1": 0.0024,
+   "describe": "-55\u2103~+155\u2103 100mW 2k\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010116_UNI-ROYAL-Uniroyal-Elec-0603WAF2001T5E_C22975.pdf"
+  },
+  "C9002": {
+   "group": "candidates",
+   "model": "X322512MSB4SI",
+   "library": "base",
+   "preferred": false,
+   "stock": 210710,
+   "price_q1": 0.0955,
+   "describe": "-40\u2103~+85\u2103 12MHz 20pF 80\u03a9 Crystal Oscillator \u00b110ppm \u00b120ppm SMD3225-4P Crystals ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2403291504_YXC-Crystal-Oscillators-X322512MSB4SI_C9002.pdf"
+  },
+  "C13585": {
+   "group": "candidates",
+   "model": "CL31A106KBHNNNE",
+   "library": "base",
+   "preferred": false,
+   "stock": 3185540,
+   "price_q1": 0.2431,
+   "describe": "10uF 50V X5R \u00b110% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL31A106KBHNNNE_C13585.pdf"
+  },
+  "C5446": {
+   "group": "candidates",
+   "model": "XC6206P332MR-G",
+   "library": "base",
+   "preferred": false,
+   "stock": 533876,
+   "price_q1": 0.1479,
+   "describe": "-40\u2103~+85\u2103@(Ta) 1 1uA 200mA 3.3V 6V Fixed Over Current Protection Positive SOT-23-3L Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Torex-Semicon-XC6206P332MR-G_C5446.pdf"
+  },
+  "C23192": {
+   "group": "candidates",
+   "model": "0603WAF5103T5E",
+   "library": "base",
+   "preferred": false,
+   "stock": 933872,
+   "price_q1": 0.002,
+   "describe": "-55\u2103~+155\u2103 100mW 510k\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010116_UNI-ROYAL-Uniroyal-Elec-0603WAF5103T5E_C23192.pdf"
+  },
+  "C25819": {
+   "group": "candidates",
+   "model": "0603WAF4702T5E",
+   "library": "base",
+   "preferred": false,
+   "stock": 3220695,
+   "price_q1": 0.0019,
+   "describe": "-55\u2103~+155\u2103 100mW 47k\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010045_UNI-ROYAL-Uniroyal-Elec-0603WAF4702T5E_C25819.pdf"
+  },
+  "C1647": {
+   "group": "candidates",
+   "model": "CL10C180JB8NNNC",
+   "library": "base",
+   "preferred": false,
+   "stock": 255159,
+   "price_q1": 0.0158,
+   "describe": "18pF 50V C0G \u00b15% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL10C180JB8NNNC_C1647.pdf"
+  },
+  "C23150": {
+   "group": "candidates",
+   "model": "0603WAF3903T5E",
+   "library": "expand",
+   "preferred": true,
+   "stock": 249974,
+   "price_q1": 0.002,
+   "describe": "-55\u2103~+155\u2103 100mW 390k\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010116_UNI-ROYAL-Uniroyal-Elec-0603WAF3903T5E_C23150.pdf"
+  },
+  "C23147": {
+   "group": "candidates",
+   "model": "0603WAF3602T5E",
+   "library": "expand",
+   "preferred": true,
+   "stock": 236861,
+   "price_q1": 0.0018,
+   "describe": "-55\u2103~+155\u2103 100mW 36k\u03a9 75V Thick Film Resistor \u00b11% \u00b1100ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS",
+   "datasheet": "https://www.lcsc.com/datasheet/lcsc_datasheet_2206010116_UNI-ROYAL-Uniroyal-Elec-0603WAF3602T5E_C23147.pdf"
+  },
+  "C318130": {
+   "group": "stock/TCR replacement candidates",
+   "model": "AR03BTCX2001",
+   "library": "expand",
+   "preferred": false,
+   "stock": 57336,
+   "price_q1": 0.0364,
+   "describe": "-55\u2103~+155\u2103 100mW 2k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS"
+  },
+  "C2828621": {
+   "group": "stock/TCR replacement candidates",
+   "model": "AR03BTCX5001",
+   "library": "expand",
+   "preferred": false,
+   "stock": 55599,
+   "price_q1": 0.0318,
+   "describe": "-55\u2103~+155\u2103 100mW 5k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS"
+  },
+  "C136954": {
+   "group": "stock/TCR replacement candidates",
+   "model": "RT0603BRE072KL",
+   "library": "expand",
+   "preferred": false,
+   "stock": 4604,
+   "price_q1": 0.1623,
+   "describe": "-55\u2103~+155\u2103 100mW 2k\u03a9 75V Thin Film Resistor \u00b10.1% \u00b150ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS"
+  },
+  "C328425": {
+   "group": "stock/TCR replacement candidates",
+   "model": "PTFR0603B2K00P9",
+   "library": "expand",
+   "preferred": false,
+   "stock": 234516,
+   "price_q1": 0.0428,
+   "describe": "-55\u2103~+125\u2103 100V 100mW 2k\u03a9 Thin Film Resistor \u00b10.1% \u00b125ppm/\u2103 0603 Chip Resistor - Surface Mount ROHS"
+  }
+ },
+ "decisions": {
+  "applied": {
+   "R81": "C25969 430k",
+   "R82": "C12447 40.2k",
+   "C87": "C1644 15pF C0G",
+   "C88": "C1669 4.7pF C0G",
+   "R32,R33": "C318130 AR03BTCX2001 2k 0.1% 25ppm (C728588 stock 22)",
+   "R41,R44": "C2828621 AR03BTCX5001 5k 0.1% 25ppm (was 50 ppm)"
+  },
+  "kept_extended": "0.1% thin film (no basic/preferred part), ICs, USB-C, inductor, crystal (basic C9002 needs 20 pF/80 ohm), 10uF 50V X7R 1210 (free parts X5R), 560p/270p C0G, AP2112K, 1.74M (no free single value fits the 10 uA VREF window)",
+  "not_applied_need_layout": [
+   "R85/R86 LDO divider to 1% + negative divider from on-BOM 0.1% values (+1 part, -2 lines)",
+   "C34/C35 270p as 2x560p series (+2 parts)",
+   "R83 1.74M as 1.5M+240k (+1 part)"
+  ]
+ }
+}

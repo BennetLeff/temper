@@ -1,7 +1,7 @@
 {
  "r5_option": {
   "rc_corner_hz": 52011.419311076905,
-  "headroom_pos_2x_load": 1.4129125750759544,
+  "headroom_pos_2x_load": 1.2923082304623899,
   "headroom_neg_2x_load": 0.9488488351254604,
   "drop_est_load_v": [
    0.03537915590261647,
@@ -25,9 +25,9 @@
  },
  "load_note": "5 amplifier channels x 4.5 mA IQ max; source buffer and TIA each 18 mA peak (README short-circuit limit) as half-wave average 18/pi mA; negative rail also sinks four 1 kOhm FDA input resistors at ~1.024 V; OPA810 feedback 0.3 mA; LDO ground 1 mA; divider 0.12 mA.",
  "vpos": {
-  "min": 13.775918811881189,
-  "nom": 14.313400000000001,
-  "max": 14.86649090909091
+  "min": 13.655314467267624,
+  "nom": 14.187875621890548,
+  "max": 14.735896929493945
  },
  "vneg": {
   "min": -13.347469306930693,
@@ -41,8 +41,8 @@
     11.9685,
     12.292247925000002
    ],
-   "raw_min": 13.775918811881189,
-   "headroom_min": 1.4836708868811872
+   "raw_min": 13.655314467267624,
+   "headroom_min": 1.3630665422676227
   },
   "neg": {
    "vout": [
@@ -59,13 +59,13 @@
   {
    "item": "TPS65131 VPOS range (VFBP limits, 1 % R81/R82)",
    "value": [
-    13.776,
-    14.313,
-    14.866
+    13.655,
+    14.188,
+    14.736
    ],
    "limit": "<= 15 V recommended, 17 V abs max",
    "status": "PASS",
-   "note": "margin to 15 V: 0.134 V"
+   "note": "margin to 15 V: 0.264 V"
   },
   {
    "item": "TPS65131 VNEG range (VREF, VFBN limits, 1 % R83/R84)",
@@ -87,14 +87,14 @@
   },
   {
    "item": "TPS65131 C87 (boost CFF) vs Eq. 11/12",
-   "value": 4.3,
-   "limit": 4.2,
+   "value": 15.0,
+   "limit": 15.81,
    "status": "PASS",
    "note": "pF; within 10 % of the datasheet rule"
   },
   {
    "item": "TPS65131 C88 (inverter CFF) vs Eq. 11/12",
-   "value": 4.3,
+   "value": 4.7,
    "limit": 4.31,
    "status": "PASS",
    "note": "pF; within 10 % of the datasheet rule"
@@ -190,7 +190,7 @@
   {
    "item": "Eq. 3/4 inductor current at 2x load, VIN 4.32 V",
    "value": [
-    0.381,
+    0.377,
     0.546
    ],
    "limit": 1.8,
@@ -206,7 +206,7 @@
   },
   {
    "item": "TPS65131 RAW_P output caps vs Eq. 7/8 (10 mV)",
-   "value": "need 4.02 uF; break-even retention 0.175",
+   "value": "need 4.00 uF; break-even retention 0.174",
    "limit": "<= assumed 0.4",
    "status": "PASS",
    "note": "3 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V"
@@ -221,7 +221,7 @@
   {
    "item": "SS14 reverse voltage: boost / inverter",
    "value": [
-    14.87,
+    14.74,
     20.31
    ],
    "limit": 40.0,
@@ -237,10 +237,10 @@
   },
   {
    "item": "INP switch node (abs max 17 V)",
-   "value": 15.42,
+   "value": 15.29,
    "limit": 17.0,
    "status": "PASS",
-   "note": "static margin 1.58 V before ringing"
+   "note": "static margin 1.71 V before ringing"
   },
   {
    "item": "VIN/INN abs max 6 V vs 5.5 V VBUS maximum",
@@ -262,7 +262,7 @@
   },
   {
    "item": "U11 headroom at worst corner (raw min - out max)",
-   "value": 1.484,
+   "value": 1.363,
    "limit": ">= dropout 0.6 V and >= 1 V PSRR-curve condition",
    "status": "PASS",
    "note": "load 35.4 mA est."
@@ -327,7 +327,7 @@
   },
   {
    "item": "U11 dissipation at max raw / min out",
-   "value": 0.228,
+   "value": 0.219,
    "limit": "W (2x load); RthJA ~63 C/W",
    "status": "PASS",
    "note": ""
@@ -430,7 +430,7 @@
   {
    "item": "Option R5: 1 ohm before U11/U12 - headroom at 2x load, RC corner",
    "value": [
-    1.413,
+    1.292,
     0.949,
     52011
    ],
@@ -448,88 +448,88 @@
  ],
  "operating_points_2x_load": {
   "pos vin=4.319 fsw=1250000 L=3.76u": {
-   "duty": 0.718016350766316,
-   "ripple_a": 0.6598111955233443,
-   "ipk_a": 0.5808361463857681,
+   "duty": 0.7155913792874711,
+   "ripple_a": 0.6575828015196995,
+   "ipk_a": 0.577582424140091,
    "mode": "CCM (forced)",
-   "t_on_s": 5.744130806130528e-07
+   "t_on_s": 5.724731034299769e-07
   },
   "pos vin=4.319 fsw=1250000 L=5.64u": {
-   "duty": 0.718016350766316,
-   "ripple_a": 0.43987413034889633,
-   "ipk_a": 0.470867613798544,
+   "duty": 0.7155913792874711,
+   "ripple_a": 0.4383885343464664,
+   "ipk_a": 0.46798529055347443,
    "mode": "CCM (forced)",
-   "t_on_s": 5.744130806130528e-07
+   "t_on_s": 5.724731034299769e-07
   },
   "pos vin=4.319 fsw=1500000 L=3.76u": {
-   "duty": 0.718016350766316,
-   "ripple_a": 0.5498426629361204,
-   "ipk_a": 0.5258518800921561,
+   "duty": 0.7155913792874711,
+   "ripple_a": 0.5479856679330829,
+   "ipk_a": 0.5227838573467827,
    "mode": "CCM (forced)",
-   "t_on_s": 4.786775671775439e-07
+   "t_on_s": 4.770609195249807e-07
   },
   "pos vin=4.319 fsw=1500000 L=5.64u": {
-   "duty": 0.718016350766316,
-   "ripple_a": 0.3665617752907469,
-   "ipk_a": 0.43421143626946934,
+   "duty": 0.7155913792874711,
+   "ripple_a": 0.36532377862205534,
+   "ipk_a": 0.4314529126912689,
    "mode": "CCM (forced)",
-   "t_on_s": 4.786775671775439e-07
+   "t_on_s": 4.770609195249807e-07
   },
   "pos vin=5.0 fsw=1250000 L=3.76u": {
-   "duty": 0.6735544695141422,
-   "ripple_a": 0.7165473079937683,
-   "ipk_a": 0.5750274618983782,
+   "duty": 0.6707471397169149,
+   "ripple_a": 0.7135607869328882,
+   "ipk_a": 0.5716860794622964,
    "mode": "CCM (forced)",
-   "t_on_s": 5.388435756113138e-07
+   "t_on_s": 5.365977117735319e-07
   },
   "pos vin=5.0 fsw=1250000 L=5.64u": {
-   "duty": 0.6735544695141422,
-   "ripple_a": 0.477698205329179,
-   "ipk_a": 0.4556029105660836,
+   "duty": 0.6707471397169149,
+   "ripple_a": 0.4757071912885922,
+   "ipk_a": 0.45275928164014845,
    "mode": "CCM (forced)",
-   "t_on_s": 5.388435756113138e-07
+   "t_on_s": 5.365977117735319e-07
   },
   "pos vin=5.0 fsw=1500000 L=3.76u": {
-   "duty": 0.6735544695141422,
-   "ripple_a": 0.5971227566614736,
-   "ipk_a": 0.5153151862322309,
+   "duty": 0.6707471397169149,
+   "ripple_a": 0.5946339891107402,
+   "ipk_a": 0.5122226805512224,
    "mode": "CCM (forced)",
-   "t_on_s": 4.4903631300942813e-07
+   "t_on_s": 4.471647598112766e-07
   },
   "pos vin=5.0 fsw=1500000 L=5.64u": {
-   "duty": 0.6735544695141422,
-   "ripple_a": 0.3980818377743158,
-   "ipk_a": 0.415794726788652,
+   "duty": 0.6707471397169149,
+   "ripple_a": 0.39642265940716015,
+   "ipk_a": 0.4131170156994325,
    "mode": "CCM (forced)",
-   "t_on_s": 4.4903631300942813e-07
+   "t_on_s": 4.471647598112766e-07
   },
   "pos vin=5.5 fsw=1250000 L=3.76u": {
-   "duty": 0.6409099164655565,
-   "ripple_a": 0.7500009660767151,
-   "ipk_a": 0.5720493993124431,
+   "duty": 0.6378218536886064,
+   "ripple_a": 0.7463872755930501,
+   "ipk_a": 0.5685624432473,
    "mode": "CCM (forced)",
-   "t_on_s": 5.127279331724452e-07
+   "t_on_s": 5.102574829508852e-07
   },
   "pos vin=5.5 fsw=1250000 L=5.64u": {
-   "duty": 0.6409099164655565,
-   "ripple_a": 0.5000006440511434,
-   "ipk_a": 0.44704923829965726,
+   "duty": 0.6378218536886064,
+   "ripple_a": 0.4975915170620335,
+   "ipk_a": 0.44416456398179166,
    "mode": "CCM (forced)",
-   "t_on_s": 5.127279331724452e-07
+   "t_on_s": 5.102574829508852e-07
   },
   "pos vin=5.5 fsw=1500000 L=3.76u": {
-   "duty": 0.6409099164655565,
-   "ripple_a": 0.6250008050639293,
-   "ipk_a": 0.5095493188060503,
+   "duty": 0.6378218536886064,
+   "ripple_a": 0.6219893963275418,
+   "ipk_a": 0.5063635036145459,
    "mode": "CCM (forced)",
-   "t_on_s": 4.2727327764370435e-07
+   "t_on_s": 4.2521456912573763e-07
   },
   "pos vin=5.5 fsw=1500000 L=5.64u": {
-   "duty": 0.6409099164655565,
-   "ripple_a": 0.41666720337595287,
-   "ipk_a": 0.405382517962062,
+   "duty": 0.6378218536886064,
+   "ripple_a": 0.4146595975516945,
+   "ipk_a": 0.4026986042266222,
    "mode": "CCM (forced)",
-   "t_on_s": 4.2727327764370435e-07
+   "t_on_s": 4.2521456912573763e-07
   },
   "neg vin=4.319 fsw=1250000 L=3.76u": {
    "duty": 0.779049593092297,

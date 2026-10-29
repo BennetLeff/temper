@@ -279,6 +279,28 @@ for ref in ('SW1', 'SW2'):
     parts[ref].update(footprint='Button_Switch_SMD:SW_SPST_TS-1088-xR020', mpn='TS-1088-AR02016',
                       manufacturer='XUNPU', lcsc='C720477', unit_usd=0.0527, library_type='basic',
                       source_query='TS-1088-AR02016 C720477')
+# sources/rev-e/JLC-basic-swaps-2026-10-29.json (JLC library API, 2026-10-29).
+# TPS65131 boost divider 1.62M/150k -> 430k/40.2k (preferred): VPOS ratio 11.70 vs 11.80, divider current
+# about 30 uA (datasheet: R2 < 200k).  Feed-forward caps re-sized to TI Eq. 11/12 for the new R1:
+# C87 15 pF (basic, already on the BOM), C88 4.7 pF (preferred).  Two extended lines go.
+parts['R81'].update(value='430k', mpn='0603WAF4303T5E', manufacturer='UNI-ROYAL(Uniroyal Elec)', lcsc='C25969',
+                    unit_usd=0.0031, stock=188296, library_type='preferred', source_query='430k 1% 0603 C25969')
+parts['R82'].update(value='40.2k', mpn='0603WAF4022T5E', manufacturer='UNI-ROYAL(Uniroyal Elec)', lcsc='C12447',
+                    unit_usd=0.0021, stock=157370, library_type='preferred', source_query='40.2k 1% 0603 C12447')
+parts['C87'].update(value='15pF C0G', mpn='CL10C150JB8NNNC', manufacturer='Samsung Electro-Mechanics',
+                    lcsc='C1644', unit_usd=0.0111, stock=1076606, library_type='basic', source_query='15pF C0G C1644')
+parts['C88'].update(value='4.7pF C0G', mpn='0603CG4R7C500NT', manufacturer='FH (Guangdong Fenghua Advanced Tech)',
+                    lcsc='C1669', unit_usd=0.0054, stock=608277, library_type='preferred',
+                    source_query='4.7pF C0G C1669')
+# Stock and TCR, still extended: RT0603BRD072KL (C728588) fell to 22 in stock; Viking AR03BTCX2001 is the same
+# 2k 0.1 % 25 ppm/C thin film.  The 5k RG/RF pair was 50 ppm/C against the 25 ppm/C drift budget
+# (validation/rev-e-improvements/README.md); Viking AR03BTCX5001 is 25 ppm/C.
+for ref in ('R32', 'R33'):
+    parts[ref].update(mpn='AR03BTCX2001', manufacturer='Viking Tech', lcsc='C318130', unit_usd=0.0364,
+                      stock=57336, source_query='2k 0.1% 25ppm 0603 C318130')
+for ref in ('R41', 'R44'):
+    parts[ref].update(mpn='AR03BTCX5001', manufacturer='Viking Tech', lcsc='C2828621', unit_usd=0.0318,
+                      stock=55599, source_query='5k 0.1% 25ppm 0603 C2828621')
 
 # ---------------------------------------------------------------- power flags, notes, ranges
 design['power_flags'] = [n for n in design['power_flags'] if n not in ('3V3_DDS', '5VIN', '5V')] + ['USB_VBUS']

@@ -1,19 +1,10 @@
 {
-  "board_sha256": "59c20647beec2d5a4480cda42255b8ca427aacd131cd31dc3989663aa7a9617a",
+  "board_sha256": "09e101bfe5042060a29a2a023cbb31e8fbee2f2e23308a9b70f90e149a49b26a",
   "method": "native pcbnew PAD.HitTest with drill-radius accuracy; all SMT pads/all through vias",
-  "required_process": "4-layer filled/capped via-in-pad (POFV); obtain vendor quote and DFM approval",
+  "required_process": "standard tented vias (no POFV); thermal vias in the five exposed pads stay open on top under paste, per the TI package notes (filled, plugged or tented); obtain vendor DFM approval",
+  "unexpected_via_ring_smt_overlaps": [],
   "intended_overlaps": [
     {
-      "reference": "R3",
-      "pad": "2",
-      "net": "USB_DM_MCU",
-      "x_mm": 83.9,
-      "y_mm": 92.45,
-      "drill_mm": 0.3,
-      "diameter_mm": 0.45,
-      "process": "resin filled, copper capped, planarized (POFV)"
-    },
-    {
       "reference": "U1",
       "pad": "57",
       "net": "GND",
@@ -21,7 +12,7 @@
       "y_mm": 86.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U1",
@@ -31,7 +22,7 @@
       "y_mm": 87.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U1",
@@ -41,7 +32,7 @@
       "y_mm": 88.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U1",
@@ -51,7 +42,7 @@
       "y_mm": 86.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U1",
@@ -61,7 +52,7 @@
       "y_mm": 87.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.6,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U1",
@@ -71,7 +62,7 @@
       "y_mm": 88.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U1",
@@ -81,7 +72,7 @@
       "y_mm": 86.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U1",
@@ -91,7 +82,7 @@
       "y_mm": 87.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U11",
@@ -101,7 +92,7 @@
       "y_mm": 132.449999,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U11",
@@ -111,7 +102,7 @@
       "y_mm": 133.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U11",
@@ -121,7 +112,7 @@
       "y_mm": 133.55,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U11",
@@ -131,7 +122,7 @@
       "y_mm": 132.449999,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U11",
@@ -141,7 +132,7 @@
       "y_mm": 133.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U11",
@@ -151,7 +142,7 @@
       "y_mm": 133.55,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U12",
@@ -161,7 +152,7 @@
       "y_mm": 132.449999,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U12",
@@ -171,7 +162,7 @@
       "y_mm": 133.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U12",
@@ -181,7 +172,7 @@
       "y_mm": 133.55,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U12",
@@ -191,7 +182,7 @@
       "y_mm": 132.449999,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U12",
@@ -201,7 +192,7 @@
       "y_mm": 133.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U12",
@@ -211,7 +202,7 @@
       "y_mm": 133.55,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U13",
@@ -221,7 +212,7 @@
       "y_mm": 129.3,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U13",
@@ -231,7 +222,7 @@
       "y_mm": 130.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U13",
@@ -241,7 +232,7 @@
       "y_mm": 130.699999,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U13",
@@ -251,7 +242,7 @@
       "y_mm": 129.3,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U13",
@@ -261,7 +252,7 @@
       "y_mm": 130.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.6,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U13",
@@ -271,7 +262,7 @@
       "y_mm": 130.699999,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U13",
@@ -281,7 +272,7 @@
       "y_mm": 129.3,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U13",
@@ -291,7 +282,7 @@
       "y_mm": 130.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U13",
@@ -301,7 +292,7 @@
       "y_mm": 130.699999,
       "drill_mm": 0.3,
       "diameter_mm": 0.55,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U14",
@@ -311,7 +302,7 @@
       "y_mm": 97.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.45,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U14",
@@ -321,7 +312,7 @@
       "y_mm": 98.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.45,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U14",
@@ -331,7 +322,7 @@
       "y_mm": 97.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.45,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     },
     {
       "reference": "U14",
@@ -341,7 +332,7 @@
       "y_mm": 98.0,
       "drill_mm": 0.3,
       "diameter_mm": 0.45,
-      "process": "resin filled, copper capped, planarized (POFV)"
+      "process": "exposed-pad thermal via, unfilled, tented on B.Mask"
     }
   ],
   "unexpected_drill_smt_overlaps": [],

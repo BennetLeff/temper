@@ -5,7 +5,7 @@ Writes manufacturing/order-estimate-<N>.json and prints a summary.
 
 Inputs:
   - bom-complete.csv (lines, quantities, SMT vs hand fit) and cpl-jlcpcb.csv (machine placements);
-  - prices/jlc-parts-2026-10-21.json: JLC assembly-library snapshot per LCSC code (price tiers,
+  - prices/jlc-parts-2026-10-29.json: JLC assembly-library snapshot per LCSC code (price tiers,
     stock, library class, lossNumber, leastPatchNumber), written by prices/fetch_jlc_parts.py;
   - joint and leadless-package counts taken from cad/temper-lcr.kicad_pcb;
   - fee constants below, copied from https://jlcpcb.com/help/article/pcb-assembly-price
@@ -32,12 +32,14 @@ MFG = ROOT / 'manufacturing'
 # 0.5 oz inner, ENIG 1 u", epoxy filled & capped vias, 3-4 days.  Rev E has only 0.3 mm vias
 # (0.45 mm pad), JLC's standard via option: the $116.73 quote for 0.2 mm vias less its
 # 'Min via hole 0.2 mm' and 4-wire Kelvin lines, which the 0.2 mm option forced, gives the $80.98
-# the same page quoted for 0.3 mm vias.  TG155 and the POFV plating line are kept as quoted.
+# the same page quoted for 0.3 mm vias.  TG155 is kept as quoted.  2026-10-29: POFV ($18.28) and the
+# via plating line it forced ($3.48) are dropped: no via sits in a small land, the exposed-pad thermal
+# vias are tented (cad/audit_dfm.py), and "Tented" is JLC's default via covering.  Re-quote at upload.
 FAB_QUOTE = {
     'qty': 5,
     'lines': {
-        'Engineering fee': 25.00, 'Via covering (POFV)': 18.28, 'Surface finish (ENIG)': 18.20,
-        'Material type (TG155)': 7.32, 'Board': 8.70, 'Via plating method (forced by POFV)': 3.48,
+        'Engineering fee': 25.00, 'Surface finish (ENIG)': 18.20,
+        'Material type (TG155)': 7.32, 'Board': 8.70,
     },
 }
 ECONOMIC = {'setup': 8.18, 'stencil': 1.53, 'extended_line': 3.07}
@@ -79,7 +81,7 @@ def board_counts():
 
 
 def main():
-    snapshot = json.loads((MFG / 'prices/jlc-parts-2026-10-21.json').read_text())['parts']
+    snapshot = json.loads((MFG / 'prices/jlc-parts-2026-10-29.json').read_text())['parts']
     placements, smt_joints, leadless, tht_joints, tht_refs = board_counts()
     lines, findings = [], []
     for row in csv.DictReader(open(MFG / 'bom-complete.csv')):
