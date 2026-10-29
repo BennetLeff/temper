@@ -3684,14 +3684,16 @@
      "worst_case_value": 95,
      "unit": "V/ns",
      "condition": "modelled S4/S5 hard turn-on edge",
-     "evidence": "validation-results/06-controller-interface/cmti/README.md:8"
+     "evidence": "validation-results/06-controller-interface/cmti/README.md:8",
+     "s4_grid_exempt": "superseded ALT-BIAS R10 model edge (95 V/ns), kept as a conservative bound above every s42 grid result; not a grid figure"
     },
     {
      "parameter": "dv/dt diode commutation (S4), as built s29-s41",
      "worst_case_value": 85.8,
      "unit": "V/ns",
      "condition": "HISTORY (no check): stages 29-41 network, 2EDR8259X + 8.2 ohm 1206 turn-on, Cgs 1 nF; S4 hard turn-on, IL -20 A, ESL 10 nH (1.06 nH: 81.9), vendor-model recovery charge (1.74 uC); 109-112 V/ns at typical charge (DECISIONS 54). Replaced at stage 42",
-     "evidence": "validation-results/01-switching-parasitics/device-study-2026-10-15/README.md:84"
+     "evidence": "validation-results/01-switching-parasitics/device-study-2026-10-15/README.md:84",
+     "s4_grid_exempt": "history: the s29-s41 as-built network (8.2 ohm / 1 nF), not the fitted s42 network; kept for the record"
     },
     {
      "parameter": "diF/dt diode commutation (S4), as built s29-s41",
@@ -3705,7 +3707,16 @@
      "worst_case_value": 49.7,
      "unit": "V/ns",
      "condition": "Stage 42 network (candidate 39, DECISIONS 54): 68 ohm 2512 turn-on + Cgs 4.7 nF C0G, PMEG6030EP + 1 ohm turn-off; S4 hard turn-on, IL -20 A, full grid 640/640 at typical recovery charge (TT 125 ns model, 2.36 uC against the 2.30 uC typical), ESL 10 nH (1.06 nH: 49.15); die VDS 347 V",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15"
+     "evidence": [
+      "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15",
+      {
+       "file": "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt125/s4L/results.json",
+       "s4_grid": {
+        "case": "S4",
+        "slew_Vns": 49.7
+       }
+      }
+     ]
     },
     {
      "parameter": "diF/dt diode commutation (S4)",
@@ -3719,7 +3730,16 @@
      "worst_case_value": 68.58,
      "unit": "V/ns",
      "condition": "Maximum recovery charge (TT 260 ns model, Qrr at the 4.60 uC datasheet maximum): the adopted 68 ohm + 4.7 nF network, all 336 S4 rows in the 3.75 us window, worst row S4 leg A HS turn-on, 280 V, strong driver, 27 C, ESL 10 nH, reads 68.58 V/ns at the 20-80 % chord (c55 device trade; the S6 study's 0.75 us window missed the edge on 144 of the 336 S4 rows, all at 27 C, and read 68.16; the 106.21 V/ns formerly cited was the 47 ohm / Cgs 1 nF stand-in). 0.98 of the 70 V/ns rating: under the rating, over the 80 % (56 V/ns) screen; instantaneous peak ~91 V/ns is indicative only. The D-8 double-pulse bench with max-Qrr parts decides",
-     "evidence": "validation-results/11-candidates/s6-cmti-2026-10-16/README.md; validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.json; validation-results/11-candidates/c55-device-trade/results/switching.json; validation-results/11-candidates/c55-device-trade/README.md"
+     "evidence": [
+      "validation-results/11-candidates/s6-cmti-2026-10-16/README.md; validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.json; validation-results/11-candidates/c55-device-trade/results/switching.json; validation-results/11-candidates/c55-device-trade/README.md",
+      {
+       "file": "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt260/s4L/results.json",
+       "s4_grid": {
+        "case": "S4",
+        "slew_Vns": 68.58
+       }
+      }
+     ]
     }
    ],
    "derating_rule": "VDS <= 80% of 650 V (the 520 V screen); ID <= 80% of the Tc=100 C rating; Tj <= 125 C design (150 C absolute); dv/dt <= 80% of ruggedness.",
@@ -5803,14 +5823,32 @@
      "worst_case_value": 49.7,
      "unit": "V/ns",
      "condition": "bound only: s42's S4 switch-node edge at typical Qrr applied to the OCP_KELVIN_P crossing, which is not a switch node",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923"
+     "evidence": [
+      "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923",
+      {
+       "file": "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt125/s4L/results.json",
+       "s4_grid": {
+        "case": "S4",
+        "slew_Vns": 49.7
+       }
+      }
+     ]
     },
     {
      "parameter": "CMTI edge, maximum Qrr",
      "worst_case_value": 68.58,
      "unit": "V/ns",
      "condition": "maximum recovery charge (4.60 uC, TT 260 ns): the adopted 68 ohm + 4.7 nF network at the 20-80 % chord, all 336 S4 rows in the 3.75 us window, S4 leg A HS turn-on, 280 V, strong driver, 27 C, ESL 10 nH reads 68.58 V/ns (c55 device trade; the S6 study's 0.75 us window missed 144 of the 336 S4 edges and read 68.16; the 106.21 V/ns formerly cited was the 47 ohm / Cgs 1 nF stand-in, not the fitted network); U4 is not on a switch node: the HV_RET-to-PE divider puts 6.56 V/ns on it at the 68.58 chord (0.75 rectifier conducting, 22.7 worst single parasitic; validation-results/06-controller-interface/cmti/results-68p58/cm_barrier.json), the 68.58 is applied as a bound",
-     "evidence": "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md; validation-results/11-candidates/c55-device-trade/results/switching.json; validation-results/11-candidates/c55-device-trade/README.md"
+     "evidence": [
+      "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md; validation-results/11-candidates/c55-device-trade/results/switching.json; validation-results/11-candidates/c55-device-trade/README.md",
+      {
+       "file": "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt260/s4L/results.json",
+       "s4_grid": {
+        "case": "S4",
+        "slew_Vns": 68.58
+       }
+      }
+     ]
     },
     {
      "parameter": "Barrier peak",
@@ -10129,14 +10167,32 @@
      "worst_case_value": 49.7,
      "unit": "V/ns",
      "condition": "s42 S4 switch-node edge at typical Qrr (DECISIONS 54/55); was 109-112 V/ns as built s29-s41 (history)",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923"
+     "evidence": [
+      "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923",
+      {
+       "file": "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt125/s4L/results.json",
+       "s4_grid": {
+        "case": "S4",
+        "slew_Vns": 49.7
+       }
+      }
+     ]
     },
     {
      "parameter": "CMTI edge, maximum Qrr",
      "worst_case_value": 68.58,
      "unit": "V/ns",
      "condition": "maximum recovery charge (4.60 uC, TT 260 ns): the adopted 68 ohm + 4.7 nF network at the 20-80 % chord, all 336 S4 rows in the 3.75 us window, S4 leg A HS turn-on, 280 V, strong driver, 27 C, ESL 10 nH reads 68.58 V/ns (c55 device trade; the S6 study's 0.75 us window missed 144 of the 336 S4 edges and read 68.16; the 106.21 V/ns formerly cited was the 47 ohm / Cgs 1 nF stand-in, not the fitted network)",
-     "evidence": "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md; validation-results/11-candidates/c55-device-trade/results/switching.json; validation-results/11-candidates/c55-device-trade/README.md"
+     "evidence": [
+      "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md; validation-results/11-candidates/c55-device-trade/results/switching.json; validation-results/11-candidates/c55-device-trade/README.md",
+      {
+       "file": "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt260/s4L/results.json",
+       "s4_grid": {
+        "case": "S4",
+        "slew_Vns": 68.58
+       }
+      }
+     ]
     },
     {
      "parameter": "Pout at 80 kHz",
@@ -11659,21 +11715,40 @@
      "worst_case_value": 49.7,
      "unit": "V/ns",
      "condition": "s42 S4 edge at typical recovery charge (2EDR8259X + 68 ohm 2512 turn-on, Cgs 4.7 nF; full grid 640/640); the vendor-model edge is lower",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923"
+     "evidence": [
+      "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923",
+      {
+       "file": "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt125/s4L/results.json",
+       "s4_grid": {
+        "case": "S4",
+        "slew_Vns": 49.7
+       }
+      }
+     ]
     },
     {
      "parameter": "CMTI edge, maximum Qrr",
      "worst_case_value": 68.58,
      "unit": "V/ns",
      "condition": "maximum recovery charge (4.60 uC, TT 260 ns): the adopted 68 ohm + 4.7 nF network at the 20-80 % chord, all 336 S4 rows in the 3.75 us window, S4 leg A HS turn-on, 280 V, strong driver, 27 C, ESL 10 nH reads 68.58 V/ns (c55 device trade; the S6 study's 0.75 us window missed 144 of the 336 S4 edges and read 68.16; the 106.21 V/ns formerly cited was the 47 ohm / Cgs 1 nF stand-in, not the fitted network)",
-     "evidence": "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md; validation-results/11-candidates/c55-device-trade/results/switching.json; validation-results/11-candidates/c55-device-trade/README.md"
+     "evidence": [
+      "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md; validation-results/11-candidates/c55-device-trade/results/switching.json; validation-results/11-candidates/c55-device-trade/README.md",
+      {
+       "file": "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt260/s4L/results.json",
+       "s4_grid": {
+        "case": "S4",
+        "slew_Vns": 68.58
+       }
+      }
+     ]
     },
     {
      "parameter": "CMTI edge, as built s29-s41 (history)",
      "worst_case_value": 112.0,
      "unit": "V/ns",
      "condition": "HISTORY (no check): the 8.2 ohm 1206 / Cgs 1 nF network at typical Qrr, 109-112 V/ns (DECISIONS 54); replaced at stage 42",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/README.md:109; DECISIONS.md:1911"
+     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/README.md:109; DECISIONS.md:1911",
+     "s4_grid_exempt": "history: the s29-s41 as-built network (8.2 ohm / 1 nF), not the fitted s42 network; kept for the record"
     },
     {
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
@@ -11864,21 +11939,40 @@
      "worst_case_value": 49.7,
      "unit": "V/ns",
      "condition": "s42 S4 switch-node edge on SW_A at typical recovery charge (68 ohm 2512 + Cgs 4.7 nF, full grid 640/640; 49.15 V/ns at 1.06 nH); SW_B's leg switches the same edges (U44). The vendor-model edge is lower",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923"
+     "evidence": [
+      "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923",
+      {
+       "file": "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt125/s4L/results.json",
+       "s4_grid": {
+        "case": "S4",
+        "slew_Vns": 49.7
+       }
+      }
+     ]
     },
     {
      "parameter": "CMTI edge, maximum Qrr",
      "worst_case_value": 68.58,
      "unit": "V/ns",
      "condition": "maximum recovery charge (4.60 uC, TT 260 ns): the adopted 68 ohm + 4.7 nF network at the 20-80 % chord, all 336 S4 rows in the 3.75 us window, S4 leg A HS turn-on, 280 V, strong driver, 27 C, ESL 10 nH reads 68.58 V/ns (c55 device trade; the S6 study's 0.75 us window missed 144 of the 336 S4 edges and read 68.16; the 106.21 V/ns formerly cited was the 47 ohm / Cgs 1 nF stand-in, not the fitted network)",
-     "evidence": "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md; validation-results/11-candidates/c55-device-trade/results/switching.json; validation-results/11-candidates/c55-device-trade/README.md"
+     "evidence": [
+      "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md; validation-results/11-candidates/c55-device-trade/results/switching.json; validation-results/11-candidates/c55-device-trade/README.md",
+      {
+       "file": "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt260/s4L/results.json",
+       "s4_grid": {
+        "case": "S4",
+        "slew_Vns": 68.58
+       }
+      }
+     ]
     },
     {
      "parameter": "CMTI edge, as built s29-s41 (history)",
      "worst_case_value": 112.0,
      "unit": "V/ns",
      "condition": "HISTORY (no check): the 8.2 ohm 1206 / Cgs 1 nF network at typical Qrr, 109-112 V/ns (DECISIONS 54); replaced at stage 42",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/README.md:109; DECISIONS.md:1911"
+     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/README.md:109; DECISIONS.md:1911",
+     "s4_grid_exempt": "history: the s29-s41 as-built network (8.2 ohm / 1 nF), not the fitted s42 network; kept for the record"
     },
     {
      "parameter": "Functional gap needed",
@@ -12411,14 +12505,32 @@
      "worst_case_value": 49.7,
      "unit": "V/ns",
      "condition": "bound only: s42's S4 switch-node edge at typical Qrr (49.7 V/ns) applied to U32 (N_LS) and U9 (OCP_KELVIN_P), neither a switch node",
-     "evidence": "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923"
+     "evidence": [
+      "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/full.md:15; DECISIONS.md:1923",
+      {
+       "file": "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt125/s4L/results.json",
+       "s4_grid": {
+        "case": "S4",
+        "slew_Vns": 49.7
+       }
+      }
+     ]
     },
     {
      "parameter": "CMTI edge, maximum Qrr",
      "worst_case_value": 68.58,
      "unit": "V/ns",
      "condition": "maximum recovery charge (4.60 uC, TT 260 ns): the adopted 68 ohm + 4.7 nF network at the 20-80 % chord, all 336 S4 rows in the 3.75 us window, S4 leg A HS turn-on, 280 V, strong driver, 27 C, ESL 10 nH reads 68.58 V/ns (c55 device trade; the S6 study's 0.75 us window missed 144 of the 336 S4 edges and read 68.16; the 106.21 V/ns formerly cited was the 47 ohm / Cgs 1 nF stand-in, not the fitted network); U32/U9 are not on a switch node: the HV_RET-to-PE divider puts 6.56 V/ns on them at the 68.58 chord (0.75 rectifier conducting, 22.7 worst single parasitic; validation-results/06-controller-interface/cmti/results-68p58/cm_barrier.json), the 68.58 is applied as a bound",
-     "evidence": "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md; validation-results/11-candidates/c55-device-trade/results/switching.json; validation-results/11-candidates/c55-device-trade/README.md"
+     "evidence": [
+      "validation-results/11-candidates/s6-cmti-2026-10-16/results/s6_verdict.stdout.txt:6; validation-results/11-candidates/s6-cmti-2026-10-16/README.md; validation-results/11-candidates/c55-device-trade/results/switching.json; validation-results/11-candidates/c55-device-trade/README.md",
+      {
+       "file": "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt260/s4L/results.json",
+       "s4_grid": {
+        "case": "S4",
+        "slew_Vns": 68.58
+       }
+      }
+     ]
     },
     {
      "parameter": "CMTI event duration",

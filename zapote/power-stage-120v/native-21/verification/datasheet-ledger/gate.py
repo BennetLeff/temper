@@ -5,12 +5,16 @@ Reads native-21/frozen/default.csv and ledger.json and fails (exit 1) when
   * a BOM MPN has no ledger entry, or the designators drifted from the BOM,
   * any ledger entry is malformed or internally inconsistent,
   * any entry is VIOLATION,
-  * a SAFETY or POWER class line is UNAUDITED.
+  * a SAFETY or POWER class line is UNAUDITED,
+  * a V/ns stress neither cites its switching grid ({"file", "s4_grid": {"case", "slew_Vns"}}) nor states s4_grid_exempt,
+    or cites a grid whose slew differs or that has rows with no edge in the window
+    (validation-results/01-switching-parasitics/s4_edges.py).
 --strict additionally fails on every non-VERIFIED entry.
 Writes ledger-report.json next to the ledger (or --report).
 """
 import argparse
 import csv
+import importlib.util
 import json
 import re
 import sys
@@ -60,7 +64,51 @@ B3_KEY_TOKENS = 3      # a b3_row `item` key is the first three whitespace token
 B3_NUM_TOL = 0.05 + 1e-9  # margins.json rounds est_c / margin_k to 0.1 K, so a cited value must agree within 0.05
 
 
+S4_EDGES = "validation-results/01-switching-parasitics/s4_edges.py"
+S4_SLEW_TOL = 0.005 + 1e-9  # cited slews are written to 0.01 V/ns
+
+
+def s4_edges(root, cache):
+    """The shared no-edge rule, loaded by path (-I keeps script directories off sys.path)."""
+    if ("mod", S4_EDGES) not in cache:
+        spec = importlib.util.spec_from_file_location("s4_edges", root / S4_EDGES)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        cache[("mod", S4_EDGES)] = mod
+    return cache[("mod", S4_EDGES)]
+
+
+def check_s4_grid(c, root, where, errors, cache):
+    """Keyed citation {"file": <switching grid results.json>, "s4_grid": {"case": "S4", "slew_Vns": x}}: the grid's maximum
+    20-80 % slew for `case` must equal x, and the grid must have an edge in every complete row of that case (s4_edges.py);
+    a grid with rows whose edge fell outside the measurement window is refused, whatever its maximum says."""
+    f, key = c.get("file"), c.get("s4_grid")
+    if not isinstance(f, str) or not isinstance(key, dict) or key.get("case") not in ("S4", "S5") or \
+            not isinstance(key.get("slew_Vns"), (int, float)):
+        errors.append(f"{where}: s4_grid citation needs file and s4_grid {{case S4|S5, numeric slew_Vns}}: {c!r}")
+        return
+    p = root / f
+    if not p.is_file():
+        errors.append(f"{where}: evidence path not found: {f}")
+        return
+    m = s4_edges(root, cache)
+    try:
+        slew = m.max_slew(m.load_rows(p) or [], key["case"], where=f)
+    except (m.NoEdgeError, ValueError) as ex:
+        errors.append(f"{where}: s4_grid refused: {ex}")
+        return
+    if abs(slew - key["slew_Vns"]) > S4_SLEW_TOL:
+        errors.append(f"{where}: stale s4_grid slew {key['slew_Vns']} cited, {f} gives {slew:.2f} V/ns")
+
+
 def check_keyed(c, root, where, errors, cache):
+    if "s4_grid" in c:
+        check_s4_grid(c, root, where, errors, cache)
+        return
+    check_b3_row(c, root, where, errors, cache)
+
+
+def check_b3_row(c, root, where, errors, cache):
     """Resolve a keyed citation {"file", "b3_row": {"case", "item"}, optional "est_c"/"margin_k"/"limit_c"} against the
     cases -> case -> rows structure of b3-ratings/margins.json. The row is found by case plus an item key (the first
     three tokens of the row's `item`, e.g. "R10: 2512 terminal"), so re-sorting or re-numbering the file cannot break
@@ -140,6 +188,27 @@ def compute_checks(entry, errors, where):
     return out
 
 
+def check_slew_basis(s, where, errors):
+    """A V/ns stress names the switching grid it comes from (an s4_grid citation whose slew equals the stress value), or
+    says in s4_grid_exempt why it has none (history rows, a superseded edge kept as a bound, a non-grid source)."""
+    if s.get("unit") != "V/ns":
+        return
+    ev = s.get("evidence")
+    grids = [c for c in (ev if isinstance(ev, list) else []) if isinstance(c, dict) and "s4_grid" in c]
+    exempt = s.get("s4_grid_exempt")
+    if not grids:
+        if not (isinstance(exempt, str) and exempt.strip()):
+            errors.append(f"{where}: V/ns stress needs an s4_grid citation (the grid it comes from) or an s4_grid_exempt reason")
+        return
+    if exempt is not None:
+        errors.append(f"{where}: has both an s4_grid citation and s4_grid_exempt")
+    val = s.get("worst_case_value")
+    for c in grids:
+        sv = (c.get("s4_grid") or {}).get("slew_Vns")
+        if isinstance(val, (int, float)) and isinstance(sv, (int, float)) and abs(val - sv) > S4_SLEW_TOL:
+            errors.append(f"{where}: worst_case_value {val} != the cited grid's {sv} V/ns")
+
+
 def validate_entry(mpn, e, bom_des, root, cache):
     errors, warnings = [], []
     w = f"[{mpn}]"
@@ -172,6 +241,7 @@ def validate_entry(mpn, e, bom_des, root, cache):
                 pass  # already reported
     for s in e["stresses"]:
         check_evidence(s.get("evidence", ""), root, f"{w} stress {s.get('parameter')}", errors, cache)
+        check_slew_basis(s, f"{w} stress {s.get('parameter')}", errors)
     checks = compute_checks(e, errors, w)
     failed_v = [c for c in checks if not c["ok"] and c["severity"] == "violation"]
     failed_g = [c for c in checks if not c["ok"] and c["severity"] == "gap"]

@@ -149,8 +149,10 @@ flag it.
   all 336 rows give 49.70 V/ns, the committed value exactly.
 - For slower networks the gap hides the whole answer: CFD7 + 68 Ω / 6.8 nF reads "0 V/ns, 42/42 pass" in the short
   window and **63.76 V/ns** in the long one.
-- `c20_switching.py` now reports `no_edge_rows` per grid. Every S4 number in this README comes from a grid with 0
-  such rows.
+- `c20_switching.py` reports `no_edge_rows` per grid and, since 2026-10-29, refuses the grid's S4 / S5 slew (and the
+  diode dv/dt check) when any row lacks an edge, through the shared rule in
+  `01-switching-parasitics/s4_edges.py`. Every S4 number in this README comes from a grid with 0 such rows, except the
+  CM8 82 Ω / 2.2 nF entry in section 4, which is now marked refused.
 
 ## 2. Controls (all pass; `results/controls.json`, `results/qrr.json`, `results/loss_thermal.json`)
 
@@ -228,7 +230,7 @@ CFD7 network is the budget: 4.37 / 9.04 V (control, equal to the committed value
 | **100 Ω / 1 nF** | **66.4 (45.3)** | full grid 640/640 at max Qrr: S2 488.5 V, S4 371.5 V, off-gate +1.33 V, t_trans 116.4 ns | **3.76 / 9.00 V** (at the budget) |
 | 120 Ω / 1 nF | 59.4 | S4 set passes | 2.51 / 7.65 V (too slow) |
 | 150 Ω / 1 nF | **50.0** | full grid 640/640 | 1.10 / 5.93 V (too slow) |
-| 47–82 Ω / 2.2 nF | 65.8–78.5 | off-gate 2.2–2.6 V at 150 °C (hot screen 1.9 V); S2 539–541 V | – |
+| 47–82 Ω / 2.2 nF | 70.7–78.5 at 47–68 Ω; 82 Ω refused (4 of 42 rows have no edge in the short window, not re-run; it read 65.8) | off-gate 2.2–2.6 V at 150 °C (hot screen 1.9 V); S2 539–541 V | – |
 | 68 Ω / 4.7 nF (s42 network, FET swap only) | 59.7 (39.3) | **S2 607.9 V** (screen 585); off-gate up to 4.2 V; 301/640 hot pass | 6.25 / 10.74 V |
 | 68 Ω / 6.8 nF | 50.8 (30.5) | **S2 660.9 V** (over the 650 V rating); off-gate 4.2 V; 484/640 | – |
 

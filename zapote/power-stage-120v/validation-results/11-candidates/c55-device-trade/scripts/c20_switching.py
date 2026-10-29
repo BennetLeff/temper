@@ -15,12 +15,18 @@ diode rating the MOSFET dv/dt rating (or 'not rated') is used and said so.
 """
 from __future__ import annotations
 
+import importlib.util
 import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import C55, SIMS  # noqa: E402
+
+# shared no-edge rule (validation-results/01-switching-parasitics/s4_edges.py): a slew is refused when any row lacks an edge
+_spec = importlib.util.spec_from_file_location("s4_edges", C55.parents[1] / "01-switching-parasitics" / "s4_edges.py")
+s4_edges = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(s4_edges)
 
 DATA = json.loads((Path(__file__).resolve().parent / "device_data.json").read_text())
 DT_WIN = {"340": 340.0, "408": 408.3, "569": 569.0}
@@ -41,10 +47,12 @@ def summ(rows):
         d = {"n": len(c), "max_vds_V": round(max(r["vds_pk"] for r in c), 1),
              "max_off_V": round(max(r["off_V"] for r in c), 3),
              "max_vgs_abs_V": round(max(r["vgs_abs"] for r in c), 2)}
+        if case in s4_edges.EDGE_CASES:
+            d.update(s4_edges.grid_report(c, case))
         for e in (10, 1.06):
             ce = [r.get("slew2080_Vns") or 0 for r in c if r["esl_nH"] == e]
             if ce:
-                d[f"max_slew2080_esl{e:g}_Vns"] = round(max(ce), 2)
+                d[f"max_slew2080_esl{e:g}_Vns"] = None if d.get("slew_refused") else round(max(ce), 2)
         if case == "S1":
             d["zvs"] = f"{sum(bool(r['zvs']) for r in c)}/{len(c)}"
             tt = [r["t_trans_ns"] for r in c if r.get("t_trans_ns") is not None]
@@ -65,8 +73,6 @@ def summ(rows):
         if case == "S4":
             d["max_difdt_75_25_Apus"] = round(max(r.get("difdt_75_25_Apus") or 0 for r in c), 0)
             d["max_irr_A"] = round(max(r.get("i_rr_pk_A") or 0 for r in c), 1)
-            # no 20-80 % edge inside the window = the turn-on is too slow for the case to commutate: not evaluable
-            d["no_edge_rows"] = sum(r.get("slew2080_Vns") is None for r in c)
             d["max_turn_on_gate4_ns"] = round(max((r.get("t_on_gate4_ns") or 0) for r in c), 1)
             w = max(c, key=lambda r: r.get("slew2080_Vns") or 0)
             d["worst_slew_row"] = {k: w[k] for k in ("drv", "leg", "temp_C", "vbus", "dir", "dt_ns", "esl_nH")}
@@ -87,7 +93,16 @@ def rate(s, d):
     rt = d.get("ratings", {})
     out = {}
     s4 = s.get("S4")
-    if s4:
+    if s4 and s4.get("slew_refused"):
+        out["S4_slew_Vns"] = None
+        out["S4_slew_refused"] = s4["slew_refused"]
+        out["diode_dvdt_rating_Vns"] = rt.get("diode_dvdt_Vns") or "not stated"
+        out["diode_dvdt_pass_80pct"] = False
+        if rt.get("diode_difdt_Apus"):
+            out["difdt_ratio"] = round(s4["max_difdt_75_25_Apus"] / rt["diode_difdt_Apus"], 3)
+            out["difdt_pass_80pct"] = s4["max_difdt_75_25_Apus"] <= 0.8 * rt["diode_difdt_Apus"]
+        out["S4_vds_pass_520"] = s4["max_vds_V"] <= 520
+    if s4 and not s4.get("slew_refused"):
         slew = max(v for k, v in s4.items() if k.startswith("max_slew2080"))
         dv = rt.get("diode_dvdt_Vns")
         out["S4_slew_Vns"] = slew
@@ -138,9 +153,11 @@ def main():
                 f"| {dev} | {grid} | {s['complete']}/{s['runs']} | {s1.get('zvs', '')} | "
                 + (f"{s1.get('worst_t_trans_ns')} ({s1['margin_ns']['340']} / {s1['margin_ns']['408']})" if s1.get("margin_ns") else "")
                 + f" | {s2.get('max_vds_V', '')} | {s4.get('max_vds_V', '')} | "
-                + (f"{s4.get('max_slew2080_esl10_Vns', '')} / {s4.get('max_slew2080_esl1.06_Vns', '')}" if s4 else "")
+                + (f"refused: {s4['no_edge_rows']} rows without an edge" if s4.get("slew_refused") else
+                   f"{s4.get('max_slew2080_esl10_Vns', '')} / {s4.get('max_slew2080_esl1.06_Vns', '')}" if s4 else "")
                 + f" | {rc.get('diode_dvdt_rating_Vns', '')}, {rc.get('diode_dvdt_ratio', '')} | {s4.get('max_difdt_75_25_Apus', '')} | "
-                + (f"{s5.get('max_slew2080_esl10_Vns', '')}" if s5 else "")
+                + (f"refused: {s5['no_edge_rows']} rows without an edge" if s5.get("slew_refused") else
+                   f"{s5.get('max_slew2080_esl10_Vns', '')}" if s5 else "")
                 + f" | {rc.get('max_off_gate_V', '')} | {s['screens_c25_pass']} ({s['screens_c25_pass_hot']}) | {s2.get('max_gate_charge_nC', '')} |")
     (C55 / "results").mkdir(exist_ok=True)
     (C55 / "results/switching.json").write_text(json.dumps(res, indent=1, default=str) + "\n")
