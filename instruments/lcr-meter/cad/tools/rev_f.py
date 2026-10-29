@@ -92,7 +92,8 @@ design['board'] = {
 # name: (pivot, to (x, y), quarter turn deg, members).  Positions from validation/rev-f-floorplan.
 GROUPS = {
     'rp2040_core': ('U1', (74.0, 123.5), 0,
-                    'U1 U2 Y1 C1 C2 C3 C4 C5 C6 C7 C8 C9 C10 C11 C12 C13 C14 R3 R4 R7 R8 R9 R10 R13'),
+                    'U1 U2 Y1 C1 C2 C3 C4 C5 C6 C7 C8 C9 C10 C11 C12 C13 C14 R3 R4 R7 R8 R9 R10 R13 '
+                    'C18 R5 R6'),   # + the 3V3 bulk cap and the VBUS sense divider at their Rev E offsets
     # codec core plus the four input legs (shunts, 560 pF, 1 uF, clamps, 470R); the series
     # resistors R60/R61/R66/R67 move to their op-amp outputs instead (short buffer/TIA nodes).
     'codec': ('U14', (64.0, 88.5), 0,
@@ -104,6 +105,8 @@ GROUPS = {
     'switcher': ('U13', (137.5, 135.0), 90,
                  'U13 L1 L2 D2 D3 C81 C82 C83 C84 C85 C86 C87 C88 C89 C90 C91 C92 R80 R81 R82 R83 R84 R111'),
     'drivers': ('Q3', (89.0, 111.6), 0, 'Q2 Q3 Q4 Q5 R74 R75 R76 R77 R78 R79 R102 R103 D5 D6 D7 D8'),
+    # USB-C receptacle with its CC resistors, ESD array and VBUS cap: the Rev E fan-out moves 45 mm south
+    'usb': ('J1', (54.0, 122.0), 0, 'J1 D1 R1 R2 C15'),
 }
 GROUP_OF = {}
 for name, (pivot, to, turn, refs) in GROUPS.items():
@@ -156,18 +159,25 @@ PLACE = {
     'R107': (129.6, 63.46, 0), 'Q6': (144.5, 78.0, 0), 'R108': (140.2, 77.0, 0), 'R109': (140.2, 78.8, 180),
     'D9': (146.5, 72.0, 90),
     # relay supply filter, at the relay column foot
-    'R101': (100.5, 106.4, 0), 'C112': (103.3, 107.0, 270), 'FB1': (110.0, 120.0, 0), 'C103': (110.0, 123.0, 0),
+    'R101': (100.5, 106.4, 0), 'C112': (103.3, 107.0, 270),
     # power entry and digital extras
-    'J1': (54.0, 122.0, -90), 'U16': (62.0, 114.0, 0), 'U3': (61.0, 140.0, 0),
-    'R110': (63.6, 116.6, 180), 'C113': (60.86, 110.4, 90), 'C16': (66.0, 140.0, 90),
-    'C80': (122.0, 132.0, 90), 'C17': (58.0, 136.0, 90), 'C18': (64.5, 136.0, 0),
-    'D1': (60.0, 128.5, 0), 'C15': (58.0, 112.0, 0), 'R1': (58.0, 117.0, 0), 'R2': (58.0, 127.0, 0),
-    'R5': (66.0, 108.0, 0), 'R6': (66.0, 110.0, 0),
-    'D4': (59.5, 102.5, 0), 'R12': (63.0, 102.5, 0),
-    'SW1': (88.0, 140.0, 0), 'SW2': (95.0, 140.0, 0),
-    'J4': (103.0, 128.0, 0), 'J5': (103.0, 135.0, 0), 'J6': (108.0, 128.0, 0),
-    'R98': (88.0, 123.0, 90), 'C110': (89.6, 123.0, 90), 'R99': (92.0, 123.0, 90), 'C111': (93.6, 123.0, 90),
-    'R100': (120.0, 112.0, 0), 'R96': (124.0, 116.0, 90), 'R97': (118.0, 114.0, 0),
+    # power entry under the receptacle: TPS2553 (IN/EN east, OUT/ILIM west), C113 at IN, C16 shared by
+    # U16 OUT and U3 IN, U3 with C17 at OUT; the 5 V trunk leaves on B.Cu east of U3
+    'U16': (55.6, 129.9, 180), 'C113': (59.2, 130.0, -90), 'R110': (52.0, 129.9, 90),
+    'C16': (55.0, 132.9, 180), 'U3': (56.85, 135.9, 0), 'C17': (60.0, 135.65, -90),
+    # codec 5VA filter at U15
+    'FB1': (53.0, 87.0, 90), 'C103': (55.2, 87.0, -90),
+    # TPS65131 input bulk at L1's 5 V end
+    'C80': (125.6, 143.0, 180),
+    # debug headers (DNP lands) and buttons: SWD north-west of U1 (its SWD pins face north), UART, buttons,
+    # status LED and the 3V3/GND header south-east of U1, at the ends of the In2 run along the south edge
+    'J4': (69.0, 108.0, -90), 'J6': (86.5, 139.0, -90), 'J5': (86.0, 131.0, 180),
+    'SW1': (85.2, 143.1, 0), 'SW2': (93.0, 138.6, 180),
+    'R12': (101.0, 136.0, 0), 'D4': (104.0, 136.0, 180),
+    # rail monitors: MON12 divider + filter (west column), MON_N12 (east column), between U1 and the drivers
+    'R97': (91.0, 123.0, 0), 'R98': (91.0, 124.6, 180), 'C110': (91.0, 126.2, 180),
+    'R100': (95.0, 123.0, 0), 'R99': (95.0, 124.6, 180), 'C111': (95.0, 126.2, 180),
+    'R96': (142.5, 106.0, 90),       # RAW_N -> LDOIN_N series R below U12 (mirror of R95 at U11)
 }
 for r, at in PLACE.items():
     assert r not in GROUP_OF, f'{r} is in rigid group {GROUP_OF[r]}'
@@ -309,9 +319,22 @@ def T45(net, layer, a, b, first='h', w=0.2):
 
 
 def V(net, x, y=None, d=0.45):
+    """A via.  A copied Rev E via of the same net at the same spot is replaced (no stacked drills; the
+    hand via's 0.45 mm land is the smaller one)."""
     if isinstance(x, str) or (isinstance(x, tuple) and y is None):
         x, y = P(x) if isinstance(x, str) else x
+    routing['vias'][:] = [v for v in routing['vias'] if not (v['net'] == net and str(v.get('src', '')).startswith('copy:')
+                                                          and math.dist(v['at'], (x, y)) < 0.01)]
     routing['vias'].append({'net': net, 'at': [r3(x), r3(y)], 'diameter': d, 'drill': 0.3, 'src': _src()})
+
+
+def DROP(net, x0, y0, x1, y1):
+    """Remove copied Rev E copper of one net inside a box (a Rev E escape that the Rev F route replaces)."""
+    inside = lambda p: x0 <= p[0] <= x1 and y0 <= p[1] <= y1
+    routing['tracks'][:] = [t for t in routing['tracks'] if not (t['net'] == net and str(t.get('src', '')).startswith('copy:')
+                                                                and all(inside(p) for p in t['points']))]
+    routing['vias'][:] = [v for v in routing['vias'] if not (v['net'] == net and str(v.get('src', '')).startswith('copy:')
+                                                          and inside(v['at']))]
 
 
 def KO(name, pts, layers=('In1.Cu', 'In2.Cu', 'B.Cu')):
@@ -339,7 +362,51 @@ def prune_copied():
         routing['vias'] = [v for i, v in enumerate(routing['vias']) if ('via', i) not in drop]
 
 
-pruned = prune_copied()
+def drop_superseded():
+    """Copied Rev E copper that a hand route now duplicates or orphans, which KiCad reports as dangling
+    although the pre-DRC's centre-line join accepts it:
+      * a copied segment lying entirely on a hand-routed segment of the same net and layer;
+      * a copied via that no track of its net reaches (a stitching via whose Rev E part moved away)."""
+    def on_seg(p, a, b, tol=0.005):
+        ax, ay = a; bx, by = b; px, py = p
+        dx, dy = bx - ax, by - ay
+        L2 = dx * dx + dy * dy
+        t = 0.0 if L2 == 0 else max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / L2))
+        return math.dist(p, (ax + t * dx, ay + t * dy)) < tol
+    hand = [t for t in routing['tracks'] if not str(t.get('src', '')).startswith('copy:')]
+    keep, n = [], 0
+    for t in routing['tracks']:
+        if str(t.get('src', '')).startswith('copy:') and len(t['points']) == 2 and any(
+                h['net'] == t['net'] and h['layer'] == t['layer'] and
+                any(on_seg(t['points'][0], a, b) and on_seg(t['points'][1], a, b)
+                    for a, b in zip(h['points'], h['points'][1:])) for h in hand):
+            n += 1
+            continue
+        keep.append(t)
+    routing['tracks'][:] = keep
+    ends = {}
+    for t in routing['tracks']:
+        for a, b in zip(t['points'], t['points'][1:]):
+            ends.setdefault(t['net'], []).append((a, b))
+    pads = [p for p in predrc.static_items({'parts': list(parts.values()), 'board': design['board']})[0]]
+    vias = []
+    for v in routing['vias']:
+        if str(v.get('src', '')).startswith('copy:') and not any(
+                on_seg(v['at'], a, b, tol=v.get('diameter', 0.45) / 2) for a, b in ends.get(v['net'], [])) \
+                and not any(p['net'] == v['net'] and p['geom'].contains(predrc.Point(*v['at'])) for p in pads):
+            n += 1
+            continue
+        vias.append(v)
+    routing['vias'][:] = vias
+    return n
+
+
+pruned = 0
+while True:              # a pruned stub can orphan a via, and the reverse
+    n = prune_copied() + drop_superseded()
+    pruned += n
+    if not n:
+        break
 
 # GND vias of the copied blocks that now sit on a hand-placed part's land are dropped (they belonged
 # to Rev E neighbours); reported so a block's own stitching is never lost silently.
@@ -349,10 +416,13 @@ for v in routing['vias']:
 
 # ------------------------------------------------------------------ silk and reference text
 design['board']['silk'] = [
-    ['TEMPER LCR / REV F', 78, 47.2, 1.0],
-    ['HCUR', 67, 58.2, 0.8], ['HPOT', 89, 58.2, 0.8], ['LPOT', 111, 58.2, 0.8], ['LCUR', 133, 58.2, 0.8],
-    ['DISCHARGED DUT ONLY', 100, 47.2, 0.8],
+    ['TEMPER LCR REV F', 111, 140.2, 1.0],
+    ['HCUR', 67, 57.4, 0.8], ['HPOT', 89, 57.4, 0.8], ['LPOT', 111, 57.4, 0.8], ['LCUR', 133, 57.4, 0.8],
+    ['DISCHARGED', 100, 46.6, 0.8], ['DUT ONLY', 100, 47.8, 0.8],
 ]
+# IC reference text (the only references on silk): clear of lands and of each other
+design['board']['ref_text'] = {'U3': [56.85, 138.3], 'U7': [118.3, 68.2], 'U13': [141.9, 134.6], 'U14': [64.0, 95.2],
+                               'U16': [52.3, 132.3]}
 
 
 def pads_of(*refs):
@@ -365,6 +435,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--check', action='store_true')
     ap.add_argument('--render', default='')
+    ap.add_argument('--layers', default='B.Cu,In2.Cu,F.Cu', help='copper layers drawn by --render')
     ap.add_argument('--no-write', action='store_true')
     ap.add_argument('--pads', default='', help='print board-frame pad centres and nets of these parts')
     a = ap.parse_args()
@@ -381,8 +452,10 @@ def main():
         if a.render:
             names = list(VIEWS) if a.render == 'all' else a.render.split(',')
             for n in names:
-                out = ROOT / 'build' / f'rev-f-{n}.png'
-                predrc.render(design, routing, res, VIEWS[n], out, title=f'Rev F {n}')
+                lay = tuple(a.layers.split(','))
+                tag = '' if len(lay) == 3 else '-' + '+'.join(l.split('.')[0] for l in lay)
+                out = ROOT / 'build' / f'rev-f-{n}{tag}.png'
+                predrc.render(design, routing, res, VIEWS[n], out, title=f'Rev F {n}', layers=lay)
                 print('  render', out)
     if not a.no_write:
         clean = {'tracks': [{k: v for k, v in t.items() if k != 'src'} for t in routing['tracks']],
@@ -396,7 +469,7 @@ VIEWS = {
     'bnc': (50, 45, 150, 62), 'afe_hi': (78, 55, 96, 105), 'relays': (90, 55, 112, 106),
     'tia': (104, 55, 126, 85), 'k4': (122, 55, 150, 86), 'source': (55, 55, 82, 80),
     'codec': (50, 74, 86, 102), 'codec_top': (58, 68, 80, 90), 'ldo': (120, 84, 150, 114), 'drivers': (78, 100, 124, 118),
-    'switcher': (116, 112, 150, 145), 'digital': (50, 100, 120, 145), 'board': (50, 45, 150, 145),
+    'switcher': (116, 112, 150, 145), 'digital': (50, 100, 92, 145), 'south': (50, 95, 150, 145), 'mid': (85, 112, 125, 145), 'board': (50, 45, 150, 145),
 }
 
 if __name__ == '__main__':

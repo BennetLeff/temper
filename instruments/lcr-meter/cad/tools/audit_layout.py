@@ -1,6 +1,7 @@
 """Layout audit numbers quoted in docs/rev-d-audit.md and the Rev E notes (read-only).
 
 Run with KiCad's bundled Python:  <kicad-python> cad/tools/audit_layout.py [OUT.json]
+(LCR_REV=f names the default output validation/layout-audit-rev-f.json; default rev e.)
 Reports, from the native board:
   - per IC supply pin: the three nearest capacitors on the same net (pad-to-pad centre
     distance) and the distance from each capacitor's other pad to the nearest via on its net;
@@ -21,7 +22,8 @@ MM = 1e-6
 board = k.LoadBoard(str(ROOT / 'temper-lcr.kicad_pcb'))
 design = json.loads((ROOT / 'design.json').read_text())
 routing = json.loads((ROOT / 'routing.json').read_text())
-REV = 'e'
+import os
+REV = os.environ.get('LCR_REV', 'e').lower()
 SUPPLY = {'3V3', '1V1', '5V', '5VA', '12V', '-12V', '3V3_DDS', 'ADC_REFA', 'ADC_REFB', 'ADC_CM',
           'ADC_REFOUT', 'LDOIN_P', 'LDOIN_N', 'RAW_P', 'RAW_N', 'CONV_VIN', 'DDS_CAP',
           '3V3A', 'CODEC_VREF', 'CODEC_DREG', 'VRLY'}

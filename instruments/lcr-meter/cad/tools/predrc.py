@@ -436,7 +436,9 @@ def connectivity(pads, tracks, vias, plane_ok=lambda at: True):
     return unconnected, dangling
 
 
-def render(design, routing, res, rect, out, title=''):
+def render(design, routing, res, rect, out, title='', layers=('B.Cu', 'In2.Cu', 'F.Cu')):
+    """layers: the copper layers whose tracks are drawn (vias and pads always; SMD lands faint when F.Cu
+    is not drawn, so a single inner/back layer can be read for free space)."""
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -463,7 +465,7 @@ def render(design, routing, res, rect, out, title=''):
             if c['geom'].centroid.within(view):
                 ax.text(c['geom'].centroid.x, c['geom'].bounds[1] - 0.15, c['ref'], fontsize=6, ha='center',
                         va='bottom', color='#606')
-    for layer in ('B.Cu', 'In2.Cu', 'F.Cu'):
+    for layer in [l for l in ('B.Cu', 'In2.Cu', 'F.Cu') if l in layers]:
         patches = []
         for t in tracks:
             if t['layer'] == layer and t['geom'].intersects(view):
@@ -472,7 +474,8 @@ def render(design, routing, res, rect, out, title=''):
     for p in pads:
         if p['geom'].intersects(view):
             ax.add_patch(MPoly(list(p['geom'].exterior.coords), closed=True,
-                               fc='#d99' if p['smd'] else '#cc9', ec='#733', lw=0.3, alpha=0.9))
+                               fc='#d99' if p['smd'] else '#cc9', ec='#733', lw=0.3,
+                               alpha=0.9 if ('F.Cu' in layers or not p['smd']) else 0.15))
             if p['net'] and not p['net'].startswith('~'):
                 ax.text(p['at'][0], p['at'][1], p['net'][:9], fontsize=3.2, ha='center', va='center')
     for v in vias:
@@ -483,7 +486,7 @@ def render(design, routing, res, rect, out, title=''):
         if d['geom'].intersects(view) and d['net'] is None:
             ax.add_patch(MPoly(list(d['geom'].exterior.coords), closed=True, fc='white', ec='k', lw=0.5))
     for t in tracks:
-        if t['geom'].intersects(view) and t['net'] != 'GND':
+        if t['geom'].intersects(view) and t['net'] != 'GND' and t['layer'] in layers:
             mx, my = (t['a'][0] + t['b'][0]) / 2, (t['a'][1] + t['b'][1]) / 2
             if x0 <= mx <= x1 and y0 <= my <= y1 and math.dist(t['a'], t['b']) > 3:
                 ax.text(mx, my, t['net'], fontsize=3.5, color='#004', ha='center', va='center')
@@ -503,7 +506,7 @@ def render(design, routing, res, rect, out, title=''):
     ax.set_ylim(y1, y0)
     ax.set_aspect('equal')
     ax.grid(True, lw=0.2)
-    ax.set_title(f'{title}  violations {n_v}  unconnected {n_u}  (F red, In2 gold, B blue; green dashed = unrouted)',
+    ax.set_title(f'{title} [{"+".join(l.split(".")[0] for l in layers)}]  violations {n_v}  unconnected {n_u}  (F red, In2 gold, B blue; green dashed = unrouted)',
                  fontsize=9)
     fig.tight_layout()
     fig.savefig(out, dpi=150)

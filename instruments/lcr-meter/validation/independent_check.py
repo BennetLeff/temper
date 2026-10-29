@@ -97,9 +97,9 @@ for ref in ('U6', 'U7'):
         if best[1] > 2.54:
             findings.append(f'{ref}.{num} bypass {best[0]} at {best[1]:.2f} mm')
 
-# 5. R_iso topology (Rev D on; Rev E adds the range relays, which leave TIA_SUM unchanged).
+# 5. R_iso topology (Rev D on; Rev E adds the range relays, which leave TIA_SUM unchanged; Rev F as Rev E).
 topology = {}
-if REV in ('d', 'e'):
+if REV in ('d', 'e', 'f'):          # Rev F re-lays Rev E's circuit: same topology
     # Rev E: four-terminal jacks; LCUR (J9.5) feeds R94, the followers sense HPOT/LPOT (J7.5/J8.5)
     lo = {('J3', '2'): 'DUT_LO', ('U7', '5'): 'DUT_LO'} if REV == 'd' else {
         ('J9', '5'): 'DUT_LO', ('J3', '5'): 'DUT_HI', ('J7', '5'): 'HPOT', ('J8', '5'): 'LPOT',

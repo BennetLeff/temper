@@ -231,3 +231,271 @@ V('VRLY', 131.2, 71.2)
 T('VRLY', 'F.Cu', (131.2, 71.2), 'K4.10', 'K4.1', (144.6, 71.08), (144.6, 73.05), 'D9.1')
 T('RLY_SET_REF', 'F.Cu', 'K4.5', (146.0, 60.92), (147.9, 62.82), (147.9, 77.0), (146.9, 78.0), 'Q6.3')
 T('RLY_SET_REF', 'F.Cu', (147.9, 70.95), 'D9.2')
+
+# ============================================================== 4. power entry, 5 V trunk, 5VA
+# VBUS from the receptacle fan-out (C15) to C113 and U16 IN/EN (east column, x 57.75)
+T('USB_VBUS', 'F.Cu', 'C15.1', (61.225, 127.9), (60.075, 129.05), 'C113.1', w=0.4)
+T('USB_VBUS', 'F.Cu', 'U16.3', (57.75, 128.95), (57.75, 130.85), 'U16.1', w=0.4)
+T('USB_VBUS', 'F.Cu', 'C113.1', (57.75, 129.05), w=0.4)
+V('GND', 59.2, 131.9)
+T('GND', 'F.Cu', 'C113.2', (59.2, 131.9))
+V('GND', 55.6, 129.9)                      # inside the SOT-23-6 body, between the pin columns
+T('GND', 'F.Cu', 'U16.2', (55.6, 129.9))
+T('VBUS_ILIM', 'F.Cu', 'U16.5', (52.825, 129.9), 'R110.1')
+V('GND', 52.0, 128.15)
+T('GND', 'F.Cu', 'R110.2', (52.0, 128.15))
+# U16 OUT -> C16 -> U3 IN/EN; FB1 feed via at OUT
+T('5V', 'F.Cu', 'U16.6', (54.462, 131.75), (55.3, 131.75), (55.95, 132.4), 'C16.1', w=0.5)
+T('5V', 'F.Cu', 'C16.1', (55.95, 134.0), 'U3.1', w=0.5)
+T('5V', 'F.Cu', 'U3.1', (54.7, P('U3.1')[1]), (54.7, P('U3.3')[1]), 'U3.3', w=0.25)
+V('GND', 53.1, 134.1)
+T('GND', 'F.Cu', 'C16.2', (53.1, 134.1))
+V('GND', *parts['U3']['pcb'][:2])          # inside the SOT-23-5 body
+T('GND', 'F.Cu', 'U3.2', tuple(parts['U3']['pcb'][:2]))
+# U3 OUT -> C17 -> C18 and the RP2040 core 3V3 network (its Rev E junction at (63.086, 137.939))
+T('3V3', 'F.Cu', 'U3.5', (58.6, 134.95), (58.85, 134.7), 'C17.1', (60.6, 134.7), (61.3, 135.4), (61.3, 137.939), (63.086, 137.939))
+T('3V3', 'F.Cu', (61.3, 137.939), (61.3, 140.25), 'C18.1')
+V('GND', 60.0, 137.55)
+T('GND', 'F.Cu', 'C17.2', (60.0, 137.55))
+# 5 V trunk: B.Cu, 1.0 mm, down the west side of U3 and along the south edge (y 144.1) to L1 / C80
+for x in (57.4, 58.3):
+    V('5V', x, 132.9)
+T('5V', 'F.Cu', 'C16.1', (58.3, 132.9), w=0.8)
+# east end: the switcher block's own trunk via (128.604, 142.802, copied) plus a second one beside it
+T('5V', 'B.Cu', (57.4, 132.9), (58.3, 132.9), (58.3, 143.6), (58.8, 144.1), (128.6, 144.1), (128.6044, 142.8016), w=1.0)
+V('5V', 128.6, 143.75)
+T('5V', 'F.Cu', (128.6, 143.75), (128.6, 143.0), w=0.5)
+T('5V', 'F.Cu', 'C80.1', (131.45, 143.0), 'L1.1', w=1.0)
+V('GND', 122.9, 143.0)
+T('GND', 'F.Cu', 'C80.2', (122.9, 143.0), w=0.5)
+# 5V to FB1 at the codec: B.Cu up the west edge, between the receptacle's shield legs
+V('5V', 54.462, 131.75)
+T('5V', 'B.Cu', (54.462, 131.75), (54.462, 89.6), w=0.3)
+V('5V', 54.462, 89.6)
+T('5V', 'F.Cu', (54.462, 89.6), (53.0, 89.6), 'FB1.1', w=0.3)
+T('5VA', 'F.Cu', 'FB1.2', (53.0, 84.5), (53.4, 84.1), 'C67.1', w=0.3)
+T('5VA', 'F.Cu', 'FB1.2', (53.413, 85.525), 'C103.1', w=0.3)
+V('GND', 56.3, 89.4)
+T('GND', 'F.Cu', 'C103.2', (56.3, 89.4))
+# relay supply: 5V tap from the trunk up In2 to y 116.5, then F.Cu past the driver row to R101 (VRLY
+# filter) at the relay column foot; the RNG gate lines cross it on In2 north of y 116
+V('5V', 98.7, 144.1)
+T('5V', 'In2.Cu', (98.7, 144.1), (98.7, 116.5), w=0.3)
+V('5V', 98.7, 116.5)
+T('5V', 'F.Cu', (98.7, 116.5), (98.7, 107.0), (99.3, 106.4), 'R101.1', w=0.3)
+
+# ============================================================== 5. USB data, VBUS sense
+# (the five Rev E vias these lines end on are the copied ones, kept now that they lead somewhere)
+# D-: ESD-array bar via (Rev E position) -> B.Cu -> the core's Rev E via at R3 (Rev E stub)
+T('USB_DM', 'F.Cu', (63.3021, 123.1496), (63.3021, 123.838))
+T('USB_DM', 'B.Cu', (63.3021, 123.838), (64.3, 123.838), (66.662, 126.2), (70.6, 126.2), (72.279, 127.879),
+  (77.219, 127.879))   # between the In2 escape vias of U1's west pins (section 8)
+T('USB_DM', 'F.Cu', (77.219, 127.879), (77.2, 127.9), (77.2, 129.15), (76.0, 130.35), w=0.15)
+# D+: receptacle via (Rev E position) -> In2 under D1 -> ESD-array via -> In2 south past D- ->
+# B.Cu along the Rev E y 128.45 line -> the core's Rev E via at R4.  The D+/D- crossing is the In2 leg.
+T('USB_DP', 'F.Cu', 'J1.B6', (58.7525, 122.75), (58.8831, 122.619))
+T('USB_DP', 'In2.Cu', (58.8831, 122.619), (59.6021, 121.9), (65.342, 121.9), (65.9, 122.458), (65.9, 127.9))
+V('USB_DP', 65.342, 121.9)
+T('USB_DP', 'F.Cu', (64.492, 121.05), (65.342, 121.9))
+V('USB_DP', 65.9, 127.9)
+T('USB_DP', 'B.Cu', (65.9, 127.9), (66.45, 128.45), (78.981, 128.45), (79.597, 129.065))
+T('USB_DP', 'F.Cu', (78.3368, 130.325), (79.597, 129.065))
+# VBUS to the sense divider R5/R6 (core group, Rev E offsets): via off the receptacle's VBUS ring,
+# B.Cu along the Rev E y 117.05 line, Rev E F.Cu entry to R5
+T('USB_VBUS', 'F.Cu', (57.2, 116.9233), (57.2, 116.2))
+V('USB_VBUS', 57.2, 116.2)
+T('USB_VBUS', 'B.Cu', (57.2, 116.2), (69.0, 116.2), (69.85, 117.05), (73.55, 117.05), (73.75, 116.85),
+  (76.35, 116.85), (76.6, 117.1), (77.1, 117.1))
+T('USB_VBUS', 'F.Cu', (77.1, 117.1), (82.4, 117.1), (83.175, 116.325), 'R5.1')
+
+# ============================================================== 6. codec bus: U1 east pins -> U14 (B.Cu bundle)
+# U1 end: Rev E escape stubs and vias (U1 keeps its Rev E pose relative to these pins).  B.Cu exits east
+# between the core's GND vias, then a 0.4 mm-pitch bundle north at x 82.2-84.6, jogging 0.6 mm west
+# beside the sense divider (staggered, y 117.7-115.3), west along y 99.0-102.6 under the codec legs' south edge.  3V3 for the codec
+# rides as the bundle's east/north line from the core 3V3 column at C10.
+T('I2C_SCL', 'F.Cu', 'U1.12', (79.1, 121.7), (79.85, 120.95))
+V('I2C_SCL', 79.85, 120.95)
+T('I2C_SDA', 'F.Cu', 'U1.11', (79.198, 122.1), (79.3, 122.0), (79.75, 122.0))
+V('I2C_SDA', 79.75, 122.0)
+T('I2S_BCLK', 'F.Cu', 'U1.6', (78.347, 124.1), (78.796, 124.55), (79.727, 124.55), (79.938, 124.761))
+V('I2S_BCLK', 79.938, 124.761)
+T('I2S_DIN', 'F.Cu', 'U1.4', (78.54, 124.9), (78.779, 125.139))
+V('I2S_DIN', 78.779, 125.139)
+T('I2S_DOUT', 'F.Cu', 'U1.5', (76.476, 124.5), (76.067, 124.909))
+V('I2S_DOUT', 76.067, 124.909)          # inside U1's pin ring, clear of the EP vias (Rev E)
+DROP('I2S_DOUT', 79.6, 125.1, 80.4, 125.4)  # Rev E's continuation east of the via field
+V('3V3', 81.0, 129.4)                    # on the core 3V3 column (C6/C10)
+BUS = [  # net, exit row (east of the vias), vertical x below / above the jog, codec-side row
+    ('I2C_SCL', 120.95, 82.2, 102.6), ('I2C_SDA', 121.7, 82.6, 102.0), ('I2S_FSYNC', 124.2, 83.0, 101.4),
+    ('I2S_BCLK', 124.761, 83.4, 100.8), ('I2S_DOUT', 125.25, 83.8, 100.2), ('I2S_DIN', 126.4, 84.2, 99.6),
+    ('3V3', 129.4, 84.6, 99.0)]
+START = {'I2C_SCL': [(79.85, 120.95)], 'I2C_SDA': [(79.75, 122.0), (80.05, 121.7)],
+         'I2S_FSYNC': [(79.45, 124.2)], 'I2S_BCLK': [(79.938, 124.761)],
+         'I2S_DOUT': [(76.067, 124.909), (76.422, 124.554), (78.974, 124.554), (79.386, 124.966), (79.67, 125.25)],
+         'I2S_DIN': [(78.779, 125.139), (80.04, 126.4)], '3V3': [(81.0, 129.4)]}
+# codec end: where each line leaves the westward run (x), and what it does there
+WEST_END = {'3V3': 65.4, 'I2S_DIN': 60.15, 'I2S_DOUT': 59.6, 'I2S_BCLK': 59.1, 'I2S_FSYNC': 61.0,
+            'I2C_SDA': 67.4, 'I2C_SCL': 68.2}
+for i, (net, row, x, crow) in enumerate(BUS):
+    xe = WEST_END[net]
+    w = 0.3 if net == '3V3' else 0.2
+    yj = 117.7 - 0.4 * i          # staggered horizontal jogs (west line first), so the pitch holds
+    T(net, 'B.Cu', *START[net], (x, row), (x, yj), (x - 0.6, yj), (x - 0.6, crow), (xe, crow), w=w)
+# 3V3: up to a via, F.Cu bar through R73/R72's 3V3 lands to C66 (Rev E bar position)
+T('3V3', 'B.Cu', (65.4, 99.0), (65.4, 94.3), w=0.3)
+V('3V3', 65.4, 94.3)
+T('3V3', 'F.Cu', (65.4, 94.3), (64.8, 93.7), (58.95, 93.7), 'C66.1', w=0.3)
+# I2S: Rev E via positions at the codec pins; DIN/DOUT/BCLK straight up on B.Cu, FSYNC (whose order is
+# swapped between the two ICs' pin rows) hops on In2 round the west side
+for net, pin, vx in (('I2S_BCLK', '2', 60.85), ('I2S_FSYNC', '3', 60.15), ('I2S_DOUT', '4', 60.85),
+                     ('I2S_DIN', '5', 60.15)):
+    vy = P(f'U14.{pin}')[1]
+    T(net, 'F.Cu', f'U14.{pin}', (vx, vy))
+    V(net, vx, vy)
+T('I2S_DIN', 'B.Cu', (60.15, 99.6), (60.15, 89.25))
+T('I2S_DOUT', 'B.Cu', (59.6, 100.2), (59.6, 88.75), (60.85, 88.75))
+T('I2S_BCLK', 'B.Cu', (59.1, 100.8), (59.1, 87.75), (60.85, 87.75))
+V('I2S_FSYNC', 61.0, 101.4)
+T('I2S_FSYNC', 'In2.Cu', (61.0, 101.4), (58.6, 101.4), (58.0, 100.8), (58.0, 88.85), (58.6, 88.25), (60.15, 88.25))
+# I2C: both hop on In2 across the I2S lines; SCL to the Rev E via west of R73, SDA to the one east of R72
+V('I2C_SDA', 67.4, 102.0)
+T('I2C_SDA', 'In2.Cu', (67.4, 102.0), (67.4, 93.0), (66.275, 91.875), (65.2, 91.875))
+V('I2C_SDA', 65.2, 91.875)
+T('I2C_SDA', 'F.Cu', (64.25, 91.875), (65.2, 91.875))
+V('I2C_SCL', 68.2, 102.6)
+T('I2C_SCL', 'In2.Cu', (68.2, 102.6), (67.6, 103.2), (62.4, 103.2), (61.75, 102.55), (61.75, 91.875))
+V('I2C_SCL', 61.75, 91.875)
+T('I2C_SCL', 'F.Cu', (62.75, 91.875), (61.75, 91.875))
+
+# ============================================================== 7. relay-driver gate lines (In2)
+# Rev E escapes at U1; In2 diagonals to a via between each gate resistor's input land and the pull-down's
+# GND land below it (y 111.5), crossing the codec bundle (B.Cu) and the 5 V tap (south of y 116.5).
+T('RNG_SET_MED', 'F.Cu', 'U1.14', (79.6, 118.738))
+V('RNG_SET_MED', 79.6, 118.738)
+T('RNG_SET_MED', 'In2.Cu', (79.6, 118.738), (79.6, 116.633), (84.733, 111.5))
+T('RNG_RESET', 'F.Cu', 'U1.13', (78.017, 121.3), (79.581, 119.735), (79.794, 119.735))
+V('RNG_RESET', 79.794, 119.735)
+T('RNG_RESET', 'In2.Cu', (79.794, 119.735), (86.0, 119.735), (90.1, 115.635), (90.1, 113.0), (91.6, 111.5),
+  (92.09, 111.5))
+T('RNG_SET_LO', 'F.Cu', 'U1.9', (76.8, 122.9), (76.6, 123.1))
+V('RNG_SET_LO', 76.6, 123.1)            # inside U1's pin ring (Rev E)
+T('RNG_SET_LO', 'In2.Cu', (76.6, 123.1), (79.25, 123.1), (79.55, 122.8), (88.4, 122.8), (97.0, 114.2),
+  (97.0, 113.5), (99.0, 111.5), (99.733, 111.5))
+T('RNG_SET_HI', 'F.Cu', 'U1.8', (79.75, 123.3))
+V('RNG_SET_HI', 79.75, 123.3)
+T('RNG_SET_HI', 'In2.Cu', (79.75, 123.3), (91.2, 123.3), (102.2, 112.3), (113.732, 112.3), (114.532, 111.5))
+DROP('RNG_RESET', 91.5, 109.0, 92.6, 111.3)     # Rev E's R74 escape (via on the Rev F VRLY bus)
+for net, r in (('RNG_SET_MED', 'R76'), ('RNG_RESET', 'R74'), ('RNG_SET_LO', 'R78'), ('RNG_SET_HI', 'R102')):
+    x = P(f'{r}.1')[0]
+    V(net, x, 111.5)
+    T(net, 'F.Cu', (x, 111.5), f'{r}.1')
+# K4 reference-relay gate: In2 north past the RP2040's crystal side, east along y 108.3 under the driver
+# row's VRLY links, north along x 133.4 between the LDOs, to R108
+T('RNG_SET_REF', 'F.Cu', 'U1.17', (75.8, 118.6))
+V('RNG_SET_REF', 75.8, 118.6)
+T('RNG_SET_REF', 'In2.Cu', (75.8, 118.6), (78.4, 118.6), (78.4, 108.3), (133.4, 108.3), (133.4, 77.0), (138.3, 77.0))
+V('RNG_SET_REF', 138.3, 77.0)
+T('RNG_SET_REF', 'F.Cu', (138.3, 77.0), 'R108.1')
+
+# ============================================================== 8. U1 west / north pins: RUN, STATUS, MON, UART, SWD
+# Six lines leave U1's west side on In2 (x 66.4-69.9, crossing the USB pair's B.Cu legs), run down to the
+# south edge, east along y 142.6-144.35 and up to J6 (UART), the rail-monitor cluster, the LED and SW2.
+# Order west->east = RUN, STATUS, MON12, MON_N12, UART_TX, UART_RX, so nothing crosses.
+T('RUN', 'B.Cu', (70.6324, 119.2922), (66.4, 119.2922))
+V('RUN', 66.4, 119.2922)
+T('RUN', 'In2.Cu', (66.4, 119.2922), (66.4, 144.35), (97.6, 144.35), (97.6, 138.6))
+V('RUN', 62.2, 131.5)                     # R9/C14 (pull-up and cap, core group) join from the west
+T('RUN', 'F.Cu', (62.2, 131.5), 'R9.1')
+T('RUN', 'In2.Cu', (62.2, 131.5), (66.4, 131.5))
+V('RUN', 97.6, 138.6)
+T('RUN', 'F.Cu', (97.6, 138.6), 'SW2.1')
+T('STATUS', 'F.Cu', 'U1.37', (68.9, 124.1), (68.4, 123.6), (67.0, 123.6))
+V('STATUS', 67.0, 123.6)
+T('STATUS', 'In2.Cu', (67.0, 123.6), (67.0, 144.0), (96.0, 144.0), (96.0, 136.0))
+V('STATUS', 96.0, 136.0)
+T('STATUS', 'B.Cu', (96.0, 136.0), (98.7, 136.0), (99.3, 136.6))
+V('STATUS', 99.3, 136.6)
+T('STATUS', 'F.Cu', (99.3, 136.6), 'R12.1')
+T('LED_A', 'F.Cu', 'R12.2', 'D4.2')
+V('GND', 105.8, 136.0)
+T('GND', 'F.Cu', 'D4.1', (105.8, 136.0))
+T('MON12', 'F.Cu', 'U1.38', (68.3, 124.5))
+V('MON12', 68.3, 124.5)
+T('MON12', 'In2.Cu', (68.3, 124.5), (67.65, 125.15), (67.65, 143.65), (89.2, 143.65), (89.2, 128.3))
+T('MON_N12', 'F.Cu', 'U1.39', (69.3, 124.9), (69.1, 125.1))
+V('MON_N12', 69.1, 125.1)
+T('MON_N12', 'In2.Cu', (69.1, 125.1), (68.25, 125.95), (68.25, 143.3), (88.4, 143.3), (88.4, 131.0))
+T('UART_TX', 'F.Cu', 'U1.40', (70.0, 125.3), (69.6, 125.7), (69.6, 127.1), (69.45, 127.25), w=0.15)
+V('UART_TX', 69.45, 127.25)
+T('UART_TX', 'In2.Cu', (69.45, 127.25), (69.45, 142.95), (86.5, 142.95), 'J6.1', w=0.15)
+T('UART_RX', 'F.Cu', 'U1.41', (70.0, 125.75), (69.9, 125.85), (69.9, 127.7), w=0.15)
+V('UART_RX', 69.9, 127.7)
+T('UART_RX', 'In2.Cu', (69.9, 127.7), (69.9, 142.6), (83.96, 142.6), 'J6.2', w=0.15)
+# rail monitors: each divider + filter shares one F.Cu bar on its MON land column
+T('MON12', 'F.Cu', 'R97.1', 'R98.2', 'C110.2')
+V('MON12', 89.2, 128.3)
+T('MON12', 'F.Cu', (89.2, 128.3), (90.225, 127.275), 'C110.2')
+T('MON_N12', 'F.Cu', 'R100.1', 'R99.2', 'C111.2')
+V('MON_N12', 88.4, 131.0)                  # B.Cu hop under the MON12 In2 line to the east column
+T('MON_N12', 'B.Cu', (88.4, 131.0), (98.0, 131.0), (98.0, 127.3))
+V('MON_N12', 98.0, 127.3)
+T('MON_N12', 'F.Cu', (98.0, 127.3), (94.225, 127.3), 'C111.2')
+# 12V from the B.Cu 12V trunk (south of the -12V one) straight down x 86.5; -12V from the LDO via down
+# x 135.2 and west along y 119.4; both land on a via above their divider resistor
+T('12V', 'B.Cu', (86.5, 82.5), (86.5, 121.95), (91.825, 121.95))
+V('12V', 91.825, 121.95)
+T('12V', 'F.Cu', (91.825, 121.95), 'R97.2')
+T('-12V', 'B.Cu', (136.2, 98.1), (135.2, 99.1), (135.2, 119.4), (95.825, 119.4), (95.825, 121.95))
+V('-12V', 95.825, 121.95)
+T('-12V', 'F.Cu', (95.825, 121.95), 'R100.2')
+# 3V3: branch of the codec-bus 3V3 line (B.Cu, y 129.4) through J5's 3V3 land to R99
+T('3V3', 'B.Cu', (84.6, 129.4), (97.3, 129.4), (97.3, 124.6), w=0.3)
+V('3V3', 97.3, 124.6)
+T('3V3', 'F.Cu', (97.3, 124.6), 'R99.1')
+for x, y in ((93.0, 124.6), (93.0, 126.2)):
+    V('GND', x, y)
+T('GND', 'F.Cu', 'R98.1', (93.0, 124.6))
+T('GND', 'F.Cu', 'C110.1', (93.0, 126.2))
+V('GND', 96.6, 125.4)
+T('GND', 'F.Cu', 'C111.1', (96.6, 125.4))
+# buttons
+T('BOOTSEL', 'F.Cu', 'R8.2', (69.4, 144.075), (69.475, 144.2), (82.4, 144.2), (82.975, 143.625), 'SW1.1')
+V('GND', 87.4, 141.6)
+T('GND', 'F.Cu', 'SW1.2', (87.4, 141.6))
+V('GND', 90.775, 140.4)
+T('GND', 'F.Cu', 'SW2.2', (90.775, 140.4))
+# SWD to J4 (DNP) north-west of U1: SWCLK from its Rev E via, SWDIO from its Rev E via, both In2
+DROP('SWCLK', 70.6, 118.0, 70.9, 118.3)
+T('SWCLK', 'In2.Cu', (70.7332, 117.9811), (69.0, 116.2479), 'J4.1')
+T('SWDIO', 'F.Cu', 'U1.25', (72.6, 120.557), (71.557, 121.6))
+V('SWDIO', 71.557, 121.6)
+T('SWDIO', 'In2.Cu', (71.557, 121.6), (68.6, 121.6), (68.0, 121.0), (68.0, 110.5), (66.46, 108.96), 'J4.2')
+
+# ============================================================== 9. switcher <-> LDO links, U13 EN, K4 gate
+# RAW_P: R95 (LDO group) straight down F.Cu x 128.775 into C90's RAW_P land
+T('RAW_P', 'F.Cu', 'R95.1', (128.775, 127.975), 'C90.1', w=0.3)
+# RAW_N: Rev E route out of U13 pin 15 (F stub, via, B.Cu north, via, F.Cu into the C91/C92 bar), then
+# on north along x 142.5 to R96 under U12; R96 -> U12 LDOIN_N
+T('RAW_N', 'F.Cu', 'U13.15', (137.75, 132.6017), (139.0369, 131.3148), (139.0369, 130.293))
+V('RAW_N', 139.0369, 130.293)
+T('RAW_N', 'B.Cu', (139.0369, 130.293), (139.9289, 129.401), (139.9289, 117.0585))
+V('RAW_N', 139.9289, 117.0585)
+T('RAW_N', 'F.Cu', (139.9289, 117.0585), (142.5, 119.6296), (142.5, 123.475), w=0.3)
+T('RAW_N', 'F.Cu', (142.5, 119.6296), 'R96.1', w=0.3)
+T('LDOIN_N', 'F.Cu', 'R96.2', (142.5, 104.1), (145.15, 101.45), 'U12.5', w=0.3)
+# 3V3 to U13's enable pins: B.Cu hop east of the 5 V tap, In2 along y 123.9 and down x 141.2 beside D3,
+# via, F.Cu into U13's 3V3 ring (Rev E ring, east side)
+T('3V3', 'B.Cu', (97.3, 124.6), (99.5, 124.6))
+V('3V3', 99.5, 124.6)
+T('3V3', 'In2.Cu', (99.5, 124.6), (100.2, 123.9), (141.2, 123.9), (141.2, 136.4))
+V('3V3', 141.2, 136.4)
+T('3V3', 'F.Cu', (141.2, 136.4), (140.5497, 135.7497), (140.1642, 135.7048))
+V('GND', 148.35, 125.4)
+T('GND', 'F.Cu', 'L2.2', (148.35, 125.4), w=0.5)
+# K4 reference gate: R108 -> Q6 gate, R109 pull-down, GND vias
+T('RNG_SET_REF_G', 'F.Cu', 'R108.2', 'Q6.1')
+T('RNG_SET_REF_G', 'F.Cu', 'R109.1', 'R108.2')
+V('GND', 138.4, 79.4)
+T('GND', 'F.Cu', 'R109.2', (138.4, 79.4))
+V('GND', 142.6, 79.9)
+T('GND', 'F.Cu', 'Q6.2', (142.6, 79.9))
