@@ -1,5 +1,6 @@
 #pragma once
-/* Rev E wiring contract (docs/rev-e-front-end.md), as routed on the Rev E board (cad/design.json U1). */
+/* Rev E wiring contract (docs/rev-e-front-end.md), as routed on the Rev E board (cad/design.json U1).
+   Rev F adds the HB/FLT debug LEDs on GPIO 23/22 (both unused on Rev E, so one image runs on both). */
 #define HARDWARE_REVISION "E-codec"
 #define PIN_I2S_DIN 2u     /* RP2040 -> TAC5112 pin 5 DIN (DAC data) */
 #define PIN_I2S_DOUT 3u    /* TAC5112 pin 4 DOUT -> RP2040 (ADC data) */
@@ -13,7 +14,9 @@
 #define PIN_RNG_SET_MED 11u /* AO3400A gate: K2 SET coil, 5 kOhm range */
 #define PIN_RNG_SET_REF 14u /* AO3400A Q6 gate (R108 100 Ohm, R109 100 kOhm pull-down): K4 SET coil, 1 kOhm 0.1 % reference across HCUR-LCUR */
 #define PIN_USB_VBUS 13u   /* VBUS divided by two */
-#define PIN_LED 25u
+#define PIN_LED 25u        /* STATUS: front-panel orange LED (Rev F D4, R12 390 Ohm), lit during a capture */
+#define PIN_LED_FAULT 22u  /* Rev F debug LED D20 (FLT): codec/self-test failure or the last reply was an ERR */
+#define PIN_LED_HEARTBEAT 23u /* Rev F debug LED D19 (HB): blinks at 1 Hz while the main loop is idle */
 #define PIN_MON12 26u      /* ADC0: +12 V via 100k / 10k */
 #define PIN_MON_N12 27u    /* ADC1: -12 V via 150k from -12 V / 10k to 3V3 */
 #define PIN_UART_TX 28u    /* Optional UART0 header */

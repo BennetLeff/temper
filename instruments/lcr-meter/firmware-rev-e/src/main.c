@@ -54,6 +54,7 @@ static PIO tdm_pio = pio0;
 static uint tdm_sm;
 static int ch_txd, ch_txc, ch_snap, ch_rxd;
 static bool codec_ok = false;
+static bool reply_error = false; /* the current command printed an ERR reply (FAULT LED) */
 static int range_ohm = 0;
 static char unit_id[PICO_UNIQUE_BOARD_ID_SIZE_BYTES * 2 + 1];
 
@@ -196,6 +197,8 @@ static const char *capture_error(capture_result r) {
    DAC word (j + skip - 5) mod period at the PIO pins: the 4-word TX FIFO plus the OSR
    hold five words ahead of the refill that fires the snapshot. */
 static capture_result capture(syncavg_t *s, uint32_t skip, uint8_t power, uint32_t timeout_ms) {
+    gpio_put(PIN_LED_HEARTBEAT, false); /* debug LEDs dark while the codec samples; the main loop */
+    gpio_put(PIN_LED_FAULT, false);     /* restores FAULT after the reply */
     rx_arm();
     const uint32_t stall = (1u << (PIO_FDEBUG_TXSTALL_LSB + tdm_sm)) | (1u << (PIO_FDEBUG_RXSTALL_LSB + tdm_sm));
     uint32_t issued;
@@ -315,6 +318,12 @@ static void send_payload(const char *tag, uint32_t a, uint32_t b, const void *bo
     puts("\nEND");
     stdio_flush();
 }
+/* Every process_command reply that may carry an error goes through reply(), so the FAULT LED
+   (Rev F D20) can show that the last command failed. */
+static int reply(const char *text) {
+    if (strstr(text, "ERR")) reply_error = true;
+    return puts(text);
+}
 static void process_command(const char *line) {
     uint32_t a = 0, b = 0, c = 0;
     char trailing;
@@ -325,7 +334,7 @@ static void process_command(const char *line) {
         return;
     }
     if (!strcmp(line, "OFF")) {
-        puts(wave_silence() ? "OK" : "ERR stream_sync");
+        reply(wave_silence() ? "OK" : "ERR stream_sync");
         return;
     }
     if (!strcmp(line, "RAILS")) {
@@ -339,23 +348,23 @@ static void process_command(const char *line) {
         for (unsigned i = 0; i < sizeof regs; ++i) {
             uint8_t v = 0;
             if (!i2c_get(0, regs[i], &v)) {
-                puts(" ERR codec_bus");
+                reply(" ERR codec_bus");
                 return;
             }
             printf(" %u", v);
         }
-        puts("");
+        reply("");
         return;
     }
     if (sscanf(line, "REG %" SCNu32 " %c", &a, &trailing) == 1) {
         uint8_t v = 0;
-        if (a > 127u || !i2c_get(0, (uint8_t)a, &v)) puts("ERR codec_bus");
+        if (a > 127u || !i2c_get(0, (uint8_t)a, &v)) reply("ERR codec_bus");
         else printf("REG %" PRIu32 " %u\n", a, v);
         return;
     }
     if (!strcmp(line, "BOOT")) {
         wave_silence();
-        puts("OK");
+        reply("OK");
         stdio_flush();
         sleep_ms(100);
         reset_usb_boot(0, 0);
@@ -364,13 +373,15 @@ static void process_command(const char *line) {
     if (!strcmp(line, "SELFTEST")) {
         const char *failure = selftest();
         codec_ok = failure == NULL;
-        if (failure) printf("SELFTEST FAIL %s\n", failure);
-        else puts("SELFTEST PASS");
+        if (failure) {
+            printf("SELFTEST FAIL %s\n", failure);
+            reply_error = true;
+        } else reply("SELFTEST PASS");
         return;
     }
     if (sscanf(line, "RANGE %" SCNu32 " %c", &a, &trailing) == 1) {
-        if (a != 100u && a != 5000u && a != 100000u) puts("ERR range");
-        else puts(select_range((int)a) ? "OK" : "ERR stream_sync");
+        if (a != 100u && a != 5000u && a != 100000u) reply("ERR range");
+        else reply(select_range((int)a) ? "OK" : "ERR stream_sync");
         return;
     }
     if (sscanf(line, "TONE %" SCNu32 " %" SCNu32 " %" SCNu32 " %c", &a, &b, &c, &trailing) == 3) {
@@ -378,22 +389,22 @@ static void process_command(const char *line) {
         wave_status st = wave_tone(wave_buffer[next], a, b, c);
         if (st != WAVE_OK) {
             memset(wave_buffer[next], 0, sizeof wave_buffer[next]);
-            puts(st == WAVE_ERR_PERIOD ? "ERR period" : st == WAVE_ERR_FREQUENCY ? "ERR frequency" : "ERR level");
+            reply(st == WAVE_ERR_PERIOD ? "ERR period" : st == WAVE_ERR_FREQUENCY ? "ERR frequency" : "ERR level");
             return;
         }
         if (!wave_activate(next, b)) {
-            puts("ERR stream_sync");
+            reply("ERR stream_sync");
             return;
         }
         wave_cycles = a;
         wave_mv = c;
-        puts("OK");
+        reply("OK");
         return;
     }
     if (sscanf(line, "WAVE %" SCNu32 " %" SCNu32 " %c", &a, &b, &trailing) == 2) {
         uint next = wave_active ^ 1u;
         if (a < WAVE_MIN_PERIOD || a > WAVE_MAX_PERIOD) {
-            puts("ERR period");
+            reply("ERR period");
             return;
         }
         const char *error = NULL;
@@ -405,15 +416,15 @@ static void process_command(const char *line) {
         else if (wave_check(wave_buffer[next], a) != WAVE_OK) error = "ERR level";
         if (error) {
             memset(wave_buffer[next], 0, sizeof wave_buffer[next]);
-            puts(error);
+            reply(error);
             return;
         }
         if (!wave_activate(next, a)) {
-            puts("ERR stream_sync");
+            reply("ERR stream_sync");
             return;
         }
         wave_cycles = wave_mv = 0;
-        puts("OK");
+        reply("OK");
         return;
     }
     bool raw = sscanf(line, "RAW %" SCNu32 " %c", &a, &trailing) == 1;
@@ -422,11 +433,11 @@ static void process_command(const char *line) {
     bool ref = !raw && !avg &&
                sscanf(line, "REFCAPTURE %" SCNu32 " %" SCNu32 " %" SCNu32 " %c", &c, &a, &b, &trailing) == 3;
     if (!raw && !avg && !ref) {
-        puts("ERR command");
+        reply("ERR command");
         return;
     }
     if (ref && relay_set_pin(c) == 0u) {
-        puts("ERR range");
+        reply("ERR range");
         return;
     }
     /* RAW COUNT: COUNT consecutive frames. CAPTURE SKIP PERIODS: skip SKIP whole periods,
@@ -435,7 +446,7 @@ static void process_command(const char *line) {
     uint64_t skip = raw ? 0u : (uint64_t)a * wave_period;
     if (!codec_ok || !gpio_get(PIN_USB_VBUS) || frames == 0u ||
         (raw && frames > RAW_MAX_FRAMES) || skip + frames > 60u * (uint64_t)FS_HZ) {
-        puts("ERR limits_or_selftest");
+        reply("ERR limits_or_selftest");
         return;
     }
     /* The reference relay is closed only here, together with one range relay, and opened
@@ -443,7 +454,7 @@ static void process_command(const char *line) {
     int restore = range_ohm ? range_ohm : (int)c;
     if (ref && !select_relays((int)c, true, false)) {
         select_relays(restore, false, true);
-        puts("ERR stream_sync");
+        reply("ERR stream_sync");
         return;
     }
     syncavg_t s;
@@ -457,6 +468,7 @@ static void process_command(const char *line) {
     if (r != CAPTURE_OK) {
         codec_ok = false;
         printf("ERR %s\n", capture_error(r));
+        reply_error = true;
         return;
     }
     if (raw) send_payload("RAW", (uint32_t)frames, 0, out.raw, 8u * (size_t)frames);
@@ -465,8 +477,12 @@ static void process_command(const char *line) {
 
 int main(void) {
     set_sys_clock_khz(SYSTEM_CLOCK_HZ / 1000u, true);
-    gpio_init(PIN_LED);
-    gpio_set_dir(PIN_LED, GPIO_OUT);
+    const uint led_pins[] = {PIN_LED, PIN_LED_FAULT, PIN_LED_HEARTBEAT};
+    for (unsigned i = 0; i < sizeof led_pins / sizeof led_pins[0]; ++i) {
+        gpio_init(led_pins[i]);
+        gpio_put(led_pins[i], false);
+        gpio_set_dir(led_pins[i], GPIO_OUT);
+    }
     const uint relay_pins[] = {PIN_RNG_RESET, PIN_RNG_SET_LO, PIN_RNG_SET_MED, PIN_RNG_SET_HI, PIN_RNG_SET_REF};
     for (unsigned i = 0; i < sizeof relay_pins / sizeof relay_pins[0]; ++i) {
         gpio_init(relay_pins[i]);
@@ -496,13 +512,20 @@ int main(void) {
     /* Relays keep their state through power-off (K4 too, if power failed during a
        REFCAPTURE): always RESET all four and start on the 100 kOhm range, K4 open. */
     if (!select_relays(100000, false, true)) codec_ok = false;
+    gpio_put(PIN_LED_FAULT, !codec_ok);
     while (!gpio_get(PIN_USB_VBUS)) tight_loop_contents();
     stdio_init_all();
     stdio_set_translate_crlf(&stdio_usb, false);
     char line[96];
     uint length = 0;
     bool overflow = false;
+    uint32_t heartbeat_ms = to_ms_since_boot(get_absolute_time());
     while (true) {
+        uint32_t now_ms = to_ms_since_boot(get_absolute_time());
+        if (now_ms - heartbeat_ms >= 500u) { /* idle: toggle every 500 ms (1 Hz blink) */
+            heartbeat_ms = now_ms;
+            gpio_xor_mask(1u << PIN_LED_HEARTBEAT);
+        }
         if (!gpio_get(PIN_USB_VBUS)) {
             wave_silence();
             tud_disconnect();
@@ -515,8 +538,10 @@ int main(void) {
         if (ch == PICO_ERROR_TIMEOUT || ch == '\r') continue;
         if (ch == '\n') {
             line[length] = '\0';
-            if (overflow) puts("ERR line_too_long");
+            reply_error = false;
+            if (overflow) reply("ERR line_too_long");
             else process_command(line);
+            gpio_put(PIN_LED_FAULT, reply_error || !codec_ok); /* a successful command clears it */
             length = 0;
             overflow = false;
         } else if (length + 1u < sizeof(line)) {

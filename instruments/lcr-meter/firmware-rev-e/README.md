@@ -3,7 +3,7 @@
 This firmware is for the Rev E board: a TAC5112 codec in place of the ADS9224R, both THS4551s and the AD9833 ([front-end design](../docs/rev-e-front-end.md)), three latching range relays ([range switching](../docs/rev-e-range-switching.md)) and a fourth latching relay, K4, that switches an internal 1 kΩ 0.1 % reference across HCUR–LCUR. It does **not** run on Rev D; Rev D keeps `../firmware/`. No Rev E board exists yet. Everything below is checked by host tests, an instruction-level PIO model and a static cycle bound, not on hardware.
 
 - **Target:** bare RP2040, 12 MHz crystal. Two builds: the default 187.5 kHz image at a 120 MHz system clock, and a 375 kHz variant at 108 MHz ([Sample rate](#sample-rate)).
-- **Toolchain:** Pico SDK 2.2.0 and Arm GNU 14.2.rel1, the same pins as Rev D.
+- **Toolchain:** Pico SDK 2.2.0 and Arm GNU 14.2.rel1, the same pins as Rev D. The images in `bin/` from 2026-10-29 (HB/FLT LEDs) were built with Arm GNU 15.2.rel1 against the pinned SDK, because 14.2.rel1 was not installed on the build Mac; `verification/` records that build (host tests, PIO check and the hot-loop bound all PASS).
 - **Interface:** USB CDC, protocol 3.
 - **Hardware identity:** `E-codec`.
 
@@ -43,7 +43,9 @@ Flash `bin/temper-lcr-rev-e.uf2` (or `bin/temper-lcr-rev-e-375k.uf2`) the same w
 | 11 | RNG_SET_MED: SET coil AO3400A for 5 kΩ | K2 |
 | 13 | USB VBUS / 2 sense | connector divider |
 | 14 | RNG_SET_REF (board net RLY_SET_REF): SET coil AO3400A Q6, 100 Ω gate resistor R108, 100 kΩ pull-down R109, for the 1 kΩ reference | K4 |
-| 25 | capture LED | |
+| 22 | FAULT debug LED (Rev F D20 "FLT"): on while the codec self-test has failed or the last command replied ERR; a successful command clears it; dark during captures | Rev F only; unconnected on Rev E |
+| 23 | HEARTBEAT debug LED (Rev F D19 "HB"): toggles every 500 ms while the main loop waits for commands; dark during captures | Rev F only; unconnected on Rev E |
+| 25 | STATUS / capture LED: lit for the duration of each capture (Rev F: front-panel orange D4) | |
 | 26, 27 | ±12 V monitors (ADC0, ADC1), unchanged from Rev D | |
 | 28, 29 | optional UART0 header | |
 
