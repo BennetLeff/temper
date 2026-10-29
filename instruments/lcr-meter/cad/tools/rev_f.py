@@ -91,7 +91,7 @@ design['board'] = {
 # ------------------------------------------------------------------ rigid groups
 # name: (pivot, to (x, y), quarter turn deg, members).  Positions from validation/rev-f-floorplan.
 GROUPS = {
-    'rp2040_core': ('U1', (74.0, 124.0), 0,
+    'rp2040_core': ('U1', (74.0, 123.5), 0,
                     'U1 U2 Y1 C1 C2 C3 C4 C5 C6 C7 C8 C9 C10 C11 C12 C13 C14 R3 R4 R7 R8 R9 R10 R13'),
     # codec core plus the four input legs (shunts, 560 pF, 1 uF, clamps, 470R); the series
     # resistors R60/R61/R66/R67 move to their op-amp outputs instead (short buffer/TIA nodes).
@@ -136,25 +136,27 @@ PLACE = {
     # range relays, a column between the source buffer (west) and the TIA (east); K4 east
     'K1': (100.0, 65.0, 270), 'K2': (100.0, 80.0, 270), 'K3': (100.0, 95.0, 270),
     'K4': (138.0, 66.0, 90),
-    # U6 high-side buffer and source follower
-    'U6': (88.0, 66.0, 90),
-    'C50': (85.3, 63.9, 90), 'C42': (83.7, 63.9, 90), 'C44': (81.9, 63.9, 90),
-    'C51': (90.7, 68.1, 270), 'C43': (90.7, 70.4, 270), 'C45': (92.0, 74.6, 90),
-    'R104': (86.2, 71.3, 270), 'R60': (86.4, 61.4, 180), 'R105': (90.9, 59.6, 180),
-    'R40': (91.6, 67.54, 180), 'R41': (91.6, 82.54, 180), 'R42': (91.6, 97.54, 180),
-    # U7 TIA and low-side buffer
+    # U6 high-side buffer and source follower (90: HPOT/HIGH_BUF/12V north, SRC_DRV/EXCITE/-12V south)
+    'U6': (86.5, 66.0, 90),
+    'C50': (83.9, 64.0, 90),
+    'C51': (89.1, 67.6, 90),
+    'R104': (85.1, 71.2, 270), 'R60': (85.6, 59.9, 90), 'R105': (88.9, 60.3, 90),
+    'R40': (91.9, 67.54, 180), 'R41': (91.9, 82.54, 180), 'R42': (91.9, 97.54, 180),
+    # U6 second-tier bypass on its supply taps (12V west tap, -12V south tap)
+    'C42': (85.9, 79.6, 0), 'C44': (86.0, 81.6, 0), 'C43': (87.4, 74.6, 180), 'C45': (87.2, 76.8, 180),
+    # U7 TIA (SUM node west, plane void under it) and low-side buffer (R61/R66 north)
     'U7': (114.5, 70.0, 90),
-    'C104': (111.9, 73.3, 90), 'R43': (109.2, 73.4, 180), 'R45': (109.2, 75.1, 180),
-    'R44': (109.2, 76.8, 180), 'R94': (113.9, 76.2, 180), 'C78': (117.0, 77.6, 90),
-    'R67': (110.9, 69.4, 90), 'R61': (114.0, 63.0, 180), 'R66': (114.0, 64.6, 180),
-    'C52': (112.0, 66.4, 90), 'C46': (110.4, 65.4, 90), 'C48': (108.6, 62.0, 90),
-    'C53': (117.2, 72.5, 270), 'C47': (118.8, 72.5, 270), 'C49': (120.6, 72.5, 270),
-    'R106': (118.6, 60.2, 90),
+    'C104': (112.15, 73.8, 90), 'R43': (109.6, 74.575, 180), 'R45': (109.6, 77.9, 180),
+    'R44': (109.6, 76.2, 180), 'R94': (113.8, 76.7, 90), 'C78': (113.8, 79.8, 270),
+    'R67': (110.9, 69.4, 90), 'R61': (114.0, 62.0, 180), 'R66': (114.0, 63.6, 180),
+    'C52': (112.2, 65.9, 90), 'C46': (110.5, 65.9, 90), 'C48': (108.6, 64.6, 90),
+    'C53': (117.2, 72.5, 270), 'C47': (118.8, 72.5, 270), 'C49': (120.6, 72.6, 270),
+    'R106': (118.8, 60.0, 180),
     # K4 reference relay driver and the DUT_LO reference resistor
-    'R107': (131.0, 62.0, 90), 'Q6': (144.5, 78.0, 0), 'R108': (140.2, 77.0, 0), 'R109': (140.2, 78.8, 180),
+    'R107': (129.6, 63.46, 0), 'Q6': (144.5, 78.0, 0), 'R108': (140.2, 77.0, 0), 'R109': (140.2, 78.8, 180),
     'D9': (146.5, 72.0, 90),
     # relay supply filter, at the relay column foot
-    'R101': (100.0, 104.6, 0), 'C112': (103.4, 104.6, 0), 'FB1': (110.0, 120.0, 0), 'C103': (110.0, 123.0, 0),
+    'R101': (100.5, 106.4, 0), 'C112': (103.3, 107.0, 270), 'FB1': (110.0, 120.0, 0), 'C103': (110.0, 123.0, 0),
     # power entry and digital extras
     'J1': (54.0, 122.0, -90), 'U16': (62.0, 114.0, 0), 'U3': (61.0, 140.0, 0),
     'R110': (63.6, 116.6, 180), 'C113': (60.86, 110.4, 90), 'C16': (66.0, 140.0, 90),
@@ -353,12 +355,21 @@ design['board']['silk'] = [
 ]
 
 
+def pads_of(*refs):
+    for r in refs:
+        print(r, parts[r]['pcb'], '  '.join(f"{p['num']}:{parts[r]['pins'].get(p['num'])}@{P(r + '.' + p['num'])[0]:.3f},{P(r + '.' + p['num'])[1]:.3f}"
+                                              for p in fp(r)['pads'] if p['num']))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--check', action='store_true')
     ap.add_argument('--render', default='')
     ap.add_argument('--no-write', action='store_true')
+    ap.add_argument('--pads', default='', help='print board-frame pad centres and nets of these parts')
     a = ap.parse_args()
+    if a.pads:
+        pads_of(*a.pads.split(','))
     design['parts'] = [parts[p['ref']] for p in design['parts']]
     print(f"{len(design['parts'])} parts, {len(routing['tracks'])} tracks, {len(routing['vias'])} vias; "
           f"copied {sum(n for n, _ in COPIED.values())} segments / {sum(v for _, v in COPIED.values())} vias, "
@@ -366,6 +377,7 @@ def main():
     if a.check or a.render:
         res = predrc.check(design, routing)
         print(predrc.summary(res, limit=60))
+        (ROOT / 'build' / 'rev-f-predrc.json').write_text(json.dumps(res, indent=1) + '\n')
         if a.render:
             names = list(VIEWS) if a.render == 'all' else a.render.split(',')
             for n in names:
@@ -383,7 +395,7 @@ def main():
 VIEWS = {
     'bnc': (50, 45, 150, 62), 'afe_hi': (78, 55, 96, 105), 'relays': (90, 55, 112, 106),
     'tia': (104, 55, 126, 85), 'k4': (122, 55, 150, 86), 'source': (55, 55, 82, 80),
-    'codec': (50, 74, 86, 102), 'ldo': (120, 84, 150, 114), 'drivers': (78, 100, 124, 118),
+    'codec': (50, 74, 86, 102), 'codec_top': (58, 68, 80, 90), 'ldo': (120, 84, 150, 114), 'drivers': (78, 100, 124, 118),
     'switcher': (116, 112, 150, 145), 'digital': (50, 100, 120, 145), 'board': (50, 45, 150, 145),
 }
 

@@ -168,9 +168,10 @@ def static_checks(pads, drills, courts):
             if j <= i or courts[j]['ref'] == c['ref']:
                 continue
             inter = c['geom'].intersection(courts[j]['geom'])
-            if inter.area > 1e-4:
+            if inter.area > 1e-4 or c['geom'].distance(courts[j]['geom']) < 1e-3:   # KiCad: touching counts
                 v.append({'kind': 'courtyard', 'layer': 'F.CrtYd', 'a': c['ref'], 'b': courts[j]['ref'],
-                          'mm': round(inter.area, 3), 'at': list(inter.centroid.coords[0]), 'src': 'placement'})
+                          'mm': round(inter.area, 3), 'at': list((inter if not inter.is_empty else c['geom'].boundary.intersection(courts[j]['geom'].boundary)).centroid.coords[0]) if not (inter.is_empty and c['geom'].boundary.intersection(courts[j]['geom'].boundary).is_empty) else list(c['geom'].centroid.coords[0]),
+                          'src': 'placement'})
     return v
 
 
