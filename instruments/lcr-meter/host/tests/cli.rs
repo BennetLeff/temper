@@ -1183,3 +1183,53 @@ fn rail_monitor_conversion_and_windows() {
         assert!(rails_from_line(bad).is_err(), "{bad}");
     }
 }
+#[test]
+fn rail_windows_and_drift_limits_follow_the_tolerance_stack() {
+    // The constants are the output of validation/power-spurs/rail_monitor_window.py.
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../validation/power-spurs/rail_monitor_window.json"
+    );
+    let v: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
+    let pair = |x: &serde_json::Value| (x[0].as_f64().unwrap(), x[1].as_f64().unwrap());
+    assert_eq!(RAIL_P12_WINDOW_V, pair(&v["host_window_pos_abs_v"]));
+    let n = pair(&v["host_window_neg_abs_v"]);
+    assert_eq!(RAIL_N12_WINDOW_V, (-n.1, -n.0));
+    let limit = &v["host_drift_limit_percent"];
+    assert_eq!(
+        RAIL_DRIFT_LIMIT_PERCENT,
+        (
+            limit["pos"].as_f64().unwrap(),
+            limit["neg"].as_f64().unwrap()
+        )
+    );
+    // Every healthy worst-case reading is inside its window.
+    for (kind, (lo, hi)) in [
+        ("pos", RAIL_P12_WINDOW_V),
+        ("neg", (-RAIL_N12_WINDOW_V.1, -RAIL_N12_WINDOW_V.0)),
+    ] {
+        let r = &v["rails"][kind];
+        assert!(lo < r["reading_abs_min_v"].as_f64().unwrap(), "{kind}");
+        assert!(r["reading_abs_max_v"].as_f64().unwrap() < hi, "{kind}");
+    }
+}
+#[test]
+fn rail_drift_since_calibration_is_refused_past_the_limit() {
+    let r = |p: f64, n: f64| Rails {
+        plus12_v: p,
+        minus12_v: n,
+        die_c: 30.0,
+        pass: true,
+    };
+    let cal = r(11.86, -11.87);
+    let (p, n) = rail_change_percent(&r(12.0, -11.0), &r(10.0, -10.0));
+    assert!((p - 20.0).abs() < 1e-9 && (n - 10.0).abs() < 1e-9);
+    // Inside both limits: no issue.
+    assert!(rail_drift_issue(&r(11.86 * 1.08, -11.87 * 1.09), &cal).is_none());
+    // Either rail past its limit, in either direction, is an issue that names both changes.
+    let issue = rail_drift_issue(&r(11.86 * 1.09, -11.87), &cal).unwrap();
+    assert!(issue.contains("+12 V +9.00 %, -12 V +0.00 %"), "{issue}");
+    assert!(rail_drift_issue(&r(11.86, -11.87 * 0.90), &cal).is_some());
+    assert!(rail_drift_issue(&r(11.86 * 0.91, -11.87), &cal).is_some());
+}

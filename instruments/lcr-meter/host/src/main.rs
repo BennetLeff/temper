@@ -164,7 +164,7 @@ fn capture_e(
     let mv = o.mv.unwrap_or(rev_e::DEFAULT_TONE_MV);
     rev_e::check_tone(1, rev_e::MAX_PERIOD, mv)?;
     d.selftest()?;
-    d.rails()?;
+    let rails = d.rails()?;
     d.range(d.setup.range_ohm)?;
     let mut records = Vec::new();
     let mut source_off_failures = Vec::new();
@@ -211,6 +211,7 @@ fn capture_e(
         &SweepE {
             setup: d.setup.clone(),
             records,
+            rails: Some(rails),
         },
     )?;
     if !source_off_failures.is_empty() {
@@ -234,7 +235,7 @@ fn refcheck_e(d: &mut DeviceE, range: u32, freqs: &[f64], out: &str, o: &EOption
     };
     rev_e::check_tone(1, rev_e::MAX_PERIOD, mv)?;
     d.selftest()?;
-    d.rails()?;
+    let rails = d.rails()?;
     let mut records = Vec::new();
     for &hz in freqs {
         let (_, period) = rev_e::tone_for_hz(hz)?;
@@ -262,7 +263,14 @@ fn refcheck_e(d: &mut DeviceE, range: u32, freqs: &[f64], out: &str, o: &EOption
             );
         }
     }
-    write(out, &SweepE { setup, records })
+    write(
+        out,
+        &SweepE {
+            setup,
+            records,
+            rails: Some(rails),
+        },
+    )
 }
 fn capture_wave_e(
     d: &mut DeviceE,
@@ -280,7 +288,7 @@ fn capture_wave_e(
         warn_image(rev_e::tone_frequency_hz(bin, period));
     }
     d.selftest()?;
-    d.rails()?;
+    let rails = d.rails()?;
     d.range(d.setup.range_ohm)?;
     let record = d.capture_wave(&words, &bins, o.skip, o.periods_for(period)?)?;
     d.off()?;
@@ -295,6 +303,7 @@ fn capture_wave_e(
         &SweepE {
             setup: d.setup.clone(),
             records: vec![record],
+            rails: Some(rails),
         },
     )
 }
@@ -313,6 +322,20 @@ fn note_unchecked(sweep: &SweepE) {
         );
     }
 }
+/// Prints the rails-since-calibration note and returns the refusal, if the rails moved too far.
+fn rails_note(sweep: &SweepE, cal: &rev_e::CalibrationE) -> Option<String> {
+    let (issue, note) = rev_e::rails_against_calibration_e(sweep, cal);
+    if let Some(note) = note {
+        eprintln!("{note}");
+    }
+    issue
+}
+fn refuse_on_rails(m: &mut rev_e::MeasurementE, issue: Option<&str>) {
+    if let Some(issue) = issue {
+        m.issues.push(issue.to_owned());
+        m.valid = false;
+    }
+}
 fn analyze_e_file(a: &[&str], waive: bool) -> Result<()> {
     let sweep = sweep_e(a[1])?;
     sweep.setup.validate()?;
@@ -321,6 +344,7 @@ fn analyze_e_file(a: &[&str], waive: bool) -> Result<()> {
         .get(2)
         .map(|path| rev_e::parse_calibration_e(&text(path)?).map_err(|e| format!("{path}: {e}")))
         .transpose()?;
+    let rail_issue = cal.as_ref().and_then(|c| rails_note(&sweep, c));
     let mut values = Vec::new();
     for r in &sweep.records {
         for mut m in rev_e::analyze_e(r, sweep.setup.range_ohm)? {
@@ -330,6 +354,7 @@ fn analyze_e_file(a: &[&str], waive: bool) -> Result<()> {
             if let Some(c) = &cal {
                 rev_e::correct_e(&mut m, &sweep.setup, c)?;
             }
+            refuse_on_rails(&mut m, rail_issue.as_deref());
             values.push(m);
         }
     }
@@ -341,7 +366,7 @@ fn analyze_e_file(a: &[&str], waive: bool) -> Result<()> {
         .collect();
     if !invalid.is_empty() {
         return Err(format!(
-            "one or more measurements failed signal-quality or source-off checks:\n{}",
+            "one or more measurements failed signal-quality, source-off or rail checks:\n{}",
             invalid.join("\n")
         ));
     }
@@ -356,6 +381,7 @@ fn validate_e_file(a: &[&str], waive: bool, standards_path: Option<&str>) -> Res
         None => rev_e::StandardE::resistor(number(a[3])?),
     };
     let tolerance: f64 = number(a[4])?;
+    let rail_issue = rails_note(&sweep, &cal);
     if !known.r_ohm.is_finite() || known.r_ohm <= 0.0 || !tolerance.is_finite() || tolerance <= 0.0
     {
         return Err("validation resistance and percent tolerance must be positive".into());
@@ -367,6 +393,7 @@ fn validate_e_file(a: &[&str], waive: bool, standards_path: Option<&str>) -> Res
                 rev_e::waive_source_off_e(&mut m);
             }
             rev_e::correct_e(&mut m, &sweep.setup, &cal)?;
+            refuse_on_rails(&mut m, rail_issue.as_deref());
             let truth = known.impedance(m.frequency_hz);
             let error = (m.impedance_ohm - truth).abs() / truth.abs() * 100.0;
             let ok = m.valid && error <= tolerance;

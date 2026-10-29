@@ -792,6 +792,7 @@ fn sweep_of(range: u32, dut: ZFn, grid: &[f64]) -> SweepE {
     let model = Virtual::new(range, fixture(dut));
     SweepE {
         setup: setup_e(range),
+        rails: None,
         records: grid
             .iter()
             .map(|&hz| {
@@ -1022,6 +1023,7 @@ fn calibration_refuses_mismatches_and_bad_standards() {
     model.interferer = Some((1, 2.0 * f64::from(MAX_CODE)));
     let clipped = SweepE {
         setup: setup_e(100),
+        rails: None,
         records: vec![model.tone_record(27_000.0, 1700, 0, 4)],
     };
     assert!(calibrate_e(&short, &clipped, 20.0, &b, 100.0)
@@ -2118,6 +2120,7 @@ fn source_off_check_is_stored_optionally_and_cannot_be_edited_into_a_pass() {
     let record = checked_record(&model, 27_000.0, 200, 2, 40);
     let sweep = SweepE {
         setup: setup_e(100),
+        rails: None,
         records: vec![record.clone()],
     };
     // Round trip keeps the check; the field names are the file format.
@@ -2198,6 +2201,7 @@ fn calibration_refuses_failed_source_off_points_unless_allowed() {
         }
         SweepE {
             setup: setup_e(100),
+            rails: None,
             records: grid
                 .iter()
                 .map(|&hz| checked_record(&model, hz, mv, 0, 40))
@@ -2280,6 +2284,7 @@ fn short_standard_judges_the_voltage_line_against_the_current_line() {
     // The flag is stored, survives the file, and cannot be flipped to launder a verdict.
     let sweep = SweepE {
         setup: setup_e(100),
+        rails: None,
         records: vec![short.clone()],
     };
     let text = serde_json::to_string(&sweep).unwrap();
@@ -2553,6 +2558,7 @@ fn cli_source_off_failure_is_saved_then_refused_by_analyze_calibrate_and_validat
     failing.interferer = Some((18, 3e-4 * b_line(&failing, 27_000.0, mv)));
     let dirty = SweepE {
         setup: setup_e(100),
+        rails: None,
         records: vec![checked_record(&failing, 27_000.0, mv, 0, 40)],
     };
     assert!(!dirty.records[0].source_off_check.as_ref().unwrap().pass);
@@ -2616,6 +2622,12 @@ fn cli_short_standard_capture_passes_a_clean_short_and_fails_an_interfered_one()
     let saved = parse_sweep_e(&std::fs::read_to_string(&out_file).unwrap()).unwrap();
     let check = saved.records[0].source_off_check.as_ref().unwrap();
     assert!(check.pass && check.short_standard);
+    // The capture stores the RAILS reading taken before it, for the calibration drift check.
+    assert!(
+        saved.rails.as_ref().is_some_and(|r| r.pass),
+        "{:?}",
+        saved.rails
+    );
     // An interferer on B at the tone bin still fails it.
     let mut dirty = short.clone();
     dirty.interferer = Some((18, 2e-3 * b_line(&short, 27_000.0, 1700)));
@@ -2771,4 +2783,73 @@ fn tone_plan_reports_the_defaults_without_a_device() {
     assert_eq!(plans[0]["period"], 375);
     assert_eq!(plans[1]["period"], 25);
     assert!(!run_cli(&["tone-plan", "5000", "1000.5"]).status.success());
+}
+#[test]
+fn calibration_keeps_the_standards_rails_and_analyze_refuses_a_rail_change() {
+    let grid = [27_000.0];
+    let rails = |p: f64, n: f64| temper_lcr::Rails {
+        plus12_v: p,
+        minus12_v: n,
+        die_c: 30.0,
+        pass: true,
+    };
+    let with = |mut s: SweepE, p: f64, n: f64| {
+        s.rails = Some(rails(p, n));
+        s
+    };
+    let short = with(sweep_of(100, resistor(1e-4), &grid), 11.80, -11.90);
+    let a = with(sweep_of(100, resistor(20.0), &grid), 11.90, -11.80);
+    let b = with(sweep_of(100, resistor(100.0), &grid), 11.90, -11.90);
+    let cal = calibrate_e(&short, &a, 20.0, &b, 100.0).unwrap();
+    let kept = cal.rails.clone().unwrap();
+    assert!((kept.plus12_v - 11.8666667).abs() < 1e-6, "{kept:?}");
+    assert!((kept.minus12_v + 11.8666667).abs() < 1e-6, "{kept:?}");
+    // A standard without a reading (an older file) leaves the calibration without one.
+    let mut old = b.clone();
+    old.rails = None;
+    assert!(calibrate_e(&short, &a, 20.0, &old, 100.0)
+        .unwrap()
+        .rails
+        .is_none());
+    // The calibration file round-trips the reading, and files without it still load.
+    let text = serde_json::to_string(&cal).unwrap();
+    assert!(parse_calibration_e(&text).unwrap().rails.is_some());
+    let mut dut = with(sweep_of(100, resistor(50.0), &grid), 11.95, -11.85);
+    let (issue, note) = rails_against_calibration_e(&dut, &cal);
+    assert!(issue.is_none());
+    assert!(note
+        .unwrap()
+        .starts_with("rails since calibration: +12 V +0.70 %"));
+    // Without a reading on either side there is nothing to compare.
+    dut.rails = None;
+    assert_eq!(rails_against_calibration_e(&dut, &cal), (None, None));
+    // The CLI: a small change analyses with a note; a 12 % jump on +12 V is refused.
+    let folder = scratch("rails-drift");
+    let cal_file = folder.join("cal.json");
+    std::fs::write(&cal_file, &text).unwrap();
+    let analyze = |p: f64| {
+        let sweep = with(sweep_of(100, resistor(50.0), &grid), p, -11.85);
+        let file = folder.join(format!("dut-{p}.json"));
+        std::fs::write(&file, serde_json::to_string(&sweep).unwrap()).unwrap();
+        run_cli(&[
+            "analyze",
+            file.to_str().unwrap(),
+            cal_file.to_str().unwrap(),
+        ])
+    };
+    let ok = analyze(11.95);
+    assert!(ok.status.success(), "{}", stderr(&ok));
+    assert!(
+        stderr(&ok).contains("rails since calibration"),
+        "{}",
+        stderr(&ok)
+    );
+    let refused = analyze(11.8666667 * 1.12);
+    assert!(!refused.status.success());
+    assert!(
+        stderr(&refused).contains("analog rails moved since calibration: +12 V +12.00 %"),
+        "{}",
+        stderr(&refused)
+    );
+    std::fs::remove_dir_all(folder).unwrap();
 }

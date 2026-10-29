@@ -728,6 +728,9 @@ impl RecordE {
 pub struct SweepE {
     pub setup: SetupE,
     pub records: Vec<RecordE>,
+    /// The `RAILS` reading taken before the capture. Absent in files from before it was stored.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rails: Option<crate::Rails>,
 }
 
 // ------------------------------------------------------------------ source-off check (R-E2)
@@ -1145,6 +1148,10 @@ pub struct CalibrationE {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub standards_kit: Option<String>,
     pub points: Vec<CalibrationPointE>,
+    /// Mean `RAILS` reading of the three standards' captures, when all three carry one. `analyze`
+    /// and `validate` compare each capture's rails against it ([`crate::rail_drift_issue`]).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rails: Option<crate::Rails>,
 }
 /// Version-checked calibration loader. A Rev D calibration (schema 5, `D-riso22`) is refused
 /// by name, as are other schemas and models.
@@ -1309,6 +1316,41 @@ pub fn calibration_coefficients_e(points: [(Complex, Complex); 3]) -> Result<[Co
     Ok([a, b, c])
 }
 
+/// Mean rails of `sweeps`, or `None` unless every sweep carries a reading.
+fn mean_rails(sweeps: &[&SweepE]) -> Option<crate::Rails> {
+    let rails: Option<Vec<&crate::Rails>> = sweeps.iter().map(|s| s.rails.as_ref()).collect();
+    let rails = rails?;
+    let n = rails.len() as f64;
+    let mean = |f: fn(&crate::Rails) -> f64| rails.iter().map(|r| f(r)).sum::<f64>() / n;
+    Some(crate::Rails {
+        plus12_v: mean(|r| r.plus12_v),
+        minus12_v: mean(|r| r.minus12_v),
+        die_c: mean(|r| r.die_c),
+        pass: rails.iter().all(|r| r.pass),
+    })
+}
+/// Rails check of a capture against its calibration: the `rail_drift_issue` refusal, if any, and
+/// the advisory line for stderr. Either side without a reading gives neither.
+pub fn rails_against_calibration_e(
+    sweep: &SweepE,
+    cal: &CalibrationE,
+) -> (Option<String>, Option<String>) {
+    match (&sweep.rails, &cal.rails) {
+        (Some(now), Some(then)) => {
+            let (p, n) = crate::rail_change_percent(now, then);
+            let note = format!(
+                "rails since calibration: +12 V {p:+.2} %, -12 V {n:+.2} %{}",
+                if p.abs().max(n.abs()) > crate::RAIL_DRIFT_WARN_PERCENT {
+                    " (warning: more than a stable bench gives; check the supply)"
+                } else {
+                    ""
+                }
+            );
+            (crate::rail_drift_issue(now, then), Some(note))
+        }
+        _ => (None, None),
+    }
+}
 /// Three-standard calibration, one bilinear correction per analysed bin (a short and two
 /// resistors, as Rev D). Standards need not use the same SKIP or PERIODS.
 pub fn calibrate_e(
@@ -1447,6 +1489,7 @@ pub fn calibrate_e_checked(
         }),
         standards_kit: kit.map(str::to_owned),
         points,
+        rails: mean_rails(&[short, load1, load2]),
     })
 }
 /// Applies the bilinear correction of the same frequency (equal CYCLES/PERIOD as a fraction).

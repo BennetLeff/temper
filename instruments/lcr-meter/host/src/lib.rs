@@ -91,9 +91,18 @@ pub fn feedback_capacitance_pf(range: u32) -> Result<f64> {
 /// RP2040 ADC reference: ADC_AVDD is the board 3V3, so both monitors read
 /// ratiometrically to it and a 3V3 error scales the reported rails 1:1.
 pub const RAIL_ADC_REFERENCE_V: f64 = 3.3;
-/// Gross-fault windows for the analog rails: +-5 % rail, +-3 % 3V3, 1 % dividers.
-pub const RAIL_P12_WINDOW_V: (f64, f64) = (10.8, 13.2);
-pub const RAIL_N12_WINDOW_V: (f64, f64) = (-13.2, -10.8);
+/// Gross-fault windows for the analog rails: the worst healthy Rev E reading 0.2 V outward, from
+/// `validation/power-spurs/rail_monitor_window.py` (rail tolerance and TCR, 1 % monitor dividers,
+/// 3V3 as reference and pull-up, pin leakage, ADC error and input load). A test keeps these equal to
+/// its JSON. Rev D uses the same monitors, so the windows only widen for it.
+pub const RAIL_P12_WINDOW_V: (f64, f64) = (10.2, 13.4);
+pub const RAIL_N12_WINDOW_V: (f64, f64) = (-14.1, -10.5);
+/// Largest change of each rail reading a healthy board can show between calibration and use (same
+/// script: regulator drift from its 25 C accuracy to its overall accuracy, divider and 3V3 TCR over
+/// 35 C, the full pin-leakage swing, ADC error twice). Beyond it a calibrated measurement is refused.
+pub const RAIL_DRIFT_LIMIT_PERCENT: (f64, f64) = (8.6, 9.7);
+/// Advisory: a change above this is reported on stderr, though healthy boards can reach the limit.
+pub const RAIL_DRIFT_WARN_PERCENT: f64 = 2.0;
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Rails {
     pub plus12_v: f64,
@@ -105,6 +114,24 @@ pub struct Rails {
 /// Parses "RAILS N SUM_ADC0 SUM_ADC1 SUM_ADC4" (sums of N 12-bit conversions).
 /// ADC0: +12 V through R97 100k over R98 10k. ADC1: -12 V through R100 150k,
 /// pulled toward 3V3 by R99 10k, so it never goes negative while 3V3 is up.
+/// Percent change of the +12 V and -12 V readings from `calibration` to `now` (magnitudes).
+pub fn rail_change_percent(now: &Rails, calibration: &Rails) -> (f64, f64) {
+    let change = |a: f64, b: f64| (a.abs() / b.abs() - 1.0) * 100.0;
+    (
+        change(now.plus12_v, calibration.plus12_v),
+        change(now.minus12_v, calibration.minus12_v),
+    )
+}
+/// `Some(issue)` when either rail moved past `RAIL_DRIFT_LIMIT_PERCENT` since calibration.
+pub fn rail_drift_issue(now: &Rails, calibration: &Rails) -> Option<String> {
+    let (p, n) = rail_change_percent(now, calibration);
+    (p.abs() > RAIL_DRIFT_LIMIT_PERCENT.0 || n.abs() > RAIL_DRIFT_LIMIT_PERCENT.1).then(|| {
+        format!(
+            "analog rails moved since calibration: +12 V {p:+.2} %, -12 V {n:+.2} % (healthy limit {:.1} / {:.1} %); check the supply and recalibrate",
+            RAIL_DRIFT_LIMIT_PERCENT.0, RAIL_DRIFT_LIMIT_PERCENT.1
+        )
+    })
+}
 pub fn rails_from_line(line: &str) -> Result<Rails> {
     let w: Vec<_> = line.split_whitespace().collect();
     let parsed: Option<Vec<u32>> = w.iter().skip(1).map(|x| x.parse().ok()).collect();

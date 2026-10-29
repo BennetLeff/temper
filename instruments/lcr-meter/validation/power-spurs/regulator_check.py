@@ -294,8 +294,8 @@ def main():
         head = raw_min - vmax
         ldo[kind] = {"vout": [vmin, vnom, vmax], "raw_min": raw_min, "headroom_min": head}
         check(f"{ref} output voltage range ({'+'.join(LEG[kind + '_top'])} / {'+'.join(LEG[kind + '_bot'])})",
-              [round(vmin, 3), round(vnom, 3), round(vmax, 3)], "+-2.5 % overall + divider tolerance; host window 10.8-13.2 V",
-              10.8 <= vmin and vmax <= 13.2)
+              [round(vmin, 3), round(vnom, 3), round(vmax, 3)], "+-2.5 % overall + divider tolerance; OPA2810 4.75-27 V supply (SBOS799)",
+              4.75 <= 2 * vmin and 2 * vmax <= 27.0, "host monitor window: rail_monitor_window.py")
         check(f"{ref} headroom at worst corner (raw min - out max)", round(head, 3),
               f">= dropout {spec.get('vdo_150ma_max_v', spec.get('vdo_200ma_max_v'))} V and >= 1 V PSRR-curve condition",
               head >= 1.0, f"load {LOAD[kind]*1e3:.1f} mA est.")
@@ -358,7 +358,7 @@ def main():
     check(f"R95/R96 headroom at 2x load incl. divider TCR (board 25 +- {DT_BOARD:.0f} C)",
           [round(tc["pos"]["headroom_2x_load_r5"], 3), round(tc["neg"]["headroom_2x_load_r5"], 3),
            round(tc["pos"]["vout_min"], 3), round(tc["neg"]["vout_min"], 3)],
-          ">= 0.6 V dropout (FLAG below the 1 V PSRR-curve condition); |VOUT| min >= 10.8 V host window",
+          ">= 0.6 V dropout (FLAG below the 1 V PSRR-curve condition); the readings vs the host window are in rail_monitor_window.py",
           True if min(tc[k]["headroom_2x_load_r5"] for k in tc) >= 1.0 else
           ("FLAG" if min(tc[k]["headroom_2x_load_r5"] for k in tc) >= 0.6 else False),
           "information: 0.1 % parts 25 ppm/C, 1 % parts 100 ppm/C, opposite drift of top and bottom")

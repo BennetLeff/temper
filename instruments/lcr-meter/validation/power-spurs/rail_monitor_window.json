@@ -1,0 +1,73 @@
+{
+ "inputs": {
+  "dt_board_c": 35.0,
+  "divider_tol": 0.01,
+  "divider_tcr": 0.0001,
+  "v3_tol": 0.015,
+  "v3_tc": 0.0001,
+  "pin_leakage_a": 1e-06,
+  "adc_error_lsb_estimate": 8,
+  "fault_margin_v": 0.2
+ },
+ "rails": {
+  "pos": {
+   "rail_abs_v": [
+    11.289091787652406,
+    12.459155822699856
+   ],
+   "reading_abs_min_v": 10.420381220156472,
+   "reading_abs_max_v": 13.182957040277042,
+   "rin_burst_sag_fraction": 0.02113983692860242
+  },
+  "neg": {
+   "rail_abs_v": [
+    11.531220881302104,
+    12.204752194455512
+   ],
+   "reading_abs_min_v": 10.707321091338427,
+   "reading_abs_max_v": 13.871348148813576,
+   "rin_burst_sag_fraction": 0.021249129424137696
+  }
+ },
+ "leakage_error_pos_v": 0.1,
+ "host_window_abs_v": [
+  10.2,
+  14.1
+ ],
+ "host_window_pos_abs_v": [
+  10.2,
+  13.4
+ ],
+ "host_window_neg_abs_v": [
+  10.5,
+  14.1
+ ],
+ "calibration_drift": {
+  "pos": {
+   "terms_fraction": {
+    "regulator_reference": 0.03999999999999986,
+    "ldo_divider_tcr": 0.006612795564410682,
+    "monitor_divider_tcr": 0.006345465258577695,
+    "v3_tempco": 0.003487792725460926,
+    "pin_leakage_swing": 0.016859110635597675,
+    "adc_error_twice": 0.011952846017035022
+   },
+   "limit_fraction": 0.08525801020108187
+  },
+  "neg": {
+   "terms_fraction": {
+    "regulator_reference": 0.03999999999999976,
+    "ldo_divider_tcr": 0.0016206473133035144,
+    "monitor_divider_tcr": 0.008413193009770123,
+    "v3_tempco": 0.0034877927254607977,
+    "pin_leakage_swing": 0.025280382423240082,
+    "adc_error_twice": 0.017380262915976667
+   },
+   "limit_fraction": 0.09618227838775094
+  }
+ },
+ "host_drift_limit_percent": {
+  "pos": 8.6,
+  "neg": 9.7
+ }
+}

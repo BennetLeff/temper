@@ -270,9 +270,9 @@
     11.863,
     12.381
    ],
-   "limit": "+-2.5 % overall + divider tolerance; host window 10.8-13.2 V",
+   "limit": "+-2.5 % overall + divider tolerance; OPA2810 4.75-27 V supply (SBOS799)",
    "status": "PASS",
-   "note": ""
+   "note": "host monitor window: rail_monitor_window.py"
   },
   {
    "item": "U11 headroom at worst corner (raw min - out max)",
@@ -353,9 +353,9 @@
     11.867,
     12.186
    ],
-   "limit": "+-2.5 % overall + divider tolerance; host window 10.8-13.2 V",
+   "limit": "+-2.5 % overall + divider tolerance; OPA2810 4.75-27 V supply (SBOS799)",
    "status": "PASS",
-   "note": ""
+   "note": "host monitor window: rail_monitor_window.py"
   },
   {
    "item": "U12 headroom at worst corner (raw min - out max)",
@@ -460,7 +460,7 @@
     11.289,
     11.531
    ],
-   "limit": ">= 0.6 V dropout (FLAG below the 1 V PSRR-curve condition); |VOUT| min >= 10.8 V host window",
+   "limit": ">= 0.6 V dropout (FLAG below the 1 V PSRR-curve condition); the readings vs the host window are in rail_monitor_window.py",
    "status": "FLAG",
    "note": "information: 0.1 % parts 25 ppm/C, 1 % parts 100 ppm/C, opposite drift of top and bottom"
   },
