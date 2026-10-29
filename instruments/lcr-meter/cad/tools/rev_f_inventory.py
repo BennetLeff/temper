@@ -42,7 +42,12 @@ for f in board.GetFootprints():
                   'courtyard_mm2': round(area, 3), 'courtyard_box_rel': [round(v, 3) for v in box],
                   'tht': any(p.GetAttribute() == k.PAD_ATTRIB_PTH for p in f.Pads()),
                   'pads': {p.GetNumber(): [round(p.GetPosition().x * MM, 3), round(p.GetPosition().y * MM, 3),
-                                           p.GetNetname()] for p in f.Pads() if p.GetNumber()}}
+                                           p.GetNetname()] for p in f.Pads() if p.GetNumber()},
+                  # pad half extents in the board frame at the Rev E rotation (bounding box)
+                  'pad_half': {p.GetNumber(): [round(p.GetBoundingBox().GetWidth() * MM / 2, 3),
+                                               round(p.GetBoundingBox().GetHeight() * MM / 2, 3)]
+                               for p in f.Pads() if p.GetNumber()},
+                  'footprint': f.GetFPID().GetLibItemName().wx_str()}
 
 tracks = defaultdict(lambda: defaultdict(float))
 vias = defaultdict(int)
