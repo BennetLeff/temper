@@ -118,7 +118,23 @@ U16_RDS = 0.135    # TPS2553 DBV rDS(on) max, -40..125 C (sources/ti/TPS2553.txt
 # J1 to U16 copper at 35 um and 1.72e-8 ohm m: 5.3 mm of 0.2 mm track around J1 (13 mOhm) plus 45 mm
 # of 0.8 mm track down the west strip (28 mOhm), rounded up.
 R_ENTRY = 0.045
-I_IN_EST = 0.45    # A, 5 V input current estimate (converters + 3V3 + 5VA), see README
+I_IN_BASE = 0.45   # A, 5 V input current estimate (converters + 3V3 + 5VA), see README
+# Rev F indicator LEDs (2026-10-29), worst case high: rail at its maximum, resistor at -1 %, LED VF at a
+# 1.6 V floor (KT-0603R C2286: 1.8-2.4 V at 20 mA, lower at ~1 mA; LTST-S270KFKT: 2.0 V typ at 20 mA, 1.7 V
+# floor taken).  STATUS / HB / FLT are GPIO-driven from 3V3 (AP2112K, 3.35 V max).
+LED_VF_MIN = {"C2286": 1.6, "C160472": 1.7}
+LED_RAIL_MAX = {"5V": 5.5, "3V3": 3.35, "12V": 12.4, "-12V": 12.2}     # |V|; U11/U12 maxima below are <= these
+LED = {}
+for _d, _r, _rail in (("D15", "R113", "5V"), ("D16", "R114", "3V3"), ("D17", "R115", "12V"),
+                      ("D18", "R116", "-12V"), ("D19", "R117", "3V3"), ("D20", "R118", "3V3"),
+                      ("D4", "R12", "3V3")):
+    LED[_d] = (LED_RAIL_MAX[_rail] - LED_VF_MIN[PARTS[_d]["lcsc"]]) / (ohms(_r) * 0.99)
+# 5 V input share: 5V LED direct; 3V3 LEDs through the linear AP2112K (same current at 5 V); the +-12 V
+# LEDs through the LDOs (same current at RAW_P/RAW_N, |RAW| <= 14.8 V) and the TPS65131 at 0.64 efficiency
+# (the Eq. 3/4 figure used below) from 4.28 V, the converter's minimum input.
+I_LED_IN = (LED["D15"] + LED["D16"] + LED["D19"] + LED["D20"] + LED["D4"]
+            + (LED["D17"] + LED["D18"]) * 14.8 / (4.28 * 0.64))
+I_IN_EST = round(I_IN_BASE + I_LED_IN, 4)    # A, 5 V input current estimate (converters + 3V3 + 5VA + LEDs), see README
 
 
 def five_volt_trunk():
@@ -149,13 +165,14 @@ TYPEC_DEFAULT_A = 0.500      # USB Type-C 2.x 4.6.2.1: "Default USB Power" for a
 # Rail loads from datasheet maxima (OPA2810/OPA810 IQ max 4.5 mA/ch over temp at 24 V)
 IQ_OPA_MAX = 4.5e-3
 LOAD = {
-    "pos": 5 * IQ_OPA_MAX + 2 * 18e-3 / math.pi + 0.3e-3 + 1.0e-3 + 0.12e-3,
-    "neg": 5 * IQ_OPA_MAX + 2 * 18e-3 / math.pi + 4 * 1.024e-3 + 0.3e-3 + 1.0e-3 + 0.12e-3,
+    "pos": 5 * IQ_OPA_MAX + 2 * 18e-3 / math.pi + 0.3e-3 + 1.0e-3 + 0.12e-3 + LED["D17"],
+    "neg": 5 * IQ_OPA_MAX + 2 * 18e-3 / math.pi + 4 * 1.024e-3 + 0.3e-3 + 1.0e-3 + 0.12e-3 + LED["D18"],
 }
 LOAD_NOTE = ("5 amplifier channels x 4.5 mA IQ max; source buffer and TIA each "
              "18 mA peak (README short-circuit limit) as half-wave average 18/pi mA; "
              "negative rail also sinks four 1 kOhm FDA input resistors at ~1.024 V; "
-             "OPA810 feedback 0.3 mA; LDO ground 1 mA; divider 0.12 mA.")
+             "OPA810 feedback 0.3 mA; LDO ground 1 mA; divider 0.12 mA; Rev F rail LED (D17 / D18) "
+             "~1.1 mA worst case.")
 
 
 def val(ref):
@@ -412,6 +429,18 @@ def main():
           ios["min"] >= 2 * I_IN_EST,
           "A, SLVS841F eq. 1 with R110 at +-1 % (min at R high, max at R low); constant-current limit, "
           "so a converter start-up surge is limited, not latched off")
+    check("Rev F indicator LED currents, worst case high (mA)",
+          {d: round(i * 1e3, 2) for d, i in LED.items()}, "C2286 20 mA DC; LTST-S270KFKT 30 mA DC",
+          max(LED[d] for d in LED if d != "D4") < 0.020 and LED["D4"] < 0.030,
+          f"5 V input share {I_LED_IN * 1e3:.1f} mA, added to the {I_IN_BASE} A base estimate; R115/R116 "
+          f"dissipate {(LED_RAIL_MAX['12V'] - 1.6) * LED['D17'] * 1e3:.1f} mW of 100 mW")
+    io = LED["D4"] + LED["D19"] + LED["D20"]
+    check("RP2040 IOVDD source current from the LED GPIOs (25, 23, 22) vs IIOVDD_MAX",
+          round(io * 1e3, 2), 50.0, io < 0.050 / 2,
+          "mA, upper bound with the pins at 3.35 V (each pad sags toward VOH 2.62 V at 4 mA in the default "
+          "4 mA mode, RP2040 Table 625, which only lowers these); half the 50 mA bank limit kept for the rest")
+    check("AP2112K 3V3 (U3) added load from the LEDs", round((io + LED["D16"]) * 1e3, 2), 600.0,
+          io + LED["D16"] < 0.6 * 0.05, "mA of the 600 mA rating (sources/new/AP2112.txt)")
     check("USB-C input budget vs USB 2.0 / Type-C Default USB Power", I_IN_EST, TYPEC_DEFAULT_A,
           I_IN_EST <= min(USB2_CONFIGURED_A, TYPEC_DEFAULT_A),
           f"A estimate, not a bound; {1e3 * (TYPEC_DEFAULT_A - I_IN_EST):.0f} mA margin. CC1/CC2 carry Rd "
