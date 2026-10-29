@@ -1,6 +1,28 @@
 # Verification receipts
 
-## Revision E verification receipt
+## Revision F verification receipt
+
+Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm (no autorouter), SHA256:
+
+`0d2394061c20c8a751f3651e14f98f7608e7cd163c918b7e75b24f26acfc197b`
+
+KiCad 10.0.4. The full before/after comparison with Rev E is [rev-f-before-after.md](../docs/rev-f-before-after.md); the plan, gates and decisions are [rev-f-plan.md](../docs/rev-f-plan.md).
+
+| Check | Result | Evidence |
+|---|---|---|
+| ERC / DRC / unconnected / schematic parity | 0 / 0 / 0 / 0 | `erc.json`, `drc.json` |
+| Independent audit (Rev F) | 632 pins, 12 relief pins, 0 findings | `independent-verification-rev-f.json` (`independent_check.py f`) |
+| DFM via audit | 33 exposed-pad thermal vias only; no other via drill or ring on an SMT land; every via tented in CAD | `via-in-pad-process.json` (`cad/audit_dfm.py`) |
+| Layout audit | decoupling, exposed-pad vias, regulator support parts, feedback lengths | `layout-audit-rev-f.json` (`cad/tools/audit_layout.py`) |
+| Extracted parasitics (gate G1, high corner) | source 11.39 pF ≤ 13.7, tia 13.63 pF ≤ 14.7 | `layout-parasitics/extracted_revf.json` (`run_reve.sh revf`) |
+| Loop stability, as built | 360 cases with dip refinement; worst drive 47.84°, TIA 57.32°, HIGH 57.56°, LOW 56.71°; lossy RG-58 leads within 0.4° | `stability-full-chain/` (`revfcng100`, `revflossycng100`) |
+| Regulators | 48 PASS, 2 FLAG (USB unconfigured draw; R95/R96 headroom with TCR), 0 FAIL; 5 V trunk 38 mV at 0.45 A | `power-spurs/regulator_check.json` |
+| Switcher pickup (relative to Rev E, not a bound) | TIA C104 loop +6.0 dB, RF100K loop +4.3 dB; Kelvin inputs −23 to −42 dB | `power-spurs/switcher_pickup-rev-f.json` |
+| Enclosure wall rise at 2.3 W (estimate) | 8.0 K (Rev E box 6.4 K) | `docs/rev-f-before-after.md` |
+
+**Not rerun for Rev F** (layout-independent or assumed strays): `source_stage.py`, `rev_e_spurs.py`, the accuracy map, the visual-review receipt. **Not established:** everything listed under Rev E below. Ordering steps open: JLC re-quote with the Gerbers, via covering "Plugged" in vendor DFM, placement-preview approval. No manufacturer upload or purchase has occurred.
+
+## Revision E verification receipt (superseded by Rev F; same circuit, kept as history)
 
 Board `cad/temper-lcr.kicad_pcb` after the USB-C power change (2026-10-21: DC jack J2 and Q1 removed; U16 TPS2553, R110, C113 added; four-terminal BNCs and K4 as before), SHA256:
 

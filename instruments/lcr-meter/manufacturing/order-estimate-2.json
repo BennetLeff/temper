@@ -792,17 +792,31 @@
  "fab_quote": {
   "qty": 5,
   "lines": {
+   "Special offer (board; the page shows no engineering-fee line at 100 x 100 mm)": 8.0,
+   "Surface finish (ENIG 1 u\")": 17.7
+  },
+  "total_usd": 25.7,
+  "source": "https://cart.jlcpcb.com/quote, read 2026-10-29 in Chrome, signed out, no Gerber uploaded, nothing added to cart",
+  "options": "FR-4, 4 layers, 100 x 100 mm, qty 5, 1 design, single PCB, 1.6 mm, green/white, FR4 TG135, ENIG 1 u\", 1 oz outer / 0.5 oz inner, stackup JLC04161H-7628, via covering Plugged (page default; 'Tented' is greyed out for this configuration), 0.3 mm/(0.4/0.45 mm) min via, +-0.2 mm outline, flying-probe test, 3-4 day build",
+  "via_covering_note": "The quote page offers Plugged (default, $0), Untented, and filled options; Tented is not selectable for 4-layer here, unlike the 2026-10-29 FABRICATION.md assumption. Plugged also cost $0.",
+  "rev_e_same_page_same_day": {
+   "dimensions_mm": [
+    140,
+    105
+   ],
    "Engineering fee": 25.0,
-   "Surface finish (ENIG)": 18.2,
-   "Board": 8.7
-  }
+   "Surface finish (ENIG)": 18.3,
+   "Board": 9.1,
+   "total_usd": 52.4
+  },
+  "note": "Price read only. Shipping, tax and coupons excluded. Re-quote with the Gerbers at upload."
  },
  "economic": {
   "SMT parts": 96.45,
   "SMT joints": 1.95,
   "X-ray": 9.84,
   "Confirm placement": 0.45,
-  "PCB fabrication": 51.9,
+  "PCB fabrication": 25.7,
   "Setup": 8.18,
   "Stencil": 1.53,
   "Extended-part fee": 70.61
@@ -812,7 +826,7 @@
   "SMT joints": 1.95,
   "X-ray": 9.84,
   "Confirm placement": 0.45,
-  "PCB fabrication": 51.9,
+  "PCB fabrication": 25.7,
   "Setup": 25.56,
   "Stencil": 8.21,
   "Feeder loading": 130.28,
@@ -824,8 +838,8 @@
   "Hand-soldering labour": 3.58
  },
  "totals": {
-  "economic": 240.91,
-  "standard": 341.06,
+  "economic": 214.71,
+  "standard": 314.86,
   "jlc_hand_fit": 16.71
  },
  "excluded": [

@@ -1,0 +1,16 @@
+{
+ "qty": 5,
+ "lines": {
+  "Engineering fee": 25.0,
+  "Surface finish (ENIG)": 18.3,
+  "Board": 9.1
+ },
+ "total_usd": 52.4,
+ "dimensions_mm": [
+  140,
+  105
+ ],
+ "source": "https://cart.jlcpcb.com/quote, read 2026-10-29 in Chrome, signed out, no Gerber uploaded, nothing added to cart",
+ "options": "FR-4, 4 layers, 140 x 105 mm, qty 5, 1 design, single PCB, 1.6 mm, green/white, FR4 TG135, ENIG 1 u\", 1 oz outer / 0.5 oz inner, stackup JLC04161H-7628, via covering Plugged (page default; 'Tented' is greyed out for this configuration), 0.3 mm/(0.4/0.45 mm) min via, +-0.2 mm outline, flying-probe test, 3-4 day build",
+ "note": "Rev E outline priced on the same page the same day as the Rev F quote (manufacturing/fab-quote.json). Price read only. The archived order-estimate-N.json in this folder used the earlier $51.90 (2026-10-20 quote less POFV and TG155)."
+}

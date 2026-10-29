@@ -9,24 +9,11 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 root = Path(__file__).resolve().parent.parent
 fab = root / "manufacturing"
-if "--rev-f" in __import__("sys").argv:
-    # Rev F package folder (cad/package_rev_f.sh): zip its gerbers and hash every file in it.
-    out = fab / "rev-f"
-    with ZipFile(out / "temper-lcr-rev-f-gerbers.zip", "w", ZIP_DEFLATED) as z:
-        for p in sorted((out / "gerbers").iterdir()):
-            if p.is_file() and p.suffix != ".pdf":
-                z.write(p, p.name)
-    files = sorted(p for p in out.rglob("*") if p.is_file() and p.name != "manifest-sha256.json")
-    (out / "manifest-sha256.json").write_text(json.dumps({
-        "format": 1, "status": "Rev F study package; not ordered; re-quote and JLC preview at upload",
-        "files": {str(p.relative_to(out)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}}, indent=2) + "\n")
-    print(f"Rev F package: {len(files)} files hashed, gerbers zipped")
-    raise SystemExit(0)
 with ZipFile(fab / "temper-lcr-gerbers.zip", "w", ZIP_DEFLATED) as z:
     for p in sorted((fab / "gerbers").iterdir()):
         if p.is_file() and p.suffix != ".pdf":
             z.write(p, p.name)
-excluded = {"manifest-sha256.json", "temper-lcr-rev-a-package.zip", "temper-lcr-rev-b-package.zip", "temper-lcr-rev-c-package.zip", "temper-lcr-rev-d-package.zip", "temper-lcr-rev-e-package.zip", ".DS_Store",
+excluded = {"manifest-sha256.json", "temper-lcr-rev-a-package.zip", "temper-lcr-rev-b-package.zip", "temper-lcr-rev-c-package.zip", "temper-lcr-rev-d-package.zip", "temper-lcr-rev-e-package.zip", "temper-lcr-rev-f-package.zip", ".DS_Store",
             "assembly-preview.kicad_pcb", "temper-lcr.kicad_prl"}
 # Rev E: the package is the tracked tree (git index, so staged new files count), not every file on
 # disk; untracked solver work directories had grown the Rev D manifest to 30k entries.
@@ -43,7 +30,7 @@ manifest = {
 }
 manifest_path = root / "manifest-sha256.json"
 manifest_path.write_text(json.dumps(manifest, indent=2)+"\n")
-with ZipFile(root / "temper-lcr-rev-e-package.zip", "w", ZIP_DEFLATED) as z:
+with ZipFile(root / "temper-lcr-rev-f-package.zip", "w", ZIP_DEFLATED) as z:
     for p in files + [manifest_path]:
-        z.write(p, str(Path("temper-lcr-rev-e") / p.relative_to(root)))
+        z.write(p, str(Path("temper-lcr-rev-f") / p.relative_to(root)))
 print(f"Archived {len(files)} files with SHA256 manifest")

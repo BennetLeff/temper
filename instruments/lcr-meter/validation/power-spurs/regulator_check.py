@@ -17,8 +17,9 @@ Writes regulator_check.json.
 The board tree is LCR_ROOT (default: this checkout) and the output LCR_OUT (default:
 regulator_check.json here), so a scratch tree can be checked without touching the committed result:
   LCR_ROOT=/path/to/tree/instruments/lcr-meter LCR_OUT=/tmp/rc.json python3 regulator_check.py
-LCR_CPL names a placement CSV other than ROOT/manufacturing/cpl-jlcpcb.csv (Rev F:
-  LCR_CPL=../rev-f/cpl-jlcpcb.csv LCR_OUT=regulator_check-rev-f.json python3 regulator_check.py).
+LCR_CPL names a placement CSV other than ROOT/manufacturing/cpl-jlcpcb.csv (Rev F, the current board).
+Rev E's archived placement is manufacturing/rev-e/cpl-jlcpcb.csv; its copper needs the Rev E tree
+(git 48b012771) as LCR_ROOT.
 """
 from __future__ import annotations
 
@@ -37,8 +38,7 @@ OUT = pathlib.Path(os.environ.get("LCR_OUT", HERE / "regulator_check.json"))
 DESIGN = json.loads((ROOT / "cad/design.json").read_text())
 PARTS = {p["ref"]: p for p in DESIGN["parts"]}
 POS = {}
-# LCR_CPL overrides the placement file (Rev F: manufacturing/ stays Rev E, so its CPL is
-# validation/rev-f/cpl-jlcpcb.csv, written by package_cad during rebuild.sh)
+# LCR_CPL overrides the placement file (default: the current board's CPL in manufacturing/)
 with open(os.environ.get("LCR_CPL", ROOT / "manufacturing/cpl-jlcpcb.csv")) as fh:
     for row in csv.DictReader(fh):
         POS[row["Designator"]] = (float(row["Mid X"].rstrip("mm")), float(row["Mid Y"].rstrip("mm")))

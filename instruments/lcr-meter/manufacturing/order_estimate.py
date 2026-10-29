@@ -1,4 +1,4 @@
-"""Batch order estimate for N assembled Rev E boards at JLC (read-only).
+"""Batch order estimate for N assembled boards (Rev F, 100 x 100 mm) at JLC (read-only).
 
 Run with KiCad's bundled Python:  <kicad-python> manufacturing/order_estimate.py [N]
 Writes manufacturing/order-estimate-<N>.json and prints a summary.
@@ -9,8 +9,8 @@ Inputs:
     stock, library class, lossNumber, leastPatchNumber), written by prices/fetch_jlc_parts.py;
   - joint and leadless-package counts taken from cad/temper-lcr.kicad_pcb;
   - fee constants below, copied from https://jlcpcb.com/help/article/pcb-assembly-price
-    (last updated 2026-09-09, read 2026-10-20), and the fabrication quote read from
-    https://cart.jlcpcb.com/quote on 2026-10-20.
+    (last updated 2026-09-09, read 2026-10-20), and the fabrication quote in fab-quote.json
+    (read from https://cart.jlcpcb.com/quote on 2026-10-29).
 
 Part quantity per line is max(N * per-board + lossNumber, leastPatchNumber), our reading of
 JLC's library fields (attrition pieces and minimum patch quantity). The uploaded BOM quote is
@@ -27,29 +27,17 @@ import pcbnew as k
 ROOT = Path(__file__).resolve().parents[1]
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 MFG = ROOT / 'manufacturing'
-# Rev F (manufacturing/rev-f/, cad/package_rev_f.sh): LCR_MFG_DIR names the folder holding the BOM/CPL
-# and receiving the estimate; LCR_FAB_QUOTE a JSON file replacing FAB_QUOTE. The price snapshot stays
-# in manufacturing/prices/.
+# LCR_MFG_DIR names another folder holding the BOM/CPL and receiving the estimate (Rev E's archived
+# package: LCR_MFG_DIR=manufacturing/rev-e LCR_FAB_QUOTE=manufacturing/rev-e/fab-quote.json); LCR_FAB_QUOTE
+# a JSON quote file replacing manufacturing/fab-quote.json. The price snapshot stays in manufacturing/prices/.
 import os
 PKG = ROOT / os.environ['LCR_MFG_DIR'] if os.environ.get('LCR_MFG_DIR') else MFG
 
-# JLC fabrication quote, 2026-10-20: 4 layers, 140 x 100 mm, qty 5, 1.6 mm, 1 oz outer /
-# 0.5 oz inner, ENIG 1 u", epoxy filled & capped vias, 3-4 days.  Rev E has only 0.3 mm vias
-# (0.45 mm pad), JLC's standard via option: the $116.73 quote for 0.2 mm vias less its
-# 'Min via hole 0.2 mm' and 4-wire Kelvin lines, which the 0.2 mm option forced, gives the $80.98
-# the same page quoted for 0.3 mm vias.  TG155 is kept as quoted.  2026-10-29: POFV ($18.28) and the
-# via plating line it forced ($3.48) are dropped: no via sits in a small land, the exposed-pad thermal
-# vias are tented (cad/audit_dfm.py), and "Tented" is JLC's default via covering.  TG155 ($7.32) is
-# dropped for JLC's 4-layer default, FR4-Standard TG 135-140 (manufacturing/FABRICATION.md).  Re-quote at upload.
-FAB_QUOTE = {
-    'qty': 5,
-    'lines': {
-        'Engineering fee': 25.00, 'Surface finish (ENIG)': 18.20,
-        'Board': 8.70,
-    },
-}
-if os.environ.get('LCR_FAB_QUOTE'):
-    FAB_QUOTE = json.loads((ROOT / os.environ['LCR_FAB_QUOTE']).read_text())
+# JLC fabrication quote, read 2026-10-29 (fab-quote.json): 4 layers, 100 x 100 mm, qty 5, 1.6 mm,
+# FR4 TG 135-140, JLC04161H-7628, 1 oz outer / 0.5 oz inner, ENIG 1 u", 0.3 mm vias, no POFV.  At
+# 100 x 100 mm the page shows no engineering-fee line; Rev E's 140 x 105 mm read the same day $52.40
+# with a $25 engineering fee (manufacturing/rev-e/fab-quote.json).  Re-quote with the Gerbers at upload.
+FAB_QUOTE = json.loads((ROOT / os.environ.get('LCR_FAB_QUOTE', 'manufacturing/fab-quote.json')).read_text())
 ECONOMIC = {'setup': 8.18, 'stencil': 1.53, 'extended_line': 3.07}
 STANDARD = {'setup': 25.56, 'stencil': 8.21, 'extended_line': 3.07, 'basic_line': 1.53,
             'fixtures_1_29': 16.42}
