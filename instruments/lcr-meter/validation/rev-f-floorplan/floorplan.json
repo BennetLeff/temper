@@ -1,0 +1,2392 @@
+{
+ "outline_mm": [
+  50.0,
+  45.0,
+  150.0,
+  145.0
+ ],
+ "rev_e_outline_mm": [
+  50.0,
+  45.0,
+  190.0,
+  150.0
+ ],
+ "inventory_board_sha256": "1615e9fcf8d06378889075557949f54b74b0aa83e3932808bec088c516317f59",
+ "checks": [
+  {
+   "check": "every Rev E footprint in exactly one block",
+   "pass": true,
+   "value": {
+    "footprints": 208,
+    "assigned": 208,
+    "unknown": []
+   }
+  },
+  {
+   "check": "anchor courtyards inside the 100 x 100 outline",
+   "pass": true,
+   "value": []
+  },
+  {
+   "check": "no two placed courtyards overlap (outside inherited rigid-group pairs)",
+   "pass": true,
+   "value": []
+  },
+  {
+   "check": "each anchor inside its block",
+   "pass": true,
+   "value": []
+  },
+  {
+   "check": "blocks do not overlap",
+   "pass": true,
+   "value": []
+  },
+  {
+   "check": "blocks tile the board",
+   "pass": true,
+   "value": 10000.0
+  },
+  {
+   "check": "every Rev F multi-part block at or below the densest Rev E multi-part block",
+   "pass": true,
+   "value": {
+    "rev_e_max": 0.38,
+    "over": {}
+   }
+  },
+  {
+   "check": "relay column packed no tighter than the Rev E relay row",
+   "pass": true,
+   "value": {
+    "relays": [
+     0.93,
+     0.972
+    ],
+    "k4": [
+     0.31,
+     0.653
+    ]
+   }
+  }
+ ],
+ "c_per_mm_pf": {
+  "F.Cu": 0.08142709574576584,
+  "In2.Cu": 0.04549091993800733,
+  "B.Cu": 0.04225106279546066
+ },
+ "anchors": {
+  "J3": {
+   "at": [
+    67.0,
+    51.0,
+    0
+   ],
+   "courtyard": [
+    59.95,
+    44.95,
+    74.05,
+    56.8
+   ]
+  },
+  "J7": {
+   "at": [
+    89.0,
+    51.0,
+    0
+   ],
+   "courtyard": [
+    81.95,
+    44.95,
+    96.05,
+    56.8
+   ]
+  },
+  "J8": {
+   "at": [
+    111.0,
+    51.0,
+    0
+   ],
+   "courtyard": [
+    103.95,
+    44.95,
+    118.05,
+    56.8
+   ]
+  },
+  "J9": {
+   "at": [
+    133.0,
+    51.0,
+    0
+   ],
+   "courtyard": [
+    125.95,
+    44.95,
+    140.04,
+    56.8
+   ]
+  },
+  "H1": {
+   "at": [
+    54.0,
+    54.0,
+    0
+   ],
+   "courtyard": [
+    50.51,
+    50.5,
+    57.49,
+    57.5
+   ]
+  },
+  "H2": {
+   "at": [
+    146.0,
+    54.0,
+    0
+   ],
+   "courtyard": [
+    142.51,
+    50.5,
+    149.5,
+    57.5
+   ]
+  },
+  "H3": {
+   "at": [
+    54.0,
+    141.0,
+    0
+   ],
+   "courtyard": [
+    50.51,
+    137.5,
+    57.49,
+    144.5
+   ]
+  },
+  "H4": {
+   "at": [
+    146.0,
+    141.0,
+    0
+   ],
+   "courtyard": [
+    142.51,
+    137.5,
+    149.5,
+    144.5
+   ]
+  },
+  "K1": {
+   "at": [
+    100.0,
+    65.0,
+    270
+   ],
+   "courtyard": [
+    93.45,
+    57.7,
+    106.55,
+    72.3
+   ]
+  },
+  "K2": {
+   "at": [
+    100.0,
+    80.0,
+    270
+   ],
+   "courtyard": [
+    93.45,
+    72.7,
+    106.55,
+    87.3
+   ]
+  },
+  "K3": {
+   "at": [
+    100.0,
+    95.0,
+    270
+   ],
+   "courtyard": [
+    93.45,
+    87.7,
+    106.55,
+    102.3
+   ]
+  },
+  "K4": {
+   "at": [
+    138.0,
+    66.0,
+    90
+   ],
+   "courtyard": [
+    131.46,
+    58.7,
+    144.54,
+    73.3
+   ]
+  },
+  "U6": {
+   "at": [
+    88.0,
+    66.0,
+    90
+   ],
+   "courtyard": [
+    86.2,
+    62.77,
+    89.8,
+    69.22
+   ]
+  },
+  "U7": {
+   "at": [
+    112.0,
+    70.0,
+    90
+   ],
+   "courtyard": [
+    110.2,
+    66.78,
+    113.8,
+    73.22
+   ]
+  },
+  "U5": {
+   "at": [
+    75.0,
+    64.0,
+    0
+   ],
+   "courtyard": [
+    72.91,
+    62.26,
+    77.09,
+    65.75
+   ]
+  },
+  "J1": {
+   "at": [
+    54.0,
+    122.0,
+    -90
+   ],
+   "courtyard": [
+    49.8,
+    116.64,
+    59.31,
+    127.36
+   ]
+  },
+  "U16": {
+   "at": [
+    62.0,
+    114.0,
+    0
+   ],
+   "courtyard": [
+    59.91,
+    112.25,
+    64.09,
+    115.75
+   ]
+  },
+  "U3": {
+   "at": [
+    61.0,
+    140.0,
+    0
+   ],
+   "courtyard": [
+    58.91,
+    138.25,
+    63.09,
+    141.75
+   ]
+  },
+  "U1": {
+   "at": [
+    74.0,
+    124.0,
+    -180.0
+   ],
+   "courtyard": [
+    69.83,
+    119.83,
+    78.17,
+    128.18
+   ]
+  },
+  "U2": {
+   "at": [
+    74.0,
+    139.0,
+    0.0
+   ],
+   "courtyard": [
+    69.31,
+    136.06,
+    78.69,
+    141.94
+   ]
+  },
+  "Y1": {
+   "at": [
+    75.0,
+    113.5,
+    0.0
+   ],
+   "courtyard": [
+    72.86,
+    111.7,
+    77.14,
+    115.3
+   ]
+  },
+  "C1": {
+   "at": [
+    81.0,
+    128.0,
+    90.0
+   ],
+   "courtyard": [
+    80.22,
+    126.47,
+    81.78,
+    129.53
+   ]
+  },
+  "C2": {
+   "at": [
+    81.0,
+    121.0,
+    90.0
+   ],
+   "courtyard": [
+    80.22,
+    119.47,
+    81.78,
+    122.53
+   ]
+  },
+  "C3": {
+   "at": [
+    73.0,
+    118.0,
+    0.0
+   ],
+   "courtyard": [
+    71.47,
+    117.22,
+    74.53,
+    118.78
+   ]
+  },
+  "C4": {
+   "at": [
+    68.0,
+    122.0,
+    90.0
+   ],
+   "courtyard": [
+    67.22,
+    120.47,
+    68.78,
+    123.53
+   ]
+  },
+  "C5": {
+   "at": [
+    73.0,
+    130.0,
+    0.0
+   ],
+   "courtyard": [
+    71.47,
+    129.22,
+    74.53,
+    130.78
+   ]
+  },
+  "C6": {
+   "at": [
+    81.0,
+    124.5,
+    90.0
+   ],
+   "courtyard": [
+    80.22,
+    122.97,
+    81.78,
+    126.03
+   ]
+  },
+  "C7": {
+   "at": [
+    70.0,
+    133.0,
+    0.0
+   ],
+   "courtyard": [
+    68.47,
+    132.22,
+    71.53,
+    133.78
+   ]
+  },
+  "C8": {
+   "at": [
+    69.0,
+    130.0,
+    90.0
+   ],
+   "courtyard": [
+    67.97,
+    128.25,
+    70.03,
+    131.75
+   ]
+  },
+  "C9": {
+   "at": [
+    69.0,
+    118.0,
+    0.0
+   ],
+   "courtyard": [
+    67.47,
+    117.22,
+    70.53,
+    118.78
+   ]
+  },
+  "C10": {
+   "at": [
+    82.0,
+    133.0,
+    0.0
+   ],
+   "courtyard": [
+    80.25,
+    131.97,
+    83.75,
+    134.03
+   ]
+  },
+  "C11": {
+   "at": [
+    80.5,
+    138.0,
+    90.0
+   ],
+   "courtyard": [
+    79.72,
+    136.47,
+    81.28,
+    139.53
+   ]
+  },
+  "C12": {
+   "at": [
+    68.5,
+    115.0,
+    -180.0
+   ],
+   "courtyard": [
+    66.97,
+    114.22,
+    70.03,
+    115.78
+   ]
+  },
+  "C13": {
+   "at": [
+    75.0,
+    110.0,
+    0.0
+   ],
+   "courtyard": [
+    73.47,
+    109.22,
+    76.53,
+    110.78
+   ]
+  },
+  "C14": {
+   "at": [
+    64.0,
+    135.0,
+    0.0
+   ],
+   "courtyard": [
+    62.48,
+    134.22,
+    65.53,
+    135.78
+   ]
+  },
+  "R3": {
+   "at": [
+    76.0,
+    130.0,
+    90.0
+   ],
+   "courtyard": [
+    75.22,
+    128.47,
+    76.78,
+    131.53
+   ]
+  },
+  "R4": {
+   "at": [
+    78.0,
+    130.0,
+    90.0
+   ],
+   "courtyard": [
+    77.22,
+    128.47,
+    78.78,
+    131.53
+   ]
+  },
+  "R7": {
+   "at": [
+    79.0,
+    143.0,
+    0.0
+   ],
+   "courtyard": [
+    77.47,
+    142.22,
+    80.53,
+    143.78
+   ]
+  },
+  "R8": {
+   "at": [
+    68.0,
+    144.0,
+    0.0
+   ],
+   "courtyard": [
+    66.47,
+    143.22,
+    69.53,
+    144.78
+   ]
+  },
+  "R9": {
+   "at": [
+    64.0,
+    132.0,
+    0.0
+   ],
+   "courtyard": [
+    62.48,
+    131.22,
+    65.53,
+    132.78
+   ]
+  },
+  "R10": {
+   "at": [
+    71.0,
+    113.0,
+    90.0
+   ],
+   "courtyard": [
+    70.22,
+    111.47,
+    71.78,
+    114.53
+   ]
+  },
+  "R13": {
+   "at": [
+    73.5,
+    134.0,
+    0.0
+   ],
+   "courtyard": [
+    71.97,
+    133.22,
+    75.03,
+    134.78
+   ]
+  },
+  "U14": {
+   "at": [
+    64.0,
+    88.5,
+    0.0
+   ],
+   "courtyard": [
+    61.51,
+    86.0,
+    66.5,
+    91.0
+   ]
+  },
+  "U15": {
+   "at": [
+    56.5,
+    82.5,
+    0.0
+   ],
+   "courtyard": [
+    54.41,
+    80.75,
+    58.59,
+    84.25
+   ]
+  },
+  "C60": {
+   "at": [
+    63.25,
+    81.3,
+    -90.0
+   ],
+   "courtyard": [
+    62.23,
+    79.55,
+    64.28,
+    83.05
+   ]
+  },
+  "C61": {
+   "at": [
+    63.25,
+    84.55,
+    90.0
+   ],
+   "courtyard": [
+    62.48,
+    83.02,
+    64.03,
+    86.08
+   ]
+  },
+  "C62": {
+   "at": [
+    61.6,
+    84.55,
+    90.0
+   ],
+   "courtyard": [
+    60.83,
+    83.02,
+    62.38,
+    86.08
+   ]
+  },
+  "C63": {
+   "at": [
+    58.8,
+    87.25,
+    -180.0
+   ],
+   "courtyard": [
+    57.27,
+    86.47,
+    60.32,
+    88.03
+   ]
+  },
+  "C64": {
+   "at": [
+    58.4,
+    85.4,
+    -180.0
+   ],
+   "courtyard": [
+    56.66,
+    84.38,
+    60.14,
+    86.43
+   ]
+  },
+  "C65": {
+   "at": [
+    58.4,
+    90.1,
+    -180.0
+   ],
+   "courtyard": [
+    56.88,
+    89.32,
+    59.92,
+    90.88
+   ]
+  },
+  "C66": {
+   "at": [
+    58.0,
+    92.0,
+    -180.0
+   ],
+   "courtyard": [
+    56.26,
+    90.97,
+    59.74,
+    93.03
+   ]
+  },
+  "C67": {
+   "at": [
+    53.4,
+    82.5,
+    90.0
+   ],
+   "courtyard": [
+    52.38,
+    80.75,
+    54.42,
+    84.25
+   ]
+  },
+  "C68": {
+   "at": [
+    59.7,
+    81.3,
+    -90.0
+   ],
+   "courtyard": [
+    58.68,
+    79.55,
+    60.73,
+    83.05
+   ]
+  },
+  "R72": {
+   "at": [
+    64.25,
+    92.7,
+    90.0
+   ],
+   "courtyard": [
+    63.48,
+    91.17,
+    65.03,
+    94.23
+   ]
+  },
+  "R73": {
+   "at": [
+    62.75,
+    92.7,
+    90.0
+   ],
+   "courtyard": [
+    61.98,
+    91.17,
+    63.52,
+    94.23
+   ]
+  },
+  "U11": {
+   "at": [
+    130.0,
+    100.0,
+    0.0
+   ],
+   "courtyard": [
+    126.83,
+    98.2,
+    133.18,
+    101.8
+   ]
+  },
+  "U12": {
+   "at": [
+    143.0,
+    100.0,
+    0.0
+   ],
+   "courtyard": [
+    139.82,
+    98.2,
+    146.18,
+    101.8
+   ]
+  },
+  "C93": {
+   "at": [
+    134.0,
+    101.75,
+    -90.0
+   ],
+   "courtyard": [
+    133.22,
+    100.22,
+    134.78,
+    103.28
+   ]
+  },
+  "C94": {
+   "at": [
+    133.0,
+    95.3,
+    0.0
+   ],
+   "courtyard": [
+    130.66,
+    93.66,
+    135.34,
+    96.94
+   ]
+  },
+  "C95": {
+   "at": [
+    124.9,
+    96.6,
+    90.0
+   ],
+   "courtyard": [
+    123.26,
+    94.25,
+    126.55,
+    98.94
+   ]
+  },
+  "C96": {
+   "at": [
+    125.0,
+    101.33,
+    0.0
+   ],
+   "courtyard": [
+    123.47,
+    100.55,
+    126.53,
+    102.11
+   ]
+  },
+  "C97": {
+   "at": [
+    134.0,
+    98.6,
+    90.0
+   ],
+   "courtyard": [
+    133.22,
+    97.07,
+    134.78,
+    100.12
+   ]
+  },
+  "C98": {
+   "at": [
+    147.0,
+    101.75,
+    -90.0
+   ],
+   "courtyard": [
+    146.22,
+    100.22,
+    147.78,
+    103.28
+   ]
+  },
+  "C99": {
+   "at": [
+    146.0,
+    95.3,
+    0.0
+   ],
+   "courtyard": [
+    143.66,
+    93.66,
+    148.34,
+    96.94
+   ]
+  },
+  "C100": {
+   "at": [
+    137.9,
+    96.6,
+    90.0
+   ],
+   "courtyard": [
+    136.25,
+    94.25,
+    139.55,
+    98.94
+   ]
+  },
+  "C101": {
+   "at": [
+    138.0,
+    99.75,
+    0.0
+   ],
+   "courtyard": [
+    136.47,
+    98.97,
+    139.53,
+    100.53
+   ]
+  },
+  "C102": {
+   "at": [
+    147.0,
+    98.6,
+    90.0
+   ],
+   "courtyard": [
+    146.22,
+    97.07,
+    147.78,
+    100.12
+   ]
+  },
+  "R85": {
+   "at": [
+    125.0,
+    99.75,
+    0.0
+   ],
+   "courtyard": [
+    123.47,
+    98.97,
+    126.53,
+    100.53
+   ]
+  },
+  "R86": {
+   "at": [
+    125.0,
+    102.95,
+    -180.0
+   ],
+   "courtyard": [
+    123.47,
+    102.17,
+    126.53,
+    103.73
+   ]
+  },
+  "R87": {
+   "at": [
+    138.0,
+    101.33,
+    0.0
+   ],
+   "courtyard": [
+    136.47,
+    100.55,
+    139.53,
+    102.11
+   ]
+  },
+  "R88": {
+   "at": [
+    138.0,
+    104.57,
+    0.0
+   ],
+   "courtyard": [
+    136.47,
+    103.79,
+    139.53,
+    105.34
+   ]
+  },
+  "R89": {
+   "at": [
+    138.0,
+    102.95,
+    -180.0
+   ],
+   "courtyard": [
+    136.47,
+    102.17,
+    139.53,
+    103.73
+   ]
+  },
+  "R112": {
+   "at": [
+    138.0,
+    106.19,
+    -180.0
+   ],
+   "courtyard": [
+    136.47,
+    105.41,
+    139.53,
+    106.97
+   ]
+  },
+  "R95": {
+   "at": [
+    129.6,
+    108.768,
+    0.0
+   ],
+   "courtyard": [
+    128.07,
+    107.99,
+    131.12,
+    109.54
+   ]
+  },
+  "U13": {
+   "at": [
+    137.5,
+    135.0,
+    90.0
+   ],
+   "courtyard": [
+    134.82,
+    132.32,
+    140.18,
+    137.68
+   ]
+  },
+  "L1": {
+   "at": [
+    131.5,
+    141.2,
+    90.0
+   ],
+   "courtyard": [
+    128.71,
+    138.35,
+    134.29,
+    144.04
+   ]
+  },
+  "L2": {
+   "at": [
+    146.5,
+    130.0,
+    0.0
+   ],
+   "courtyard": [
+    143.66,
+    127.2,
+    149.34,
+    132.79
+   ]
+  },
+  "D2": {
+   "at": [
+    130.5,
+    136.0,
+    0.0
+   ],
+   "courtyard": [
+    126.95,
+    134.21,
+    134.04,
+    137.79
+   ]
+  },
+  "D3": {
+   "at": [
+    140.5,
+    128.0,
+    90.0
+   ],
+   "courtyard": [
+    138.71,
+    124.45,
+    142.29,
+    131.54
+   ]
+  },
+  "C81": {
+   "at": [
+    141.5,
+    140.0,
+    90.0
+   ],
+   "courtyard": [
+    140.72,
+    138.47,
+    142.28,
+    141.53
+   ]
+  },
+  "C82": {
+   "at": [
+    138.0,
+    142.5,
+    90.0
+   ],
+   "courtyard": [
+    136.35,
+    140.16,
+    139.65,
+    144.84
+   ]
+  },
+  "C83": {
+   "at": [
+    138.0,
+    139.0,
+    -180.0
+   ],
+   "courtyard": [
+    136.47,
+    138.22,
+    139.53,
+    139.78
+   ]
+  },
+  "C84": {
+   "at": [
+    138.0,
+    130.0,
+    90.0
+   ],
+   "courtyard": [
+    137.22,
+    128.47,
+    138.78,
+    131.53
+   ]
+  },
+  "C85": {
+   "at": [
+    135.7,
+    130.2,
+    90.0
+   ],
+   "courtyard": [
+    134.92,
+    128.67,
+    136.47,
+    131.72
+   ]
+  },
+  "C86": {
+   "at": [
+    133.3,
+    132.5,
+    -180.0
+   ],
+   "courtyard": [
+    131.78,
+    131.72,
+    134.83,
+    133.28
+   ]
+  },
+  "C87": {
+   "at": [
+    131.05,
+    128.95,
+    0.0
+   ],
+   "courtyard": [
+    129.53,
+    128.17,
+    132.58,
+    129.72
+   ]
+  },
+  "C88": {
+   "at": [
+    136.5,
+    126.6,
+    90.0
+   ],
+   "courtyard": [
+    135.72,
+    125.07,
+    137.28,
+    128.12
+   ]
+  },
+  "C89": {
+   "at": [
+    126.3,
+    131.5,
+    90.0
+   ],
+   "courtyard": [
+    124.66,
+    129.16,
+    127.94,
+    133.84
+   ]
+  },
+  "C90": {
+   "at": [
+    127.0,
+    126.5,
+    90.0
+   ],
+   "courtyard": [
+    125.36,
+    124.16,
+    128.65,
+    128.84
+   ]
+  },
+  "C91": {
+   "at": [
+    140.5,
+    122.0,
+    90.0
+   ],
+   "courtyard": [
+    138.85,
+    119.66,
+    142.15,
+    124.34
+   ]
+  },
+  "C92": {
+   "at": [
+    144.5,
+    122.0,
+    90.0
+   ],
+   "courtyard": [
+    142.85,
+    119.66,
+    146.15,
+    124.34
+   ]
+  },
+  "R80": {
+   "at": [
+    141.5,
+    143.0,
+    90.0
+   ],
+   "courtyard": [
+    140.72,
+    141.47,
+    142.28,
+    144.53
+   ]
+  },
+  "R81": {
+   "at": [
+    130.05,
+    130.5,
+    0.0
+   ],
+   "courtyard": [
+    128.53,
+    129.72,
+    131.58,
+    131.28
+   ]
+  },
+  "R82": {
+   "at": [
+    133.1,
+    130.5,
+    0.0
+   ],
+   "courtyard": [
+    131.57,
+    129.72,
+    134.62,
+    131.28
+   ]
+  },
+  "R83": {
+   "at": [
+    134.5,
+    126.6,
+    90.0
+   ],
+   "courtyard": [
+    133.72,
+    125.07,
+    135.28,
+    128.12
+   ]
+  },
+  "R84": {
+   "at": [
+    133.0,
+    126.6,
+    -90.0
+   ],
+   "courtyard": [
+    132.22,
+    125.07,
+    133.78,
+    128.12
+   ]
+  },
+  "R111": {
+   "at": [
+    135.1,
+    124.3,
+    -180.0
+   ],
+   "courtyard": [
+    133.57,
+    123.52,
+    136.62,
+    125.08
+   ]
+  },
+  "Q2": {
+   "at": [
+    93.358,
+    111.6,
+    0.0
+   ],
+   "courtyard": [
+    91.38,
+    109.85,
+    95.33,
+    113.34
+   ]
+  },
+  "Q3": {
+   "at": [
+    86.0,
+    111.6,
+    0.0
+   ],
+   "courtyard": [
+    84.03,
+    109.85,
+    87.97,
+    113.34
+   ]
+  },
+  "Q4": {
+   "at": [
+    101.0,
+    111.6,
+    0.0
+   ],
+   "courtyard": [
+    99.03,
+    109.85,
+    102.97,
+    113.34
+   ]
+  },
+  "Q5": {
+   "at": [
+    115.8,
+    111.6,
+    0.0
+   ],
+   "courtyard": [
+    113.83,
+    109.85,
+    117.77,
+    113.34
+   ]
+  },
+  "R74": {
+   "at": [
+    89.916,
+    110.65,
+    0.0
+   ],
+   "courtyard": [
+    88.39,
+    109.88,
+    91.44,
+    111.43
+   ]
+  },
+  "R75": {
+   "at": [
+    89.916,
+    112.4,
+    -180.0
+   ],
+   "courtyard": [
+    88.39,
+    111.62,
+    91.44,
+    113.18
+   ]
+  },
+  "R76": {
+   "at": [
+    82.558,
+    110.65,
+    0.0
+   ],
+   "courtyard": [
+    81.03,
+    109.88,
+    84.08,
+    111.43
+   ]
+  },
+  "R77": {
+   "at": [
+    82.558,
+    112.4,
+    -180.0
+   ],
+   "courtyard": [
+    81.03,
+    111.62,
+    84.08,
+    113.18
+   ]
+  },
+  "R78": {
+   "at": [
+    97.558,
+    110.65,
+    0.0
+   ],
+   "courtyard": [
+    96.03,
+    109.88,
+    99.08,
+    111.43
+   ]
+  },
+  "R79": {
+   "at": [
+    97.558,
+    112.4,
+    -180.0
+   ],
+   "courtyard": [
+    96.03,
+    111.62,
+    99.08,
+    113.18
+   ]
+  },
+  "R102": {
+   "at": [
+    112.358,
+    110.65,
+    0.0
+   ],
+   "courtyard": [
+    110.83,
+    109.88,
+    113.88,
+    111.43
+   ]
+  },
+  "R103": {
+   "at": [
+    112.358,
+    112.4,
+    -180.0
+   ],
+   "courtyard": [
+    110.83,
+    111.62,
+    113.88,
+    113.18
+   ]
+  },
+  "D5": {
+   "at": [
+    92.658,
+    106.6,
+    0.0
+   ],
+   "courtyard": [
+    91.01,
+    105.6,
+    94.3,
+    107.59
+   ]
+  },
+  "D6": {
+   "at": [
+    88.258,
+    107.6,
+    90.0
+   ],
+   "courtyard": [
+    87.26,
+    105.95,
+    89.25,
+    109.24
+   ]
+  },
+  "D7": {
+   "at": [
+    103.258,
+    107.6,
+    90.0
+   ],
+   "courtyard": [
+    102.26,
+    105.95,
+    104.25,
+    109.24
+   ]
+  },
+  "D8": {
+   "at": [
+    118.058,
+    107.6,
+    90.0
+   ],
+   "courtyard": [
+    117.06,
+    105.95,
+    119.05,
+    109.24
+   ]
+  }
+ },
+ "utilisation": {
+  "bnc": {
+   "parts": 4,
+   "courtyard_mm2": 657.0,
+   "rev_f_block_mm2": 1020.0,
+   "rev_f_util": 0.644,
+   "rev_e_bbox_mm": [
+    80.1,
+    11.8
+   ],
+   "rev_e_bbox_util": 0.693
+  },
+  "holes": {
+   "parts": 4,
+   "courtyard_mm2": 149.1,
+   "rev_f_block_mm2": 300.0,
+   "rev_f_util": 0.497,
+   "rev_e_bbox_mm": [
+    139.0,
+    99.0
+   ],
+   "rev_e_bbox_util": 0.011
+  },
+  "source": {
+   "parts": 13,
+   "courtyard_mm2": 68.3,
+   "rev_f_block_mm2": 337.5,
+   "rev_f_util": 0.202,
+   "rev_e_bbox_mm": [
+    15.8,
+    18.6
+   ],
+   "rev_e_bbox_util": 0.233
+  },
+  "codec": {
+   "parts": 35,
+   "courtyard_mm2": 226.9,
+   "rev_f_block_mm2": 1128.8,
+   "rev_f_util": 0.201,
+   "rev_e_bbox_mm": [
+    52.2,
+    38.6
+   ],
+   "rev_e_bbox_util": 0.113
+  },
+  "afe_hi": {
+   "parts": 13,
+   "courtyard_mm2": 76.6,
+   "rev_f_block_mm2": 616.4,
+   "rev_f_util": 0.124,
+   "rev_e_bbox_mm": [
+    50.1,
+    79.8
+   ],
+   "rev_e_bbox_util": 0.019
+  },
+  "relays": {
+   "parts": 3,
+   "courtyard_mm2": 564.7,
+   "rev_f_block_mm2": 607.2,
+   "rev_f_util": 0.93,
+   "rev_e_bbox_mm": [
+    44.4,
+    13.1
+   ],
+   "rev_e_bbox_util": 0.972
+  },
+  "tia": {
+   "parts": 17,
+   "courtyard_mm2": 93.7,
+   "rev_f_block_mm2": 762.4,
+   "rev_f_util": 0.123,
+   "rev_e_bbox_mm": [
+    21.2,
+    58.5
+   ],
+   "rev_e_bbox_util": 0.076
+  },
+  "k4": {
+   "parts": 6,
+   "courtyard_mm2": 216.5,
+   "rev_f_block_mm2": 698.2,
+   "rev_f_util": 0.31,
+   "rev_e_bbox_mm": [
+    14.9,
+    22.3
+   ],
+   "rev_e_bbox_util": 0.653
+  },
+  "ldo": {
+   "parts": 22,
+   "courtyard_mm2": 167.6,
+   "rev_f_block_mm2": 812.0,
+   "rev_f_util": 0.206,
+   "rev_e_bbox_mm": [
+    30.5,
+    32.8
+   ],
+   "rev_e_bbox_util": 0.167
+  },
+  "drivers": {
+   "parts": 18,
+   "courtyard_mm2": 110.9,
+   "rev_f_block_mm2": 534.0,
+   "rev_f_util": 0.208,
+   "rev_e_bbox_mm": [
+    48.0,
+    11.8
+   ],
+   "rev_e_bbox_util": 0.196
+  },
+  "switcher": {
+   "parts": 24,
+   "courtyard_mm2": 278.6,
+   "rev_f_block_mm2": 967.8,
+   "rev_f_util": 0.288,
+   "rev_e_bbox_mm": [
+    27.0,
+    27.2
+   ],
+   "rev_e_bbox_util": 0.38
+  },
+  "digital": {
+   "parts": 49,
+   "courtyard_mm2": 547.4,
+   "rev_f_block_mm2": 2215.8,
+   "rev_f_util": 0.247,
+   "rev_e_bbox_mm": [
+    43.7,
+    66.2
+   ],
+   "rev_e_bbox_util": 0.189
+  }
+ },
+ "rev_e_max_block_util": 0.38,
+ "courtyard_total_mm2": 3157.3,
+ "courtyard_fraction": {
+  "rev_e": 0.215,
+  "rev_f": 0.316
+ },
+ "net_length_mm": {
+  "SOURCE_BUF": {
+   "rev_e": {
+    "F.Cu": 7.46,
+    "In2.Cu": 86.0
+   },
+   "rev_e_total": 93.5,
+   "rev_f_plan": {
+    "F.Cu": 5.7,
+    "In2.Cu": 30.0
+   },
+   "rev_f_total": 35.7
+  },
+  "SRC_DRV": {
+   "rev_e": {
+    "F.Cu": 5.8,
+    "In2.Cu": 6.84
+   },
+   "rev_e_total": 12.6,
+   "rev_f_plan": {
+    "F.Cu": 6.5
+   },
+   "rev_f_total": 6.5
+  },
+  "TIA_OUT": {
+   "rev_e": {
+    "F.Cu": 14.15,
+    "B.Cu": 30.7,
+    "In2.Cu": 45.83
+   },
+   "rev_e_total": 90.7,
+   "rev_f_plan": {
+    "F.Cu": 11.7,
+    "In2.Cu": 33.6
+   },
+   "rev_f_total": 45.3
+  },
+  "RF100": {
+   "rev_e": {
+    "F.Cu": 4.55,
+    "In2.Cu": 24.14
+   },
+   "rev_e_total": 28.7,
+   "rev_f_plan": {
+    "F.Cu": 6.4
+   },
+   "rev_f_total": 6.4
+  },
+  "RF5K": {
+   "rev_e": {
+    "F.Cu": 12.19
+   },
+   "rev_e_total": 12.2,
+   "rev_f_plan": {
+    "F.Cu": 2.5,
+    "In2.Cu": 8.0
+   },
+   "rev_f_total": 10.5
+  },
+  "RF100K": {
+   "rev_e": {
+    "F.Cu": 3.96,
+    "In2.Cu": 36.44
+   },
+   "rev_e_total": 40.4,
+   "rev_f_plan": {
+    "F.Cu": 2.5,
+    "In2.Cu": 21.3
+   },
+   "rev_f_total": 23.8
+  },
+  "TIA_SUM": {
+   "rev_e": {
+    "F.Cu": 18.14
+   },
+   "rev_e_total": 18.1,
+   "rev_f_plan": {
+    "F.Cu": 13.4
+   },
+   "rev_f_total": 13.4
+  },
+  "DUT_LO": {
+   "rev_e": {
+    "F.Cu": 22.8,
+    "B.Cu": 55.1
+   },
+   "rev_e_total": 77.9,
+   "rev_f_plan": {
+    "F.Cu": 17.8,
+    "B.Cu": 32.2
+   },
+   "rev_f_total": 50.0
+  },
+  "DUT_HI": {
+   "rev_e": {
+    "F.Cu": 7.99,
+    "B.Cu": 203.43
+   },
+   "rev_e_total": 211.4,
+   "rev_f_plan": {
+    "F.Cu": 47.0,
+    "B.Cu": 111.3
+   },
+   "rev_f_total": 158.3
+  },
+  "HPOT": {
+   "rev_e": {
+    "F.Cu": 10.86,
+    "In2.Cu": 77.6
+   },
+   "rev_e_total": 88.5,
+   "rev_f_plan": {
+    "F.Cu": 16.9
+   },
+   "rev_f_total": 16.9
+  },
+  "LPOT": {
+   "rev_e": {
+    "F.Cu": 42.25,
+    "In2.Cu": 48.27
+   },
+   "rev_e_total": 90.5,
+   "rev_f_plan": {
+    "F.Cu": 24.9
+   },
+   "rev_f_total": 24.9
+  },
+  "HIGH_BUF": {
+   "rev_e": {
+    "F.Cu": 6.81,
+    "In2.Cu": 11.51
+   },
+   "rev_e_total": 18.3,
+   "rev_f_plan": {
+    "F.Cu": 6.0
+   },
+   "rev_f_total": 6.0
+  },
+  "LOW_BUF": {
+   "rev_e": {
+    "F.Cu": 24.98
+   },
+   "rev_e_total": 25.0,
+   "rev_f_plan": {
+    "F.Cu": 8.0
+   },
+   "rev_f_total": 8.0
+  },
+  "REF_A": {
+   "rev_e": {
+    "F.Cu": 2.4
+   },
+   "rev_e_total": 2.4,
+   "rev_f_plan": {
+    "F.Cu": 2.4
+   },
+   "rev_f_total": 2.4
+  },
+  "RG100": {
+   "rev_e": {
+    "F.Cu": 2.4
+   },
+   "rev_e_total": 2.4,
+   "rev_f_plan": {
+    "F.Cu": 2.4
+   },
+   "rev_f_total": 2.4
+  },
+  "RG5K": {
+   "rev_e": {
+    "F.Cu": 2.4
+   },
+   "rev_e_total": 2.4,
+   "rev_f_plan": {
+    "F.Cu": 2.4
+   },
+   "rev_f_total": 2.4
+  },
+  "RG100K": {
+   "rev_e": {
+    "F.Cu": 2.4
+   },
+   "rev_e_total": 2.4,
+   "rev_f_plan": {
+    "F.Cu": 2.4
+   },
+   "rev_f_total": 2.4
+  },
+  "EXCITE": {
+   "rev_e": {
+    "F.Cu": 17.14,
+    "In2.Cu": 58.65
+   },
+   "rev_e_total": 75.8,
+   "rev_f_plan": {
+    "F.Cu": 30.7
+   },
+   "rev_f_total": 30.7
+  },
+  "DAC_P": {
+   "rev_e": {
+    "F.Cu": 33.52
+   },
+   "rev_e_total": 33.5,
+   "rev_f_plan": {
+    "F.Cu": 23.8
+   },
+   "rev_f_total": 23.8
+  },
+  "DAC_M": {
+   "rev_e": {
+    "F.Cu": 23.4,
+    "In2.Cu": 13.28
+   },
+   "rev_e_total": 36.7,
+   "rev_f_plan": {
+    "F.Cu": 29.3
+   },
+   "rev_f_total": 29.3
+  },
+  "C1M_DIV": {
+   "rev_e": {
+    "F.Cu": 7.28
+   },
+   "rev_e_total": 7.3,
+   "rev_f_plan": {
+    "B.Cu": 33.0
+   },
+   "rev_f_total": 33.0
+  },
+  "C2P_DIV": {
+   "rev_e": {
+    "F.Cu": 7.67
+   },
+   "rev_e_total": 7.7,
+   "rev_f_plan": {
+    "B.Cu": 33.0
+   },
+   "rev_f_total": 33.0
+  },
+  "C2M_DIV": {
+   "rev_e": {
+    "F.Cu": 8.68
+   },
+   "rev_e_total": 8.7,
+   "rev_f_plan": {
+    "B.Cu": 33.0
+   },
+   "rev_f_total": 33.0
+  }
+ },
+ "net_ground_capacitance_forecast_pf": {
+  "TIA_SUM": {
+   "rev_e_nom": 0.9404,
+   "rev_e_high": 1.0866,
+   "rev_e_trace_model": 1.48,
+   "rev_e_fixed_remainder": 0.0,
+   "rev_f_trace_model": 1.09,
+   "rev_f_nom": 0.69,
+   "rev_f_high": 0.8
+  },
+  "DUT_LO": {
+   "rev_e_nom": 7.4542,
+   "rev_e_high": 10.8864,
+   "rev_e_trace_model": 4.18,
+   "rev_e_fixed_remainder": 3.27,
+   "rev_f_trace_model": 2.81,
+   "rev_f_nom": 6.08,
+   "rev_f_high": 8.88
+  },
+  "TIA_OUT": {
+   "rev_e_nom": 7.4822,
+   "rev_e_high": 11.0635,
+   "rev_e_trace_model": 4.53,
+   "rev_e_fixed_remainder": 2.95,
+   "rev_f_trace_model": 2.48,
+   "rev_f_nom": 5.43,
+   "rev_f_high": 8.03
+  },
+  "DUT_HI": {
+   "rev_e_nom": 12.9295,
+   "rev_e_high": 16.4946,
+   "rev_e_trace_model": 9.25,
+   "rev_e_fixed_remainder": 3.68,
+   "rev_f_trace_model": 8.53,
+   "rev_f_nom": 12.21,
+   "rev_f_high": 15.58
+  },
+  "RF100": {
+   "rev_e_nom": 2.0765,
+   "rev_e_high": 3.0884,
+   "rev_e_trace_model": 1.47,
+   "rev_e_fixed_remainder": 0.61,
+   "rev_f_trace_model": 0.52,
+   "rev_f_nom": 1.13,
+   "rev_f_high": 1.68
+  },
+  "RF5K": {
+   "rev_e_nom": 1.5483,
+   "rev_e_high": 3.2035,
+   "rev_e_trace_model": 0.99,
+   "rev_e_fixed_remainder": 0.56,
+   "rev_f_trace_model": 0.57,
+   "rev_f_nom": 1.12,
+   "rev_f_high": 2.32
+  },
+  "RF100K": {
+   "rev_e_nom": 2.7261,
+   "rev_e_high": 3.6316,
+   "rev_e_trace_model": 1.98,
+   "rev_e_fixed_remainder": 0.75,
+   "rev_f_trace_model": 1.17,
+   "rev_f_nom": 1.92,
+   "rev_f_high": 2.56
+  },
+  "LOW_BUF": {
+   "rev_e_nom": 1.9758,
+   "rev_e_high": 3.6346,
+   "rev_e_trace_model": 2.03,
+   "rev_e_fixed_remainder": 0.0,
+   "rev_f_trace_model": 0.65,
+   "rev_f_nom": 0.63,
+   "rev_f_high": 1.16
+  },
+  "HIGH_BUF": {
+   "rev_e_nom": 1.6442,
+   "rev_e_high": 2.096,
+   "rev_e_trace_model": 1.08,
+   "rev_e_fixed_remainder": 0.57,
+   "rev_f_trace_model": 0.49,
+   "rev_f_nom": 1.05,
+   "rev_f_high": 1.34
+  },
+  "SOURCE_BUF": {
+   "rev_e_nom": 8.3898,
+   "rev_e_high": 11.4291,
+   "rev_e_trace_model": 4.52,
+   "rev_e_fixed_remainder": 3.87,
+   "rev_f_trace_model": 1.83,
+   "rev_f_nom": 5.7,
+   "rev_f_high": 7.76
+  },
+  "RG100": {
+   "rev_e_nom": 0.9896,
+   "rev_e_high": 2.2891,
+   "rev_e_trace_model": 0.2,
+   "rev_e_fixed_remainder": 0.79,
+   "rev_f_trace_model": 0.2,
+   "rev_f_nom": 0.99,
+   "rev_f_high": 2.29
+  },
+  "RG5K": {
+   "rev_e_nom": 0.9894,
+   "rev_e_high": 2.289,
+   "rev_e_trace_model": 0.2,
+   "rev_e_fixed_remainder": 0.79,
+   "rev_f_trace_model": 0.2,
+   "rev_f_nom": 0.99,
+   "rev_f_high": 2.29
+  },
+  "RG100K": {
+   "rev_e_nom": 0.9894,
+   "rev_e_high": 2.2889,
+   "rev_e_trace_model": 0.2,
+   "rev_e_fixed_remainder": 0.79,
+   "rev_f_trace_model": 0.2,
+   "rev_f_nom": 0.99,
+   "rev_f_high": 2.29
+  },
+  "SRC_DRV": {
+   "rev_e_nom": 1.2808,
+   "rev_e_high": 1.5466,
+   "rev_e_trace_model": 0.78,
+   "rev_e_fixed_remainder": 0.5,
+   "rev_f_trace_model": 0.53,
+   "rev_f_nom": 1.03,
+   "rev_f_high": 1.24
+  },
+  "HPOT": {
+   "rev_e_nom": 8.8664,
+   "rev_e_high": 10.7001,
+   "rev_e_trace_model": 4.41,
+   "rev_e_fixed_remainder": 4.45,
+   "rev_f_trace_model": 1.38,
+   "rev_f_nom": 5.83,
+   "rev_f_high": 7.03
+  },
+  "LPOT": {
+   "rev_e_nom": 10.8626,
+   "rev_e_high": 16.9391,
+   "rev_e_trace_model": 5.64,
+   "rev_e_fixed_remainder": 5.23,
+   "rev_f_trace_model": 2.03,
+   "rev_f_nom": 7.25,
+   "rev_f_high": 11.31
+  },
+  "REF_A": {
+   "rev_e_nom": 0.9089,
+   "rev_e_high": 2.1031,
+   "rev_e_trace_model": 0.2,
+   "rev_e_fixed_remainder": 0.71,
+   "rev_f_trace_model": 0.2,
+   "rev_f_nom": 0.91,
+   "rev_f_high": 2.1
+  }
+ },
+ "node_ground_capacitance_forecast_pf": {
+  "sum": {
+   "rev_e_nom": 0.94,
+   "rev_e_high": 1.09,
+   "rev_f_nom": 0.69,
+   "rev_f_high": 0.8,
+   "nets": [
+    "TIA_SUM"
+   ]
+  },
+  "low": {
+   "rev_e_nom": 7.45,
+   "rev_e_high": 10.89,
+   "rev_f_nom": 6.08,
+   "rev_f_high": 8.88,
+   "nets": [
+    "DUT_LO"
+   ]
+  },
+  "tia": {
+   "rev_e_nom": 10.21,
+   "rev_e_high": 14.7,
+   "rev_f_nom": 7.35,
+   "rev_f_high": 10.59,
+   "nets": [
+    "TIA_OUT",
+    "RF100K"
+   ]
+  },
+  "hi": {
+   "rev_e_nom": 12.93,
+   "rev_e_high": 16.49,
+   "rev_f_nom": 12.21,
+   "rev_f_high": 15.58,
+   "nets": [
+    "DUT_HI"
+   ]
+  },
+  "lowbuf": {
+   "rev_e_nom": 1.98,
+   "rev_e_high": 3.63,
+   "rev_f_nom": 0.63,
+   "rev_f_high": 1.16,
+   "nets": [
+    "LOW_BUF"
+   ]
+  },
+  "highbuf": {
+   "rev_e_nom": 1.64,
+   "rev_e_high": 2.1,
+   "rev_f_nom": 1.05,
+   "rev_f_high": 1.34,
+   "nets": [
+    "HIGH_BUF"
+   ]
+  },
+  "source": {
+   "rev_e_nom": 9.38,
+   "rev_e_high": 13.72,
+   "rev_f_nom": 6.69,
+   "rev_f_high": 10.05,
+   "nets": [
+    "SOURCE_BUF",
+    "RG100"
+   ]
+  },
+  "srcdrv": {
+   "rev_e_nom": 1.28,
+   "rev_e_high": 1.55,
+   "rev_f_nom": 1.03,
+   "rev_f_high": 1.24,
+   "nets": [
+    "SRC_DRV"
+   ]
+  },
+  "hpot": {
+   "rev_e_nom": 8.87,
+   "rev_e_high": 10.7,
+   "rev_f_nom": 5.83,
+   "rev_f_high": 7.03,
+   "nets": [
+    "HPOT"
+   ]
+  },
+  "lpot": {
+   "rev_e_nom": 10.86,
+   "rev_e_high": 16.94,
+   "rev_f_nom": 7.25,
+   "rev_f_high": 11.31,
+   "nets": [
+    "LPOT"
+   ]
+  },
+  "refa": {
+   "rev_e_nom": 0.91,
+   "rev_e_high": 2.1,
+   "rev_f_nom": 0.91,
+   "rev_f_high": 2.1,
+   "nets": [
+    "REF_A"
+   ]
+  }
+ },
+ "rf_loop_forecast": {
+  "RF100": {
+   "rev_e_path_mm": 76.7,
+   "rev_e_L_high_nH": 64.93,
+   "rev_f_path_mm": 19.8,
+   "rev_f_L_forecast_nH": 16.7
+  },
+  "RF5K": {
+   "rev_e_path_mm": 57.4,
+   "rev_e_L_high_nH": 64.41,
+   "rev_f_path_mm": 24.6,
+   "rev_f_L_forecast_nH": 27.6
+  },
+  "RF100K": {
+   "rev_e_path_mm": 103.2,
+   "rev_e_L_high_nH": 92.44,
+   "rev_f_path_mm": 52.9,
+   "rev_f_L_forecast_nH": 47.4
+  }
+ },
+ "switcher_distance_mm": {
+  "rev_e": {
+   "per_ic": {
+    "U5": [
+     76.4,
+     "D2"
+    ],
+    "U6": [
+     91.2,
+     "D3"
+    ],
+    "U7": [
+     84.8,
+     "D3"
+    ],
+    "U14": [
+     64.6,
+     "D3"
+    ]
+   },
+   "nearest": [
+    64.6,
+    "D3",
+    "U14"
+   ]
+  },
+  "rev_f": {
+   "per_ic": {
+    "U5": [
+     90.9,
+     "D2"
+    ],
+    "U6": [
+     81.2,
+     "D3"
+    ],
+    "U7": [
+     64.6,
+     "D3"
+    ],
+    "U14": [
+     81.7,
+     "D2"
+    ]
+   },
+   "nearest": [
+    64.6,
+    "D3",
+    "U7"
+   ]
+  },
+  "near_field_dipole_ratio_db": 0.0,
+  "per_ic_dipole_change_db": {
+   "U5": -4.5,
+   "U6": 3.0,
+   "U7": 7.1,
+   "U14": -6.1
+  }
+ },
+ "rigid_copper_reuse": {
+  "groups": {
+   "rp2040_core": {
+    "tracks": 317,
+    "track_mm": 503.0,
+    "vias": 64
+   },
+   "codec_core": {
+    "tracks": 35,
+    "track_mm": 65.0,
+    "vias": 22
+   },
+   "ldo_pair": {
+    "tracks": 76,
+    "track_mm": 99.4,
+    "vias": 26
+   },
+   "switcher": {
+    "tracks": 117,
+    "track_mm": 184.6,
+    "vias": 31
+   },
+   "drivers": {
+    "tracks": 28,
+    "track_mm": 41.2,
+    "vias": 17
+   }
+  },
+  "rev_e_tracks": 1111,
+  "rev_e_track_mm": 4643.1,
+  "rev_e_vias": 279,
+  "reused_tracks": 573,
+  "reused_track_mm": 893.2,
+  "reused_vias": 160
+ },
+ "fab_estimate_usd_5_boards": {
+  "quote_lines": {
+   "Engineering fee": 25.0,
+   "Surface finish (ENIG)": 18.2,
+   "Board": 8.7
+  },
+  "quoted_outline_mm": [
+   140,
+   100
+  ],
+  "area_ratio": 0.7143,
+  "rev_e": 51.9,
+  "rev_f_low": 44.21,
+  "rev_f_high": 49.41,
+  "saving_range": [
+   2.49,
+   7.69
+  ]
+ },
+ "enclosure": {
+  "rev_e_board_mm": [
+   140,
+   105
+  ],
+  "rev_e_box_mm": [
+   150,
+   115,
+   36
+  ],
+  "rev_f_board_mm": [
+   100.0,
+   100.0
+  ],
+  "rev_f_box_mm": [
+   110.0,
+   110.0,
+   36
+  ],
+  "footprint_change": -0.299,
+  "rev_e_hole_pattern_mm": [
+   132,
+   92
+  ],
+  "rev_f_hole_pattern_mm": [
+   92.0,
+   87.0
+  ],
+  "bnc_centres_from_left_edge_mm": [
+   17.0,
+   39.0,
+   61.0,
+   83.0
+  ],
+  "rev_e_bnc_centres_from_left_edge_mm": [
+   58.0,
+   80.0,
+   102.0,
+   124.0
+  ],
+  "usb_c_centre_from_top_edge_mm": {
+   "rev_e": 32.0,
+   "rev_f": 77.0,
+   "edge": "left (x 50) on both"
+  }
+ },
+ "five_volt_trunk": {
+  "from": "U16.6",
+  "to": "U13.5",
+  "manhattan_mm": 99.0,
+  "ohm_by_width_mm": {
+   "1.0": 0.0487,
+   "1.5": 0.0325
+  },
+  "drop_mv_at_0p45a": {
+   "1.0": 21.9,
+   "1.5": 14.6
+  },
+  "rev_e_u16_to_u13_mm": 26.0
+ },
+ "all_checks_pass": true
+}

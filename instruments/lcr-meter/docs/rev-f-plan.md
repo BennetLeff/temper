@@ -1,0 +1,256 @@
+# Rev F plan: the Rev E circuit on a 100 × 100 mm board
+
+Rev F moves the Rev E circuit, unchanged, from 140 × 105 mm to 100 × 100 mm, so that the machined enclosure can shrink from about 150 × 115 × 36 mm to about 110 × 110 × 36 mm. The netlist and BOM stay the same. Only placement, routing, the outline, the holes and the silk change.
+
+**Phase 1 (this document): floorplan and go/no-go.** Nothing has been placed or routed yet. Every number here comes from `validation/rev-f-floorplan/floorplan.py` (about 0.5 s) and the forecast harness runs listed under [Reproduce](#reproduce). The capacitance and inductance values are **forecasts**: closed-form estimates for deciding whether to proceed. They are not extractions. Phase 3 replaces them with an FD extraction of the routed board.
+
+**Recommendation: GO to phase 2**, subject to the gates in [Phase 2 gates](#phase-2-gates).
+
+## 1. Inventory
+
+Source: the Rev E board at the branch point (`48b012771`, SHA-256 `1615e9fc…7f59`), dumped once by `cad/tools/rev_f_inventory.py` (KiCad Python) to `validation/rev-f-floorplan/rev-e-inventory.json`.
+
+- 208 footprints. Courtyards total **3157 mm²**: 21.5 % of Rev E's 14,700 mm², and **31.6 %** of the 10,000 mm² Rev F board.
+- **Fixed edge items:**
+  - four BNC jacks (657 mm² of courtyard), one edge, 22 mm pitch;
+  - USB-C J1, on a side edge;
+  - four M3 holes (149 mm²).
+- **Large bodies:** four TQ2SA relays, 188 mm² each (753 mm² in total).
+
+| Block | Parts | Courtyard mm² | Rev F block mm² | Rev F fill | Rev E fill, same parts (bounding box) |
+|---|---:|---:|---:|---:|---|
+| BNC band (J3, J7, J8, J9) | 4 | 657 | 1020 | 64 % | 69 % (80 × 12 mm) |
+| Relay column K1–K3 | 3 | 565 | 607 | 93 % | 97 % (the Rev E row, 44 × 13 mm) |
+| K4 + driver + R107 | 6 | 216 | 698 | 31 % | 65 % |
+| Switcher (U13 island) | 24 | 279 | 968 | 29 % | **38 %** (27 × 27 mm) |
+| Digital (RP2040, flash, USB, U3, U16, J4–J6 lands) | 49 | 547 | 2216 | 25 % | 19 % |
+| LDO pair (U11, U12) | 22 | 168 | 812 | 21 % | 17 % |
+| Relay drivers + VRLY filter | 18 | 111 | 534 | 21 % | 20 % |
+| Codec (U14, U15, four input legs, FB1) | 35 | 227 | 1129 | 20 % | 11 % |
+| Source (U5 difference stage) | 13 | 68 | 338 | 20 % | 23 % |
+| HIGH side (U6, R104, R105, RG resistors) | 13 | 77 | 616 | 12 % | 2 % |
+| TIA (U7, RF resistors, C104, R94, C78, R106, leg resistors) | 17 | 94 | 762 | 12 % | 8 % |
+
+The **density check** compares each Rev F block of at least 10 parts with the densest such block Rev E already routes at DRC 0 with the same rules: the switcher island at 38 %. Every Rev F block is at or below it; the densest is digital at 25 %. The relay column (93 %) is compared with the Rev E relay row (97 %). The 12 blocks tile the board exactly. Each anchored part lies inside its block, inside the outline (J1 overhangs by the same 0.2 mm lip as on Rev E), and clear of every other courtyard.
+
+## 2. Floorplan
+
+![Rev F floorplan](../validation/rev-f-floorplan/floorplan.png)
+
+Board coordinates x 50–150, y 45–145 mm. The top edge (y 45) carries the jacks, as on Rev E. Drill/place origin is (50, 145).
+
+| Item | Rev F position (x, y, rotation) | Rev E | Note |
+|---|---|---|---|
+| J3 HCUR, J7 HPOT, J8 LPOT, J9 LCUR | (67 / 89 / 111 / 133, 51, 0) | (108 / 130 / 152 / 174, 51) | 22 mm pitch and order unchanged. Centres 17 / 39 / 61 / 83 mm from the left edge |
+| H1–H4, M3 | (54, 54), (146, 54), (54, 141), (146, 141) | 132 × 92 mm pattern | **92 × 87 mm** pattern; same insets (4 mm sides and bottom, 9 mm top) |
+| J1 USB-C | (54, 122, −90), left edge | (54, 77, −90), left edge | Same wall; centre 77 mm from the front edge (Rev E 32 mm) |
+| K1 100 Ω, K2 5 kΩ, K3 100 kΩ | (100, 65 / 80 / 95, 270) | row at y 128 | Vertical column. Pins 1–5 (COM1 = SOURCE_BUF, NO1 = RGx) face U6; pins 6–10 (COM2 = TIA_OUT, NO2 = RFx) face U7 |
+| K4 reference | (138, 66, 90) | (182, 70, 0) | LCUR corner. COM2 (DUT_HI) and NO2 (REF_A) on its west side; R107 to DUT_LO beside J9 |
+| U6 (source follower + HIGH follower) | (88, 66, 90) | (168, 91, 180) | HPOT drops straight from J7 to U6.5 |
+| U7 (TIA + LOW follower) | (112, 70, 90) | (168, 108, 0) | LPOT drops straight from J8 to U7.5; TIA pins face the relay column |
+| U5 source stage | (75, 64, 0) | (132, 68, 0) | Between the codec DAC pins and U6.3 |
+| U14 codec core (with U15) | U14 (64, 88.5) | (141, 97.5) | Rigid copy of the Rev E codec core |
+| U1/U2 RP2040 core | U1 (74, 124, 180) | (82, 87, 180) | Rigid copy |
+| U11/U12 LDO pair | U11 (130, 100) | (110, 133) | Rigid copy |
+| U13 switcher island | U13 (137.5, 135), quarter turn | (80, 130) | Rigid copy, rotated 90° |
+| Relay drivers Q2–Q5 | Q3 (86, 111.6) | (156.6, 140.6) | Rigid copy of the Rev E driver row |
+
+**Keep-outs**, carried from Rev E:
+
+- In1 stays solid GND.
+- The op-amp input relief voids (In1, In2, B.Cu) move with U5, U6 and U7: the TIA_SUM bar, U7 TIA/LOW pins, U6 HIGH pins and SRC_DRV output, U5 inputs, and the R94 summing-side pad.
+- No copper other than DUT_HI may cross under U7's void.
+- The BNC band (y 45–57) carries only the jack pins and the four escapes.
+
+**Rigid groups.** Five Rev E sub-layouts move as single bodies: the RP2040 core, the codec core, the LDO pair, the switcher island (quarter turn) and the driver row. Their hand-placed parts keep the Rev E relative geometry, and their hand-routed copper carries over coordinate for coordinate. That is **573 of 1111 Rev E track entries and 160 of 279 vias** (893 mm of 4643 mm of track; the rest of the length is the long inter-block runs that Rev F shortens). Because of this, their datasheet layout properties are the same as on Rev E by construction:
+
+- LDO CIN 5.6 mm, COUT 6.1 mm;
+- codec decoupling 1.3–3.9 mm;
+- TPS65131 feedback nodes and switch loops (CONV_FBP 9.1 mm, CONV_FBN 16.1 mm);
+- exposed-pad thermal vias.
+
+Parts taken out of the copied groups, and where they go instead:
+
+- C80 (TPS65131 input bulk): placed at U13, closer than its 16.4 mm on Rev E.
+- C16: at U16 OUT (TPS2553 §12.1).
+- R96, R97/R100, FB1/C103: re-placed beside their new neighbours.
+
+## 3. Layout-dependent quantities before routing
+
+### Net lengths (planned skeleton, Manhattan, so the upper side of the eventual route)
+
+| Net | Rev E mm | Rev F plan mm | Layers planned |
+|---|---:|---:|---|
+| SOURCE_BUF (stability limiter) | 93.5 | **35.7** | In2 bus on the column's west flank, 1.6 mm F.Cu stubs |
+| TIA_OUT | 90.7 | **45.3** | In2 bus on the east flank; C104 and R67 at U7 |
+| SRC_DRV (U6.1 → R104) | 12.6 | 6.5 | F.Cu |
+| RF100 / RF5K / RF100K | 28.7 / 12.2 / 40.4 | 6.4 / 10.5 / 23.8 | NO2 → R43–R45 at U7 (TIA_SUM pads short) |
+| TIA_SUM | 18.1 | 13.4 | F.Cu, inside its void |
+| HPOT / LPOT | 88.5 / 90.5 | 16.9 / 24.9 | straight drops from J7 / J8 |
+| DUT_LO (LCUR) | 77.9 | 50.0 | J9 → R106/R107 → C78/R94 at U7 |
+| DUT_HI (HCUR) | 211.4 | 158.3 | B.Cu bus under R40–R42, crossing south of K3 to K4 |
+| EXCITE (U5 → U6.3) | 75.8 | 30.7 | F.Cu, leaves U5 southward clear of DUT_HI |
+| DAC_P / DAC_M | 33.5 / 36.7 | 23.8 / 29.3 | F.Cu |
+| HIGH_BUF / LOW_BUF | 18.3 / 25.0 | 6.0 / 8.0 | leg 1 kΩ at the op-amp |
+| C1M / C2P / C2M divider nodes | 7–9 | 33.0 | B.Cu under K2 (behind 1 kΩ, 500 Ω node, 560 pF) |
+
+### Node capacitance forecast (pF to ground, nominal / high, worst range)
+
+How the forecast is built:
+
+1. Start from the Rev E extracted value (`extracted_reve_bnc.json`, board copper, part terms and jack estimate).
+2. Remove its trace share and add the Rev F planned trace share, using closed-form microstrip figures for a 0.2 mm track: F.Cu 0.081, In2 0.045, B.Cu 0.042 pF/mm.
+3. Where the figure exceeds the extracted value (TIA_SUM sits on a plane void), scale by length instead.
+4. The high corner keeps each net's Rev E high/nominal ratio.
+
+| Harness node | Rev E (extracted) | **Rev F forecast** |
+|---|---|---|
+| source (SOURCE_BUF + RG100) | 9.38 / 13.72 | **6.69 / 10.05** |
+| tia (TIA_OUT + RF100K) | 10.21 / 14.70 | **7.35 / 10.59** |
+| sum (TIA_SUM) | 0.94 / 1.09 | 0.69 / 0.80 |
+| low (DUT_LO, LCUR jack incl.) | 7.45 / 10.89 | 6.08 / 8.88 |
+| hi (DUT_HI, HCUR jack incl.) | 12.93 / 16.49 | 12.21 / 15.58 |
+| hpot / lpot | 8.87 / 10.86 nom | 5.83 / 7.25 nom |
+| lowbuf / highbuf / srcdrv | 1.98 / 1.64 / 1.28 nom | 0.63 / 1.05 / 1.03 nom |
+| refa | 0.91 / 2.10 | unchanged |
+
+**RF-loop inductance** (U7.1 → COM2 → NO2 → R4x → TIA_SUM): the Rev E free-space value scaled by path length. 100 Ω range 64.9 → **16.7 nH**; 5 kΩ 64.4 → 27.6; 100 kΩ 92.4 → 47.4. The C104 loop stays local and unchanged (5.04 nH).
+
+### What the stability matrix should see (forecast)
+
+The forecast boards (`revf_est_extracted.rs`, from `forecast_harness.py`) were run through the full 360-case `kelvincng100` grid: no cable, four 1 m coax, 100–1000 pF lumped, K4 closed; nominal and stress relay sets. **EST** uses the forecast ground terms, Rev E mutuals and the forecast RF L. **PESS** uses the same ground terms, every mutual capacitance doubled (a denser board couples more), and Rev E's RF L (no credit).
+
+| Loop, worst of 90 cases | Rev E as built (`kelvincng100`) | Rev F EST | Rev F PESS |
+|---|---|---|---|
+| drive (source driver), stress | 46.83° / 0.588 | **47.87° / 0.593** | **47.67° / 0.591** |
+| drive, nominal | 50.29° | 51.13° | 50.97° |
+| TIA | 57.21° / 0.491 | 57.44° / 0.512 | 57.88° / 0.507 |
+| HIGH follower | 57.05° | 57.33° | 57.12° |
+| LOW follower | 55.89° | 56.92° | 56.72° |
+
+- Negative-real-axis crossings left of −1: 0 in all 720 forecast rows.
+- The harness change is regression-checked: rerunning `kelvincng100` after the refactor reproduced all 360 committed rows exactly, and its committed `.cir` netlists byte for byte.
+
+**Reading.** The board is not what limits the drive loop's margin: shrinking SOURCE_BUF copper by a third buys about 1°. The stress relay-contact estimates (Ccc, Cpp, Coc, still UNVERIFIED) and the coax case set it. Rev F should therefore be **no worse than Rev E in any loop**, provided the routed board's analog node capacitances come out at or below Rev E's (gate G1).
+
+### Decoupling and regulator distances
+
+- **Rigid groups** keep Rev E's values exactly: LDO CIN/COUT, the switcher island, codec decoupling 1.3–3.9 mm, and the RP2040 caps.
+- **OPA2810 bypass** at 2.03–2.05 mm and the U5 caps at 1.8–3.2 mm are local placements. The board size does not constrain them, and Rev F keeps the Rev E numbers as targets.
+- **C80** moves to the switcher.
+- **C113** stays at U16 IN.
+
+### Switcher to analog (part centres; `regulator_check.py` metric)
+
+The switcher island's pose came from a 0.5 mm grid search over four rotations (`switcher_pose_search.py`, 6.6 s, 514 feasible poses). It maximises the smallest distance from L1, L2, D2, D3 and U13 to U5, U6, U7 and U14, with every courtyard inside the block.
+
+| | Rev E | Rev F | Change in 1/r³ (dipole) coupling |
+|---|---|---|---|
+| **Nearest analog IC** | **64.6 mm (D3–U14)** | **64.6 mm (D3–U7)** | 0 dB |
+| U14 codec | 64.6 | 81.7 | −6.1 dB |
+| U7 TIA | 84.8 | 64.6 | **+7.1 dB** |
+| U6 | 91.2 | 81.2 | +3.0 dB |
+| U5 | 76.4 | 90.9 | −4.5 dB |
+
+### 5 V trunk
+
+The trunk runs from U16 OUT (left edge) to U13: 99 mm Manhattan, against 26 mm for U16 → U13 on Rev E. At 1.5 mm of 1 oz copper that is 0.033 Ω, a 14.6 mV drop at 0.45 A (21.9 mV at 1.0 mm). `regulator_check.py` must add this to R_ENTRY: its 4.32 V converter corner falls by about 0.015 V, against a 0.875 duty limit that has ≥ 0.096 of margin.
+
+## 4. Fabrication cost and enclosure
+
+- **Fabrication, five boards.** The JLC quote in `order_estimate.py` was taken at 140 × 100 mm: $51.90 = engineering $25.00 + ENIG $18.20 + board $8.70. Scaled by area (×0.714):
+  - the board line falls to $6.21;
+  - ENIG is unchanged ($49.41) or also scales ($44.21).
+  
+  So Rev F fabrication is **$44–49, a $2.5–7.7 saving**. This is an ESTIMATE: JLC prices are tiered, and Rev E's own 140 × 105 outline was never re-quoted. Re-quote at upload (the price page needs only the dimensions, not the Gerbers).
+- **Assembly** is unchanged: same parts, joints, extended lines and BNC hand fitting.
+- **The real saving is the enclosure:** 110 × 110 × 36 mm against 150 × 115 × 36, **30 % less footprint**. The enclosure drawing changes in four places:
+  - the BNC holes move to 17 / 39 / 61 / 83 mm from the left inner edge;
+  - the USB-C cut-out moves from 32 to 77 mm behind the front edge, on the same (left) wall;
+  - the hole pattern becomes 92 × 87 mm;
+  - the barrels still overhang the front edge by 12 mm.
+
+## 5. Decisions
+
+| Date | Decision | Basis |
+|---|---|---|
+| 2026-10-29 | **Outline 100 × 100 mm at x 50–150, y 45–145; BNCs on the top edge at 67 / 89 / 111 / 133, order HCUR, HPOT, LPOT, LCUR; holes at the Rev E insets** | 80 mm of jack courtyard fits between the two top holes with 2.5 mm to spare. Same edge, order and pitch as Rev E, so the leads, cal kit and Keysight-order panel do not change |
+| 2026-10-29 | **Layout "B"** (figure): codec and source top-left; U6 \| relay column \| U7 across the middle; K4 at the LCUR corner; LDOs at the right; switcher bottom-right; digital bottom-left; drivers under the column | Against the mirror image "A" (codec right, switcher bottom-left): A's nearest analog IC is 51–55 mm and it sends EXCITE across the relay column. Against K4 at the column foot: that runs DUT_LO, a TIA input node, 45 mm beside the TIA_OUT bus |
+| 2026-10-29 | **K1–K3 as a vertical column at x 100, rotation 270, K1 (100 Ω) nearest U6/U7; SOURCE_BUF and TIA_OUT as In2 buses on the two flanks** | Halves SOURCE_BUF (93.5 → 35.7 mm) and TIA_OUT (90.7 → 45.3 mm). Shortest RF loop on the range most sensitive to RF lead L. Unselected RF nets in RF order (100 Ω loads TIA_SUM through the smallest resistor) |
+| 2026-10-29 | **Leg series resistors at the op-amps: R60 at U6; R61, R66, R67 at U7.** The divider nodes cross under K2 on B.Cu | Keeps TIA_OUT and LOW_BUF copper short. The long run sits behind 1 kΩ on a 500 Ω / 560 pF node: about 1.4 pF more, 0.25 % of the 560 pF, linear and calibrated |
+| 2026-10-29 | **DUT_HI on B.Cu** (bus under R40–R42, crossing south of K3), F.Cu only from J3 to the bus | SRC_DRV/R104 and EXCITE cross it on F.Cu with In1 between. It keeps clear of the divider runs under K2 and of U7's void |
+| 2026-10-29 | **Rigid reuse of five Rev E sub-layouts** (RP2040 core, codec core, LDO pair, switcher island with a quarter turn, relay drivers); C80, C16, R96, R97/R100 and FB1/C103 re-placed | 573 of 1111 track entries and 160 of 279 vias carry over as coordinate transforms of Rev E hand routes (no autorouter). Their datasheet layout distances are unchanged by construction |
+| 2026-10-29 | **Switcher island at U13 (137.5, 135), rotated 90°** | `switcher_pose_search.json`: nearest analog IC 64.6 mm, equal to Rev E. The best pose at the other rotations is 55.0 mm (0°), 54.4 mm (180°) and 59.1 mm (−90°) |
+| 2026-10-29 | **USB-C stays on the left edge** (J1 at y 122) with U16 + C113 at the receptacle; C16 moves to U16 OUT | Keeps USB D± short and away from the switcher, at the cost of a 99 mm 5 V trunk (≤ 22 mV at 0.45 A). A right-edge J1 would run D± 80 mm past the LDOs and switcher |
+| 2026-10-29 | **Rev F replaces the `cad/` outputs on this branch**, as Rev E replaced Rev D. Rev E stays reproducible: commit `48b012771`, plus `cad/tools/rev_e.py` unchanged. `build_cad.py` and `package_cad.py` take the outline, holes, silk, reference-text overrides and drill origin from `design.json["board"]` | One adapter builds both revisions. The parasitics runner already takes boards from git by commit. Before phase 2 lands, rebuilding Rev E with the parameterised adapter must reproduce the Rev E `.kicad_pcb` byte for byte (it does today: rebuild in 9.7 s, board identical) |
+| 2026-10-29 | **Forecast harness modes `revfestcng100` / `revfpesscng100`** (`loop_matrix.rs` `kelvin_cases_on`, `revf_est_extracted.rs`) | Pre-route stability forecast. Every forecast loop is at or above Rev E. Phase 3 adds a `revf` mode on the extracted board |
+| 2026-10-29 | **GO to phase 2** | All floorplan checks pass. Every block is at or below the densest Rev E block. Every analog node forecast is at or below Rev E. Every loop forecast is at or above Rev E. Switcher distance is equal to Rev E's |
+
+## 6. Risks
+
+1. **Relay-column flank congestion (medium).** The west flank carries:
+   - the SOURCE_BUF bus;
+   - three RG stubs, R40–R42;
+   - the DUT_HI bus;
+   - three SET coil lines and VRLY.
+
+   The east flank carries the TIA_OUT bus, RF stubs, RST and VRLY. Planned layer split:
+   - In2: the two buses;
+   - B.Cu: DUT_HI and the coil lines (under In1, away from the voids);
+   - F.Cu: stubs.
+
+   The coil lines must stay away from TIA_SUM and RF100 and be guarded with GND, as range-switching §6 requires. If the flanks will not route at 0.15/0.2 mm, the fallback is a 1.5 mm wider column pitch: 3 mm more of each bus, which the forecast absorbs.
+2. **The TIA is nearer the switcher** (U7 84.8 → 64.6 mm, +7.1 dB on a 1/r³ coupling; the codec gets −6.1 dB). Near-field pickup was not modelled on Rev E either. It only matters if a switcher harmonic collides with the tone: 0.01–0.09 % per frequency, unchanged. The source-off check (R-E2) sees a collided line, so it fails a capture rather than biasing it. Phase 3 adds a relative pickup estimate.
+3. **The forecast is not an extraction.** It is a closed-form per-mm model on Rev E's own extraction. The drive-loop gain it shows (+0.8 to +1.0°) is small, so the as-routed board must be extracted before any stability claim (gate G1).
+4. **The DUT_HI route is still long** (158 mm planned), because K4 sits at the LCUR corner. DUT_HI is the driven side: its ground load acts through RG, and Kelvin sensing removes its drop. It forecasts below Rev E.
+5. **The divider nodes run 33 mm** (C1M, C2P, C2M on B.Cu) beside each other. Inter-leg crosstalk is linear and removed by calibration.
+6. **Process.** The switcher quarter turn changes its CPL rotations, so `placement_offsets.py` must be rerun and the JLC orientation preview rechecked. The silk labels must be redone, and the board text set to REV F.
+7. **Thermal.** The smaller enclosure runs warmer for the same 2.3 W. What matters is drift between calibration and use, not the absolute temperature, and the K4 reference check tracks ratio drift. The LDO pair also sits closer to R43–R45 than on Rev E. No temperature number is claimed here; the phase-3 report states what was and was not evaluated.
+
+## Phase 2 gates
+
+Phase 2 is full placement plus hand routing in `cad/tools/rev_f.py` (placement from this floorplan's anchors and rigid groups) and `cad/tools/rev_f_routes.py`. That means explicit coordinates and the transformed Rev E group copper. **No autorouter.**
+
+- **G1.** Extracted node capacitances at or below Rev E: source ≤ 13.7 pF and tia ≤ 14.7 pF at the high corner. Otherwise rerun the matrix before going further.
+- **G2.** Switcher nearest analog IC ≥ 60 mm. Every rigid group's internal geometry unchanged.
+- **G3.** OPA2810 bypass ≤ 2.1 mm; codec decoupling ≤ 3.9 mm; CIN/COUT ≤ 10 mm; C80 ≤ 10 mm from U13.
+- **G4.** ERC 0; DRC 0/0/0 with parity; `audit_dfm.py`: only the 33 exposed-pad thermal vias in SMT lands, every via 0.3 mm and tented.
+
+## Rerun list for phase 3, with measured runtimes
+
+Runtimes were measured on this Mac on the Rev E board today, except where a different source is named.
+
+| Step | Script | Runtime | Change needed for Rev F |
+|---|---|---|---|
+| Build, ERC, DRC/parity, Gerbers, BOM/CPL, DFM/via audit | `cad/rebuild.sh` | **9.7 s** | Board-parameterised adapter (decision above) |
+| Independent audit | `validation/independent_check.py` | **1 s** | Add an `f` mode (bypass distances, relief voids, four-terminal topology) |
+| Layout audit | `cad/tools/audit_layout.py` | ~1 s | `REV = 'f'` → `layout-audit-rev-f.json` |
+| CPL offsets, cost | `placement_offsets.py`, `manufacturing/order_estimate.py` | seconds | Switcher rotation; Rev F fabrication line |
+| Parasitic extraction (FD + loop L) | `validation/layout-parasitics/run_reve.sh`-style `revf` variant | Rev E BNC schedule **1244 s serial** (32 solves, from the stored `seconds`); whole board at 0.2 mm **160 s** (7628, 4.5 M unknowns) and **224 s** (1080, 5.8 M); peak about 5–7 GB | New windows/domain for the Rev F conductors (about the same area as Rev E's L-domain). Run the zoom windows 3 at a time: about 10–15 min wall. **Fits the 32 GB Mac; the remote box is not needed** |
+| Stability, 360 cases | `run_matrix.sh revfcng100 8` | **75 s** (8 shards; measured 72–77 s for each of three modes) | Generated include from the extraction |
+| Source stage U5 | `stability-full-chain/source_stage.py` | 43 s | None: its strays are assumed values, not board-extracted. Rerun for the record |
+| Regulators | `power-spurs/regulator_check.py` | 0.1 s | R_ENTRY plus the 5 V trunk; C80 distance |
+| Interference, codec chain | `power-spurs/rev_e_spurs.py` | 0.2 s | None in the model. Add a relative switcher-pickup script (dipole, Rev E vs Rev F loop areas), about 1 s |
+| Rail monitor window | `power-spurs/rail_monitor_window.py` | < 0.1 s | None (same dividers). Rerun |
+| Accuracy map | `rev-e-accuracy-map/rerun.sh` | ~15 s (README) | Layout-independent; rerun for completeness |
+| Visual review, enclosure dimensions | `render_previews.py`, `region_view.py`, `floorplan.json` | minutes | New receipt `visual-review-rev-f.json` |
+
+**Effort.**
+
+- **Phase 2** (placement, rigid-group transforms, about 540 new track entries and 120 vias, GND stitching, DRC iterations): **about 8–12 h of agent time** in one session. The AFE column and flanks are the hard part; the five rigid groups are about a day's work saved.
+- **Phase 3** (script variants, extraction, matrix, audits, before/after report): **about 4–6 h**, of which compute is under an hour, all on the Mac.
+
+## Reproduce
+
+```sh
+# once, KiCad Python: Rev E per-part geometry -> validation/rev-f-floorplan/rev-e-inventory.json
+/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3 cad/tools/rev_f_inventory.py
+python3 validation/rev-f-floorplan/floorplan.py          # checks, forecasts -> floorplan.json, floorplan.png
+python3 validation/rev-f-floorplan/switcher_pose_search.py   # switcher island pose -> switcher_pose_search.json
+python3 validation/rev-f-floorplan/forecast_harness.py   # -> stability-full-chain/revf_est_extracted.rs
+sh validation/rev-f-floorplan/run_matrix.sh revfestcng100 8
+sh validation/rev-f-floorplan/run_matrix.sh revfpesscng100 8
+cd validation/stability-full-chain && python3 kelvin_summary.py matrix-final_revfestcng100.md   # run before deleting the per-case CSVs
+```
+
+The forecast runs' per-case files (`final_revf*`, 7200 files) were deleted after summarising. The tables are in `stability-full-chain/matrix-final_revf{est,pess}cng100.md` and `summary-revf{est,pess}cng100.md`.

@@ -1030,6 +1030,14 @@ fn main() {
     if let Some(cng) = mode.strip_prefix("kelvincng") {
         cases = kelvin_cases(cng.parse().unwrap());
     }
+    // revfestcng{C} / revfpesscng{C}: the kelvincng{C} grid on the Rev F floorplan forecast boards
+    // (revf_est_extracted.rs); case prefix revfestrelay_ / revfpessrelay_ keeps their files apart.
+    if let Some(cng) = mode.strip_prefix("revfestcng") {
+        cases = kelvin_cases_on(cng.parse().unwrap(), "revfestrelay", REVF_EST_BOARD_NOM, REVF_EST_BOARD_HIGH, REVF_EST_LEAD, REVF_EST_CAPLEAD);
+    }
+    if let Some(cng) = mode.strip_prefix("revfpesscng") {
+        cases = kelvin_cases_on(cng.parse().unwrap(), "revfpessrelay", REVF_PESS_BOARD_NOM, REVF_PESS_BOARD_HIGH, REVF_PESS_LEAD, REVF_PESS_CAPLEAD);
+    }
     let mut report="# Strict full-chain bilateral loop matrix\n\nAll printed cases pass internal DC bias checks. All unity crossings are reported. Angles are signed principal angular separation from -1, not a stability verdict; downward crossings with the usual negative-phase branch correspond to conventional phase margin. Upward crossings must be assessed with the complete return trajectory.\n\n| Case / loop | Unity crossings / signed angle from -1 | Minimum return difference |\n|---|---|---|\n".to_string();
     if final_design {
         for c in &mut cases {
@@ -1082,7 +1090,7 @@ fn main() {
         {
             // The heaviest fixture loads also load the source driver and both sense followers.
             vec!["tia", "drive", "high", "low"]
-        } else if mode.starts_with("kelvin") {
+        } else if mode.starts_with("kelvin") || mode.starts_with("revfest") || mode.starts_with("revfpess") {
             vec!["tia", "drive", "high", "low"]
         } else if (mode.starts_with("fixedrelay") || mode.starts_with("reverelay")) && c.name.contains("_loops_") {
             vec!["drive", "high", "low"]
@@ -1260,6 +1268,8 @@ fn relay_cases(relays: bool, rout: f64, cng: f64) -> Vec<Case> {
 include!("reve_extracted.rs");
 include!("reve_r104_extracted.rs");
 include!("reve_bnc_extracted.rs");
+// Rev F (100 x 100 mm) phase-1 FORECAST boards (../rev-f-floorplan/forecast_harness.py): not an extraction.
+include!("revf_est_extracted.rs");
 /// `reverelaycng{C}`: `fixedrelaycng{C}` with the Rev E extraction in place of REVD_BOARD and the
 /// Rev D RF leads. The board netlist already holds all TIA_OUT copper (relay pads included), so
 /// `dc` = 0; coc/ccc/cpp/lrel/rc stay the relay-internal NOMINAL/STRESS estimates. Nominal relay
@@ -1387,13 +1397,17 @@ fn k4_netlist(closed: bool, p: Relay) -> String {
 /// Kelvin leads meeting at the DUT; lumped stray on HCUR and LCUR, no cable. K4 open throughout,
 /// plus K4 closed (R107 across HCUR-LCUR) with the leads unplugged. All four loops on every case.
 fn kelvin_cases(cng: f64) -> Vec<Case> {
+    kelvin_cases_on(cng, "kelvinrelay", REVE_BNC_BOARD_NOM, REVE_BNC_BOARD_HIGH, REVE_BNC_LEAD, REVE_BNC_CAPLEAD)
+}
+/// The `kelvincng{C}` grid on any board set; `prefix` names the cases (and so their files).
+fn kelvin_cases_on(cng: f64, prefix: &str, board_nom: [&str; 3], board_high: [&str; 3], leads: [f64; 3], caplead0: f64) -> Vec<Case> {
     let rt = format!("_cng{cng}_srciso47_kelvin");
     let mut cases = vec![];
     for (set, p, bc) in [("nom", Relay { dc: 0., ..NOMINAL }, "bnom"), ("str", Relay { dc: 0., ..STRESS }, "bhigh")] {
-        let caplead = if set == "nom" { REVE_BNC_CAPLEAD } else { 10. };
+        let caplead = if set == "nom" { caplead0 } else { 10. };
         for (k, &(range, r, _)) in RANGES.iter().enumerate() {
-            let board = format!("Cng low 0 {cng}p\n{}", if bc == "bnom" { REVE_BNC_BOARD_NOM[k] } else { REVE_BNC_BOARD_HIGH[k] });
-            let lead = REVE_BNC_LEAD[k] + p.lrel;
+            let board = format!("Cng low 0 {cng}p\n{}", if bc == "bnom" { board_nom[k] } else { board_high[k] });
+            let lead = leads[k] + p.lrel;
             let common = format!("{board}{}", relay_netlist(r, p, "tia"));
             let duts = |hi: &str, lo: &str| {
                 let mut v = vec![
@@ -1414,11 +1428,11 @@ fn kelvin_cases(cng: f64) -> Vec<Case> {
                     fx.push(("cur".into(), dut.clone(), *st));
                 }
                 for (f, d, st) in fx {
-                    cases.push(relay_case(format!("kelvinrelay_{range}_{n}_{f}_stray{st}_risolo22_{bc}_{set}_k4open{rt}_caplead{caplead}_local100_lead{lead:.2}"), r + p.rc, format!("{common}{}{d}", k4_netlist(false, p)), st));
+                    cases.push(relay_case(format!("{prefix}_{range}_{n}_{f}_stray{st}_risolo22_{bc}_{set}_k4open{rt}_caplead{caplead}_local100_lead{lead:.2}"), r + p.rc, format!("{common}{}{d}", k4_netlist(false, p)), st));
                 }
             }
             // K4 closed, leads unplugged: R107 1k (+ contact) across HCUR-LCUR, DUT open.
-            cases.push(relay_case(format!("kelvinrelay_{range}_open_nocable_stray0_risolo22_{bc}_{set}_k4closed{rt}_caplead{caplead}_local100_lead{lead:.2}"), r + p.rc, format!("{common}{}RDUT hi low 1e12", k4_netlist(true, p)), 0.));
+            cases.push(relay_case(format!("{prefix}_{range}_open_nocable_stray0_risolo22_{bc}_{set}_k4closed{rt}_caplead{caplead}_local100_lead{lead:.2}"), r + p.rc, format!("{common}{}RDUT hi low 1e12", k4_netlist(true, p)), 0.));
         }
     }
     cases
