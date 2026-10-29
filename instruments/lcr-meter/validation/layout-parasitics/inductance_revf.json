@@ -1,5 +1,5 @@
 {
- "board_sha256": "b583100cadf34baa293b4051b36cc854a04b6e74805ad801932999ab08bb8af7",
+ "board_sha256": "0d2394061c20c8a751f3651e14f98f7608e7cd163c918b7e75b24f26acfc197b",
  "method": "Rev E loop inductance: C104 branch and the three relay-switched RF branches.",
  "assumptions": {
   "header_bridge_z": {
@@ -68,7 +68,7 @@
  },
  "loops": {
   "C104": {
-   "planar_board_path_mm": 6.107489791209988,
+   "planar_board_path_mm": 4.111958744311677,
    "layers": [
     "F.Cu"
    ],
@@ -80,9 +80,9 @@
      "hop": "low",
      "cap": "low"
     },
-    "free_with_package_nH": 3.8052752265216068,
-    "free_board_and_part_only_nH": 3.7954841481974375,
-    "solid_plane_with_package_nH": 1.7592482778590568
+    "free_with_package_nH": 2.339099391290101,
+    "free_board_and_part_only_nH": 2.3293124582832205,
+    "solid_plane_with_package_nH": 1.250394503794724
    },
    "nom": {
     "stackup": "JLC04161H-7628",
@@ -91,9 +91,9 @@
      "hop": "nom",
      "cap": "nom"
     },
-    "free_with_package_nH": 3.8311318245731907,
-    "free_board_and_part_only_nH": 3.8213556090316163,
-    "solid_plane_with_package_nH": 2.804796796632132
+    "free_with_package_nH": 2.388071828316435,
+    "free_board_and_part_only_nH": 2.378300611452392,
+    "solid_plane_with_package_nH": 1.9277086883109902
    },
    "high": {
     "stackup": "JLC04161H-7628",
@@ -102,29 +102,29 @@
      "hop": "high",
      "cap": "high"
     },
-    "free_with_package_nH": 3.862737393091395,
-    "free_board_and_part_only_nH": 3.852975784345994,
-    "solid_plane_with_package_nH": 2.8614600133827315
+    "free_with_package_nH": 2.4421921698925586,
+    "free_board_and_part_only_nH": 2.432435607690526,
+    "solid_plane_with_package_nH": 1.9915252269164379
    },
    "summary_nH": {
-    "low": 1.7592482778590568,
+    "low": 1.250394503794724,
     "nom": null,
-    "high": 3.862737393091395,
-    "nom_geometry_free": 3.8311318245731907,
-    "nom_geometry_solid_plane": 2.804796796632132
+    "high": 2.4421921698925586,
+    "nom_geometry_free": 2.388071828316435,
+    "nom_geometry_solid_plane": 1.9277086883109902
    }
   },
   "RF_100R": {
-   "planar_board_path_mm": 33.24073829037881,
+   "planar_board_path_mm": 35.591308394029774,
    "layers": [
     "F.Cu",
     "In1.Cu",
     "In2.Cu"
    ],
    "path_mm": {
-    "TIA_OUT": 17.257679131276653,
+    "TIA_OUT": 18.61033955983724,
     "RF100": 10.341700935788385,
-    "TIA_SUM": 5.641358223313772
+    "TIA_SUM": 6.639267898404148
    },
    "low": {
     "stackup": "JLC04161H-1080",
@@ -133,9 +133,9 @@
      "hop": "low",
      "cap": "low"
     },
-    "free_with_package_nH": 25.053940200436767,
-    "free_board_and_part_only_nH": 25.04393392651797,
-    "solid_plane_with_package_nH": 15.847789808147038
+    "free_with_package_nH": 25.916819651511812,
+    "free_board_and_part_only_nH": 25.906813647756238,
+    "solid_plane_with_package_nH": 16.412368095839856
    },
    "nom": {
     "stackup": "JLC04161H-7628",
@@ -144,9 +144,9 @@
      "hop": "nom",
      "cap": "nom"
     },
-    "free_with_package_nH": 25.15138505336819,
-    "free_board_and_part_only_nH": 25.141383046058518,
-    "solid_plane_with_package_nH": 19.70727815721764
+    "free_with_package_nH": 26.012859407087326,
+    "free_board_and_part_only_nH": 26.00285766994089,
+    "solid_plane_with_package_nH": 20.591409509417456
    },
    "high": {
     "stackup": "JLC04161H-7628",
@@ -155,29 +155,29 @@
      "hop": "high",
      "cap": "high"
     },
-    "free_with_package_nH": 25.534243377923765,
-    "free_board_and_part_only_nH": 25.524237203722276,
-    "solid_plane_with_package_nH": 20.173368573302586
+    "free_with_package_nH": 26.39575503253244,
+    "free_board_and_part_only_nH": 26.385749128494187,
+    "solid_plane_with_package_nH": 21.057479777782255
    },
    "summary_nH": {
-    "low": 15.847789808147038,
+    "low": 16.412368095839856,
     "nom": null,
-    "high": 25.534243377923765,
-    "nom_geometry_free": 25.15138505336819,
-    "nom_geometry_solid_plane": 19.70727815721764
+    "high": 26.39575503253244,
+    "nom_geometry_free": 26.012859407087326,
+    "nom_geometry_solid_plane": 20.591409509417456
    }
   },
   "RF_5k": {
-   "planar_board_path_mm": 35.60921592146383,
+   "planar_board_path_mm": 37.44066544860895,
    "layers": [
     "F.Cu",
     "In1.Cu",
     "In2.Cu"
    ],
    "path_mm": {
-    "TIA_OUT": 19.457679131276645,
+    "TIA_OUT": 20.810339559837228,
     "RF5K": 8.885178566873414,
-    "TIA_SUM": 7.266358223313772
+    "TIA_SUM": 7.745147321898306
    },
    "low": {
     "stackup": "JLC04161H-1080",
@@ -186,9 +186,9 @@
      "hop": "low",
      "cap": "low"
     },
-    "free_with_package_nH": 27.747563940386407,
-    "free_board_and_part_only_nH": 27.737563543813824,
-    "solid_plane_with_package_nH": 17.59945493786194
+    "free_with_package_nH": 28.42580285346967,
+    "free_board_and_part_only_nH": 28.41580270181522,
+    "solid_plane_with_package_nH": 18.05001852642938
    },
    "nom": {
     "stackup": "JLC04161H-7628",
@@ -197,9 +197,9 @@
      "hop": "nom",
      "cap": "nom"
     },
-    "free_with_package_nH": 27.81546384550534,
-    "free_board_and_part_only_nH": 27.805474059889704,
-    "solid_plane_with_package_nH": 21.3244970907654
+    "free_with_package_nH": 28.491556607909953,
+    "free_board_and_part_only_nH": 28.481567067212428,
+    "solid_plane_with_package_nH": 22.037764766238023
    },
    "high": {
     "stackup": "JLC04161H-7628",
@@ -208,29 +208,29 @@
      "hop": "high",
      "cap": "high"
     },
-    "free_with_package_nH": 28.148603874027085,
-    "free_board_and_part_only_nH": 28.138617922128187,
-    "solid_plane_with_package_nH": 21.775814704671067
+    "free_with_package_nH": 28.824707284523594,
+    "free_board_and_part_only_nH": 28.814721577542834,
+    "solid_plane_with_package_nH": 22.489076452586456
    },
    "summary_nH": {
-    "low": 17.59945493786194,
+    "low": 18.05001852642938,
     "nom": null,
-    "high": 28.148603874027085,
-    "nom_geometry_free": 27.81546384550534,
-    "nom_geometry_solid_plane": 21.3244970907654
+    "high": 28.824707284523594,
+    "nom_geometry_free": 28.491556607909953,
+    "nom_geometry_solid_plane": 22.037764766238023
    }
   },
   "RF_100k": {
-   "planar_board_path_mm": 67.08432140882368,
+   "planar_board_path_mm": 68.91577093596881,
    "layers": [
     "F.Cu",
     "In1.Cu",
     "In2.Cu"
    ],
    "path_mm": {
-    "TIA_OUT": 34.45767913127664,
+    "TIA_OUT": 35.81033955983723,
     "RF100K": 23.660284054233266,
-    "TIA_SUM": 8.966358223313776
+    "TIA_SUM": 9.445147321898308
    },
    "low": {
     "stackup": "JLC04161H-1080",
@@ -239,9 +239,9 @@
      "hop": "low",
      "cap": "low"
     },
-    "free_with_package_nH": 52.93240105589138,
-    "free_board_and_part_only_nH": 52.92243194246274,
-    "solid_plane_with_package_nH": 41.172192036890884
+    "free_with_package_nH": 53.61071890936433,
+    "free_board_and_part_only_nH": 53.60075004085381,
+    "solid_plane_with_package_nH": 41.62263857672662
    },
    "nom": {
     "stackup": "JLC04161H-7628",
@@ -250,9 +250,9 @@
      "hop": "nom",
      "cap": "nom"
     },
-    "free_with_package_nH": 52.98927049070433,
-    "free_board_and_part_only_nH": 52.979308504295034,
-    "solid_plane_with_package_nH": 43.9454969860749
+    "free_with_package_nH": 53.665426348833826,
+    "free_board_and_part_only_nH": 53.65546460734266,
+    "solid_plane_with_package_nH": 44.65765778426705
    },
    "high": {
     "stackup": "JLC04161H-7628",
@@ -261,16 +261,16 @@
      "hop": "high",
      "cap": "high"
     },
-    "free_with_package_nH": 53.32067958694706,
-    "free_board_and_part_only_nH": 53.31071864122661,
-    "solid_plane_with_package_nH": 44.408057279232644
+    "free_with_package_nH": 53.996835561469865,
+    "free_board_and_part_only_nH": 53.98687486066754,
+    "solid_plane_with_package_nH": 45.120218010004116
    },
    "summary_nH": {
-    "low": 41.172192036890884,
+    "low": 41.62263857672662,
     "nom": null,
-    "high": 53.32067958694706,
-    "nom_geometry_free": 52.98927049070433,
-    "nom_geometry_solid_plane": 43.9454969860749
+    "high": 53.996835561469865,
+    "nom_geometry_free": 53.665426348833826,
+    "nom_geometry_solid_plane": 44.65765778426705
    }
   }
  }

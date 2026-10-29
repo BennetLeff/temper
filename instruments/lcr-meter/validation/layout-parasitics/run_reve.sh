@@ -81,10 +81,10 @@ run_reve_bnc() {
 }
 
 run_revf() {
-  # Rev F (100 x 100 mm re-layout, hand-routed board of commit 418377699).  Same nets and Kelvin
+  # Rev F (100 x 100 mm re-layout, hand-routed board of commit ce2c03af5; first extraction 418377699).  Same nets and Kelvin
   # treatment as reve_bnc; windows revf_* in fd3d.WINDOWS.  J=2 (default) runs two solves at a time
   # (each <= ~6 M unknowns, ~5 GB).
-  export_board revf "${REVF_COMMIT:-418377699}"
+  export_board revf "${REVF_COMMIT:-ce2c03af5}"
   N=$NETS,SRC_DRV,HPOT,LPOT,REF_A
   jobs=""
   for w in revf_relay revf_hiside revf_band revf_vert; do

@@ -16,3 +16,14 @@ revfrelay_r5k_open_coax1m_stray0 caplead3.86_local100_lead38.15_high: min |1+T| 
 revfrelay_r100_coil50u_coax1m_stray0 caplead10_local100_lead45.53_high: min |1+T| 0.6873 at 84.6100 MHz (angle of T -137.0 deg)
 kelvinrelay_r5k_open_coax1m_stray0 caplead5.04_local100_lead74.41_high: min |1+T| 0.1886 at 86.9700 MHz (angle of T -172.8 deg)
 kelvinrelay_r100_coil50u_coax1m_stray0 caplead10_local100_lead84.93_high: min |1+T| 0.6884 at 83.8500 MHz (angle of T -136.8 deg)
+
+# Lossy RG-58 leads (coax_lossy.rs), worst case per loop of kelvinlossycng100 (Rev E) and revflossycng100 (Rev F, board ce2c03af5),
+# python3 validation/rev-f/resonance_zoom.py <case> 10 300 29001  (10 kHz steps), 2026-10-29
+kelvinlossyrelay_r100k_matched_coax1m_stray0 caplead10_local100_lead112.44_drive: min |1+T| 0.5892 at 87.5900 MHz (angle of T -147.6 deg)
+kelvinlossyrelay_r100_coil50u_coax1m_stray0 caplead10_local100_lead84.93_tia: min |1+T| 0.5268 at 74.3900 MHz (angle of T -152.7 deg)
+kelvinlossyrelay_r100k_open_coax1m_stray0 caplead5.04_local100_lead102.44_high: min |1+T| 0.5517 at 86.4600 MHz (angle of T -148.8 deg)
+kelvinlossyrelay_r100_coil50u_coax1m_stray0 caplead10_local100_lead84.93_low: min |1+T| 0.6618 at 116.3200 MHz (angle of T -151.3 deg)
+revflossyrelay_r100k_matched_coax1m_stray0 caplead10_local100_lead74.00_drive: min |1+T| 0.5966 at 89.2200 MHz (angle of T -147.3 deg)
+revflossyrelay_r100_coil50u_coax1m_stray0 caplead10_local100_lead46.40_tia: min |1+T| 0.5340 at 76.7600 MHz (angle of T -153.2 deg)
+revflossyrelay_r100k_open_coax1m_stray0 caplead2.44_local100_lead64.00_high: min |1+T| 0.5535 at 88.5700 MHz (angle of T -149.4 deg)
+revflossyrelay_r100_coil50u_coax1m_stray0 caplead10_local100_lead46.40_low: min |1+T| 0.6723 at 119.7900 MHz (angle of T -151.7 deg)
