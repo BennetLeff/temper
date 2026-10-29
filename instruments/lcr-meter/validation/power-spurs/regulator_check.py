@@ -48,13 +48,56 @@ def ohms(ref):
     return float(v[:-1]) * {"k": 1e3, "M": 1e6}[v[-1]] if v[-1] in "kM" else float(v)
 
 
+def leg_ohms(leg, sign=0, tcr=False):
+    """Leg resistance at nominal (sign 0) or at its tolerance (+1 high, -1 low), optionally plus
+    the TCR excursion over DT_BOARD in the same direction (worst case: legs drift oppositely)."""
+    return sum(ohms(r) * (1 + sign * (RES_TOL[r] + (RES_TCR[r] * DT_BOARD if tcr else 0.0)))
+               for r in LEG[leg])
+
+
 def farads(ref):
     v = PARTS[ref]["value"].split()[0]
     return float(v[:-2]) * {"pF": 1e-12, "nF": 1e-9, "uF": 1e-6}[v[-2:]]
 
 
-RES_TOL = {r: (0.001 if "0.1%" in PARTS[r]["value"] else 0.01)
-           for r in ("R81", "R82", "R83", "R84", "R85", "R86", "R87", "R88", "R89")}
+def chain(net_a, net_b):
+    """Resistors in series from net_a to net_b (a divider leg built from several parts): each step
+    follows a resistor whose far net is net_b, or an internal node carrying exactly two pins, both on
+    resistors.  Exactly one such path must exist."""
+    pins = {}
+    for p in DESIGN["parts"]:
+        for n in p["pins"].values():
+            if n:
+                pins.setdefault(n, []).append(p)
+    paths = []
+
+    def walk(net, via, seen):
+        for p in pins[net]:
+            if p["kind"] != "R" or p["ref"] in seen:
+                continue
+            far = [n for n in p["pins"].values() if n != net]
+            if len(far) != 1:
+                continue
+            if far[0] == net_b:
+                paths.append(seen + [p["ref"]])
+            elif len(pins[far[0]]) == 2 and all(q["kind"] == "R" for q in pins[far[0]]):
+                walk(far[0], p, seen + [p["ref"]])
+
+    walk(net_a, None, [])
+    assert len(paths) == 1, (net_a, net_b, paths)
+    return paths[0]
+
+
+LEG = {"boost_top": chain("RAW_P", "CONV_FBP"), "boost_bot": chain("CONV_FBP", "GND"),
+       "inv_top": chain("RAW_N", "CONV_FBN"), "inv_bot": chain("CONV_FBN", "CONV_REF"),
+       "pos_top": chain("12V", "REGP_FB"), "pos_bot": chain("REGP_FB", "GND"),
+       "neg_top": chain("-12V", "REGN_FB"), "neg_bot": chain("REGN_FB", "GND")}
+RES_TOL = {r: (0.001 if "0.1%" in PARTS[r]["value"] else 0.01) for leg in LEG.values() for r in leg}
+# TCR per part, from the LCSC catalogue lines of the fitted parts (live JLC library records,
+# 2026-10-29): every 0.1 % part on the BOM is +-25 ppm/C thin film (YAGEO RT0603BRD, Viking
+# AR03BTCX); every 1 % part is UNI-ROYAL 0603WAF thick film, +-100 ppm/C.
+RES_TCR = {r: (25e-6 if RES_TOL[r] == 0.001 else 100e-6) for r in RES_TOL}
+DT_BOARD = 35.0   # K from the 25 C tolerance point: board 60 C (warm enclosure) or -10 C cold start
 # Rev E: USB-C VBUS is the only input.  At the J1 receptacle: USB 2.0 device minimum 4.40 V (after
 # cable and hub drop), USB Type-C vSafe5V maximum 5.5 V.
 VIN_SUPPLY = (4.40, 5.0, 5.5)
@@ -93,41 +136,34 @@ def breakeven(required_f, nominal_f):
     return required_f / (nominal_f * (1 - TOL_C) * (1 - TEMP_C))
 
 
-def boost_vpos(corner):
+def boost_vpos(corner, tcr=False):
     s = c.TPS65131
-    r1, r2 = ohms("R81"), ohms("R82")
     if corner == "nom":
-        return s["vfbp"][1] * (1 + r1 / r2)
-    if corner == "max":
-        return s["vfbp"][2] * (1 + r1 * (1 + RES_TOL["R81"]) / (r2 * (1 - RES_TOL["R82"])))
-    return s["vfbp"][0] * (1 + r1 * (1 - RES_TOL["R81"]) / (r2 * (1 + RES_TOL["R82"])))
+        return s["vfbp"][1] * (1 + leg_ohms("boost_top") / leg_ohms("boost_bot"))
+    sg = 1 if corner == "max" else -1
+    k = leg_ohms("boost_top", sg, tcr) / leg_ohms("boost_bot", -sg, tcr)
+    return s["vfbp"][2 if corner == "max" else 0] * (1 + k)
 
 
-def inverter_vneg(corner):
+def inverter_vneg(corner, tcr=False):
     s = c.TPS65131
-    r3, r4 = ohms("R83"), ohms("R84")
     if corner == "nom":
-        return -s["vref"][1] * r3 / r4
-    if corner == "max":   # most negative
-        vfbn, vref, k = s["vfbn"][0], s["vref"][2], r3 * (1 + RES_TOL["R83"]) / (r4 * (1 - RES_TOL["R84"]))
-    else:                 # least negative
-        vfbn, vref, k = s["vfbn"][2], s["vref"][0], r3 * (1 - RES_TOL["R83"]) / (r4 * (1 + RES_TOL["R84"]))
+        return -s["vref"][1] * leg_ohms("inv_top") / leg_ohms("inv_bot")
+    sg = 1 if corner == "max" else -1          # max: most negative
+    vfbn, vref = (s["vfbn"][0], s["vref"][2]) if corner == "max" else (s["vfbn"][2], s["vref"][0])
+    k = leg_ohms("inv_top", sg, tcr) / leg_ohms("inv_bot", -sg, tcr)
     return vfbn - k * (vref - vfbn)
 
 
-def ldo_vout(kind, corner):
-    if kind == "pos":
-        vfb, ratio_nom, acc = c.TPS7A49["vfb_typ"], 1 + ohms("R85") / ohms("R86"), c.TPS7A49["acc_overall"]
-        tol = RES_TOL["R85"] + RES_TOL["R86"]
-    else:
-        vfb, ratio_nom, acc = c.TPS7A30["vfb_typ"], 1 + (ohms("R87") + ohms("R88")) / ohms("R89"), c.TPS7A30["acc_overall"]
-        tol = RES_TOL["R87"] + RES_TOL["R89"]   # divider ratio error bound, two resistors
-    v = abs(vfb) * ratio_nom
-    if corner == "max":
-        v *= (1 + acc) * (1 + tol)
-    elif corner == "min":
-        v *= (1 - acc) * (1 - tol)
-    return v
+def ldo_vout(kind, corner, tcr=False):
+    """|VOUT| = |VFB| (1 + R_top / R_bottom), the datasheet overall accuracy on top.  Each leg may be a
+    series string; the ratio bound takes every resistor of a leg at the same tolerance extreme."""
+    spec = c.TPS7A49 if kind == "pos" else c.TPS7A30
+    vfb, acc = abs(spec["vfb_typ"]), spec["acc_overall"]
+    if corner == "nom":
+        return vfb * (1 + leg_ohms(f"{kind}_top") / leg_ohms(f"{kind}_bot"))
+    sg = 1 if corner == "max" else -1
+    return vfb * (1 + leg_ohms(f"{kind}_top", sg, tcr) / leg_ohms(f"{kind}_bot", -sg, tcr)) * (1 + sg * acc)
 
 
 def converter_point(rail, vin, fsw, l, iout, vout_abs):
@@ -166,17 +202,20 @@ def main():
     # ---------------------------------------------------------------- TPS65131
     vpos = {k: boost_vpos(k) for k in ("min", "nom", "max")}
     vneg = {k: inverter_vneg(k) for k in ("min", "nom", "max")}
-    check("TPS65131 VPOS range (VFBP limits, 1 % R81/R82)", [round(vpos[k], 3) for k in ("min", "nom", "max")],
+    check(f"TPS65131 VPOS range (VFBP limits, {'+'.join(LEG['boost_top'])} / {'+'.join(LEG['boost_bot'])})", [round(vpos[k], 3) for k in ("min", "nom", "max")],
           "<= 15 V recommended, 17 V abs max", vpos["max"] <= s["vpos_max_rec"],
           f"margin to 15 V: {s['vpos_max_rec'] - vpos['max']:.3f} V")
-    check("TPS65131 VNEG range (VREF, VFBN limits, 1 % R83/R84)", [round(vneg[k], 3) for k in ("min", "nom", "max")],
+    check(f"TPS65131 VNEG range (VREF, VFBN limits, {'+'.join(LEG['inv_top'])} / {'+'.join(LEG['inv_bot'])})", [round(vneg[k], 3) for k in ("min", "nom", "max")],
           ">= -15 V recommended, -17 V abs max", vneg["max"] >= s["vneg_min_rec"],
           f"worst-case stack {vneg['max']:.3f} V is {abs(vneg['max']) - 15:.3f} V beyond the recommended range; "
           f"{17 + vneg['max']:.2f} V inside abs max")
-    r_low = max(ohms("R82"), ohms("R84"))
+    r_low = max(leg_ohms("boost_bot"), leg_ohms("inv_bot"))
     check("TPS65131 feedback lower resistors R82/R84 < 200 kOhm", r_low, s["r_lower_max_ohm"], r_low < s["r_lower_max_ohm"])
-    for name, ref, r_up, rule in (("C87 (boost CFF)", "C87", ohms("R81"), s["cff_rule_v"][0]),
-                                  ("C88 (inverter CFF)", "C88", ohms("R83"), s["cff_rule_v"][1])):
+    for name, ref, r_up, rule in (("C87 (boost CFF)", "C87", leg_ohms("boost_top"), s["cff_rule_v"][0]),
+                                  ("C88 (inverter CFF)", "C88", leg_ohms("inv_top"), s["cff_rule_v"][1])):
+        top = "boost_top" if ref == "C87" else "inv_top"
+        net_a, net_b = ("RAW_P", "CONV_FBP") if ref == "C87" else ("RAW_N", "CONV_FBN")
+        assert set(PARTS[ref]["pins"].values()) == {net_a, net_b}, f"{ref} must span the whole {LEG[top]} string"
         want = rule * 1e-12 * 1e6 / r_up       # C[pF] = 6.8 (7.5) / R[MOhm]
         check(f"TPS65131 {name} vs Eq. 11/12", round(farads(ref) * 1e12, 2), round(want * 1e12, 2),
               abs(farads(ref) / want - 1) < 0.1, "pF; within 10 % of the datasheet rule")
@@ -248,14 +287,15 @@ def main():
     # --------------------------------------------------------------- LDOs
     ldo = {}
     for kind, ref, spec, cout, cin_ref, r2, rup in (
-            ("pos", "U11", c.TPS7A49, "C95", "C94", ohms("R86"), ohms("R85")),
-            ("neg", "U12", c.TPS7A30, "C100", "C99", ohms("R89"), ohms("R87") + ohms("R88"))):
+            ("pos", "U11", c.TPS7A49, "C95", "C94", leg_ohms("pos_bot"), leg_ohms("pos_top")),
+            ("neg", "U12", c.TPS7A30, "C100", "C99", leg_ohms("neg_bot"), leg_ohms("neg_top"))):
         vmax, vnom, vmin = ldo_vout(kind, "max"), ldo_vout(kind, "nom"), ldo_vout(kind, "min")
         raw_min = vpos["min"] if kind == "pos" else abs(vneg["min"])
         head = raw_min - vmax
         ldo[kind] = {"vout": [vmin, vnom, vmax], "raw_min": raw_min, "headroom_min": head}
-        check(f"{ref} output voltage range", [round(vmin, 3), round(vnom, 3), round(vmax, 3)],
-              "+-2.5 % overall + divider tolerance", True)
+        check(f"{ref} output voltage range ({'+'.join(LEG[kind + '_top'])} / {'+'.join(LEG[kind + '_bot'])})",
+              [round(vmin, 3), round(vnom, 3), round(vmax, 3)], "+-2.5 % overall + divider tolerance; host window 10.8-13.2 V",
+              10.8 <= vmin and vmax <= 13.2)
         check(f"{ref} headroom at worst corner (raw min - out max)", round(head, 3),
               f">= dropout {spec.get('vdo_150ma_max_v', spec.get('vdo_200ma_max_v'))} V and >= 1 V PSRR-curve condition",
               head >= 1.0, f"load {LOAD[kind]*1e3:.1f} mA est.")
@@ -294,7 +334,8 @@ def main():
     alt["tps7a30_headroom_min"] = abs(alt["min"]) - ldo_vout("neg", "max")
     check("Option R83 = 1.74 MOhm: VNEG range and U12 headroom", [round(alt[k], 3) for k in ("min", "nom", "max")]
           + [round(alt["tps7a30_headroom_min"], 3)], ">= -15 V and >= 1 V headroom",
-          alt["max"] >= -15 and alt["tps7a30_headroom_min"] >= 1.0, "proposed value, not fitted")
+          alt["max"] >= -15 and alt["tps7a30_headroom_min"] >= 1.0,
+          f"fitted since Rev D; Rev E builds it as {'+'.join(LEG['inv_top'])} = {leg_ohms('inv_top')/1e6:.3f} MOhm")
     # Option R5: 1 ohm series element before each LDO input (C94/C99 on the LDO side)
     c_in = 10e-6 * assumed_retention(vpos["max"], 50) * (1 - TOL_C) * (1 - TEMP_C)
     r5 = {"rc_corner_hz": 1 / (2 * math.pi * 1.0 * c_in),
@@ -303,7 +344,24 @@ def main():
           "drop_est_load_v": [LOAD["pos"], LOAD["neg"]]}
     check("Option R5: 1 ohm before U11/U12 - headroom at 2x load, RC corner",
           [round(r5["headroom_pos_2x_load"], 3), round(r5["headroom_neg_2x_load"], 3), round(r5["rc_corner_hz"])],
-          ">= 1 V", min(r5["headroom_pos_2x_load"], r5["headroom_neg_2x_load"]) >= 1.0, "proposed, not fitted")
+          ">= 1 V", min(r5["headroom_pos_2x_load"], r5["headroom_neg_2x_load"]) >= 1.0,
+          "R95/R96 are fitted (Rev D); the row name is historical")
+    # Same row with every divider resistor's TCR added at DT_BOARD (TPS65131 and LDO dividers drifting
+    # in the directions that close the headroom).  The reference limits already cover temperature.
+    tc = {}
+    for kind, rail, spec_raw in (("pos", "U11", lambda: boost_vpos("min", True)),
+                                 ("neg", "U12", lambda: abs(inverter_vneg("min", True)))):
+        raw_min, vmax, vmin = spec_raw(), ldo_vout(kind, "max", True), ldo_vout(kind, "min", True)
+        tc[kind] = {"raw_min": raw_min, "vout_min": vmin, "vout_max": vmax,
+                    "headroom_2x_load_r5": raw_min - vmax - 1.0 * 2 * LOAD[kind]}
+    r5["with_tcr"] = tc
+    check(f"R95/R96 headroom at 2x load incl. divider TCR (board 25 +- {DT_BOARD:.0f} C)",
+          [round(tc["pos"]["headroom_2x_load_r5"], 3), round(tc["neg"]["headroom_2x_load_r5"], 3),
+           round(tc["pos"]["vout_min"], 3), round(tc["neg"]["vout_min"], 3)],
+          ">= 0.6 V dropout (FLAG below the 1 V PSRR-curve condition); |VOUT| min >= 10.8 V host window",
+          True if min(tc[k]["headroom_2x_load_r5"] for k in tc) >= 1.0 else
+          ("FLAG" if min(tc[k]["headroom_2x_load_r5"] for k in tc) >= 0.6 else False),
+          "information: 0.1 % parts 25 ppm/C, 1 % parts 100 ppm/C, opposite drift of top and bottom")
     near = min((dist(l, u), l, u) for l in ("L1", "L2", "D2", "D3", "U13")
                for u in ("U4", "U5", "U6", "U7", "U8", "U9", "U10", "U14") if u in POS)   # U14: Rev E codec
     check("Switcher magnetics/switch nodes to nearest analog IC (CPL centres)", f"{near[0]:.1f} mm ({near[1]}-{near[2]})",

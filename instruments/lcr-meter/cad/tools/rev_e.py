@@ -49,7 +49,8 @@ CAT = {
     'C22u': ('22uF 25V X5R', 'Capacitor_SMD:C_1206_3216Metric', 'CL31A226KAHNNNE', 'Samsung Electro-Mechanics', 'C12891', 0.1706, 'basic'),
     'C100p': ('100pF C0G 5%', C0603, 'CL10C101JB8NNNC', 'Samsung Electro-Mechanics', 'C14858', 0.0086, 'basic'),
     'C560p': ('560pF C0G 5%', C0603, 'CC0603JRNPO9BN561', 'YAGEO', 'C107054', 0.0066, 'extended'),
-    'C270p': ('270pF C0G 5%', C0603, 'CC0603JRNPO9BN271', 'YAGEO', 'C107046', 0.0092, 'extended'),
+    'R5k01': ('5k 0.1%', R0603, 'AR03BTCX5001', 'Viking Tech', 'C2828621', 0.0318, 'extended'),
+    'R1M5': ('1.5M', R0603, '0603WAF1504T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C4172', 0.0019, 'preferred'),
 }
 
 
@@ -118,8 +119,13 @@ parts['R33'].update(value='2k 0.1%', mpn=CAT['R2k01'][2], lcsc=CAT['R2k01'][4], 
 add('R31', 'R2k201', 'source', {'1': 'SOURCE_FB', '2': 'DAC_M'}, (137, 65, 90))
 add('R30', 'R2k201', 'source', {'1': 'DAC_P', '2': 'SOURCE_AC'}, (130.0, 73.0, 90))
 add('R32', 'R2k01', 'source', {'1': 'SOURCE_AC', '2': 'GND'}, (126, 74, 0))
-add('C34', 'C270p', 'source', {'1': 'SOURCE_AC', '2': 'GND'}, (128.4, 72.0, 270))
-add('C35', 'C270p', 'source', {'1': 'EXCITE', '2': 'SOURCE_FB'}, (133.0, 61.2, 0))
+# C34 (ground leg) and C35 (feedback) are each two 560 pF C0G in series, 280 pF: the 560 pF line is already
+# on the BOM for the codec anti-alias legs, so the 270 pF extended line goes.  Pole 295 -> 284 kHz, both legs
+# alike (validation/stability-full-chain/source_stage.py).  C114 hangs below C34; C115 is west of C35.
+add('C34', 'C560p', 'source', {'1': 'SOURCE_AC', '2': 'SRC_AC_CMID'}, (128.4, 72.0, 270))
+add('C114', 'C560p', 'source', {'1': 'SRC_AC_CMID', '2': 'GND'}, (128.4, 75.0, 270))
+add('C35', 'C560p', 'source', {'1': 'SRC_FB_CMID', '2': 'SOURCE_FB'}, (133.0, 61.2, 0))
+add('C115', 'C560p', 'source', {'1': 'EXCITE', '2': 'SRC_FB_CMID'}, (130.0, 61.2, 0))
 
 # ---------------------------------------------------------------- codec
 CX, CY = 141.0, 97.5
@@ -301,6 +307,44 @@ for ref in ('R32', 'R33'):
 for ref in ('R41', 'R44'):
     parts[ref].update(mpn='AR03BTCX5001', manufacturer='Viking Tech', lcsc='C2828621', unit_usd=0.0318,
                       stock=55599, source_query='5k 0.1% 25ppm 0603 C2828621')
+# U2 W25Q128JVSIQ (16 MB, $2.58) -> GD25Q16ESIGR (2 MB, $0.60 + line fee; same SOP-8 208 mil land and
+# pinout).  The firmware is ~100 KB and builds with PICO_BOARD=pico (2 MB, boot2_w25q080).  boot2_w25q080
+# needs 35h/01h-with-two-bytes for QE (S9), EBh with continuous-read AXh and 4 dummy clocks; the
+# pico unique ID reads 4Bh + 4 dummy bytes.  All are in sources/new/GD25Q16E.txt (sections 7.1.5, 7.11).
+parts['U2'].update(value='GD25Q16ESIGR', mpn='GD25Q16ESIGR', manufacturer='GigaDevice', lcsc='C2922792',
+                   unit_usd=0.6011, stock=35898, library_type='extended',
+                   source_query='GD25Q16ESIGR C2922792, SOP-8 208 mil, boot2_w25q080 command set')
+
+# Extended-line consolidation (live JLC library records 2026-10-29; checks in validation/power-spurs/
+# regulator_check.py, which reads divider strings from these nets).
+# U11 divider R85/R86: 91k/10k 0.1 % -> 82k/9.1k 1 % basic.  VOUT 11.863 V nominal (was 11.969 V); with the
+# wider tolerance the R95 headroom row stays >= 1 V (1.20 V; 1.04 V with 100 ppm/C TCR at 25 +- 35 C), where
+# 91k/10k 1 % would give 1.09 / 0.93 V.
+parts['R85'].update(value='82k', mpn='0603WAF8202T5E', manufacturer='UNI-ROYAL(Uniroyal Elec)', lcsc='C23254',
+                    unit_usd=0.0027, stock=1096446, library_type='basic', source_query='82k 1% 0603 C23254')
+parts['R86'].update(value='9.1k', mpn='0603WAF9101T5E', manufacturer='UNI-ROYAL(Uniroyal Elec)', lcsc='C23260',
+                    unit_usd=0.0031, stock=624753, library_type='basic', source_query='9.1k 1% 0603 C23260')
+# U12 divider: top 91k + 1k / bottom 10k (0.1 %) -> top R87 100k / bottom R89 5k + R88 1k + R112 5k, all 0.1 %
+# 25 ppm/C lines already on the BOM (R42/R45, R41/R44, R60-R67).  -11.867 V nominal.  1 % parts cannot hold
+# the 1 V headroom row at a nominal the host window still clears.  R87 moves into R88's Rev D place, so its
+# FB land sits on the Rev D REGN_FB column (FB copper unchanged); the bottom string is a column under R89.
+parts['R87'].update(value='100k 0.1%', mpn='RT0603BRD07100KL', manufacturer='YAGEO', lcsc='C122538',
+                    unit_usd=0.0274, stock=1337468, source_query='100k 0.1% 25ppm 0603 C122538',
+                    pcb=[118.0, 134.33, 0], pins={'1': '-12V', '2': 'REGN_FB'})
+parts['R89'].update(value='5k 0.1%', mpn='AR03BTCX5001', manufacturer='Viking Tech', lcsc='C2828621',
+                    unit_usd=0.0318, stock=55579, source_query='5k 0.1% 25ppm 0603 C2828621',
+                    pins={'1': 'REGN_FB', '2': 'REGN_DIV'})
+parts['R88'].update(pcb=[118.0, 137.57, 0], pins={'1': 'REGN_DIV', '2': 'REGN_DIV2'})
+add('R112', 'R5k01', 'power', {'1': 'REGN_DIV2', '2': 'GND'}, (118.0, 139.19, 180),
+    query='5k 0.1% 25ppm 0603 C2828621, U12 divider')
+# TPS65131 inverter top resistor R83 1.74M (extended) -> R83 240k (RAW_N side) + R111 1.5M (CONV_FBN side), both
+# preferred, 1.74 MOhm total.  The midpoint sits 1.5 MOhm from the feedback pin and 240 kOhm from RAW_N, so
+# charge coupled onto it mostly returns to RAW_N.  C88 still spans RAW_N to CONV_FBN, the whole string.
+parts['R83'].update(value='240k', mpn='0603WAF2403T5E', manufacturer='UNI-ROYAL(Uniroyal Elec)', lcsc='C4197',
+                    unit_usd=0.0018, stock=163523, library_type='preferred', source_query='240k 1% 0603 C4197',
+                    pins={'1': 'RAW_N', '2': 'CONV_FBN_MID'})
+add('R111', 'R1M5', 'power', {'1': 'CONV_FBN', '2': 'CONV_FBN_MID'}, (90.7, 127.6, 90),
+    query='1.5M 1% 0603 C4172, TPS65131 inverter divider')
 
 # ---------------------------------------------------------------- power flags, notes, ranges
 design['power_flags'] = [n for n in design['power_flags'] if n not in ('3V3_DDS', '5VIN', '5V')] + ['USB_VBUS']

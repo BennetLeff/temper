@@ -1,0 +1,2786 @@
+Uniform Sector
+Dual and Quad Serial Flash   GD25Q16E
+
+
+
+
+               GD25Q16E
+
+             DATASHEET
+
+
+
+
+                       1
+                         Uniform Sector
+                         Dual and Quad Serial Flash                                                                                                GD25Q16E
+
+
+
+                                                                             Contents
+1     FEATURES .........................................................................................................................................................4
+
+2     GENERAL DESCRIPTIONS..............................................................................................................................5
+
+3     MEMORY ORGANIZATION ...............................................................................................................................7
+
+4     DEVICE OPERATIONS......................................................................................................................................8
+
+    4.1      SPI MODE .............................................................................................................................................................. 8
+    4.2      HOLD FUNCTION ..................................................................................................................................................... 8
+
+5     DATA PROTECTION ..........................................................................................................................................9
+
+6     STATUS REGISTER ........................................................................................................................................ 11
+
+7     COMMAND DESCRIPTIONS .......................................................................................................................... 14
+
+    7.1      WRITE ENABLE (WREN) (06H) ................................................................................................................................ 17
+    7.2      WRITE DISABLE (WRDI) (04H) ................................................................................................................................ 17
+    7.3      READ STATUS REGISTER (RDSR) (05H OR 35H) .......................................................................................................... 17
+    7.4      WRITE STATUS REGISTER (WRSR) (01H) ................................................................................................................... 18
+    7.5      WRITE ENABLE FOR VOLATILE STATUS REGISTER (50H) ................................................................................................. 18
+    7.6      READ DATA BYTES (READ) (03H)............................................................................................................................. 19
+    7.7      READ DATA BYTES AT HIGHER SPEED (FAST READ) (0BH) .............................................................................................. 19
+    7.8      DUAL OUTPUT FAST READ (3BH) .............................................................................................................................. 20
+    7.9      QUAD OUTPUT FAST READ (6BH) ............................................................................................................................. 21
+    7.10     DUAL I/O FAST READ (BBH) .................................................................................................................................... 21
+    7.11     QUAD I/O FAST READ (EBH) ................................................................................................................................... 22
+    7.12     SET BURST WITH WRAP (77H) ................................................................................................................................. 24
+    7.13     PAGE PROGRAM (PP) (02H) .................................................................................................................................... 24
+    7.14     QUAD PAGE PROGRAM (32H) .................................................................................................................................. 25
+    7.15     SECTOR ERASE (SE) (20H) ....................................................................................................................................... 26
+    7.16     32KB BLOCK ERASE (BE) (52H) ............................................................................................................................... 26
+    7.17     64KB BLOCK ERASE (BE) (D8H)............................................................................................................................... 27
+    7.18     CHIP ERASE (CE) (60/C7H) ..................................................................................................................................... 27
+    7.19     READ MANUFACTURE ID/ DEVICE ID (REMS) (90H) ................................................................................................... 28
+    7.20     READ IDENTIFICATION (RDID) (9FH) ......................................................................................................................... 28
+    7.21     READ UNIQUE ID (4BH) .......................................................................................................................................... 29
+    7.22     ERASE SECURITY REGISTERS (44H) ............................................................................................................................ 30
+    7.23     PROGRAM SECURITY REGISTERS (42H) ....................................................................................................................... 30
+    7.24     READ SECURITY REGISTERS (48H) ............................................................................................................................. 31
+    7.25     ENABLE RESET (66H) AND RESET (99H) ..................................................................................................................... 32
+    7.26     PROGRAM/ERASE SUSPEND (PES) (75H) ................................................................................................................... 32
+    7.27     PROGRAM/ERASE RESUME (PER) (7AH) ................................................................................................................... 33
+
+                                                                                        2
+                           Uniform Sector
+                           Dual and Quad Serial Flash                                                                                             GD25Q16E
+     7.28      DEEP POWER-DOWN (DP) (B9H) ............................................................................................................................. 33
+     7.29      RELEASE FROM DEEP POWER-DOWN AND READ DEVICE ID (RDI) (ABH) ......................................................................... 34
+     7.30      READ SERIAL FLASH DISCOVERABLE PARAMETER (5AH)................................................................................................. 34
+
+8      ELECTRICAL CHARACTERISTICS .............................................................................................................. 36
+
+     8.1       POWER-ON TIMING ................................................................................................................................................ 36
+     8.2       INITIAL DELIVERY STATE ........................................................................................................................................... 36
+     8.3       ABSOLUTE MAXIMUM RATINGS ................................................................................................................................ 36
+     8.4       CAPACITANCE MEASUREMENT CONDITIONS................................................................................................................. 37
+     8.5       DC CHARACTERISTICS .............................................................................................................................................. 38
+     8.6       AC CHARACTERISTICS .............................................................................................................................................. 41
+
+9      ORDERING INFORMATION............................................................................................................................ 48
+
+     9.1       VALID PART NUMBERS ............................................................................................................................................ 49
+
+10          PACKAGE INFORMATION ......................................................................................................................... 51
+
+     10.1      PACKAGE SOP8 150MIL ........................................................................................................................................ 51
+     10.2      PACKAGE SOP8 208MIL ........................................................................................................................................ 52
+     10.3      PACKAGE USON8 (3X2MM, 0.45MM THICKNESS) ....................................................................................................... 53
+     10.4      PACKAGE USON8 (3X4MM) .................................................................................................................................... 54
+     10.5      PACKAGE USON8 (4X4MM, 0.45MM THICKNESS) ....................................................................................................... 55
+     10.6      PACKAGE WSON8 (6X5MM) ................................................................................................................................... 56
+
+11          REVISION HISTORY .................................................................................................................................... 57
+
+
+
+
+                                                                                        3
+                 Uniform Sector
+                 Dual and Quad Serial Flash                                                        GD25Q16E
+
+1 FEATURES
+
+◆ 16M-bit Serial Flash                                          ◆ Fast Program/Erase Speed
+  - 2048K-Byte                                                    - Page Program time: 0.4ms typical
+  - 256 Bytes per programmable page                               - Sector Erase time: 45ms typical
+                                                                  - Block Erase time: 0.15s/0.25s typical
+◆ Standard, Dual, Quad SPI                                        - Chip Erase time: 6s typical
+  - Standard SPI: SCLK, CS#, SI, SO, WP#, HOLD#
+  - Dual SPI: SCLK, CS#, IO0, IO1, WP#, HOLD#                   ◆ Flexible Architecture
+  - Quad SPI: SCLK, CS#, IO0, IO1, IO2, IO3                       - Uniform Sector of 4K-Byte
+                                                                  - Uniform Block of 32/64K-Byte
+◆ High Speed Clock Frequency
+  - 133MHz for fast read with 30PF load                         ◆ Low Power Consumption
+  - Dual I/O Data transfer up to 266Mbits/s                       - 11μA typical standby current
+  - Quad I/O Data transfer up to 532Mbits/s                       - 1μA typical deep power down current
+
+
+◆ Software/Hardware Write Protection                            ◆ Advanced Security Features
+  - Write protect all/portion of memory via software              - 128-bit Unique ID for each device
+  - Enable/Disable protection with WP# Pin                        - Serial Flash Discoverable parameters (SFDP) register
+  - Top/Bottom Block protection                                   - 2x1024-Byte Security Registers With OTP Locks
+
+
+◆ Endurance and Data Retention                                  ◆ Single Power Supply Voltage
+  - Minimum 100,000 Program/Erase Cycles                          - Full voltage range: 2.7-3.6V
+  - 20-year data retention typical
+                                                                ◆ Package Information
+◆ Allows XiP (eXecute in Place) Operation                         - SOP8 150mil
+  - High speed Read reduce overall XiP instruction fetch time     - SOP8 208mil
+  - Continuous Read with Wrap further reduce data latency to      - USON8 (3x2mm, 0.45mm thickness)
+    fill up SoC cache                                             - USON8 (3x4mm)
+                                                                  - USON8 (4x4mm, 0.45mm thickness)
+                                                                  - WSON8 (6x5mm)
+
+
+
+
+                                                          4
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                        GD25Q16E
+
+2      GENERAL DESCRIPTIONS
+
+The GD25Q16E (16M-bit) Serial flash supports the standard Serial Peripheral Interface (SPI), and the Dual/Quad SPI:
+Serial Clock, Chip Select, Serial Data I/O0 (SI), I/O1 (SO), I/O2 (WP#), I/O3 (HOLD#). The Dual I/O data is transferred
+with speed of 266Mbit/s, and the Quad I/O data is transferred with speed of 532Mbit/s.
+
+
+CONNECTION DIAGRAM
+
+
+     CS#      1                              8     VCC             CS#         1                 8       VCC
+
+      SO                                          HOLD#             SO                                  HOLD#
+     (IO1)    2                              7     (IO3)           (IO1)       2                 7       (IO3)
+                         Top View                                                     Top View
+    WP#                                                            WP#
+    (IO2)     3                              6    SCLK             (IO2)       3                 6       SCLK
+
+
+     VSS      4                              5      SI             VSS         4                 5         SI
+                                                  (IO0)                                                  (IO0)
+
+                  8 - LEAD USON/WSON                                               8 - LEAD SOP
+
+
+
+PIN DESCRIPTION
+                              Table 1. Pin Description for SOP8/USON8/WSON8 Package
+    Pin No.                Pin Name                   I/O                                Description
+       1                      CS#                        I       Chip Select Input
+       2                   SO (IO1)                   I/O        Data Output (Data Input Output 1)
+       3                  WP# (IO2)                   I/O        Write Protect Input (Data Input Output 2)
+       4                      VSS                                Ground
+       5                    SI (IO0)                  I/O        Data Input (Data Input Output 0)
+       6                     SCLK                        I       Serial Clock Input
+       7                 HOLD# (IO3)                  I/O        Hold Input (Data Input Output 3)
+       8                     VCC                                 Power Supply
+
+
+
+Note: CS# must be driven high if chip is not selected. Please don’t leave CS# floating any time after power is on.
+
+
+
+
+                                                             5
+               Uniform Sector
+               Dual and Quad Serial Flash                                          GD25Q16E
+
+BLOCK DIAGRAM
+
+
+
+   WP#(IO2)        Write Control
+                       Logic
+
+                                      Status
+
+
+
+
+                                                    Write Protect Logic
+                                                    and Row Decode
+                                     Register
+
+                                                                           Flash
+                                   High Voltage
+  HOLD#(IO3)                                                              Memory
+                                   Generators
+                       SPI
+       SCLK        Command &
+                   Control Logic   Page Address
+                                   Latch/Counter
+        CS#
+
+     SI(IO0)                                Column Decode And
+                                            256-Byte Page Buffer
+     SO(IO1)
+                                   Byte Address
+                                   Latch/Counter
+
+
+
+
+                                        6
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                       GD25Q16E
+
+3     MEMORY ORGANIZATION
+
+GD25Q16E
+    Each device has        Each block has      Each sector has        Each page has
+          2M                   64/32K                4K                   256                 Bytes
+          8K                  256/128                16                     -                 pages
+         512                    16/8                  -                     -                 sectors
+         32/64                   -                    -                     -                 blocks
+
+
+UNIFORM BLOCK SECTOR ARCHITECTURE
+GD25Q16E 64K Bytes Block Sector Architecture
+
+           Block                     Sector                         Address range
+
+                                        511               1FF000H                   1FFFFFH
+            31                         ……                   ……                        ……
+                                       496                1F0000H                   1F0FFFH
+                                       495                1EF000H                   1EFFFFH
+            30                         ……                   ……                        ……
+                                       480                1E0000H                   1E0FFFH
+                                       ……                   ……                        ……
+           ……                          ……                   ……                        ……
+                                       ……                   ……                        ……
+                                       ……                   ……                        ……
+           ……                          ……                   ……                        ……
+                                       ……                   ……                        ……
+                                        47                02F000H                   02FFFFH
+               2                       ……                   ……                        ……
+                                        32                020000H                   020FFFH
+                                        31                01F000H                   01FFFFH
+               1                       ……                   ……                        ……
+                                        16                010000H                   010FFFH
+                                        15                00F000H                   00FFFFH
+               0                       ……                   ……                        ……
+                                        0                 000000H                   000FFFH
+
+
+
+
+                                                 7
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                        GD25Q16E
+
+4 DEVICE OPERATIONS
+
+4.1      SPI Mode
+Standard SPI
+The GD25Q16E features a serial peripheral interface on 4 signals bus: Serial Clock (SCLK), Chip Select (CS#), Serial Data
+Input (SI) and Serial Data Output (SO). Both SPI bus mode 0 and 3 are supported. Input data is latched on the rising edge
+of SCLK and data shifts out on the falling edge of SCLK.
+
+
+Dual SPI
+The GD25Q16E supports Dual SPI operation when using the “Dual Output Fast Read” and “Dual I/O Fast Read” (3BH and
+BBH) commands. These commands allow data to be transferred to or from the device at twice the rate of the standard SPI.
+When using the Dual SPI commands, the SI and SO pins become bidirectional I/O pins: IO0 and IO1.
+
+
+Quad SPI
+The GD25Q16E supports Quad SPI operation when using the “Quad Output Fast Read”, “Quad I/O Fast Read” (6BH, EBH)
+commands. These commands allow data to be transferred to or from the device at four times the rate of the standard SPI.
+When using the Quad SPI commands, the SI and SO pins become bidirectional I/O pins: IO0 and IO1, and the WP# and
+HOLD# pins become bidirectional I/O pins: IO2 and IO3. The Quad SPI commands require the non-volatile Quad Enable
+bit (QE) in Status Register set to 1.
+
+
+4.2      HOLD Function
+The HOLD function is available when QE=0. If QE=1, The HOLD function is disabled, and the HOLD# pin acts as dedicated
+data I/O pin.
+The HOLD# signal goes low to stop any serial communications with the device, except the operation of write status register,
+programming, or erasing in progress.
+The operation of HOLD needs CS# keep low, and starts on falling edge of the HOLD# signal, with SCLK signal being low.
+If SCLK is not low, HOLD operation will not start until SCLK is low. The HOLD condition ends on rising edge of HOLD#
+signal with SCLK being low. If SCLK is not low, HOLD operation will not end until SCLK is low.
+The SO is high impedance, both SI and SCLK don’t care during the HOLD operation. If CS# is driven high during HOLD
+operation, it will reset the internal logic of the device. To re-start communication with the chip, the HOLD# must be at high
+and then CS# must be at low.
+                                                Figure 1 HOLD Condition
+
+
+        CS#
+
+
+        SCLK
+
+
+        HOLD#
+
+                                        HOLD                     HOLD
+
+
+
+
+                                                             8
+                     Uniform Sector
+                     Dual and Quad Serial Flash                                                     GD25Q16E
+
+5         DATA PROTECTION
+
+The GD25Q16E provide the following data protection methods:
+    ◆     Write Enable (WREN) command: The WREN command is set the Write Enable Latch bit (WEL). The WEL bit will
+          return to reset by the following situation:
+          -Power-Up / Software Reset (66H+99H)
+          -Write Disable (WRDI)
+          -Write Status Register (WRSR)
+          -Page Program (PP)
+          -Sector Erase (SE) / Block Erase (BE) / Chip Erase (CE)
+    ◆     Software Protection Mode: The Block Protect bits (BP4-BP0) define the section of the memory array that can be
+          read but not changed.
+    ◆     Hardware Protection Mode: WP# goes low to protect the Block Protect bits (BP4-BP0) and the SRP bits (SRP1 and
+          SRP0).
+    ◆     Deep Power-Down Mode: In Deep Power-Down Mode, all commands are ignored except the Release from Deep
+          Power-Down Mode command and Software Reset (66H+99H).
+    ◆     Write Inhibit Voltage (VWI): Device would reset automatically when VCC is below a certain threshold VWI.
+
+                                       Table 2. GD25Q16E Protected area size (CMP=0)
+          Status Register Content                                        Memory Content
+
+    BP4     BP3      BP2     BP1      BP0       Blocks              Addresses               Density         Portion
+    X        X        0        0        0        NONE                 NONE                   NONE            NONE
+     0        0       0        0        1          31         1F0000H-1FFFFFH                64KB          Upper 1/32
+     0        0       0        1        0       30 to 31      1E0000H-1FFFFFH                128KB         Upper 1/16
+     0        0       0        1        1       28 to 31      1C0000H-1FFFFFH                256KB         Upper 1/8
+     0        0       1        0        0       24 to 31      180000H-1FFFFFH                512KB         Upper 1/4
+     0        0       1        0        1       16 to 31      100000H-1FFFFFH                  1M          Upper 1/2
+     0        1       0        0        1           0            000000H-00FFFFH             64KB          Lower 1/32
+     0        1       0        1        0        0 to 1          000000H-01FFFFH             128KB         Lower 1/16
+     0        1       0        1        1        0 to 3          000000H-03FFFFH             256KB         Lower 1/8
+     0        1       1        0        0        0 to 7          000000H-07FFFFH             512KB         Lower 1/4
+     0        1       1        0        1        0 to 15      000000H-0FFFFFH                  1M          Lower 1/2
+    X        X        1        1        X        0 to 31      000000H-1FFFFFH                  2M             ALL
+     1        0       0        0        1          31         1FF000H-1FFFFFH                 4KB          Top Block
+     1        0       0        1        0          31         1FE000H-1FFFFFH                 8KB          Top Block
+     1        0       0        1        1          31         1FC000H-1FFFFFH                16KB          Top Block
+     1        0       1        0        X          31         1F8000H-1FFFFFH                32KB          Top Block
+     1        1       0        0        1           0            000000H-000FFFH              4KB         Bottom Block
+     1        1       0        1        0           0            000000H-001FFFH              8KB         Bottom Block
+     1        1       0        1        1           0            000000H-003FFFH             16KB         Bottom Block
+     1        1       1        0        X           0            000000H-007FFFH             32KB         Bottom Block
+
+
+
+                                                             9
+                Uniform Sector
+                Dual and Quad Serial Flash                                              GD25Q16E
+                                Table 3. GD25Q16E Protected area size (CMP=1)
+      Status Register Content                                   Memory Content
+
+BP4     BP3    BP2    BP1       BP0    Blocks             Addresses              Density      Portion
+X        X      0       0        0     0 to 31        000000H-1FFFFFH              2M          ALL
+ 0       0      0       0        1     0 to 30        000000H-1EFFFFH            1984KB     Lower 31/32
+ 0       0      0       1        0     0 to 29        000000H-1DFFFFH            1920KB     Lower 15/16
+ 0       0      0       1        1     0 to 27        000000H-1BFFFFH            1792KB      Lower 7/8
+ 0       0      1       0        0     0 to 23         000000H-17FFFFH           1536KB      Lower 3/4
+ 0       0      1       0        1     0 to 15        000000H-0FFFFFH              1M        Lower 1/2
+ 0       1      0       0        1     1 to 31        010000H-1FFFFFH            1984KB     Upper 31/32
+ 0       1      0       1        0     2 to 31        020000H-1FFFFFH            1920KB     Upper 15/16
+ 0       1      0       1        1     4 to 31        040000H-1FFFFFH            1792KB      Upper 7/8
+ 0       1      1       0        0     8 to 31        080000H-1FFFFFH            1536KB      Upper 3/4
+ 0       1      1       0        1     16 to 31       100000H-1FFFFFH              1M        Upper 1/2
+X        X      1       1       X      NONE                 NONE                 NONE         NONE
+ 1       0      0       0        1     0 to 31        000000H-1FEFFFH            2044KB    Lower 511/512
+ 1       0      0       1        0     0 to 31        000000H-1FDFFFH            2040KB    Lower 255/256
+ 1       0      0       1        1     0 to 31        000000H-1FBFFFH            2032KB    Lower 127/128
+ 1       0      1       0       X      0 to 31         000000H-1F7FFFH           2016KB     Lower 63/64
+ 1       1      0       0        1     0 to 31        001000H-1FFFFFH            2044KB    Upper 511/512
+ 1       1      0       1        0     0 to 31        002000H-1FFFFFH            2040KB    Upper 255/256
+ 1       1      0       1        1     0 to 31        004000H-1FFFFFH            2032KB    Upper 127/128
+ 1       1      1       0       X      0 to 31        008000H-1FFFFFH            2016KB     Upper 63/64
+
+
+
+
+                                                     10
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                      GD25Q16E
+
+6      STATUS REGISTER
+
+                                               Table 4. Status Register-SR No.1
+ No.      Name             Description                                              Note
+ S7       SRP0             Status Register Protection Bit                           Non-volatile writable
+ S6       BP4              Block Protect Bit                                        Non-volatile writable
+ S5       BP3              Block Protect Bit                                        Non-volatile writable
+ S4       BP2              Block Protect Bit                                        Non-volatile writable
+ S3       BP1              Block Protect Bit                                        Non-volatile writable
+ S2       BP0              Block Protect Bit                                        Non-volatile writable
+ S1       WEL              Write Enable Latch                                       Volatile, read only
+ S0       WIP              Erase/Write In Progress                                  Volatile, read only
+
+
+
+                                               Table 5. Status Register-SR No.2
+ No.      Name             Description                                              Note
+ S15      SUS              Suspend Bit                                              Volatile, read only
+ S14      CMP              Complement Protect Bit                                   Non-volatile writable
+ S13      Reserved         Reserved                                                 Reserved
+ S12      DC               Dummy Configuration Bit                                  Non-volatile writable
+ S11      LB1              Security Register Lock Bit                               Non-volatile writable (OTP)
+ S10      LB0              Security Register Lock Bit                               Non-volatile writable (OTP)
+ S9       QE               Quad Enable Bit                                          Non-volatile writable
+ S8       SRP1             Status Register Protection Bit                           Non-volatile writable
+
+
+The status and control bits of the Status Register are as follows:
+
+
+WIP bit
+The Write in Progress (WIP) bit indicates whether the memory is busy in program/erase/write status register progress. When
+WIP bit sets to 1, means the device is busy in program/erase/write status register progress, when WIP bit sets 0, means
+the device is not in program/erase/write status register progress.
+
+
+WEL bit
+The Write Enable Latch (WEL) bit indicates the status of the internal Write Enable Latch. When set to 1 the internal Write
+Enable Latch is set, when set to 0 the internal Write Enable Latch is reset and no Write Status Register, Program or Erase
+command is accepted.
+
+
+BP4, BP3, BP2, BP1, BP0 bits
+The Block Protect (BP4, BP3, BP2, BP1, and BP0) bits are non-volatile. They define the size of the area to be software
+protected against Program and Erase commands. These bits are written with the Write Status Register (WRSR) command.
+When the Block Protect (BP4, BP3, BP2, BP1, BP0) bits are set to 1, the relevant memory area (as defined in Table 2&3)
+becomes protected against Page Program (PP), Sector Erase (SE) and Block Erase (BE) commands. The Block Protect
+(BP4, BP3, BP2, BP1, and BP0) bits can be written provided that the Hardware Protected mode has not been set. The Chip
+
+                                                              11
+                     Uniform Sector
+                     Dual and Quad Serial Flash                                                       GD25Q16E
+Erase (CE) command is executed, if the Block Protect (BP2, BP1, and BP0) bits are 0 and CMP=0 or the Block Protect
+(BP2, BP1, and BP0) bits are 1 and CMP=1.
+
+
+SRP1, SRP0 bits
+The Status Register Protect (SRP1 and SRP0) bits are non-volatile Read/Write bits in the status register. The SRP bits
+control the method of write protection: software protection, hardware protection, power supply lock-down or one time
+programmable protection.
+ SRP1     SRP0       #WP          Status Register            Description
+                                                             The Status Register can be written to after a Write Enable
+   0        0         X          Software Protected
+                                                             command, WEL=1.(Default)
+                                                             WP#=0, the Status Register locked and cannot be written to.
+   0        1         0         Hardware Protected
+
+                                                             WP#=1, the Status Register is unlocked and can be written to
+   0        1         1        Hardware Unprotected
+                                                             after a Write Enable command, WEL=1.
+                                Power Supply Lock-           Status Register is protected and cannot be written to again until
+   1        0         X
+                                      Down(1)(2)             the next Power-Down, Power-Up cycle.
+                                                             Status Register is permanently protected and cannot be written
+   1        1         X         One Time Program(2)
+                                                             to.
+NOTE:
+1. When SRP1, SRP0= (1, 0), a Power-Down, Power-Up cycle will change SRP1, SRP0 to (0, 0) state.
+2. This feature is available on special order. Please contact GigaDevice for details.
+
+
+QE bit
+The Quad Enable (QE) bit is a non-volatile Read/Write bit in the Status Register that allows Quad operation. When the QE
+bit is set to 0 (Default) the WP# pin and HOLD# pin are enable. When the QE pin is set to 1, the Quad IO2 and IO3 pins
+are enabled. (It is best to set the QE bit to 0 to avoid short issues if the WP# or HOLD# pin is tied directly to the power
+supply or ground.)
+
+
+LB1, LB0 bits
+The LB1 and LB0 bits are non-volatile One Time Program (OTP) bits in Status Register (S11 and S10) that provide the write
+protect control and status to the Security Registers. The default state of LB1 and LB0 bits are 0, the security registers are
+unlocked. The LB1 and LB0 bits can be set to 1 individually using the Write Register instruction. The LB1 and LB0 bits are
+One Time Programmable, once they are set to 1, the Security Registers will become read-only permanently.
+
+
+DC bit
+The Dummy Configuration (DC) bit is non-volatile, which selects the number of dummy cycles between the end of address
+and the start of read data output. Dummy cycles provide additional latency that is needed to complete the initial read access
+of the flash array before data can be returned to the host system. Some read commands require additional dummy cycles
+as the SCLK frequency increases.
+The following dummy cycle tables provide different dummy cycle settings that are configured.
+
+
+
+
+                                                             12
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                        GD25Q16E
+        Command                    DC bit             Numbers of Dummy Cycles                     Freq.(MHz)
+                                 0 (default)                        4                                 104
+          BBH
+                                      1                             8                                133R
+                                 0 (default)                        6                                 104
+          EBH
+                                      1                            10                                133R
+Note:
+1. “R” means VCC range=3.0V~3.6V.
+
+
+Reserved bit
+It is recommended to set the value of the reserved bit as “0”.
+
+
+CMP bit
+The CMP bit is a non-volatile Read/Write bit in the Status Register (S14). It is used in conjunction with the BP4-BP0 bits to
+provide more flexibility for the array protection. Please see the Status registers Memory Protection table for details. The
+default setting is CMP=0.
+
+
+SUS bit
+The SUS bit is a read only bit in the status register (S15) that is set to 1 after executing an Erase/Program Suspend (75H)
+command. The SUS bit is cleared to 0 by Erase/Program Resume (7AH) command, software reset (66H+99H) command,
+as well as a power-down, power-up cycle.
+
+
+
+
+                                                             13
+                     Uniform Sector
+                     Dual and Quad Serial Flash                                                        GD25Q16E
+
+7      COMMAND DESCRIPTIONS
+
+All commands, addresses and data are shifted in and out of the device, beginning with the most significant bit on the first
+rising edge of SCLK after CS# is driven low. Then, the one-byte command code must be shifted in to the device, with most
+significant bit first on SI, and each bit is latched on the rising edges of SCLK.
+Every command sequence starts with a one-byte command code. Depending on the command, this might be followed by
+address bytes, or by data bytes, or by both or none. CS# must be driven high after the last bit of the command sequence
+has been completed. For the command of Read, Fast Read, Read Status Register or Release from Deep Power-Down,
+and Read Device ID, the shifted-in command sequence is followed by a data-out sequence. All read instruction can be
+completed after any bit of the data-out sequence is being shifted out, and then CS# must be driven high to return to
+deselected status.
+For the command of Page Program, Sector Erase, Block Erase, Chip Erase, Write Status Register, Write Enable, Write
+Disable or Deep Power-Down command, CS# must be driven high exactly at a byte boundary, otherwise the command is
+rejected, and is not executed. That is CS# must be driven high when the number of clock pulses after CS# being driven low
+is an exact multiple of eight. For Page Program, if at any time the input byte is not a full byte, nothing will happen and WEL
+will not be reset.
+
+
+                                                     Table 6. Commands
+Command Name               Byte 1     Byte 2      Byte 3       Byte 4      Byte 5     Byte 6      Byte 7    Byte 8   Byte 9
+Write Enable                06H
+Write Disable               04H
+
+Read Status Register-1      05H      (S7-S0)      (cont.)
+
+Read Status Register-2      35H      (S15-S8)     (cont.)
+
+Write Status Register-
+                            01H       S7-S0       S15-S8
+1&2
+Volatile SR write
+                            50H
+Enable
+Read Data                   03H      A23-A16      A15-A8       A7-A0      (D7-D0)     (cont.)
+Fast Read                   0BH      A23-A16      A15-A8       A7-A0      dummy      (D7-D0)      (cont.)
+
+Dual Output Fast Read       3BH      A23-A16      A15-A8       A7-A0      dummy      (D7-D0)(1)   (cont.)
+
+Quad Output Fast
+                            6BH      A23-A16      A15-A8       A7-A0      dummy      (D7-D0)(2)   (cont.)
+Read
+Dual I/O Fast Read          BBH     A23-A16(3) A15-A8(3)      A7-A0(3)    M7-M0(4) (D7-D0)(1)     (cont.)
+
+Quad I/O Fast Read          EBH     A23-A16(5) A15-A8(5)      A7-A0(5)    M7-M0(6)    dummy       dummy (D7-D0)(2) (cont.)
+
+Set Burst with Wrap         77H      dummy(7)    dummy(7)    dummy(7) W7-W0(7)
+Page Program                02H      A23-A16      A15-A8       A7-A0       D7-D0     Next Byte
+Quad Page Program           32H      A23-A16      A15-A8       A7-A0      D7-D0(8)   Next Byte
+Sector Erase                20H      A23-A16      A15-A8       A7-A0
+Block Erase (32K)           52H      A23-A16      A15-A8       A7-A0
+Block Erase (64K)           D8H      A23-A16      A15-A8       A7-A0
+
+                                                               14
+                    Uniform Sector
+                    Dual and Quad Serial Flash                                                    GD25Q16E
+Chip Erase               C7/60H
+Read Manufacturer/                                                    (MID7-
+                          90H       00H         00H        00H                   (ID7-ID0)   (cont.)
+Device ID                                                             MID0)
+                                  (MID7-
+Read Identification       9FH                 (ID15-ID8) (ID7-ID0)    (cont.)
+                                   MID0)
+                                                                                  (UID7-
+Read Unique ID            4BH       00H         00H        00H       dummy                   (cont.)
+                                                                                  UID0)
+Erase Security
+                          44H     A23-A16      A15-A8     A7-A0
+Registers(9)
+Program Security
+                          42H     A23-A16      A15-A8     A7-A0       D7-D0      Next Byte
+Registers(9)
+Read Security
+                          48H     A23-A16      A15-A8     A7-A0      dummy       (D7-D0)     (cont.)
+Registers(9)
+Enable Reset              66H
+Reset                     99H
+Program/Erase
+                          75H
+Suspend
+Program/Erase
+                          7AH
+Resume
+Deep Power-Down           B9H
+Release From Deep
+                          ABH
+Power-Down
+Release From Deep
+Power-Down and Read       ABH     dummy        dummy      dummy      (ID7-ID0)    (cont.)
+Device ID
+Read Serial Flash
+Discoverable              5AH     A23-A16      A15-A8     A7-A0      dummy       (D7-D0)     (cont.)
+Parameter
+
+
+Note:
+1. Dual Output data
+IO0 = (D6, D4, D2, D0)
+IO1 = (D7, D5, D3, D1)
+2. Quad Output Data
+IO0 = (D4, D0, …)
+IO1 = (D5, D1, …)
+IO2 = (D6, D2, …)
+IO3 = (D7, D3, …)
+3. Dual Input Address
+IO0 = A22, A20, A18, A16, A14, A12, A10, A8      A6, A4, A2, A0
+IO1 = A23, A21, A19, A17, A15, A13, A11, A9      A7, A5, A3, A1
+4. Dual Input Mode bit
+IO0 = M6, M4, M2, M0
+
+                                                           15
+                      Uniform Sector
+                      Dual and Quad Serial Flash                                   GD25Q16E
+IO1 = M7, M5, M3, M1
+5. Quad Input Address
+IO0 = A20, A16, A12, A8,         A4, A0
+IO1 = A21, A17, A13, A9,         A5, A1
+IO2 = A22, A18, A14, A10, A6, A2
+IO3 = A23, A19, A15, A11, A7, A3
+6. Quad Input Mode bit
+IO0 = M4, M0
+IO1 = M5, M1
+IO2 = M6, M2
+IO3 = M7, M3
+7. Dummy bits and Wrap Bits
+IO0 = (x, x, x, x, x, x, W4, x)
+IO1 = (x, x, x, x, x, x, W5, x)
+IO2 = (x, x, x, x, x, x, W6, x)
+IO3 = (x, x, x, x, x, x, x, x)
+8. Quad Output Data
+IO0 = D4, D0, …
+IO1 = D5, D1, …
+IO2 = D6, D2, …
+IO3 = D7, D3, …
+9. Security Registers Address
+Security Register0: A23-A16=00H, A15-A12=0H, A11-A10 = 00b, A9-A0= Byte Address;
+Security Register1: A23-A16=00H, A15-A12=1H, A11-A10 = 00b, A9-A0= Byte Address;
+
+
+
+
+TABLE OF ID DEFINITIONS
+GD25Q16E
+        Operation Code                    MID7-MID0              ID15-ID8           ID7-ID0
+               9FH                           C8                     40                15
+               90H                           C8                                       14
+               ABH                                                                    14
+
+
+
+
+                                                      16
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                       GD25Q16E
+7.1      Write Enable (WREN) (06H)
+The Write Enable (WREN) command is for setting the Write Enable Latch (WEL) bit. The Write Enable Latch (WEL) bit must
+be set prior to every Page Program (PP), Quad Page Program (QPP), Sector Erase (SE), Block Erase (BE), Chip Erase
+(CE), Write Status Register (WRSR) and Erase/Program Security Registers command.
+The Write Enable (WREN) command sequence: CS# goes low  sending the Write Enable command  CS# goes high.
+                                          Figure 2. Write Enable Sequence Diagram
+
+                                   CS#
+                                                     0   1   2    3   4   5   6   7
+                                   SCLK
+                                                             Command
+                                     SI                           06H
+                                                                 High-Z
+                                    SO
+
+
+
+7.2 Write Disable (WRDI) (04H)
+The Write Disable command is for resetting the Write Enable Latch (WEL) bit. The Write Enable Latch (WEL) bit may be
+set to 0 by issuing the Write Disable (WRDI) command to disable Page Program (PP), Quad Page Program (QPP), Sector
+Erase (SE), Block Erase (BE), Chip Erase (CE), Write Status Register (WRSR), that require WEL be set to 1 for execution.
+The WRDI command can be used by the user to protect memory areas against inadvertent writes that can possibly corrupt
+the contents of the memory. The WRDI command is ignored during an embedded operation while WIP bit =1.
+The WEL bit is reset by following condition: Write Disable command (WRDI), Power-up, and upon completion of the Write
+Status Register, Page Program, Sector Erase, Block Erase and Chip Erase commands.
+The Write Disable command sequence: CS# goes low Sending the Write Disable command CS# goes high.
+                                       Figure 3. Write Disable Sequence Diagram
+
+                                   CS#
+                                                     0   1   2    3   4   5   6   7
+                                   SCLK
+                                                             Command
+                                     SI                           04H
+                                                                 High-Z
+                                    SO
+
+
+
+7.3 Read Status Register (RDSR) (05H or 35H)
+The Read Status Register (RDSR) command is for reading the Status Register. The Status Register may be read at any
+time, even while a Program, Erase or Write Status Register cycle is in progress. When one of these cycles is in progress, it
+is recommended to check the Write in Progress (WIP) bit before sending a new command to the device. It is also possible
+to read the Status Register continuously. For command code “05H”, the SO will output Status Register bits S7~S0. The
+command code “35H”, the SO will output Status Register bits S15~S8.
+
+
+
+
+                                                             17
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                                 GD25Q16E
+                                     Figure 4. Read Status Register Sequence Diagram
+
+       CS#
+                        0   1   2    3    4   5   6   7    8    9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+      SCLK
+                                Command
+        SI                      05H or 35H
+                                                               S7~S0 or S15~S8 out             S7~S0 or S15~S8 out
+                                    High-Z
+       SO                                                 7     6 5 4 3 2 1 0              7    6 5 4 3 2 1 0            7
+                                                      MSB                                 MSB
+
+
+7.4 Write Status Register (WRSR) (01H)
+The Write Status Register (WRSR) command allows new values to be written to the Status Register. Before it can be
+accepted, a Write Enable (WREN) command must previously have been executed. After the Write Enable (WREN)
+command has been decoded and executed, the device sets the Write Enable Latch (WEL).
+The Write Status Register (WRSR) command has no effect on S15, S1 and S0 of the Status Register. CS# must be driven
+high after the eighth or sixteenth bit of the data byte has been latched in. Otherwise, the Write Status Register (WRSR)
+command is not executed. If CS# is driven high after eighth bit of the data byte, the CMP and QE bits will be cleared to 0.
+As soon as CS# is driven high, the self-timed Write Status Register cycle (whose duration is tW) is initiated. While the Write
+Status Register cycle is in progress, the Status Register may still be read to check the value of the Write In Progress (WIP)
+bit. The Write In Progress (WIP) bit is 1 during the self-timed Write Status Register cycle, and is 0 when it is completed.
+When the cycle is completed, the Write Enable Latch (WEL) is reset.
+The Write Status Register (WRSR) command allows the user to change the values of the Block Protect (BP4, BP3, BP2,
+BP1, and BP0) bits, to define the size of the area that is to be treated as read-only. The Write Status Register (WRSR)
+command also allows the user to set or reset the Status Register Protect (SRP1 and SRP0) bits in accordance with the
+Write Protect (WP#) signal. The Status Register Protect (SRP1 and SRP0) bits and Write Protect (WP#) signal allow the
+device to be put in the Hardware Protected Mode. The Write Status Register (WRSR) command is not executed once the
+Hardware Protected Mode is entered.
+                                     Figure 5. Write Status Register Sequence Diagram
+
+       CS#
+                        0   1   2     3   4   5   6   7    8    9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+      SCLK
+
+                                    Command                      Status Register in             Status Register in
+        SI                            01H                  7    6   5    4   3   2   1   0 15 14 13 12 11 10 9       8
+
+                                     High-Z               MSB                             MSB
+        SO
+
+
+
+7.5      Write Enable for Volatile Status Register (50H)
+The non-volatile Status Register bits can also be written to as volatile bits. This gives more flexibility to change the system
+configuration and memory protection schemes quickly without waiting for the typical non-volatile bit write cycles or affecting
+the endurance of the Status Register non-volatile bits. The Write Enable for Volatile Status Register command must be
+issued prior to a Write Status Register command and any other commands can’t be inserted between them. Otherwise,
+Write Enable for Volatile Status Register will be cleared. The Write Enable for Volatile Status Register command will not set
+
+                                                                    18
+                    Uniform Sector
+                    Dual and Quad Serial Flash                                                                  GD25Q16E
+the Write Enable Latch bit, it is only valid for the Write Status Register command to change the volatile Status Register bit
+values.
+                          Figure 6. Write Enable for Volatile Status Register Sequence Diagram
+
+                                           CS#
+                                                             0   1   2    3   4   5   6   7
+                                       SCLK
+                                                                     Command
+                                           SI                             50H
+                                                                         High-Z
+                                           SO
+
+
+
+7.6        Read Data Bytes (READ) (03H)
+The Read Data Bytes (READ) command is followed by a 3-byte address (A23-A0), and each bit is latched-in on the rising
+edge of SCLK. Then the memory content, at that address, is shifted out on SO, and each bit is shifted out, at a Max
+frequency fR, on the falling edge of SCLK. The first byte addressed can be at any location. The address is automatically
+incremented to the next higher address after each byte of data is shifted out. The whole memory can, therefore, be read
+with a single Read Data Bytes (READ) command. Any Read Data Bytes (READ) command, while an Erase, Program or
+Write cycle is in progress, is rejected without having any effects on the cycle that is in progress.
+                                           Figure 7. Read Data Bytes Sequence Diagram
+
+   CS#
+                     0    1   2    3   4    5    6   7   8   9 10             28 29 30 31 32 33 34 35 36 37 38 39
+  SCLK
+
+                              Command                            24-bit address
+      SI                           03H                   23 22 21             3   2   1   0
+                                                     MSB                                                  Data Out1       Data Out2
+                                  High-Z
+    SO                                                                                        7   6   5    4 3 2 1    0
+                                                                                      MSB
+
+
+7.7 Read Data Bytes at Higher Speed (Fast Read) (0BH)
+The Read Data Bytes at Higher Speed (Fast Read) command is for quickly reading data out. It is followed by a 3-byte
+address (A23-A0) and a dummy byte, and each bit is latched-in on the rising edge of SCLK. Then the memory content, at
+that address, is shifted out on SO, and each bit is shifted out, at a Max frequency f C, on the falling edge of SCLK. The first
+byte address can be at any location. The address is automatically incremented to the next higher address after each byte
+of data is shifted out.
+
+
+
+
+                                                                     19
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                                                               GD25Q16E
+                             Figure 8. Read Data Bytes at Higher Speed Sequence Diagram
+
+                      CS#
+                                             0   1   2    3    4      5   6       7       8       9 10              28 29 30 31
+                     SCLK
+
+                                                     Command                                           24-bit address
+                       SI                                  0BH                        23 22 21                      3       2   1       0
+                                                         High-Z
+                       SO
+
+                      CS#
+                                    32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+                     SCLK
+                                             Dummy Byte
+                       SI           7    6   5   4   3     2      1   0
+                                                                                          Data Out1                             Data Out2
+                       SO                                                  7 6            5 4 3 2               1       0    7 6 5
+                                                                          MSB                                               MSB
+
+
+7.8      Dual Output Fast Read (3BH)
+The Dual Output Fast Read command is followed by 3-byte address (A23-A0) and a dummy byte, and each bit is latched
+in on the rising edge of SCLK, then the memory contents are shifted out 2-bit per clock cycle from SI and SO.
+The first byte addressed can be at any location. The address is automatically incremented to the next higher address after
+each byte of data is shifted out.
+                                        Figure 9. Dual Output Fast Read Sequence Diagram
+
+                      CS#
+                                             0   1   2     3   4      5   6       7       8       9 10              28 29 30 31
+                     SCLK
+
+                                                     Command                                           24-bit address
+                       SI                                  3BH                        23 22 21                      3       2       1   0
+                                                         High-Z
+                       SO
+
+                      CS#
+                                    32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+                     SCLK
+                                             Dummy Clocks
+                       SI                                                     6       4       2    0    6   4   2       0       6
+                                                                            Data Out1   Data Out2
+                       SO                                                  7 5 3 1 7 5 3 1                                      7
+                                                                          MSB         MSB
+
+
+
+
+                                                                           20
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                                                  GD25Q16E
+7.9      Quad Output Fast Read (6BH)
+The Quad Output Fast Read command is followed by 3-byte address (A23-A0) and a dummy byte, and each bit is latched
+in on the rising edge of SCLK, then the memory contents are shifted out 4-bit per clock cycle from IO3, IO2, IO1 and IO0.
+The first byte addressed can be at any location. The address is automatically incremented to the next higher address after
+each byte of data is shifted out. The Quad Enable bit (QE) of Status Register (S9) must be set to enable for the Quad Output
+Fast Read command.
+                                 Figure 10. Quad Output Fast Read Sequence Diagram
+
+                     CS#
+                                      0   1   2   3   4   5   6       7       8       9 10             28 29 30 31
+                     SCLK
+
+                                              Command                                     24-bit address
+                     IO0                          6BH                     23 22 21                     3       2       1   0
+
+                     IO1                                  High-Z
+                     IO2                                  High-Z
+                     IO3                                  High-Z
+
+                     CS#
+                                32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+                    SCLK
+                                      Dummy Clocks
+                     IO0                                          4       0       4   0    4   0   4       0       4
+
+
+                     IO1                                      5       1       5       1    5   1   5       1       5
+
+
+                     IO2                                      6       2       6       2    6   2   6       2       6
+
+
+                     IO3                                      7 3 7 3 7 3 7 3 7
+                                                              Byte1 Byte2 Byte3 Byte4
+
+
+
+7.10 Dual I/O Fast Read (BBH)
+The Dual I/O Fast Read command is similar to the Dual Output Fast Read command but with the capability to input the 3-
+byte address (A23-0) and a “Continuous Read Mode” byte 2-bit per clock by SI and SO, and each bit is latched in on the
+rising edge of SCLK, then the memory contents are shifted out 2-bit per clock cycle from SI and SO. The first byte addressed
+can be at any location. The address is automatically incremented to the next higher address after each byte of data is shifted
+out.
+Dual I/O Fast Read with “Continuous Read Mode”
+The Dual I/O Fast Read command can further reduce command overhead through setting the “Continuous Read Mode” bits
+(M7-0) after the input 3-byte address (A23-A0). If the “Continuous Read Mode” bits (M7-0) = AXH, then the next Dual I/O
+Fast Read command (after CS# is raised and then lowered) does not require the BBH command code. If the “Continuous
+Read Mode” bits (M7-0) ≠ AXH, the next command requires the command code, thus returning to normal operation. A
+“Continuous Read Mode” Reset command can be used to reset (M7-0) before issuing normal command.
+
+
+
+
+                                                              21
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                                                                                                 GD25Q16E
+                             Figure 11. Dual I/O Fast Read Sequence Diagram ((M7-0) ≠ AXH)
+
+          CS#
+                             0    1   2   3       4       5       6       7       8       9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+         SCLK
+
+                                      Command
+          IO0                             BBH                                     6       4       2       0       6       4       2       0       6       4       2   0   6   4   2   0
+
+
+          IO1                                                                     7       5       3       1       7       5       3       1       7       5       3   1   7   5   3   1
+                                                                                      A23-16                              A15-8                       A7-0                    M7-0
+
+          CS#
+                 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
+
+         SCLK
+
+          IO0        6   4    2   0   6       4       2       0       6       4       2       0       6       4       2       0       6
+
+
+          IO1        7   5    3   1   7       5       3       1       7       5       3       1       7       5       3       1       7
+                         Byte1                Byte2                           Byte3                           Byte4
+
+
+
+
+                             Figure 12. Dual I/O Fast Read Sequence Diagram ((M7-0) = AXH)
+
+                     CS#
+                                          0       1       2       3       4       5       6        7      8       9 10 11 12 13 14 15
+                    SCLK
+
+
+                     IO0                  6       4       2       0       6       4       2       0       6       4       2       0       6       4       2   0
+
+
+                     IO1                  7       5       3       1       7       5       3       1       7       5       3       1       7       5       3   1
+                                              A23-16                          A15-8                           A7-0                                M7-0
+
+                     CS#
+                              15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+
+                    SCLK
+
+                     IO0          6   4       2       0       6       4       2       0       6       4       2       0       6       4       2       0       6
+
+
+                     IO1          7   5       3       1       7       5       3       1       7       5       3       1       7       5       3       1       7
+                                      Byte1                           Byte2                            Byte3                          Byte4
+
+
+
+7.11 Quad I/O Fast Read (EBH)
+The Quad I/O Fast Read command is similar to the Dual I/O Fast Read command but with the capability to input the 3-byte
+address (A23-0) and a “Continuous Read Mode” byte and 4-dummy clock 4-bit per clock by IO0, IO1, IO3, IO4, and each
+bit is latched in on the rising edge of SCLK, then the memory contents are shifted out 4-bit per clock cycle from IO0, IO1,
+IO2, IO3. The first byte addressed can be at any location. The address is automatically incremented to the next higher
+address after each byte of data is shifted out. The Quad Enable bit (QE) of Status Register (S9) must be set to enable for
+the Quad I/O Fast read command.
+
+                                                                                              22
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                                   GD25Q16E
+Quad I/O Fast Read with “Continuous Read Mode”
+The Quad I/O Fast Read command can further reduce command overhead through setting the “Continuous Read Mode”
+bits (M7-0) after the input 3-byte address (A23-A0). If the “Continuous Read Mode” bits (M7-0) = AXH, then the next Quad
+I/O Fast Read command (after CS# is raised and then lowered) does not require the EBH command code. If the “Continuous
+Read Mode” bits (M7-0) ≠ AXH, the next command requires the command code, thus returning to normal operation. A
+“Continuous Read Mode” Reset command can be used to reset (M7-0) before issuing normal command.
+                          Figure 13. Quad I/O Fast Read Sequence Diagram ((M7-0) ≠ AXH)
+
+
+         CS#
+                         0   1   2   3   4   5   6   7    8   9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+        SCLK
+
+                                  Command
+         IO0                         EBH                  4   0   4    0   4    0   4   0                   4   0   4   0   4
+
+
+         IO1                                              5   1   5    1   5    1   5   1                   5   1   5   1   5
+
+
+         IO2                                              6   2   6    2   6    2   6   2                   6   2   6   2   6
+
+
+         IO3                                              7   3   7    3   7    3   7   3                   7   3   7   3   7
+                                                         A23-16 A15-8 A7-0 M7-0                 Dummy       Byte1 Byte2
+
+
+                          Figure 14. Quad I/O Fast Read Sequence Diagram ((M7-0) = AXH)
+
+
+                       CS#
+                                         0   1   2   3    4   5   6    7   8    9 10 11 12 13 14 15
+                      SCLK
+
+
+                       IO0               4   0   4   0    4   0   4    0                    4   0   4   0   4
+
+
+                       IO1               5   1   5   1    5   1   5    1                    5   1   5   1   5
+
+
+                       IO2               6   2   6   2    6   2   6    2                    6   2   6   2   6
+
+
+                       IO3               7   3   7   3    7   3   7    3                    7   3   7   3   7
+                                     A23-16 A15-8 A7-0 M7-0                    Dummy        Byte1 Byte2
+
+
+Quad I/O Fast Read with “8/16/32/64-Byte Wrap Around” in Standard SPI mode
+The Quad I/O Fast Read command can be used to access a specific portion within a page by issuing “Set Burst with Wrap”
+(77H) commands prior to EBH. The “Set Burst with Wrap” (77H) command can either enable or disable the “Wrap Around”
+feature for the following EBH commands. When “Wrap Around” is enabled, the data being accessed can be limited to either
+an 8/16/32/64-byte section of a 256-byte page. The output data starts at the initial address specified in the command, once
+it reaches the ending boundary of the 8/16/32/64-byte section, the output will wrap around the beginning boundary
+automatically until CS# is pulled high to terminate the command.
+The Burst with Wrap feature allows applications that use cache to quickly fetch a critical address and then fill the cache
+afterwards within a fixed length (8/16/32/64-byte) of data without issuing multiple read commands. The “Set Burst with Wrap”
+
+                                                                  23
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                                GD25Q16E
+command allows three “Wrap Bits” W6-W4 to be set. The W4 bit is used to enable or disable the “Wrap Around” operation
+while W6-W5 is used to specify the length of the wrap around section within a page.
+
+
+7.12 Set Burst with Wrap (77H)
+The Set Burst with Wrap command is used in conjunction with “Quad I/O Fast Read” command to access a fixed length of
+8/16/32/64-byte section within a 256-byte page, in standard SPI mode.
+The Set Burst with Wrap command sequence: CS# goes low  Send Set Burst with Wrap command  Send 24 dummy
+bits  Send 8 bits “Wrap bits”  CS# goes high.
+                                        W4=0                                                     W4=1 (default)
+    W6,W5
+                       Wrap Around                Wrap Length                        Wrap Around              Wrap Length
+      0, 0                  Yes                       8-byte                             No                       N/A
+      0, 1                  Yes                       16-byte                            No                       N/A
+      1, 0                  Yes                       32-byte                            No                       N/A
+      1, 1                  Yes                       64-byte                            No                       N/A
+If the W6-W4 bits are set by the Set Burst with Wrap command, all the following “Quad I/O Fast Read” command will use
+the W6-W4 setting to access the 8/16/32/64-byte section within any page. To exit the “Wrap Around” function and return to
+normal read operation, another Set Burst with Wrap command should be issued to set W4=1.
+                                   Figure 15. Set Burst with Wrap Sequence Diagram
+
+                         CS#
+                                          0   1   2   3   4    5     6   7   8   9 10 11 12 13 14 15
+                        SCLK
+
+                                                   Command
+                                                      77H                    x   x   x   x   x   x   4   x
+                          IO0
+
+                          IO1                                                x   x   x   x   x   x   5   x
+
+
+                          IO2                                                x   x   x   x   x   x   6   x
+
+
+                          IO3                                                x   x   x   x   x   x   x   x
+                                                                                                     W6-W4
+
+
+
+7.13 Page Program (PP) (02H)
+The Page Program (PP) command is for programming the memory. A Write Enable (WREN) command must previously
+have been executed to set the Write Enable Latch (WEL) bit before sending the Page Program command.
+The Page Program (PP) command is entered by driving CS# Low, followed by the command code, three address bytes and
+at least one data byte on SI. If the 8 least significant address bits (A7-A0) are not all zero, all transmitted data that goes
+beyond the end of the current page are programmed from the start address of the same page (from the address whose 8
+least significant bits (A7-A0) are all zero). CS# must be driven low for the entire duration of the sequence. The Page Program
+command sequence: CS# goes low  sending Page Program command  3-byte address on SI  at least 1 byte data on
+SI  CS# goes high. If more than 256 bytes are sent to the device, previously latched data are discarded and the last 256
+data bytes are guaranteed to be programmed correctly within the same page. If less than 256 data bytes are sent to device,
+they are correctly programmed at the requested addresses without having any effects on the other bytes of the same page.
+
+                                                                24
+                    Uniform Sector
+                    Dual and Quad Serial Flash                                                                                                    GD25Q16E
+CS# must be driven high after the eighth bit of the last data byte has been latched in; otherwise the Page Program (PP)
+command is not executed.
+As soon as CS# is driven high, the self-timed Page Program cycle (whose duration is t PP) is initiated. While the Page
+Program cycle is in progress, the Status Register may be read to check the value of the Write in Progress (WIP) bit. The
+Write in Progress (WIP) bit is 1 during the self-timed Page Program cycle, and is 0 when it is completed. At some unspecified
+time before the cycle is completed, the Write Enable Latch (WEL) bit is reset.
+A Page Program (PP) command applied to a page which is protected by the Block Protect (BP4, BP3, BP2, BP1, and BP0)
+is not executed.
+                                           Figure 16. Page Program Sequence Diagram
+
+       CS#
+                           0   1   2   3   4    5   6     7   8    9 10             28 29 30 31 32 33 34 35 36 37 38 39
+      SCLK
+
+                                   Command                             24-bit address                                         Data Byte 1
+        SI                             02H                    23 22 21              3       2   1       0 7           6       5       4       3       2       1   0
+                                                        MSB                                             MSB
+       CS#
+
+
+
+
+                                                                                                                          2075
+                                                                                                                                  2076
+                                                                                                           2073
+
+
+
+
+                                                                                                                                                  2078
+                                                                                                    2072
+
+
+                                                                                                                  2074
+
+
+
+                                                                                                                                          2077
+
+
+                                                                                                                                                          2079
+                   40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55
+       SCLK
+
+                           Data Byte 2                         Data Byte 3                                     Data Byte 256
+        SI         7   6   5   4   3   2    1   0 7       6    5   4    3   2   1       0           7      6      5       4       3       2       1       0
+                   MSB                              MSB                                         MSB
+
+
+
+7.14 Quad Page Program (32H)
+The Quad Page Program command is for programming the memory using four pins: IO0, IO1, IO2, and IO3. To use Quad
+Page Program the Quad enable in status register Bit9 must be set (QE=1). A Write Enable (WREN) command must
+previously have been executed to set the Write Enable Latch (WEL) bit before sending the Page Program command. The
+quad Page Program command is entered by driving CS# Low, followed by the command code (32H), three address bytes
+and at least one data byte on IO pins.
+If more than 256 bytes are sent to the device, previously latched data are discarded and the last 256 data bytes are
+guaranteed to be programmed correctly within the same page. If less than 256 data bytes are sent to device, they are
+correctly programmed at the requested addresses without having any effects on the other bytes of the same page. CS#
+must be driven high after the eighth bit of the last data byte has been latched in; otherwise the Quad Page Program (PP)
+command is not executed.
+As soon as CS# is driven high, the self-timed Quad Page Program cycle (whose duration is tPP) is initiated. While the Quad
+Page Program cycle is in progress, the Status Register may be read to check the value of the Write In Progress (WIP) bit.
+The Write in Progress (WIP) bit is 1 during the self-timed Quad Page Program cycle, and is 0 when it is completed. At some
+unspecified time before the cycle is completed, the Write Enable Latch (WEL) bit is reset.
+A Quad Page Program command applied to a page which is protected by the Block Protect (BP4, BP3, BP2, BP1, and BP0)
+is not executed.
+
+
+
+
+                                                                       25
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                              GD25Q16E
+                                    Figure 17. Quad Page Program Sequence Diagram
+
+     CS#
+
+
+
+
+                                                                                                             542
+                                                                                                                   543
+                    0   1   2   3   4   5   6   7   8   9 10             28 29 30 31 32 33 34 35
+    SCLK
+                                                                                                             Byte
+                            Command                         24-bit address              Byte1 Byte2          256
+     IO0                        32H                 23 22 21             3    2   1   0 4      0   4   0     4 0
+                                                MSB
+     IO1                                                                                 5     1   5   1     5 1
+
+
+     IO2                                                                                 6     2   6   2     6 2
+
+
+     IO3                                                                                 7     3   7   3     7 3
+
+
+
+
+7.15 Sector Erase (SE) (20H)
+The Sector Erase (SE) command is for erasing the all data of the chosen sector. A Write Enable (WREN) command must
+previously have been executed to set the Write Enable Latch (WEL) bit. The Sector Erase (SE) command is entered by
+driving CS# low, followed by the command code, and 3-address byte on SI. Any address inside the sector is a valid address
+for the Sector Erase (SE) command. CS# must be driven low for the entire duration of the sequence.
+The Sector Erase command sequence: CS# goes low  sending Sector Erase command  3-byte address on SI  CS#
+goes high.. CS# must be driven high after the eighth bit of the last address byte has been latched in; otherwise the Sector
+Erase (SE) command is not executed. As soon as CS# is driven high, the self-timed Sector Erase cycle (whose duration is
+tSE) is initiated. While the Sector Erase cycle is in progress, the Status Register may be read to check the value of the Write
+in Progress (WIP) bit. The Write in Progress (WIP) bit is 1 during the self-timed Sector Erase cycle, and is 0 when it is
+completed. At some unspecified time before the cycle is completed, the Write Enable Latch (WEL) bit is reset. A Sector
+Erase (SE) command applied to a sector which is protected by the Block Protect (BP4, BP3, BP2, BP1, and BP0) bit is not
+executed.
+                                        Figure 18. Sector Erase Sequence Diagram
+
+
+                  CS#
+                                    0   1   2   3   4   5   6   7    8   9               29 30 31
+                 SCLK
+                                            Command                          24 Bits Address
+                   SI                           20H              23 22                   2     1   0
+                                                                MSB
+
+
+7.16 32KB Block Erase (BE) (52H)
+The 32KB Block Erase (BE) command is for erasing the all data of the chosen block. A Write Enable (WREN) command
+must previously have been executed to set the Write Enable Latch (WEL) bit. The 32KB Block Erase (BE) command is
+entered by driving CS# low, followed by the command code, and three address bytes on SI. Any address inside the block
+is a valid address for the 32KB Block Erase (BE) command. CS# must be driven low for the entire duration of the sequence.
+The 32KB Block Erase command sequence: CS# goes low  sending 32KB Block Erase command  3-byte address on
+SI  CS# goes high. CS# must be driven high after the eighth bit of the last address byte has been latched in; otherwise
+
+                                                                26
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                       GD25Q16E
+the 32KB Block Erase (BE) command is not executed. As soon as CS# is driven high, the self-timed Block Erase cycle
+(whose duration is tBE1) is initiated. While the Block Erase cycle is in progress, the Status Register may be read to check
+the value of the Write in Progress (WIP) bit. The Write in Progress (WIP) bit is 1 during the self-timed Block Erase cycle,
+and is 0 when it is completed. At some unspecified time before the cycle is completed, the Write Enable Latch (WEL) bit is
+reset. A 32KB Block Erase (BE) command applied to a block which is protected by the Block Protect (BP4, BP3, BP2, BP1,
+and BP0) bits is not executed.
+                                   Figure 19. 32KB Block Erase Sequence Diagram
+
+
+                 CS#
+                                  0   1   2   3   4   5   6   7    8   9           29 30 31
+                 SCLK
+                                          Command                      24 Bits Address
+                  SI                          52H              23 22               2     1   0
+                                                              MSB
+
+
+7.17 64KB Block Erase (BE) (D8H)
+The 64KB Block Erase (BE) command is for erasing the all data of the chosen block. A Write Enable (WREN) command
+must previously have been executed to set the Write Enable Latch (WEL) bit. The 64KB Block Erase (BE) command is
+entered by driving CS# low, followed by the command code, and three address bytes on SI. Any address inside the block
+is a valid address for the 64KB Block Erase (BE) command. CS# must be driven low for the entire duration of the sequence.
+The 64KB Block Erase command sequence: CS# goes low  sending 64KB Block Erase command  3-byte address on
+SI  CS# goes high. CS# must be driven high after the eighth bit of the last address byte has been latched in; otherwise
+the 64KB Block Erase (BE) command is not executed. As soon as CS# is driven high, the self-timed Block Erase cycle
+(whose duration is tBE2) is initiated. While the Block Erase cycle is in progress, the Status Register may be read to check
+the value of the Write in Progress (WIP) bit. The Write in Progress (WIP) bit is 1 during the self-timed Block Erase cycle,
+and is 0 when it is completed. At some unspecified time before the cycle is completed, the Write Enable Latch (WEL) bit is
+reset. A 64KB Block Erase (BE) command applied to a block which is protected by the Block Protect (BP4, BP3, BP2, BP1,
+and BP0) bits is not executed.
+                                   Figure 20. 64KB Block Erase Sequence Diagram
+
+                 CS#
+                                  0   1   2   3   4   5   6   7    8   9           29 30 31
+                 SCLK
+                                          Command                      24 Bits Address
+                  SI                          D8H              23 22               2     1   0
+                                                              MSB
+
+
+7.18 Chip Erase (CE) (60/C7H)
+The Chip Erase (CE) command is for erasing the all data of the chip. A Write Enable (WREN) command must previously
+have been executed to set the Write Enable Latch (WEL) bit .The Chip Erase (CE) command is entered by driving CS#
+Low, followed by the command code on Serial Data Input (SI). CS# must be driven Low for the entire duration of the
+sequence.
+The Chip Erase command sequence: CS# goes low  sending Chip Erase command  CS# goes high. CS# must be
+driven high after the eighth bit of the command code has been latched in; otherwise the Chip Erase command is not executed.
+
+                                                              27
+                    Uniform Sector
+                    Dual and Quad Serial Flash                                                                         GD25Q16E
+As soon as CS# is driven high, the self-timed Chip Erase cycle (whose duration is t CE) is initiated. While the Chip Erase
+cycle is in progress, the Status Register may be read to check the value of the Write in Progress (WIP) bit. The Write in
+Progress (WIP) bit is 1 during the self-timed Chip Erase cycle, and is 0 when it is completed. At some unspecified time
+before the cycle is completed, the Write Enable Latch (WEL) bit is reset. The Chip Erase (CE) command is executed, if the
+Block Protect (BP2, BP1, and BP0) bits are 0 and CMP=0 or the Block Protect (BP2, BP1, and BP0) bits are 1 and CMP=1.
+                                           Figure 21. Chip Erase Sequence Diagram
+
+                                         CS#
+                                                             0   1   2        3    4   5   6   7
+                                         SCLK
+                                                                         Command
+                                          SI                         60H or C7H
+
+
+
+7.19 Read Manufacture ID/ Device ID (REMS) (90H)
+The Read Manufacturer/Device ID command is an alternative to the Release from Power-Down / Device ID command that
+provides both the JEDEC assigned Manufacturer ID and the specific Device ID.
+The command is initiated by driving the CS# pin low and shifting the command code “90H” followed by a 24-bit address
+(A23-A0) of 000000H. After which, the Manufacturer ID and the Device ID are shifted out on the falling edge of SCLK with
+most significant bit (MSB) first.
+                              Figure 22. Read Manufacture ID/ Device ID Sequence Diagram
+
+                       CS#
+                                          0     1   2    3   4   5   6        7   8    9 10            28 29 30 31
+                      SCLK
+
+                                                    Command                                24-bit address
+                        SI                               90H                      23 22 21             3   2   1   0
+                                                        High-Z
+                       SO
+
+
+                       CS#
+                                     32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+
+                      SCLK
+
+                        SI
+                                           Manufacturer ID                             Device ID
+                       SO            7    6 5 4 3 2 1                0    7       6    5   4   3   2   1   0
+                                    MSB                                  MSB
+
+
+7.20 Read Identification (RDID) (9FH)
+The Read Identification (RDID) command allows the 8-bit manufacturer identification to be read, followed by two bytes of
+device identification. The device identification indicates the memory type in the first byte, and the memory capacity of the
+device in the second byte. The Read Identification (RDID) command while an Erase or Program cycle is in progress, is not
+decoded, and has no effect on the cycle that is in progress. The Read Identification (RDID) command should not be issued
+while the device is in Deep Power-Down Mode.
+The device is first selected by driving CS# low. Then, the 8-bit command code for the command is shifted in. This is followed
+
+                                                                         28
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                                           GD25Q16E
+by the 24-bit device identification, stored in the memory. Each bit is shifted out on the falling edge of Serial Clock. The Read
+Identification (RDID) command is terminated by driving CS# high at any time during data output. When CS# is driven high,
+the device is in the Standby Mode. Once in the Standby Mode, the device waits to be selected, so that it can receive, decode
+and execute commands.
+                                     Figure 23. Read Identification ID Sequence Diagram
+
+                      CS#
+                                          0   1   2     3   4      5   6    7    8     9 10 11 12 13 14 15
+                     SCLK
+
+
+                       SI                              9FH
+                                                                                          Manufacturer ID
+                       SO                                                        7    6    5 4 3 2 1            0
+                                                                           MSB
+                      CS#
+                                     16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+                     SCLK
+
+
+                       SI
+                                      Memory Type ID15-ID8                        Capacity ID7-ID0
+                       SO            7 6 5 4 3 2 1 0                        7    6 5 4 3 2 1                0
+                               MSB                                     MSB
+
+
+7.21 Read Unique ID (4BH)
+The Read Unique ID command accesses a factory-set read-only 128bit number that is unique to each device. The Unique
+ID can be used in conjunction with user software methods to help prevent copying or cloning of a system.
+The Read Unique ID command sequence: CS# goes low  sending Read Unique ID command  3-Byte Address
+(000000H) Dummy Byte128bit Unique ID Out CS# goes high.
+                                       Figure 24. Read Unique ID Sequence Diagram
+
+                      CS#
+                                          0   1   2    3    4      5   6    7    8    9 10             28 29 30 31
+                      SCLK
+                                                                                       24-bit address
+                                                  Command
+                      SI                                                                 (000000H)
+                                                        4BH                     23 22 21         3 2            1   0
+
+                      SO                              High-Z
+
+                      CS#
+                                 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+                      SCLK
+                                          Dummy Byte
+                      SI         7    6   5   4   3     2      1   0
+                                                                                     Data Out1                  Data Out2
+                      SO                                                7 6          5 4 3 2       1    0    7 6 5
+                                                                       MSB                                  MSB
+
+
+
+
+                                                                       29
+                    Uniform Sector
+                    Dual and Quad Serial Flash                                                          GD25Q16E
+7.22 Erase Security Registers (44H)
+The GD25Q16E provides 2x1024-Byte Security Registers which can be erased and programmed individually. These
+registers may be used by the system manufacturers to store security and other important information separately from the
+main memory array.
+The Erase Security Registers command is similar to Sector/Block Erase command. A Write Enable (WREN) command must
+previously have been executed to set the Write Enable Latch (WEL) bit.
+The Erase Security Registers command sequence: CS# goes low  sending Erase Security Registers command  3-byte
+address on SI  CS# goes high. The command sequence is shown below. CS# must be driven high after the eighth bit of
+the last address byte has been latched in; otherwise the Erase Security Registers command is not executed. As soon as
+CS# is driven high, the self-timed Erase Security Registers cycle (whose duration is tSE) is initiated. While the Erase Security
+Registers cycle is in progress, the Status Register may be read to check the value of the Write in Progress (WIP) bit. The
+Write in Progress (WIP) bit is 1 during the self-timed Erase Security Registers cycle, and is 0 when it is completed. At some
+unspecified time before the cycle is completed, the Write Enable Latch (WEL) bit is reset. The Security Registers Lock Bit
+(LB0, LB1) in the Status Register can be used to OTP protect the security registers. Once the LB bit is set to 1, the Security
+Registers will be permanently locked; the Erase Security Registers command will be ignored.
+          Address                      A23-16                   A15-12                        A11-10             A9-0
+   Security Register #0                 00H                         0000b                         00b          Don't care
+   Security Register #1                 00H                         0001b                         00b          Don't care
+
+
+                           Figure 25. Erase Security Registers command Sequence Diagram
+
+                  CS#
+                                   0   1   2    3   4   5   6   7    8   9              29 30 31
+                 SCLK
+                                              Command                       24 Bits Address
+                    SI                          44H              23 22                  2     1    0
+                                                                MSB
+
+
+7.23 Program Security Registers (42H)
+The Program Security Registers command is similar to the Page Program command. Each security register contains four
+pages content. A Write Enable (WREN) command must previously have been executed to set the Write Enable Latch (WEL)
+bit before sending the Program Security Registers command. The Program Security Registers command is entered by
+driving CS# Low, followed by the command code (42H), three address bytes and at least one data byte on SI. As soon as
+CS# is driven high, the self-timed Program Security Registers cycle (whose duration is t PP) is initiated. While the Program
+Security Registers cycle is in progress, the Status Register may be read to check the value of the Write in Progress (WIP)
+bit. The Write in Progress (WIP) bit is 1 during the self-timed Program Security Registers cycle, and is 0 when it is completed.
+At some unspecified time before the cycle is completed, the Write Enable Latch (WEL) bit is reset.
+If the Security Registers Lock Bit (LB0, LB1) is set to 1, the Security Registers will be permanently locked. Program Security
+Registers command will be ignored.
+          Address                      A23-16                   A15-12                        A11-10             A9-0
+   Security Register #0                 00H                         0000b                         00b        Byte Address
+   Security Register #1                 00H                         0001b                         00b        Byte Address
+
+
+
+                                                                30
+                    Uniform Sector
+                    Dual and Quad Serial Flash                                                                                                                                GD25Q16E
+                            Figure 26. Program Security Registers command Sequence Diagram
+
+       CS#
+                          0     1    2   3    4      5    6     7      8       9 10                            28 29 30 31 32 33 34 35 36 37 38 39
+      SCLK
+
+                                     Command                                           24-bit address                                                     Data Byte 1
+        SI                               42H                        23 22 21                                   3       2   1       0 7            6       5       4       3       2       1   0
+                                                               MSB                                                                 MSB
+       CS#
+
+
+
+
+                                                                                                                                                      2075
+                                                                                                                                                              2076
+                                                                                                                                      2073
+
+
+
+
+                                                                                                                                                                              2078
+                                                                                                                               2072
+
+
+                                                                                                                                              2074
+
+
+
+                                                                                                                                                                      2077
+
+
+                                                                                                                                                                                      2079
+                  40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55
+       SCLK
+
+                            Data Byte 2                                    Data Byte 3                                                    Data Byte 256
+        SI        7   6     5    4   3   2       1       0 7       6       5       4       3       2       1       0           7      6       5       4       3       2       1       0
+                 MSB                                     MSB                                                               MSB
+
+
+7.24 Read Security Registers (48H)
+The Read Security Registers command is similar to Fast Read command. The command is followed by a 3-byte address
+(A23-A0) and a dummy byte, and each bit is latched-in on the rising edge of SCLK. Then the memory content, at that
+address, is shifted out on SO, and each bit is shifted out, at a Max frequency f C, on the falling edge of SCLK. The first byte
+addressed can be at any location. The address is automatically incremented to the next higher address after each byte of
+data is shifted out. Once the A9-0 address reaches the last byte of the register (Byte 3FFH), it will reset to 000H, the
+command is completed by driving CS# high.
+          Address                            A23-16                                     A15-12                                            A11-10                                              A9-0
+   Security Register #0                       00H                                          0000b                                              00b                                      Byte Address
+   Security Register #1                       00H                                          0001b                                              00b                                      Byte Address
+
+
+                                Figure 27. Read Security Registers command Sequence Diagram
+
+                      CS#
+                                             0       1    2    3       4       5       6       7       8       9 10                       28 29 30 31
+                       SCLK
+
+                                                          Command                                                      24-bit address
+                       SI
+                                                                48H                                23 22 21                               3       2       1       0
+                                                              High-Z
+                       SO
+                      CS#
+                                     32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+                      SCLK
+                                             Dummy Byte
+                       SI            7   6    5      4     3    2      1       0
+                                                                                                 Data Out1                                         Data Out2
+                       SO                                                               7      6 5 4 3 2                              1       0 7 6 5
+                                                                                       MSB                                                     MSB
+
+
+
+
+                                                                                       31
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                                   GD25Q16E
+7.25 Enable Reset (66H) and Reset (99H)
+If the Reset command is accepted, any on-going internal operation will be terminated and the device will return to its default
+power-on state and lose all the current volatile settings, such as Volatile Status Register bits, Write Enable Latch status
+(WEL), Program/Erase Suspend status, Read Parameter setting (P7-P0), Deep Power Down Mode, Continuous Read Mode
+bit setting (M7-M0) and Wrap Bit Setting (W6-W4).
+The “Enable Reset (66H)” and “Reset (99H)” command sequence as follow: CS# goes low  Sending Enable Reset
+command  CS# goes high  CS# goes low  Sending Reset command  CS# goes high. Once the Reset command is
+accepted by the device, the device will take approximately t RST / tRST_E to reset. During this period, no command will be
+accepted. Data corruption may happen if there is an on-going or suspended internal Erase or Program operation when
+Reset command sequence is accepted by the device. It is recommended to check the WIP bit and the SUS bit in Status
+Register before issuing the Reset command sequence.
+                            Figure 28. Enable Reset and Reset command Sequence Diagram
+
+            CS#
+                            0   1    2   3   4   5    6   7                  0    1     2   3   4   5   6   7
+           SCLK
+                                      Command                                           Command
+             SI                          66H                                                99H
+
+             SO                                                   High-Z
+
+
+
+7.26 Program/Erase Suspend (PES) (75H)
+The Program/Erase Suspend command “75H”, allows the system to interrupt a page program or sector/block erase
+operation and then read data from any other sector or block. The Write Status Register command (01H) and Erase/Program
+Security Registers command (44H, 42H) and Erase commands (20H, 52H, D8H, C7H, 60H) and Page Program command
+(02H, 32H) are not allowed during Program suspend. The Write Status Register command (01H) and Erase Security
+Registers command (44H) and Erase commands (20H, 52H, D8H, C7H, 60H) are not allowed during Erase suspend.
+Program/Erase Suspend is valid only during the page program or sector/block erase operation. A maximum of time of “tsus”
+(See AC Characteristics) is required to suspend the program/erase operation.
+The Program/Erase Suspend command will be accepted by the device only if the SUS bit in the Status Register equal to 0
+and WIP bit equal to 1 while a Page Program or a Sector or Block Erase operation is on-going. If the SUS bit equal to 1 or
+WIP bit equal to 0, the Suspend command will be ignored by the device. The WIP bit will be cleared from 1 to 0 within “tsus”
+and the SUS bit will be set from 0 to 1 immediately after Program/Erase Suspend. A power-off during the suspend period
+will reset the device and release the suspend state..
+                                    Figure 29. Program/Erase Suspend Sequence Diagram
+
+                     CS#
+                                         0   1   2   3    4   5    6     7       tSUS
+                     SCLK
+                                                 Command
+                      SI                              75H
+                                                     High-Z
+                      SO
+                                                                                                Accept read command
+
+
+
+
+                                                                    32
+                    Uniform Sector
+                    Dual and Quad Serial Flash                                                            GD25Q16E
+7.27 Program/Erase Resume (PER) (7AH)
+The Program/Erase Resume command must be written to resume the program or sector/block erase operation after a
+Program/Erase Suspend command. The Program/Erase Resume command will be accepted by the device only if the SUS
+bit equal to 1 and the WIP bit equal to 0. After issued the SUS bit in the status register will be cleared from 1 to 0 immediately,
+the WIP bit will be set from 0 to 1 within 200ns and the Sector or Block will complete the erase operation or the page will
+complete the program operation. The Program/Erase Resume command will be ignored unless a Program/Erase Suspend
+is active.
+                                  Figure 30. Program/Erase Resume Sequence Diagram
+
+
+                          CS#
+                                            0   1   2   3   4   5    6   7
+                         SCLK
+                                                      Command
+                           SI                           7AH
+
+                                                                             Resume Erase/Program
+
+
+
+7.28 Deep Power-Down (DP) (B9H)
+Executing the Deep Power-Down (DP) command is the only way to put the device in the lowest consumption mode (the
+Deep Power-Down Mode). It can also be used as an extra software protection mechanism, while the device is not in active
+use, since in this mode, the device ignores all Write, Program and Erase commands. Driving CS# high deselects the device,
+and puts the device in the Standby Mode (if there is no internal cycle currently in progress). But this mode is not the Deep
+Power-Down Mode. The Deep Power-Down Mode can only be entered by executing the Deep Power-Down (DP) command.
+Once the device has entered the Deep Power-Down Mode, all commands are ignored except the Release from Deep
+Power-Down and Read Device ID (RDI) command or software reset command. The Release from Deep Power-Down and
+Read Device ID (RDI) command releases the device from Deep Power-Down mode, also allows the Device ID of the device
+to be output on SO.
+The Deep Power-Down Mode automatically stops at Power-Down, and the device always in the Standby Mode after Power-
+Up.
+The Deep Power-Down command sequence: CS# goes low  sending Deep Power-Down command  CS# goes high.
+CS# must be driven high after the eighth bit of the command code has been latched in; otherwise the Deep Power-Down
+(DP) command is not executed. As soon as CS# is driven high, it requires a delay of t DP before the supply current is reduced
+to ICC2 and the Deep Power-Down Mode is entered. Any Deep Power-Down (DP) command, while an Erase, Program or
+Write cycle is in progress, is rejected without having any effects on the cycle that is in progress.
+                                     Figure 31. Deep Power-Down Sequence Diagram
+
+                   CS#
+                                    0   1   2   3   4   5   6   7            tDP
+
+                  SCLK
+                                             Command                                Deep Power-down mode
+                    SI                          B9H
+
+
+
+
+                                                                33
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                                    GD25Q16E
+7.29 Release from Deep Power-Down and Read Device ID (RDI) (ABH)
+The Release from Power-Down and Read Device ID command is a multi-purpose command. It can be used to release the
+device from the Power-Down state or obtain the devices electronic identification (ID) number.
+To release the device from the Power-Down state, the command is issued by driving the CS# pin low, shifting the
+instruction code “ABH” and driving CS# high. Release from Power-Down will take the time duration of tRES1 (See AC
+Characteristics) before the device will resume normal operation and other command are accepted. The CS# pin must
+remain high during the tRES1 time duration.
+When used only to obtain the Device ID while not in the Power-Down state, the command is initiated by driving the CS#
+pin low and shifting the instruction code “ABH” followed by 3-dummy byte. The Device ID bits are then shifted out on the
+falling edge of SCLK with most significant bit (MSB) first. The Device ID value is listed in Manufacturer and Device
+Identification table. The Device ID can be read continuously. The command is completed by driving CS# high.
+When used to release the device from the Power-Down state and obtain the Device ID, the command is the same as
+previously described, except that after CS# is driven high it must remain high for a time duration of tRES2 (See AC
+Characteristics). After this time duration the device will resume normal operation and other command will be accepted. If
+the Release from Power-Down / Device ID command is issued while an Erase, Program or Write cycle is in process (when
+WIP equals 1) the command is ignored and will not have any effects on the current cycle.
+                                     Figure 32. Release Power-Down Sequence Diagram
+
+                 CS#
+                                     0   1   2   3    4    5   6   7            t RES1
+                 SCLK
+                                             Command
+                  SI                             ABH
+
+                                                           Deep Power-down mode                Stand-by mode
+
+
+                            Figure 33. Release Power-Down/Read Device ID Sequence Diagram
+
+   CS#
+                   0    1    2   3   4   5   6   7   8     9           29 30 31 32 33 34 35 36 37 38
+  SCLK
+
+                              Command                     3 Dummy Bytes                                           t RES2
+    SI                           ABH                 23 22             2   1    0
+                                                 MSB                                         Device ID
+                       High-Z
+   SO                                                                                7   6   5 4 3 2     1   0
+                                                                               MSB
+                                                                                                 Deep Power-down Mode Stand-by
+                                                                                                                       Mode
+
+
+7.30 Read Serial Flash Discoverable Parameter (5AH)
+The Serial Flash Discoverable Parameter (SFDP) standard provides a consistent method of describing the functional and
+feature capabilities of serial flash devices in a standard set of internal parameter tables. These parameter tables can be
+interrogated by host system software to enable adjustments needed to accommodate divergent features from multiple
+vendors. The concept is similar to the one found in the Introduction of JEDEC Standard, JESD68 on CFI. SFDP is a standard
+of JEDEC Standard No.216B.
+
+
+                                                                   34
+          Uniform Sector
+          Dual and Quad Serial Flash                                                                      GD25Q16E
+        Figure 34. Read Serial Flash Discoverable Parameter command Sequence Diagram
+
+            CS#
+                              0   1   2    3    4      5   6    7   8   9 10          28 29 30 31
+             SCLK
+
+                                      Command                             24-bit address
+             SI
+                                            5AH                     23 22 21          3       2   1   0
+
+             SO                           High-Z
+
+            CS#
+                      32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+             SCLK
+                              Dummy Byte
+             SI       7   6   5   4   3     2      1   0
+                                                                     Data Out1                    Data Out2
+             SO                                             7 6      5 4 3 2      1       0    7 6 5
+                                                           MSB                                MSB
+
+
+
+
+Table 7. Signature and Parameter Identification Data Values (Please contact GigaDevice for Details)
+
+
+
+
+                                                           35
+                    Uniform Sector
+                    Dual and Quad Serial Flash                                                         GD25Q16E
+
+8      ELECTRICAL CHARACTERISTICS
+
+8.1 Power-On Timing
+                                        Figure 35. Power-On Timing Sequence Diagram
+
+
+                   Vcc(max)
+                                         Chip Selection is not allowed
+
+                   Vcc(min)
+                                                                         tVSL           Device is fully
+                                                                                         accessible
+                    VWI
+
+
+
+                                                                                                           Time
+
+
+
+
+                                  Table 8. Power-Up Timing and Write Inhibit Threshold
+
+    Symbol      Parameter                                                                      Min.       Max.     Unit
+    tVSL        VCC (min.) to device operation                                                   1                  ms
+    VWI         Write Inhibit Voltage                                                            1.5      2.5       V
+
+
+
+
+8.2 Initial Delivery State
+The device is delivered with the memory array erased: all bits are set to 1 (each Byte contains FFH). The Status Register
+contains 00H (all Status Register bits are 0).
+
+
+
+
+8.3        Absolute Maximum Ratings
+                      Parameter                                                      Value                        Unit
+          Ambient Operating Temperature                                            -40 to 85                       ℃
+                                                                                   -40 to 105
+                                                                                   -40 to 125
+          Storage Temperature                                                      -65 to 150                      ℃
+          Transient Input/Output Voltage (note: overshoot)                         -2.0 to VCC+2.0                  V
+          Applied Input/Output Voltage                                             -0.6 to VCC+0.4                  V
+                          VCC                                                      -0.6 to 4.2                      V
+
+
+
+
+                                                                36
+               Uniform Sector
+               Dual and Quad Serial Flash                                                                    GD25Q16E
+                              Figure 36. Input Test Waveform and Measurement Level
+
+        Maximum Negative Overshoot Waveform                              Maximum Positive Overshoot Waveform
+
+                       20ns           20ns
+                                                                                                           20ns
+        Vss
+                                                                       Vcc + 2.0V
+
+
+   Vss-2.0V
+                               20ns                                         Vcc
+                                                                                                20ns              20ns
+
+
+
+
+8.4 Capacitance Measurement Conditions
+  Symbol              Parameter                                 Min.        Typ.         Max.      Unit             Conditions
+   CIN         Input Capacitance                                                          6        pF                VIN=0V
+   COUT        Output Capacitance                                                         8        pF                VOUT=0V
+   CL          Load Capacitance                                              30                    pF
+               Input Rise And Fall time                                                   5        ns
+               Input Pulse Voltage                                 0.1VCC to 0.8VCC                    V
+               Input Timing Reference Voltage                      0.2VCC to 0.7VCC                    V
+               Output Timing Reference Voltage                            0.5VCC                       V
+
+
+                                  Figure 37. Absolute Maximum Ratings Diagram
+
+
+                  Input timing reference level                                      Output timing reference level
+   0.8VCC                              0.7VCC
+                                                  AC Measurement Level                                 0.5VCC
+   0.1VCC                              0.2VCC
+
+                                        Note: Input pulse rise and fall time are<5ns
+
+
+
+
+                                                           37
+                  Uniform Sector
+                  Dual and Quad Serial Flash                                                   GD25Q16E
+8.5 DC Characteristics
+(T=-40℃~85℃, VCC=2.7~3.6V)
+  Symbol              Parameter                  Test Condition           Min.          Typ.    Max.    Unit.
+        ILI   Input Leakage Current                                                              ±2      μA
+     ILO      Output Leakage Current                                                             ±2      μA
+                                             CS#=VCC,
+    ICC1      Standby Current                                                           11       40      μA
+                                             VIN=VCC or VSS
+                                             CS#=VCC,
+    ICC2      Deep Power-Down Current                                                    1       8       μA
+                                             VIN=VCC or VSS
+                                             CLK=0.1VCC / 0.9VCC
+                                             at 133MHz,                                 12       20     mA
+                                             Q=Open(x4 I/O)
+    ICC3      Operating Current (Read)
+                                             CLK=0.1VCC / 0.9VCC
+                                             at 80MHz,                                   8       13     mA
+                                             Q=Open(x4 I/O)
+    ICC4      Operating Current (PP)         CS#=VCC                                    15       25     mA
+    ICC5      Operating Current (WRSR)       CS#=VCC                                    15       25     mA
+    ICC6      Operating Current (SE)         CS#=VCC                                    15       25     mA
+    ICC7      Operating Current (BE)         CS#=VCC                                    15       25     mA
+    ICC8      Operating Current (CE)         CS#=VCC                                    15       25     mA
+     VIL      Input Low Voltage                                           -0.5                 0.2VCC    V
+     VIH      Input High Voltage                                        0.7VCC                           V
+    VOL       Output Low Voltage             IOL = 100μA                                        0.2      V
+    VOH       Output High Voltage            IOH = -100μA               VCC-0.2                          V
+
+
+Note:
+1. Typical value at T = 25℃, VCC = 3.3V.
+2. Value guaranteed by design and/or characterization, not 100% tested in production.
+
+
+
+
+                                                            38
+                  Uniform Sector
+                  Dual and Quad Serial Flash                                                   GD25Q16E
+(T=-40℃~105℃, VCC=2.7~3.6V)
+  Symbol              Parameter                  Test Condition           Min.          Typ.    Max.    Unit.
+        ILI   Input Leakage Current                                                              ±2      μA
+     ILO      Output Leakage Current                                                             ±2      μA
+                                             CS#=VCC,
+    ICC1      Standby Current                                                           11       60      μA
+                                             VIN=VCC or VSS
+                                             CS#=VCC,
+    ICC2      Deep Power-Down Current                                                    1       20      μA
+                                             VIN=VCC or VSS
+                                             CLK=0.1VCC / 0.9VCC
+                                             at 133MHz,                                 12       25     mA
+                                             Q=Open(x4 I/O)
+    ICC3      Operating Current (Read)
+                                             CLK=0.1VCC / 0.9VCC
+                                             at 80MHz,                                   8       18     mA
+                                             Q=Open(x4 I/O)
+    ICC4      Operating Current (PP)         CS#=VCC                                    15       30     mA
+    ICC5      Operating Current (WRSR)       CS#=VCC                                    15       30     mA
+    ICC6      Operating Current (SE)         CS#=VCC                                    15       30     mA
+    ICC7      Operating Current (BE)         CS#=VCC                                    15       30     mA
+    ICC8      Operating Current (CE)         CS#=VCC                                    15       30     mA
+     VIL      Input Low Voltage                                           -0.5                 0.2VCC    V
+     VIH      Input High Voltage                                        0.7VCC                           V
+    VOL       Output Low Voltage             IOL = 100μA                                        0.2      V
+    VOH       Output High Voltage            IOH = -100μA               VCC-0.2                          V
+
+
+Note:
+1. Typical value at T = 25℃, VCC = 3.3V.
+2. Value guaranteed by design and/or characterization, not 100% tested in production.
+
+
+
+
+                                                            39
+                  Uniform Sector
+                  Dual and Quad Serial Flash                                                   GD25Q16E
+(T=-40℃~125℃, VCC=2.7~3.6V)
+  Symbol              Parameter                  Test Condition           Min.          Typ.    Max.    Unit.
+        ILI   Input Leakage Current                                                              ±2      μA
+     ILO      Output Leakage Current                                                             ±2      μA
+                                             CS#=VCC,
+    ICC1      Standby Current                                                           11       80      μA
+                                             VIN=VCC or VSS
+                                             CS#=VCC,
+    ICC2      Deep Power-Down Current                                                    1       25      μA
+                                             VIN=VCC or VSS
+                                             CLK=0.1VCC / 0.9VCC
+                                             at 133MHz,                                 12       25     mA
+                                             Q=Open(x4 I/O)
+    ICC3      Operating Current (Read)
+                                             CLK=0.1VCC / 0.9VCC
+                                             at 80MHz,                                   8       18     mA
+                                             Q=Open(x4 I/O)
+    ICC4      Operating Current (PP)         CS#=VCC                                    15       30     mA
+    ICC5      Operating Current (WRSR)       CS#=VCC                                    15       30     mA
+    ICC6      Operating Current (SE)         CS#=VCC                                    15       30     mA
+    ICC7      Operating Current (BE)         CS#=VCC                                    15       30     mA
+    ICC8      Operating Current (CE)         CS#=VCC                                    15       30     mA
+     VIL      Input Low Voltage                                           -0.5                 0.2VCC    V
+     VIH      Input High Voltage                                        0.7VCC                           V
+    VOL       Output Low Voltage             IOL = 100μA                                        0.2      V
+    VOH       Output High Voltage            IOH = -100μA               VCC-0.2                          V
+
+
+Note:
+1. Typical value at T = 25℃, VCC = 3.3V.
+2. Value guaranteed by design and/or characterization, not 100% tested in production.
+
+
+
+
+                                                            40
+                    Uniform Sector
+                    Dual and Quad Serial Flash                                       GD25Q16E
+8.6          AC Characteristics
+(T=-40℃~85℃, VCC=2.7~3.6V, CL=30pf)
+  Symbol                              Parameter                      Min.     Typ.   Max.   Unit.
+                Serial Clock Frequency For: all commands except
+      FC1                                                                            133    MHz
+                Read (03H), DC=1 on 3.0-3.6V power supply
+                Serial Clock Frequency For: all commands except
+      FC2                                                                            104    MHz
+                Read (03H), DC=1 on 2.7-3.0V power supply
+                Serial Clock Frequency For: all commands except
+       fC                                                                            104    MHz
+                Read (03H), DC=0
+       fR       Serial Clock Frequency For: Read (03H)                                80    MHz
+                                                                     45%
+      tCLH      Serial Clock High Time                                                       ns
+                                                                     (1/Fc)
+                                                                     45%
+      tCLL      Serial Clock Low Time                                                        ns
+                                                                     (1/Fc)
+   tCLCH        Serial Clock Rise Time (Slew Rate)                    0.2                   V/ns
+   tCHCL        Serial Clock Fall Time (Slew Rate)                    0.2                   V/ns
+   tSLCH        CS# Active Setup Time                                  5                     ns
+   tCHSH        CS# Active Hold Time                                   5                     ns
+   tSHCH        CS# Not Active Setup Time                              5                     ns
+   tCHSL        CS# Not Active Hold Time                               5                     ns
+   tSHSL        CS# High Time (Read/Write)                            20                     ns
+   tSHQZ        Output Disable Time                                                   6      ns
+   tCLQX        Output Hold Time                                      1.2                    ns
+   tDVCH        Data In Setup Time                                     2                     ns
+   tCHDX        Data In Hold Time                                      2                     ns
+   tHLCH        HOLD# Low Setup Time (Relative To Clock)               5                     ns
+   tHHCH        HOLD# High Setup Time (Relative To Clock)              5                     ns
+   tCHHH        HOLD# Low Hold Time (Relative To Clock)                5                     ns
+   tCHHL        HOLD# High Hold Time (Relative To Clock)               5                     ns
+   tHLQZ        HOLD# Low To High-Z Output                                            6      ns
+   tHHQX        HOLD# High To Low-Z Output                                            6      ns
+   tCLQV        Clock Low To Output Valid                                             7      ns
+   tWHSL        Write Protect Setup Time Before CS# Low               20                     ns
+   tSHWL        Write Protect Hold Time After CS# High                100                    ns
+      tDP       CS# High To Deep Power-Down Mode                                      3      μs
+                CS# High To Standby Mode Without Electronic
+   tRES1                                                                              20     μs
+                Signature Read
+                CS# High To Standby Mode With Electronic Signature
+   tRES2                                                                              20     μs
+                Read
+      tSUS      CS# High To Next Command After Suspend                                20     μs
+      tRS       Latency Between Resume And Next Suspend               100                    μs
+
+
+
+                                                            41
+                  Uniform Sector
+                  Dual and Quad Serial Flash                                                   GD25Q16E
+              CS# High To Next Command After Reset (Except
+    tRST                                                                                        30   μs
+              From Erase)
+              CS# High To Next Command After Reset (From
+   tRST_E                                                                                       12   ms
+              Erase)
+        tW    Write Status Register Cycle Time                                           5      30   ms
+    tBP1      Byte Program Time (First Byte)                                            40      70   μs
+    tBP2      Additional Byte Program Time (After First Byte)                           2.5     12   μs
+     tPP      Page Programming Time                                                     0.4     2    ms
+     tSE      Sector Erase Time                                                         45     300   ms
+    tBE1      Block Erase Time (32K Bytes)                                              0.15   1.2    s
+    tBE2      Block Erase Time (64K Bytes)                                              0.25   1.6    s
+     tCE      Chip Erase Time (GD25Q16E)                                                 6      20    s
+
+
+Note:
+1. Typical value at T = 25℃.
+2. Value guaranteed by design and/or characterization, not 100% tested in production.
+
+
+
+
+                                                           42
+                Uniform Sector
+                Dual and Quad Serial Flash                                       GD25Q16E
+(T=-40℃~105℃, VCC=2.7~3.6V, CL=30pf)
+  Symbol                          Parameter                      Min.     Typ.   Max.   Unit.
+            Serial Clock Frequency For: all commands except
+    FC1                                                                          133    MHz
+            Read (03H), DC=1 on 3.0-3.6V power supply
+            Serial Clock Frequency For: all commands except
+    FC2                                                                          104    MHz
+            Read (03H), DC=1 on 2.7-3.0V power supply
+            Serial Clock Frequency For: all commands except
+     fC                                                                          104    MHz
+            Read (03H), DC=0
+     fR     Serial Clock Frequency For: Read (03H)                                80    MHz
+                                                                 45%
+    tCLH    Serial Clock High Time                                                       ns
+                                                                 (1/Fc)
+                                                                 45%
+    tCLL    Serial Clock Low Time                                                        ns
+                                                                 (1/Fc)
+   tCLCH    Serial Clock Rise Time (Slew Rate)                    0.2                   V/ns
+   tCHCL    Serial Clock Fall Time (Slew Rate)                    0.2                   V/ns
+   tSLCH    CS# Active Setup Time                                  5                     ns
+   tCHSH    CS# Active Hold Time                                   5                     ns
+   tSHCH    CS# Not Active Setup Time                              5                     ns
+   tCHSL    CS# Not Active Hold Time                               5                     ns
+   tSHSL    CS# High Time (Read/Write)                            20                     ns
+   tSHQZ    Output Disable Time                                                   6      ns
+   tCLQX    Output Hold Time                                      1.2                    ns
+   tDVCH    Data In Setup Time                                     2                     ns
+   tCHDX    Data In Hold Time                                      2                     ns
+   tHLCH    HOLD# Low Setup Time (Relative To Clock)               5                     ns
+   tHHCH    HOLD# High Setup Time (Relative To Clock)              5                     ns
+   tCHHH    HOLD# Low Hold Time (Relative To Clock)                5                     ns
+   tCHHL    HOLD# High Hold Time (Relative To Clock)               5                     ns
+   tHLQZ    HOLD# Low To High-Z Output                                            6      ns
+   tHHQX    HOLD# High To Low-Z Output                                            6      ns
+   tCLQV    Clock Low To Output Valid                                             7      ns
+   tWHSL    Write Protect Setup Time Before CS# Low               20                     ns
+   tSHWL    Write Protect Hold Time After CS# High                100                    ns
+    tDP     CS# High To Deep Power-Down Mode                                      3      μs
+            CS# High To Standby Mode Without Electronic
+   tRES1                                                                          20     μs
+            Signature Read
+            CS# High To Standby Mode With Electronic Signature
+   tRES2                                                                          20     μs
+            Read
+    tSUS    CS# High To Next Command After Suspend                                20     μs
+    tRS     Latency Between Resume And Next Suspend               100                    μs
+            CS# High To Next Command After Reset (Except
+    tRST                                                                          30     μs
+            From Erase)
+
+
+                                                        43
+                  Uniform Sector
+                  Dual and Quad Serial Flash                                                   GD25Q16E
+              CS# High To Next Command After Reset (From
+   tRST_E                                                                                       12   ms
+              Erase)
+        tW    Write Status Register Cycle Time                                           5      30   ms
+    tBP1      Byte Program Time (First Byte)                                            40     140   μs
+    tBP2      Additional Byte Program Time (After First Byte)                           2.5     25   μs
+     tPP      Page Programming Time                                                     0.4     4    ms
+     tSE      Sector Erase Time                                                         45     500   ms
+    tBE1      Block Erase Time (32K Bytes)                                              0.15   1.6    s
+    tBE2      Block Erase Time (64K Bytes)                                              0.25   3.0    s
+     tCE      Chip Erase Time (GD25Q16E)                                                 6      40    s
+
+
+Note:
+1. Typical value at T = 25℃.
+2. Value guaranteed by design and/or characterization, not 100% tested in production.
+
+
+
+
+                                                           44
+                Uniform Sector
+                Dual and Quad Serial Flash                                       GD25Q16E
+(T=-40℃~125℃, VCC=2.7~3.6V, CL=30pf)
+  Symbol                          Parameter                      Min.     Typ.   Max.   Unit.
+            Serial Clock Frequency For: all commands except
+    FC1                                                                          133    MHz
+            Read (03H), DC=1 on 3.0-3.6V power supply
+            Serial Clock Frequency For: all commands except
+    FC2                                                                          104    MHz
+            Read (03H), DC=1 on 2.7-3.0V power supply
+            Serial Clock Frequency For: all commands except
+     fC                                                                          104    MHz
+            Read (03H), DC=0
+     fR     Serial Clock Frequency For: Read (03H)                                80    MHz
+                                                                 45%
+    tCLH    Serial Clock High Time                                                       ns
+                                                                 (1/Fc)
+                                                                 45%
+    tCLL    Serial Clock Low Time                                                        ns
+                                                                 (1/Fc)
+   tCLCH    Serial Clock Rise Time (Slew Rate)                    0.2                   V/ns
+   tCHCL    Serial Clock Fall Time (Slew Rate)                    0.2                   V/ns
+   tSLCH    CS# Active Setup Time                                  5                     ns
+   tCHSH    CS# Active Hold Time                                   5                     ns
+   tSHCH    CS# Not Active Setup Time                              5                     ns
+   tCHSL    CS# Not Active Hold Time                               5                     ns
+   tSHSL    CS# High Time (Read/Write)                            20                     ns
+   tSHQZ    Output Disable Time                                                   6      ns
+   tCLQX    Output Hold Time                                      1.2                    ns
+   tDVCH    Data In Setup Time                                     2                     ns
+   tCHDX    Data In Hold Time                                      2                     ns
+   tHLCH    HOLD# Low Setup Time (Relative To Clock)               5                     ns
+   tHHCH    HOLD# High Setup Time (Relative To Clock)              5                     ns
+   tCHHH    HOLD# Low Hold Time (Relative To Clock)                5                     ns
+   tCHHL    HOLD# High Hold Time (Relative To Clock)               5                     ns
+   tHLQZ    HOLD# Low To High-Z Output                                            6      ns
+   tHHQX    HOLD# High To Low-Z Output                                            6      ns
+   tCLQV    Clock Low To Output Valid                                             7      ns
+   tWHSL    Write Protect Setup Time Before CS# Low               20                     ns
+   tSHWL    Write Protect Hold Time After CS# High                100                    ns
+    tDP     CS# High To Deep Power-Down Mode                                      3      μs
+            CS# High To Standby Mode Without Electronic
+   tRES1                                                                          20     μs
+            Signature Read
+            CS# High To Standby Mode With Electronic Signature
+   tRES2                                                                          20     μs
+            Read
+    tSUS    CS# High To Next Command After Suspend                                20     μs
+    tRS     Latency Between Resume And Next Suspend               100                    μs
+            CS# High To Next Command After Reset (Except
+    tRST                                                                          30     μs
+            From Erase)
+
+
+                                                        45
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                            GD25Q16E
+              CS# High To Next Command After Reset (From
+   tRST_E                                                                                                 12   ms
+              Erase)
+        tW    Write Status Register Cycle Time                                             5              30   ms
+    tBP1      Byte Program Time (First Byte)                                               40            140   μs
+    tBP2      Additional Byte Program Time (After First Byte)                              2.5            25   μs
+     tPP      Page Programming Time                                                        0.4            4    ms
+     tSE      Sector Erase Time                                                            45            800   ms
+    tBE1      Block Erase Time (32K Bytes)                                              0.15             1.6    s
+    tBE2      Block Erase Time (64K Bytes)                                              0.25             3.0    s
+     tCE      Chip Erase Time (GD25Q16E)                                                   6              40    s
+
+
+Note:
+1. Typical value at T = 25℃.
+2. Value guaranteed by design and/or characterization, not 100% tested in production.
+
+
+
+
+                                                 Figure 38. Input Timing
+
+                                                                                           tSHSL
+              CS#
+
+                    tCHSL             tSLCH                          tCHSH                       tSHCH
+              SCLK
+                       tDVCH                                                               tCHCL
+                                              tCHDX                tCLCH
+
+              SI                    MSB                                      LSB
+
+              SO                    High-Z
+
+
+
+
+                                                Figure 39. Output Timing
+
+
+
+              CS#
+                                                                                    tCLH             tSHQZ
+              SCLK
+                 tCLQV                       tCLQV                           tCLL
+                   tCLQX                     tCLQX
+              SO                                                                        LSB
+
+
+              SI
+                    Least significant address bit (LIB) in
+
+
+
+
+                                                             46
+     Uniform Sector
+     Dual and Quad Serial Flash                                     GD25Q16E
+                   Figure 40. Resume to Suspend Timing Diagram
+
+
+                                          tRS
+               Resume                                    Suspend
+CS#           Command                                    Command
+
+
+
+
+                                Figure 41. Hold Timing
+
+CS#
+
+                       tCHHL                    tHLCH       tHHCH
+SCLK
+
+                                                 tCHHH
+                               tHLQZ                        tHHQX
+SO
+
+
+HOLD#
+
+        SI do not care during HOLD operation.
+
+
+
+
+                                           47
+                 Uniform Sector
+                 Dual and Quad Serial Flash                                                 GD25Q16E
+
+9     ORDERING INFORMATION
+
+GD XX XX XX X X X X X
+
+                                                 Packing
+                                                 T or no mark: Tube
+                                                 Y: Tray
+                                                 R: Tape and Reel
+
+                                                 Green Code
+                                                 G: Pb Free + Halogen Free Green Package
+
+                                                 Temperature Range
+                                                 I: Industrial (-40℃ to +85℃)
+                                                 J: Industrial (-40℃ to +105℃)
+                                                 E: Industrial (-40℃ to +125℃)
+                                                 F: Industrial+ (-40℃ to +85℃)**
+
+                                                 Package Type
+                                                 T: SOP8 150mil
+                                                 S: SOP8 208mil
+                                                 E: USON8 (3x2mm, 0.45mm thickness)
+                                                 N: USON8 (3x4mm)
+                                                 Q: USON8 (4x4mm, 0.45mm thickness)
+                                                 W: WSON8 (6x5mm)
+
+                                                 Generation
+                                                 E: E Version
+
+                                                 Density
+                                                 16: 16M bit
+
+                                                 Series
+                                                 Q: 3V, 4KB Uniform Sector
+
+                                                 Product Family
+                                                 25: SPI NOR Flash
+
+
+
+**F grade has implemented additional test flows to ensure higher product quality than I grade.
+
+
+
+
+                                                       48
+                Uniform Sector
+                Dual and Quad Serial Flash                                            GD25Q16E
+9.1    Valid Part Numbers
+
+Please contact GigaDevice regional sales for the latest product selection and available form factors.
+
+
+Temperature Range I: Industrial (-40℃ to +85℃)
+
+
+          Product Number                    Density                     Package Type
+
+           GD25Q16ETIG                      16Mbit                    SOP8 150mil
+           GD25Q16ESIG                      16Mbit                    SOP8 208mil
+           GD25Q16EEIG                      16Mbit           USON8 (3x2mm, 0.45mm thickness)
+           GD25Q16ENIG                      16Mbit                  USON8 (3x4mm)
+           GD25Q16EQIG                      16Mbit           USON8 (4x4mm, 0.45mm thickness)
+           GD25Q16EWIG                      16Mbit                  WSON8 (6x5mm)
+
+
+Temperature Range J: Industrial (-40℃ to +105℃)
+
+
+          Product Number                    Density                     Package Type
+
+           GD25Q16ETJG                      16Mbit                    SOP8 150mil
+           GD25Q16ESJG                      16Mbit                    SOP8 208mil
+           GD25Q16EEJG                      16Mbit           USON8 (3x2mm, 0.45mm thickness)
+           GD25Q16ENJG                      16Mbit                  USON8 (3x4mm)
+           GD25Q16EQJG                      16Mbit           USON8 (4x4mm, 0.45mm thickness)
+           GD25Q16EWJG                      16Mbit                  WSON8 (6x5mm)
+
+
+Temperature Range E: Industrial (-40℃ to +125℃)
+
+
+          Product Number                    Density                     Package Type
+
+           GD25Q16ETEG                      16Mbit                    SOP8 150mil
+           GD25Q16ESEG                      16Mbit                    SOP8 208mil
+           GD25Q16EEEG                      16Mbit           USON8 (3x2mm, 0.45mm thickness)
+           GD25Q16ENEG                      16Mbit                  USON8 (3x4mm)
+           GD25Q16EQEG                      16Mbit           USON8 (4x4mm, 0.45mm thickness)
+           GD25Q16EWEG                      16Mbit                  WSON8 (6x5mm)
+
+
+
+
+                                                    49
+              Uniform Sector
+              Dual and Quad Serial Flash                             GD25Q16E
+
+Temperature Range F: Industrial+ (-40℃ to +85℃)
+
+
+         Product Number               Density             Package Type
+
+         GD25Q16ETFG                  16Mbit               SOP8 150mil
+         GD25Q16ESFG                  16Mbit               SOP8 208mil
+         GD25Q16EEFG                  16Mbit      USON8 (3x2mm, 0.45mm thickness)
+         GD25Q16ENFG                  16Mbit             USON8 (3x4mm)
+         GD25Q16EQFG                  16Mbit      USON8 (4x4mm, 0.45mm thickness)
+         GD25Q16EWFG                  16Mbit             WSON8 (6x5mm)
+
+
+
+
+                                             50
+                    Uniform Sector
+                    Dual and Quad Serial Flash                                                         GD25Q16E
+
+10 PACKAGE INFORMATION
+
+10.1 Package SOP8 150MIL
+
+                               D
+               8                             5
+
+
+
+
+  E                                                   E1
+
+
+
+                                                           h
+                                                                                                      L1
+                                                                                              L
+               1                             4
+                                   “A”                                                    θ
+
+
+
+
+                                                                                      b
+                                                                                                  Base Metal
+   A                                                     A2               c
+
+                                                     A1                            Detail “A”
+                          b              e
+
+
+
+Dimensions
+   Symbol
+                    A         A1    A2        b      c         D      E       E1       e          L    L1      h     θ
+       Unit
+         Min        -     0.10      1.25     0.31   0.10      4.80   5.80     3.80            0.40            0.25   0°
+ mm      Nom        -     0.15      1.45     0.41   0.20      4.90   6.00     3.90    1.27        -    1.04    -     -
+         Max       1.75   0.25      1.55     0.51   0.25      5.00   6.20     4.00            0.90            0.50   8°
+Note:
+1. Both the package length and width do not include the mold flash.
+2. Seating plane: Max. 0.1mm.
+
+
+
+
+                                                               51
+                    Uniform Sector
+                    Dual and Quad Serial Flash                                                                    GD25Q16E
+10.2 Package SOP8 208MIL
+
+                               D
+               8                                  5
+
+
+
+
+  E                                                          E1
+
+
+
+
+                                                                                                                   L1
+                                                                                                            L
+               1                                  4
+                                     “A”                                                               θ
+
+
+
+                                                                                                b
+                                                                                                            Base Metal
+  A                                                           A2                  c
+
+                                                                                             Detail “A”
+                                                             A1
+                          b                 e
+
+
+Dimensions
+   Symbol
+                    A         A1           A2          b          c         D          E        E1          e      L     L1     θ
+      Unit
+         Min        -         0.05         1.70       0.31    0.15         5.13       7.70      5.18              0.50          0°
+ mm     Nom         -         0.15         1.80       0.41    0.20         5.23       7.90      5.28       1.27    -     1.31   -
+        Max        2.16       0.25         1.90       0.51    0.25         5.33       8.10      5.38              0.85          8°
+Note:
+1. Both the package length and width do not include the mold flash.
+2. Seating plane: Max. 0.1mm.
+
+
+
+
+                                                                      52
+                      Uniform Sector
+                      Dual and Quad Serial Flash                                                                GD25Q16E
+10.3 Package USON8 (3x2mm, 0.45mm thickness)
+
+
+                                    D                                                      c
+
+
+             PIN 1#
+
+
+
+
+      E
+
+
+
+
+                                                                                               A1
+                                                                                       A
+                               Top View                                          Side View
+
+
+
+                                D1
+                                                 L1
+
+                4                                     5
+
+
+
+
+      e                                                          E1
+
+
+
+      b         1                                     8
+
+
+
+
+                                                      L
+
+
+                             Bottom View
+
+
+
+
+Dimensions
+   Symbol
+                       A       A1          c               b           D        D1             E    E1      e      L     L1
+      Unit
+          Min         0.40     0.00       0.10            0.20        2.90      0.15       1.90     1.55          0.30
+ mm       Nom         0.45     0.02       0.15            0.25        3.00      0.20       2.00     1.60   0.50   0.35   0.10
+          Max         0.50     0.05       0.20            0.30        3.10      0.25       2.10     1.65          0.40
+Note:
+1. Both the package length and width do not include the mold flash.
+2. The exposed metal pad area on the bottom of the package is floating.
+3. Coplanarity ≤0.08mm. Package edge tolerance≤0.10mm.
+4. The lead shape may be of little difference according to different package factories. These lead shapes
+are compatible with each other.
+
+
+
+
+                                                                           53
+                       Uniform Sector
+                       Dual and Quad Serial Flash                                              GD25Q16E
+10.4 Package USON8 (3x4mm)
+
+                            D                                       c
+
+
+              PIN 1#
+
+
+
+
+   E
+
+
+
+
+                                                                        A1
+
+                                                               A
+                       Top View                             Side View
+
+
+
+
+                            D1
+               4                        5
+                                 E1
+                       e1
+    e
+                       e1
+                                                   or
+                                 E1
+    b          1                        8
+                                                          Note(4)
+
+
+
+                                        L
+                   Bottom View
+
+Dimensions
+   Symbol
+                        A        A1          c      b         D         D1      E     E1      e     e1      L
+       Unit
+          Min          0.50      0.00       0.10   0.25      2.90       0.10   3.90   0.70                 0.50
+                                                                                             0.80   0.80
+ mm      Nom           0.55      0.02       0.15   0.30      3.00       0.20   4.00   0.80                 0.60
+                                                                                             BSC    BSC
+          Max          0.60      0.05       0.20   0.35      3.10       0.30   4.10   0.90                 0.70
+Note:
+1. Both the package length and width do not include the mold flash.
+2. The exposed metal pad area on the bottom of the package is floating.
+3. Coplanarity ≤0.08mm. Package edge tolerance≤0.10mm.
+4. The lead shape may be of little difference according to different package factories. These lead shapes
+are compatible with each other.
+
+                                                               54
+                    Uniform Sector
+                    Dual and Quad Serial Flash                                           GD25Q16E
+10.5 Package USON8 (4x4mm, 0.45mm thickness)
+
+                            D                                   c
+
+
+           PIN 1#
+
+
+
+
+   E
+
+
+
+
+                                                                    A1
+
+                                                                A
+                         Top View                           Side View
+
+                           D1
+
+
+
+           4                                5
+
+
+
+
+    e                                           E1
+
+
+    b      1                                8
+
+
+
+
+                                            L
+                     Bottom View
+Dimensions
+  Symbol
+                     A          A1      c        b          D       D1      E     E1        e      L
+  Unit
+         Min        0.40        0.00   0.10     0.25    3.90        2.20   3.90   2.90            0.35
+ mm      Nom        0.45        0.02   0.15     0.30    4.00        2.30   4.00   3.00     0.80   0.40
+         Max        0.50        0.05   0.20     0.35    4.10        2.40   4.10   3.10            0.45
+Note:
+1. Both the package length and width do not include the mold flash.
+2. The exposed metal pad area on the bottom of the package is floating.
+3. Coplanarity ≤0.08mm. Package edge tolerance≤0.10mm.
+4. The lead shape may be of little difference according to different package factories. These lead shapes
+are compatible with each other
+
+                                                       55
+                        Uniform Sector
+                        Dual and Quad Serial Flash                                             GD25Q16E
+10.6 Package WSON8 (6x5mm)
+
+                                D                                     c
+
+
+               PIN 1#
+
+
+
+
+   E
+
+
+
+
+                                                                          A1
+
+                                                                     A
+                             Top View                            Side View
+
+
+                               D2
+
+               4                                 5
+
+
+
+
+    e                                                 E2
+
+
+
+    b          1                                 8
+
+
+
+                                                 L
+                         Bottom View
+
+
+Dimensions
+    Symbol
+                         A          A1    c           b          D        D2      E     E2        e      L
+        Unit
+           Min          0.70     0.00    0.180       0.35    5.90         3.30   4.90   3.90            0.50
+ mm       Nom           0.75     0.02    0.203       0.40    6.00         3.40   5.00   4.00     1.27   0.60
+           Max          0.80     0.05    0.250       0.50    6.10         3.50   5.10   4.10            0.75
+Note:
+1. Both the package length and width do not include the mold flash.
+2. The exposed metal pad area on the bottom of the package is floating.
+3. Coplanarity ≤0.08mm. Package edge tolerance≤0.10mm.
+4. The lead shape may be of little difference according to different package lead frames. These lead
+shapes are compatible with each other.
+
+                                                            56
+               Uniform Sector
+               Dual and Quad Serial Flash                                   GD25Q16E
+
+11 REVISION HISTORY
+
+Version No                              Description                Page          Date
+    1.0      Initial release                                         All       2019-9-25
+             Add ICC4~8 typical value                               P38
+    1.1                                                                        2020-4-15
+             Add DC/AC parameters @ -40 to 105℃ and @-40 to 125℃   P38~46
+
+
+
+
+                                                      57
+                   Uniform Sector
+                   Dual and Quad Serial Flash                                                           GD25Q16E
+
+
+
+
+                                                  Important Notice
+
+     This document is the property of GigaDevice Semiconductor (Beijing) Inc. and its subsidiaries (the "Company"). This
+document, including any product of the Company described in this document (the “Product”), is owned by the Company
+under the intellectual property laws and treaties of the People’s Republic of China and other jurisdictions worldwide. The
+Company reserves all rights under such laws and treaties and does not grant any license under its patents, copyrights,
+trademarks, or other intellectual property rights. The names and brands of third party referred thereto (if any) are the property
+of their respective owner and referred to for identification purposes only.
+     The Company makes no warranty of any kind, express or implied, with regard to this document or any Product,
+including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose. The Company
+does not assume any liability arising out of the application or use of any Product described in this document. Any information
+provided in this document is provided only for reference purposes. It is the responsibility of the user of this document to
+properly design, program, and test the functionality and safety of any application made of this information and any resulting
+product. Except for customized products which has been expressly identified in the applicable agreement, the Products are
+designed, developed, and/or manufactured for ordinary business, industrial, personal, and/or household applications only.
+The Products are not designed, intended, or authorized for use as components in systems designed or intended for the
+operation of weapons, weapons systems, nuclear installations, atomic energy control instruments, combustion control
+instruments, airplane or spaceship instruments, traffic signal instruments, life-support devices or systems, other medical
+devices or systems (including resuscitation equipment and surgical implants), pollution control or hazardous substances
+management, or other uses where the failure of the device or Product could cause personal injury, death, property or
+environmental damage ("Unintended Uses"). Customers shall take any and all actions to ensure using and selling the
+Products in accordance with the applicable laws and regulations. The Company is not liable, in whole or in part, and
+customers shall and hereby do release the Company as well as it’s suppliers and/or distributors from any claim, damage,
+or other liability arising from or related to all Unintended Uses of the Products. Customers shall indemnify and hold the
+Company as well as it’s suppliers and/or distributors harmless from and against all claims, costs, damages, and other
+liabilities, including claims for personal injury or death, arising from or related to any Unintended Uses of the Products.
+Customers shall discard the device according to the local environmental law.
+    Information in this document is provided solely in connection with the Products. The Company reserves the
+right to make changes, corrections, modifications or improvements to this document and the Products and
+services described herein at any time, without notice.
+
+
+
+
+                                                               58
+

@@ -209,7 +209,7 @@ ASCII commands end in LF.
 **RP2040 clock.** 108 MHz (exact: PLL VCO 756 MHz / 7) is inside the 133 MHz rating "across all process, voltage and temperature variations" at the default core voltage (RP2040 datasheet 2025-02-20, `../sources/new/RP2040-datasheet.txt` lines 566 and 13345). The 192 MHz / 24 MHz / 64-BCLK alternative would need the elevated-DVDD, VSEL 1.15 V operation that the same note describes for 200 MHz, plus the note-1 workaround above, so it was not chosen.
 - USB and the ADC run from the fixed 48 MHz USB PLL and do not change.
 - I2C is configured after the clock change.
-- XIP flash runs at clk_sys / 2 (`PICO_FLASH_SPI_CLKDIV` 2 for the pico board): 54 MHz, against 60 MHz today and the W25Q128JV's 133 MHz.
+- XIP flash runs at clk_sys / 2 (`PICO_FLASH_SPI_CLKDIV` 2 for the pico board): 54 MHz, against 60 MHz today and the flash's limit (Rev E board: GD25Q16E, 104 MHz for EBh at its default 4 dummy clocks; the Pico's W25Q16JV/W25Q128JV: 133 MHz).
 
 **PIO (`src/tdm375.pio`).** Each bit is 3 cycles high and 3 low, and DOUT is sampled on the falling edge, 27.8 ns after the launch edge. Slot 0 sends the top 24 bits of the DAC word, so the DAC word format and `WAVE` are unchanged. After each 24-bit ADC word, `in null, 8` left-justifies it, so the RX words have the 32-bit-slot layout and `syncavg` is unchanged. Pushes land at frame cycles 143 and 287, the pull at 214. A TX refill must land within 73 cycles (676 ns) of the pull, against 160 cycles (1.33 µs) at 187.5 kHz. The capture alignment (frame *j* meets DAC word *j* − 5) and the self-test are unchanged.
 

@@ -54,7 +54,36 @@ F_MOD = {"8 fs (1.5 MHz)": 8 * FS, "16 fs (3.0 MHz)": 16 * FS, "32 fs (6.0 MHz)"
 # ------------------------------------------------------------------ circuit (cad/design.json)
 K_DIV = 0.5                        # 1.00k / 1.00k divider on each codec leg
 AA_POLE_HZ = 1 / (2 * math.pi * 500.0 * 560e-12)       # Thevenin 500 ohm, C69/C70/C72/C73 560 pF
-SRC_POLE_HZ = 1 / (2 * math.pi * 2000.0 * 270e-12)     # U5 difference stage, 2.0k || C34/C35 270 pF
+def _feedback_cap():
+    """U5 feedback capacitance EXCITE -> SOURCE_FB from cad/design.json: one part, or a series string
+    through internal nodes that carry only the string's two capacitor pins (Rev E: 2 x 560 pF)."""
+    parts = json.loads((HERE.parents[1] / "cad/design.json").read_text())["parts"]
+    pins = {}
+    for p in parts:
+        for n in p["pins"].values():
+            if n:
+                pins.setdefault(n, []).append(p)
+    def val(p):
+        v = p["value"].split()[0]
+        return float(v[:-2]) * {"pF": 1e-12, "nF": 1e-9}[v[-2:]]
+
+    def far(p, net):
+        return [n for n in p["pins"].values() if n != net][0]
+
+    net, prev, inv = "EXCITE", None, 0.0
+    while net != "SOURCE_FB":
+        nxt = [p for p in pins[net] if p["kind"] == "C" and p is not prev
+               and (far(p, net) == "SOURCE_FB" or (len(pins[far(p, net)]) == 2
+                                                    and all(q["kind"] == "C" for q in pins[far(p, net)])))]
+        assert len(nxt) == 1, (net, [p["ref"] for p in nxt])
+        prev = nxt[0]
+        inv += 1 / val(prev)
+        net = far(prev, net)
+    return 1 / inv
+
+
+C_SRC = _feedback_cap()                                  # 280 pF (C115 + C35, 2 x 560 pF in series)
+SRC_POLE_HZ = 1 / (2 * math.pi * 2000.0 * C_SRC)        # U5 difference stage, 2.0k || C_SRC; C34 leg matches
 SRC_NOISE_GAIN = 1 + 2000.0 / 2200.0                   # U5 (R30/R31 2.2k in, 2.0k feedback)
 V_SOURCE = 1.7                     # TONE_MAX_MV at SOURCE_BUF
 R104, R_ISO, CF, C0 = 47.0, 22.0, 100e-12, 100e-12
@@ -265,7 +294,8 @@ def switcher(p, ripple):
 
 
 # ------------------------------------------------------------------ 3. DAC images
-def dac_images(p, c_src=270e-12):
+def dac_images(p, c_src=None):
+    c_src = C_SRC if c_src is None else c_src
     f = p["f_hz"]
     pole = 1 / (2 * math.pi * 2000.0 * c_src)
     sp = lambda x: 1 / (1 + 1j * np.asarray(x, dtype=float) / pole)
@@ -364,7 +394,7 @@ def source_cap_options():
     """C34/C35 (U5 feedback and ground-leg capacitors) alternatives: the tone level they leave at
     SOURCE_BUF and the calibrated DAC-image error on the coil. Ratiometric: the pole cancels in A/B."""
     rows = {}
-    for cap in (270e-12, 470e-12, 680e-12, 1e-9, 2.2e-9):
+    for cap in (270e-12, 280e-12, 470e-12, 680e-12, 1e-9, 2.2e-9):
         pole = 1 / (2 * math.pi * 2000.0 * cap)
         lev = {str(int(f)): float(c.db(1 / abs(1 + 1j * f / pole))) for f in (27000.0, 60000.0, 85000.0)}
         img = {}

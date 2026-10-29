@@ -5747,6 +5747,40 @@
           "rms": 2.9315987676523116
         }
       ]
+    },
+    {
+      "lcsc": "C2922792",
+      "mpn": "GD25Q16ESIGR",
+      "references": [
+        "U2"
+      ],
+      "native_footprint": "Package_SO:SOIC-8_5.3x5.3mm_P1.27mm",
+      "source_url": "https://lceda.cn/api/products/C2922792/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C2922792-product.json",
+      "source_sha256": "6bd914e014694861dbfb25bffed794c64cf6018c9bd85c5abee969debd140c7d",
+      "library_title": "SOP-8_L5.3-W5.3-P1.27-LS8.0-BL",
+      "cpl_offset_ccw_deg": 270,
+      "matched_numbered_pads": 8,
+      "pad_center_fit_rms_mm": 0.04521599999998215,
+      "pad_center_fit_max_mm": 0.04521599999998216,
+      "candidate_rms_mm": [
+        {
+          "offset": 270,
+          "rms": 0.04521599999998215
+        },
+        {
+          "offset": 0,
+          "rms": 5.426802206332536
+        },
+        {
+          "offset": 180,
+          "rms": 5.426802206332536
+        },
+        {
+          "offset": 90,
+          "rms": 7.674524082094952
+        }
+      ]
     }
   ],
   "unresolved_primary_mechanical_reviews": [],

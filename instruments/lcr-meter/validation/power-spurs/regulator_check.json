@@ -1,12 +1,26 @@
 {
  "r5_option": {
   "rc_corner_hz": 52011.419311076905,
-  "headroom_pos_2x_load": 1.2923082304623899,
-  "headroom_neg_2x_load": 0.9488488351254604,
+  "headroom_pos_2x_load": 1.2038480718793076,
+  "headroom_neg_2x_load": 1.0829988750053428,
   "drop_est_load_v": [
    0.03537915590261647,
    0.03947515590261647
-  ]
+  ],
+  "with_tcr": {
+   "pos": {
+    "raw_min": 13.568342925235687,
+    "vout_min": 11.289091787652406,
+    "vout_max": 12.459155822699856,
+    "headroom_2x_load_r5": 1.038428790730598
+   },
+   "neg": {
+    "raw_min": 13.254182930439072,
+    "vout_min": 11.531220881302104,
+    "vout_max": 12.204752194455512,
+    "headroom_2x_load_r5": 0.9704804241783266
+   }
+  }
  },
  "nearest_switcher_to_analog_mm": [
   64.62391198310421,
@@ -17,7 +31,7 @@
   "min": -13.347469306930693,
   "nom": -14.0708,
   "max": -14.80509494949495,
-  "tps7a30_headroom_min": 1.0277991469306933
+  "tps7a30_headroom_min": 1.1619491868105758
  },
  "loads_a": {
   "pos": 0.03537915590261647,
@@ -37,27 +51,27 @@
  "ldo": {
   "pos": {
    "vout": [
-    11.645948925,
-    11.9685,
-    12.292247925000002
+    11.360286598302688,
+    11.863021978021978,
+    12.380708083583084
    ],
    "raw_min": 13.655314467267624,
-   "headroom_min": 1.3630665422676227
+   "headroom_min": 1.2746063836845405
   },
   "neg": {
    "vout": [
-    11.671929359999998,
-    11.995199999999999,
-    12.31967016
+    11.549409917355371,
+    11.866909090909092,
+    12.185520120120117
    ],
    "raw_min": 13.347469306930693,
-   "headroom_min": 1.0277991469306933
+   "headroom_min": 1.1619491868105758
   }
  },
  "retention_pass_threshold": 0.3,
  "checks": [
   {
-   "item": "TPS65131 VPOS range (VFBP limits, 1 % R81/R82)",
+   "item": "TPS65131 VPOS range (VFBP limits, R81 / R82)",
    "value": [
     13.655,
     14.188,
@@ -68,7 +82,7 @@
    "note": "margin to 15 V: 0.264 V"
   },
   {
-   "item": "TPS65131 VNEG range (VREF, VFBN limits, 1 % R83/R84)",
+   "item": "TPS65131 VNEG range (VREF, VFBN limits, R83+R111 / R84)",
    "value": [
     -13.347,
     -14.071,
@@ -250,19 +264,19 @@
    "note": "0.50 V margin; VBUS hot-plug overshoot is behind U16's soft start; D1 (SRV05-4) clamps VBUS"
   },
   {
-   "item": "U11 output voltage range",
+   "item": "U11 output voltage range (R85 / R86)",
    "value": [
-    11.646,
-    11.969,
-    12.292
+    11.36,
+    11.863,
+    12.381
    ],
-   "limit": "+-2.5 % overall + divider tolerance",
+   "limit": "+-2.5 % overall + divider tolerance; host window 10.8-13.2 V",
    "status": "PASS",
    "note": ""
   },
   {
    "item": "U11 headroom at worst corner (raw min - out max)",
-   "value": 1.363,
+   "value": 1.275,
    "limit": ">= dropout 0.6 V and >= 1 V PSRR-curve condition",
    "status": "PASS",
    "note": "load 35.4 mA est."
@@ -301,8 +315,8 @@
   {
    "item": "U11 divider: R2 <= 237 kOhm and Ifb >= 5 uA",
    "value": [
-    10000.0,
-    118.5
+    9100.0,
+    130.2
    ],
    "limit": [
     237000.0,
@@ -327,25 +341,25 @@
   },
   {
    "item": "U11 dissipation at max raw / min out",
-   "value": 0.219,
+   "value": 0.239,
    "limit": "W (2x load); RthJA ~63 C/W",
    "status": "PASS",
    "note": ""
   },
   {
-   "item": "U12 output voltage range",
+   "item": "U12 output voltage range (R87 / R89+R88+R112)",
    "value": [
-    11.672,
-    11.995,
-    12.32
+    11.549,
+    11.867,
+    12.186
    ],
-   "limit": "+-2.5 % overall + divider tolerance",
+   "limit": "+-2.5 % overall + divider tolerance; host window 10.8-13.2 V",
    "status": "PASS",
    "note": ""
   },
   {
    "item": "U12 headroom at worst corner (raw min - out max)",
-   "value": 1.028,
+   "value": 1.162,
    "limit": ">= dropout 0.6 V and >= 1 V PSRR-curve condition",
    "status": "PASS",
    "note": "load 39.5 mA est."
@@ -384,8 +398,8 @@
   {
    "item": "U12 divider: R2 <= 237 kOhm and Ifb >= 5 uA",
    "value": [
-    10000.0,
-    117.6
+    11000.0,
+    106.9
    ],
    "limit": [
     237000.0,
@@ -410,7 +424,7 @@
   },
   {
    "item": "U12 dissipation at max raw / min out",
-   "value": 0.247,
+   "value": 0.257,
    "limit": "W (2x load); RthJA ~63 C/W",
    "status": "PASS",
    "note": ""
@@ -421,22 +435,34 @@
     -13.347,
     -14.071,
     -14.805,
-    1.028
+    1.162
    ],
    "limit": ">= -15 V and >= 1 V headroom",
    "status": "PASS",
-   "note": "proposed value, not fitted"
+   "note": "fitted since Rev D; Rev E builds it as R83+R111 = 1.740 MOhm"
   },
   {
    "item": "Option R5: 1 ohm before U11/U12 - headroom at 2x load, RC corner",
    "value": [
-    1.292,
-    0.949,
+    1.204,
+    1.083,
     52011
    ],
    "limit": ">= 1 V",
+   "status": "PASS",
+   "note": "R95/R96 are fitted (Rev D); the row name is historical"
+  },
+  {
+   "item": "R95/R96 headroom at 2x load incl. divider TCR (board 25 +- 35 C)",
+   "value": [
+    1.038,
+    0.97,
+    11.289,
+    11.531
+   ],
+   "limit": ">= 0.6 V dropout (FLAG below the 1 V PSRR-curve condition); |VOUT| min >= 10.8 V host window",
    "status": "FLAG",
-   "note": "proposed, not fitted"
+   "note": "information: 0.1 % parts 25 ppm/C, 1 % parts 100 ppm/C, opposite drift of top and bottom"
   },
   {
    "item": "Switcher magnetics/switch nodes to nearest analog IC (CPL centres)",

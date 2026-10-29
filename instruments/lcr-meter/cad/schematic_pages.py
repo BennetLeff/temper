@@ -18,7 +18,7 @@ def write_pages(root, data, symbols, geometry, pinout, local_fp, uid, q):
                 "No BUF634A: maximum source current approximately 18mA. Isolated, discharged DUT only."),
         "source": ("Codec DAC excitation",
                    "TAC5112 OUT1P/OUT1M differential line out at fs = 187.5kHz.\n"
-                   "OPA810 difference stage: 2.2k in, 2.0k || 270pF feedback and ground leg, gain 0.909.\n"
+                   "OPA810 difference stage: 2.2k in, 2.0k || 280pF (2 x 560pF in series) feedback and ground leg, gain 0.909.\n"
                    "DC coupled: the stage rejects the 1.65V DAC common mode."),
         "codec": ("Codec acquisition (TAC5112)",
                   "CH1 = HIGH_BUF - LOW_BUF (IN1P/IN1M); CH2 = LOW_BUF - TIA_OUT (IN2P/IN2M).\n"

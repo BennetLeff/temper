@@ -85,7 +85,7 @@ Rev D is the Rev C board with four local edits, all hand-routed in `cad/routing.
 |---|---|---|
 | R94 22 Ω 0.1 % (R_iso) between J3 LO and the U7A summing node; new net TIA_SUM | Above U7; pad relief keepout on the summing-side pad | `../validation/stability-full-chain/fixture-envelope.md`, `../validation/layout-parasitics/` (`rev_d_board` in `extracted.json`) |
 | R95/R96 1 Ω at the LDO inputs (LDOIN_P/N) | Beside U11/U12 | `../validation/power-spurs/` |
-| R83 1.78 MΩ → 1.74 MΩ (VNEG set point) | Unchanged footprint | `../validation/power-spurs/` |
+| R83 1.78 MΩ → 1.74 MΩ (VNEG set point); Rev E builds it as R83 240 kΩ + R111 1.5 MΩ | Unchanged footprint (Rev D); one added 0603 (Rev E) | `../validation/power-spurs/` |
 | ±12 V monitors: R97/R98/C110 to GPIO26, R100/R99/C111 to GPIO27 | Divider tops at the rails, filter caps at U1 | Firmware `RAILS`, host `rails` |
 
 `validation/independent-verification-rev-d.json` (from `validation/independent_check.py D`) checks the Rev D board: 576 source pins against native pads and a freshly exported schematic netlist; no non-GND In1 copper; all twelve OPA2810 signal-pin centres and the four THS4551 input-pin centres inside In1/In2/B.Cu relief; OPA2810 bypass distances 2.031–2.050 mm; and the R_iso topology, with exactly U7.2, C104.1, R43–R45.1 and R94.2 on TIA_SUM. The Rev C geometry items it does not repeat (FDA feedback-pad relief, reference-capacitor distances, switcher loops) are in board regions that Rev D did not edit: every added or removed Rev D track point is at least 9.7 mm from the FDAs, 17 mm from the ADC reference capacitors and 13 mm from the switcher inductors. Native ERC/DRC/parity come from `rebuild.sh` (`validation/erc.json`, `drc.json`, `cad-bom-parity.json`).

@@ -199,6 +199,10 @@ Everything below describes retained development evidence. The names `final` and 
 
 This directory contains the actual final-network loop tests and labelled exploratory history. The active final topology is `final-template.cir`: retained TI AFE with100pF/10pF/5pF range compensation, and FDA22Ω-before-takeoff/1kΩ||100pF/4.32Ω network. Official vendor models are included by relative path and remain unmodified. The final solver helper and true-DC seed live in `../solver-resolution-rev-c-final/`.
 
+## Source stage, 280 pF as two 560 pF (`source_stage.py`, 2026-10-29)
+
+`source_stage.py` breaks the U5 (OPA810) difference-stage loop with the same bridge-injection return ratio as `loop_matrix.rs`; it first reproduces the committed `codecbase` TIA row (19.5149 MHz / 95.04°). C34/C35 270 pF → C34+C114 and C35+C115, 2 × 560 pF C0G in series (280 pF), with 0.5 pF midpoint stray and 1.5 nH per part: phase margin 59.73° (60.13° before; 58.74° at 2 pF / 3 nH stress). Source gain at 85 kHz −0.025 dB / −0.56°, under 0.003 dB at 27 kHz; V and I share the source, so it cancels in Z. Common-mode rejection at ±5 % capacitor corners: −37.4 dB at 85 kHz (−37.7 dB with 270 pF). Output: `source_stage.json`.
+
 ## Accepted model evidence and explicit negative control
 
 - `matrix-final_grid.md`:42 range/load/fixture cases.

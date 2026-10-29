@@ -977,7 +977,7 @@
    140.05,
    105.05
   ],
-  "courtyard_fraction": 0.213,
+  "courtyard_fraction": 0.215,
   "sheets": {
    "codec": {
     "courtyard_mm2": 228,
@@ -986,32 +986,11 @@
      20
     ]
    },
-   "mechanical": {
-    "courtyard_mm2": 149,
-    "centroid_span_mm": [
-     132,
-     92
-    ]
-   },
-   "afe": {
-    "courtyard_mm2": 810,
-    "centroid_span_mm": [
-     77,
-     85
-    ]
-   },
    "power": {
-    "courtyard_mm2": 510,
+    "courtyard_mm2": 519,
     "centroid_span_mm": [
      67,
      43
-    ]
-   },
-   "digital": {
-    "courtyard_mm2": 491,
-    "centroid_span_mm": [
-     38,
-     56
     ]
    },
    "range": {
@@ -1022,10 +1001,31 @@
     ]
    },
    "source": {
-    "courtyard_mm2": 60,
+    "courtyard_mm2": 68,
     "centroid_span_mm": [
      13,
      17
+    ]
+   },
+   "digital": {
+    "courtyard_mm2": 491,
+    "centroid_span_mm": [
+     38,
+     56
+    ]
+   },
+   "afe": {
+    "courtyard_mm2": 810,
+    "centroid_span_mm": [
+     77,
+     85
+    ]
+   },
+   "mechanical": {
+    "courtyard_mm2": 149,
+    "centroid_span_mm": [
+     132,
+     92
     ]
    }
   }
@@ -1046,8 +1046,8 @@
    "C100": 6.1,
    "C101": 5.0,
    "C102": 4.2,
-   "R87": 7.4,
-   "R88": 5.2,
+   "R87": 5.2,
+   "R88": 6.8,
    "R89": 5.8
   },
   "U13": {
@@ -1081,6 +1081,6 @@
   "REGP_NR": 2.1,
   "REGN_NR": 2.1,
   "CONV_FBP": 9.1,
-  "CONV_FBN": 12.3
+  "CONV_FBN": 16.1
  }
 }

@@ -968,7 +968,7 @@
     },
     {
       "ref": "U2",
-      "value": "W25Q128JVSIQ",
+      "value": "GD25Q16ESIGR",
       "kind": "FLASH",
       "footprint": "Package_SO:SOIC-8_5.3x5.3mm_P1.27mm",
       "pins": {
@@ -987,14 +987,14 @@
         0
       ],
       "sheet": "digital",
-      "mpn": "W25Q128JVSIQ",
-      "manufacturer": "Winbond Elec",
-      "lcsc": "C97521",
-      "unit_usd": 2.4501,
-      "stock": 60850,
-      "library_type": "basic",
+      "mpn": "GD25Q16ESIGR",
+      "manufacturer": "GigaDevice",
+      "lcsc": "C2922792",
+      "unit_usd": 0.6011,
+      "stock": 35898,
+      "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "rev-d-audit: same SOIC-8 208 mil; Raspberry Pi minimal design flash; old part had 561 in stock"
+      "source_query": "GD25Q16ESIGR C2922792, SOP-8 208 mil, boot2_w25q080 command set"
     },
     {
       "ref": "U3",
@@ -2171,12 +2171,12 @@
     },
     {
       "ref": "R83",
-      "value": "1.74M",
+      "value": "240k",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
         "1": "RAW_N",
-        "2": "CONV_FBN"
+        "2": "CONV_FBN_MID"
       },
       "pcb": [
         88.4,
@@ -2184,14 +2184,14 @@
         0
       ],
       "sheet": "power",
-      "mpn": "0603WAF1744T5E",
+      "mpn": "0603WAF2403T5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C422975",
-      "unit_usd": 0.0013,
-      "stock": null,
-      "library_type": "extended",
+      "lcsc": "C4197",
+      "unit_usd": 0.0018,
+      "stock": 163523,
+      "library_type": "preferred",
       "assembly": "SMT",
-      "source_query": "1.74Mohm 1% 0603 (jlcsearch 2026-10-20; stock to confirm at BOM upload)"
+      "source_query": "240k 1% 0603 C4197"
     },
     {
       "ref": "R84",
@@ -2219,7 +2219,7 @@
     },
     {
       "ref": "R85",
-      "value": "91k 0.1%",
+      "value": "82k",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -2232,18 +2232,18 @@
         0
       ],
       "sheet": "power",
-      "mpn": "RT0603BRD0791KL",
-      "manufacturer": "YAGEO",
-      "lcsc": "C326721",
-      "unit_usd": 0.0476,
-      "stock": 42594,
-      "library_type": "extended",
+      "mpn": "0603WAF8202T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23254",
+      "unit_usd": 0.0027,
+      "stock": 1096446,
+      "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "91kohm 0.1% 0603"
+      "source_query": "82k 1% 0603 C23254"
     },
     {
       "ref": "R86",
-      "value": "10k 0.1%",
+      "value": "9.1k",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -2256,38 +2256,38 @@
         180
       ],
       "sheet": "power",
-      "mpn": "RT0603BRD0710KL",
-      "manufacturer": "YAGEO",
-      "lcsc": "C95204",
-      "unit_usd": 0.0329,
-      "stock": 1961493,
-      "library_type": "extended",
+      "mpn": "0603WAF9101T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C23260",
+      "unit_usd": 0.0031,
+      "stock": 624753,
+      "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "10kohm 0.1% 0603"
+      "source_query": "9.1k 1% 0603 C23260"
     },
     {
       "ref": "R87",
-      "value": "91k 0.1%",
+      "value": "100k 0.1%",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
         "1": "-12V",
-        "2": "REGN_DIV"
+        "2": "REGN_FB"
       },
       "pcb": [
-        115.6,
-        133.5,
-        270
+        118.0,
+        134.33,
+        0
       ],
       "sheet": "power",
-      "mpn": "RT0603BRD0791KL",
+      "mpn": "RT0603BRD07100KL",
       "manufacturer": "YAGEO",
-      "lcsc": "C326721",
-      "unit_usd": 0.0476,
-      "stock": 42594,
+      "lcsc": "C122538",
+      "unit_usd": 0.0274,
+      "stock": 1337468,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "91kohm 0.1% 0603"
+      "source_query": "100k 0.1% 25ppm 0603 C122538"
     },
     {
       "ref": "R88",
@@ -2296,11 +2296,11 @@
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
         "1": "REGN_DIV",
-        "2": "REGN_FB"
+        "2": "REGN_DIV2"
       },
       "pcb": [
         118.0,
-        134.33,
+        137.57,
         0
       ],
       "sheet": "power",
@@ -2315,12 +2315,12 @@
     },
     {
       "ref": "R89",
-      "value": "10k 0.1%",
+      "value": "5k 0.1%",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
         "1": "REGN_FB",
-        "2": "GND"
+        "2": "REGN_DIV"
       },
       "pcb": [
         118.0,
@@ -2328,14 +2328,14 @@
         180
       ],
       "sheet": "power",
-      "mpn": "RT0603BRD0710KL",
-      "manufacturer": "YAGEO",
-      "lcsc": "C95204",
-      "unit_usd": 0.0329,
-      "stock": 1961493,
+      "mpn": "AR03BTCX5001",
+      "manufacturer": "Viking Tech",
+      "lcsc": "C2828621",
+      "unit_usd": 0.0318,
+      "stock": 55579,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "10kohm 0.1% 0603"
+      "source_query": "5k 0.1% 25ppm 0603 C2828621"
     },
     {
       "ref": "R60",
@@ -4067,12 +4067,12 @@
     },
     {
       "ref": "C34",
-      "value": "270pF C0G 5%",
+      "value": "560pF C0G 5%",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
         "1": "SOURCE_AC",
-        "2": "GND"
+        "2": "SRC_AC_CMID"
       },
       "pcb": [
         128.4,
@@ -4080,10 +4080,34 @@
         270
       ],
       "sheet": "source",
-      "mpn": "CC0603JRNPO9BN271",
+      "mpn": "CC0603JRNPO9BN561",
       "manufacturer": "YAGEO",
-      "lcsc": "C107046",
-      "unit_usd": 0.0092,
+      "lcsc": "C107054",
+      "unit_usd": 0.0066,
+      "stock": null,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "Rev E"
+    },
+    {
+      "ref": "C114",
+      "value": "560pF C0G 5%",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "SRC_AC_CMID",
+        "2": "GND"
+      },
+      "pcb": [
+        128.4,
+        75.0,
+        270
+      ],
+      "sheet": "source",
+      "mpn": "CC0603JRNPO9BN561",
+      "manufacturer": "YAGEO",
+      "lcsc": "C107054",
+      "unit_usd": 0.0066,
       "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
@@ -4091,11 +4115,11 @@
     },
     {
       "ref": "C35",
-      "value": "270pF C0G 5%",
+      "value": "560pF C0G 5%",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
-        "1": "EXCITE",
+        "1": "SRC_FB_CMID",
         "2": "SOURCE_FB"
       },
       "pcb": [
@@ -4104,10 +4128,34 @@
         0
       ],
       "sheet": "source",
-      "mpn": "CC0603JRNPO9BN271",
+      "mpn": "CC0603JRNPO9BN561",
       "manufacturer": "YAGEO",
-      "lcsc": "C107046",
-      "unit_usd": 0.0092,
+      "lcsc": "C107054",
+      "unit_usd": 0.0066,
+      "stock": null,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "Rev E"
+    },
+    {
+      "ref": "C115",
+      "value": "560pF C0G 5%",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "EXCITE",
+        "2": "SRC_FB_CMID"
+      },
+      "pcb": [
+        130.0,
+        61.2,
+        0
+      ],
+      "sheet": "source",
+      "mpn": "CC0603JRNPO9BN561",
+      "manufacturer": "YAGEO",
+      "lcsc": "C107054",
+      "unit_usd": 0.0066,
       "stock": null,
       "library_type": "extended",
       "assembly": "SMT",
@@ -5883,6 +5931,54 @@
       "library_type": "basic",
       "assembly": "SMT",
       "source_query": "Rev E"
+    },
+    {
+      "ref": "R112",
+      "value": "5k 0.1%",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "REGN_DIV2",
+        "2": "GND"
+      },
+      "pcb": [
+        118.0,
+        139.19,
+        180
+      ],
+      "sheet": "power",
+      "mpn": "AR03BTCX5001",
+      "manufacturer": "Viking Tech",
+      "lcsc": "C2828621",
+      "unit_usd": 0.0318,
+      "stock": null,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "5k 0.1% 25ppm 0603 C2828621, U12 divider"
+    },
+    {
+      "ref": "R111",
+      "value": "1.5M",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "CONV_FBN",
+        "2": "CONV_FBN_MID"
+      },
+      "pcb": [
+        90.7,
+        127.6,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "0603WAF1504T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C4172",
+      "unit_usd": 0.0019,
+      "stock": null,
+      "library_type": "preferred",
+      "assembly": "SMT",
+      "source_query": "1.5M 1% 0603 C4172, TPS65131 inverter divider"
     },
     {
       "ref": "R104",

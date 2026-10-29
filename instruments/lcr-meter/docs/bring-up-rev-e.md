@@ -46,7 +46,7 @@ Applies to the Rev E board (`E-codec`, protocol 3): TAC5112 codec, latching rang
 
 ## 3. Firmware and digital
 
-1. Hold BOOTSEL, connect USB and copy `temper-lcr-rev-e.uf2` to RPI-RP2. SWD (J4/J5) is the recovery path.
+1. Hold BOOTSEL, connect USB and copy `temper-lcr-rev-e.uf2` to RPI-RP2. SWD (J4/J5) is the recovery path. The flash is a GD25Q16E (2 MB), not the Pico's Winbond part: the firmware booting from flash after the copy confirms that `boot2_w25q080` sets its QE bit and runs quad reads. If it does not boot, rebuild with `PICO_BOOT_STAGE2_CHOOSE_GENERIC_03H=1` (slower, command-set independent) and report it.
 2. Run `temper-lcr info PORT`. It must show `INFO 3 E-codec … 120000000 187500 4096 100000 …` and `PASS`: boot runs the codec bring-up and the self-test, and selects the 100 kΩ range. Compare its rail readings with the DMM (within about 3 %).
 3. Run `temper-lcr codec PORT` and record it:
    - DEV_STS0: both ADC channels and DAC channel 1 powered;
@@ -116,7 +116,7 @@ The desk analysis ([power-spurs Rev E](../validation/power-spurs/README-rev-e.md
 2. Clip L1 on and capture at 60.5 kHz, 1700 mV, on both ranges. `analyze` each against its own calibration.
 3. **Pass:** L and R agree within 0.3 %. The pessimistic disagreement would be 3.7 % at 16 fs, 1 % at 32 fs and 0.2 % at 64 fs.
 4. L1 is ferrite, and the two ranges drive it at about 10 mA and 0.3 mA. To check that this is not ferrite amplitude dependence, also capture it on the 100 Ω range at 170 mV. If L moves by more than 0.05 % between 1700 and 170 mV, redo the screen with any air-cored coil of 30–100 µH.
-5. **Fail:** fit 1 nF C0G for C34 and C35, the U5 difference-stage capacitors, which are now 270 pF. This lowers the pole from 295 to 80 kHz: 3.6× less image for 2 dB of tone at 60 kHz. Then repeat steps 2–3. If it still fails, the source needs a second pole (layout change, next revision). Meanwhile limit coil accuracy claims to the measured disagreement.
+5. **Fail:** fit 1 nF C0G at C34 and C35 and 0 Ω at C114 and C115 (each U5 difference-stage capacitor is now two 560 pF in series, 280 pF). This lowers the pole from 284 to 80 kHz: 3.6× less image for 2 dB of tone at 60 kHz. Then repeat steps 2–3. If it still fails, the source needs a second pole (layout change, next revision). Meanwhile limit coil accuracy claims to the measured disagreement.
 6. While the tone plays, a scope FFT on SOURCE_BUF around 1–13 MHz shows where the DAC images sit. That is the modulator rate, which no document gives. Record it.
 
 ## 10. Remaining first-board checks

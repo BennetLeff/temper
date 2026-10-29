@@ -390,8 +390,11 @@ T('3V3A', 'In2.Cu', (141.25, 88.6), (147.6, 88.6), (147.6, 105.75))
 # DAC_M up to a via, In2 north beside the OPA810 plane void, back to F.Cu at R31.
 T('SOURCE_AC', 'F.Cu', (129.8125, 70.0), (130.0, 70.1875), (130.0, 72.175))
 T('SOURCE_AC', 'F.Cu', (128.4, 70.0), (128.4, 71.225))
-T('GND', 'F.Cu', (128.4, 72.775), (127.5, 72.775))
-V('GND', 127.5, 72.775, 0.45)
+# C34 + C114 (ground leg, 2 x 560 pF in series): C114 below C34, ground via east of its ground land, clear of
+# the 12 V In2 diagonal (x + y = 202.9) and the DAC_P F.Cu corner at (130, 74.9).
+T('SRC_AC_CMID', 'F.Cu', (128.4, 72.775), (128.4, 74.225))
+T('GND', 'F.Cu', (128.4, 75.775), (129.6, 75.775))
+V('GND', 129.6, 75.775, 0.45)
 T('DAC_P', 'F.Cu', (130.0, 73.825), (130.0, 74.9), (141.75, 74.9), (141.75, 95.6))
 T('DAC_M', 'F.Cu', (142.25, 95.6), (142.25, 74.2))
 V('DAC_M', 142.25, 74.2, 0.45)
@@ -400,7 +403,10 @@ V('DAC_M', 139.0, 64.175)
 T('DAC_M', 'F.Cu', (139.0, 64.175), (137.0, 64.175))
 T('SOURCE_FB', 'F.Cu', (135.3, 65.475), (136.6, 65.825))
 T('SOURCE_FB', 'F.Cu', (133.8, 61.675), (133.8, 63.525))
-T('EXCITE', 'F.Cu', (132.225, 61.675), (132.3805, 62.2451))
+# C115 + C35 (feedback, 2 x 560 pF in series): C115 west of C35; EXCITE runs from C115.1 along y 62.545
+# (0.87 mm south of the two lands) into the existing EXCITE via.
+T('SRC_FB_CMID', 'F.Cu', (130.775, 61.2), (132.225, 61.2))
+T('EXCITE', 'F.Cu', (129.225, 61.675), (129.225, 62.0), (129.7701, 62.5451), (132.3805, 62.5451))
 T('GND', 'F.Cu', (149.675, 145.2), (150.6, 145.2))                       # C112 ground
 V('GND', 150.6, 145.2)
 # J1 shield straps (Rev D): four pads share the number SH, so the pad-centre prune cannot see them
@@ -473,3 +479,25 @@ dropvia('GND', 81.0, 75.65)
 drop('GND', 'F.Cu', (81.9, 75.65), (81.0, 75.65))
 T('GND', 'F.Cu', (81.9, 75.65), (80.7, 75.65))
 V('GND', 80.7, 75.65, 0.45)
+
+# ------------------------------------------------------------ extended-line consolidation (rev_e.py "basic / preferred swaps")
+# TPS65131 inverter divider: R83 240k (RAW_N to CONV_FBN_MID, Rev D place) + R111 1.5M (vertical east of R83,
+# pad 1 south on CONV_FBN, pad 2 north on the midpoint).  The Rev D CONV_FBN column through R83.2 goes; C88.2
+# (FBN, fed by the U13.16 B.Cu run and via) takes R111.1 on F.Cu, and R84.1 joins through a via east of its land
+# and a B.Cu run under the cluster (In1 ground between it and the F.Cu parts).  The midpoint copper is R83.2,
+# a 1.5 mm stub and R111.2, > 4 mm from the SW_N lands (U13.13/14, D3.1, L2).
+drop('CONV_FBN', 'F.Cu', (89.175, 129.0), (89.225, 127.0))
+drop('CONV_FBN', 'F.Cu', (89.225, 127.0), (89.225, 125.5))
+T('CONV_FBN_MID', 'F.Cu', (89.225, 127.0), (89.45, 126.775), (90.7, 126.775))
+T('CONV_FBN', 'F.Cu', (89.175, 129.0), (89.75, 128.425), (90.7, 128.425))
+V('CONV_FBN', 90.1, 125.5, 0.45)            # 0.25 mm east of the R84.1 land, 0.65 mm north of R111.2
+T('CONV_FBN', 'F.Cu', (89.225, 125.5), (90.1, 125.5))
+T('CONV_FBN', 'B.Cu', (89.6, 129.975), (90.1, 129.475), (90.1, 125.5))
+# U12 divider: R87 100k in R88's Rev D place (pad 2 on the Rev D REGN_FB column, pad 1 up to C101.1 on -12V);
+# R89 5k / R88 1k / R112 5k down a column to ground.  The Rev D R89 ground via moves to R112.
+T('-12V', 'F.Cu', (117.175, 134.33), (117.225, 132.75))
+T('REGN_DIV', 'F.Cu', (117.175, 135.95), (117.175, 137.57))
+T('REGN_DIV2', 'F.Cu', (118.825, 137.57), (118.825, 139.19))
+dropvia('GND', 117.175, 137.2)
+T('GND', 'F.Cu', (117.175, 139.19), (116.0, 139.19))
+V('GND', 116.0, 139.19)
