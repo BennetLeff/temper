@@ -1,60 +1,12 @@
 {
  "revision": "F",
- "board_sha256": "0d2394061c20c8a751f3651e14f98f7608e7cd163c918b7e75b24f26acfc197b",
+ "board_sha256": "0075f6aee207e45f62b56fe2c9426fb86d1f55187024fdafffdfaa17402b196f",
  "kicad_version": "10.0.4",
  "method": "Independent post-build audit of the native board against cad/design.json (read-only).",
- "source_pins_checked": 632,
- "native_pads": 632,
- "netlist_nodes": 632,
+ "source_pins_checked": 656,
+ "native_pads": 656,
+ "netlist_nodes": 656,
  "plane_relief": [
-  {
-   "pin": "U6.1",
-   "layers": [
-    "B.Cu",
-    "In1.Cu",
-    "In2.Cu"
-   ]
-  },
-  {
-   "pin": "U6.2",
-   "layers": [
-    "B.Cu",
-    "In1.Cu",
-    "In2.Cu"
-   ]
-  },
-  {
-   "pin": "U6.3",
-   "layers": [
-    "B.Cu",
-    "In1.Cu",
-    "In2.Cu"
-   ]
-  },
-  {
-   "pin": "U6.5",
-   "layers": [
-    "B.Cu",
-    "In1.Cu",
-    "In2.Cu"
-   ]
-  },
-  {
-   "pin": "U6.6",
-   "layers": [
-    "B.Cu",
-    "In1.Cu",
-    "In2.Cu"
-   ]
-  },
-  {
-   "pin": "U6.7",
-   "layers": [
-    "B.Cu",
-    "In1.Cu",
-    "In2.Cu"
-   ]
-  },
   {
    "pin": "U7.1",
    "layers": [
@@ -97,6 +49,54 @@
   },
   {
    "pin": "U7.7",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.1",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.2",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.3",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.5",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.6",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.7",
    "layers": [
     "B.Cu",
     "In1.Cu",
@@ -158,15 +158,15 @@
  "pass": true,
  "limits": "Pad-centre and net checks on native data; not electromagnetic extraction or physical qualification.",
  "files_sha256": {
-  "cad/temper-lcr.kicad_pcb": "0d2394061c20c8a751f3651e14f98f7608e7cd163c918b7e75b24f26acfc197b",
+  "cad/temper-lcr.kicad_pcb": "0075f6aee207e45f62b56fe2c9426fb86d1f55187024fdafffdfaa17402b196f",
   "cad/temper-lcr.kicad_pro": "2a88c5d30f3031b6fbcea98ba304bcf75032400ac3bee7344b46b61517301a33",
-  "cad/design.json": "e96ed1e8f74a79b9ee02d75a4a7711f6db4b3a2e4a72853ddfd6338213c4b5df",
-  "cad/routing.json": "3d86629dc8af14915c625ae8a7999965c27f0a7f0dce03902972c574d1f681d9",
+  "cad/design.json": "dcd43afbc76277d5c5b612f03a99f3843c28216f1991a0851372ad1254016fba",
+  "cad/routing.json": "8c335d931c3b581e304cdd69db95f221b7c79984ca12118dd60b22f1e65e734f",
   "cad/temper-lcr.kicad_sch": "846d49be1efd5758c78c4a923d3c04813f4cfeeebeee0a9fa492c7a2360bfcea",
   "cad/adc.kicad_sch": "6d6360129cf91d93a9535f7501e108cccc343f8c19bdd4b8a9c4a114016a7aa8",
   "cad/afe.kicad_sch": "9177471d6cb46f5d3500b7fe48886022555a1334711ceb18a9d3eb7e2860d28c",
   "cad/codec.kicad_sch": "d07fadd74ad83c163a935ea014f8b3c46775963c53a1feaed75e2f94250545a4",
-  "cad/digital.kicad_sch": "6f6c3d22927fd05936f041d2c69f73bf81606021ded4fffb38a6b5495b93781e",
+  "cad/digital.kicad_sch": "665a4bd0e3ff85df327f5368532ac1a7e9455d14e3ca09a0d66ba79ada3e95ac",
   "cad/power.kicad_sch": "98b9bc9e3d603b715f4735508c4eb03a8bd821ebdf6c4b54e87081eedc1a80a5",
   "cad/range.kicad_sch": "0d7ea69b8adabbbcdad853ba5d135f0c4869d68bc5282ca1aa13fe0f99a4d69a",
   "cad/source.kicad_sch": "3f4802f73c2e2dc5b0471beaac58a9ea7839d7978759ee1319fcee1aa55f5a09"

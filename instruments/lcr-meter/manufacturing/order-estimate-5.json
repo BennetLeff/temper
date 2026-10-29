@@ -1,8 +1,8 @@
 {
  "boards": 5,
  "board_counts": {
-  "placements": 197,
-  "smt_joints": 609,
+  "placements": 209,
+  "smt_joints": 633,
   "leadless": [
    "U1",
    "U13",
@@ -16,8 +16,8 @@
    "J9"
   ]
  },
- "extended_lines": 23,
- "basic_or_preferred_lines": 39,
+ "extended_lines": 24,
+ "basic_or_preferred_lines": 42,
  "lines": [
   {
    "lcsc": "C57112",
@@ -73,10 +73,10 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 25,
-   "buy": 35,
+   "need": 20,
+   "buy": 30,
    "unit": 0.0017,
-   "cost": 0.0595,
+   "cost": 0.051,
    "stock": 32251733
   },
   {
@@ -85,10 +85,10 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 20,
-   "buy": 30,
+   "need": 30,
+   "buy": 40,
    "unit": 0.0018,
-   "cost": 0.054,
+   "cost": 0.072,
    "stock": 37261230
   },
   {
@@ -114,6 +114,18 @@
    "unit": 0.0027,
    "cost": 0.054,
    "stock": 174171
+  },
+  {
+   "lcsc": "C22843",
+   "mpn": "0603WAF1501T5E",
+   "assembly": "SMT",
+   "library": "base",
+   "preferred": false,
+   "need": 15,
+   "buy": 25,
+   "unit": 0.002,
+   "cost": 0.05,
+   "stock": 3702131
   },
   {
    "lcsc": "C22807",
@@ -188,6 +200,18 @@
    "stock": 386867
   },
   {
+   "lcsc": "C4211",
+   "mpn": "0603WAF3001T5E",
+   "assembly": "SMT",
+   "library": "base",
+   "preferred": false,
+   "need": 5,
+   "buy": 20,
+   "unit": 0.0024,
+   "cost": 0.048,
+   "stock": 7044852
+  },
+  {
    "lcsc": "C23140",
    "mpn": "0603WAF330JT5E",
    "assembly": "SMT",
@@ -198,6 +222,18 @@
    "unit": 0.0024,
    "cost": 0.048,
    "stock": 4340870
+  },
+  {
+   "lcsc": "C23151",
+   "mpn": "0603WAF3900T5E",
+   "assembly": "SMT",
+   "library": "base",
+   "preferred": false,
+   "need": 5,
+   "buy": 20,
+   "unit": 0.0017,
+   "cost": 0.034,
+   "stock": 2246469
   },
   {
    "lcsc": "C12447",
@@ -553,11 +589,23 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 5,
-   "buy": 20,
+   "need": 30,
+   "buy": 40,
    "unit": 0.0077,
-   "cost": 0.154,
+   "cost": 0.308,
    "stock": 7356306
+  },
+  {
+   "lcsc": "C160472",
+   "mpn": "LTST-S270KFKT",
+   "assembly": "SMT",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 13,
+   "unit": 0.0382,
+   "cost": 0.4966,
+   "stock": 5577
   },
   {
    "lcsc": "C221351",
@@ -812,24 +860,24 @@
   "note": "Price read only. Shipping, tax and coupons excluded. Re-quote with the Gerbers at upload."
  },
  "economic": {
-  "SMT parts": 204.71,
-  "SMT joints": 4.87,
+  "SMT parts": 205.5,
+  "SMT joints": 5.06,
   "X-ray": 12.3,
   "Confirm placement": 0.45,
   "PCB fabrication": 25.7,
   "Setup": 8.18,
   "Stencil": 1.53,
-  "Extended-part fee": 70.61
+  "Extended-part fee": 73.68
  },
  "standard": {
-  "SMT parts": 204.71,
-  "SMT joints": 4.87,
+  "SMT parts": 205.5,
+  "SMT joints": 5.06,
   "X-ray": 12.3,
   "Confirm placement": 0.45,
   "PCB fabrication": 25.7,
   "Setup": 25.56,
   "Stencil": 8.21,
-  "Feeder loading": 130.28,
+  "Feeder loading": 137.94,
   "Fixtures": 16.42
  },
  "jlc_hand_fit": {
@@ -838,8 +886,8 @@
   "Hand-soldering labour": 3.58
  },
  "totals": {
-  "economic": 328.35,
-  "standard": 428.5,
+  "economic": 332.41,
+  "standard": 437.15,
   "jlc_hand_fit": 31.1
  },
  "excluded": [

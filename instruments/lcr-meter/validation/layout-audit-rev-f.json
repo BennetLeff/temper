@@ -977,8 +977,15 @@
    100.05,
    100.05
   ],
-  "courtyard_fraction": 0.315,
+  "courtyard_fraction": 0.321,
   "sheets": {
+   "range": {
+    "courtyard_mm2": 892,
+    "centroid_span_mm": [
+     61,
+     49
+    ]
+   },
    "codec": {
     "courtyard_mm2": 228,
     "centroid_span_mm": [
@@ -993,13 +1000,6 @@
      56
     ]
    },
-   "range": {
-    "courtyard_mm2": 892,
-    "centroid_span_mm": [
-     61,
-     49
-    ]
-   },
    "source": {
     "courtyard_mm2": 68,
     "centroid_span_mm": [
@@ -1008,10 +1008,10 @@
     ]
    },
    "digital": {
-    "courtyard_mm2": 491,
+    "courtyard_mm2": 545,
     "centroid_span_mm": [
-     50,
-     36
+     56,
+     98
     ]
    },
    "afe": {

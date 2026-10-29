@@ -16,13 +16,29 @@ Applies to the Rev E board (`E-codec`, protocol 3): TAC5112 codec, latching rang
 
 ## 1. Inspection, before power
 
-1. Compare the board with `previews/assembly-top.png` and the JLC placement preview. Pay most attention to keyed parts: U1 (RP2040), U13 (TPS65131), U14 (TAC5112), U5–U7, U11/U12, U15, K1–K4 (pin-1 bar), D-parts and Q2–Q6.
+1. Compare the board with `previews/assembly-top.png` and the JLC placement preview. Pay most attention to keyed parts: U1 (RP2040), U13 (TPS65131), U14 (TAC5112), U5–U7, U11/U12, U15, K1–K4 (pin-1 bar), D-parts and Q2–Q6. On Rev F, check that D4's lens faces the front edge and that D18 (−12) is turned the other way from D15–D17 (its anode is on GND).
 2. Check that the BNCs (J3 HCUR, J7 HPOT, J8 LPOT, J9 LCUR) face the top edge and match their silk. Power enters only through J1 (USB-C); there is no DC jack. Check U16 (TPS2553, pin-1 mark) and R110 (24 kΩ).
 3. DMM, power off:
    - no short from USB_VBUS, 5V, 3V3, 3V3A, RAW_P/RAW_N or ±12V to GND;
    - USB_VBUS to 5V is open (U16 off), not a short;
    - each BNC shell to GND is 0 Ω;
    - J3 to J7 centre about 1 kΩ (R105), and J8 to J9 centre about 1 kΩ (R106).
+
+## 1a. Indicator LEDs (Rev F board)
+
+Rev F adds an orange front-panel light and six red debug LEDs, visible with the lid off ([rev-f-plan.md](rev-f-plan.md), "Indicator LEDs"). A rail LED only shows that the rail is present (it glows from about 2 V up); it says nothing about tolerance. Use the DMM and `RAILS` for values.
+
+| LED | Silk / place | Meaning | Expected at power-up (bench supply into J1, firmware loaded) |
+|---|---|---|---|
+| D15 | 5V, at the rail monitors | 5 V rail after U16 | on within about 1 ms (U16 soft start) |
+| D16 | 3V3 | 3V3 (U3) | on with 5V |
+| D17 | +12 | +12 V (U11) | on a few ms later, after the TPS65131 starts; dark = boost, U11 or ENP |
+| D18 | −12 | −12 V (U12) | on with +12; dark alone = inverter, U12 or ENN |
+| D19 | HB, west of U1 | firmware heartbeat (GPIO23) | dark during boot (codec bring-up, self-test, relay reset), then blinks at 1 Hz while idle; dark during each capture |
+| D20 | FLT, west of U1 | fault (GPIO22) | off after a passing boot self-test; on if the self-test or the boot relay reset failed, or after any `ERR` reply; a successful command clears it unless the self-test is still failing; dark during captures |
+| D4 | front panel, left of HCUR | STATUS (GPIO25) | off at idle; on for the duration of each capture |
+
+With a blank flash (no firmware) HB, FLT and STATUS stay dark: the RP2040 pads reset as inputs with pull-downs. HB blinks with the bench supply alone, because the firmware's main loop runs once it sees VBUS, computer or not. The rail LEDs draw about 4 mA in all (5 V input share of all LEDs about 21 mA, `regulator_check.py`), so record the idle current in §2.1 with them lit.
 
 ## 2. Power and rails, no computer
 

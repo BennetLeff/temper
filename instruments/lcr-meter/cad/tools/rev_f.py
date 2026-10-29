@@ -55,7 +55,7 @@ LIB = predrc.LIB
 parts['D4'].update(value='ORANGE', footprint='LCR:LED_LiteOn_LTST-S270KFKT_SideView', mpn='LTST-S270KFKT',
                    manufacturer='Lite-On', lcsc='C160472', unit_usd=0.0382, stock=5577, library_type='extended',
                    source_query='side-looking orange LED, sources/rev-f/LTST-S270KFKT.txt; VF 2.0 typ / 2.4 max at 20 mA')
-parts['R12'].update(value='390', mpn='0603WAF3900T5E', lcsc='C23151', unit_usd=0.0016, stock=2246779,
+parts['R12'].update(value='390', mpn='0603WAF3900T5E', lcsc='C23151', unit_usd=0.0017, stock=2246779,
                     source_query='390ohm 0603: (3.3 - 1.9 V) / 390 = 3.6 mA nominal, 2.2-4.3 mA over corners')
 parts['U1']['pins'].update({'34': 'FAULT', '35': 'HEARTBEAT'})      # GPIO22, GPIO23
 
@@ -68,8 +68,9 @@ def _part(ref, kind, value, pins, mpn, lcsc, usd, stock, query, fp=None, mfr='UN
 
 
 _RED = dict(kind='LED', value='RED', mpn='KT-0603R', lcsc='C2286', usd=0.0073, stock=7351610, mfr='Hubei KENTO Elec')
-_R = {'3k': ('0603WAF3001T5E', 'C4211', 0.0016, 7044852), '1.5k': ('0603WAF1501T5E', 'C22843', 0.0016, 3702361),
-      '10k': ('0603WAF1002T5E', 'C25804', 0.0016, 37260700)}
+# unit price: JLC 1-piece tier, manufacturing/prices/jlc-parts-2026-10-29.json (10k as already on the BOM)
+_R = {'3k': ('0603WAF3001T5E', 'C4211', 0.0024, 7044852), '1.5k': ('0603WAF1501T5E', 'C22843', 0.002, 3702131),
+      '10k': ('0603WAF1002T5E', 'C25804', 0.0054, 38200936)}
 NEW_PARTS = []
 # (LED, resistor, rail/GPIO net, LED net, resistor value, reason); the -12 V LED is reversed (anode on GND)
 for d, r, rail, led, rv, why in (

@@ -410,6 +410,40 @@
     ]
    ]
   },
+  "C160472": {
+   "model": "LTST-S270KFKT",
+   "library": "expand",
+   "preferred": false,
+   "stock": 5577,
+   "least": 5,
+   "loss": 8,
+   "tiers": [
+    [
+     1,
+     0.0382
+    ],
+    [
+     200,
+     0.0303
+    ],
+    [
+     600,
+     0.0259
+    ],
+    [
+     4000,
+     0.0225
+    ],
+    [
+     8000,
+     0.0202
+    ],
+    [
+     20000,
+     0.0189
+    ]
+   ]
+  },
   "C16430": {
    "model": "TPS7A4901DGNR",
    "library": "expand",
@@ -886,6 +920,40 @@
     ]
    ]
   },
+  "C22843": {
+   "model": "0603WAF1501T5E",
+   "library": "base",
+   "preferred": false,
+   "stock": 3702131,
+   "least": 20,
+   "loss": 10,
+   "tiers": [
+    [
+     1,
+     0.002
+    ],
+    [
+     1000,
+     0.0015
+    ],
+    [
+     5000,
+     0.0013
+    ],
+    [
+     10000,
+     0.0011
+    ],
+    [
+     50000,
+     0.001
+    ],
+    [
+     50200,
+     0.001
+    ]
+   ]
+  },
   "C2286": {
    "model": "KT-0603R",
    "library": "base",
@@ -1019,6 +1087,40 @@
     [
      50200,
      0.0013
+    ]
+   ]
+  },
+  "C23151": {
+   "model": "0603WAF3900T5E",
+   "library": "base",
+   "preferred": false,
+   "stock": 2246469,
+   "least": 20,
+   "loss": 10,
+   "tiers": [
+    [
+     1,
+     0.0017
+    ],
+    [
+     1000,
+     0.0013
+    ],
+    [
+     5000,
+     0.0011
+    ],
+    [
+     10000,
+     0.001
+    ],
+    [
+     50000,
+     0.0009
+    ],
+    [
+     50200,
+     0.0009
     ]
    ]
   },
@@ -1770,6 +1872,40 @@
     ]
    ]
   },
+  "C4211": {
+   "model": "0603WAF3001T5E",
+   "library": "base",
+   "preferred": false,
+   "stock": 7044852,
+   "least": 20,
+   "loss": 10,
+   "tiers": [
+    [
+     1,
+     0.0024
+    ],
+    [
+     1000,
+     0.0018
+    ],
+    [
+     5000,
+     0.0015
+    ],
+    [
+     10000,
+     0.0013
+    ],
+    [
+     50000,
+     0.0011
+    ],
+    [
+     50200,
+     0.0011
+    ]
+   ]
+  },
   "C44853692": {
    "model": "TAC5112IRGER",
    "library": "expand",
@@ -2178,5 +2314,6 @@
     ]
    ]
   }
- }
+ },
+ "note_2026-10-29_leds": "C160472, C23151, C4211 and C22843 added the same day for the Rev F indicator LEDs (same request, exact componentCode match); the other entries are the morning snapshot."
 }

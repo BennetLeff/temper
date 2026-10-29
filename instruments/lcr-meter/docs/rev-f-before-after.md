@@ -187,8 +187,9 @@ Rev E's committed estimate used $51.90, the 140 × 100 mm quote of 2026-10-20.
 |---|---|---|
 | Rev E, committed (standard assembly + JLC hand fit, $51.90 fabrication) | $357.77 | $485.80 |
 | **Rev F** (same parts and joints, $25.70 fabrication) | **$331.57** | **$459.60** |
+| Rev F with the indicator LEDs (2026-10-29: D4 side-view C160472, extended; D15–D20 and four basic resistor lines; `manufacturing/order-estimate-{2,5}.json`) | $339.83 | $468.25 |
 
-Assembly is identical: 23 extended and 39 basic/preferred lines, the same joints. The saving is the fabrication line, about $26 per order. JLC fabricates at least five, so the line is the same for two boards. Shipping, tax and coupons are excluded. Re-quote with the Gerbers at upload.
+Assembly is identical: 23 extended and 39 basic/preferred lines, the same joints. The indicator-LED change (last row) adds one extended line ($3.07), three basic lines ($1.53 each, standard assembly) and 12 placements: +$8.26 / +$8.65. The saving is the fabrication line, about $26 per order. JLC fabricates at least five, so the line is the same for two boards. Shipping, tax and coupons are excluded. Re-quote with the Gerbers at upload.
 
 ## 7. Enclosure
 
