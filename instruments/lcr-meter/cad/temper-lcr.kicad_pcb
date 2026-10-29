@@ -5744,7 +5744,7 @@
 				)
 			)
 		)
-		(property "Assembly" "Hand fit"
+		(property "Assembly" "DNP"
 			(at 0 0 0)
 			(layer "F.SilkS")
 			(hide yes)
@@ -5757,7 +5757,7 @@
 			)
 		)
 		(path "/2553708c-b166-56c2-b33d-43e66b884c5c/6c19dbd0-14e2-5172-818e-7fd07c6c21fb/3a94330e-855c-5f11-a32f-164edf3650d8")
-		(attr through_hole)
+		(attr through_hole dnp)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
 			(start -1.38 -1.38)
@@ -17421,7 +17421,7 @@
 				)
 			)
 		)
-		(property "Assembly" "Hand fit"
+		(property "Assembly" "DNP"
 			(at 0 0 0)
 			(layer "F.SilkS")
 			(hide yes)
@@ -17434,7 +17434,7 @@
 			)
 		)
 		(path "/2553708c-b166-56c2-b33d-43e66b884c5c/6c19dbd0-14e2-5172-818e-7fd07c6c21fb/d85af0da-c5d3-53cc-a737-f90cf548ead9")
-		(attr through_hole)
+		(attr through_hole dnp)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
 			(start -1.38 -1.38)
@@ -49805,7 +49805,7 @@
 				)
 			)
 		)
-		(property "Assembly" "Hand fit"
+		(property "Assembly" "DNP"
 			(at 0 0 0)
 			(layer "F.SilkS")
 			(hide yes)
@@ -49818,7 +49818,7 @@
 			)
 		)
 		(path "/2553708c-b166-56c2-b33d-43e66b884c5c/6c19dbd0-14e2-5172-818e-7fd07c6c21fb/cc16f2ea-2624-5eb3-93d6-1bdba3bf9472")
-		(attr through_hole)
+		(attr through_hole dnp)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
 			(start -1.38 -1.38)

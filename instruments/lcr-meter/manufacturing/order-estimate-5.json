@@ -8,12 +8,9 @@
    "U13",
    "U14"
   ],
-  "tht_joints": 26,
+  "tht_joints": 20,
   "tht_refs": [
    "J3",
-   "J4",
-   "J5",
-   "J6",
    "J7",
    "J8",
    "J9"
@@ -769,7 +766,7 @@
   {
    "lcsc": "C7402729",
    "mpn": "TSW-102-07-G-S",
-   "assembly": "Hand fit",
+   "assembly": "DNP",
    "library": "expand",
    "preferred": false,
    "need": 15,
@@ -797,7 +794,6 @@
   "lines": {
    "Engineering fee": 25.0,
    "Surface finish (ENIG)": 18.2,
-   "Material type (TG155)": 7.32,
    "Board": 8.7
   }
  },
@@ -806,7 +802,7 @@
   "SMT joints": 4.87,
   "X-ray": 12.3,
   "Confirm placement": 0.45,
-  "PCB fabrication": 59.22,
+  "PCB fabrication": 51.9,
   "Setup": 8.18,
   "Stencil": 1.53,
   "Extended-part fee": 70.61
@@ -816,21 +812,21 @@
   "SMT joints": 4.87,
   "X-ray": 12.3,
   "Confirm placement": 0.45,
-  "PCB fabrication": 59.22,
+  "PCB fabrication": 51.9,
   "Setup": 25.56,
   "Stencil": 8.21,
   "Feeder loading": 130.28,
   "Fixtures": 16.42
  },
  "jlc_hand_fit": {
-  "Hand-fit parts via JLC": 30.39,
-  "Manual joints": 2.13,
+  "Hand-fit parts via JLC": 25.88,
+  "Manual joints": 1.64,
   "Hand-soldering labour": 3.58
  },
  "totals": {
-  "economic": 372.47,
-  "standard": 472.62,
-  "jlc_hand_fit": 36.1
+  "economic": 365.15,
+  "standard": 465.3,
+  "jlc_hand_fit": 31.1
  },
  "excluded": [
   "shipping",

@@ -6,7 +6,7 @@ This complete meter occupies one PCB. Budget for obtaining one usable instrument
 
 `manufacturing/order_estimate.py 5` (KiCad Python) reproduces these figures and writes `manufacturing/order-estimate-5.json`. Inputs:
 - JLC assembly-library snapshot, read 2026-10-29 by `manufacturing/prices/fetch_jlc_parts.py` (`manufacturing/prices/jlc-parts-2026-10-29.json`): price tiers, stock, library class, attrition (`lossNumber`) and minimum quantity (`leastPatchNumber`) per part;
-- board counts: 197 placements, 609 SMT joints per board, leadless parts U1, U13 and U14, and 26 THT joints on J3–J9;
+- board counts: 197 placements, 609 SMT joints per board, leadless parts U1, U13 and U14, and 20 THT joints on the four BNCs (J4–J6 are not fitted);
 - the published fee table;
 - the 2026-10-20 fabrication instant quote, for the 140 × 100 mm outline, less the POFV via-filling lines (dropped 2026-10-29). The board is now 140 × 105 mm and has not been re-quoted; if the "Board" line ($8.70) scaled with area it would become about $9.14, but that scaling is an assumption, not a quote. Re-quote at upload.
 
@@ -20,14 +20,14 @@ Each line buys max(5 × per-board quantity + attrition, minimum). That is our re
 | SMT joints, 5 × 609 × $0.0016 | 4.87 |
 | X-ray, 15 leadless parts × $0.82 | 12.30 |
 | Confirm placement | 0.45 |
-| PCB fabrication, 5 pcs (detail below) | 59.22 |
-| **Economic PCBA total** | **372.47** |
-| JLC fits J3–J9: parts $30.39 (four BNCs $25.88), 130 manual joints $2.13, labour $3.58 | 36.10 |
-| **Five complete boards, before shipping and taxes** | **408.57** |
+| PCB fabrication, 5 pcs (detail below) | 51.90 |
+| **Economic PCBA total** | **365.15** |
+| JLC fits the four BNCs (J3, J7–J9): parts $25.88, 100 manual joints $1.64, labour $3.58 | 31.10 |
+| **Five complete boards, before shipping and taxes** | **396.25** |
 
-That is $81.71 per board, against $613.44 ($122.69 per board) for Rev D. Standard PCBA would cost $472.62 before hand fitting: higher setup and stencil fees, feeder loading on all 62 lines, and fixtures. Shipping, sales tax/VAT, import duty and coupons are excluded.
+That is $79.25 per board, against $613.44 ($122.69 per board) for Rev D. Standard PCBA would cost $465.30 before hand fitting: higher setup and stencil fees, feeder loading on all 62 lines, and fixtures. Shipping, sales tax/VAT, import duty and coupons are excluded.
 
-**Five boards with two assembled** (`order_estimate.py 2`, five bare PCBs in the fabrication quote): Economic PCBA $252.47 plus JLC hand fitting $18.71 = **$271.18**.
+**Five boards with two assembled** (`order_estimate.py 2`, five bare PCBs in the fabrication quote): Economic PCBA $245.15 plus JLC hand fitting $16.71 = **$261.86**.
 
 **What the 2026-10-21 accuracy upgrades added: +$36.87 for five boards** (from $416.59).
 - Four BNC jacks for four-terminal (Kelvin) connection, against one 2-pin header: +$25.83 in parts and +$1.48 in manual joints. Hand fit, so no extended-part fee.
@@ -36,6 +36,10 @@ That is $81.71 per board, against $613.44 ($122.69 per board) for Rev D. Standar
 - The calibration-kit card is a separate order ([calkit/README.md](../calkit/README.md)): about $117.70 for five (r2, 38 × 191 mm, with the 1 MΩ standard; fabrication still quoted at r1's 38 × 193 mm). Kelvin clip leads are bought separately: $13–35 generic, $72 Tonghui TH26011AS, $169 B&K TL889A.
 
 **USB-C power (2026-10-21): +$4.56 for five boards** (from $453.46). U16 (TPS2553, extended: $0.54 each plus the $3.07 line fee) and R110 (24 kΩ, basic) replace Q1 (AO3401A) and the DC jack, which JLC hand-fitted. The part snapshot was refetched for this change, so stock and prices are from later the same day.
+
+**Headers and laminate (2026-10-29): −$12.32 for five boards** (from $408.57).
+- J4–J6 (SWD and UART headers) are not fitted: −$5.00. A blank flash fails the boot2 CRC and the RP2040 ROM drops to USB mass storage (datasheet §2.8), so the first UF2 loads over USB; the lands stay for a hand-fitted header.
+- FR4-Standard TG 135–140, JLC's 4-layer default, instead of TG155: −$7.32. The 7628 stackup the parasitic extraction uses is unchanged, and the extraction's thin-prepreg high corner covers the dielectric spread.
 
 **Line consolidation and flash (2026-10-29): −$19.83 for five boards** (from $428.40).
 - Four extended lines merged into parts already on the BOM or free ones (−$12.28 in fees, +4 placements): the ±12 V LDO dividers (U11 82k/9.1k 1 % basic; U12 100k over 5k + 1k + 5k, all 0.1 % lines already on the BOM), C34/C35 270 pF built as two 560 pF in series (C114/C115), and R83 1.74 MΩ built as 240 kΩ + 1.5 MΩ (R83 + R111, preferred). Checks in [rev-e-plan.md](rev-e-plan.md).
@@ -62,10 +66,10 @@ That is $81.71 per board, against $613.44 ($122.69 per board) for Rev D. Standar
 | Engineering fee | 25.00 |
 | ~~POFV~~ (dropped 2026-10-29) | ~~18.28~~ |
 | ENIG | 18.20 |
-| TG155 material | 7.32 |
+| ~~TG155 material~~ (FR4-Standard TG 135–140 from 2026-10-29) | ~~7.32~~ |
 | Board | 8.70 |
 | ~~Horizontal electroless via plating~~ (forced by POFV) | ~~3.48~~ |
-| **Total, 0.3 mm tented vias** | **59.22** |
+| **Total, 0.3 mm tented vias, standard laminate** | **51.90** |
 
 - Every via on Rev E has a 0.3 mm drill and a 0.45 mm or larger pad, JLC's standard "0.3mm/(0.4/0.45mm)" option. The 0.2 mm option that Rev D needed added "Min via hole 0.2 mm" ($18.28) and a 4-wire Kelvin test ($17.47); the same quote page gave $80.98 without them. Re-quote at upload: the lines above are the 2026-10-20 quote less those two.
 - JLC leaves vias over 0.5 mm unfilled. Every via on this board is 0.30 mm.
@@ -82,7 +86,7 @@ Catalog snapshot checked 2026-10-29:
 | Machine-placed components per PCB | 197 | 44.83 |
 | Hand-fitted components per PCB | 7 | 6.06 |
 
-Both `SMT` and `JLC SMT` source tags count as machine placements. Hand fitting is three two-pin headers and four BNC jacks. The 62 unique SMT lines comprise 23 extended, 31 basic and eight preferred lines (BAT54S, SRV05-4, the 27 Ω, 430 kΩ, 40.2 kΩ, 240 kΩ and 1.5 MΩ resistors and the 4.7 pF capacitor). Catalog stock and prices do not guarantee eventual availability or the PCBA purchase price.
+Both `SMT` and `JLC SMT` source tags count as machine placements. Hand fitting is the four BNC jacks; the three two-pin headers (J4–J6) are not fitted. The 62 unique SMT lines comprise 23 extended, 31 basic and eight preferred lines (BAT54S, SRV05-4, the 27 Ω, 430 kΩ, 40.2 kΩ, 240 kΩ and 1.5 MΩ resistors and the 4.7 pF capacitor). Catalog stock and prices do not guarantee eventual availability or the PCBA purchase price.
 
 **No via filling (POFV).** The only vias in SMT pads are the 33 exposed-pad thermal vias (U1, U11, U12, U13, U14; 4–9 per pad), tented on the bottom; no via drill or ring touches any other land (`cad/audit_dfm.py`, `validation/via-in-pad-process.json`). The four-layer board does not qualify for JLC's free 6–20-layer POFV offer, so dropping it saves $21.76.
 
@@ -93,7 +97,7 @@ Add shipping and taxes. Supplier pack sizes and loss allowances can exceed simpl
 | Route | USD allowance | Assumptions |
 |---|---:|---|
 | Bare-board batch; hand assemble one | 140–220 | One component set, four-layer fabrication and ordinary shipping; reflow/rework tools already available |
-| Five JLC assemblies (Economic), JLC fits the headers | 410–480 | The estimate above plus shipping |
+| Five JLC assemblies (Economic), JLC fits the BNCs | 400–470 | The estimate above plus shipping |
 | Supply/cable/fixture/shunts/standards | Add 30–100+ | Excludes a reference meter, oscilloscope and enclosure |
 
 Use the full batch cost when deciding to build one instrument. Dividing it by two does not reduce the first payment. Taxes/import fees, special sourcing and a possible respin are outside these allowances.

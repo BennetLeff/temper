@@ -34,12 +34,13 @@ MFG = ROOT / 'manufacturing'
 # 'Min via hole 0.2 mm' and 4-wire Kelvin lines, which the 0.2 mm option forced, gives the $80.98
 # the same page quoted for 0.3 mm vias.  TG155 is kept as quoted.  2026-10-29: POFV ($18.28) and the
 # via plating line it forced ($3.48) are dropped: no via sits in a small land, the exposed-pad thermal
-# vias are tented (cad/audit_dfm.py), and "Tented" is JLC's default via covering.  Re-quote at upload.
+# vias are tented (cad/audit_dfm.py), and "Tented" is JLC's default via covering.  TG155 ($7.32) is
+# dropped for JLC's 4-layer default, FR4-Standard TG 135-140 (manufacturing/FABRICATION.md).  Re-quote at upload.
 FAB_QUOTE = {
     'qty': 5,
     'lines': {
         'Engineering fee': 25.00, 'Surface finish (ENIG)': 18.20,
-        'Material type (TG155)': 7.32, 'Board': 8.70,
+        'Board': 8.70,
     },
 }
 ECONOMIC = {'setup': 8.18, 'stencil': 1.53, 'extended_line': 3.07}
@@ -74,7 +75,7 @@ def board_counts():
             smt_joints += len(pads)
             if LEADLESS.search(fp.GetFPIDAsString()):
                 leadless.append(ref)
-        elif pads:
+        elif pads and not fp.IsDNP():
             tht_joints += len(pads)
             tht_refs.append(ref)
     return len(placed), smt_joints, sorted(leadless), tht_joints, sorted(tht_refs)
@@ -97,7 +98,7 @@ def main():
             'buy': qty, 'unit': unit, 'cost': round(qty * unit, 4), 'stock': part['stock'],
         })
     smt = [l for l in lines if l['assembly'] == 'SMT']
-    hand = [l for l in lines if l['assembly'] != 'SMT']
+    hand = [l for l in lines if l['assembly'] not in ('SMT', 'DNP')]
     extended = [l for l in smt if l['library'] == 'expand' and not l['preferred']]
     basic = [l for l in smt if l not in extended]
     xray_pcs = N * len(leadless)

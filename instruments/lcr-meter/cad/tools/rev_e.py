@@ -346,6 +346,12 @@ parts['R83'].update(value='240k', mpn='0603WAF2403T5E', manufacturer='UNI-ROYAL(
 add('R111', 'R1M5', 'power', {'1': 'CONV_FBN', '2': 'CONV_FBN_MID'}, (90.7, 127.6, 90),
     query='1.5M 1% 0603 C4172, TPS65131 inverter divider')
 
+# J4-J6 (SWD and UART headers) are not fitted: a blank flash fails the boot2 CRC and the ROM drops to
+# USB mass storage after 0.5 s (RP2040 datasheet 2.8, bootrom), and BOOTSEL (SW1) forces it, so the
+# UF2 loads over USB.  The lands stay for debugging; the headers are through-hole, for the home bench.
+for ref in ('J4', 'J5', 'J6'):
+    parts[ref]['assembly'] = 'DNP'
+
 # ---------------------------------------------------------------- power flags, notes, ranges
 design['power_flags'] = [n for n in design['power_flags'] if n not in ('3V3_DDS', '5VIN', '5V')] + ['USB_VBUS']
 design['notes'][0] = 'One PCB; USB-C power (5V, 1A current limit) and USB data; USB-ground referenced.'

@@ -111,6 +111,7 @@ for p in PARTS:
     for name,value in {'MPN':p['mpn'],'Manufacturer':p['manufacturer'],'LCSC':p['lcsc'],'Unit_USD':str(p['unit_usd']),'Assembly':p['assembly']}.items():
         f.SetField(name,value)
         f.GetField(name).SetVisible(False)
+    f.SetDNP(p['assembly']=='DNP')
     actual={pad.GetNumber() for pad in f.Pads() if pad.GetNumber()}
     if actual != set(p['pins']):
         raise ValueError(f"{ref}: footprint pins {actual} differ from source pins {set(p['pins'])}")

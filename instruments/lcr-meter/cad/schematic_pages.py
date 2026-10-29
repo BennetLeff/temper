@@ -100,7 +100,7 @@ def write_pages(root, data, symbols, geometry, pinout, local_fp, uid, q):
             pintext = " ".join(f'(pin {q(pn)} (uuid "{uid(ref+"pin"+pn)}"))' for pn in coords)
             chunks.append(
                 f'(symbol (lib_id "LCR:{p["kind"]}") (at {x} {y} 0) (unit 1) '
-                f'(in_bom yes) (on_board yes) (dnp no) (uuid "{uid(ref)}") {" ".join(proptext)} '
+                f'(in_bom yes) (on_board yes) (dnp {"yes" if p["assembly"] == "DNP" else "no"}) (uuid "{uid(ref)}") {" ".join(proptext)} '
                 f'{pintext} (instances (project "temper-lcr" (path "/{rootid}/{uid("sheet-"+sheet)}" '
                 f'(reference "{ref}") (unit 1)))))'
             )
@@ -251,7 +251,7 @@ def _write_afe(root, data, symbols, local_fp, uid, q, title, notes):
         identity=uid(ref) if unit==1 else uid(f'{ref}-unit-{unit}')
         pins=' '.join(f'(pin "{pn}" (uuid "{uid(ref+"pin"+pn)}"))' for pn in coords)
         add(f'(symbol (lib_id "LCR:{kind}") (at {x} {y} 0) (unit {unit}) (in_bom yes) (on_board yes) '
-            f'(dnp no) (uuid "{identity}") {" ".join(proptext)} {pins} '
+            f'(dnp {"yes" if p["assembly"]=="DNP" else "no"}) (uuid "{identity}") {" ".join(proptext)} {pins} '
             f'(instances (project "temper-lcr" (path "/{rootid}/{pageid}" (reference "{ref}") (unit {unit})))))')
         for pn,(dx,dy) in coords.items():
             endpoints[(ref,pn)]=(at[0]+dx,at[1]+dy)
