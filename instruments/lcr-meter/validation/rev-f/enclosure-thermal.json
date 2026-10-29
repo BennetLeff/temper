@@ -1,0 +1,315 @@
+{
+ "power_W": 2.3,
+ "ambient_C": 25.0,
+ "boxes_mm": {
+  "rev_e": [
+   150.0,
+   115.0,
+   36.0
+  ],
+  "rev_f": [
+   110.0,
+   110.0,
+   36.0
+  ]
+ },
+ "cases": {
+  "anodised 0.77, on table (bottom adiabatic)": {
+   "rev_e": {
+    "wall_rise_K": 6.43,
+    "faces": {
+     "vertical": {
+      "area_cm2": 190.8,
+      "h_conv": 4.95,
+      "Ra": "2.68e+04",
+      "q_conv_W": 0.608,
+      "q_rad_W": 0.586
+     },
+     "up": {
+      "area_cm2": 172.5,
+      "h_conv": 5.2,
+      "Ra": "1.98e+04",
+      "q_conv_W": 0.576,
+      "q_rad_W": 0.53
+     }
+    }
+   },
+   "rev_f": {
+    "wall_rise_K": 8.03,
+    "faces": {
+     "vertical": {
+      "area_cm2": 158.4,
+      "h_conv": 5.21,
+      "Ra": "3.31e+04",
+      "q_conv_W": 0.663,
+      "q_rad_W": 0.613
+     },
+     "up": {
+      "area_cm2": 121.0,
+      "h_conv": 5.73,
+      "Ra": "1.47e+04",
+      "q_conv_W": 0.556,
+      "q_rad_W": 0.468
+     }
+    }
+   }
+  },
+  "anodised 0.77, on feet": {
+   "rev_e": {
+    "wall_rise_K": 4.9,
+    "faces": {
+     "vertical": {
+      "area_cm2": 190.8,
+      "h_conv": 4.66,
+      "Ra": "2.07e+04",
+      "q_conv_W": 0.436,
+      "q_rad_W": 0.444
+     },
+     "up": {
+      "area_cm2": 172.5,
+      "h_conv": 4.86,
+      "Ra": "1.53e+04",
+      "q_conv_W": 0.411,
+      "q_rad_W": 0.401
+     },
+     "down": {
+      "area_cm2": 172.5,
+      "h_conv": 2.43,
+      "Ra": "1.53e+04",
+      "q_conv_W": 0.206,
+      "q_rad_W": 0.401
+     }
+    }
+   },
+   "rev_f": {
+    "wall_rise_K": 6.27,
+    "faces": {
+     "vertical": {
+      "area_cm2": 158.4,
+      "h_conv": 4.93,
+      "Ra": "2.62e+04",
+      "q_conv_W": 0.489,
+      "q_rad_W": 0.474
+     },
+     "up": {
+      "area_cm2": 121.0,
+      "h_conv": 5.39,
+      "Ra": "1.17e+04",
+      "q_conv_W": 0.408,
+      "q_rad_W": 0.362
+     },
+     "down": {
+      "area_cm2": 121.0,
+      "h_conv": 2.69,
+      "Ra": "1.17e+04",
+      "q_conv_W": 0.204,
+      "q_rad_W": 0.362
+     }
+    }
+   }
+  },
+  "black anodise 0.88, on table (bottom adiabatic)": {
+   "rev_e": {
+    "wall_rise_K": 6.06,
+    "faces": {
+     "vertical": {
+      "area_cm2": 190.8,
+      "h_conv": 4.89,
+      "Ra": "2.54e+04",
+      "q_conv_W": 0.565,
+      "q_rad_W": 0.63
+     },
+     "up": {
+      "area_cm2": 172.5,
+      "h_conv": 5.12,
+      "Ra": "1.87e+04",
+      "q_conv_W": 0.535,
+      "q_rad_W": 0.57
+     }
+    }
+   },
+   "rev_f": {
+    "wall_rise_K": 7.58,
+    "faces": {
+     "vertical": {
+      "area_cm2": 158.4,
+      "h_conv": 5.14,
+      "Ra": "3.14e+04",
+      "q_conv_W": 0.618,
+      "q_rad_W": 0.66
+     },
+     "up": {
+      "area_cm2": 121.0,
+      "h_conv": 5.65,
+      "Ra": "1.40e+04",
+      "q_conv_W": 0.518,
+      "q_rad_W": 0.504
+     }
+    }
+   }
+  },
+  "black anodise 0.88, on feet": {
+   "rev_e": {
+    "wall_rise_K": 4.59,
+    "faces": {
+     "vertical": {
+      "area_cm2": 190.8,
+      "h_conv": 4.6,
+      "Ra": "1.94e+04",
+      "q_conv_W": 0.402,
+      "q_rad_W": 0.474
+     },
+     "up": {
+      "area_cm2": 172.5,
+      "h_conv": 4.78,
+      "Ra": "1.44e+04",
+      "q_conv_W": 0.378,
+      "q_rad_W": 0.428
+     },
+     "down": {
+      "area_cm2": 172.5,
+      "h_conv": 2.39,
+      "Ra": "1.44e+04",
+      "q_conv_W": 0.189,
+      "q_rad_W": 0.428
+     }
+    }
+   },
+   "rev_f": {
+    "wall_rise_K": 5.88,
+    "faces": {
+     "vertical": {
+      "area_cm2": 158.4,
+      "h_conv": 4.86,
+      "Ra": "2.46e+04",
+      "q_conv_W": 0.452,
+      "q_rad_W": 0.507
+     },
+     "up": {
+      "area_cm2": 121.0,
+      "h_conv": 5.3,
+      "Ra": "1.10e+04",
+      "q_conv_W": 0.377,
+      "q_rad_W": 0.387
+     },
+     "down": {
+      "area_cm2": 121.0,
+      "h_conv": 2.65,
+      "Ra": "1.10e+04",
+      "q_conv_W": 0.189,
+      "q_rad_W": 0.387
+     }
+    }
+   }
+  },
+  "bare sheet 0.09, on table (bottom adiabatic)": {
+   "rev_e": {
+    "wall_rise_K": 10.18,
+    "faces": {
+     "vertical": {
+      "area_cm2": 190.8,
+      "h_conv": 5.5,
+      "Ra": "4.12e+04",
+      "q_conv_W": 1.068,
+      "q_rad_W": 0.111
+     },
+     "up": {
+      "area_cm2": 172.5,
+      "h_conv": 5.82,
+      "Ra": "3.05e+04",
+      "q_conv_W": 1.022,
+      "q_rad_W": 0.1
+     }
+    }
+   },
+   "rev_f": {
+    "wall_rise_K": 12.47,
+    "faces": {
+     "vertical": {
+      "area_cm2": 158.4,
+      "h_conv": 5.76,
+      "Ra": "4.96e+04",
+      "q_conv_W": 1.137,
+      "q_rad_W": 0.114
+     },
+     "up": {
+      "area_cm2": 121.0,
+      "h_conv": 6.37,
+      "Ra": "2.21e+04",
+      "q_conv_W": 0.962,
+      "q_rad_W": 0.087
+     }
+    }
+   }
+  },
+  "bare sheet 0.09, on feet": {
+   "rev_e": {
+    "wall_rise_K": 8.39,
+    "faces": {
+     "vertical": {
+      "area_cm2": 190.8,
+      "h_conv": 5.26,
+      "Ra": "3.45e+04",
+      "q_conv_W": 0.842,
+      "q_rad_W": 0.09
+     },
+     "up": {
+      "area_cm2": 172.5,
+      "h_conv": 5.55,
+      "Ra": "2.55e+04",
+      "q_conv_W": 0.803,
+      "q_rad_W": 0.082
+     },
+     "down": {
+      "area_cm2": 172.5,
+      "h_conv": 2.77,
+      "Ra": "2.55e+04",
+      "q_conv_W": 0.401,
+      "q_rad_W": 0.082
+     }
+    }
+   },
+   "rev_f": {
+    "wall_rise_K": 10.4,
+    "faces": {
+     "vertical": {
+      "area_cm2": 158.4,
+      "h_conv": 5.53,
+      "Ra": "4.21e+04",
+      "q_conv_W": 0.911,
+      "q_rad_W": 0.094
+     },
+     "up": {
+      "area_cm2": 121.0,
+      "h_conv": 6.1,
+      "Ra": "1.88e+04",
+      "q_conv_W": 0.768,
+      "q_rad_W": 0.072
+     },
+     "down": {
+      "area_cm2": 121.0,
+      "h_conv": 3.05,
+      "Ra": "1.88e+04",
+      "q_conv_W": 0.384,
+      "q_rad_W": 0.072
+     }
+    }
+   }
+  }
+ },
+ "parts": {
+  "U11/U12 TPS7A49/TPS7A30 LDO": {
+   "dissipation_W": [
+    0.239,
+    0.257
+   ],
+   "RthJA_C_per_W": 63,
+   "rise_above_local_air_K": [
+    15.1,
+    16.2
+   ],
+   "basis": "validation/power-spurs/regulator_check-rev-f.json rows \"dissipation at max raw / min out\" (2x estimated load); RthJA is the JEDEC-board figure the check quotes"
+  },
+  "not_modelled": "internal air rise between the board and the wall (needs a cavity model or a bench thermocouple); part temperature = ambient + wall rise + internal air rise + RthJA x P"
+ }
+}

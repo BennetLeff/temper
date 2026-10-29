@@ -1,0 +1,12 @@
+Source: The Engineering ToolBox, "Emissivity Coefficients Materials",
+https://www.engineeringtoolbox.com/emissivity-coefficients-d_447.html (fetched 2026-10-29).
+Rows transcribed verbatim from the page's table (material | emissivity):
+
+Aluminum Commercial sheet|0.09
+Aluminum Heavily Oxidized|0.2 - 0.31
+Aluminum Highly Polished|0.039 - 0.057
+Aluminum Anodized|0.77
+Anodize black|0.88
+
+Used by validation/rev-f/enclosure_thermal.py: 0.77 nominal (anodised), 0.88 (black anodise) as the
+high case, 0.09 (bare commercial sheet) as the no-finish worst case.
