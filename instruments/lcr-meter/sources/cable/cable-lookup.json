@@ -1,0 +1,18 @@
+{
+ "belden-8259": {
+  "type": "RG-58",
+  "url": "https://catalog.belden.com/techdata/EN/8259_techdata.pdf",
+  "fetched": "2026-10-29",
+  "note": "served gzip-compressed; sha256 is of the decompressed PDF; text in belden-8259-rg58.txt (pdftotext -layout)",
+  "pdf_sha256": "ba17d7172193bdb67014ba7b9746146029671184f71d6fb9534fee71d3f76a73",
+  "revision": "0.533 (2026-02-20)"
+ },
+ "belden-84316": {
+  "type": "RG-316",
+  "url": "https://catalog.belden.com/techdata/EN/84316_techdata.pdf",
+  "fetched": "2026-10-29",
+  "note": "served gzip-compressed; sha256 is of the decompressed PDF; text in belden-84316-rg316.txt (pdftotext -layout)",
+  "pdf_sha256": "2080fd7be8e18d649dc330a06f73d754ad1ce1fa892b371fb390a8fa67d10d27",
+  "revision": "0.507 (2026-02-20)"
+ }
+}

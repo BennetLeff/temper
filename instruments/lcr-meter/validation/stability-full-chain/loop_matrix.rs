@@ -404,6 +404,29 @@ fn analyze_loop(name: &str, bridge: f64) -> String {
         }
     }
     let min = points.iter().min_by(|a, b| a.3.total_cmp(&b.3)).unwrap();
+    let (mut dmin, mut fmin) = (min.3, min.0);
+    // Resonance-resolving refinement: the 120/decade grid (1.9 % steps) can step over a narrow
+    // line resonance of the cable models and miss a dip of |1+T|. Re-sweep each of the deepest
+    // local minima on a dense linear grid between its neighbours, then once more around the
+    // refined minimum. MIN_REFINE=0 disables it.
+    if std::env::var("MIN_REFINE").map(|v| v != "0").unwrap_or(true) {
+        let mut minima: Vec<usize> = (1..points.len() - 1)
+            .filter(|&i| points[i].3 <= points[i - 1].3 && points[i].3 <= points[i + 1].3)
+            .collect();
+        minima.sort_by(|&a, &b| points[a].3.total_cmp(&points[b].3));
+        for (j, &i) in minima.iter().take(REFINE_MINIMA).enumerate() {
+            let (mut lo, mut hi) = (points[i - 1].0, points[i + 1].0);
+            for level in 0..2 {
+                let (d, f, step) = refine(name, bridge, lo, hi, 201, j * 2 + level);
+                if d < dmin {
+                    dmin = d;
+                    fmin = f;
+                }
+                lo = (f - 2. * step).max(lo);
+                hi = (f + 2. * step).min(hi);
+            }
+        }
+    }
     format!(
         "| {name} | {} | {:.5} at {:.4} MHz |\n",
         if crossings.is_empty() {
@@ -411,9 +434,44 @@ fn analyze_loop(name: &str, bridge: f64) -> String {
         } else {
             crossings.join("; ")
         },
-        min.3,
-        min.0 / 1e6
+        dmin,
+        fmin / 1e6
     )
+}
+/// Number of local minima of |1+T| that `analyze_loop` re-sweeps.
+const REFINE_MINIMA: usize = 3;
+/// Re-run `{name}.cir` with `ac lin n lo hi` and return (min |1+T|, its frequency, grid step).
+fn refine(name: &str, bridge: f64, lo: f64, hi: f64, n: usize, k: usize) -> (f64, f64, f64) {
+    let tag = format!("{name}_refine{k}");
+    let mut deck = fs::read_to_string(format!("{name}.cir")).unwrap().replace(name, &tag);
+    let sweep = format!("ac lin {n} {lo:.6e} {hi:.6e}");
+    deck = deck
+        .lines()
+        .map(|l| if l.starts_with("ac dec ") { sweep.clone() } else { l.to_string() })
+        .collect::<Vec<_>>()
+        .join("\n")
+        + "\n";
+    fs::write(format!("{tag}.cir"), deck).unwrap();
+    let out = Command::new(std::env::var("NGSPICE").unwrap_or("/opt/homebrew/bin/ngspice".into()))
+        .args(["-b", &format!("{tag}.cir")])
+        .output()
+        .unwrap();
+    assert!(out.status.success(), "{tag}: simulator error");
+    let e = data(&format!("{tag}_e.dat"));
+    let f = data(&format!("{tag}_f.dat"));
+    for suffix in [".cir", "_e.dat", "_f.dat", "_dc.dat"] {
+        let _ = fs::remove_file(format!("{tag}{suffix}"));
+    }
+    let mut best = (f64::INFINITY, 0., (hi - lo) / (n - 1) as f64);
+    for (e, f) in e.iter().zip(f.iter()) {
+        let t = return_ratio(C::n(e[1], e[2]), C::n(e[3], e[4]), C::n(f[1], f[2]), C::n(f[3], f[4]), bridge);
+        let d = (C::n(1., 0.) + t).abs();
+        if d < best.0 {
+            best.0 = d;
+            best.1 = e[0];
+        }
+    }
+    best
 }
 fn main() {
     let requested = std::env::args().nth(1).unwrap_or("nominal".into());
@@ -1043,6 +1101,15 @@ fn main() {
     if let Some(cng) = mode.strip_prefix("revfcng") {
         cases = kelvin_cases_on(cng.parse().unwrap(), "revfrelay", REVF_BOARD_NOM, REVF_BOARD_HIGH, REVF_LEAD, REVF_CAPLEAD);
     }
+    // kelvinlossycng{C} / revflossycng{C}: the same grids with the 1 m leads as lossy RG-58
+    // (coax_lossy.rs, fitted to the Belden 8259 datasheet by coax_model.py) instead of the
+    // lossless LC ladder; case prefixes kelvinlossyrelay_ / revflossyrelay_.
+    if let Some(cng) = mode.strip_prefix("kelvinlossycng") {
+        cases = kelvin_cases_on(cng.parse().unwrap(), "kelvinlossyrelay", REVE_BNC_BOARD_NOM, REVE_BNC_BOARD_HIGH, REVE_BNC_LEAD, REVE_BNC_CAPLEAD);
+    }
+    if let Some(cng) = mode.strip_prefix("revflossycng") {
+        cases = kelvin_cases_on(cng.parse().unwrap(), "revflossyrelay", REVF_BOARD_NOM, REVF_BOARD_HIGH, REVF_LEAD, REVF_CAPLEAD);
+    }
     let mut report="# Strict full-chain bilateral loop matrix\n\nAll printed cases pass internal DC bias checks. All unity crossings are reported. Angles are signed principal angular separation from -1, not a stability verdict; downward crossings with the usual negative-phase branch correspond to conventional phase margin. Upward crossings must be assessed with the complete return trajectory.\n\n| Case / loop | Unity crossings / signed angle from -1 | Minimum return difference |\n|---|---|---|\n".to_string();
     if final_design {
         for c in &mut cases {
@@ -1095,7 +1162,7 @@ fn main() {
         {
             // The heaviest fixture loads also load the source driver and both sense followers.
             vec!["tia", "drive", "high", "low"]
-        } else if mode.starts_with("kelvin") || mode.starts_with("revfest") || mode.starts_with("revfpess") || mode.starts_with("revfcng") {
+        } else if mode.starts_with("kelvin") || mode.starts_with("revfest") || mode.starts_with("revfpess") || mode.starts_with("revfcng") || mode.starts_with("revflossy") {
             vec!["tia", "drive", "high", "low"]
         } else if (mode.starts_with("fixedrelay") || mode.starts_with("reverelay")) && c.name.contains("_loops_") {
             vec!["drive", "high", "low"]
@@ -1277,6 +1344,8 @@ include!("reve_bnc_extracted.rs");
 include!("revf_est_extracted.rs");
 // Rev F hand-routed board, FD-extracted (../layout-parasitics/run_reve.sh revf).
 include!("revf_extracted.rs");
+// Lossy RG-58 per-metre networks (coax_model.py, Belden 8259 datasheet).
+include!("coax_lossy.rs");
 /// `reverelaycng{C}`: `fixedrelaycng{C}` with the Rev E extraction in place of REVD_BOARD and the
 /// Rev D RF leads. The board netlist already holds all TIA_OUT copper (relay pads included), so
 /// `dc` = 0; coc/ccc/cpp/lrel/rc stay the relay-internal NOMINAL/STRESS estimates. Nominal relay
@@ -1374,6 +1443,9 @@ fn reve_relay_cases(cng: f64, r104: bool) -> Vec<Case> {
 /// One metre of RG-58-class coax (50 ohm, 101 pF/m, 252.5 nH/m, lossless, 20 sections), shield at
 /// board ground, from `from` to `to`.
 fn coax_1m(tag: &str, from: &str, to: &str) -> String {
+    if LOSSY_COAX.with(|c| c.get()) {
+        return coax_1m_lossy(tag, from, to);
+    }
     let n = 20;
     let dx = 1. / n as f64;
     let mut s = String::new();
@@ -1381,6 +1453,36 @@ fn coax_1m(tag: &str, from: &str, to: &str) -> String {
     for k in 0..n {
         let next = if k + 1 == n { to.to_string() } else { format!("{tag}_n{k}") };
         s += &format!("Lw{tag}{k} {prev} {next} {}\nCw{tag}{k} {next} 0 {}\n", 252.5e-9 * dx, 101e-12 * dx);
+        prev = next;
+    }
+    s
+}
+thread_local! {
+    /// Set by `kelvin_cases_on` for the *lossy* modes: `coax_1m` then emits `coax_1m_lossy`.
+    static LOSSY_COAX: std::cell::Cell<bool> = std::cell::Cell::new(false);
+}
+/// One metre of lossy RG-58 (Belden 8259), 20 sections: per section the external 252.5 nH/m,
+/// DC resistance, a Foster R||L chain for skin effect (R ~ sqrt(f), internal X = R) and, to ground,
+/// C_main plus Debye R-C branches for the dielectric-equivalent loss (G ~ f). Values from coax_lossy.rs.
+fn coax_1m_lossy(tag: &str, from: &str, to: &str) -> String {
+    let n = 20;
+    let dx = 1. / n as f64;
+    let mut s = String::new();
+    let mut prev = from.to_string();
+    for k in 0..n {
+        let next = if k + 1 == n { to.to_string() } else { format!("{tag}_n{k}") };
+        let mut node = format!("{tag}_s{k}a");
+        s += &format!("Lw{tag}{k} {prev} {node} {}\nRw{tag}{k} {node} {tag}_s{k}b {}\n", 252.5e-9 * dx, COAX_RDC * dx);
+        node = format!("{tag}_s{k}b");
+        for (b, (r, l)) in COAX_FOSTER.iter().enumerate() {
+            let nx = if b + 1 == COAX_FOSTER.len() { next.clone() } else { format!("{tag}_s{k}f{b}") };
+            s += &format!("Rf{tag}{k}_{b} {node} {nx} {}\nLf{tag}{k}_{b} {node} {nx} {}\n", r * dx, l * dx);
+            node = nx;
+        }
+        s += &format!("Cw{tag}{k} {next} 0 {}\n", COAX_C_MAIN * dx);
+        for (b, (r, c)) in COAX_DEBYE.iter().enumerate() {
+            s += &format!("Rd{tag}{k}_{b} {next} {tag}_s{k}d{b} {}\nCd{tag}{k}_{b} {tag}_s{k}d{b} 0 {}\n", r / dx, c * dx);
+        }
         prev = next;
     }
     s
@@ -1428,6 +1530,7 @@ fn kelvin_cases_on(cng: f64, prefix: &str, board_nom: [&str; 3], board_high: [&s
                 v
             };
             let strays: Vec<f64> = if range == "r100" { vec![100., 220., 470., 1000.] } else { vec![1000.] };
+            LOSSY_COAX.with(|c| c.set(prefix.contains("lossy")));
             let leads = format!("{}{}{}{}", coax_1m("hc", "hi", "h_dut"), coax_1m("hp", "hpot", "h_dut"), coax_1m("lc", "low", "l_dut"), coax_1m("lp", "lpot", "l_dut"));
             for ((n, dut), (_, dutc)) in duts("hi", "low").into_iter().zip(duts("h_dut", "l_dut")) {
                 let mut fx: Vec<(String, String, f64)> = vec![("nocable".into(), dut.clone(), 0.), ("coax1m".into(), format!("{leads}{dutc}"), 0.)];

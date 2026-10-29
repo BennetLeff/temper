@@ -29,7 +29,7 @@ def left_of_minus_one(name):
 
 ROW = re.compile(r'^\| (final_\S+) \| (.*) \| ([0-9.eE+-]+) at ([0-9.]+) MHz \|$')
 CROSS = re.compile(r'([0-9.]+) MHz / (-?[0-9.]+)° \((down|up)\)')
-NAME = re.compile(r'(?:kelvin|revfest|revfpess|revf)relay_(r100k|r100|r5k)_(\w+?)_(nocable|coax1m|cur)_stray([0-9.]+)_risolo22_(bnom|bhigh)_(nom|str)_(k4open|k4closed)_')
+NAME = re.compile(r'(?:kelvin|revfest|revfpess|revf|kelvinlossy|revflossy)relay_(r100k|r100|r5k)_(\w+?)_(nocable|coax1m|cur)_stray([0-9.]+)_risolo22_(bnom|bhigh)_(nom|str)_(k4open|k4closed)_')
 
 
 def main():
