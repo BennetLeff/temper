@@ -201,6 +201,7 @@ The trunk runs from U16 OUT (left edge) to U13: 99 mm Manhattan, against 26 mm f
 | 2026-10-29 | **Six debug LEDs, all basic (C2286 red 0603 + 0603 thick film), ~1 mA each**: rail LEDs D15 5V (R113 3k), D16 3V3 (R114 1.5k), D17 +12 (R115 10k), D18 −12 (R116 10k, anode on GND) at the rail monitors (102–110, 127–130); D19 HB (GPIO23, R117 1.5k) and D20 FLT (GPIO22, R118 1.5k) west of U1 at (58.8 / 61.2, 106–109). Silk 5V 3V3 +12 −12 HB FLT | No basic green 0603 exists (C12624/C72043 are extended), so all six use the red part already on the BOM: no new extended line. HB/FLT sit beside U1 because only a 3-line In2 gap (RUN via / SWDIO) leaves U1's free west pins; the rail LEDs sit where all four rails already have copper. Nearest listed analog part: K3 32.1 mm (R113), U6 47.2 mm, U7 57.2 mm, BNCs ≥ 55 mm (centres). U14 is 17.6 mm from D20, on the digital side of the codec |
 | 2026-10-29 | **STATUS moves north; HEARTBEAT/FAULT on GPIO23/22** | STATUS (GPIO25) no longer runs south to R12: STATUS, HEARTBEAT and FAULT leave U1 in three F.Cu lanes, drop to In2 and run as a 0.36 mm-pitch bus north between the RUN via and SWDIO; STATUS continues west along y 112 and up the west edge (x 51, In2 under the In1 plane, 2 mm from FB1/5VA at its closest, 19.5 mm from U5, the nearest op-amp) to R12. Hand-placed coordinates in `rev_f_routes.py`; no autorouter. No analog-net copper moved, so the G1 extraction and the stability matrix are not rerun |
 | 2026-10-29 | **Photocurrent and ground noise from the LEDs: negligible** | The rail LEDs are a constant DC load (a step only at power-up); HB and FLT are dark during every capture (firmware turns them off in `capture()`), and STATUS switches only before a capture starts and after it ends, so no LED current changes while the codec samples |
+| 2026-10-29 | **Debug LEDs halved to about 0.5 mA** (owner: "half it if you think it's justified"): R113 5.1k (C23186), R114/R117/R118 3k (C4211), R115/R116 24k 1 % (C23352); D4 unchanged | The ±12 V pair costs 5.4× its current at the 5 V input (LDOs, then the TPS65131 at 0.64): 11.7 of the 20.8 mA. Halving takes the LED share to 11.7 mA and the USB estimate from 0.4708 to 0.4617 A (29 → 38 mA margin) at no cost: all three values are already on the BOM (R1/R2, R110), so one resistor line (1.5k C22843) disappears. A C2286 is plainly visible at 0.5 mA with the lid off. D4 keeps 3.6 mA to show through the wall hole. Layout, copper and silk unchanged |
 
 ## Indicator LEDs (2026-10-29)
 
@@ -211,14 +212,14 @@ The trunk runs from U16 OUT (left edge) to U13: 99 mm Manhattan, against 26 mm f
 | Ref | Silk | Driven by | Resistor | Current (nom / worst high) | Part |
 |---|---|---|---|---|---|
 | D4 | (front panel) | GPIO25 STATUS, lit during a capture | R12 390 Ω | 3.6 / 4.3 mA | LTST-S270KFKT C160472 (extended) |
-| D15 | 5V | 5 V rail | R113 3 kΩ | 1.07 / 1.31 mA | KT-0603R C2286 |
-| D16 | 3V3 | 3V3 rail | R114 1.5 kΩ | 1.0 / 1.18 mA | KT-0603R C2286 |
-| D17 | +12 | +12 V rail | R115 10 kΩ | 1.0 / 1.09 mA | KT-0603R C2286 |
-| D18 | −12 | −12 V rail (anode on GND) | R116 10 kΩ | 1.0 / 1.07 mA | KT-0603R C2286 |
-| D19 | HB | GPIO23 HEARTBEAT | R117 1.5 kΩ | 1.0 / 1.18 mA | KT-0603R C2286 |
-| D20 | FLT | GPIO22 FAULT | R118 1.5 kΩ | 1.0 / 1.18 mA | KT-0603R C2286 |
+| D15 | 5V | 5 V rail | R113 5.1 kΩ | 0.63 / 0.77 mA | KT-0603R C2286 |
+| D16 | 3V3 | 3V3 rail | R114 3 kΩ | 0.5 / 0.59 mA | KT-0603R C2286 |
+| D17 | +12 | +12 V rail | R115 24 kΩ 1 % | 0.42 / 0.45 mA | KT-0603R C2286 |
+| D18 | −12 | −12 V rail (anode on GND) | R116 24 kΩ 1 % | 0.42 / 0.45 mA | KT-0603R C2286 |
+| D19 | HB | GPIO23 HEARTBEAT | R117 3 kΩ | 0.5 / 0.59 mA | KT-0603R C2286 |
+| D20 | FLT | GPIO22 FAULT | R118 3 kΩ | 0.5 / 0.59 mA | KT-0603R C2286 |
 
-Worst-case-high currents are `regulator_check.py`'s (rail maximum, resistor −1 %, VF floor 1.6 V / 1.7 V). Gates after the change: ERC 0; DRC 0 / 0 / 0 with schematic parity; pre-DRC 0 / 0; `independent_check.py f` 656 pins, 0 findings; `audit_dfm.py` 33 exposed-pad thermal vias only; layout audit rerun; `regulator_check.py` 51 PASS, 2 FLAG (unchanged), 0 FAIL, input estimate 0.4708 A (0.45 A + 20.8 mA of LEDs) against 0.5 A; `rail_monitor_window.py` windows unchanged. Order estimate (standard assembly, JLC-hand-fit BNCs): 2 boards $339.83 (+$8.26), 5 boards $468.25 (+$8.65); the delta is one extended feeder ($3.07), three basic feeders ($4.59, Standard only) and parts.
+Worst-case-high currents are `regulator_check.py`'s (rail maximum, resistor −1 %, VF floor 1.6 V / 1.7 V). Gates after the change: ERC 0; DRC 0 / 0 / 0 with schematic parity; pre-DRC 0 / 0; `independent_check.py f` 656 pins, 0 findings; `audit_dfm.py` 33 exposed-pad thermal vias only; layout audit rerun; `regulator_check.py` 51 PASS, 2 FLAG (unchanged), 0 FAIL, input estimate 0.4617 A (0.45 A + 11.7 mA of LEDs, after the halving below; 0.4708 A at 1 mA) against 0.5 A; `rail_monitor_window.py` windows unchanged. Order estimate (standard assembly, JLC-hand-fit BNCs): 2 boards $338.26 (+$6.69), 5 boards $466.68 (+$7.08); the delta is one extended feeder ($3.07), two basic feeders ($3.06, Standard only) and parts. Economic assembly + hand fit: $235.05 / $363.47.
 
 ## 6. Risks
 

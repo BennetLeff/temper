@@ -17,7 +17,7 @@
   ]
  },
  "extended_lines": 24,
- "basic_or_preferred_lines": 42,
+ "basic_or_preferred_lines": 41,
  "lines": [
   {
    "lcsc": "C57112",
@@ -85,10 +85,10 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 30,
-   "buy": 40,
+   "need": 20,
+   "buy": 30,
    "unit": 0.0018,
-   "cost": 0.072,
+   "cost": 0.054,
    "stock": 37261230
   },
   {
@@ -114,18 +114,6 @@
    "unit": 0.0027,
    "cost": 0.054,
    "stock": 174171
-  },
-  {
-   "lcsc": "C22843",
-   "mpn": "0603WAF1501T5E",
-   "assembly": "SMT",
-   "library": "base",
-   "preferred": false,
-   "need": 15,
-   "buy": 25,
-   "unit": 0.002,
-   "cost": 0.05,
-   "stock": 3702131
   },
   {
    "lcsc": "C22807",
@@ -169,10 +157,10 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 5,
-   "buy": 20,
+   "need": 15,
+   "buy": 25,
    "unit": 0.0024,
-   "cost": 0.048,
+   "cost": 0.06,
    "stock": 677865
   },
   {
@@ -205,10 +193,10 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 5,
-   "buy": 20,
+   "need": 15,
+   "buy": 25,
    "unit": 0.0024,
-   "cost": 0.048,
+   "cost": 0.06,
    "stock": 7044852
   },
   {
@@ -301,10 +289,10 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 10,
-   "buy": 20,
+   "need": 15,
+   "buy": 25,
    "unit": 0.0015,
-   "cost": 0.03,
+   "cost": 0.0375,
    "stock": 21527625
   },
   {
@@ -860,7 +848,7 @@
   "note": "Price read only. Shipping, tax and coupons excluded. Re-quote with the Gerbers at upload."
  },
  "economic": {
-  "SMT parts": 205.5,
+  "SMT parts": 205.47,
   "SMT joints": 5.06,
   "X-ray": 12.3,
   "Confirm placement": 0.45,
@@ -870,14 +858,14 @@
   "Extended-part fee": 73.68
  },
  "standard": {
-  "SMT parts": 205.5,
+  "SMT parts": 205.47,
   "SMT joints": 5.06,
   "X-ray": 12.3,
   "Confirm placement": 0.45,
   "PCB fabrication": 25.7,
   "Setup": 25.56,
   "Stencil": 8.21,
-  "Feeder loading": 137.94,
+  "Feeder loading": 136.41,
   "Fixtures": 16.42
  },
  "jlc_hand_fit": {
@@ -886,8 +874,8 @@
   "Hand-soldering labour": 3.58
  },
  "totals": {
-  "economic": 332.41,
-  "standard": 437.15,
+  "economic": 332.37,
+  "standard": 435.58,
   "jlc_hand_fit": 31.1
  },
  "excluded": [

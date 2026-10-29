@@ -38,7 +38,7 @@ Rev F adds an orange front-panel light and six red debug LEDs, visible with the 
 | D20 | FLT, west of U1 | fault (GPIO22) | off after a passing boot self-test; on if the self-test or the boot relay reset failed, or after any `ERR` reply; a successful command clears it unless the self-test is still failing; dark during captures |
 | D4 | front panel, left of HCUR | STATUS (GPIO25) | off at idle; on for the duration of each capture |
 
-With a blank flash (no firmware) HB, FLT and STATUS stay dark: the RP2040 pads reset as inputs with pull-downs. HB blinks with the bench supply alone, because the firmware's main loop runs once it sees VBUS, computer or not. The rail LEDs draw about 4 mA in all (5 V input share of all LEDs about 21 mA, `regulator_check.py`), so record the idle current in §2.1 with them lit.
+With a blank flash (no firmware) HB, FLT and STATUS stay dark: the RP2040 pads reset as inputs with pull-downs. HB blinks with the bench supply alone, because the firmware's main loop runs once it sees VBUS, computer or not. The rail LEDs draw about 2 mA in all (about 0.4–0.6 mA each; 5 V input share of all LEDs about 12 mA, `regulator_check.py`), so record the idle current in §2.1 with them lit.
 
 ## 2. Power and rails, no computer
 

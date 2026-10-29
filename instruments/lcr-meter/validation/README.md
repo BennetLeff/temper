@@ -4,7 +4,7 @@
 
 Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm (no autorouter), SHA256:
 
-`7231231de75749b5e9b704685c4fb0420c084eeb9692c03c8b6e063178c4cef6`
+`7e3d62381bb02c1f0478286f98f5ea8f3cc6b64f17d46b788937b15180147981`
 
 (2026-10-29, after the indicator-LED change: D4 front-panel side-looking LED, D15–D20 debug LEDs; [rev-f-plan.md](../docs/rev-f-plan.md) "Indicator LEDs".) KiCad 10.0.4. The full before/after comparison with Rev E is [rev-f-before-after.md](../docs/rev-f-before-after.md); the plan, gates and decisions are [rev-f-plan.md](../docs/rev-f-plan.md).
 
@@ -16,7 +16,7 @@ Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm
 | Layout audit | decoupling, exposed-pad vias, regulator support parts, feedback lengths | `layout-audit-rev-f.json` (`cad/tools/audit_layout.py`) |
 | Extracted parasitics (gate G1, high corner) | source 11.39 pF ≤ 13.7, tia 13.63 pF ≤ 14.7 | `layout-parasitics/extracted_revf.json` (`run_reve.sh revf`) |
 | Loop stability, as built (not rerun for the LEDs: no analog-net copper moved) | 360 cases with dip refinement; worst drive 47.84°, TIA 57.32°, HIGH 57.56°, LOW 56.71°; lossy RG-58 leads within 0.4° | `stability-full-chain/` (`revfcng100`, `revflossycng100`) |
-| Regulators | 51 PASS, 2 FLAG (USB unconfigured draw; R95/R96 headroom with TCR), 0 FAIL; input estimate 0.4708 A with the LEDs (29 mA under 0.5 A); 5 V trunk 39.7 mV | `power-spurs/regulator_check.json` |
+| Regulators | 51 PASS, 2 FLAG (USB unconfigured draw; R95/R96 headroom with TCR), 0 FAIL; input estimate 0.4617 A with the LEDs at about 0.5 mA (38 mA under 0.5 A); 5 V trunk 39.7 mV | `power-spurs/regulator_check.json` |
 | Rail monitor windows | unchanged with the ±12 V LED loads: +12 [10.2, 13.4] V, −12 [10.5, 14.1] V | `power-spurs/rail_monitor_window.json` |
 | Parts and placements | 213 fitted of 216, 209 SMT placements, 66 SMT lines (24 extended: C160472 added); LED CPL offsets 0 (C2286 RMS 0.04 mm, C160472 RMS 0.10 mm) | `cad-bom-parity.json`, `../sources/placement-rev-c.json` |
 | Switcher pickup (relative to Rev E, not a bound) | TIA C104 loop +6.0 dB, RF100K loop +4.3 dB; Kelvin inputs −23 to −42 dB | `power-spurs/switcher_pickup-rev-f.json` |

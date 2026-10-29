@@ -69,17 +69,20 @@ def _part(ref, kind, value, pins, mpn, lcsc, usd, stock, query, fp=None, mfr='UN
 
 _RED = dict(kind='LED', value='RED', mpn='KT-0603R', lcsc='C2286', usd=0.0073, stock=7351610, mfr='Hubei KENTO Elec')
 # unit price: JLC 1-piece tier, manufacturing/prices/jlc-parts-2026-10-29.json (10k as already on the BOM)
-_R = {'3k': ('0603WAF3001T5E', 'C4211', 0.0024, 7044852), '1.5k': ('0603WAF1501T5E', 'C22843', 0.002, 3702131),
-      '10k': ('0603WAF1002T5E', 'C25804', 0.0054, 38200936)}
+# Values already on the BOM (5.1k R1/R2, 3k, 24k 1% R110), so the LEDs add no resistor line.  About 0.5 mA
+# each (2026-10-29, halved from 1 mA): the +-12 V pair costs 5.4x its current at the 5 V input
+# (through the LDOs and the TPS65131 at 0.64), and a C2286 is plainly visible at 0.5 mA with the lid off.
+_R = {'3k': ('0603WAF3001T5E', 'C4211', 0.0024, 7044852), '5.1k': ('0603WAF5101T5E', 'C23186', 0.0015, 21527625),
+      '24k 1%': ('0603WAF2402T5E', 'C23352', 0.0024, 677865)}
 NEW_PARTS = []
 # (LED, resistor, rail/GPIO net, LED net, resistor value, reason); the -12 V LED is reversed (anode on GND)
 for d, r, rail, led, rv, why in (
-        ('D15', 'R113', '5V', 'LED_5V', '3k', '(5.0 - 1.8 V) / 3k = 1.07 mA'),
-        ('D16', 'R114', '3V3', 'LED_3V3', '1.5k', '(3.3 - 1.8 V) / 1.5k = 1.0 mA'),
-        ('D17', 'R115', '12V', 'LED_P12', '10k', '(11.9 - 1.8 V) / 10k = 1.0 mA, 10 mW'),
-        ('D18', 'R116', '-12V', 'LED_N12', '10k', '(11.9 - 1.8 V) / 10k = 1.0 mA, 10 mW; LED anode on GND'),
-        ('D19', 'R117', 'HEARTBEAT', 'LED_HB', '1.5k', 'GPIO23 high: (3.3 - 1.8 V) / 1.5k = 1.0 mA'),
-        ('D20', 'R118', 'FAULT', 'LED_FLT', '1.5k', 'GPIO22 high: (3.3 - 1.8 V) / 1.5k = 1.0 mA')):
+        ('D15', 'R113', '5V', 'LED_5V', '5.1k', '(5.0 - 1.8 V) / 5.1k = 0.63 mA'),
+        ('D16', 'R114', '3V3', 'LED_3V3', '3k', '(3.3 - 1.8 V) / 3k = 0.5 mA'),
+        ('D17', 'R115', '12V', 'LED_P12', '24k 1%', '(11.9 - 1.8 V) / 24k = 0.42 mA, 4 mW'),
+        ('D18', 'R116', '-12V', 'LED_N12', '24k 1%', '(11.9 - 1.8 V) / 24k = 0.42 mA, 4 mW; LED anode on GND'),
+        ('D19', 'R117', 'HEARTBEAT', 'LED_HB', '3k', 'GPIO23 high: (3.3 - 1.8 V) / 3k = 0.5 mA'),
+        ('D20', 'R118', 'FAULT', 'LED_FLT', '3k', 'GPIO22 high: (3.3 - 1.8 V) / 3k = 0.5 mA')):
     mpn, lcsc, usd, stock = _R[rv]
     NEW_PARTS.append(_part(r, 'R', rv, {'1': led, '2': rail},          # pad 2: rail / GPIO side
                            mpn, lcsc, usd, stock, f'{rv}ohm 0603 debug LED resistor: {why}'))

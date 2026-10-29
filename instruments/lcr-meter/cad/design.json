@@ -6132,7 +6132,7 @@
     },
     {
       "ref": "R113",
-      "value": "3k",
+      "value": "5.1k",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -6145,14 +6145,14 @@
         90
       ],
       "sheet": "digital",
-      "mpn": "0603WAF3001T5E",
+      "mpn": "0603WAF5101T5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C4211",
-      "unit_usd": 0.0024,
-      "stock": 7044852,
+      "lcsc": "C23186",
+      "unit_usd": 0.0015,
+      "stock": 21527625,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "3kohm 0603 debug LED resistor: (5.0 - 1.8 V) / 3k = 1.07 mA"
+      "source_query": "5.1kohm 0603 debug LED resistor: (5.0 - 1.8 V) / 5.1k = 0.63 mA"
     },
     {
       "ref": "D15",
@@ -6180,7 +6180,7 @@
     },
     {
       "ref": "R114",
-      "value": "1.5k",
+      "value": "3k",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -6193,14 +6193,14 @@
         90
       ],
       "sheet": "digital",
-      "mpn": "0603WAF1501T5E",
+      "mpn": "0603WAF3001T5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C22843",
-      "unit_usd": 0.002,
-      "stock": 3702131,
+      "lcsc": "C4211",
+      "unit_usd": 0.0024,
+      "stock": 7044852,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "1.5kohm 0603 debug LED resistor: (3.3 - 1.8 V) / 1.5k = 1.0 mA"
+      "source_query": "3kohm 0603 debug LED resistor: (3.3 - 1.8 V) / 3k = 0.5 mA"
     },
     {
       "ref": "D16",
@@ -6228,7 +6228,7 @@
     },
     {
       "ref": "R115",
-      "value": "10k",
+      "value": "24k 1%",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -6241,14 +6241,14 @@
         90
       ],
       "sheet": "digital",
-      "mpn": "0603WAF1002T5E",
+      "mpn": "0603WAF2402T5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C25804",
-      "unit_usd": 0.0054,
-      "stock": 38200936,
+      "lcsc": "C23352",
+      "unit_usd": 0.0024,
+      "stock": 677865,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "10kohm 0603 debug LED resistor: (11.9 - 1.8 V) / 10k = 1.0 mA, 10 mW"
+      "source_query": "24k 1%ohm 0603 debug LED resistor: (11.9 - 1.8 V) / 24k = 0.42 mA, 4 mW"
     },
     {
       "ref": "D17",
@@ -6276,7 +6276,7 @@
     },
     {
       "ref": "R116",
-      "value": "10k",
+      "value": "24k 1%",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -6289,14 +6289,14 @@
         90
       ],
       "sheet": "digital",
-      "mpn": "0603WAF1002T5E",
+      "mpn": "0603WAF2402T5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C25804",
-      "unit_usd": 0.0054,
-      "stock": 38200936,
+      "lcsc": "C23352",
+      "unit_usd": 0.0024,
+      "stock": 677865,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "10kohm 0603 debug LED resistor: (11.9 - 1.8 V) / 10k = 1.0 mA, 10 mW; LED anode on GND"
+      "source_query": "24k 1%ohm 0603 debug LED resistor: (11.9 - 1.8 V) / 24k = 0.42 mA, 4 mW; LED anode on GND"
     },
     {
       "ref": "D18",
@@ -6324,7 +6324,7 @@
     },
     {
       "ref": "R117",
-      "value": "1.5k",
+      "value": "3k",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -6337,14 +6337,14 @@
         270
       ],
       "sheet": "digital",
-      "mpn": "0603WAF1501T5E",
+      "mpn": "0603WAF3001T5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C22843",
-      "unit_usd": 0.002,
-      "stock": 3702131,
+      "lcsc": "C4211",
+      "unit_usd": 0.0024,
+      "stock": 7044852,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "1.5kohm 0603 debug LED resistor: GPIO23 high: (3.3 - 1.8 V) / 1.5k = 1.0 mA"
+      "source_query": "3kohm 0603 debug LED resistor: GPIO23 high: (3.3 - 1.8 V) / 3k = 0.5 mA"
     },
     {
       "ref": "D19",
@@ -6372,7 +6372,7 @@
     },
     {
       "ref": "R118",
-      "value": "1.5k",
+      "value": "3k",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -6385,14 +6385,14 @@
         270
       ],
       "sheet": "digital",
-      "mpn": "0603WAF1501T5E",
+      "mpn": "0603WAF3001T5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C22843",
-      "unit_usd": 0.002,
-      "stock": 3702131,
+      "lcsc": "C4211",
+      "unit_usd": 0.0024,
+      "stock": 7044852,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "1.5kohm 0603 debug LED resistor: GPIO22 high: (3.3 - 1.8 V) / 1.5k = 1.0 mA"
+      "source_query": "3kohm 0603 debug LED resistor: GPIO22 high: (3.3 - 1.8 V) / 3k = 0.5 mA"
     },
     {
       "ref": "D20",

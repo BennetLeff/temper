@@ -17,7 +17,7 @@
   ]
  },
  "extended_lines": 24,
- "basic_or_preferred_lines": 42,
+ "basic_or_preferred_lines": 41,
  "lines": [
   {
    "lcsc": "C57112",
@@ -85,10 +85,10 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 12,
-   "buy": 22,
+   "need": 8,
+   "buy": 20,
    "unit": 0.0018,
-   "cost": 0.0396,
+   "cost": 0.036,
    "stock": 37261230
   },
   {
@@ -114,18 +114,6 @@
    "unit": 0.0027,
    "cost": 0.054,
    "stock": 174171
-  },
-  {
-   "lcsc": "C22843",
-   "mpn": "0603WAF1501T5E",
-   "assembly": "SMT",
-   "library": "base",
-   "preferred": false,
-   "need": 6,
-   "buy": 20,
-   "unit": 0.002,
-   "cost": 0.04,
-   "stock": 3702131
   },
   {
    "lcsc": "C22807",
@@ -169,7 +157,7 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 2,
+   "need": 6,
    "buy": 20,
    "unit": 0.0024,
    "cost": 0.048,
@@ -205,7 +193,7 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 2,
+   "need": 6,
    "buy": 20,
    "unit": 0.0024,
    "cost": 0.048,
@@ -301,7 +289,7 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 4,
+   "need": 6,
    "buy": 20,
    "unit": 0.0015,
    "cost": 0.03,
@@ -860,7 +848,7 @@
   "note": "Price read only. Shipping, tax and coupons excluded. Re-quote with the Gerbers at upload."
  },
  "economic": {
-  "SMT parts": 96.97,
+  "SMT parts": 96.93,
   "SMT joints": 2.03,
   "X-ray": 9.84,
   "Confirm placement": 0.45,
@@ -870,14 +858,14 @@
   "Extended-part fee": 73.68
  },
  "standard": {
-  "SMT parts": 96.97,
+  "SMT parts": 96.93,
   "SMT joints": 2.03,
   "X-ray": 9.84,
   "Confirm placement": 0.45,
   "PCB fabrication": 25.7,
   "Setup": 25.56,
   "Stencil": 8.21,
-  "Feeder loading": 137.94,
+  "Feeder loading": 136.41,
   "Fixtures": 16.42
  },
  "jlc_hand_fit": {
@@ -886,8 +874,8 @@
   "Hand-soldering labour": 3.58
  },
  "totals": {
-  "economic": 218.38,
-  "standard": 323.12,
+  "economic": 218.34,
+  "standard": 321.55,
   "jlc_hand_fit": 16.71
  },
  "excluded": [
