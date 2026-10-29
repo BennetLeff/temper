@@ -99,6 +99,42 @@
         100,
         47.8,
         0.8
+      ],
+      [
+        "5V",
+        102.0,
+        133.3,
+        0.8
+      ],
+      [
+        "3V3",
+        104.6,
+        133.3,
+        0.8
+      ],
+      [
+        "+12",
+        107.2,
+        133.3,
+        0.8
+      ],
+      [
+        "-12",
+        109.8,
+        133.3,
+        0.8
+      ],
+      [
+        "HB",
+        58.8,
+        102.6,
+        0.8
+      ],
+      [
+        "FLT",
+        61.2,
+        102.6,
+        0.8
       ]
     ]
   },
@@ -1016,8 +1052,8 @@
         "31": null,
         "32": null,
         "33": "3V3",
-        "34": null,
-        "35": null,
+        "34": "FAULT",
+        "35": "HEARTBEAT",
         "36": null,
         "37": "STATUS",
         "38": "MON12",
@@ -1505,27 +1541,27 @@
     },
     {
       "ref": "D4",
-      "value": "RED",
+      "value": "ORANGE",
       "kind": "LED",
-      "footprint": "LED_SMD:LED_0603_1608Metric",
+      "footprint": "LCR:LED_LiteOn_LTST-S270KFKT_SideView",
       "pins": {
         "1": "GND",
         "2": "LED_A"
       },
       "pcb": [
-        104.0,
-        136.0,
-        180
+        55.0,
+        45.95,
+        0
       ],
       "sheet": "digital",
-      "mpn": "KT-0603R",
-      "manufacturer": "Hubei KENTO Elec",
-      "lcsc": "C2286",
-      "unit_usd": 0.0073,
-      "stock": 8330838,
-      "library_type": "basic",
+      "mpn": "LTST-S270KFKT",
+      "manufacturer": "Lite-On",
+      "lcsc": "C160472",
+      "unit_usd": 0.0382,
+      "stock": 5577,
+      "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "rev-d-audit: red 0603, Vf 1.8-2.4 V so R12 1k gives ~1.2 mA from 3V3"
+      "source_query": "side-looking orange LED, sources/rev-f/LTST-S270KFKT.txt; VF 2.0 typ / 2.4 max at 20 mA"
     },
     {
       "ref": "J1",
@@ -1901,7 +1937,7 @@
     },
     {
       "ref": "R12",
-      "value": "1k",
+      "value": "390",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -1909,19 +1945,19 @@
         "2": "LED_A"
       },
       "pcb": [
-        101.0,
-        136.0,
-        0
+        57.7,
+        47.6,
+        90
       ],
       "sheet": "digital",
-      "mpn": "0603WAF1001T5E",
+      "mpn": "0603WAF3900T5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C21190",
-      "unit_usd": 0.003,
-      "stock": 22170854,
+      "lcsc": "C23151",
+      "unit_usd": 0.0016,
+      "stock": 2246779,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "1kohm 0603"
+      "source_query": "390ohm 0603: (3.3 - 1.9 V) / 390 = 3.6 mA nominal, 2.2-4.3 mA over corners"
     },
     {
       "ref": "R13",
@@ -6093,6 +6129,294 @@
       "library_type": "basic",
       "assembly": "SMT",
       "source_query": "Rev E"
+    },
+    {
+      "ref": "R113",
+      "value": "3k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "LED_5V",
+        "2": "5V"
+      },
+      "pcb": [
+        102.0,
+        127.0,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF3001T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C4211",
+      "unit_usd": 0.0016,
+      "stock": 7044852,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "3kohm 0603 debug LED resistor: (5.0 - 1.8 V) / 3k = 1.07 mA"
+    },
+    {
+      "ref": "D15",
+      "value": "RED",
+      "kind": "LED",
+      "footprint": "LED_SMD:LED_0603_1608Metric",
+      "pins": {
+        "1": "GND",
+        "2": "LED_5V"
+      },
+      "pcb": [
+        102.0,
+        130.0,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "KT-0603R",
+      "manufacturer": "Hubei KENTO Elec",
+      "lcsc": "C2286",
+      "unit_usd": 0.0073,
+      "stock": 7351610,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "debug LED (5V), KiCad pad 1 = K"
+    },
+    {
+      "ref": "R114",
+      "value": "1.5k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "LED_3V3",
+        "2": "3V3"
+      },
+      "pcb": [
+        104.6,
+        127.0,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1501T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C22843",
+      "unit_usd": 0.0016,
+      "stock": 3702361,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1.5kohm 0603 debug LED resistor: (3.3 - 1.8 V) / 1.5k = 1.0 mA"
+    },
+    {
+      "ref": "D16",
+      "value": "RED",
+      "kind": "LED",
+      "footprint": "LED_SMD:LED_0603_1608Metric",
+      "pins": {
+        "1": "GND",
+        "2": "LED_3V3"
+      },
+      "pcb": [
+        104.6,
+        130.0,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "KT-0603R",
+      "manufacturer": "Hubei KENTO Elec",
+      "lcsc": "C2286",
+      "unit_usd": 0.0073,
+      "stock": 7351610,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "debug LED (3V3), KiCad pad 1 = K"
+    },
+    {
+      "ref": "R115",
+      "value": "10k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "LED_P12",
+        "2": "12V"
+      },
+      "pcb": [
+        107.2,
+        127.0,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1002T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25804",
+      "unit_usd": 0.0016,
+      "stock": 37260700,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10kohm 0603 debug LED resistor: (11.9 - 1.8 V) / 10k = 1.0 mA, 10 mW"
+    },
+    {
+      "ref": "D17",
+      "value": "RED",
+      "kind": "LED",
+      "footprint": "LED_SMD:LED_0603_1608Metric",
+      "pins": {
+        "1": "GND",
+        "2": "LED_P12"
+      },
+      "pcb": [
+        107.2,
+        130.0,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "KT-0603R",
+      "manufacturer": "Hubei KENTO Elec",
+      "lcsc": "C2286",
+      "unit_usd": 0.0073,
+      "stock": 7351610,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "debug LED (12V), KiCad pad 1 = K"
+    },
+    {
+      "ref": "R116",
+      "value": "10k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "LED_N12",
+        "2": "-12V"
+      },
+      "pcb": [
+        109.8,
+        127.0,
+        90
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1002T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25804",
+      "unit_usd": 0.0016,
+      "stock": 37260700,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "10kohm 0603 debug LED resistor: (11.9 - 1.8 V) / 10k = 1.0 mA, 10 mW; LED anode on GND"
+    },
+    {
+      "ref": "D18",
+      "value": "RED",
+      "kind": "LED",
+      "footprint": "LED_SMD:LED_0603_1608Metric",
+      "pins": {
+        "1": "LED_N12",
+        "2": "GND"
+      },
+      "pcb": [
+        109.8,
+        130.0,
+        270
+      ],
+      "sheet": "digital",
+      "mpn": "KT-0603R",
+      "manufacturer": "Hubei KENTO Elec",
+      "lcsc": "C2286",
+      "unit_usd": 0.0073,
+      "stock": 7351610,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "debug LED (-12V), KiCad pad 1 = K"
+    },
+    {
+      "ref": "R117",
+      "value": "1.5k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "LED_HB",
+        "2": "HEARTBEAT"
+      },
+      "pcb": [
+        58.8,
+        108.9,
+        270
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1501T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C22843",
+      "unit_usd": 0.0016,
+      "stock": 3702361,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1.5kohm 0603 debug LED resistor: GPIO23 high: (3.3 - 1.8 V) / 1.5k = 1.0 mA"
+    },
+    {
+      "ref": "D19",
+      "value": "RED",
+      "kind": "LED",
+      "footprint": "LED_SMD:LED_0603_1608Metric",
+      "pins": {
+        "1": "GND",
+        "2": "LED_HB"
+      },
+      "pcb": [
+        58.8,
+        105.9,
+        270
+      ],
+      "sheet": "digital",
+      "mpn": "KT-0603R",
+      "manufacturer": "Hubei KENTO Elec",
+      "lcsc": "C2286",
+      "unit_usd": 0.0073,
+      "stock": 7351610,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "debug LED (HEARTBEAT), KiCad pad 1 = K"
+    },
+    {
+      "ref": "R118",
+      "value": "1.5k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "LED_FLT",
+        "2": "FAULT"
+      },
+      "pcb": [
+        61.2,
+        108.9,
+        270
+      ],
+      "sheet": "digital",
+      "mpn": "0603WAF1501T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C22843",
+      "unit_usd": 0.0016,
+      "stock": 3702361,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "1.5kohm 0603 debug LED resistor: GPIO22 high: (3.3 - 1.8 V) / 1.5k = 1.0 mA"
+    },
+    {
+      "ref": "D20",
+      "value": "RED",
+      "kind": "LED",
+      "footprint": "LED_SMD:LED_0603_1608Metric",
+      "pins": {
+        "1": "GND",
+        "2": "LED_FLT"
+      },
+      "pcb": [
+        61.2,
+        105.9,
+        270
+      ],
+      "sheet": "digital",
+      "mpn": "KT-0603R",
+      "manufacturer": "Hubei KENTO Elec",
+      "lcsc": "C2286",
+      "unit_usd": 0.0073,
+      "stock": 7351610,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "debug LED (FAULT), KiCad pad 1 = K"
     }
   ],
   "power_flags": [

@@ -1081,6 +1081,76 @@
 }
 ]
 },
+"LED_LiteOn_LTST-S270KFKT_SideView": {
+"courtyard": [
+[
+[
+1.845,
+-0.945
+],
+[
+1.845,
+0.795
+],
+[
+-1.845,
+0.795
+],
+[
+-1.845,
+-0.945
+]
+]
+],
+"pads": [
+{
+"at": [
+-1.0,
+0.0
+],
+"attr": "smd",
+"copper": [
+"F.Cu"
+],
+"drill": [
+0.0,
+0.0
+],
+"num": "1",
+"poly": null,
+"rot": 0.0,
+"rr": 0.1,
+"shape": "roundrect",
+"size": [
+1.1,
+1.1
+]
+},
+{
+"at": [
+1.0,
+0.0
+],
+"attr": "smd",
+"copper": [
+"F.Cu"
+],
+"drill": [
+0.0,
+0.0
+],
+"num": "2",
+"poly": null,
+"rot": 0.0,
+"rr": 0.1,
+"shape": "roundrect",
+"size": [
+1.1,
+1.1
+]
+}
+]
+},
 "L_0805_2012Metric": {
 "courtyard": [
 [

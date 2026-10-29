@@ -401,9 +401,10 @@ V('RNG_SET_REF', 138.3, 77.0)
 T('RNG_SET_REF', 'F.Cu', (138.3, 77.0), 'R108.1')
 
 # ============================================================== 8. U1 west / north pins: RUN, STATUS, MON, UART, SWD
-# Six lines leave U1's west side on In2 (x 66.4-69.9, crossing the USB pair's B.Cu legs), run down to the
-# south edge, east along y 142.6-144.35 and up to J6 (UART), the rail-monitor cluster, the LED and SW2.
-# Order west->east = RUN, STATUS, MON12, MON_N12, UART_TX, UART_RX, so nothing crosses.
+# Five lines leave U1's west side on In2 (x 66.4-69.9, crossing the USB pair's B.Cu legs), run down to the
+# south edge, east along y 142.6-144.35 and up to J6 (UART), the rail-monitor cluster and SW2.
+# Order west->east = RUN, MON12, MON_N12, UART_TX, UART_RX, so nothing crosses (Rev F: STATUS now
+# leaves north with the LED lines, below).
 T('RUN', 'B.Cu', (70.6324, 119.2922), (66.4, 119.2922))
 V('RUN', 66.4, 119.2922)
 T('RUN', 'In2.Cu', (66.4, 119.2922), (66.4, 144.35), (97.6, 144.35), (97.6, 138.6))
@@ -412,16 +413,54 @@ T('RUN', 'F.Cu', (62.2, 131.5), 'R9.1')
 T('RUN', 'In2.Cu', (62.2, 131.5), (66.4, 131.5))
 V('RUN', 97.6, 138.6)
 T('RUN', 'F.Cu', (97.6, 138.6), 'SW2.1')
-T('STATUS', 'F.Cu', 'U1.37', (68.9, 124.1), (68.4, 123.6), (67.0, 123.6))
-V('STATUS', 67.0, 123.6)
-T('STATUS', 'In2.Cu', (67.0, 123.6), (67.0, 144.0), (96.0, 144.0), (96.0, 136.0))
-V('STATUS', 96.0, 136.0)
-T('STATUS', 'B.Cu', (96.0, 136.0), (98.7, 136.0), (99.3, 136.6))
-V('STATUS', 99.3, 136.6)
-T('STATUS', 'F.Cu', (99.3, 136.6), 'R12.1')
-T('LED_A', 'F.Cu', 'R12.2', 'D4.2')
-V('GND', 105.8, 136.0)
-T('GND', 'F.Cu', 'D4.1', (105.8, 136.0))
+# ---- indicator LEDs (2026-10-29).  STATUS (GPIO25, pin 37), HEARTBEAT (GPIO23, pin 35) and FAULT (GPIO22,
+# pin 34) leave U1's west side on F.Cu in three lanes (y 123.7 / 123.3 / 122.9, between the 3V3 stub to C4
+# and the MON12 stub), drop to In2 at staggered vias, and run north as a 0.36 mm-pitch bus through the gap
+# between the RUN via (66.4, 119.29) and SWDIO (x 68.0), then west along y 118.0-118.72.  FAULT and
+# HEARTBEAT turn north to their LEDs west of U1; STATUS, the outer line, turns at x 58.4, west along
+# y 112.0 and north along x 51.0 (In2, under the In1 GND plane, 3 mm from any analog part) to R12 at the
+# front edge.  Hand-placed coordinates; no autorouter, no path search.
+DROP('STATUS', 67.5, 123.0, 70.6, 124.2)       # Rev E escape (copied with the core group) replaced below
+T('STATUS', 'F.Cu', 'U1.37', (69.3, 124.1), (68.9, 123.7), (67.3, 123.7), (66.9, 124.1))
+V('STATUS', 66.9, 124.1)
+T('STATUS', 'In2.Cu', (66.9, 124.1), (66.9, 118.72), (58.4, 118.72), (58.4, 112.0), (51.0, 112.0), (51.0, 49.6),
+  (57.7, 49.6))
+V('STATUS', 57.7, 49.6)
+T('STATUS', 'F.Cu', (57.7, 49.6), 'R12.1')
+T('LED_A', 'F.Cu', 'D4.2', (57.7, 45.95), 'R12.2')
+V('GND', 54.0, 47.3)
+T('GND', 'F.Cu', 'D4.1', (54.0, 47.3))
+T('HEARTBEAT', 'F.Cu', 'U1.35', (69.9, 123.3), (69.65, 123.55))
+V('HEARTBEAT', 69.65, 123.55)
+T('HEARTBEAT', 'In2.Cu', (69.65, 123.55), (67.26, 123.55), (67.26, 118.36), (58.8, 118.36), (58.8, 110.85))
+V('HEARTBEAT', 58.8, 110.85)
+T('HEARTBEAT', 'F.Cu', (58.8, 110.85), 'R117.2')
+T('FAULT', 'F.Cu', 'U1.34', (69.05, 122.9), (68.95, 123.0))
+V('FAULT', 68.95, 123.0)
+T('FAULT', 'In2.Cu', (68.95, 123.0), (67.62, 123.0), (67.62, 118.0), (61.2, 118.0), (61.2, 110.85))
+V('FAULT', 61.2, 110.85)
+T('FAULT', 'F.Cu', (61.2, 110.85), 'R118.2')
+for _r, _d, _n in (('R117', 'D19', 'LED_HB'), ('R118', 'D20', 'LED_FLT')):
+    T(_n, 'F.Cu', _r + '.1', _d + '.2')
+    _x = P(_d + '.1')[0]
+    V('GND', _x, 103.9)
+    T('GND', 'F.Cu', _d + '.1', (_x, 103.9))
+# Rail LEDs at the rail monitors (resistor north on the rail, LED south, GND via below):
+# 5V from the In2 5 V riser (x 98.7), 3V3 from the In2 3V3 run (y 123.9), 12V on F.Cu from the R97 tap via
+# along y 121.2, -12V from the B.Cu -12 V run (y 119.4).
+V('5V', 98.7, 125.6)
+T('5V', 'F.Cu', (98.7, 125.6), (102.0, 125.6), 'R113.2')
+V('3V3', 104.6, 123.9)
+T('3V3', 'F.Cu', (104.6, 123.9), 'R114.2')
+T('12V', 'F.Cu', (91.825, 121.95), (91.825, 121.2), (107.2, 121.2), 'R115.2')
+V('-12V', 109.8, 119.4)
+T('-12V', 'F.Cu', (109.8, 119.4), 'R116.2')
+for _r, _d, _n, _gnd in (('R113', 'D15', 'LED_5V', '1'), ('R114', 'D16', 'LED_3V3', '1'),
+                         ('R115', 'D17', 'LED_P12', '1'), ('R116', 'D18', 'LED_N12', '2')):
+    T(_n, 'F.Cu', _r + '.1', _d + ('.1' if _gnd == '2' else '.2'))
+    _x = P(_d + '.' + _gnd)[0]
+    V('GND', _x, 131.95)
+    T('GND', 'F.Cu', _d + '.' + _gnd, (_x, 131.95))
 T('MON12', 'F.Cu', 'U1.38', (68.3, 124.5))
 V('MON12', 68.3, 124.5)
 T('MON12', 'In2.Cu', (68.3, 124.5), (67.65, 125.15), (67.65, 143.65), (89.2, 143.65), (89.2, 128.3))

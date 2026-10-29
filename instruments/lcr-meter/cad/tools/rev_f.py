@@ -3,7 +3,8 @@
 python3 cad/tools/rev_f.py [--check] [--render BLOCK,...|all] [--no-write]
 
 Reads Rev E cad/design.json and cad/routing.json from git (48b012771), writes cad/design.json and
-cad/routing.json.  Netlist and BOM are unchanged; placement, copper, outline, holes and silk change.
+cad/routing.json.  Placement, copper, outline, holes and silk change; the netlist and BOM change only in
+the indicator-LED block (front-panel D4, six debug LEDs, 2026-10-29).
 Plan and decisions: docs/rev-f-plan.md.
 
 Method (hand routing in script form, as Rev E; no autorouter, no path search anywhere):
@@ -47,6 +48,46 @@ rev_e_routing = git_json('routing.json')
 parts = {p['ref']: p for p in design['parts']}
 E_POSE = {r: tuple(p['pcb']) for r, p in parts.items()}       # Rev E (x, y, rot)
 LIB = predrc.LIB
+
+# ------------------------------------------------------------------ indicator LEDs (Rev F, 2026-10-29)
+# The netlist changes only here: D4 becomes a front-panel side-looking orange LED, and six debug LEDs
+# are added.  Decisions and sizing: docs/rev-f-plan.md, "Indicator LEDs".
+parts['D4'].update(value='ORANGE', footprint='LCR:LED_LiteOn_LTST-S270KFKT_SideView', mpn='LTST-S270KFKT',
+                   manufacturer='Lite-On', lcsc='C160472', unit_usd=0.0382, stock=5577, library_type='extended',
+                   source_query='side-looking orange LED, sources/rev-f/LTST-S270KFKT.txt; VF 2.0 typ / 2.4 max at 20 mA')
+parts['R12'].update(value='390', mpn='0603WAF3900T5E', lcsc='C23151', unit_usd=0.0016, stock=2246779,
+                    source_query='390ohm 0603: (3.3 - 1.9 V) / 390 = 3.6 mA nominal, 2.2-4.3 mA over corners')
+parts['U1']['pins'].update({'34': 'FAULT', '35': 'HEARTBEAT'})      # GPIO22, GPIO23
+
+
+def _part(ref, kind, value, pins, mpn, lcsc, usd, stock, query, fp=None, mfr='UNI-ROYAL(Uniroyal Elec)'):
+    fp = fp or ('Resistor_SMD:R_0603_1608Metric' if kind == 'R' else 'LED_SMD:LED_0603_1608Metric')
+    return {'ref': ref, 'value': value, 'kind': kind, 'footprint': fp, 'pins': pins, 'pcb': [0, 0, 0],
+            'sheet': 'digital', 'mpn': mpn, 'manufacturer': mfr, 'lcsc': lcsc, 'unit_usd': usd, 'stock': stock,
+            'library_type': 'basic', 'assembly': 'SMT', 'source_query': query}
+
+
+_RED = dict(kind='LED', value='RED', mpn='KT-0603R', lcsc='C2286', usd=0.0073, stock=7351610, mfr='Hubei KENTO Elec')
+_R = {'3k': ('0603WAF3001T5E', 'C4211', 0.0016, 7044852), '1.5k': ('0603WAF1501T5E', 'C22843', 0.0016, 3702361),
+      '10k': ('0603WAF1002T5E', 'C25804', 0.0016, 37260700)}
+NEW_PARTS = []
+# (LED, resistor, rail/GPIO net, LED net, resistor value, reason); the -12 V LED is reversed (anode on GND)
+for d, r, rail, led, rv, why in (
+        ('D15', 'R113', '5V', 'LED_5V', '3k', '(5.0 - 1.8 V) / 3k = 1.07 mA'),
+        ('D16', 'R114', '3V3', 'LED_3V3', '1.5k', '(3.3 - 1.8 V) / 1.5k = 1.0 mA'),
+        ('D17', 'R115', '12V', 'LED_P12', '10k', '(11.9 - 1.8 V) / 10k = 1.0 mA, 10 mW'),
+        ('D18', 'R116', '-12V', 'LED_N12', '10k', '(11.9 - 1.8 V) / 10k = 1.0 mA, 10 mW; LED anode on GND'),
+        ('D19', 'R117', 'HEARTBEAT', 'LED_HB', '1.5k', 'GPIO23 high: (3.3 - 1.8 V) / 1.5k = 1.0 mA'),
+        ('D20', 'R118', 'FAULT', 'LED_FLT', '1.5k', 'GPIO22 high: (3.3 - 1.8 V) / 1.5k = 1.0 mA')):
+    mpn, lcsc, usd, stock = _R[rv]
+    NEW_PARTS.append(_part(r, 'R', rv, {'1': led, '2': rail},          # pad 2: rail / GPIO side
+                           mpn, lcsc, usd, stock, f'{rv}ohm 0603 debug LED resistor: {why}'))
+    k_net, a_net = (led, 'GND') if rail == '-12V' else ('GND', led)
+    NEW_PARTS.append(_part(d, pins={'1': k_net, '2': a_net}, fp=None,
+                           query=f'debug LED ({rail}), KiCad pad 1 = K', **_RED))
+for p in NEW_PARTS:
+    parts[p['ref']] = p
+design['parts'] += NEW_PARTS
 
 
 def rot(dx, dy, t):
@@ -171,10 +212,16 @@ PLACE = {
     # TPS65131 input bulk at L1's 5 V end
     'C80': (125.6, 143.0, 180),
     # debug headers (DNP lands) and buttons: SWD north-west of U1 (its SWD pins face north), UART, buttons,
-    # status LED and the 3V3/GND header south-east of U1, at the ends of the In2 run along the south edge
+    # and the 3V3/GND header south-east of U1, at the ends of the In2 run along the south edge
     'J4': (69.0, 108.0, -90), 'J6': (86.5, 139.0, -90), 'J5': (86.0, 131.0, 180),
     'SW1': (85.2, 143.1, 0), 'SW2': (93.0, 138.6, 180),
-    'R12': (101.0, 136.0, 0), 'D4': (104.0, 136.0, 180),
+    # front-panel status light: side-looking D4 at the front edge west of HCUR, in front of H1, lens on y 45
+    'D4': (55.0, 45.95, 0), 'R12': (57.7, 47.6, 90),
+    # debug LEDs, lid-off: HB / FLT west of U1 (LED north, resistor south), rail LEDs at the rail
+    # monitors (resistor north on the rail, LED south, GND via below); labels on silk
+    'D19': (58.8, 105.9, 270), 'R117': (58.8, 108.9, 270), 'D20': (61.2, 105.9, 270), 'R118': (61.2, 108.9, 270),
+    'R113': (102.0, 127.0, 90), 'D15': (102.0, 130.0, 90), 'R114': (104.6, 127.0, 90), 'D16': (104.6, 130.0, 90),
+    'R115': (107.2, 127.0, 90), 'D17': (107.2, 130.0, 90), 'R116': (109.8, 127.0, 90), 'D18': (109.8, 130.0, 270),
     # rail monitors: MON12 divider + filter (west column), MON_N12 (east column), between U1 and the drivers
     'R97': (91.0, 123.0, 0), 'R98': (91.0, 124.6, 180), 'C110': (91.0, 126.2, 180),
     'R100': (95.0, 123.0, 0), 'R99': (95.0, 124.6, 180), 'C111': (95.0, 126.2, 180),
@@ -420,6 +467,9 @@ design['board']['silk'] = [
     ['TEMPER LCR REV F', 111, 140.2, 1.0],
     ['HCUR', 67, 57.4, 0.8], ['HPOT', 89, 57.4, 0.8], ['LPOT', 111, 57.4, 0.8], ['LCUR', 133, 57.4, 0.8],
     ['DISCHARGED', 100, 46.6, 0.8], ['DUT ONLY', 100, 47.8, 0.8],
+    # debug LED labels (2026-10-29): rail LEDs under their column, HB / FLT above theirs
+    ['5V', 102.0, 133.3, 0.8], ['3V3', 104.6, 133.3, 0.8], ['+12', 107.2, 133.3, 0.8], ['-12', 109.8, 133.3, 0.8],
+    ['HB', 58.8, 102.6, 0.8], ['FLT', 61.2, 102.6, 0.8],
 ]
 # IC reference text (the only references on silk): clear of lands and of each other
 design['board']['ref_text'] = {'U3': [56.85, 138.3], 'U7': [118.3, 68.2], 'U13': [141.9, 134.6], 'U14': [64.0, 95.2],

@@ -1,0 +1,49 @@
+{
+ "componentCode": "C160472",
+ "componentModelEn": "LTST-S270KFKT",
+ "componentBrandEn": "Lite-On",
+ "componentSpecificationEn": "SMD,1.6x1.2mm",
+ "componentLibraryType": "expand",
+ "preferredComponentFlag": false,
+ "stockCount": 5577,
+ "describe": "-30℃~+85℃ 130° 20mA 2V 605nm 611nm 75mW 90mcd Discrete Diode Orange Side View Mount Water Clear SMD,1.6x1.2mm LED Indication - Discrete ROHS",
+ "leastPatchNumber": 5,
+ "lossNumber": 8,
+ "componentPrices": [
+  {
+   "startNumber": 1,
+   "endNumber": 199,
+   "productPrice": 0.0382
+  },
+  {
+   "startNumber": 200,
+   "endNumber": 599,
+   "productPrice": 0.0303
+  },
+  {
+   "startNumber": 600,
+   "endNumber": 3999,
+   "productPrice": 0.0259
+  },
+  {
+   "startNumber": 4000,
+   "endNumber": 7999,
+   "productPrice": 0.0225
+  },
+  {
+   "startNumber": 8000,
+   "endNumber": 19999,
+   "productPrice": 0.0202
+  },
+  {
+   "startNumber": 20000,
+   "endNumber": -1,
+   "productPrice": 0.0189
+  }
+ ],
+ "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1810231522_Lite-On-LTST-S270KFKT_C160472.pdf",
+ "lcscGoodsUrl": "https://www.lcsc.com/product-detail/led-indication-discrete_lite-on-ltst-s270kfkt_C160472.html",
+ "retrieved": "2026-10-29",
+ "api": "POST https://jlcpcb.com/api/overseas-pcb-order/v1/shoppingCart/smtGood/selectSmtComponentList keyword=C160472",
+ "note": "No basic or preferred side-view LED exists in the JLC library (searched 2026-10-29); this extended part adds the $3 extended-line fee once per order."
+}

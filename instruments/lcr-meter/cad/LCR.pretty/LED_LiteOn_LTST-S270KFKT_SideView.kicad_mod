@@ -1,0 +1,91 @@
+(footprint "LED_LiteOn_LTST-S270KFKT_SideView"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Lite-On LTST-S270KFKT side-looking chip LED, 1.65 x 1.15 x 0.60 mm. Lands: datasheet DS22-2000-209 Rev E p.7 'Suggest Soldering Pad Dimensions', 1.10 x 1.10 mm, 0.90 mm gap. Pad 1 = cathode, pad 2 = anode; light leaves the -Y side (lens tip 0.81 mm from the pad centre line), from the datasheet top view and tape drawing (cathode terminal on the left when the lens faces up). Hand-made for Temper LCR Rev F")
+	(tags "LED side view right angle 0603 LTST-S270")
+	(property "Reference" "REF**"
+		(at 0 1.5 0)
+		(layer "F.SilkS")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "LED_LiteOn_LTST-S270KFKT_SideView"
+		(at 0 2.6 0)
+		(layer "F.Fab")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start -1.75 -0.45)
+		(end -1.75 0.45)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+	)
+	(fp_rect
+		(start -1.85 -0.95)
+		(end 1.85 0.8)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+	)
+	(fp_rect
+		(start -0.825 -0.34)
+		(end 0.825 0.34)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+	)
+	(fp_rect
+		(start -0.6 -0.81)
+		(end 0.6 -0.34)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+	)
+	(fp_line
+		(start -0.6 -0.34)
+		(end -0.6 0.34)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+	)
+	(pad "1" smd roundrect
+		(at -1 0)
+		(size 1.1 1.1)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.1)
+	)
+	(pad "2" smd roundrect
+		(at 1 0)
+		(size 1.1 1.1)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(roundrect_rratio 0.1)
+	)
+	(embedded_fonts no)
+)

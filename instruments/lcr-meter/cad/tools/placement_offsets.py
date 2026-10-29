@@ -44,7 +44,8 @@ def record(lcsc):
 # by number, so these are renumbered to KiCad's meaning first. C2286 (KT-0603R LED): EasyEDA pad 1 =
 # anode, pad 2 = cathode (symbol pins A/K in the same record); KiCad LED_0603 pad 1 = K, pad 2 = A.
 # Without this the fit turns D4 by 180 deg, which would reverse the LED. (Diodes C2480 and C2128 use
-# 1 = K on both sides and need no entry.)
+# 1 = K on both sides and need no entry; so does C160472, the LTST-S270KFKT side-view LED: EasyEDA pin
+# 1 = C, pin 2 = A.)
 VENDOR_TO_KICAD_PAD = {'C2286': {'1': '2', '2': '1'}}
 
 

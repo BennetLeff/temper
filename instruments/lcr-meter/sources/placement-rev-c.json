@@ -77,7 +77,13 @@
     "K4": 0,
     "Q6": 180,
     "D9": 0,
-    "U16": 180
+    "U16": 180,
+    "D15": 0,
+    "D16": 0,
+    "D17": 0,
+    "D18": 0,
+    "D19": 0,
+    "D20": 0
   },
   "parts": [
     {
@@ -5854,7 +5860,12 @@
       "lcsc": "C2286",
       "mpn": "KT-0603R",
       "references": [
-        "D4"
+        "D15",
+        "D16",
+        "D17",
+        "D18",
+        "D19",
+        "D20"
       ],
       "native_footprint": "LED_SMD:LED_0603_1608Metric",
       "source_url": "https://lceda.cn/api/products/C2286/components?version=6.4.19.5",
@@ -5883,6 +5894,41 @@
           "rms": 1.537562000000037
         }
       ]
+    },
+    {
+      "lcsc": "C160472",
+      "mpn": "LTST-S270KFKT",
+      "references": [
+        "D4"
+      ],
+      "native_footprint": "LCR:LED_LiteOn_LTST-S270KFKT_SideView",
+      "source_url": "https://lceda.cn/api/products/C160472/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C160472-product.json",
+      "source_sha256": "e27853b3a7cd6c39d3425aeccdeec586334a43bd3c58c7801ef8b9bf7f778fe9",
+      "library_title": "LED-SMD_L1.7-W0.6-RD",
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.09995100000003276,
+      "pad_center_fit_max_mm": 0.09995100000003276,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.09995100000003276
+        },
+        {
+          "offset": 90,
+          "rms": 1.3453951844721836
+        },
+        {
+          "offset": 270,
+          "rms": 1.3453951844721836
+        },
+        {
+          "offset": 180,
+          "rms": 1.9000489999999672
+        }
+      ],
+      "note": "EasyEDA symbol pin 1 = C, pin 2 = A, same as the KiCad footprint (pad 1 = K): no renumbering. The EasyEDA outline (layer 99) puts the 1.2 mm lens on the -Y side with pad 1 at -X, as the footprint does from the Lite-On drawings, so offset 0 also points the lens at the front edge."
     }
   ],
   "unresolved_primary_mechanical_reviews": [],
