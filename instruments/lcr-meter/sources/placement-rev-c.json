@@ -11,7 +11,7 @@
     "U2": 270,
     "U3": 270,
     "U4": 270,
-    "U5": 0,
+    "U5": 180,
     "U6": 270,
     "U7": 270,
     "U8": 270,
@@ -5779,6 +5779,40 @@
         {
           "offset": 90,
           "rms": 7.674524082094952
+        }
+      ]
+    },
+    {
+      "lcsc": "C221351",
+      "mpn": "OPA197IDBVR",
+      "references": [
+        "U5"
+      ],
+      "native_footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "source_url": "https://lceda.cn/api/products/C221351/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C221351-product.json",
+      "source_sha256": "03c04e76b960422761e944a7d1c50b6bb97599773ed0a411bd99abcef2d0ca6b",
+      "library_title": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR",
+      "cpl_offset_ccw_deg": 180,
+      "matched_numbered_pads": 5,
+      "pad_center_fit_rms_mm": 0.159313837091949,
+      "pad_center_fit_max_mm": 0.1951188041001119,
+      "candidate_rms_mm": [
+        {
+          "offset": 180,
+          "rms": 0.159313837091949
+        },
+        {
+          "offset": 270,
+          "rms": 2.075749578992896
+        },
+        {
+          "offset": 90,
+          "rms": 2.075749578992906
+        },
+        {
+          "offset": 0,
+          "rms": 2.931227000880255
         }
       ]
     }

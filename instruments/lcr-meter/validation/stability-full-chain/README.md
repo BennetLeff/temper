@@ -203,6 +203,8 @@ This directory contains the actual final-network loop tests and labelled explora
 
 `source_stage.py` breaks the U5 (OPA810) difference-stage loop with the same bridge-injection return ratio as `loop_matrix.rs`; it first reproduces the committed `codecbase` TIA row (19.5149 MHz / 95.04°). C34/C35 270 pF → C34+C114 and C35+C115, 2 × 560 pF C0G in series (280 pF), with 0.5 pF midpoint stray and 1.5 nH per part: phase margin 59.73° (60.13° before; 58.74° at 2 pF / 3 nH stress). Source gain at 85 kHz −0.025 dB / −0.56°, under 0.003 dB at 27 kHz; V and I share the source, so it cancels in Z. Common-mode rejection at ±5 % capacitor corners: −37.4 dB at 85 kHz (−37.7 dB with 270 pF). Output: `source_stage.json`.
 
+**U5 = OPA197 (2026-10-29).** `source_stage.py` also runs U5 as TI's OPAx197 macro-model (`../../sources/ti/models/OPAx197.LIB` from [SBOMA35](https://www.ti.com/lit/zip/sboma35), SHA256 `6ab470ba…d13aa63`; vendor models are gitignored like the others, so download it there; seed `codec-seed-u5-opa197.inc`) and writes each part's DAC → SOURCE transfer to 30 MHz under `u5_parts`. OPA197 loop 67.81° (OPA810 60.11°, same 280 pF). DAC → EXCITE at 1 / 4 / 8 / 12 / 16 MHz: OPA810 −11.29 / −23.02 / −29.02 / −32.54 / −35.04 dB, OPA197 −11.36 / −22.70 / −28.04 / −31.00 / −33.34 dB. The OPA197 operating point does not converge (strict Newton) on the 2 × 560 pF strings; on OPA810 the strings and 280 pF agree within 0.06 dB to 16 MHz, so 280 pF stands in. U5 sits outside the four loops of the `kelvincng100` matrix.
+
 ## Accepted model evidence and explicit negative control
 
 - `matrix-final_grid.md`:42 range/load/fixture cases.

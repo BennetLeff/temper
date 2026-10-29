@@ -346,6 +346,11 @@ parts['R83'].update(value='240k', mpn='0603WAF2403T5E', manufacturer='UNI-ROYAL(
 add('R111', 'R1M5', 'power', {'1': 'CONV_FBN', '2': 'CONV_FBN_MID'}, (90.7, 127.6, 90),
     query='1.5M 1% 0603 C4172, TPS65131 inverter divider')
 
+# U5 OPA810 -> OPA197 (C221351, $0.60 vs $2.96): same DBV pinout (1 OUT, 2 V-, 3 +IN, 4 -IN, 5 V+;
+# sources/ti/OPA197.txt), 36 V RRIO.  validation/stability-full-chain/source_stage.py: U5 loop 67.8 deg
+# (OPA810 60.1), 85 kHz -0.0014 dB; validation/power-spurs/dac_images_u5.py: DAC-image error +3 % at 16 fs.
+parts['U5'].update(value='OPA197IDBVR', mpn='OPA197IDBVR', lcsc='C221351', unit_usd=0.5978, stock=85835,
+                   source_query='OPA197IDBVR C221351, U5 difference stage')
 # J4-J6 (SWD and UART headers) are not fitted: a blank flash fails the boot2 CRC and the ROM drops to
 # USB mass storage after 0.5 s (RP2040 datasheet 2.8, bootrom), and BOOTSEL (SW1) forces it, so the
 # UF2 loads over USB.  The lands stay for debugging; the headers are through-hole, for the home bench.

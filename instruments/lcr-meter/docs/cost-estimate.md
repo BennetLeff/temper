@@ -14,20 +14,20 @@ Each line buys max(5 × per-board quantity + attrition, minimum). That is our re
 
 | Item | USD |
 |---|---:|
-| SMT parts (62 lines; attrition and minimums add $7.34) | 215.31 |
+| SMT parts (62 lines; attrition and minimums add $7.34) | 204.71 |
 | Extended-part fee, 23 × $3.07 | 70.61 |
 | Setup + stencil | 9.71 |
 | SMT joints, 5 × 609 × $0.0016 | 4.87 |
 | X-ray, 15 leadless parts × $0.82 | 12.30 |
 | Confirm placement | 0.45 |
 | PCB fabrication, 5 pcs (detail below) | 51.90 |
-| **Economic PCBA total** | **365.15** |
+| **Economic PCBA total** | **354.55** |
 | JLC fits the four BNCs (J3, J7–J9): parts $25.88, 100 manual joints $1.64, labour $3.58 | 31.10 |
-| **Five complete boards, before shipping and taxes** | **396.25** |
+| **Five complete boards, before shipping and taxes** | **385.65** |
 
-That is $79.25 per board, against $613.44 ($122.69 per board) for Rev D. Standard PCBA would cost $465.30 before hand fitting: higher setup and stencil fees, feeder loading on all 62 lines, and fixtures. Shipping, sales tax/VAT, import duty and coupons are excluded.
+That is $77.13 per board, against $613.44 ($122.69 per board) for Rev D. Standard PCBA would cost $454.70 before hand fitting: higher setup and stencil fees, feeder loading on all 62 lines, and fixtures. Shipping, sales tax/VAT, import duty and coupons are excluded.
 
-**Five boards with two assembled** (`order_estimate.py 2`, five bare PCBs in the fabrication quote): Economic PCBA $245.15 plus JLC hand fitting $16.71 = **$261.86**.
+**Five boards with two assembled** (`order_estimate.py 2`, five bare PCBs in the fabrication quote): Economic PCBA $240.91 plus JLC hand fitting $16.71 = **$257.62**.
 
 **What the 2026-10-21 accuracy upgrades added: +$36.87 for five boards** (from $416.59).
 - Four BNC jacks for four-terminal (Kelvin) connection, against one 2-pin header: +$25.83 in parts and +$1.48 in manual joints. Hand fit, so no extended-part fee.
@@ -36,6 +36,8 @@ That is $79.25 per board, against $613.44 ($122.69 per board) for Rev D. Standar
 - The calibration-kit card is a separate order ([calkit/README.md](../calkit/README.md)): about $117.70 for five (r2, 38 × 191 mm, with the 1 MΩ standard; fabrication still quoted at r1's 38 × 193 mm). Kelvin clip leads are bought separately: $13–35 generic, $72 Tonghui TH26011AS, $169 B&K TL889A.
 
 **USB-C power (2026-10-21): +$4.56 for five boards** (from $453.46). U16 (TPS2553, extended: $0.54 each plus the $3.07 line fee) and R110 (24 kΩ, basic) replace Q1 (AO3401A) and the DC jack, which JLC hand-fitted. The part snapshot was refetched for this change, so stock and prices are from later the same day.
+
+**U5 OPA810 → OPA197 (2026-10-29): −$10.60 for five boards** (from $396.25). Same SOT-23-5 pinout; U5 loop 67.8° (60.1°), 85 kHz −0.0014 dB, DAC-image error +3 % relative at 16 fs ([rev-e-plan.md](rev-e-plan.md)). The JLC land record is turned 180° from KiCad's, so its CPL angle is 180° (OPA810: 0°).
 
 **Headers and laminate (2026-10-29): −$12.32 for five boards** (from $408.57).
 - J4–J6 (SWD and UART headers) are not fitted: −$5.00. A blank flash fails the boot2 CRC and the RP2040 ROM drops to USB mass storage (datasheet §2.8), so the first UF2 loads over USB; the lands stay for a hand-fitted header.
@@ -74,7 +76,7 @@ That is $79.25 per board, against $613.44 ($122.69 per board) for Rev D. Standar
 - Every via on Rev E has a 0.3 mm drill and a 0.45 mm or larger pad, JLC's standard "0.3mm/(0.4/0.45mm)" option. The 0.2 mm option that Rev D needed added "Min via hole 0.2 mm" ($18.28) and a 4-wire Kelvin test ($17.47); the same quote page gave $80.98 without them. Re-quote at upload: the lines above are the 2026-10-20 quote less those two.
 - JLC leaves vias over 0.5 mm unfilled. Every via on this board is 0.30 mm.
 
-**Where the money goes.** Parts at $1 or more are $167.68, 78 % of the SMT parts: OPA2810 $45.48, TQ2SA relays $40.48, TAC5112 $29.69, OPA810 $14.80, TPS65131 $14.40, TPS7A3001 $10.12, TPS7A4901 $7.26, RP2040 $5.44. The 23 extended-line fees ($70.61) are the largest single item after the parts. The extended lines that remain are ICs (including the U16 USB power switch), the crystal, the inductor, the USB connector, the 0.1 % network resistors, the 560 pF C0G anti-alias capacitors, the flash and the 10 µF 1210; [rev-e-plan.md](rev-e-plan.md) gives the reason each one stays.
+**Where the money goes.** Parts at $1 or more are $152.88, 75 % of the SMT parts: OPA2810 $45.48, TQ2SA relays $40.48, TAC5112 $29.69, TPS65131 $14.40, TPS7A3001 $10.12, TPS7A4901 $7.26, RP2040 $5.44. The 23 extended-line fees ($70.61) are the largest single item after the parts. The extended lines that remain are ICs (including the U16 USB power switch), the crystal, the inductor, the USB connector, the 0.1 % network resistors, the 560 pF C0G anti-alias capacitors, the flash and the 10 µF 1210; [rev-e-plan.md](rev-e-plan.md) gives the reason each one stays.
 
 ## BOM arithmetic checkpoint
 
@@ -82,8 +84,8 @@ Catalog snapshot checked 2026-10-29:
 
 | Item | Quantity | USD |
 |---|---:|---:|
-| All components for one instrument | 204 | 50.89 |
-| Machine-placed components per PCB | 197 | 44.83 |
+| All components for one instrument | 204 | 48.39 |
+| Machine-placed components per PCB | 197 | 42.33 |
 | Hand-fitted components per PCB | 7 | 6.06 |
 
 Both `SMT` and `JLC SMT` source tags count as machine placements. Hand fitting is the four BNC jacks; the three two-pin headers (J4–J6) are not fitted. The 62 unique SMT lines comprise 23 extended, 31 basic and eight preferred lines (BAT54S, SRV05-4, the 27 Ω, 430 kΩ, 40.2 kΩ, 240 kΩ and 1.5 MΩ resistors and the 4.7 pF capacitor). Catalog stock and prices do not guarantee eventual availability or the PCBA purchase price.
@@ -97,7 +99,7 @@ Add shipping and taxes. Supplier pack sizes and loss allowances can exceed simpl
 | Route | USD allowance | Assumptions |
 |---|---:|---|
 | Bare-board batch; hand assemble one | 140–220 | One component set, four-layer fabrication and ordinary shipping; reflow/rework tools already available |
-| Five JLC assemblies (Economic), JLC fits the BNCs | 400–470 | The estimate above plus shipping |
+| Five JLC assemblies (Economic), JLC fits the BNCs | 390–460 | The estimate above plus shipping |
 | Supply/cable/fixture/shunts/standards | Add 30–100+ | Excludes a reference meter, oscilloscope and enclosure |
 
 Use the full batch cost when deciding to build one instrument. Dividing it by two does not reduce the first payment. Taxes/import fees, special sourcing and a possible respin are outside these allowances.

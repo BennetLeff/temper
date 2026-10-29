@@ -88,6 +88,7 @@ Neither number is published. TI's note for the sibling ADC family, [SBAA377](htt
 | 1 mH at 27.5 kHz | 0.41 vs 7.4 % | 0.056 vs 1.07 % | 0.007 vs 0.14 % | 0.001 vs 0.018 % |
 
   The accuracy map puts both ranges at ≤ 0.2 % (corner) for 10–316 Ω at these frequencies. **Pass:** L and R agree within 0.3 %. That bounds the Temper coil's image error to about 0.06 % at 16 fs (0.03 % at 32 fs, 0.14 % at 8 fs). **Fail:** apply the fallback, then repeat.
+- **U5 = OPA197 (2026-10-29).** `dac_images_u5.py` puts each U5 part's simulated DAC → SOURCE transfer in place of the ideal pole: coil 50 µH at 27 kHz, calibrated image error 0.705 / 0.091 % (ideal, 16 / 32 fs), 0.704 / 0.092 % (OPA810), 0.724 / 0.100 % (OPA197). The OPA197's lower bandwidth costs 0.3–1.7 dB of attenuation at 4–16 MHz; B-E1 passes or fails at the same point. Not checked: OPA197 with the 1 nF fallback network.
 - **Fallback, BOM only:** C34/C35 (U5 feedback and ground-leg capacitors, now each two 560 pF in series with C114/C115) → 1 nF C0G with 0 Ω at C114/C115. The pole moves to 80 kHz, which cancels in A/B. It cuts the image error 3.6× (16 fs, 27 kHz coil: 0.73 → 0.21 %) for −0.5 / −2.0 / −3.3 dB of tone at 27 / 60 / 85 kHz (`source_cap_options`). A full fix past that would need a second source pole (a layout change for a later revision).
 - The reference-meter measurement of the cal kit's L and C (CHARACTERIZE.md §1) also bounds this directly, to the reference meter's accuracy.
 

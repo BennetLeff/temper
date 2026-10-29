@@ -5,7 +5,7 @@ This is the circuit between the retained TIDA-060029 analog core and a TI TAC511
 ## Source
 
 - **Converter.** TAC5112 OUT1P/OUT1M, differential line output: 2 Vrms full scale, 1.65 V common mode, ≥ 600 Ω single-ended load.
-- **Difference stage.** The existing OPA810 (X5) becomes a difference amplifier:
+- **Difference stage.** The existing OPA810 (X5) becomes a difference amplifier (U5 is an OPA197 from 2026-10-29: same pinout, loop 67.8°, see `../validation/stability-full-chain/source_stage.py`):
   - 2.2 kΩ in, 2.0 kΩ feedback and ground leg (0.1 %);
   - 280 pF across each 2.0 kΩ, for a 284 kHz pole on the DAC's out-of-band noise. Each is two 560 pF C0G in series (C34 + C114, C35 + C115; 2026-10-29, saves the 270 pF line). U5 loop 59.7° (60.1° before), −0.025 dB / −0.56° at 85 kHz, which cancels in V/I (`../validation/stability-full-chain/source_stage.py`).
   - Gain is 0.909. The stage rejects the 1.65 V common mode, so the source is **DC coupled**: there is no coupling capacitor and no settle wait.

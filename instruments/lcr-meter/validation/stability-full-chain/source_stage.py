@@ -28,6 +28,12 @@ BASE = HERE / "final_codec_r100_matched_stray1000_revd_risolo22_none_caplead4.87
 REF_ROW = (19.5149e6, 95.04)          # matrix-final_codecbase.md, same deck, TIA loop
 BRIDGE = 100.0
 FREQS = [45.0, 100.0, 1e3, 10e3, 27e3, 60e3, 85e3]
+# DAC-image band: the modulator multiples (1.5-12 MHz) and twice them, for rev_e_spurs-style image error.
+HF = sorted(set([round(10 ** (4 + i * (math.log10(30e6) - 4) / 120)) for i in range(121)]
+                + [300e3, 1e6, 2e6, 4e6, 6e6, 8e6, 12e6, 16e6]))
+# U5 part: the as-built OPA197 (2026-10-29) or the OPA810 it replaced.  TI's OPAx197 macro-model
+# (sources/ti/models/OPAx197.LIB) has pin order IN+ IN- VCC VEE OUT.
+U5_LIB = HERE.parents[1] / "sources/ti/models/OPAx197.LIB"
 
 
 def strings(c34, c35):
@@ -46,10 +52,19 @@ def strings(c34, c35):
     return out
 
 
-def deck(variant_lines, mode, tag, work):
+def deck(variant_lines, mode, tag, work, u5="OPA810", freqs=None):
+    freqs = FREQS if freqs is None else freqs
     s = BASE.read_text()
+    if u5 == "OPA197":
+        assert "X5 acin srcfb excite vp vn OPA810" in s
+        s = s.replace("X5 acin srcfb excite vp vn OPA810", "X5 acin srcfb vp vn excite OPAx197")
+        s = s.replace(".include ../../sources/ti/models/opa810_a.lib",
+                      ".include ../../sources/ti/models/opa810_a.lib\n.include ../../sources/ti/models/OPAx197.LIB")
     s = s.replace(".include ../../sources", f".include {HERE.parents[1] / 'sources'}")
-    s = s.replace(".include codec-seed.inc", f".include {HERE / 'codec-seed.inc'}")
+    seed = HERE / "codec-seed.inc"
+    if u5 == "OPA197":   # the seed's OPA810-internal guesses (x5.*) do not exist in the OPA197 model
+        seed = HERE / "codec-seed-u5-opa197.inc"
+    s = s.replace(".include codec-seed.inc", f".include {seed}")
     s = s.split(".control")[0]
     if mode != "tia":   # restore the TIA, drop its probe
         s = s.replace("X7A 0 probe_f tia vp vn OPA2810", "X7A 0 sum tia vp vn OPA2810")
@@ -58,8 +73,11 @@ def deck(variant_lines, mode, tag, work):
     s = "\n".join(l for l in s.splitlines() if not re.match(r"C(sb|sf) ", l)) + "\n"
     s += "\n".join(variant_lines) + "\n"
     if mode == "source":
-        assert "X5 acin srcfb excite vp vn OPA810" in s
-        s = s.replace("X5 acin srcfb excite vp vn OPA810", "X5 acin probe_f excite vp vn OPA810")
+        if u5 == "OPA197":
+            s = s.replace("X5 acin srcfb vp vn excite OPAx197", "X5 acin probe_f vp vn excite OPAx197")
+        else:
+            assert "X5 acin srcfb excite vp vn OPA810" in s
+            s = s.replace("X5 acin srcfb excite vp vn OPA810", "X5 acin probe_f excite vp vn OPA810")
         s += (f"Rbridge srcfb probe_f {BRIDGE}\nIinj 0 srcfb DC 0 AC 1\nIinj2 0 probe_f DC 0 AC 0\n"
               ".nodeset v(probe_f)=0.00007590665\n")
     if mode in ("tia", "source"):
@@ -76,7 +94,7 @@ def deck(variant_lines, mode, tag, work):
             s = s.replace("Vdacp dacp0 0 DC 1.65 AC 0", "Vdacp dacp0 0 DC 1.65 AC 1")
             s = s.replace("Vdacm dacm0 0 DC 1.65 AC 0", "Vdacm dacm0 0 DC 1.65 AC 1")
         ctl = "".join(f"ac lin 1 {f:g} {f:g}\nwrdata {tag}_{i}.dat real(v(excite)) imag(v(excite)) "
-                    f"real(v(source)) imag(v(source))\n" for i, f in enumerate(FREQS))
+                    f"real(v(source)) imag(v(source))\n" for i, f in enumerate(freqs))
     s += (".control\nset klu\noptran 1 0 0 0 0 0\nset wr_singlescale\nset wr_vecnames\nset numdgt=17\nop\n"
           f"wrdata {tag}_dc.dat v(excite) v(source) v(srcfb) v(acin)\n" + ctl + "quit\n.endc\n.end\n")
     (work / f"{tag}.cir").write_text(s)
@@ -124,9 +142,9 @@ def loop(work, tag):
             "t_db_at_85khz": next(p[1] for p in pts if p[0] >= 85e3)}
 
 
-def transfer(work, tag):
+def transfer(work, tag, freqs=None):
     out = {}
-    for i, f in enumerate(FREQS):
+    for i, f in enumerate(FREQS if freqs is None else freqs):
         r = rows(work / f"{tag}_{i}.dat")[0]
         out[f] = {"excite": complex(r[1], r[2]), "source": complex(r[3], r[4])}
     return out
@@ -190,6 +208,27 @@ def main():
             cm = transfer(work, f"cm{i}")
             res["cm_corners"][name] = {f: 20 * math.log10(abs(cm[f]["excite"])) for f in FREQS}
             print(f"CM corner {name}: " + ", ".join(f"{f:g} Hz {res['cm_corners'][name][f]:+.1f} dB" for f in (1e3, 27e3, 85e3)))
+        # U5 OPA810 -> OPA197.  The OPA197 operating point does not converge (strict Newton, as committed)
+        # on the 2x560 pF strings; on OPA810 the strings and an ideal 280 pF agree within 0.03 dB to 16 MHz
+        # (below), so the OPA197 rows use 280 pF.
+        u5 = {}
+        for part, (name, spec) in (("OPA810", ("2x560p series", VARIANTS["2x560p series, mid 0.5 pF, 1.5 nH each"])),
+                                   ("OPA810 ", ("280p ideal", VARIANTS["280p ideal"])),
+                                   ("OPA197", ("280p ideal", VARIANTS["280p ideal"]))):
+            tag = f"u5_{part.strip()}_{name[:4]}"
+            lines = strings(*spec)
+            deck(lines, "source", tag + "_loop", work, u5=part.strip())
+            deck(lines, "diff", tag + "_hf", work, u5=part.strip(), freqs=HF)
+            lp, tr = loop(work, tag + "_loop"), transfer(work, tag + "_hf", HF)
+            u5[f"{part.strip()} {name}"] = {
+                "x5_loop": lp,
+                "dac_to_source": {f: [tr[f]["source"].real, tr[f]["source"].imag] for f in HF},
+                "dac_to_excite": {f: [tr[f]["excite"].real, tr[f]["excite"].imag] for f in HF}}
+            pm = min(c["phase_margin_deg"] for c in lp["crossings"] if c["dir"] == "down")
+            g0 = abs(tr[HF[0]]["excite"])
+            print(f"U5 {part.strip()} {name}: loop {pm:.2f} deg; DAC->EXCITE re 10 kHz " + ", ".join(
+                f"{f/1e6:g} MHz {20*math.log10(abs(tr[f]['excite'])/g0):+.2f} dB" for f in (1e6, 4e6, 8e6, 12e6, 16e6)))
+        res["u5_parts"] = u5
     (HERE / "source_stage.json").write_text(json.dumps(res, indent=1, default=str) + "\n")
 
 

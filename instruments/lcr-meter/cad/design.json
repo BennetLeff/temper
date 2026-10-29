@@ -1025,7 +1025,7 @@
     },
     {
       "ref": "U5",
-      "value": "OPA810IDBVR",
+      "value": "OPA197IDBVR",
       "kind": "OPA810",
       "footprint": "Package_TO_SOT_SMD:SOT-23-5",
       "pins": {
@@ -1041,14 +1041,14 @@
         0
       ],
       "sheet": "source",
-      "mpn": "OPA810IDBVR",
+      "mpn": "OPA197IDBVR",
       "manufacturer": "Texas Instruments",
-      "lcsc": "C2833513",
-      "unit_usd": 3.0949,
-      "stock": 2856,
+      "lcsc": "C221351",
+      "unit_usd": 0.5978,
+      "stock": 85835,
       "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "OPA810"
+      "source_query": "OPA197IDBVR C221351, U5 difference stage"
     },
     {
       "ref": "U6",
