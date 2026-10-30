@@ -5,6 +5,12 @@ in the LCR meter (instruments/lcr-meter, Rev F), the Gerber re-read and JLC chec
 thermometer's RB1 (instruments/wireless-thermometer/proto/revisions/rb1-ads-readout), and the pcbnew helpers
 both used.  Hand routing only: nothing here searches for paths or calls an autorouter.
 
+It lives in `instruments/boardkit/`, beside the instrument boards that use it.  The top-level `packages/`
+tree was removed from main in the legacy cleanup (#1673, #1676), and zapote's policy (`zapote/AGENTS.md`)
+keeps engineering rules for the cooker boards in Rust under `zapote/packages/`.  This package is the
+shared Python tooling for the instrument boards (pcbnew scripts, KiCad's Python 3.9).  It is not a
+zapote rule owner.
+
 ## Contents
 
 | module | what | needs |
@@ -32,20 +38,19 @@ From KiCad's Python (or any script in the repo), put the source directory on the
 ```python
 import sys
 from pathlib import Path
-sys.path.insert(0, str(REPO / 'packages' / 'temper-boardkit' / 'src'))
+sys.path.insert(0, str(REPO / 'instruments' / 'boardkit' / 'src'))
 from temper_boardkit import craft, kicad
 ```
 
 The LCR meter does this once in `instruments/lcr-meter/cad/tools/boardkit_path.py`; its scripts `import
 boardkit_path` first.
 
-A sparse worktree (`git sparse-checkout list` showing only `/instruments/`) must add the package first:
-`git sparse-checkout add /packages/`.
+Sparse worktrees that check out `/instruments/` already have the package.
 
 From uv, without building the workspace (the root workspace holds a maturin crate):
 
 ```sh
-cd packages/temper-boardkit
+cd instruments/boardkit
 PYTHONPATH=src uv run --no-project --with shapely --with numpy --with pytest python -m pytest
 PYTHONPATH=src uv run --no-project --with shapely --with numpy python -m temper_boardkit.cli predrc --help
 ```

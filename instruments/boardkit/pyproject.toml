@@ -2,7 +2,7 @@
 name = "temper-boardkit"
 version = "0.1.0"
 description = "KiCad-free PCB craft passes, pre-DRC, Gerber DFM and JLC tooling for Temper's hand-routed boards"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = ["shapely>=2.0", "numpy>=1.24"]
 
 [project.optional-dependencies]
