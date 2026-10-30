@@ -104,10 +104,10 @@
  {
   "board": "instruments/lcr-meter/cad/temper-lcr.kicad_pcb",
   "copper_mm2": {
-   "F.Cu": 1206.6,
-   "In1.Cu": 9574.5,
-   "In2.Cu": 4614.0,
-   "B.Cu": 4652.9
+   "F.Cu": 1253.3,
+   "In1.Cu": 9568.5,
+   "In2.Cu": 4591.7,
+   "B.Cu": 4650.6
   },
   "board_mm2": 10010.0,
   "return": {
@@ -185,20 +185,20 @@
    }
   },
   "copper_fraction": {
-   "F.Cu": 0.121,
+   "F.Cu": 0.125,
    "In1.Cu": 0.956,
-   "In2.Cu": 0.461,
+   "In2.Cu": 0.459,
    "B.Cu": 0.465
   },
   "teardrops": {
-   "zones": 939,
+   "zones": 994,
    "via_ends_with_teardrop": [
-    383,
-    413
+    402,
+    437
    ],
    "pad_ends_with_teardrop": [
-    425,
-    602
+    445,
+    624
    ],
    "violations": []
   }

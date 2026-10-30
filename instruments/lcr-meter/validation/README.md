@@ -4,7 +4,11 @@
 
 Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm (no autorouter), SHA256:
 
-`811927569d2b9f4925cc043bdfc59cd45e89619a89306888b9cf9f140da52f15`
+`780bf3aef5ba341ad6dbde36b00f73b8c0cba0760d93c497ea63ae0f9f5db2ee`
+
+(2026-10-30, the datasheet-audit fixes ([datasheet-audit-rev-f/README.md](datasheet-audit-rev-f/README.md)): TPS65131 start-up (U17 LM3880 sequencer drives ENP then ENN through open-drain flags with R119/R120 pull-ups to 3V3; C117 330 µF polymer on 5 V), C113 1 → 4.7 µF, R101 2.2 → 1 Ω, C62 (codec VREF) 1 → 2.2 µF, seven test pads (I2S ×4, USB_VBUS, two GND). Analog copper identical to `6ae693082` (562 items; GND fill changes ≥ 7.0 mm from analog copper, `layout-parasitics/copper-delta.json`), so the extraction, stability, source-stage and accuracy rows carry over. Rows marked *audit* were rerun on this file.)
+
+(Earlier: `811927569d2b9f4925cc043bdfc59cd45e89619a89306888b9cf9f140da52f15`, the visual review and the JLC Gerber quote of 2026-10-29.)
 
 (2026-10-29, the JLC fab pass's silk fixes: TP1–TP14 silk rings, U14 corner marks and the D4 silk line moved to ≥ 0.16 mm from their pads. Silk only; copper as on `056dd184…0e57`, on which the extraction and stability rows were run.)
 
@@ -12,21 +16,21 @@ Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm
 
 | Check | Result | Evidence |
 |---|---|---|
-| ERC / DRC / unconnected / schematic parity | 0 / 0 / 0 / 0 | `erc.json`, `drc.json` |
-| Independent audit (Rev F) | 656 pins, 12 relief pins, 0 findings | `independent-verification-rev-f.json` (`independent_check.py f`) |
-| DFM via audit | 33 exposed-pad thermal vias only; no other via drill or ring on an SMT land; every via tented in CAD | `via-in-pad-process.json` (`cad/audit_dfm.py`) |
+| ERC / DRC / unconnected / schematic parity (*audit*) | 0 / 0 / 0 / 0 | `erc.json`, `drc.json` |
+| Independent audit (Rev F, *audit*) | 672 pins, 12 relief pins, 0 findings | `independent-verification-rev-f.json` (`independent_check.py f`) |
+| DFM via audit (*audit*) | 33 exposed-pad thermal vias only; no other via drill or ring on an SMT land; every via tented in CAD | `via-in-pad-process.json` (`cad/audit_dfm.py`) |
 | Layout audit | decoupling, exposed-pad vias, regulator support parts, feedback lengths | `layout-audit-rev-f.json` (`cad/tools/audit_layout.py`) |
 | Extracted parasitics (gate G1, high corner), rerun with the pours and teardrops | source 11.68 pF ≤ 13.7, tia 14.02 pF ≤ 14.7 (before the pours 11.39 / 13.63) | `layout-parasitics/extracted_revf.json` (`run_reve.sh revf`; fd3d rasterizes every zone fill) |
 | Loop stability, as built (rerun on the extraction above) | 360 cases with dip refinement; worst drive 47.76°, TIA 57.28°, HIGH 57.57°, LOW 56.61° (Rev E 46.83 / 57.21 / 57.05 / 55.89°); lossy RG-58 leads 47.76 / 57.68 / 57.55 / 56.58° | `stability-full-chain/` (`revfcng100`, `revflossycng100`) |
-| Regulators | 51 PASS, 2 FLAG (USB unconfigured draw; R95/R96 headroom with TCR), 0 FAIL; input estimate 0.4617 A with the LEDs at about 0.5 mA (38 mA under 0.5 A); 5 V trunk 23.0 mV (2.0 mm strip) | `power-spurs/regulator_check.json` |
-| Rail monitor windows | unchanged with the ±12 V LED loads: +12 [10.2, 13.4] V, −12 [10.5, 14.1] V | `power-spurs/rail_monitor_window.json` |
-| Parts and placements | 213 fitted of 216, 209 SMT placements, 66 SMT lines (24 extended: C160472 added); LED CPL offsets 0 (C2286 RMS 0.04 mm, C160472 RMS 0.10 mm) | `cad-bom-parity.json`, `../sources/placement-rev-c.json` |
+| Regulators (*audit*) | 51 PASS, 2 FLAG (USB unconfigured draw; R95/R96 headroom with TCR), 0 FAIL; input estimate 0.4617 A with the LEDs at about 0.5 mA (38 mA under 0.5 A); 5 V trunk 23.0 mV (2.0 mm strip) | `power-spurs/regulator_check.json` |
+| Rail monitor windows (*audit*) | unchanged with the ±12 V LED loads: +12 [10.2, 13.4] V, −12 [10.5, 14.1] V | `power-spurs/rail_monitor_window.json` |
+| Parts and placements (*audit*) | 219 fitted of 222, 215 SMT placements, 68 SMT lines (26 extended: C433208 and C486059 added); CPL offsets C2286 0° RMS 0.04 mm, C160472 0° RMS 0.10 mm, C433208 0° RMS 0.21 mm (+ on pad 1), C486059 180° RMS 0.21 mm (as U16's SOT-23-6); polarized capacitors now need a placement-library audit (`package_cad.py`); order estimate 5 boards $354.32 economic (was $332.37), prices `jlc-parts-2026-10-30.json` (LM3880 stock 221) | `cad-bom-parity.json`, `../sources/placement-rev-c.json` |
 | Switcher pickup (relative to Rev E, not a bound) | TIA C104 loop +4.5 dB, RF100K loop +4.3 dB; Kelvin inputs −23 to −42 dB | `power-spurs/switcher_pickup-rev-f.json` |
 | Fiducials and test pads | FID1–FID3 (Fiducial_1mm_Mask2mm), no copper within 2.0 mm; TP1–TP9 (TestPoint_Pad_D1.5mm) on 5V, 3V3, ±12V, RAW_P/N, VRLY and two GND; TP10–TP14 on the relay coil lines at the drivers, 10.7–19.0 mm from analog copper (asserted in `rev_f.py`); all board-only, absent from BOM and CPL (209 placements unchanged); order estimates unchanged | `cad/design.json` `board`, `../manufacturing/cpl-jlcpcb.csv`, `../manufacturing/order-estimate-{2,5}.json` |
-| JLC fab pass (`jlcpcb-4layer-1oz`, read 2026-10-29) | PASS: every profile rule fired on the self-test board; the board has no finding. Before the silk fixes: 23 pad-to-silk at 0.12–0.14 mm (TP1–TP14 rings, U14, D4) | `fab-check.json` (`temper_boardkit.fab`, run by `cad/rebuild.sh`) |
-| Edge copper (V-cut rails left and right) | nearest copper to the left/right edges 0.50 mm (GND plane and pours, all inset 0.5 mm), nearest track 0.90 mm, nearest land 0.95 mm (L2) | `edge-clearance-rev-f.json` (`cad/tools/edge_clearance.py`) |
+| JLC fab pass (`jlcpcb-4layer-1oz`, read 2026-10-29, *audit*) | PASS: every profile rule fired on the self-test board; the board has no finding. Before the silk fixes: 23 pad-to-silk at 0.12–0.14 mm (TP1–TP14 rings, U14, D4) | `fab-check.json` (`temper_boardkit.fab`, run by `cad/rebuild.sh`) |
+| Edge copper (V-cut rails left and right, *audit*) | nearest copper to the left/right edges 0.50 mm (GND plane and pours, all inset 0.5 mm), nearest track 0.90 mm, nearest land 0.95 mm (L2) | `edge-clearance-rev-f.json` (`cad/tools/edge_clearance.py`) |
 | Craft rules (pre-DRC, `temper_boardkit.craft` in `instruments/boardkit`) | T-junctions 53 → 0; 90° bends 140 → 8, off-axis land entries 246 → 24 (all listed exceptions in `routing.json`); vias 307 → 425 (0.45 mm pads 198 → 36, the rest 0.60 / 0.55); `test_craft.py` 28 pass | `../cad/routing.json` `craft_exceptions`; from `instruments/boardkit`: `PYTHONPATH=src uv run --no-project --with shapely --with numpy --with pytest python -m pytest` |
-| Supply copper, IPC-2152 at 10 °C rise | 7 supply nets, every segment and via PASS (1.17 A on USB_VBUS / 5V); 5 V trunk 49.8 mΩ, 23.0 mV at 0.4617 A | `power-spurs/current_check.json`, `power-spurs/regulator_check.json` |
+| Supply copper, IPC-2152 at 10 °C rise (*audit*) | 7 supply nets, every segment and via PASS (1.17 A on USB_VBUS / 5V); 5 V trunk 49.8 mΩ, 23.0 mV at 0.4617 A | `power-spurs/current_check.json`, `power-spurs/regulator_check.json` |
 | GND pours and return paths | copper In2 4.6 → 46 %, B.Cu 5.9 → 46.5 %; 118 stitching vias; I2S BCLK loop 84.0 → 40.8 mm², USB_DP 32.1 → 20.6 mm² | `pour-report-rev-f.json` (`cad/tools/pour_report.py`) |
 | Teardrops | 939 KiCad teardrop zones; 383 / 413 via ends and 425 / 602 pad ends carry one; none disabled; two rebuilds byte-identical | `pour-report-rev-f.json` |
 | References and drawings | 190 of 216 references on silk (26 on the assembly drawing only); `manufacturing/assembly-top.pdf`, `manufacturing/fab-drawing.pdf` and the Dwgs.User Gerber | `../cad/tools/silk_library.json`, `../manufacturing/` |
@@ -35,8 +39,13 @@ Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm
 | Source stage U5, rerun 2026-10-29 | byte-identical to the committed result (assumed strays, layout-independent) | `stability-full-chain/source_stage.json` (`source_stage.py`) |
 | Interference, codec chain, rerun 2026-10-29 | SOF sweep, source-cap options, range screen unchanged; switcher-collision errors move by at most +1.9 % (the regulator model now reads Rev F's placement and copper) | `power-spurs/rev_e_spurs.json` (`rev_e_spurs.py`) |
 | Accuracy map, rerun 2026-10-29 | results byte-identical (layout-independent) | `rev-e-accuracy-map/results/` (`rerun.sh`) |
+| Datasheet audit, 2026-10-29 (seven subsystem reviews) | no datasheet limit broken in intended use except the known USB unconfigured-draw FLAG; start-up hiccup, hot-plug margin and RESET-coil margin fixed on the board; the rest dispositioned | `datasheet-audit-rev-f/README.md` and its seven reports |
+| TPS65131 start-up against the TPS2553 limit (*audit*) | power-up from USB attach, 128 corners (VBUS, switch limit, output-cap retention, C117 ±20 %, UVLO 2.1/2.7 V, LM3880 timer ±15 %, EN current ±50 %): all pass, 5 V ≥ 3.86 V after the first enable (> 3.7 V, 3V3 headroom), ENP at 46 ms, ENN 8.5 ms later in the worst row; without C117 32 / 128 pass; the board before the audit and the rejected RC-on-EN variant 0 / 128 (UVLO restart: the boost started while U16 was still charging the 5 V node) | `power-spurs/startup_surge.json` (`startup_surge.py`) | `power-spurs/startup_surge.json` (`startup_surge.py`) |
+| Analog copper vs the extracted board (*audit*) | 562 analog items identical to `6ae693082`; GND fill changes B.Cu 6.34 mm² (31.3 mm away), In1 10.65 mm² (7.0 mm), In2 36.09 mm² (31.3 mm) | `layout-parasitics/copper-delta.json` (`copper_delta.sh 6ae693082`) |
+| Interference and rail monitors, rerun 2026-10-30 (*audit*) | `rev_e_spurs.json` and `rail_monitor_window.json` byte-identical to 2026-10-29 | `power-spurs/` |
+| GND pours (*audit*) | In2 45.9 %, B.Cu 46.5 %; 115 stitching vias; 994 teardrop zones, none disabled; BCLK loop 40.8 mm² | `pour-report-rev-f.json` |
 
-**Not established:** everything listed under Rev E below. Ordering steps open: JLC re-quote with the Gerbers, via covering "Plugged" in vendor DFM, placement-preview approval. No manufacturer upload or purchase has occurred.
+**Not established:** everything listed under Rev E below. Ordering steps open: the 2026-10-29 Gerber quote ($25.70, `../manufacturing/fab-quote.json`) was on the previous board; re-upload these Gerbers (same size and layers), then sign in for the BOM/CPL upload, the placement preview (check C117 +, U17 pin 1, Y1 pin 1, K1–K4) and the DFM review. Firmware items from the audit are open (`datasheet-audit-rev-f/README.md`). No purchase has occurred.
 
 ## Revision E verification receipt (superseded by Rev F; same circuit, kept as history)
 

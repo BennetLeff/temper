@@ -10,7 +10,7 @@
    "worst_current_a": 1.17,
    "basis": "TPS2553 ILIM max",
    "source": "J1",
-   "segments": 62,
+   "segments": 63,
    "need_outer_mm": 0.38,
    "need_inner_mm": 0.875,
    "max_segment_current_a": 1.17,
@@ -23,12 +23,12 @@
    "worst_current_a": 1.17,
    "basis": "TPS2553 ILIM max",
    "source": "U16",
-   "segments": 59,
+   "segments": 61,
    "need_outer_mm": 0.38,
    "need_inner_mm": 0.875,
    "max_segment_current_a": 1.17,
    "fail_segments": 0,
-   "vias": 9,
+   "vias": 11,
    "max_via_current_a": 1.17,
    "fail_vias": 0
   },
@@ -88,12 +88,12 @@
    "worst_current_a": 0.6,
    "basis": "AP2112K rating",
    "source": "U3",
-   "segments": 152,
+   "segments": 154,
    "need_outer_mm": 0.113,
    "need_inner_mm": 0.261,
    "max_segment_current_a": 0.6,
    "fail_segments": 0,
-   "vias": 7,
+   "vias": 9,
    "max_via_current_a": 0.6,
    "fail_vias": 0
   }
@@ -915,6 +915,22 @@
    ],
    "width_mm": 0.2,
    "current_a": 0.0001,
+   "need_mm": 0.0,
+   "status": "PASS"
+  },
+  {
+   "net": "USB_VBUS",
+   "layer": "F.Cu",
+   "from": [
+    61.225,
+    127.9
+   ],
+   "to": [
+    62.225,
+    128.9
+   ],
+   "width_mm": 0.3,
+   "current_a": 0.0,
    "need_mm": 0.0,
    "status": "PASS"
   },
@@ -1875,6 +1891,38 @@
    ],
    "width_mm": 0.2,
    "current_a": 0.0011,
+   "need_mm": 0.0,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "layer": "F.Cu",
+   "from": [
+    118.6,
+    143.0
+   ],
+   "to": [
+    117.0,
+    143.0
+   ],
+   "width_mm": 1.0,
+   "current_a": 0.0,
+   "need_mm": 0.0,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "layer": "F.Cu",
+   "from": [
+    118.6,
+    143.0
+   ],
+   "to": [
+    120.2,
+    143.0
+   ],
+   "width_mm": 1.0,
+   "current_a": 0.0,
    "need_mm": 0.0,
    "status": "PASS"
   },
@@ -6218,86 +6266,6 @@
    "net": "3V3",
    "layer": "F.Cu",
    "from": [
-    139.925,
-    134.75
-   ],
-   "to": [
-    140.164,
-    135.08
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.2294,
-   "need_mm": 0.02,
-   "status": "PASS"
-  },
-  {
-   "net": "3V3",
-   "layer": "F.Cu",
-   "from": [
-    140.164,
-    135.705
-   ],
-   "to": [
-    140.164,
-    135.08
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.2294,
-   "need_mm": 0.02,
-   "status": "PASS"
-  },
-  {
-   "net": "3V3",
-   "layer": "F.Cu",
-   "from": [
-    139.488,
-    135.75
-   ],
-   "to": [
-    140.119,
-    135.75
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.3706,
-   "need_mm": 0.047,
-   "status": "PASS"
-  },
-  {
-   "net": "3V3",
-   "layer": "F.Cu",
-   "from": [
-    140.164,
-    135.705
-   ],
-   "to": [
-    140.55,
-    135.705
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.6,
-   "need_mm": 0.113,
-   "status": "PASS"
-  },
-  {
-   "net": "3V3",
-   "layer": "F.Cu",
-   "from": [
-    140.119,
-    135.75
-   ],
-   "to": [
-    140.164,
-    135.705
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.3706,
-   "need_mm": 0.047,
-   "status": "PASS"
-  },
-  {
-   "net": "3V3",
-   "layer": "F.Cu",
-   "from": [
     58.7,
     134.95
    ],
@@ -6734,7 +6702,7 @@
     123.9
    ],
    "to": [
-    140.3,
+    133.175,
     123.9
    ],
    "width_mm": 0.3,
@@ -6746,14 +6714,126 @@
    "net": "3V3",
    "layer": "In2.Cu",
    "from": [
+    133.175,
+    123.9
+   ],
+   "to": [
+    140.3,
+    123.9
+   ],
+   "width_mm": 0.3,
+   "current_a": 0.0,
+   "need_mm": 0.0,
+   "status": "PASS"
+  },
+  {
+   "net": "3V3",
+   "layer": "In2.Cu",
+   "from": [
     141.2,
     124.8
+   ],
+   "to": [
+    141.2,
+    131.75
+   ],
+   "width_mm": 0.27,
+   "current_a": 0.0,
+   "need_mm": 0.0,
+   "status": "PASS"
+  },
+  {
+   "net": "3V3",
+   "layer": "In2.Cu",
+   "from": [
+    141.2,
+    131.75
    ],
    "to": [
     141.2,
     136.4
    ],
    "width_mm": 0.27,
+   "current_a": 0.0,
+   "need_mm": 0.0,
+   "status": "PASS"
+  },
+  {
+   "net": "3V3",
+   "layer": "F.Cu",
+   "from": [
+    141.55,
+    132.025
+   ],
+   "to": [
+    141.2,
+    131.75
+   ],
+   "width_mm": 0.2,
+   "current_a": 0.0,
+   "need_mm": 0.0,
+   "status": "PASS"
+  },
+  {
+   "net": "3V3",
+   "layer": "In2.Cu",
+   "from": [
+    141.2,
+    136.4
+   ],
+   "to": [
+    142.425,
+    137.625
+   ],
+   "width_mm": 0.27,
+   "current_a": 0.0,
+   "need_mm": 0.0,
+   "status": "PASS"
+  },
+  {
+   "net": "3V3",
+   "layer": "In2.Cu",
+   "from": [
+    142.425,
+    137.625
+   ],
+   "to": [
+    142.6,
+    137.625
+   ],
+   "width_mm": 0.27,
+   "current_a": 0.0,
+   "need_mm": 0.0,
+   "status": "PASS"
+  },
+  {
+   "net": "3V3",
+   "layer": "F.Cu",
+   "from": [
+    142.6,
+    137.625
+   ],
+   "to": [
+    141.5,
+    137.625
+   ],
+   "width_mm": 0.2,
+   "current_a": 0.0,
+   "need_mm": 0.0,
+   "status": "PASS"
+  },
+  {
+   "net": "3V3",
+   "layer": "In2.Cu",
+   "from": [
+    133.175,
+    123.9
+   ],
+   "to": [
+    133.175,
+    117.9
+   ],
+   "width_mm": 0.3,
    "current_a": 0.6,
    "need_mm": 0.261,
    "status": "PASS"
@@ -6762,12 +6842,12 @@
    "net": "3V3",
    "layer": "F.Cu",
    "from": [
-    141.2,
-    136.4
+    133.175,
+    117.9
    ],
    "to": [
-    140.55,
-    135.75
+    133.175,
+    119.05
    ],
    "width_mm": 0.2,
    "current_a": 0.6,
@@ -6778,12 +6858,12 @@
    "net": "3V3",
    "layer": "F.Cu",
    "from": [
-    140.55,
-    135.75
+    133.175,
+    119.05
    ],
    "to": [
-    140.55,
-    135.705
+    134.863,
+    119.05
    ],
    "width_mm": 0.2,
    "current_a": 0.6,
@@ -6890,38 +6970,6 @@
    "net": "3V3",
    "layer": "F.Cu",
    "from": [
-    139.488,
-    134.75
-   ],
-   "to": [
-    139.834,
-    134.75
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.0002,
-   "need_mm": 0.0,
-   "status": "PASS"
-  },
-  {
-   "net": "3V3",
-   "layer": "F.Cu",
-   "from": [
-    139.834,
-    134.75
-   ],
-   "to": [
-    139.925,
-    134.75
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.2294,
-   "need_mm": 0.02,
-   "status": "PASS"
-  },
-  {
-   "net": "3V3",
-   "layer": "F.Cu",
-   "from": [
     57.987,
     134.95
    ],
@@ -6980,6 +7028,38 @@
    "width_mm": 0.2,
    "current_a": 0.6,
    "need_mm": 0.113,
+   "status": "PASS"
+  },
+  {
+   "net": "3V3",
+   "layer": "F.Cu",
+   "from": [
+    141.55,
+    132.475
+   ],
+   "to": [
+    141.55,
+    132.1
+   ],
+   "width_mm": 0.2,
+   "current_a": 0.0,
+   "need_mm": 0.0,
+   "status": "PASS"
+  },
+  {
+   "net": "3V3",
+   "layer": "F.Cu",
+   "from": [
+    141.55,
+    132.1
+   ],
+   "to": [
+    141.55,
+    132.025
+   ],
+   "width_mm": 0.2,
+   "current_a": 0.0,
+   "need_mm": 0.0,
    "status": "PASS"
   },
   {
@@ -7090,8 +7170,8 @@
     124.8
    ],
    "width_mm": 0.27,
-   "current_a": 0.6,
-   "need_mm": 0.261,
+   "current_a": 0.0,
+   "need_mm": 0.0,
    "status": "PASS"
   }
  ],
@@ -7225,6 +7305,28 @@
    ],
    "drill_mm": 0.3,
    "current_a": 0.0011,
+   "capacity_a": 1.338,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "at": [
+    117.0,
+    143.0
+   ],
+   "drill_mm": 0.3,
+   "current_a": 0.0,
+   "capacity_a": 1.338,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "at": [
+    120.2,
+    143.0
+   ],
+   "drill_mm": 0.3,
+   "current_a": 0.0,
    "capacity_a": 1.338,
    "status": "PASS"
   },
@@ -7485,7 +7587,29 @@
    "net": "3V3",
    "at": [
     141.2,
-    136.4
+    131.75
+   ],
+   "drill_mm": 0.3,
+   "current_a": 0.0,
+   "capacity_a": 1.338,
+   "status": "PASS"
+  },
+  {
+   "net": "3V3",
+   "at": [
+    142.6,
+    137.625
+   ],
+   "drill_mm": 0.3,
+   "current_a": 0.0,
+   "capacity_a": 1.338,
+   "status": "PASS"
+  },
+  {
+   "net": "3V3",
+   "at": [
+    133.175,
+    117.9
    ],
    "drill_mm": 0.3,
    "current_a": 0.6,

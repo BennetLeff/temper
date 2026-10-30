@@ -1,0 +1,19 @@
+{
+ "reference_rev": "6ae693082",
+ "analog_items": 562,
+ "analog_items_identical": true,
+ "gnd_fill_change": {
+  "B.Cu": {
+   "area_mm2": 6.34,
+   "nearest_analog_copper_mm": 31.26
+  },
+  "In1.Cu": {
+   "area_mm2": 10.65,
+   "nearest_analog_copper_mm": 7.01
+  },
+  "In2.Cu": {
+   "area_mm2": 36.09,
+   "nearest_analog_copper_mm": 31.26
+  }
+ }
+}

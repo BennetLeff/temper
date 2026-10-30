@@ -540,8 +540,48 @@ T('3V3', 'B.Cu', (97.3, 124.6), (100.0, 124.6), w=0.3)
 V('3V3', 100.0, 124.6)
 T('3V3', 'In2.Cu', (100.0, 124.6), (100.7, 123.9), (141.2, 123.9), w=0.3)
 T('3V3', 'In2.Cu', (141.2, 123.9), (141.2, 136.4), w=0.27)      # 0.27: clear of the switcher's In2 copy at y 134
-V('3V3', 141.2, 136.4)
-T('3V3', 'F.Cu', (141.2, 136.4), (140.5497, 135.7497), (140.5497, 135.7048))   # onto the ring's east end at 90 deg
+# U13 enables (datasheet audit 2026-10-29): Rev E's 3V3 ring joining ENP and ENN goes.  The pull-ups R120
+# (ENN) and R119 (ENP) stand in a column east of the EN pins; 3V3 reaches R120 by a via on the In2 riser
+# and R119 by the riser's end turned 45 deg to a via beside it
+DROP('3V3', 139.3, 134.5, 140.8, 136.0)
+V('3V3', 141.2, 131.75)
+T('3V3', 'F.Cu', (141.2, 131.75), (141.55, 132.1), 'R120.2')
+T('3V3', 'In2.Cu', (141.2, 136.4), (142.425, 137.625), (142.6, 137.625), w=0.27)
+V('3V3', 142.6, 137.625)
+T('3V3', 'F.Cu', (142.6, 137.625), 'R119.2')
+T('CONV_ENN', 'F.Cu', 'U13.10', (140.925, 134.75), 'R120.1')
+T('CONV_ENP', 'F.Cu', 'U13.8', (141.275, 135.75), 'R119.1')
+# U17 (LM3880) north of R111: 3V3 by an In2 drop off the y 123.9 run to a via above C118; C118/C116 GND
+# lands joined, one via; U17 GND to a via between the caps.  FLAG1 (ENP) and FLAG2 (ENN) to vias east of
+# U17, In2 east and down the clear lane between D3 and L2 (x 143.6 / 142.9, FID3's 2 mm clearance ends at
+# x 144.5), each to a via beside its pull-up's signal land
+T('3V3', 'In2.Cu', (133.175, 123.9), (133.175, 117.9), w=0.3)
+V('3V3', 133.175, 117.9)
+T('3V3', 'F.Cu', (133.175, 117.9), 'C118.2')
+T('3V3', 'F.Cu', 'C118.2', 'U17.1')
+T('SEQ_EN', 'F.Cu', 'C116.2', 'U17.3')
+T('GND', 'F.Cu', 'C118.1', 'C116.1')
+V('GND', 130.85, 120.0)
+T('GND', 'F.Cu', (131.625, 120.0), (130.85, 120.0))
+V('GND', 133.85, 120.0)
+T('GND', 'F.Cu', 'U17.2', (133.85, 120.0))
+V('CONV_ENP', 138.5, 119.05)
+T('CONV_ENP', 'F.Cu', 'U17.6', (138.5, 119.05))
+T('CONV_ENP', 'In2.Cu', (138.5, 119.05), (139.15, 118.4), (143.6, 118.4), (143.6, 135.275), (142.9, 135.975))  # y 118.4: over C91's GND via at (140.5, 119.3)
+V('CONV_ENP', 142.9, 135.975)
+T('CONV_ENP', 'F.Cu', (142.9, 135.975), 'R119.1')
+V('CONV_ENN', 138.5, 120.0)
+T('CONV_ENN', 'F.Cu', 'U17.5', (138.5, 120.0))
+T('CONV_ENN', 'In2.Cu', (138.5, 120.0), (142.9, 120.0), (142.9, 134.125))
+V('CONV_ENN', 142.9, 134.125)
+T('CONV_ENN', 'F.Cu', (142.9, 134.125), 'R120.1')
+# C117 5 V bulk (start-up surge): + land's south end out east and west to a via each on the B.Cu trunk,
+# - land's north end to a GND via each side
+for x in (117.0, 120.2):
+    T('5V', 'F.Cu', (118.6, 143.0), (x, 143.0), w=1.0)
+    V('5V', x, 143.0)
+    T('GND', 'F.Cu', (118.6, 133.0), (x, 133.0), w=1.0)
+    V('GND', x, 133.0)
 V('GND', 148.35, 125.4)
 T('GND', 'F.Cu', 'L2.2', (148.35, 125.4), w=0.5)
 # K4 reference gate: R108 -> Q6 gate, R109 pull-down, GND vias
@@ -597,6 +637,16 @@ TESTPOINTS = [
     ('K3',   'RLY_SET_HI',  122.0,  111.6, 1.5, 124.2, 111.6),   # 2.3 mm stub east out of Q5's drain land
     ('K4',   'RLY_SET_REF', 147.9,   75.6, 1.5, 145.8,  75.6),   # on the K4.5 -> Q6 run (no new copper)
     ('RST',  'RLY_RST',      97.295, 115.0, 1.5,  94.8, 115.0),  # 3.4 mm stub south out of Q2's drain land
+    # Datasheet audit, 2026-10-29: bring-up access the board lacked.  I2S at the codec end (1.0 mm pads in a
+    # column on empty F.Cu west of the risers, each a via onto its riser plus an F.Cu stub; digital nets
+    # only), with a GND pad; USB_VBUS at U16 IN for the hot-plug overshoot check, with a GND pad.
+    ('BCLK',  'I2S_BCLK',  56.2,  94.4, 1.0, 53.2,  94.4),
+    ('FSYNC', 'I2S_FSYNC', 56.2,  96.4, 1.0, 52.8,  96.4),
+    ('DOUT',  'I2S_DOUT',  56.2,  98.4, 1.0, 53.2,  98.4),
+    ('DIN',   'I2S_DIN',   56.2, 100.4, 1.0, 53.5, 100.4),
+    ('GND',   'GND',       56.2, 102.4, 1.0, 53.5, 102.4),
+    ('VB',    'USB_VBUS',  62.225, 128.9, 1.0, 62.0, 130.45),
+    ('GND',   'GND',       64.225, 128.9, 1.0, 64.8, 127.2),
 ]
 design['board']['testpoints'] = [list(t[:5]) for t in TESTPOINTS]
 T('5V', 'F.Cu', (98.7, 116.5), (100.5, 116.5), w=0.4)
@@ -611,6 +661,18 @@ T('RLY_SET_LO', 'F.Cu', 'Q4.3', (107.2, 111.6))
 T('RLY_SET_MED', 'F.Cu', (89.938, 108.5), (88.9, 108.5))
 T('RLY_SET_HI', 'F.Cu', 'Q5.3', (122.0, 111.6))
 T('RLY_RST', 'F.Cu', 'Q2.3', (97.295, 115.0))
+V('I2S_BCLK', 59.1, 94.4)                  # on the B.Cu riser x 59.1
+T('I2S_BCLK', 'F.Cu', (59.1, 94.4), (56.2, 94.4))
+V('I2S_FSYNC', 58.0, 96.4)                 # on the In2 riser x 58.0
+T('I2S_FSYNC', 'F.Cu', (58.0, 96.4), (56.2, 96.4))
+V('I2S_DOUT', 59.6, 97.4)                  # on the B.Cu riser x 59.6
+T('I2S_DOUT', 'F.Cu', (59.6, 97.4), (58.6, 98.4), (56.2, 98.4))
+V('I2S_DIN', 60.15, 98.9)                  # on the B.Cu riser x 60.15, above its jog
+T('I2S_DIN', 'F.Cu', (60.15, 98.9), (58.65, 100.4), (56.2, 100.4))
+V('GND', 57.3, 102.4)
+T('GND', 'F.Cu', (57.3, 102.4), (56.2, 102.4))
+T('USB_VBUS', 'F.Cu', (61.225, 127.9), (62.225, 128.9), w=0.3)
+T('GND', 'F.Cu', (64.225, 128.9), (64.225, 129.775), (63.75, 130.25), w=0.3)
 # Rev E copy of the U14 3V3 drop along x 58.95, lying on the hand 3V3 run but ending 6.5 um past its
 # corner: the corner's chamfer (craft pass) would leave it dangling, so it goes.
 DROP('3V3', 58.9, 92.7, 59.0, 93.71)

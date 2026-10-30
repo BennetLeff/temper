@@ -292,16 +292,16 @@
      "return_via_mm": 1.53
     },
     {
+     "cap": "C117",
+     "mm": 63.19,
+     "return_net": "GND",
+     "return_via_mm": 1.96
+    },
+    {
      "cap": "C80",
      "mm": 71.82,
      "return_net": "GND",
      "return_via_mm": 2.14
-    },
-    {
-     "cap": "C82",
-     "mm": 82.78,
-     "return_net": "GND",
-     "return_via_mm": 1.76
     }
    ]
   },
@@ -315,16 +315,16 @@
      "return_via_mm": 1.53
     },
     {
+     "cap": "C117",
+     "mm": 63.03,
+     "return_net": "GND",
+     "return_via_mm": 1.96
+    },
+    {
      "cap": "C80",
      "mm": 71.63,
      "return_net": "GND",
      "return_via_mm": 2.14
-    },
-    {
-     "cap": "C82",
-     "mm": 82.6,
-     "return_net": "GND",
-     "return_via_mm": 1.76
     }
    ]
   },
@@ -660,52 +660,6 @@
     }
    ]
   },
-  "U13.8": {
-   "net": "3V3",
-   "nearest": [
-    {
-     "cap": "C10",
-     "mm": 58.53,
-     "return_net": "GND",
-     "return_via_mm": 2.33
-    },
-    {
-     "cap": "C1",
-     "mm": 58.96,
-     "return_net": "GND",
-     "return_via_mm": 0.91
-    },
-    {
-     "cap": "C11",
-     "mm": 59.04,
-     "return_net": "GND",
-     "return_via_mm": 1.02
-    }
-   ]
-  },
-  "U13.10": {
-   "net": "3V3",
-   "nearest": [
-    {
-     "cap": "C10",
-     "mm": 58.48,
-     "return_net": "GND",
-     "return_via_mm": 2.33
-    },
-    {
-     "cap": "C1",
-     "mm": 58.84,
-     "return_net": "GND",
-     "return_via_mm": 0.91
-    },
-    {
-     "cap": "C11",
-     "mm": 59.09,
-     "return_net": "GND",
-     "return_via_mm": 1.02
-    }
-   ]
-  },
   "U13.15": {
    "net": "RAW_N",
    "nearest": [
@@ -893,16 +847,39 @@
      "return_via_mm": 1.53
     },
     {
+     "cap": "C117",
+     "mm": 64.95,
+     "return_net": "GND",
+     "return_via_mm": 1.96
+    },
+    {
      "cap": "C80",
      "mm": 73.62,
      "return_net": "GND",
      "return_via_mm": 2.14
+    }
+   ]
+  },
+  "U17.1": {
+   "net": "3V3",
+   "nearest": [
+    {
+     "cap": "C118",
+     "mm": 1.69,
+     "return_net": "GND",
+     "return_via_mm": 1.23
     },
     {
-     "cap": "C82",
-     "mm": 84.56,
+     "cap": "C2",
+     "mm": 53.91,
      "return_net": "GND",
-     "return_via_mm": 1.76
+     "return_via_mm": 1.05
+    },
+    {
+     "cap": "C6",
+     "mm": 54.17,
+     "return_net": "GND",
+     "return_via_mm": 0.92
     }
    ]
   }
@@ -977,41 +954,13 @@
    100.05,
    100.05
   ],
-  "courtyard_fraction": 0.329,
+  "courtyard_fraction": 0.342,
   "sheets": {
-   "range": {
-    "courtyard_mm2": 892,
-    "centroid_span_mm": [
-     61,
-     49
-    ]
-   },
-   "power": {
-    "courtyard_mm2": 519,
-    "centroid_span_mm": [
-     95,
-     56
-    ]
-   },
    "digital": {
     "courtyard_mm2": 545,
     "centroid_span_mm": [
      56,
      98
-    ]
-   },
-   "mechanical": {
-    "courtyard_mm2": 232,
-    "centroid_span_mm": [
-     95,
-     93
-    ]
-   },
-   "afe": {
-    "courtyard_mm2": 810,
-    "centroid_span_mm": [
-     66,
-     47
     ]
    },
    "codec": {
@@ -1021,11 +970,39 @@
      37
     ]
    },
+   "range": {
+    "courtyard_mm2": 892,
+    "centroid_span_mm": [
+     61,
+     49
+    ]
+   },
    "source": {
     "courtyard_mm2": 68,
     "centroid_span_mm": [
      13,
      17
+    ]
+   },
+   "mechanical": {
+    "courtyard_mm2": 253,
+    "centroid_span_mm": [
+     95,
+     93
+    ]
+   },
+   "power": {
+    "courtyard_mm2": 632,
+    "centroid_span_mm": [
+     95,
+     56
+    ]
+   },
+   "afe": {
+    "courtyard_mm2": 810,
+    "centroid_span_mm": [
+     66,
+     47
     ]
    }
   }

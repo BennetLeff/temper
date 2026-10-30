@@ -73,8 +73,8 @@
   "ohm": 0.04984657997524362,
   "path_mm": 109.43881772644562,
   "routed": true,
-  "pads": "/Users/bennet/Desktop/temper/worktrees/lcr-rev-f-100/instruments/lcr-meter/build/pad-coordinates.json",
-  "routing": "/Users/bennet/Desktop/temper/worktrees/lcr-rev-f-100/instruments/lcr-meter/cad/routing.json"
+  "pads": "/Users/bennet/Desktop/temper/worktrees/lcr-in-box/instruments/lcr-meter/build/pad-coordinates.json",
+  "routing": "/Users/bennet/Desktop/temper/worktrees/lcr-in-box/instruments/lcr-meter/cad/routing.json"
  },
  "vin_at_u13": [
   4.2938798340254305,
@@ -166,12 +166,12 @@
   {
    "item": "TPS65131 ENP/ENN from 3V3",
    "value": [
-    "3V3",
-    "3V3"
+    "CONV_ENP",
+    "CONV_ENN"
    ],
    "limit": "VIH >= 1.4 V; abs max VIN + 0.3 V",
    "status": "PASS",
-   "note": "3.3 V > 1.4 V. Abs-max relies on 3V3 collapsing with 5 V at power-down; any excess current flows through R80 100 ohm. Low risk; scope at bring-up."
+   "note": "3.3 V > 1.4 V. Driven by U17 (LM3880) open-drain flags with R119/R120 100k pull-ups to 3V3, no capacitance on the pins: they never exceed 3V3, which the AP2112K keeps at or below 5 V (VIN). Sequence: startup_surge.py. Scope at bring-up."
   },
   {
    "item": "TPS65131 inductance incl. +-20 %",
@@ -232,17 +232,17 @@
   },
   {
    "item": "TPS65131 RAW_P output caps vs Eq. 7/8 (10 mV)",
-   "value": "need 4.06 uF; break-even retention 0.177",
+   "value": "need 4.06 uF; break-even retention 0.266",
    "limit": "<= assumed 0.4",
    "status": "PASS",
-   "note": "3 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V"
+   "note": "C89/C90: 2 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V"
   },
   {
    "item": "TPS65131 RAW_N output caps vs Eq. 7/8 (10 mV)",
-   "value": "need 4.95 uF; break-even retention 0.216",
+   "value": "need 4.95 uF; break-even retention 0.324",
    "limit": "<= assumed 0.4",
    "status": "PASS",
-   "note": "3 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V"
+   "note": "C91/C92: 2 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V"
   },
   {
    "item": "SS14 reverse voltage: boost / inverter",
@@ -492,7 +492,7 @@
    ],
    "limit": ">= 2 x 0.4617 A",
    "status": "PASS",
-   "note": "A, SLVS841F eq. 1 with R110 at +-1 % (min at R high, max at R low); constant-current limit, so a converter start-up surge is limited, not latched off"
+   "note": "A, SLVS841F eq. 1 with R110 at +-1 % (min at R high, max at R low); the converter start-up surge against this limit is startup_surge.py's (U17 sequences ENP then ENN; C117 330 uF bulk)"
   },
   {
    "item": "Rev F indicator LED currents, worst case high (mA)",

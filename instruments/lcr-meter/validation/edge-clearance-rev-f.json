@@ -1,6 +1,6 @@
 {
  "board": "cad/temper-lcr.kicad_pcb",
- "board_sha256": "811927569d2b9f4925cc043bdfc59cd45e89619a89306888b9cf9f140da52f15",
+ "board_sha256": "780bf3aef5ba341ad6dbde36b00f73b8c0cba0760d93c497ea63ae0f9f5db2ee",
  "outline_mm": [
   50.0,
   45.0,
@@ -81,6 +81,10 @@
     {
      "ref": "L1",
      "mm": 1.25
+    },
+    {
+     "ref": "C117",
+     "mm": 1.85
     }
    ]
   },

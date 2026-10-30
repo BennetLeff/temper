@@ -96,6 +96,58 @@ for p in NEW_PARTS:
     parts[p['ref']] = p
 design['parts'] += NEW_PARTS
 
+# Datasheet audit, 2026-10-29 (validation/datasheet-audit-rev-f/README.md).  Start-up: with ENP and ENN both
+# on 3V3 the two TPS65131 converters start together and demand 1.6-2.4 A against the TPS2553's 0.99 A
+# minimum limit, and 5 V collapses below the converter's UVLO (validation/power-spurs/startup_surge.py).
+# Fix, both parts needed: U17, an LM3880 sequencer (SNVS451M), releases ENP 10 ms (+-15 %) after its EN
+# (C116 on the internal 7 uA pull-up) and ENN 10 ms after that, so the boost starts once 5 V is charged and
+# the inverter once the boost is in regulation; and C117, 330 uF polymer on 5 V, carries each converter's
+# start-up surge above the U16 limit.  The flags are open-drain with R119/R120 100k pull-ups to 3V3 (8.1.1),
+# so ENP/ENN never exceed 3V3 <= VIN (TPS65131 abs max VIN + 0.3 V): an RC on the EN pins would hold them
+# up while VIN collapses at unplug.  R110 stays 24 k (0.99 A minimum): raising the limit to 1.8 A was tried
+# and fails the 5 V copper's IPC-2152 rule (current_check.py).
+parts['U13']['pins'].update({'8': 'CONV_ENP', '10': 'CONV_ENN'})
+design['pinouts']['SEQ'] = {'1': ['VCC', 'power_in'], '2': ['GND', 'power_in'], '3': ['EN', 'input'],
+                            '4': ['FLAG3', 'open_collector'], '5': ['FLAG2', 'open_collector'],
+                            '6': ['FLAG1', 'open_collector']}
+# U16 IN overshoot on hot plug (abs max 7 V; SLVS841F 10.2.1.2.4 "Additional input capacitance may be needed"):
+# 1 uF -> 4.7 uF, same 0805 land; VBUS capacitance 4.8 uF nominal, inside the USB 10 uF limit
+parts['C113'].update(value='4.7uF 25V X5R', mpn='CL21A475KAQNNNE', manufacturer='Samsung Electro-Mechanics',
+                     lcsc='C1779', unit_usd=0.0343, stock=1868135,
+                     source_query='TPS2553 IN bulk against hot-plug ringing (SLVS841F 10.2.1.2.4)')
+# Relay coil drive: four RESET coils (112 mA) through R101 at the 4.40 V USB minimum see 4.10 V on 2.2 ohm,
+# 4.19 V on 1 ohm, against 3.75 V must-operate (TQ2SA, ~4.05 V warm).  1 ohm is R95/R96's line.
+# Codec VREF (audit C-02): TAC5112 7.3.5 "minimum 1uF"; 1 uF X5R at 2.75 V, -10 % and 85 C is ~0.65 uF.
+# 2.2 uF X5R 16 V, same 0603 land: ~1.3 uF at the same corner (2.2 x 0.75 bias x 0.9 x 0.85).  Firmware
+# sets VREF_QCHG for the larger cap (datasheet-audit README, firmware list).
+parts['C62'].update(value='2.2uF 16V X5R', mpn='CL10A225KO8NNNC', lcsc='C23630', unit_usd=0.0119, stock=2873317,
+                    source_query='TAC5112 VREF filter, minimum 1 uF effective (SLASF24A 7.3.5)')
+parts['R101'].update(value='1R', mpn='0603WAF100KT5E', lcsc='C22936', unit_usd=0.0027, stock=172210,
+                     source_query='VRLY feed: 112 mA RESET pulse drops 0.11 V (TQ2SA coil margin)')
+_100K = ('0603WAF1003T5E', 'C25803', 0.0029, 18005368)
+START_PARTS = [
+    _part('R119', 'R', '100k', {'1': 'CONV_ENP', '2': '3V3'}, *_100K, 'U17 FLAG1 (ENP) pull-up, SNVS451M 8.1.1'),
+    _part('R120', 'R', '100k', {'1': 'CONV_ENN', '2': '3V3'}, *_100K, 'U17 FLAG2 (ENN) pull-up, SNVS451M 8.1.1'),
+    _part('C116', 'C', '100nF 50V', {'1': 'GND', '2': 'SEQ_EN'}, 'CC0603KRX7R9BB104', 'C14663', 0.0086, 38089472,
+          'U17 EN delay, 1.25 V x 100 nF / 7 uA = 18 ms typ (SNVS451M eq. 1; 8.3: EN not tied to VCC)',
+          fp='Capacitor_SMD:C_0603_1608Metric', mfr='YAGEO'),
+    _part('C118', 'C', '100nF 50V', {'1': 'GND', '2': '3V3'}, 'CC0603KRX7R9BB104', 'C14663', 0.0086, 38089472,
+          'U17 VCC bypass', fp='Capacitor_SMD:C_0603_1608Metric', mfr='YAGEO'),
+    dict(_part('U17', 'SEQ', 'LM3880-1AA', {'1': '3V3', '2': 'GND', '3': 'SEQ_EN', '4': None, '5': 'CONV_ENN',
+                                           '6': 'CONV_ENP'}, 'LM3880MF-1AA/NOPB', 'C486059', 1.8617, 221,
+               'TPS65131 enable sequencer: FLAG1 ENP, FLAG2 ENN, 10 ms steps (SNVS451M Table 10-2, AA)',
+               fp='Package_TO_SOT_SMD:SOT-23-6', mfr='Texas Instruments'), library_type='extended'),
+    # Nichicon PCG 8 x 7: 23 mOhm, 3.1 A ripple, surge 11.5 V; KiCad CP_Elec_8x6.9 (Panasonic E7) lands
+    # cover the PCG terminals (A 9.0, E 3.2 mm, PCG catalog).  One reflow at 260 C peak (PCG catalog).
+    dict(_part('C117', 'C', '330uF 10V polymer', {'1': '5V', '2': 'GND'}, 'PCG1A331MCL1GS', 'C433208', 1.1292,
+               1985, '5 V start-up bulk (startup_surge.py); KiCad pad 1 = + (EasyEDA C433208 + mark on pad 1)',
+               fp='Capacitor_SMD:CP_Elec_8x6.9', mfr='Nichicon'), library_type='extended'),
+]
+for p in START_PARTS:
+    p['sheet'] = 'power'
+    parts[p['ref']] = p
+design['parts'] += START_PARTS
+
 
 # Pad addressing and the hand-routing helpers (P, B, T, T45, V, DROP, WIDEN, KO) are temper_boardkit.model.Layout;
 # rev_f_routes.py calls them by these names, and their 'src' quotes its line.
@@ -204,6 +256,12 @@ PLACE = {
     'R97': (91.0, 123.0, 0), 'R98': (91.0, 124.6, 180), 'C110': (91.0, 126.2, 180),
     'R100': (95.0, 123.0, 0), 'R99': (95.0, 124.6, 180), 'C111': (95.0, 126.2, 180),
     'R96': (142.5, 106.0, 90),       # RAW_N -> LDOIN_N series R below U12 (mirror of R95 at U11)
+    # U13 enable pull-ups east of its EN pins, west of FID3's 2 mm clearance (datasheet audit 2026-10-29)
+    'R120': (141.55, 133.3, 90), 'R119': (141.5, 136.8, 270),
+    # U13 enable sequencer north of R111 (open F.Cu), its bypass and EN caps west of it
+    'U17': (136.0, 120.0, 0), 'C118': (132.4, 119.05, 0), 'C116': (132.4, 120.95, 0),
+    # 5 V bulk on the stitching field west of C80: + land south, over the B.Cu 5 V trunk (y 142.55-144.55)
+    'C117': (118.6, 137.6, 90),
 }
 for r, at in PLACE.items():
     assert r not in GROUP_OF, f'{r} is in rigid group {GROUP_OF[r]}'
@@ -399,7 +457,7 @@ POUR = pour.add({'parts': list(parts.values()), 'board': design['board']}, routi
 
 # ------------------------------------------------------------------ silk and reference text
 design['board']['silk'] = [
-    ['TEMPER LCR REV F', 111, 140.2, 1.0],
+    ['TEMPER LCR REV F', 106.0, 140.2, 1.0],      # west of C117
     ['HCUR', 67, 57.4, 1.0], ['HPOT', 89, 57.4, 1.0], ['LPOT', 111, 57.4, 1.0], ['LCUR', 133, 57.4, 1.0],
     ['DISCHARGED', 100, 46.35, 1.0], ['DUT ONLY', 100, 47.95, 1.0],
     # debug LED labels (2026-10-29): rail LEDs under their column (staggered: 1.0 mm text is wider than
@@ -409,7 +467,7 @@ design['board']['silk'] = [
 ] + [[name, lx, ly, 1.0] for name, _, _, _, _, lx, ly in TESTPOINTS]   # test-point labels
 # IC reference text (the only references on silk): clear of lands and of each other
 design['board']['ref_size'] = [1.0, 0.15]     # IC references on silk: 1.0 mm high, 0.15 mm stroke (2026-10-29)
-design['board']['ref_text'] = {'U3': [56.85, 138.3], 'U7': [118.3, 68.2], 'U13': [141.9, 134.6], 'U14': [64.0, 95.2],
+design['board']['ref_text'] = {'U3': [56.85, 138.3], 'U7': [118.3, 68.2], 'U13': [144.3, 137.5], 'U14': [64.0, 95.2],
                                'U16': [51.9, 132.4], 'U6': [82.0, 68.3], 'U15': [56.6, 79.7]}
 
 
@@ -588,7 +646,7 @@ VIEWS = {
     'bnc': (50, 45, 150, 62), 'afe_hi': (78, 55, 96, 105), 'relays': (90, 55, 112, 106),
     'tia': (104, 55, 126, 85), 'c104': (108, 68, 118, 80), 'k4': (122, 55, 150, 86), 'source': (55, 55, 82, 80),
     'codec': (50, 74, 86, 102), 'codec_top': (58, 68, 80, 90), 'ldo': (120, 84, 150, 114), 'drivers': (78, 100, 124, 118),
-    'switcher': (116, 112, 150, 145), 'digital': (50, 100, 92, 145), 'south': (50, 95, 150, 145), 'mid': (85, 112, 125, 145), 'board': (50, 45, 150, 145),
+    'switcher': (116, 112, 150, 145), 'u13_en': (134, 129, 148, 141), 'bulk5v': (104, 128, 130, 145), 'digital': (50, 100, 92, 145), 'south': (50, 95, 150, 145), 'mid': (85, 112, 125, 145), 'board': (50, 45, 150, 145),
 }
 
 if __name__ == '__main__':

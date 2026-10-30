@@ -282,8 +282,9 @@ def main():
           PARTS["U13"]["pins"].get("7") is None)
     check("TPS65131 ENP/ENN from 3V3", [PARTS["U13"]["pins"]["8"], PARTS["U13"]["pins"]["10"]],
           "VIH >= 1.4 V; abs max VIN + 0.3 V", True,
-          "3.3 V > 1.4 V. Abs-max relies on 3V3 collapsing with 5 V at power-down; any excess current "
-          "flows through R80 100 ohm. Low risk; scope at bring-up.")
+          "3.3 V > 1.4 V. Driven by U17 (LM3880) open-drain flags with R119/R120 100k pull-ups to 3V3, no "
+          "capacitance on the pins: they never exceed 3V3, which the AP2112K keeps at or below 5 V (VIN). "
+          "Sequence: startup_surge.py. Scope at bring-up.")
     l_min, l_max = L_NOM * (1 - L_TOL), L_NOM * (1 + L_TOL)
     check("TPS65131 inductance incl. +-20 %", [l_min, l_max], list(s["l_range_h"]),
           s["l_range_h"][0] <= l_min and l_max <= s["l_range_h"][1])
@@ -314,18 +315,20 @@ def main():
     check(f"TPS65131 input caps C80+C82 ({val('C80')}, {PARTS['C80']['footprint'].split('_')[1]}, at 5 V) >= 2 x 4.7 uF (INP and INN)", f"break-even retention {be:.2f}",
           f"<= assumed {ra}", be <= ra,
           f"C82 is {dist('C82', 'U13'):.1f} mm, C80 {dist('C80', 'U13'):.1f} mm from U13 (centres)")
-    for rail, caps, vo, iout in (("RAW_P", ("C89", "C90", "C94"), vpos["max"], LOAD["pos"] * 2),
-                                 ("RAW_N", ("C91", "C92", "C99"), abs(vneg["max"]), LOAD["neg"] * 2)):
+    # C89/C90 and C91/C92 only: C94/C99 sit behind R95/R96 (1 ohm, ~100x their reactance at fsw), so they
+    # do not filter the converter output (datasheet audit L4, 2026-10-29)
+    for rail, caps, vo, iout in (("RAW_P", ("C89", "C90"), vpos["max"], LOAD["pos"] * 2),
+                                 ("RAW_N", ("C91", "C92"), abs(vneg["max"]), LOAD["neg"] * 2)):
         # datasheet Eq. 7/8 for a 10 mV capacitive ripple at fsw min and minimum VIN
         if rail == "RAW_P":
             cmin = iout * (vo - VIN[0]) / (s["fsw_min_hz"] * 0.010 * vo)
         else:
             cmin = iout * vo / (s["fsw_min_hz"] * 0.010 * (vo + VIN[0]))
-        be = breakeven(cmin, 3 * 10e-6)
+        be = breakeven(cmin, len(caps) * 10e-6)
         ra = assumed_retention(vo, 50)
         check(f"TPS65131 {rail} output caps vs Eq. 7/8 (10 mV)", f"need {cmin*1e6:.2f} uF; break-even retention {be:.3f}",
               f"<= assumed {ra}", be <= ra,
-              "3 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V")
+              f"{'/'.join(caps)}: 2 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V")
     # diodes and pin stress
     check("SS14 reverse voltage: boost / inverter", [round(vpos["max"], 2), round(VIN[2] + abs(vneg["max"]), 2)],
           DIODE_VR, max(vpos["max"], VIN[2] + abs(vneg["max"])) < 0.8 * DIODE_VR, "80 % derating")
@@ -427,8 +430,8 @@ def main():
     check(f"TPS2553 current limit (R110 {val('R110')}) min vs 2x input estimate",
           [round(ios[k], 3) for k in ("min", "nom", "max")], f">= 2 x {I_IN_EST} A",
           ios["min"] >= 2 * I_IN_EST,
-          "A, SLVS841F eq. 1 with R110 at +-1 % (min at R high, max at R low); constant-current limit, "
-          "so a converter start-up surge is limited, not latched off")
+          "A, SLVS841F eq. 1 with R110 at +-1 % (min at R high, max at R low); the converter start-up "
+          "surge against this limit is startup_surge.py's (U17 sequences ENP then ENN; C117 330 uF bulk)")
     check("Rev F indicator LED currents, worst case high (mA)",
           {d: round(i * 1e3, 2) for d, i in LED.items()}, "C2286 20 mA DC; LTST-S270KFKT 30 mA DC",
           max(LED[d] for d in LED if d != "D4") < 0.020 and LED["D4"] < 0.030,

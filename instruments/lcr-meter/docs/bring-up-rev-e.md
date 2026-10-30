@@ -83,6 +83,21 @@ CODEC_VREF and 5VA have no test pad: both sit in the analog core, where a pad wo
 4. Measure fsw on SW_P (1.25–1.50 MHz) and record it. Scope RAW_P/N, ±12 V and 3V3A for ripple and spikes (Rev D R4). Hot-plug the USB-C cable once and scope USB_VBUS and 5V: TPS65131 VIN abs-max is 6 V. U16 ramps 5V in about 1 ms; record the ramp and any overshoot.
 5. Move to the computer through the inline USB-C meter. Record VBUS and current at idle, during a capture, and during a range change (relay pulses add about 0.11 A for milliseconds). The estimate is 0.45 A; a USB-C port or a USB 3 port (900 mA) is needed, and a USB 2.0 type-A port (500 mA) is marginal. If the computer's VBUS at the board is below 4.40 V under load, use a powered hub or a USB-C charger port.
 
+## 2a. Start-up sequence (Rev F, datasheet audit 2026-10-30)
+
+The TPS65131 enables come from U17 (LM3880). FLAG1 releases ENP and FLAG2 releases ENN 10 ms later, after U17's EN delay of about 18 ms. C117 (330 µF polymer) carries each converter's start-up surge above U16's 0.99 A limit. The model is `validation/power-spurs/startup_surge.py`; the reasons are in `validation/datasheet-audit-rev-f/README.md`.
+
+1. Before power, check C117's polarity: + (pad 1, chamfered corner and silk +) is on the south land, toward the board edge.
+2. Use four scope channels: 5V at TP (5V), CONV_ENP at R119.1, CONV_ENN at R120.1, and RAW_P at TP (RAW+). Trigger on 5V rising, then plug USB at 4.40 V and again at 5.0 V. Expect:
+   - 5V ramps to VBUS in about 2–3 ms;
+   - ENP rises about 20–60 ms after attach;
+   - ENN rises 8.5–11.5 ms after ENP;
+   - RAW_P is in regulation before ENN rises;
+   - 5V stays ≥ 3.86 V through both starts (model worst case; 3.7 V is the 3V3 headroom line).
+
+   Any repeated ramp on 5V or RAW_P is a UVLO hiccup: stop and record it.
+3. Hot-plug at the VB pad (TP20, USB_VBUS at U16 IN, with the GND pad beside it), using 1 m and 2 m cables. The peak must stay under 7 V (TPS2553 IN abs max), and under 6 V wherever it reaches U13 VIN.
+
 ## 3. Firmware and digital
 
 1. Hold BOOTSEL, connect USB and copy `temper-lcr-rev-e.uf2` to RPI-RP2. A blank board needs no BOOTSEL press: with no valid boot2 in flash the ROM drops to USB mass storage after 0.5 s. J4–J6 are not fitted; solder a 2-pin header at J4/J5 if SWD recovery is ever needed. The flash is a GD25Q16E (2 MB), not the Pico's Winbond part: the firmware booting from flash after the copy confirms that `boot2_w25q080` sets its QE bit and runs quad reads. If it does not boot, rebuild with `PICO_BOOT_STAGE2_CHOOSE_GENERIC_03H=1` (slower, command-set independent) and report it.
@@ -91,7 +106,7 @@ CODEC_VREF and 5VA have no test pad: both sit in the analog core, where a pad wo
    - DEV_STS0: both ADC channels and DAC channel 1 powered;
    - DEV_STS1 mode: 7;
    - CLK_DET_STS0: bin 10 (187.5 kHz).
-4. Logic analyser on BCLK, FSYNC, DIN and DOUT (GPIO 4/5/2/3, codec pins 2/3/5/4):
+4. Logic analyser on BCLK, FSYNC, DIN and DOUT (GPIO 4/5/2/3, codec pins 2/3/5/4; on Rev F at test pads TP15–TP18, with the GND pad TP19):
    - 12 MHz BCLK, 64 BCLK per frame, one-BCLK FSYNC;
    - DOUT settled well inside 41.7 ns from the rising edge;
    - rise and fall times under 10 ns.

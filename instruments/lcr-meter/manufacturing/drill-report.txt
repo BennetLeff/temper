@@ -1,5 +1,5 @@
 Drill report for temper-lcr.kicad_pcb
-Created on 2026-10-29T22:11:17
+Created on 2026-10-30T00:52:29
 
 Copper Layer Stackup:
     =============================================================
@@ -12,13 +12,13 @@ Copper Layer Stackup:
 Drill file 'temper-lcr-PTH.drl' contains
     plated through holes:
     =============================================================
-    T1  0.300mm  0.0118"  (425 holes))
+    T1  0.300mm  0.0118"  (439 holes))
     T2  0.600mm  0.0236"  (4 holes)  (with 4 slots)
     T3  1.000mm  0.0394"  (6 holes))
     T4  1.200mm  0.0472"  (4 holes))
     T5  1.400mm  0.0551"  (16 holes))
 
-    Total plated holes count 455
+    Total plated holes count 469
 
 
 Drill file 'temper-lcr-NPTH.drl' contains

@@ -66,8 +66,11 @@ csv_file("bom-complete.csv", ["Designators", "Quantity", "Value", "Manufacturer"
 csv_file("bom-jlcpcb.csv", ["Comment", "Designator", "Footprint", "LCSC Part #"], bom)
 smt = [p for p in parts if p["assembly"] == "SMT"]
 offsets = json.loads((ROOT / "sources/placement-rev-c.json").read_text())["rotation_offsets_by_ref"]
+def keyed(p: dict) -> bool:
+    """Everything but plain R/C lands; a polarized capacitor (KiCad CP_*) is keyed."""
+    return p["kind"] not in ["R", "C"] or p["footprint"].split(":")[1].startswith("CP_")
 def assembly_angle(p: dict) -> float:
-    if p["kind"] not in ["R", "C"]:
+    if keyed(p):
         assert p["ref"] in offsets, "Keyed part has no placement-library audit"
     return (float(positions[p["ref"]]["Rot"]) + offsets.get(p["ref"], 0)) % 360
 csv_file("cpl-jlcpcb.csv", ["Designator", "Mid X", "Mid Y", "Layer", "Rotation"],

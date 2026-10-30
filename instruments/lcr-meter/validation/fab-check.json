@@ -3,7 +3,7 @@
  "profile": "jlcpcb-4layer-1oz",
  "profile_read": "2026-10-29",
  "board": "cad/temper-lcr.kicad_pcb",
- "board_sha256": "811927569d2b9f4925cc043bdfc59cd45e89619a89306888b9cf9f140da52f15",
+ "board_sha256": "780bf3aef5ba341ad6dbde36b00f73b8c0cba0760d93c497ea63ae0f9f5db2ee",
  "rules_sha256": "f5013cede5f07bbb04fcef38377103139cc29af57491aa21e4c4440e616387a6",
  "kicad": "10.0.4",
  "rules": [
@@ -36,17 +36,17 @@
  "cleared_local_clearances": [
   {
    "kind": "pad",
-   "item": "FID1.",
-   "clearance_mm": 0.6
-  },
-  {
-   "kind": "pad",
    "item": "FID3.",
    "clearance_mm": 0.6
   },
   {
    "kind": "pad",
    "item": "FID2.",
+   "clearance_mm": 0.6
+  },
+  {
+   "kind": "pad",
+   "item": "FID1.",
    "clearance_mm": 0.6
   }
  ],

@@ -45,8 +45,8 @@
         68.2
       ],
       "U13": [
-        141.9,
-        134.6
+        144.3,
+        137.5
       ],
       "U14": [
         64.0,
@@ -88,6 +88,11 @@
         145.545,
         102.962,
         90
+      ],
+      "U17": [
+        136.453,
+        117.669,
+        0
       ],
       "K1": [
         104.476,
@@ -330,7 +335,7 @@
         0
       ],
       "R9": [
-        61.808,
+        66.143,
         130.045,
         0
       ],
@@ -634,6 +639,11 @@
         112.091,
         90
       ],
+      "R120": [
+        144.145,
+        133.845,
+        0
+      ],
       "C1": [
         82.501,
         129.452,
@@ -706,7 +716,7 @@
       ],
       "C15": [
         64.668,
-        128.545,
+        125.545,
         0
       ],
       "C16": [
@@ -815,8 +825,8 @@
         0
       ],
       "C66": [
-        55.112,
-        93.545,
+        58.5,
+        93.701,
         0
       ],
       "C67": [
@@ -877,11 +887,6 @@
       "C80": [
         125.6,
         140.769,
-        0
-      ],
-      "C81": [
-        141.501,
-        137.889,
         0
       ],
       "C82": [
@@ -978,12 +983,27 @@
         65.356,
         60.245,
         0
+      ],
+      "C116": [
+        129.006,
+        120.995,
+        0
+      ],
+      "C117": [
+        121.577,
+        131.419,
+        0
+      ],
+      "C118": [
+        129.256,
+        117.595,
+        0
       ]
     },
     "silk": [
       [
         "TEMPER LCR REV F",
-        111,
+        106.0,
         140.2,
         1.0
       ],
@@ -1142,6 +1162,48 @@
         94.8,
         115.0,
         1.0
+      ],
+      [
+        "BCLK",
+        53.2,
+        94.4,
+        1.0
+      ],
+      [
+        "FSYNC",
+        52.8,
+        96.4,
+        1.0
+      ],
+      [
+        "DOUT",
+        53.2,
+        98.4,
+        1.0
+      ],
+      [
+        "DIN",
+        53.5,
+        100.4,
+        1.0
+      ],
+      [
+        "GND",
+        53.5,
+        102.4,
+        1.0
+      ],
+      [
+        "VB",
+        62.0,
+        130.45,
+        1.0
+      ],
+      [
+        "GND",
+        64.8,
+        127.2,
+        1.0
       ]
     ],
     "fiducials": [
@@ -1256,6 +1318,55 @@
         97.295,
         115.0,
         1.5
+      ],
+      [
+        "BCLK",
+        "I2S_BCLK",
+        56.2,
+        94.4,
+        1.0
+      ],
+      [
+        "FSYNC",
+        "I2S_FSYNC",
+        56.2,
+        96.4,
+        1.0
+      ],
+      [
+        "DOUT",
+        "I2S_DOUT",
+        56.2,
+        98.4,
+        1.0
+      ],
+      [
+        "DIN",
+        "I2S_DIN",
+        56.2,
+        100.4,
+        1.0
+      ],
+      [
+        "GND",
+        "GND",
+        56.2,
+        102.4,
+        1.0
+      ],
+      [
+        "VB",
+        "USB_VBUS",
+        62.225,
+        128.9,
+        1.0
+      ],
+      [
+        "GND",
+        "GND",
+        64.225,
+        128.9,
+        1.0
       ]
     ],
     "craft": true,
@@ -1315,13 +1426,13 @@
         1.2
       ],
       [
-        "5. Drill summary (461 holes; drill files temper-lcr-PTH.drl / -NPTH.drl govern):",
+        "5. Drill summary (475 holes; drill files temper-lcr-PTH.drl / -NPTH.drl govern):",
         156.0,
         63.8,
         1.2
       ],
       [
-        "  vias        36 x 0.30 mm drill, 0.45 mm pad",
+        "  vias        38 x 0.30 mm drill, 0.45 mm pad",
         156.0,
         65.9,
         1.2
@@ -1333,7 +1444,7 @@
         1.2
       ],
       [
-        "  vias       362 x 0.30 mm drill, 0.60 mm pad",
+        "  vias       374 x 0.30 mm drill, 0.60 mm pad",
         156.0,
         70.1,
         1.2
@@ -2306,6 +2417,32 @@
         "K1A2",
         "passive"
       ]
+    },
+    "SEQ": {
+      "1": [
+        "VCC",
+        "power_in"
+      ],
+      "2": [
+        "GND",
+        "power_in"
+      ],
+      "3": [
+        "EN",
+        "input"
+      ],
+      "4": [
+        "FLAG3",
+        "open_collector"
+      ],
+      "5": [
+        "FLAG2",
+        "open_collector"
+      ],
+      "6": [
+        "FLAG1",
+        "open_collector"
+      ]
     }
   },
   "parts": [
@@ -2607,9 +2744,9 @@
         "5": "5V",
         "6": "5V",
         "7": null,
-        "8": "3V3",
+        "8": "CONV_ENP",
         "9": "GND",
-        "10": "3V3",
+        "10": "CONV_ENN",
         "11": "GND",
         "12": null,
         "13": "SW_N",
@@ -5759,7 +5896,7 @@
     },
     {
       "ref": "C62",
-      "value": "1uF 50V X5R",
+      "value": "2.2uF 16V X5R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
@@ -5772,14 +5909,14 @@
         90
       ],
       "sheet": "codec",
-      "mpn": "CL10A105KB8NNNC",
+      "mpn": "CL10A225KO8NNNC",
       "manufacturer": "Samsung Electro-Mechanics",
-      "lcsc": "C15849",
-      "unit_usd": 0.0153,
-      "stock": null,
+      "lcsc": "C23630",
+      "unit_usd": 0.0119,
+      "stock": 2873317,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "Rev E"
+      "source_query": "TAC5112 VREF filter, minimum 1 uF effective (SLASF24A 7.3.5)"
     },
     {
       "ref": "C63",
@@ -5979,7 +6116,7 @@
     },
     {
       "ref": "C113",
-      "value": "1uF 50V",
+      "value": "4.7uF 25V X5R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "pins": {
@@ -5992,14 +6129,14 @@
         -90
       ],
       "sheet": "power",
-      "mpn": "CL21B105KBFNNNE",
+      "mpn": "CL21A475KAQNNNE",
       "manufacturer": "Samsung Electro-Mechanics",
-      "lcsc": "C28323",
-      "unit_usd": 0.0344,
-      "stock": null,
+      "lcsc": "C1779",
+      "unit_usd": 0.0343,
+      "stock": 1868135,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "Rev E"
+      "source_query": "TPS2553 IN bulk against hot-plug ringing (SLVS841F 10.2.1.2.4)"
     },
     {
       "ref": "R62",
@@ -7308,7 +7445,7 @@
     },
     {
       "ref": "R101",
-      "value": "2.2R",
+      "value": "1R",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -7321,14 +7458,14 @@
         0
       ],
       "sheet": "range",
-      "mpn": "0603WAF220KT5E",
+      "mpn": "0603WAF100KT5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C22939",
-      "unit_usd": 0.0034,
-      "stock": null,
+      "lcsc": "C22936",
+      "unit_usd": 0.0027,
+      "stock": 172210,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "Rev E"
+      "source_query": "VRLY feed: 112 mA RESET pulse drops 0.11 V (TQ2SA coil margin)"
     },
     {
       "ref": "C112",
@@ -7713,6 +7850,154 @@
       "library_type": "basic",
       "assembly": "SMT",
       "source_query": "debug LED (FAULT), KiCad pad 1 = K"
+    },
+    {
+      "ref": "R119",
+      "value": "100k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "CONV_ENP",
+        "2": "3V3"
+      },
+      "pcb": [
+        141.5,
+        136.8,
+        270
+      ],
+      "sheet": "power",
+      "mpn": "0603WAF1003T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25803",
+      "unit_usd": 0.0029,
+      "stock": 18005368,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "U17 FLAG1 (ENP) pull-up, SNVS451M 8.1.1"
+    },
+    {
+      "ref": "R120",
+      "value": "100k",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "CONV_ENN",
+        "2": "3V3"
+      },
+      "pcb": [
+        141.55,
+        133.3,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "0603WAF1003T5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C25803",
+      "unit_usd": 0.0029,
+      "stock": 18005368,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "U17 FLAG2 (ENN) pull-up, SNVS451M 8.1.1"
+    },
+    {
+      "ref": "C116",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "GND",
+        "2": "SEQ_EN"
+      },
+      "pcb": [
+        132.4,
+        120.95,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0086,
+      "stock": 38089472,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "U17 EN delay, 1.25 V x 100 nF / 7 uA = 18 ms typ (SNVS451M eq. 1; 8.3: EN not tied to VCC)"
+    },
+    {
+      "ref": "C118",
+      "value": "100nF 50V",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": {
+        "1": "GND",
+        "2": "3V3"
+      },
+      "pcb": [
+        132.4,
+        119.05,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "CC0603KRX7R9BB104",
+      "manufacturer": "YAGEO",
+      "lcsc": "C14663",
+      "unit_usd": 0.0086,
+      "stock": 38089472,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "U17 VCC bypass"
+    },
+    {
+      "ref": "U17",
+      "value": "LM3880-1AA",
+      "kind": "SEQ",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "pins": {
+        "1": "3V3",
+        "2": "GND",
+        "3": "SEQ_EN",
+        "4": null,
+        "5": "CONV_ENN",
+        "6": "CONV_ENP"
+      },
+      "pcb": [
+        136.0,
+        120.0,
+        0
+      ],
+      "sheet": "power",
+      "mpn": "LM3880MF-1AA/NOPB",
+      "manufacturer": "Texas Instruments",
+      "lcsc": "C486059",
+      "unit_usd": 1.8617,
+      "stock": 221,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "TPS65131 enable sequencer: FLAG1 ENP, FLAG2 ENN, 10 ms steps (SNVS451M Table 10-2, AA)"
+    },
+    {
+      "ref": "C117",
+      "value": "330uF 10V polymer",
+      "kind": "C",
+      "footprint": "Capacitor_SMD:CP_Elec_8x6.9",
+      "pins": {
+        "1": "5V",
+        "2": "GND"
+      },
+      "pcb": [
+        118.6,
+        137.6,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "PCG1A331MCL1GS",
+      "manufacturer": "Nichicon",
+      "lcsc": "C433208",
+      "unit_usd": 1.1292,
+      "stock": 1985,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "5 V start-up bulk (startup_surge.py); KiCad pad 1 = + (EasyEDA C433208 + mark on pad 1)"
     }
   ],
   "power_flags": [

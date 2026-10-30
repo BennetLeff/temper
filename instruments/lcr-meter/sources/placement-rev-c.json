@@ -83,7 +83,9 @@
     "D17": 0,
     "D18": 0,
     "D19": 0,
-    "D20": 0
+    "D20": 0,
+    "C117": 0,
+    "U17": 180
   },
   "parts": [
     {
@@ -5929,6 +5931,74 @@
         }
       ],
       "note": "EasyEDA symbol pin 1 = C, pin 2 = A, same as the KiCad footprint (pad 1 = K): no renumbering. The EasyEDA outline (layer 99) puts the 1.2 mm lens on the -Y side with pad 1 at -X, as the footprint does from the Lite-On drawings, so offset 0 also points the lens at the front edge."
+    },
+    {
+      "lcsc": "C433208",
+      "mpn": "PCG1A331MCL1GS",
+      "references": [
+        "C117"
+      ],
+      "native_footprint": "Capacitor_SMD:CP_Elec_8x6.9",
+      "source_url": "https://lceda.cn/api/products/C433208/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C433208-product.json",
+      "source_sha256": "32d2c3f915316bce80aa7ec8170741150bd2e55cabd54e63a8df248e01cfc7c5",
+      "library_title": "CAP-SMD_BD8.0-L8.3-W8.3-FD",
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.20779800000002524,
+      "pad_center_fit_max_mm": 0.20779800000002524,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.20779800000002524
+        },
+        {
+          "offset": 90,
+          "rms": 4.769720527326957
+        },
+        {
+          "offset": 270,
+          "rms": 4.769720527326957
+        },
+        {
+          "offset": 180,
+          "rms": 6.74220200000002
+        }
+      ]
+    },
+    {
+      "lcsc": "C486059",
+      "mpn": "LM3880MF-1AA/NOPB",
+      "references": [
+        "U17"
+      ],
+      "native_footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "source_url": "https://lceda.cn/api/products/C486059/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C486059-product.json",
+      "source_sha256": "1fad99272e81f6a1b158886a5b37554ca6851804226c85e7b719c2e3a96c2b33",
+      "library_title": "SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BR",
+      "cpl_offset_ccw_deg": 180,
+      "matched_numbered_pads": 6,
+      "pad_center_fit_rms_mm": 0.21251000250969468,
+      "pad_center_fit_max_mm": 0.21251000376459442,
+      "candidate_rms_mm": [
+        {
+          "offset": 180,
+          "rms": 0.21251000250969468
+        },
+        {
+          "offset": 90,
+          "rms": 2.0783926284111027
+        },
+        {
+          "offset": 270,
+          "rms": 2.0783926284111027
+        },
+        {
+          "offset": 0,
+          "rms": 2.9315987676523116
+        }
+      ]
     }
   ],
   "unresolved_primary_mechanical_reviews": [],

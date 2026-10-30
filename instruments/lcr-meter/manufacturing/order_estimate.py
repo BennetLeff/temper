@@ -5,7 +5,7 @@ Writes manufacturing/order-estimate-<N>.json and prints a summary.
 
 Inputs:
   - bom-complete.csv (lines, quantities, SMT vs hand fit) and cpl-jlcpcb.csv (machine placements);
-  - prices/jlc-parts-2026-10-29.json: JLC assembly-library snapshot per LCSC code (price tiers,
+  - prices/jlc-parts-2026-10-30.json: JLC assembly-library snapshot per LCSC code (price tiers,
     stock, library class, lossNumber, leastPatchNumber), written by prices/fetch_jlc_parts.py;
   - joint and leadless-package counts taken from cad/temper-lcr.kicad_pcb;
   - the fee model and constants in temper_boardkit.jlc.order (from https://jlcpcb.com/help/article/pcb-assembly-price,
@@ -49,7 +49,7 @@ def board_counts():
 
 
 def main():
-    snapshot = json.loads((MFG / 'prices/jlc-parts-2026-10-29.json').read_text())['parts']
+    snapshot = json.loads((MFG / 'prices/jlc-parts-2026-10-30.json').read_text())['parts']
     placements, smt_joints, leadless, tht_joints, tht_refs = board_counts()
     lines, findings = [], []
     for row in csv.DictReader(open(PKG / 'bom-complete.csv')):

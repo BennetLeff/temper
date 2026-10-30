@@ -6,7 +6,7 @@ Revision F is the Rev E circuit (TI TIDA-060029 based, TAC5112 codec front end, 
 
 - Four layers: **F.Cu / In1.Cu GND / In2.Cu signals, power and GND pour / B.Cu signals and GND pour** (the In2 and B.Cu pours stay out of the analog core and 1.7 mm off every analog net, `cad/tools/pour.py`). FR-4, **FR4-Standard TG 135–140** (JLC's 4-layer default; TG155 is not needed: the board dissipates under 3 W, runs near ambient, and one lead-free reflow is within standard FR-4's rating), stackup JLC04161H-7628 as in the parasitic extraction, 1.6 mm finished thickness, 1 oz outer copper and standard inner copper. ENIG is recommended for the 0.4 mm-pitch RP2040 and exposed-pad packages. Confirm the offered stackup before release.
 - Finished outline 100.00 × 100.00 mm (board coordinates x 50–150, y 45–145). Four 3.2 mm NPTH mounting holes, 92 × 87 mm pattern. All components are on top. Empty bottom silk is intentional.
-- Design clearance 0.15 mm; narrow local tracks 0.15 mm. **Every via has a 0.30 mm drill** (425 vias: 362 × 0.60 mm, 27 × 0.55 mm and 36 × 0.45 mm pads; 118 of them GND stitching), JLC's standard "0.3mm/(0.4/0.45mm)" via option; the board rules enforce a 0.30 mm minimum hole and 0.075 mm minimum via annular ring. Do not select the 0.2 or 0.25 mm minimum-via option: it adds cost and is not needed. Native DRC is authoritative for final geometry. Every via and pad carries a KiCad teardrop (939 teardrop zones in the copper); do not remove them in CAM.
+- Design clearance 0.15 mm; narrow local tracks 0.15 mm. **Every via has a 0.30 mm drill** (439 vias: 374 × 0.60 mm, 27 × 0.55 mm and 38 × 0.45 mm pads; 115 of them GND stitching), JLC's standard "0.3mm/(0.4/0.45mm)" via option; the board rules enforce a 0.30 mm minimum hole and 0.075 mm minimum via annular ring. Do not select the 0.2 or 0.25 mm minimum-via option: it adds cost and is not needed. Native DRC is authoritative for final geometry. Every via and pad carries a KiCad teardrop (939 teardrop zones in the copper); do not remove them in CAM.
 - **Via covering "Plugged" (JLC's free 4-layer default); do not order POFV.** JLC's quote page (2026-10-29) greys out "Tented" for this 4-layer setup; the CAD still tents every via on both masks. Select Plugged, and in the vendor DFM confirm that the exposed-pad thermal vias are plugged from the bottom only with their top lands clean. The only vias in SMT lands are the 33 thermal vias in the exposed pads U1.57 (8), U11.9 (6), U12.9 (6), U13.25 (9) and U14.25 (4, the TAC5112), open on top under the paste and tented on the bottom. The TI package notes for TPS65131, TPS7A30, TPS7A49 and TAC5112 say vias under paste should be "filled, plugged or tented"; SLUA271C §3.4.1 warns that backside tenting can increase voiding, so expect some solder loss into these vias and X-ray the exposed-pad parts on the first build. No via drill or via ring touches any other land. `cad/audit_dfm.py` checks drills, rings and tenting, and `validation/via-in-pad-process.json` records the result with the board hash. POFV on 4-layer boards is a paid option. Obtain vendor DFM acceptance before assembly.
 - Keep the deliberate plane voids around the op-amp signal pins and feedback networks. Ground remains a plane elsewhere. Do not merge or redraw these voids during CAM preparation.
 - Use the separate plated and nonplated Excellon drill files. USB shell slots must remain routed slots, not substituted round holes. Review the slot maps against the supplied connector drawings.
@@ -25,9 +25,22 @@ Copper to the V-cut edges: the nearest copper to the left and right edges is GND
 
 ## Assembly
 
-The JLC BOM and CPL cover **209 top-side SMT placements** (66 lines), including the four TQ2SA relays, the TAC5112 and the U16 TPS2553 USB power switch. The complete BOM contains **216 components, 213 fitted**. JLC hand fits the four SAMZO BNC-KYWE-295-W4-N right-angle BNCs (J3, J7, J8, J9; C41416668). J4–J6 (TSW-102-07-G-S, SWD and UART) are **do not fit** (DNP in the schematic, PCB and BOM): firmware loads over USB, and a header can be soldered by hand if SWD is ever needed. Each BNC's barrel faces the top edge; its square pad pattern does not key it, so follow the silk opening mark. DUT leads/fixture and the USB-C cable are external accessories, not fitted PCB components. There is no DC jack: the board is powered from USB-C VBUS.
+The JLC BOM and CPL cover **215 top-side SMT placements** (68 lines), including the four TQ2SA relays, the TAC5112 and the U16 TPS2553 USB power switch. The complete BOM contains **222 components, 219 fitted**. JLC hand fits the four SAMZO BNC-KYWE-295-W4-N right-angle BNCs (J3, J7, J8, J9; C41416668). J4–J6 (TSW-102-07-G-S, SWD and UART) are **do not fit** (DNP in the schematic, PCB and BOM): firmware loads over USB, and a header can be soldered by hand if SWD is ever needed. Each BNC's barrel faces the top edge; its square pad pattern does not key it, so follow the silk opening mark. DUT leads/fixture and the USB-C cable are external accessories, not fitted PCB components. There is no DC jack: the board is powered from USB-C VBUS.
 
 D4 (LTST-S270KFKT, C160472, extended) is a side-looking LED: in the placement preview its lens must face the board's front (BNC) edge, with pad 1 (cathode) toward the left mounting hole; its CPL offset is 0 (EasyEDA record and Lite-On drawing agree). D18 (−12 V) is rotated 180° from D15–D17 on purpose: its anode is on GND.
+
+Placement-preview checks from the datasheet audit (2026-10-30, `validation/datasheet-audit-rev-f/README.md`):
+
+- **C117** (Nichicon PCG 330 µF polymer, C433208): the + terminal (pad 1, the chamfered corner of the base) is on the south land, toward the board edge.
+- **U17** (LM3880, C486059): pin 1 is at the north-west land. The CPL offset is 180°, as for U16.
+- **Y1**: orient by pad geometry, since the part's chamfer mark is unreliable.
+- **K1–K4**: check the rotation and the stripe against pad 1.
+
+Process notes:
+
+- **K1–K4 (TQ2SA):** a single reflow; no ultrasonic cleaning; no silicone coating or grease near the relays (Panasonic TQ catalog ASCTB14E p.19).
+- **C117:** one reflow at a 260 °C peak (PCG catalog). The board is top-side only.
+- **U14 (TAC5112):** X-ray the exposed pad, because its four thermal vias sit inside the paste apertures.
 
 J1 is a mixed-technology USB connector included in SMT assembly; its shield anchors must be soldered. It carries power as well as data.
 
