@@ -224,6 +224,36 @@ def test_teardrops():
     assert len(v) == 1 and v[0]['where'] == 'pad R1.1'
 
 
+# ------------------------------------------------------------------ silk references
+INK = {'0': [-0.5, -0.6, 0.5, 0.55], '90': [-0.6, -0.5, 0.55, 0.5]}
+
+
+def _court(x, y, w=2.0, h=1.0):
+    return [[x - w / 2, y - h / 2], [x + w / 2, y - h / 2], [x + w / 2, y + h / 2], [x - w / 2, y + h / 2]]
+
+
+def test_ref_placed_beside_its_part():
+    parts = [{'ref': 'R1', 'courtyard': _court(10, 10)}]
+    got, missing = craft.place_refs(parts, {'R1': INK}, [], BOARD)
+    assert missing == [] and got['R1'][2] == 0 and got['R1'][1] < 10          # above the part, upright
+    assert craft.ref_checks(got, {'R1': INK}, parts, []) == []
+
+
+def test_ref_blocked_goes_to_fab():
+    parts = [{'ref': 'R1', 'courtyard': _court(10, 10)}]
+    wall = [{'poly': [[5, 5], [15, 5], [15, 15], [5, 15]], 'clear': 0.0}]     # everything round it is copper
+    got, missing = craft.place_refs(parts, {'R1': INK}, wall, BOARD)
+    assert got == {} and missing == ['R1']
+    v = craft.ref_checks({'R1': [10, 8.6, 0]}, {'R1': INK}, parts, wall)
+    assert v and v[0]['kind'] == 'silk_ref' and 'on an obstacle' in v[0]['why']
+
+
+def test_ref_not_nearer_another_part():
+    parts = [{'ref': 'R1', 'courtyard': _court(10, 10)}, {'ref': 'R2', 'courtyard': _court(10, 8.0)}]
+    v = craft.ref_checks({'R1': [10, 9.0, 0]}, {'R1': INK}, parts, [])
+    assert v and ('nearer another part' in v[0]['why'] or 'on a part body' in v[0]['why'])
+
+
 # ------------------------------------------------------------------ the driver keeps a clean board clean
 def test_run_and_checks_clean():
     pads = [PAD('R1', '1', 'A', 4, 4), PAD('R2', '1', 'A', 12, 12)]

@@ -125,8 +125,10 @@ for p in PARTS:
     f=k.FootprintLoad(str(LOCAL),name);f.SetReference(ref);f.SetValue(p['value']);f.SetFPID(k.LIB_ID('LCR',name));f.SetPosition(pos(*p['pcb'][:2]));f.SetOrientationDegrees(p['pcb'][2])
     path=k.KIID_PATH();path.push_back(k.KIID(rootid));path.push_back(k.KIID(uid("sheet-"+p["sheet"])));path.push_back(k.KIID(uid(ref)));f.SetPath(path)
     f.Reference().SetTextSize(pos(REF_SIZE[0],REF_SIZE[0]));f.Reference().SetTextThickness(mm(REF_SIZE[1]))
-    if ref in REF_TEXT: f.Reference().SetPosition(pos(*REF_TEXT[ref]))  # Rev E: U13; U7 clear of R94; U14 clear of decoupling; U16 west of the EN/IN tie
-    if not ref.startswith('U'):
+    if ref in REF_TEXT: f.Reference().SetPosition(pos(*REF_TEXT[ref][:2]))  # Rev E: U13; U7 clear of R94; U14 clear of decoupling; U16 west of the EN/IN tie
+    if ref in REF_TEXT and len(REF_TEXT[ref])>2: f.Reference().SetTextAngleDegrees(REF_TEXT[ref][2])  # Rev F: board frame
+    # Rev F: a reference is on silk only where cad/tools/rev_f.py placed it (craft.place_refs), else on F.Fab
+    if (ref not in REF_TEXT) if BOARD.get('refs_on_silk_only_if_placed') else not ref.startswith('U'):
         f.Reference().SetLayer(k.F_Fab)
     for name,value in {'MPN':p['mpn'],'Manufacturer':p['manufacturer'],'LCSC':p['lcsc'],'Unit_USD':str(p['unit_usd']),'Assembly':p['assembly']}.items():
         f.SetField(name,value)

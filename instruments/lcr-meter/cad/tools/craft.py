@@ -35,8 +35,11 @@ in order with a local clearance test against the rules; no path search):
   stitch     stitch_vias(): stitching vias of one net at fixed candidates (beside layer changes of chosen
              nets, rows along their runs, a grid), each kept only if it clears every rule.
 Corners and entries that no candidate fits come back as exceptions; the checks flag anything else.
+  refs       place_refs(): every reference designator at a fixed list of spots around its own part, kept at
+             the first that clears pads, bodies, silk and the other references and is nearer its own body
+             than any other; the rest are left for the assembly drawing.
 Checks: tjunction_checks, entry_checks, corner_checks, via_checks, angle_checks, current_checks (IPC-2152),
-teardrop_checks.
+teardrop_checks, ref_checks.
 """
 from __future__ import annotations
 
@@ -972,6 +975,120 @@ def current_checks(net, routing, pads, sources, loads, i_max, rules=None):
             viol.append(violation('current', 'via', f"{v['drill']} mm via", f'carries {cap:.3f} A, needs {i:.3f} A',
                                   net, round(i, 3), v['at']))
     return {'segments': rows, 'vias': vrows, 'violations': viol, 'unjoined': unjoined, 'singular': singular}
+
+
+# ------------------------------------------------------------------ silk reference designators
+REFS = {'body_inset': 0.25,    # mm: a courtyard shrunk by this is the part body (text never on a body)
+        'gaps': (0.1, 0.35, 0.6),   # mm: text ink to its own body, tried in order
+        'ref_clear': 0.2,      # mm: text ink to another reference
+        'edge': 0.5,           # mm: text ink to the board edge
+        'margin': 0.05,        # mm: own body must be nearer than any other body by this much
+        'slide_step': 0.5,     # mm: slides along a side, alternating, out to half the side's length
+        'slide_min': 1.5}      # mm: ... but at least this far
+
+
+def _ref_candidates(body, ink, R):
+    bx0, by0, bx1, by1 = body.bounds
+    cx, cy = (bx0 + bx1) / 2, (by0 + by1) / 2
+
+    def slides(half):
+        n = int(max(half, R['slide_min']) / R['slide_step'] + 1e-9)
+        return [0.0] + [sg * k * R['slide_step'] for k in range(1, n + 1) for sg in (1, -1)]
+    out = []
+    for g in R['gaps']:
+        for angle, sides in ((0, ('top', 'bottom', 'left', 'right')), (90, ('left', 'right', 'top', 'bottom'))):
+            ix0, iy0, ix1, iy1 = ink[str(angle)]
+            for side in sides:
+                for sl in slides((bx1 - bx0) / 2 if side in ('top', 'bottom') else (by1 - by0) / 2):
+                    if side == 'top':
+                        x, y = cx - (ix0 + ix1) / 2 + sl, by0 - g - iy1
+                    elif side == 'bottom':
+                        x, y = cx - (ix0 + ix1) / 2 + sl, by1 + g - iy0
+                    elif side == 'left':
+                        x, y = bx0 - g - ix1, cy - (iy0 + iy1) / 2 + sl
+                    else:
+                        x, y = bx1 + g - ix0, cy - (iy0 + iy1) / 2 + sl
+                    out.append((round(x, 3), round(y, 3), angle))
+    return out
+
+
+def ref_box(at, ink):
+    x, y, a = at
+    ix0, iy0, ix1, iy1 = ink[str(a)]
+    return box(x + ix0, y + iy0, x + ix1, y + iy1)
+
+
+def place_refs(parts, ink, obstacles, board, rules=None):
+    """Silk positions for reference designators.
+
+    parts:     [{'ref', 'courtyard': [[x, y], ...]}] in placement order (a part earlier in the list wins a spot)
+    ink:       {ref: {'0': [x0, y0, x1, y1], '90': [...]}} the font's ink box relative to the text position
+    obstacles: [{'poly': [[x, y], ...] | {'outer', 'holes'}, 'clear': mm}] pads, silk, labels, holes, ...
+    Candidates per part, in order, for each gap in rules['gaps']: centred and slid along the top, bottom,
+    left and right of its body at 0 degrees, then left, right, top, bottom at 90 degrees.  Returns ({ref: [x, y, angle]}, [refs not placed])."""
+    R = dict(REFS, **(rules or {}))
+    x0, y0, x1, y1 = board['outline']
+    inside = box(x0, y0, x1, y1).buffer(-R['edge'])
+    bodies = {p['ref']: Polygon(p['courtyard']).buffer(-R['body_inset']) for p in parts}
+    btree_refs = list(bodies)
+    btree = STRtree([bodies[r] for r in btree_refs])
+    obs = [poly(o['poly']).buffer(o['clear'], 4) for o in obstacles]
+    otree = STRtree(obs) if obs else None
+    placed, boxes, missing = {}, [], []
+    for p in parts:
+        ref = p['ref']
+        if ref not in ink:
+            raise KeyError(f'no ink box for {ref}: rerun the font dump')
+        own = bodies[ref]
+        hit = None
+        for at in _ref_candidates(own, ink[ref], R):
+            g = ref_box(at, ink[ref])
+            if not inside.contains(g):
+                continue
+            if otree is not None and any(obs[int(j)].intersects(g) for j in otree.query(g)):
+                continue
+            if any(b.buffer(R['ref_clear'], 4).intersects(g) for b in boxes):
+                continue
+            d_own = own.distance(g)
+            bad = False
+            for j in btree.query(g.buffer(d_own + R['margin'])):
+                r_, b = btree_refs[int(j)], bodies[btree_refs[int(j)]]
+                if b.intersects(g) or (r_ != ref and b.distance(g) < d_own + R['margin']):
+                    bad = True                    # on a body, or as near another part as its own
+                    break
+            if bad:
+                continue
+            hit = at
+            break
+        if hit is None:
+            missing.append(ref)
+            continue
+        placed[ref] = list(hit)
+        boxes.append(ref_box(hit, ink[ref]))
+    return placed, missing
+
+
+def ref_checks(placed, ink, parts, obstacles, rules=None):
+    """Each placed reference: clear of obstacles and other references, off every body, nearest its own."""
+    R = dict(REFS, **(rules or {}))
+    bodies = {p['ref']: Polygon(p['courtyard']).buffer(-R['body_inset']) for p in parts}
+    obs = [poly(o['poly']).buffer(o['clear'], 4) for o in obstacles]
+    boxes = {r: ref_box(a, ink[r]) for r, a in placed.items()}
+    out = []
+    for r, g in boxes.items():
+        why = []
+        if any(o.intersects(g) for o in obs):
+            why.append('on an obstacle')
+        if any(o.buffer(R['ref_clear'], 4).intersects(g) for q, o in boxes.items() if q != r):
+            why.append('too near another reference')
+        if any(b.intersects(g) for b in bodies.values()):
+            why.append('on a part body')
+        d_own = bodies[r].distance(g) if r in bodies else 0.0
+        if any(b.distance(g) < d_own + R['margin'] for q, b in bodies.items() if q != r):
+            why.append('nearer another part')
+        if why:
+            out.append({'kind': 'silk_ref', 'where': f'{r} at ({placed[r][0]:.3f}, {placed[r][1]:.3f})', 'why': why})
+    return out
 
 
 # ------------------------------------------------------------------ teardrops

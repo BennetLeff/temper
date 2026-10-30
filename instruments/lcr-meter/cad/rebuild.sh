@@ -29,6 +29,9 @@ kicad-cli pcb export svg --layers F.Cu,F.SilkS,Edge.Cuts --mode-single \
 kicad-cli pcb export svg --layers F.Fab,Edge.Cuts --mode-single \
   --fit-page-to-board --exclude-drawing-sheet \
   --output previews/assembly-top.svg build/assembly-preview.kicad_pcb
+# Assembly drawing: every reference on F.Fab (the silk carries only those that fit), DNP parts crossed out
+kicad-cli pcb export pdf --layers F.Fab,Edge.Cuts --mode-single --cdnp --black-and-white --scale 0 \
+  --output manufacturing/assembly-top.pdf build/assembly-preview.kicad_pcb
 "$KICAD_PYTHON" cad/package_cad.py
 "$KICAD_PYTHON" cad/audit_dfm.py
 DYLD_FALLBACK_LIBRARY_PATH="${LCR_CAIRO_LIBRARY_PATH:-/opt/homebrew/lib}" "$RENDER_PYTHON" cad/render_previews.py

@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import math
 import subprocess
 import sys
@@ -510,6 +511,74 @@ design['board']['ref_text'] = {'U3': [56.85, 138.3], 'U7': [118.3, 68.2], 'U13':
                                'U16': [51.9, 132.4], 'U6': [82.0, 68.3], 'U15': [56.6, 79.7]}
 
 
+# ------------------------------------------------------------------ silk reference designators (craft.place_refs)
+# Every other reference goes on silk where craft.place_refs finds a spot beside its own part (1.0 / 0.15 mm text,
+# clear of lands, bodies, silk and other text, nearer its own part than any other); the rest stay on F.Fab and
+# are on the assembly drawing (manufacturing/assembly-top.pdf).  Fonts and footprint silk: silk_library.json.
+REF_ORDER = ('U', 'K', 'J', 'Q', 'D', 'L', 'Y', 'SW', 'FB', 'F', 'R', 'C')
+
+
+def ref_key(ref):
+    m = re.match(r'([A-Z]+)(\d+)', ref)
+    pre, n = (m.group(1), int(m.group(2))) if m else (ref, 0)
+    return (REF_ORDER.index(pre) if pre in REF_ORDER else len(REF_ORDER), pre, n)
+
+
+def silk_obstacles(slib):
+    """Lands, holes, fiducial mask openings, footprint silk, board labels and the hand-placed references."""
+    board = design['board']
+    h, w = board['ref_size']
+    pads, drills, _ = predrc.static_items({'parts': list(parts.values()), 'board': board})
+    obs = [{'poly': [list(c) for c in p['geom'].exterior.coords], 'clear': 0.15} for p in pads]
+    obs += [{'poly': [list(c) for c in d['geom'].exterior.coords], 'clear': 0.3} for d in drills if d['net'] is None]
+    obs += [{'poly': [list(c) for c in predrc.Point(x, y).buffer(3.0, 16).exterior.coords], 'clear': 0.0}
+            for x, y in board['holes']]                                   # M3 screw heads
+    obs += [{'poly': [list(c) for c in predrc.Point(x, y).buffer(1.0, 16).exterior.coords], 'clear': 0.15}
+            for x, y in board['fiducials']]                               # 2 mm mask openings
+    placed = [(p, p['pcb']) for p in parts.values()] + \
+        [({'footprint': f'x:TestPoint_Pad_D{d:.1f}mm'}, [x, y, 0]) for _, _, x, y, d in board['testpoints']]
+    for p, (x, y, t) in placed:
+        for pts in slib['footprints'].get(predrc.fp_name(p), []):
+            if len(pts) >= 3:
+                g = predrc.place_geom(predrc.Polygon(pts).buffer(0), (x, y), t)
+                for q in ([g] if g.geom_type == 'Polygon' else list(g.geoms)):
+                    obs.append({'poly': [list(c) for c in q.exterior.coords], 'clear': 0.15})
+    texts = [(s_, x, y, size, 0.15) for s_, x, y, size in board['silk']] + \
+        [(r, v[0], v[1], h, w, *(v[2:] or [parts[r]['pcb'][2] % 180])) for r, v in board['ref_text'].items()]
+    for s_, x, y, size, stroke, *ang in texts:     # a hand reference without an angle turns with its part (kept upright)
+        assert not ang or ang[0] in (0, 90), (s_, ang)
+        b = craft.ref_box([x, y, int(ang[0]) if ang else 0], slib['text'][f'{s_}|{size}|{stroke}'])
+        obs.append({'poly': [list(c) for c in b.exterior.coords], 'clear': 0.2})
+    return obs
+
+
+def silk_refs():
+    slib = json.loads((CAD / 'tools' / 'silk_library.json').read_text())
+    board = design['board']
+    h, w = board['ref_size']
+    _, _, courts = predrc.static_items({'parts': list(parts.values()), 'board': board})
+    court = {}
+    for c in courts:
+        court.setdefault(c['ref'], []).append(c['geom'])
+    todo = []
+    for ref in sorted(parts, key=ref_key):
+        if ref in board['ref_text'] or ref not in court:
+            continue
+        g = max(court[ref], key=lambda q: q.area)
+        todo.append({'ref': ref, 'courtyard': [list(c) for c in g.exterior.coords]})
+    ink = {p['ref']: slib['text'][f"{p['ref']}|{h}|{w}"] for p in todo}
+    obstacles = silk_obstacles(slib)
+    got, missing = craft.place_refs(todo, ink, obstacles, board)
+    return got, missing, todo, ink, obstacles
+
+
+SILK_REFS, SILK_MISSING, _todo, _ink, _obs = silk_refs()
+SILK_VIOL = craft.ref_checks(SILK_REFS, _ink, _todo, _obs)
+assert not SILK_VIOL, SILK_VIOL
+design['board']['ref_text'].update(SILK_REFS)
+design['board']['refs_on_silk_only_if_placed'] = True     # build_cad: a reference not in ref_text goes to F.Fab
+
+
 def pads_of(*refs):
     for r in refs:
         print(r, parts[r]['pcb'], '  '.join(f"{p['num']}:{parts[r]['pins'].get(p['num'])}@{P(r + '.' + p['num'])[0]:.3f},{P(r + '.' + p['num'])[1]:.3f}"
@@ -529,6 +598,8 @@ def main():
     design['parts'] = [parts[p['ref']] for p in design['parts']]
     print('craft:', CRAFT)
     print('pour:', POUR)
+    print(f'silk refs: {len(SILK_REFS)} placed by search, {len(design["board"]["ref_text"]) - len(SILK_REFS)} by hand, '
+          f'{len(SILK_MISSING)} on F.Fab only: {" ".join(SILK_MISSING)}')
     print(f"{len(design['parts'])} parts, {len(routing['tracks'])} tracks, {len(routing['vias'])} vias; "
           f"copied {sum(n for n, _ in COPIED.values())} segments / {sum(v for _, v in COPIED.values())} vias, "
           f"pruned {pruned}")
