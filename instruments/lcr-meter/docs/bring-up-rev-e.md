@@ -40,7 +40,7 @@ Rev F adds an orange front-panel light and six red debug LEDs, visible with the 
 
 With a blank flash (no firmware) HB, FLT and STATUS stay dark: the RP2040 pads reset as inputs with pull-downs. HB blinks with the bench supply alone, because the firmware's main loop runs once it sees VBUS, computer or not. The rail LEDs draw about 2 mA in all (about 0.4–0.6 mA each; 5 V input share of all LEDs about 12 mA, `regulator_check.py`), so record the idle current in §2.1 with them lit.
 
-Rev F also has nine bare 1.5 mm test pads (board-only, not on the BOM), labelled on silk. Each GND pad is 2.6 mm from a rail pad, so a scope ground spring reaches both: probe 5V, +12, −12 against the power-area GND (TP2) and 3V3 against the digital GND (TP9). Positions are KiCad board coordinates (mm; the board spans x 50–150, y 45–145, the BNC edge at y 45). Expected values are the §2 rail checks at 5.0 V in.
+Rev F also has fourteen bare 1.5 mm test pads (board-only, not on the BOM), labelled on silk: nine on the supplies and five on the relay coil lines. Each GND pad is 2.6 mm from a rail pad, so a scope ground spring reaches both: probe 5V, +12, −12 against the power-area GND (TP2) and 3V3 against the digital GND (TP9). Positions are KiCad board coordinates (mm; the board spans x 50–150, y 45–145, the BNC edge at y 45). Expected values are the §2 rail checks at 5.0 V in.
 
 | TP | Silk | Net | Position (x, y) | Where | Expect |
 |---|---|---|---|---|---|
@@ -53,6 +53,13 @@ Rev F also has nine bare 1.5 mm test pads (board-only, not on the BOM), labelled
 | TP7 | RAW- | RAW_N | 142.5, 115.0 | on the RAW_N run to R96 | −14.1 V nominal (−13.3…−14.8 V) |
 | TP8 | 3V3 | 3V3 | 92.0, 131.6 | digital area, east of J5 | 3.3 V |
 | TP9 | GND | GND | 92.0, 134.2 | beside TP8 | 0 V (scope ground, digital area) |
+| TP10 | K1 | RLY_SET_LO | 107.2, 111.6 | east of Q4 (K1 SET driver drain) | VRLY at rest; about 0 V for each 20 ms K1 SET pulse |
+| TP11 | K2 | RLY_SET_MED | 88.9, 108.5 | north-west of Q3 (K2 SET driver drain) | as TP10, for K2 |
+| TP12 | K3 | RLY_SET_HI | 122.0, 111.6 | east of Q5 (K3 SET driver drain) | as TP10, for K3 |
+| TP13 | K4 | RLY_SET_REF | 147.9, 75.6 | north-east of Q6 (K4 SET driver drain) | as TP10, for K4 |
+| TP14 | RST | RLY_RST | 97.295, 115.0 | south of Q2 (shared RESET driver drain) | VRLY at rest; about 0 V for each 20 ms RESET pulse (all four coils) |
+
+The five coil pads sit on the MOSFET drains, at least 10 mm from every analog-net item (`rev_f.py` asserts it; 10.7 mm for K2, 13.6–19.0 mm for the others), so probing them does not touch the measurement path. At turn-off the drain swings above VRLY until the 1N4148 across the coil clamps it, about VRLY + 1 V; a larger or longer overshoot means the clamp diode is missing or reversed. Use TP2 for the scope ground. `RELAY_PULSE_MS` is 20 ms (`firmware-rev-e/src/relay.h`); the TQ2SA needs 4 ms at most.
 
 CODEC_VREF and 5VA have no test pad: both sit in the analog core, where a pad would need new copper next to the codec. Measure them at their decoupling capacitors.
 
@@ -95,7 +102,7 @@ CODEC_VREF and 5VA have no test pad: both sit in the analog core, where a pad wo
 
 ## 4. Relays
 
-1. With the source silent, run `temper-lcr range PORT 100`, then 5000, then 100000. Scope VRLY during a RESET pulse (all four coils): at least 4.5 V. Record the waveform.
+1. With the source silent, run `temper-lcr range PORT 100`, then 5000, then 100000. Scope VRLY during a RESET pulse (all four coils): at least 4.5 V. Record the waveform. On Rev F, scope TP14 (RESET) and the SET pad of the range being selected (TP10–TP13) at the same time: each drain pulls low for 20 ms, RESET first.
 2. **K4 stays open.**
    - Run `refcheck PORT 5000 1500 ref.json` with the jacks open, then a normal `capture` of the open jacks on the 5 kΩ range. The capture must read far above 1 kΩ: if it reads about 1 kΩ, K4 is still closed.
    - Repeat after cutting power in the middle of a `refcheck` (boot must reset K4).

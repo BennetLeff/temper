@@ -7,7 +7,8 @@ Read-only.  Writes cad/tools/silk_library.json:
   text        {"<string>|<height>|<stroke>": {"0": [x0, y0, x1, y1], "90": [...]}}  KiCad's stroke-font ink
               box relative to the text position, at 0 and 90 degrees, for every reference designator (at
               design.board.ref_size) and every board silk label in design.json
-Rerun it when a footprint, a reference or a label changes; rev_f.py stops on a missing entry.
+Rerun it when a footprint, a reference or a label changes; rev_f.py stops on a missing entry and lists the
+strings it needs in build/silk-strings.json, which this script also reads.
 """
 import json
 import math
@@ -68,6 +69,11 @@ def ink(s, h, w, angle):
 h, w = design.get('board', {}).get('ref_size', [0.8, 0.12])
 strings = {(p['ref'], h, w) for p in design['parts']}
 strings |= {(s, size, 0.15) for s, _, _, size in design.get('board', {}).get('silk', [])}
+extra = ROOT.parent / 'build' / 'silk-strings.json'          # written by rev_f.py when it meets a new string
+if extra.exists():
+    for key in json.loads(extra.read_text()):
+        s, hh, ww = key.rsplit('|', 2)
+        strings.add((s, float(hh), float(ww)))
 text = {f'{s}|{hh}|{ww}': {'0': ink(s, hh, ww, 0), '90': ink(s, hh, ww, 90)} for s, hh, ww in sorted(strings)}
 out.write_text(json.dumps({'footprints': fps, 'text': text}, indent=0, sort_keys=True) + '\n')
 print(f'{len(fps)} footprints, {len(text)} strings -> {out}')

@@ -581,7 +581,7 @@ for _i, (_fx, _fy) in enumerate(design['board']['fiducials'], 1):
 # Two GND points, each 2.6 mm from a rail point (scope ground-spring reach): one in the power area
 # beside 5V, one in the digital area beside 3V3.        (name, net, x, y, pad d, label x, label y)
 TESTPOINTS = [
-    ('5V',   '5V',     100.5, 116.5, 1.5,  97.9, 116.5),   # on a stub east of the 5V riser (x 99.0)
+    ('5V',   '5V',     100.5, 116.5, 1.5,  97.9, 117.4),   # on a stub east of the 5V riser (x 99.0)
     ('GND',  'GND',    103.1, 116.5, 1.5, 103.1, 118.4),   # south of Q4's GND via (103.1, 113.8)
     ('+12',  '12V',    106.0, 121.2, 1.5, 108.6, 121.2),   # on the 12V run to R115 (no new copper)
     ('-12',  '-12V',   109.8, 117.6, 1.5, 109.8, 115.7),   # north of the -12V via (109.8, 119.4)
@@ -590,6 +590,13 @@ TESTPOINTS = [
     ('RAW-', 'RAW_N',  142.5, 115.0, 1.5, 139.2, 115.0),   # on the RAW_N run C91/C92 -> R96 (no new copper)
     ('3V3',  '3V3',     92.0, 131.6, 1.5,  89.2, 131.6),   # new via on the 3V3 B.Cu trunk at y 129.4
     ('GND',  'GND',     92.0, 134.2, 1.5,  89.2, 134.2),   # new GND via east
+    # relay coil lines at the driver end (2026-10-29): >= 10 mm from every analog-net item (rev_f.py asserts
+    # it), on the MOSFET drain side so a probe sees the coil current switch.  K1..K4 = SET of K1..K4.
+    ('K1',   'RLY_SET_LO',  107.2,  111.6, 1.5, 109.4, 111.6),   # 2.3 mm stub east out of Q4's drain land
+    ('K2',   'RLY_SET_MED',  88.9,  108.5, 1.5,  86.7, 108.5),   # 1.0 mm stub west of the Q3 drain riser
+    ('K3',   'RLY_SET_HI',  122.0,  111.6, 1.5, 124.2, 111.6),   # 2.3 mm stub east out of Q5's drain land
+    ('K4',   'RLY_SET_REF', 147.9,   75.6, 1.5, 145.8,  75.6),   # on the K4.5 -> Q6 run (no new copper)
+    ('RST',  'RLY_RST',      97.295, 115.0, 1.5,  94.8, 115.0),  # 3.4 mm stub south out of Q2's drain land
 ]
 design['board']['testpoints'] = [list(t[:5]) for t in TESTPOINTS]
 T('5V', 'F.Cu', (98.7, 116.5), (100.5, 116.5), w=0.4)
@@ -600,6 +607,10 @@ V('3V3', 92.0, 129.4)
 T('3V3', 'F.Cu', (92.0, 129.4), (92.0, 131.6), w=0.3)
 V('GND', 93.9, 134.2)
 T('GND', 'F.Cu', (93.9, 134.2), (92.0, 134.2), w=0.3)
+T('RLY_SET_LO', 'F.Cu', 'Q4.3', (107.2, 111.6))
+T('RLY_SET_MED', 'F.Cu', (89.938, 108.5), (88.9, 108.5))
+T('RLY_SET_HI', 'F.Cu', 'Q5.3', (122.0, 111.6))
+T('RLY_RST', 'F.Cu', 'Q2.3', (97.295, 115.0))
 # Rev E copy of the U14 3V3 drop along x 58.95, lying on the hand 3V3 run but ending 6.5 um past its
 # corner: the corner's chamfer (craft pass) would leave it dangling, so it goes.
 DROP('3V3', 58.9, 92.7, 59.0, 93.71)

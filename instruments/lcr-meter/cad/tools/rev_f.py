@@ -556,6 +556,12 @@ def silk_refs():
     slib = json.loads((CAD / 'tools' / 'silk_library.json').read_text())
     board = design['board']
     h, w = board['ref_size']
+    need = sorted({f'{r}|{h}|{w}' for r in parts} | {f'{s_}|{size}|0.15' for s_, _, _, size in board['silk']})
+    if set(need) - set(slib['text']):
+        (ROOT / 'build').mkdir(exist_ok=True)
+        (ROOT / 'build' / 'silk-strings.json').write_text(json.dumps(need, indent=0) + '\n')
+        sys.exit(f'silk_library.json lacks {sorted(set(need) - set(slib["text"]))}: run '
+                 '<kicad-python> cad/tools/silk_library.py (it reads build/silk-strings.json), then rev_f.py again')
     _, _, courts = predrc.static_items({'parts': list(parts.values()), 'board': board})
     court = {}
     for c in courts:
@@ -571,6 +577,14 @@ def silk_refs():
     got, missing = craft.place_refs(todo, ink, obstacles, board)
     return got, missing, todo, ink, obstacles
 
+
+# relay-coil test pads keep >= 10 mm from every analog-net item (rev_f_routes.py section 12)
+COIL_TP_MIN = 10.0
+_an = [x['geom'] for x in sum(predrc.dyn_items(routing), []) + predrc.static_items(
+    {'parts': list(parts.values()), 'board': design['board']})[0] if x['net'] in pour.ANALOG]
+COIL_TP = {t[0]: round(min(g.distance(predrc.Point(t[2], t[3])) for g in _an), 2)
+           for t in design['board']['testpoints'] if t[1].startswith('RLY_')}
+assert all(d >= COIL_TP_MIN for d in COIL_TP.values()), COIL_TP
 
 SILK_REFS, SILK_MISSING, _todo, _ink, _obs = silk_refs()
 SILK_VIOL = craft.ref_checks(SILK_REFS, _ink, _todo, _obs)
@@ -598,6 +612,7 @@ def main():
     design['parts'] = [parts[p['ref']] for p in design['parts']]
     print('craft:', CRAFT)
     print('pour:', POUR)
+    print('coil test pads, mm to analog copper:', COIL_TP)
     print(f'silk refs: {len(SILK_REFS)} placed by search, {len(design["board"]["ref_text"]) - len(SILK_REFS)} by hand, '
           f'{len(SILK_MISSING)} on F.Fab only: {" ".join(SILK_MISSING)}')
     print(f"{len(design['parts'])} parts, {len(routing['tracks'])} tracks, {len(routing['vias'])} vias; "
