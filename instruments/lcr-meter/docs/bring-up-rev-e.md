@@ -140,7 +140,7 @@ The Rev E host does the zero-waveform check itself on `capture` ([power-spurs Re
    Repeat with the jacks shorted and open.
 2. Stability with the real leads: on each range, with the open, the short and 100 Ω, plus 1 m BNC leads on all four jacks, look at TIA_OUT and SOURCE_BUF at full bandwidth. There must be no sustained ringing or oscillation. The simulated worst margin is 46.8° on the source driver. It rests on estimated relay-internal capacitance, so this is the check that confirms it.
 3. Level linearity (gain compression): capture R3 at 27.5 and 60.5 kHz at 200, 500, 1000 and 1700 mV. The uncalibrated |Z| must agree within 0.01 %.
-4. Codec passband: sweep `tone-hz` 1 kHz–85 kHz into R3 and capture each point. A/B must be smooth, with no roll-off at 60–85 kHz in either channel (firmware README step 9). This also tests whether CM_TOL = 01 works in wideband mode. If it does not, the channel residual rises or the codec status fails: use CM_TOL = 10.
+4. Codec passband: sweep `tone-hz` 1 kHz–85 kHz into R3 and capture each point. A/B must be smooth, with no roll-off at 60–85 kHz in either channel (firmware README step 9). This also tests whether CM_TOL = 01 works in wideband mode. If it does not, the channel residual rises or the codec status fails: use CM_TOL = 10. TI SBAA634A Table 2-3 already measures mode 01 at 1 kHz (TAC5112, 40 k: SNR 101 dB, THD+N -97 dB, CMRR 47 dB, within 1 dB of mode 00), so this step only confirms it holds at 27-85 kHz.
 
 ## 7. Internal reference
 

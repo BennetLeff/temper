@@ -66,9 +66,9 @@ Severities are the reviewers'. "Bring-up" means a check in `docs/bring-up-rev-e.
 | R3 | RISK (low) | Bring-up: scope 3V3, RUN and QSPI_CS together |
 | R4 | RISK (low) | Enclosure: SW1/SW2 must be reachable |
 | R5, C-12 | RISK (low) | Firmware: GPIO drive strength / slew if bring-up shows slow or ringing I2S edges |
-| C-01 | RISK | Bring-up: three-way CM_TOL compare |
+| C-01 | RISK | Mostly settled by TI SBAA634A Table 2-3 (2026-10-30): at 40 k, CM_TOL 1 gives SNR 101 dB / THD+N -97 dB vs 102 / -97 in mode 0 and 100 / -96 in mode 2 (1 kHz, EVM). Bring-up: confirm at 27-60 kHz wideband (codec.md addendum) |
 | C-02 | RISK | Fixed: C62 2.2 µF. Firmware: VREF_QCHG |
-| C-03, C-13 | RISK | Accepted (fault-only / covered by the K4 reference check) |
+| C-03, C-13 | RISK | Accepted (fault-only / covered by the K4 reference check). C-13: SBAA634A gives CMRR 47 dB at 40 k (not 60 dB), so the term is about 4.5x the audit's estimate; calibration still removes it |
 | C-04 | RISK | Firmware: INCAP_QCHG = 1, and a capture skip of ≥ 0.3 s after any ADC power-up |
 | C-05, C-06 | RISK | Bring-up 3.3: read CLK_DET_STS0 / CLK_ERR_STS. Fallback: PASI_FS_RATE_NO_LIM. 187.5 kHz lies in the auto 192 kHz bucket (174.64–193.92 kHz) |
 | C-07 | MISSING | Fixed: I2S test pads |
