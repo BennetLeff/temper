@@ -24,3 +24,7 @@ packages = ["src/temper_boardkit"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+extend = "../../pyproject.toml"
+target-version = "py39"          # KiCad's bundled Python imports the pcbnew-side modules

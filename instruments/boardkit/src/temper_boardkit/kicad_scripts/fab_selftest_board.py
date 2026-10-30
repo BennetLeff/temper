@@ -14,6 +14,7 @@ exercised too.
 
 Usage: <kicad python> fab_selftest_board.py OUT.kicad_pcb
 """
+
 import pathlib
 import sys
 
@@ -132,21 +133,21 @@ for layer, x in ((pcbnew.F_SilkS, 10), (pcbnew.B_SilkS, 30)):
     board.Add(text)
 
 # boardkit additions, right half of the board, clear of the features above.
-track(a, pcbnew.F_Cu, 30, 40, 50, width=0.05)               # track width 0.05 mm
-via(a, 42, 34, 0.32, 0.3)                                   # via ring 0.01 mm
-via(a, 46, 34, 0.4, 0.1)                                    # via drill 0.1 mm
-via(b, 50, 34, 0.4, 0.3)                                    # via holes 0.15 mm apart (same net)
+track(a, pcbnew.F_Cu, 30, 40, 50, width=0.05)  # track width 0.05 mm
+via(a, 42, 34, 0.32, 0.3)  # via ring 0.01 mm
+via(a, 46, 34, 0.4, 0.1)  # via drill 0.1 mm
+via(b, 50, 34, 0.4, 0.3)  # via holes 0.15 mm apart (same net)
 via(b, 50.45, 34, 0.4, 0.3)
 fp2 = pcbnew.FOOTPRINT(board)
 fp2.SetReference("J2")
 fp2.SetPosition(xy(48, 15))
 board.Add(fp2)
-hole_pad(fp2, "1", 42, 10, 1.6, 1.0, a)                     # PTH holes 0.3 mm apart, same net
+hole_pad(fp2, "1", 42, 10, 1.6, 1.0, a)  # PTH holes 0.3 mm apart, same net
 hole_pad(fp2, "2", 43.3, 10, 1.6, 1.0, a)
-hole_pad(fp2, "3", 51, 12, 6.8, 6.5, b)                     # PTH drill 6.5 mm (> 6.3)
-hole_pad(fp2, "4", 46, 20, 0.6, 0.1, a)                     # PTH drill 0.1 mm
-hole_pad(fp2, "", 42, 20, 0.3, 0.3, plated=False)           # NPTH drill 0.3 mm
-track(b, pcbnew.B_Cu, 39.875, 20, 30)                       # 0.2 mm track, edge 0.025 mm from the board edge
+hole_pad(fp2, "3", 51, 12, 6.8, 6.5, b)  # PTH drill 6.5 mm (> 6.3)
+hole_pad(fp2, "4", 46, 20, 0.6, 0.1, a)  # PTH drill 0.1 mm
+hole_pad(fp2, "", 42, 20, 0.3, 0.3, plated=False)  # NPTH drill 0.3 mm
+track(b, pcbnew.B_Cu, 39.875, 20, 30)  # 0.2 mm track, edge 0.025 mm from the board edge
 
 pcbnew.SaveBoard(sys.argv[1], board)
 # SaveBoard also writes default project files; the self-test runs without one.

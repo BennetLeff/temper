@@ -42,7 +42,8 @@ From KiCad's Python (or any script in the repo), put the source directory on the
 ```python
 import sys
 from pathlib import Path
-sys.path.insert(0, str(REPO / 'instruments' / 'boardkit' / 'src'))
+
+sys.path.insert(0, str(REPO / "instruments" / "boardkit" / "src"))
 from temper_boardkit import craft, kicad
 ```
 
