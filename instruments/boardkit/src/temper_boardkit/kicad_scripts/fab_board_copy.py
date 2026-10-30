@@ -15,6 +15,7 @@ overrides and the board's own and applied web widths.
 
 Usage: <kicad python> fab_board_copy.py IN.kicad_pcb OUT.kicad_pcb [MASK_WEB_MM]
 """
+
 import json
 import sys
 
@@ -26,7 +27,7 @@ def overrides(board):
         ref = fp.GetReference()
         yield "footprint", ref, fp
         for pad in fp.Pads():
-            yield "pad", "%s.%s" % (ref, pad.GetNumber()), pad
+            yield "pad", f"{ref}.{pad.GetNumber()}", pad
 
 
 source, target = sys.argv[1], sys.argv[2]
@@ -47,5 +48,5 @@ pcbnew.SaveBoard(target, board)
 saved = pcbnew.LoadBoard(target)
 left = [ident for _, ident, item in overrides(saved) if item.GetLocalClearance() is not None]
 if left:
-    sys.exit("local clearance survived the copy: %s" % ", ".join(left))
+    sys.exit(f"local clearance survived the copy: {', '.join(left)}")
 print(json.dumps({"cleared": cleared, "solder_mask_min_web_mm": web}))

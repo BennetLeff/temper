@@ -10,4 +10,5 @@ import the pure ones):
   kicad      lazily imported pcbnew helpers
   cli        boardkit-predrc, boardkit-gerber-check, boardkit-edge-clearance
 """
-__version__ = '0.1.0'
+
+__version__ = "0.1.0"
