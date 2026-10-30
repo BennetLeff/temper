@@ -571,9 +571,9 @@ for _i, (_fx, _fy) in enumerate(design['board']['fiducials'], 1):
 # Two GND points, each 2.6 mm from a rail point (scope ground-spring reach): one in the power area
 # beside 5V, one in the digital area beside 3V3.        (name, net, x, y, pad d, label x, label y)
 TESTPOINTS = [
-    ('5V',   '5V',     100.5, 116.5, 1.5, 100.5, 118.4),   # east of the 5V riser via (98.7, 116.5)
+    ('5V',   '5V',     100.5, 116.5, 1.5,  97.9, 116.5),   # east of the 5V riser via (98.7, 116.5)
     ('GND',  'GND',    103.1, 116.5, 1.5, 103.1, 118.4),   # south of Q4's GND via (103.1, 113.8)
-    ('+12',  '12V',    106.0, 121.2, 1.5, 106.0, 119.4),   # on the 12V run to R115 (no new copper)
+    ('+12',  '12V',    106.0, 121.2, 1.5, 108.6, 121.2),   # on the 12V run to R115 (no new copper)
     ('-12',  '-12V',   109.8, 117.6, 1.5, 109.8, 115.7),   # north of the -12V via (109.8, 119.4)
     ('VRLY', 'VRLY',   123.6, 109.6, 1.5, 123.9, 107.7),   # east of D8's VRLY via (121.1, 109.6)
     ('RAW+', 'RAW_P',  128.775, 115.0, 1.5, 125.5, 115.0), # on the RAW_P run C90 -> R95 (no new copper)

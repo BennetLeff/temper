@@ -55710,7 +55710,7 @@
 		)
 	)
 	(gr_text "FLT"
-		(at 61.2 102.6 0)
+		(at 61.2 101.2 0)
 		(layer "F.SilkS")
 		(uuid "a7e31757-4492-594a-8938-3bc3597a3440")
 		(effects
@@ -55764,8 +55764,8 @@
 			)
 		)
 	)
-	(gr_text "DISCHARGED"
-		(at 100 46.35 0)
+	(gr_text "5V"
+		(at 97.9 116.5 0)
 		(layer "F.SilkS")
 		(uuid "c6ec302a-49af-5184-9174-76b38c40b094")
 		(effects
@@ -55775,8 +55775,8 @@
 			)
 		)
 	)
-	(gr_text "DUT ONLY"
-		(at 100 47.95 0)
+	(gr_text "DISCHARGED"
+		(at 100 46.35 0)
 		(layer "F.SilkS")
 		(uuid "b67e5e35-2d06-5e71-af73-56aa66b9d3a3")
 		(effects
@@ -55786,8 +55786,8 @@
 			)
 		)
 	)
-	(gr_text "5V"
-		(at 100.5 118.4 0)
+	(gr_text "DUT ONLY"
+		(at 100 47.95 0)
 		(layer "F.SilkS")
 		(uuid "bbebe5ca-4984-51ac-b05e-0b514f1418cf")
 		(effects
@@ -55831,7 +55831,7 @@
 		)
 	)
 	(gr_text "+12"
-		(at 106 119.4 0)
+		(at 107.2 133.3 0)
 		(layer "F.SilkS")
 		(uuid "7d4770ae-0237-52ad-a080-642d540257e2")
 		(effects
@@ -55842,7 +55842,7 @@
 		)
 	)
 	(gr_text "+12"
-		(at 107.2 133.3 0)
+		(at 108.6 121.2 0)
 		(layer "F.SilkS")
 		(uuid "836cc4c0-9755-53d7-8732-c0ecb63692f8")
 		(effects

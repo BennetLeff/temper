@@ -478,7 +478,7 @@ design['board']['silk'] = [
     # debug LED labels (2026-10-29): rail LEDs under their column (staggered: 1.0 mm text is wider than
     # the 2.6 mm column pitch), HB / FLT above theirs
     ['5V', 102.0, 133.3, 1.0], ['3V3', 104.6, 134.8, 1.0], ['+12', 107.2, 133.3, 1.0], ['-12', 109.8, 134.8, 1.0],
-    ['HB', 58.8, 102.6, 1.0], ['FLT', 61.2, 102.6, 1.0],
+    ['HB', 58.8, 102.6, 1.0], ['FLT', 61.2, 101.2, 1.0],   # FLT raised: 1.0 mm labels would run together
 ] + [[name, lx, ly, 1.0] for name, _, _, _, _, lx, ly in TESTPOINTS]   # test-point labels
 # IC reference text (the only references on silk): clear of lands and of each other
 design['board']['ref_size'] = [1.0, 0.15]     # IC references on silk: 1.0 mm high, 0.15 mm stroke (2026-10-29)
