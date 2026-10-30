@@ -593,6 +593,49 @@ design['board']['ref_text'].update(SILK_REFS)
 design['board']['refs_on_silk_only_if_placed'] = True     # build_cad: a reference not in ref_text goes to F.Fab
 
 
+# ------------------------------------------------------------------ fabrication drawing (Dwgs.User; build_cad.py draws it)
+def fab_notes():
+    """Notes and the drill summary for the fab drawing, from the design itself (counts follow the routing)."""
+    from collections import Counter
+    x0, y0, x1, y1 = design['board']['outline']
+    pads, drills, _ = predrc.static_items({'parts': list(parts.values()), 'board': design['board']})
+    vias = Counter((v.get('drill', 0.3), v.get('diameter', 0.6)) for v in routing['vias'])
+    size = lambda g: tuple(sorted(round(b - a, 2) for a, b in zip(g.bounds[:2], g.bounds[2:])))
+    pth = Counter(size(d['geom']) for d in drills if d['net'] is not None)
+    npth = Counter(size(d['geom']) for d in drills if d['net'] is None)
+    fmt = lambda wh: f'{wh[0]:.2f} mm' if abs(wh[0] - wh[1]) < 0.01 else f'{wh[0]:.2f} x {wh[1]:.2f} mm slot'
+    drill = [f'  vias      {n:4d} x {d:.2f} mm drill, {pad:.2f} mm pad' for (d, pad), n in sorted(vias.items())]
+    drill += [f'  PTH       {n:4d} x {fmt(wh)}' for wh, n in sorted(pth.items())]
+    drill += [f'  NPTH      {n:4d} x {fmt(wh)}' for wh, n in sorted(npth.items())]
+    total = sum(vias.values()) + sum(pth.values()) + sum(npth.values())
+    lines = [
+        'TEMPER LCR REV F - FABRICATION NOTES',
+        f'1. Board {x1 - x0:.2f} x {y1 - y0:.2f} mm, 4 layers, 1.6 mm finished. FR-4, TG 135-140.',
+        '2. Stackup JLC04161H-7628: F.Cu 1 oz | 7628 prepreg | In1.Cu 0.5 oz GND plane | core |',
+        '   In2.Cu 0.5 oz signals + GND pour | 7628 prepreg | B.Cu 1 oz signals + GND pour.',
+        '3. Finish ENIG. Solder mask both sides; silkscreen top only (bottom intentionally empty).',
+        '4. Vias: every drill 0.30 mm. Covering "Plugged" (JLC default); do NOT order POFV.',
+        '   Exposed-pad thermal vias in U1, U11, U12, U13, U14: plugged from the bottom only,',
+        '   top lands left clean and open under paste. No other via touches an SMT land.',
+        f'5. Drill summary ({total} holes; drill files temper-lcr-PTH.drl / -NPTH.drl govern):',
+        *drill,
+        '6. Panel: edge rails added by JLCPCB, V-cut on the LEFT and RIGHT edges only.',
+        '   No rail on the front (BNC, y = top in this view) edge or the back edge.',
+        '7. Overhang: BNC J3, J7, J8, J9 reach 18.5 mm past the front edge (hand-fitted after',
+        '   reflow); J1 USB-C shell 0.2 mm past the left edge, >= 0.9 mm above the board.',
+        '8. Minimum track / space 0.15 / 0.15 mm; minimum via ring 0.075 mm; copper to edge >= 0.4 mm.',
+        '9. Origin (0, 0) at the lower-left board corner for Gerber, drill and placement files.',
+    ]
+    return [[t, x1 + 6.0, y0 + 2.0 + 2.1 * i, 1.2] for i, t in enumerate(lines)]
+
+
+design['board']['fab_notes'] = fab_notes()
+design['board']['fab_dims'] = [[design['board']['outline'][0], design['board']['outline'][3],
+                                design['board']['outline'][2], design['board']['outline'][3], 6.0],      # width, below
+                               [design['board']['outline'][0], design['board']['outline'][3],
+                                design['board']['outline'][0], design['board']['outline'][1], -6.0]]     # height, left
+
+
 def pads_of(*refs):
     for r in refs:
         print(r, parts[r]['pcb'], '  '.join(f"{p['num']}:{parts[r]['pins'].get(p['num'])}@{P(r + '.' + p['num'])[0]:.3f},{P(r + '.' + p['num'])[1]:.3f}"

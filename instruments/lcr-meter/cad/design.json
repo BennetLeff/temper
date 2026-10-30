@@ -1264,7 +1264,175 @@
       1.0,
       0.15
     ],
-    "refs_on_silk_only_if_placed": true
+    "refs_on_silk_only_if_placed": true,
+    "fab_notes": [
+      [
+        "TEMPER LCR REV F - FABRICATION NOTES",
+        156.0,
+        47.0,
+        1.2
+      ],
+      [
+        "1. Board 100.00 x 100.00 mm, 4 layers, 1.6 mm finished. FR-4, TG 135-140.",
+        156.0,
+        49.1,
+        1.2
+      ],
+      [
+        "2. Stackup JLC04161H-7628: F.Cu 1 oz | 7628 prepreg | In1.Cu 0.5 oz GND plane | core |",
+        156.0,
+        51.2,
+        1.2
+      ],
+      [
+        "   In2.Cu 0.5 oz signals + GND pour | 7628 prepreg | B.Cu 1 oz signals + GND pour.",
+        156.0,
+        53.3,
+        1.2
+      ],
+      [
+        "3. Finish ENIG. Solder mask both sides; silkscreen top only (bottom intentionally empty).",
+        156.0,
+        55.4,
+        1.2
+      ],
+      [
+        "4. Vias: every drill 0.30 mm. Covering \"Plugged\" (JLC default); do NOT order POFV.",
+        156.0,
+        57.5,
+        1.2
+      ],
+      [
+        "   Exposed-pad thermal vias in U1, U11, U12, U13, U14: plugged from the bottom only,",
+        156.0,
+        59.6,
+        1.2
+      ],
+      [
+        "   top lands left clean and open under paste. No other via touches an SMT land.",
+        156.0,
+        61.7,
+        1.2
+      ],
+      [
+        "5. Drill summary (461 holes; drill files temper-lcr-PTH.drl / -NPTH.drl govern):",
+        156.0,
+        63.8,
+        1.2
+      ],
+      [
+        "  vias        36 x 0.30 mm drill, 0.45 mm pad",
+        156.0,
+        65.9,
+        1.2
+      ],
+      [
+        "  vias        27 x 0.30 mm drill, 0.55 mm pad",
+        156.0,
+        68.0,
+        1.2
+      ],
+      [
+        "  vias       362 x 0.30 mm drill, 0.60 mm pad",
+        156.0,
+        70.1,
+        1.2
+      ],
+      [
+        "  PTH          2 x 0.60 x 1.40 mm slot",
+        156.0,
+        72.2,
+        1.2
+      ],
+      [
+        "  PTH          2 x 0.60 x 1.70 mm slot",
+        156.0,
+        74.3,
+        1.2
+      ],
+      [
+        "  PTH          6 x 1.00 mm",
+        156.0,
+        76.4,
+        1.2
+      ],
+      [
+        "  PTH          4 x 1.20 mm",
+        156.0,
+        78.5,
+        1.2
+      ],
+      [
+        "  PTH         16 x 1.40 mm",
+        156.0,
+        80.6,
+        1.2
+      ],
+      [
+        "  NPTH         2 x 0.60 mm",
+        156.0,
+        82.7,
+        1.2
+      ],
+      [
+        "  NPTH         4 x 3.20 mm",
+        156.0,
+        84.80000000000001,
+        1.2
+      ],
+      [
+        "6. Panel: edge rails added by JLCPCB, V-cut on the LEFT and RIGHT edges only.",
+        156.0,
+        86.9,
+        1.2
+      ],
+      [
+        "   No rail on the front (BNC, y = top in this view) edge or the back edge.",
+        156.0,
+        89.0,
+        1.2
+      ],
+      [
+        "7. Overhang: BNC J3, J7, J8, J9 reach 18.5 mm past the front edge (hand-fitted after",
+        156.0,
+        91.1,
+        1.2
+      ],
+      [
+        "   reflow); J1 USB-C shell 0.2 mm past the left edge, >= 0.9 mm above the board.",
+        156.0,
+        93.2,
+        1.2
+      ],
+      [
+        "8. Minimum track / space 0.15 / 0.15 mm; minimum via ring 0.075 mm; copper to edge >= 0.4 mm.",
+        156.0,
+        95.30000000000001,
+        1.2
+      ],
+      [
+        "9. Origin (0, 0) at the lower-left board corner for Gerber, drill and placement files.",
+        156.0,
+        97.4,
+        1.2
+      ]
+    ],
+    "fab_dims": [
+      [
+        50,
+        145,
+        150,
+        145,
+        6.0
+      ],
+      [
+        50,
+        145,
+        50,
+        45,
+        -6.0
+      ]
+    ]
   },
   "pinouts": {
     "RP2040": {

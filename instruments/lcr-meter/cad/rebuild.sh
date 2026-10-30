@@ -16,7 +16,7 @@ kicad-cli sch export netlist --format kicadxml --output build/netlist.xml cad/te
 kicad-cli pcb export pos --format csv --units mm --use-drill-file-origin \
   --output build/positions.csv cad/temper-lcr.kicad_pcb
 kicad-cli pcb export gerbers \
-  --layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.Paste,F.SilkS,B.SilkS,F.Mask,B.Mask,Edge.Cuts \
+  --layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.Paste,F.SilkS,B.SilkS,F.Mask,B.Mask,Edge.Cuts,Dwgs.User \
   --use-drill-file-origin --output manufacturing/gerbers/ cad/temper-lcr.kicad_pcb
 kicad-cli pcb export drill --format excellon --drill-origin plot --excellon-units mm \
   --excellon-separate-th --excellon-oval-format route --generate-map --map-format pdf \
@@ -29,6 +29,9 @@ kicad-cli pcb export svg --layers F.Cu,F.SilkS,Edge.Cuts --mode-single \
 kicad-cli pcb export svg --layers F.Fab,Edge.Cuts --mode-single \
   --fit-page-to-board --exclude-drawing-sheet \
   --output previews/assembly-top.svg build/assembly-preview.kicad_pcb
+# Fabrication drawing (notes, stackup, drill summary, dimensions on Dwgs.User; also a Gerber in the zip)
+kicad-cli pcb export pdf --layers Edge.Cuts,Dwgs.User --mode-single --black-and-white --scale 0 \
+  --output manufacturing/fab-drawing.pdf cad/temper-lcr.kicad_pcb
 # Assembly drawing: every reference on F.Fab (the silk carries only those that fit), DNP parts crossed out
 kicad-cli pcb export pdf --layers F.Fab,Edge.Cuts --mode-single --cdnp --black-and-white --scale 0 \
   --output manufacturing/assembly-top.pdf build/assembly-preview.kicad_pcb

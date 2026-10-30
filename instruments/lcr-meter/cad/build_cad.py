@@ -164,6 +164,11 @@ for i,(name,net,x,y,d) in enumerate(BOARD.get('testpoints',[]),1):
     b.Add(f)
 for text,x,y,size in SILK:
     t=k.PCB_TEXT(b);t.SetText(text);t.SetPosition(pos(x,y));t.SetTextSize(pos(size,size));t.SetTextThickness(mm(.15));t.SetLayer(k.F_SilkS);b.Add(t)
+# Rev F fabrication drawing on Dwgs.User (cad/tools/rev_f.py fab_notes): left-justified notes and outline dimensions
+for text,x,y,size in BOARD.get('fab_notes',[]):
+    t=k.PCB_TEXT(b);t.SetText(text);t.SetPosition(pos(x,y));t.SetTextSize(pos(size,size));t.SetTextThickness(mm(.15));t.SetLayer(k.Dwgs_User);t.SetHorizJustify(k.GR_TEXT_H_ALIGN_LEFT);b.Add(t)
+for xa,ya,xb,yb,h in BOARD.get('fab_dims',[]):
+    d=k.PCB_DIM_ALIGNED(b,k.PCB_DIM_ALIGNED_T);d.SetLayer(k.Dwgs_User);d.SetStart(pos(xa,ya));d.SetEnd(pos(xb,yb));d.SetHeight(mm(h));d.SetUnitsMode(k.DIM_UNITS_MODE_MM);d.SetUnitsFormat(k.DIM_UNITS_FORMAT_BARE_SUFFIX);d.SetPrecision(k.DIM_PRECISION_X_XX);d.SetTextSize(pos(1.5,1.5));d.SetLineThickness(mm(.15));b.Add(d)
 # Explicit human-authored track list. All segments are in board millimetres.
 routing=ROOT/'routing.json'
 if routing.exists():
