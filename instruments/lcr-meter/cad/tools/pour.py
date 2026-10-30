@@ -3,7 +3,7 @@
 Called by cad/tools/rev_f.py after the craft passes.  Deterministic geometry: the pours are KiCad zones on the
 board outline (inset 0.5 mm); the areas they must not fill are zone-fill-only rule areas (tracks and vias
 allowed), and the stitching vias are taken from fixed candidate grids, each kept only if it clears every
-pre-DRC rule and the analog keep-away.  No path search.
+pre-DRC rule and the analog keep-away (craft.stitch_vias).  No path search.
 
 Keep-aways (KEEP_* below, the iteration record is in docs/rev-f-plan.md):
   * the analog core block (ANALOG_CORE): the AFE, codec, relays, op-amps and BNC band;
@@ -19,9 +19,7 @@ Stitching:
 """
 from __future__ import annotations
 
-import math
-
-from shapely.geometry import LineString, Point, Polygon, box
+from shapely.geometry import Polygon, box
 from shapely.ops import unary_union
 
 import craft
@@ -32,7 +30,8 @@ CODEC_VREF DAC_M DAC_P DUT_HI DUT_LO EXCITE HIGH_BUF HPOT LOW_BUF LPOT REF_A RF1
 RG5K SOURCE_AC SOURCE_BUF SOURCE_FB SRC_AC_CMID SRC_DRV SRC_FB_CMID TIA_OUT TIA_SUM'''.split())
 RETURN_NETS = ('I2S_BCLK', 'I2S_FSYNC', 'I2S_DIN', 'I2S_DOUT', 'QSPI0', 'QSPI1', 'QSPI2', 'QSPI3', 'QSPI_CLK',
                'QSPI_CLK_FLASH', 'QSPI_CS', 'USB_DP', 'USB_DM', 'USB_DP_MCU', 'USB_DM_MCU')
-# analog core: everything north of y 104 west of x 124, and north of y 83 east of it (K4 and LCUR)
+# analog core: north of y 104 from x 87 to 124 and north of y 98.5 west of x 87 (the notch gives the codec I2S
+# bundle an adjacent return), north of y 83 east of x 124 (K4 and LCUR)
 ANALOG_CORE = [(50.0, 45.0), (150.0, 45.0), (150.0, 83.0), (124.0, 83.0), (124.0, 104.0), (87.0, 104.0), (87.0, 98.5), (50.0, 98.5)]
 ANALOG_BAND = 1.7            # mm: 1.5 mm plus the 0.2 mm zone clearance
 STITCH_PITCH = 5.5           # mm
@@ -74,8 +73,8 @@ def poured_area(design, routing, kos):
     return area
 
 
-def add(design, routing, V):
-    """Zones, fill-only keep-outs and stitching vias.  V(net, x, y, d) places a via.  Returns a report."""
+def add(design, routing):
+    """Zones, fill-only keep-outs and stitching vias (craft.stitch_vias).  Returns a report."""
     x0, y0, x1, y1 = design['board']['outline']
     kos = keepout_polys(design, routing)
     for i, pts in enumerate(kos):
@@ -84,64 +83,11 @@ def add(design, routing, V):
     for layer in POUR_LAYERS:
         routing['zones'].append({'layer': layer, 'net': 'GND',
                                  'points': [[x0 + 0.5, y0 + 0.5], [x1 - 0.5, y0 + 0.5], [x1 - 0.5, y1 - 0.5], [x0 + 0.5, y1 - 0.5]]})
-    area = poured_area(design, routing, kos).buffer(-0.6)       # a via ring well inside the pour
-    band = analog_band(design, routing)
-    pads, _, courts = predrc.static_items(design)
-    court = unary_union([c['geom'] for c in courts])
-    idx = craft.Index(design, routing)
-
-    def try_via(x, y):
-        x, y = round(x, 3), round(y, 3)
-        pt = Point(x, y)
-        g = pt.buffer(VIA_D / 2, 16)
-        if not area.contains(g) or g.intersects(band) or g.intersects(court):
-            return False
-        if not idx.ok(g, 'GND', predrc.CU):
-            return False
-        smd, tree = idx.smd
-        if any(g.intersects(smd[int(j)]['geom']) for j in tree.query(g)):
-            return False
-        # drill to drill
-        for v in routing['vias']:
-            if math.dist(v['at'], (x, y)) < 0.3 + predrc.HOLE2HOLE + 0.05:
-                return False
-        V('GND', x, y, d=VIA_D)
-        idx.accept(g, 'GND', predrc.CU)
-        return True
-
-    n_ret = n_lc = 0
-    # 1. beside every layer change of the return-critical nets
-    ring = [(r * math.cos(math.radians(a)), r * math.sin(math.radians(a))) for r in (0.95, 1.2, 1.5)
-            for a in range(0, 360, 45)]
-    for v in [v for v in routing['vias'] if v['net'] in RETURN_NETS]:
-        for dx, dy in ring:
-            if try_via(v['at'][0] + dx, v['at'][1] + dy):
-                n_lc += 1
-                break
-    # 2. rows along their B.Cu / In2 runs
-    for t in [t for t in routing['tracks'] if t['net'] in RETURN_NETS and t['layer'] in POUR_LAYERS]:
-        a, b = t['points']
-        L = math.dist(a, b)
-        if L < ROW_PITCH:
-            continue
-        ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L
-        off = t['width'] / 2 + ROW_OFFSET
-        for k in range(1, int(L // ROW_PITCH) + 1):
-            cx, cy = a[0] + ux * k * ROW_PITCH - ux * ROW_PITCH / 2, a[1] + uy * k * ROW_PITCH - uy * ROW_PITCH / 2
-            for sgn in (1, -1):
-                if try_via(cx - uy * off * sgn, cy + ux * off * sgn):
-                    n_ret += 1
-    # 3. the grid over the open pour
-    n_grid = 0
-    gx = x0 + STITCH_PITCH / 2
-    while gx < x1:
-        gy = y0 + STITCH_PITCH / 2
-        while gy < y1:
-            near = [(0, 0), (0.6, 0), (-0.6, 0), (0, 0.6), (0, -0.6)]
-            for dx, dy in near:
-                if try_via(gx + dx, gy + dy):
-                    n_grid += 1
-                    break
-            gy += STITCH_PITCH
-        gx += STITCH_PITCH
-    return {'keepouts': len(kos), 'stitch_layer_change': n_lc, 'stitch_rows': n_ret, 'stitch_grid': n_grid}
+    _, _, courts = predrc.static_items(design)
+    avoid = craft.plain_polys(analog_band(design, routing)) + craft.plain_polys(unary_union([c['geom'] for c in courts]))
+    plan = {'net': 'GND', 'diameter': VIA_D, 'drill': 0.3, 'inset': 0.6, 'follow_nets': RETURN_NETS,
+            'row_layers': POUR_LAYERS, 'row_offset': ROW_OFFSET, 'row_pitch': ROW_PITCH, 'grid_pitch': STITCH_PITCH}
+    pads, drills, board = predrc.craft_inputs(design)
+    rep = craft.stitch_vias(routing, pads, drills, board, craft.plain_polys(poured_area(design, routing, kos)), avoid,
+                            plan, predrc.RULES)
+    return dict({'keepouts': len(kos)}, **rep)

@@ -87,15 +87,27 @@
    "In1.Cu": 0.956,
    "In2.Cu": 0.046,
    "B.Cu": 0.059
+  },
+  "teardrops": {
+   "zones": 0,
+   "via_ends_with_teardrop": [
+    0,
+    413
+   ],
+   "pad_ends_with_teardrop": [
+    0,
+    598
+   ],
+   "violations": []
   }
  },
  {
   "board": "instruments/lcr-meter/cad/temper-lcr.kicad_pcb",
   "copper_mm2": {
-   "F.Cu": 1141.7,
+   "F.Cu": 1195.5,
    "In1.Cu": 9574.5,
-   "In2.Cu": 4610.9,
-   "B.Cu": 4650.2
+   "In2.Cu": 4614.0,
+   "B.Cu": 4652.9
   },
   "board_mm2": 10010.0,
   "return": {
@@ -161,9 +173,9 @@
    },
    "USB_DP_MCU": {
     "buried_run_mm": 4.95,
-    "over_adjacent_gnd_fill_mm": 0.96,
-    "mean_reference_height_mm": 1.081,
-    "loop_area_mm2": 5.35
+    "over_adjacent_gnd_fill_mm": 0.72,
+    "mean_reference_height_mm": 1.134,
+    "loop_area_mm2": 5.61
    },
    "USB_DM_MCU": {
     "buried_run_mm": 4.89,
@@ -173,10 +185,22 @@
    }
   },
   "copper_fraction": {
-   "F.Cu": 0.114,
+   "F.Cu": 0.119,
    "In1.Cu": 0.956,
    "In2.Cu": 0.461,
    "B.Cu": 0.465
+  },
+  "teardrops": {
+   "zones": 929,
+   "via_ends_with_teardrop": [
+    383,
+    413
+   ],
+   "pad_ends_with_teardrop": [
+    421,
+    598
+   ],
+   "violations": []
   }
  }
 ]

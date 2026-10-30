@@ -487,11 +487,12 @@ for v in routing['vias']:
 import craft  # noqa: E402
 design['board']['craft'] = True
 design['board']['teardrops'] = True        # KiCad teardrops on every via and pad (cad/fill_zones.py)
-CRAFT = craft.run({'parts': list(parts.values()), 'board': design['board']}, routing)
+CRAFT = craft.run(routing, *predrc.craft_inputs({'parts': list(parts.values()), 'board': design['board']}),
+                  rules=predrc.RULES)
 
 # ------------------------------------------------------------------ GND pours and stitching (cad/tools/pour.py)
 import pour  # noqa: E402
-POUR = pour.add({'parts': list(parts.values()), 'board': design['board']}, routing, V)
+POUR = pour.add({'parts': list(parts.values()), 'board': design['board']}, routing)
 
 # ------------------------------------------------------------------ silk and reference text
 design['board']['silk'] = [

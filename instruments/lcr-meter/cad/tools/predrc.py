@@ -50,12 +50,16 @@ from shapely import STRtree
 from shapely.affinity import rotate as srotate, translate
 from shapely.geometry import LineString, Point, Polygon, box
 
+import craft
+
 CAD = Path(__file__).resolve().parents[1]
 LIB = json.loads((CAD / 'tools' / 'pad_library.json').read_text())
 CU = ['F.Cu', 'In1.Cu', 'In2.Cu', 'B.Cu']
 CLEAR, EDGE, HOLE, HOLE2HOLE = 0.15, 0.3, 0.2, 0.25
 MIN_ANGLE, ANGLE_TOL, ANGLE_JOIN = 45.0, 0.1, 0.002    # deg, deg (45-degree legs on rounded coordinates), mm
 EPS = 1e-4
+RULES = {'layers': CU, 'clearance': CLEAR, 'edge': EDGE, 'hole': HOLE, 'hole2hole': HOLE2HOLE, 'min_angle': MIN_ANGLE,
+         'angle_tol': ANGLE_TOL, 'angle_join': ANGLE_JOIN, 'eps': EPS}
 EXPOSED = {('U1', '57'), ('U11', '9'), ('U12', '9'), ('U13', '25'), ('U14', '25')}
 DEFAULT_OUTLINE = [50, 45, 190, 150]
 DEFAULT_HOLES = [[54, 54], [186, 54], [54, 146], [186, 146]]
@@ -224,28 +228,19 @@ def dyn_items(routing):
 
 def angle_checks(routing):
     """Inner angles at shared segment end points, per net and layer (see the module docstring)."""
-    q = lambda p: (round(p[0] / ANGLE_JOIN), round(p[1] / ANGLE_JOIN))
-    ends = defaultdict(list)
-    for i, t in enumerate(routing['tracks']):
-        src = t.get('src', f'routing.json tracks[{i}]')
-        pts = [tuple(p) for p in t['points']]
-        for a, b in zip(pts, pts[1:]):
-            if math.dist(a, b) < ANGLE_JOIN:
-                continue            # a sub-micron jog: its two neighbours meet at the merged point
-            ends[(t['net'], t['layer'], q(a))].append((a, b, src))
-            ends[(t['net'], t['layer'], q(b))].append((b, a, src))
-    out = []
-    for (net, layer, _), legs in ends.items():
-        for x in range(len(legs)):
-            for y in range(x + 1, len(legs)):
-                (p, u, s1), (_, v, s2) = legs[x], legs[y]
-                du, dv = (u[0] - p[0], u[1] - p[1]), (v[0] - p[0], v[1] - p[1])
-                c = (du[0] * dv[0] + du[1] * dv[1]) / (math.hypot(*du) * math.hypot(*dv))
-                ang = math.degrees(math.acos(max(-1.0, min(1.0, c))))
-                if ang < MIN_ANGLE - ANGLE_TOL:
-                    out.append({'kind': 'angle', 'layer': layer, 'a': s1, 'b': s2, 'nets': [net, net],
-                                'mm': round(ang, 2), 'at': [round(p[0], 4), round(p[1], 4)], 'src': s1})
-    return out
+    return craft.angle_checks(routing, RULES)
+
+
+def craft_inputs(design):
+    """The placement as craft.py's plain data: pads (exact land outlines), drills, board."""
+    pads, drills, _ = static_items(design)
+    plain = [{'ref': p['ref'], 'pad': p['num'], 'net': p['net'], 'at': list(p['at']), 'shape': p['shape'],
+              'layers': list(p['layers']), 'smd': p['smd'], 'exposed': p['exposed'],
+              'size': [round(b - a, 4) for a, b in zip(p['geom'].bounds[:2], p['geom'].bounds[2:])],
+              'outline': [list(c) for c in p['geom'].exterior.coords]} for p in pads]
+    dr = [{'at': list(d['at']), 'net': d['net'], 'who': d['who'], 'outline': [list(c) for c in d['geom'].exterior.coords]}
+          for d in drills]
+    return plain, dr, {'outline': design.get('board', {}).get('outline', DEFAULT_OUTLINE)}
 
 
 def check(design, routing, cache=True):
@@ -366,8 +361,7 @@ def check(design, routing, cache=True):
     for a in angle_checks(routing):
         viol.append(a)
     if board.get('craft'):          # Rev F craft rules (cad/tools/craft.py): T-junctions, land entries, corners, via pads
-        import craft
-        viol += craft.checks(design, routing, pads)
+        viol += craft.checks(routing, *craft_inputs(design), RULES)
     zones = [Polygon(z['points']).buffer(-0.3) for z in routing.get('zones', []) if z['net'] == 'GND' and z['layer'] == 'In1.Cu']
     def plane_ok(at):
         return not zones or any(z.contains(Point(at)) for z in zones)

@@ -8,7 +8,10 @@ git revision (the committed record compares `1ab859588:` before the pours with t
     plane: a GND fill on the adjacent layer across the 0.21 mm prepreg (B.Cu <-> In2.Cu) when it
     covers the trace plus 0.2 mm each side, else In1.Cu (B.Cu: prepreg + In2 copper + core, 1.29 mm;
     In2: the 1.065 mm core).  Reported as length-weighted reference height and as loop area per mm
-    of run (height x 1 mm): an estimate of the return loop, not a bound (stackup JLC04161H-7628).
+    of run (height x 1 mm): an estimate of the return loop, not a bound (stackup JLC04161H-7628);
+  * teardrops: KiCad's teardrop zones, and for every via and pad end of a track (per layer) whether a
+    teardrop zone of its net touches it; craft.teardrop_checks fails any via or pad with teardrops disabled
+    (KiCad itself skips a teardrop where the track is wider than 90 % of the land or there is no room).
 """
 import json
 import subprocess
@@ -17,6 +20,9 @@ import tempfile
 from pathlib import Path
 
 import pcbnew as k
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import craft  # noqa: E402  (pure-data checks only: KiCad's Python has no shapely)
 
 ROOT = Path(__file__).resolve().parents[2]
 NM = 1e-6
@@ -27,6 +33,38 @@ PREPREG, CORE, T_IN = 0.2104, 1.065, 0.0152
 H_ADJ = PREPREG
 H_IN1 = {'B.Cu': PREPREG + T_IN + CORE, 'In2.Cu': CORE}
 ADJ = {'B.Cu': 'In2.Cu', 'In2.Cu': 'B.Cu'}
+
+
+def teardrops(b):
+    tds = [z for z in b.Zones() if z.IsTeardropArea()]
+    ends = {}
+    for t in b.GetTracks():
+        if not isinstance(t, k.PCB_VIA):
+            for p in (t.GetStart(), t.GetEnd()):
+                ends.setdefault((t.GetNetname(), t.GetLayer()), []).append(p)
+
+    def covered(net, layer, pos, r):
+        return any(z.GetNetname() == net and z.IsOnLayer(layer) and z.Outline().Collide(pos, r) for z in tds)
+    items, cov = [], {'via': [0, 0], 'pad': [0, 0]}
+    for v in b.GetTracks():
+        if isinstance(v, k.PCB_VIA):
+            at = [round(k.ToMM(v.GetPosition().x), 4), round(k.ToMM(v.GetPosition().y), 4)]
+            items.append({'where': {'via': v.GetNetname(), 'at': at}, 'enabled': v.GetTeardropsEnabled()})
+            for l in CU.values():
+                r = v.GetWidth(l) // 2
+                if any((p - v.GetPosition()).EuclideanNorm() <= r for p in ends.get((v.GetNetname(), l), [])):
+                    cov['via'][1] += 1
+                    cov['via'][0] += covered(v.GetNetname(), l, v.GetPosition(), r + 1000)
+    for f in b.GetFootprints():
+        for pd in f.Pads():
+            items.append({'where': {'pad': f'{f.GetReference()}.{pd.GetNumber()}'}, 'enabled': pd.GetTeardropsEnabled()})
+            for l in CU.values():
+                if pd.IsOnLayer(l) and any(pd.HitTest(p, 0, l) for p in ends.get((pd.GetNetname(), l), [])):
+                    s = pd.GetSize(l)
+                    cov['pad'][1] += 1
+                    cov['pad'][0] += covered(pd.GetNetname(), l, pd.GetPosition(), max(s.x, s.y) // 2 + 1000)
+    return {'zones': len(tds), 'via_ends_with_teardrop': cov['via'], 'pad_ends_with_teardrop': cov['pad'],
+            'violations': craft.teardrop_checks(items) if tds else []}
 
 
 def report(path):
@@ -80,6 +118,7 @@ def report(path):
         s['mm'] += L
         s['adj_mm'] += L * f
         s['h_x_mm'] += L * (f * H_ADJ + (1 - f) * H_IN1[layer])
+    out['teardrops'] = teardrops(b)
     for n, s in tot.items():
         if s['mm'] > 0:
             out['return'][n] = {'buried_run_mm': round(s['mm'], 2),
@@ -114,6 +153,9 @@ def main():
     for r in res:
         print(r['board'])
         print('  copper mm2', r['copper_mm2'], 'fraction', r['copper_fraction'])
+        td = r['teardrops']
+        print(f"  teardrops {td['zones']} zones; via ends {td['via_ends_with_teardrop']}, pad ends "
+              f"{td['pad_ends_with_teardrop']} (with, of); {len(td['violations'])} disabled")
         for n, s in r['return'].items():
             print(f"  {n:15s} {s['buried_run_mm']:7.2f} mm, {s['over_adjacent_gnd_fill_mm']:6.2f} over adjacent GND, "
                   f"h {s['mean_reference_height_mm']:.3f} mm, loop {s['loop_area_mm2']:.1f} mm2")
