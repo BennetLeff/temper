@@ -393,6 +393,17 @@ def DROP(net, x0, y0, x1, y1):
                                                           and inside(v['at']))]
 
 
+def WIDEN(net, layer, x0, y0, x1, y1, w):
+    """Set the width of every track of one net and layer lying wholly inside a box (current capacity,
+    validation/power-spurs/current_check.py).  Geometry is unchanged; predrc checks the clearance."""
+    n = 0
+    for t in routing['tracks']:
+        if t['net'] == net and t['layer'] == layer and all(x0 <= x <= x1 and y0 <= y <= y1 for x, y in t['points']):
+            t['width'] = max(t.get('width', 0.2), w)
+            n += 1
+    assert n, f'WIDEN {net} {layer}: nothing in the box'
+
+
 def KO(name, pts, layers=('In1.Cu', 'In2.Cu', 'B.Cu')):
     routing['keepouts'].append({'name': name, 'layers': list(layers), 'points': [list(p) for p in pts],
                                 'tracks': True})

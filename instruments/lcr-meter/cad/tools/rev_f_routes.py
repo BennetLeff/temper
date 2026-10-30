@@ -260,32 +260,41 @@ T('3V3', 'F.Cu', 'U3.5', (58.6, 134.95), (58.85, 134.7), 'C17.1', (60.6, 134.7),
 T('3V3', 'F.Cu', (61.3, 137.939), (61.3, 140.25), 'C18.1')
 V('GND', 60.0, 137.55)
 T('GND', 'F.Cu', 'C17.2', (60.0, 137.55))
-# 5 V trunk: B.Cu, 1.0 mm, down the west side of U3 and along the south edge (y 144.1) to L1 / C80
+# 5 V trunk (2026-10-29: 2.0 mm strip, was 1.0 mm): B.Cu down the west side of U3 and along the south
+# edge at y 143.55 (0.45 mm from the edge) to L1 / C80.  Its return is the In1 plane.  C18's and C80's
+# GND vias moved north out of the strip's way (below).
 for x in (57.4, 58.3):
     V('5V', x, 132.9)
 T('5V', 'F.Cu', 'C16.1', (58.3, 132.9), w=0.8)
+T('5V', 'B.Cu', (57.4, 132.9), (58.3, 132.9), (58.3, 134.2), w=1.0)
+T('5V', 'B.Cu', (58.3, 134.2), (58.3, 142.55), (59.3, 143.55), (128.6, 143.55), w=2.0)
 # east end: the switcher block's own trunk via (128.604, 142.802, copied) plus a second one beside it
-T('5V', 'B.Cu', (57.4, 132.9), (58.3, 132.9), (58.3, 143.6), (58.8, 144.1), (128.6, 144.1), (128.6044, 142.8016), w=1.0)
+T('5V', 'B.Cu', (128.6, 143.55), (128.6044, 142.8016), w=1.0)
 V('5V', 128.6, 143.75)
 T('5V', 'F.Cu', (128.6, 143.75), (128.6, 143.0), w=0.5)
 T('5V', 'F.Cu', 'C80.1', (131.45, 143.0), 'L1.1', w=1.0)
-V('GND', 122.9, 143.0)
-T('GND', 'F.Cu', 'C80.2', (122.9, 143.0), w=0.5)
+V('GND', 122.6, 141.5)
+T('GND', 'F.Cu', 'C80.2', (122.6, 141.5), w=0.5)
+DROP('GND', 63.4, 140.4, 63.6, 142.6)              # C18's Rev E GND via, in the strip's path
+V('GND', 63.475, 141.85)
+T('GND', 'F.Cu', 'C18.2', (63.475, 141.85))
 # 5V to FB1 at the codec: B.Cu up the west edge, between the receptacle's shield legs
 V('5V', 54.462, 131.75)
-T('5V', 'B.Cu', (54.462, 131.75), (54.462, 89.6), w=0.3)
+T('5V', 'B.Cu', (54.462, 131.75), (54.462, 89.6), w=0.4)
 V('5V', 54.462, 89.6)
-T('5V', 'F.Cu', (54.462, 89.6), (53.0, 89.6), 'FB1.1', w=0.3)
+T('5V', 'F.Cu', (54.462, 89.6), (53.0, 89.6), 'FB1.1', w=0.4)
 T('5VA', 'F.Cu', 'FB1.2', (53.0, 84.5), (53.4, 84.1), 'C67.1', w=0.3)
 T('5VA', 'F.Cu', 'FB1.2', (53.413, 85.525), 'C103.1', w=0.3)
 V('GND', 56.3, 89.4)
 T('GND', 'F.Cu', 'C103.2', (56.3, 89.4))
 # relay supply: 5V tap from the trunk up In2 to y 116.5, then F.Cu past the driver row to R101 (VRLY
 # filter) at the relay column foot; the RNG gate lines cross it on In2 north of y 116
-V('5V', 98.7, 144.1)
-T('5V', 'In2.Cu', (98.7, 144.1), (98.7, 116.5), w=0.3)
-V('5V', 98.7, 116.5)
-T('5V', 'F.Cu', (98.7, 116.5), (98.7, 107.0), (99.3, 106.4), 'R101.1', w=0.3)
+# (2026-10-29: x 99.0 and 0.9 mm, was x 98.7 and 0.3 mm: a VRLY short draws the TPS2553 limit through R101's
+# 2.2 ohm, and In2's 15 um copper needs 0.88 mm for 1.17 A at 10 C, current_check.py)
+V('5V', 99.0, 143.55)
+T('5V', 'In2.Cu', (99.0, 143.55), (99.0, 117.0), w=0.9)
+V('5V', 99.0, 117.0)
+T('5V', 'F.Cu', (99.0, 117.0), (98.7, 116.7), (98.7, 107.0), (99.3, 106.4), 'R101.1', w=0.4)
 
 # ============================================================== 5. USB data, VBUS sense
 # (the five Rev E vias these lines end on are the copied ones, kept now that they lead somewhere)
@@ -448,8 +457,8 @@ for _r, _d, _n in (('R117', 'D19', 'LED_HB'), ('R118', 'D20', 'LED_FLT')):
 # Rail LEDs at the rail monitors (resistor north on the rail, LED south, GND via below):
 # 5V from the In2 5 V riser (x 98.7), 3V3 from the In2 3V3 run (y 123.9), 12V on F.Cu from the R97 tap via
 # along y 121.2, -12V from the B.Cu -12 V run (y 119.4).
-V('5V', 98.7, 125.6)
-T('5V', 'F.Cu', (98.7, 125.6), (102.0, 125.6), 'R113.2')
+V('5V', 99.0, 125.6)
+T('5V', 'F.Cu', (99.0, 125.6), (102.0, 125.6), 'R113.2')
 V('3V3', 104.6, 123.9)
 T('3V3', 'F.Cu', (104.6, 123.9), 'R114.2')
 T('12V', 'F.Cu', (91.825, 121.95), (91.825, 121.2), (107.2, 121.2), 'R115.2')
@@ -527,9 +536,10 @@ T('RAW_N', 'F.Cu', (142.5, 119.6296), 'R96.1', w=0.3)
 T('LDOIN_N', 'F.Cu', 'R96.2', (142.5, 104.1), (145.15, 101.45), 'U12.5', w=0.3)
 # 3V3 to U13's enable pins: B.Cu hop east of the 5 V tap, In2 along y 123.9 and down x 141.2 beside D3,
 # via, F.Cu into U13's 3V3 ring (Rev E ring, east side)
-T('3V3', 'B.Cu', (97.3, 124.6), (99.5, 124.6))
-V('3V3', 99.5, 124.6)
-T('3V3', 'In2.Cu', (99.5, 124.6), (100.2, 123.9), (141.2, 123.9), (141.2, 136.4))
+T('3V3', 'B.Cu', (97.3, 124.6), (100.0, 124.6), w=0.3)
+V('3V3', 100.0, 124.6)
+T('3V3', 'In2.Cu', (100.0, 124.6), (100.7, 123.9), (141.2, 123.9), w=0.3)
+T('3V3', 'In2.Cu', (141.2, 123.9), (141.2, 136.4), w=0.27)      # 0.27: clear of the switcher's In2 copy at y 134
 V('3V3', 141.2, 136.4)
 T('3V3', 'F.Cu', (141.2, 136.4), (140.5497, 135.7497), (140.5497, 135.7048))   # onto the ring's east end at 90 deg
 V('GND', 148.35, 125.4)
@@ -571,7 +581,7 @@ for _i, (_fx, _fy) in enumerate(design['board']['fiducials'], 1):
 # Two GND points, each 2.6 mm from a rail point (scope ground-spring reach): one in the power area
 # beside 5V, one in the digital area beside 3V3.        (name, net, x, y, pad d, label x, label y)
 TESTPOINTS = [
-    ('5V',   '5V',     100.5, 116.5, 1.5,  97.9, 116.5),   # east of the 5V riser via (98.7, 116.5)
+    ('5V',   '5V',     100.5, 116.5, 1.5,  97.9, 116.5),   # on a stub east of the 5V riser (x 99.0)
     ('GND',  'GND',    103.1, 116.5, 1.5, 103.1, 118.4),   # south of Q4's GND via (103.1, 113.8)
     ('+12',  '12V',    106.0, 121.2, 1.5, 108.6, 121.2),   # on the 12V run to R115 (no new copper)
     ('-12',  '-12V',   109.8, 117.6, 1.5, 109.8, 115.7),   # north of the -12V via (109.8, 119.4)
@@ -582,7 +592,7 @@ TESTPOINTS = [
     ('GND',  'GND',     92.0, 134.2, 1.5,  89.2, 134.2),   # new GND via east
 ]
 design['board']['testpoints'] = [list(t[:5]) for t in TESTPOINTS]
-T('5V', 'F.Cu', (98.7, 116.5), (100.5, 116.5), w=0.3)
+T('5V', 'F.Cu', (98.7, 116.5), (100.5, 116.5), w=0.4)
 T('GND', 'F.Cu', (103.1, 113.8), (103.1, 116.5), w=0.3)
 T('-12V', 'F.Cu', (109.8, 119.4), (109.8, 117.6), w=0.3)
 T('VRLY', 'F.Cu', (121.1, 109.6), (123.6, 109.6), w=0.3)
@@ -593,3 +603,11 @@ T('GND', 'F.Cu', (93.9, 134.2), (92.0, 134.2), w=0.3)
 # Rev E copy of the U14 3V3 drop along x 58.95, lying on the hand 3V3 run but ending 6.5 um past its
 # corner: the corner's chamfer (craft pass) would leave it dangling, so it goes.
 DROP('3V3', 58.9, 92.7, 59.0, 93.71)
+
+# ============================================================== 13. supply copper widened for current (2026-10-29)
+# validation/power-spurs/current_check.py (IPC-2152, 10 C rise): USB_VBUS and 5V carry the TPS2553 limit,
+# 1.17 A, so outer copper needs 0.38 mm; the Rev E 0.2 mm copies on those runs are widened in place.
+# J1 east VBUS pins -> C15 / U16: a 0.4 mm run laid on the Rev E 0.2 mm copy from just outside the pins
+# (craft.merge_overlaps keeps the wider width where they overlap)
+T('USB_VBUS', 'F.Cu', (58.4, 124.4), (61.1, 124.4), (61.225, 124.525), (61.225, 127.0), w=0.4)
+WIDEN('5V', 'F.Cu', 131.4, 142.9, 138.1, 144.1, 0.5)        # L1 / C80 -> U13 VIN (switcher copy)

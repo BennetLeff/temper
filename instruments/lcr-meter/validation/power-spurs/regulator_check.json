@@ -70,14 +70,14 @@
  },
  "retention_pass_threshold": 0.3,
  "five_volt_trunk": {
-  "ohm": 0.08422507728901486,
-  "path_mm": 110.52448204630781,
+  "ohm": 0.04984657997524362,
+  "path_mm": 109.43881772644562,
   "routed": true,
-  "pads": "/Users/bennet/Desktop/temper/worktrees/lcr-in-box/instruments/lcr-meter/build/pad-coordinates.json",
-  "routing": "/Users/bennet/Desktop/temper/worktrees/lcr-in-box/instruments/lcr-meter/cad/routing.json"
+  "pads": "/Users/bennet/Desktop/temper/worktrees/lcr-rev-f-100/instruments/lcr-meter/build/pad-coordinates.json",
+  "routing": "/Users/bennet/Desktop/temper/worktrees/lcr-rev-f-100/instruments/lcr-meter/cad/routing.json"
  },
  "vin_at_u13": [
-  4.278007281815662,
+  4.2938798340254305,
   5.0,
   5.5
  ],
@@ -190,7 +190,7 @@
    "item": "TPS65131 duty cycle at all corners (2x estimated load)",
    "value": [
     0.615,
-    0.781
+    0.78
    ],
    "limit": [
     0.125,
@@ -214,10 +214,10 @@
    "note": "inductor cannot saturate even at the 2.2 A switch limit"
   },
   {
-   "item": "Eq. 3/4 inductor current at 2x load, VIN 4.28 V",
+   "item": "Eq. 3/4 inductor current at 2x load, VIN 4.29 V",
    "value": [
-    0.386,
-    0.556
+    0.384,
+    0.555
    ],
    "limit": 1.8,
    "status": "PASS",
@@ -232,14 +232,14 @@
   },
   {
    "item": "TPS65131 RAW_P output caps vs Eq. 7/8 (10 mV)",
-   "value": "need 4.07 uF; break-even retention 0.177",
+   "value": "need 4.06 uF; break-even retention 0.177",
    "limit": "<= assumed 0.4",
    "status": "PASS",
    "note": "3 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V"
   },
   {
    "item": "TPS65131 RAW_N output caps vs Eq. 7/8 (10 mV)",
-   "value": "need 4.96 uF; break-even retention 0.216",
+   "value": "need 4.95 uF; break-even retention 0.216",
    "limit": "<= assumed 0.4",
    "status": "PASS",
    "note": "3 x 10 uF 50 V X7R 1210 at ~14.4 V; the datasheet example uses 4 x 4.7 uF 25 V"
@@ -478,10 +478,10 @@
   },
   {
    "item": "5V trunk U16.6 -> U13.5/6 copper (routing.json, 60 C)",
-   "value": 84.2,
+   "value": 49.8,
    "limit": "added to R_ENTRY in VIN",
    "status": "PASS",
-   "note": "mOhm over 110.5 mm; least-resistance single path (upper bound on the strip model); 38.9 mV at 0.4617 A; VIN min 4.278 V at U13"
+   "note": "mOhm over 109.4 mm; least-resistance single path (upper bound on the strip model); 23.0 mV at 0.4617 A; VIN min 4.294 V at U13"
   },
   {
    "item": "TPS2553 current limit (R110 24k 1%) min vs 2x input estimate",
@@ -546,33 +546,33 @@
   }
  ],
  "operating_points_2x_load": {
-  "pos vin=4.278007281815662 fsw=1250000 L=3.76u": {
-   "duty": 0.7182907732300654,
-   "ripple_a": 0.6537985443274941,
-   "ipk_a": 0.5813013147807358,
+  "pos vin=4.2938798340254305 fsw=1250000 L=3.76u": {
+   "duty": 0.7172455565870537,
+   "ripple_a": 0.6552694109518076,
+   "ipk_a": 0.5810963375877565,
    "mode": "CCM (forced)",
-   "t_on_s": 5.746326185840523e-07
+   "t_on_s": 5.737964452696429e-07
   },
-  "pos vin=4.278007281815662 fsw=1250000 L=5.64u": {
-   "duty": 0.7182907732300654,
-   "ripple_a": 0.43586569621832943,
-   "ipk_a": 0.47233489072615353,
+  "pos vin=4.2938798340254305 fsw=1250000 L=5.64u": {
+   "duty": 0.7172455565870537,
+   "ripple_a": 0.4368462739678718,
+   "ipk_a": 0.4718847690957885,
    "mode": "CCM (forced)",
-   "t_on_s": 5.746326185840523e-07
+   "t_on_s": 5.737964452696429e-07
   },
-  "pos vin=4.278007281815662 fsw=1500000 L=3.76u": {
-   "duty": 0.7182907732300654,
-   "ripple_a": 0.5448321202729117,
-   "ipk_a": 0.5268181027534447,
+  "pos vin=4.2938798340254305 fsw=1500000 L=3.76u": {
+   "duty": 0.7172455565870537,
+   "ripple_a": 0.5460578424598397,
+   "ipk_a": 0.5264905533417725,
    "mode": "CCM (forced)",
-   "t_on_s": 4.788605154867102e-07
+   "t_on_s": 4.781637043913691e-07
   },
-  "pos vin=4.278007281815662 fsw=1500000 L=5.64u": {
-   "duty": 0.7182907732300654,
-   "ripple_a": 0.3632214135152745,
-   "ipk_a": 0.43601274937462603,
+  "pos vin=4.2938798340254305 fsw=1500000 L=5.64u": {
+   "duty": 0.7172455565870537,
+   "ripple_a": 0.3640385616398932,
+   "ipk_a": 0.43548091293179925,
    "mode": "CCM (forced)",
-   "t_on_s": 4.788605154867102e-07
+   "t_on_s": 4.781637043913691e-07
   },
   "pos vin=5.0 fsw=1250000 L=3.76u": {
    "duty": 0.6707471397169149,
@@ -630,33 +630,33 @@
    "mode": "CCM (forced)",
    "t_on_s": 4.2521456912573763e-07
   },
-  "neg vin=4.278007281815662 fsw=1250000 L=3.76u": {
-   "duty": 0.7809867971223626,
-   "ripple_a": 0.7108653627853954,
-   "ipk_a": 0.7199886380584557,
+  "neg vin=4.2938798340254305 fsw=1250000 L=3.76u": {
+   "duty": 0.7803526843952383,
+   "ripple_a": 0.7129235436068776,
+   "ipk_a": 0.7199652704811068,
    "mode": "CCM",
-   "t_on_s": 6.247894376978901e-07
+   "t_on_s": 6.242821475161906e-07
   },
-  "neg vin=4.278007281815662 fsw=1250000 L=5.64u": {
-   "duty": 0.7809867971223626,
-   "ripple_a": 0.4739102418569303,
-   "ipk_a": 0.6015110775942232,
+  "neg vin=4.2938798340254305 fsw=1250000 L=5.64u": {
+   "duty": 0.7803526843952383,
+   "ripple_a": 0.47528236240458516,
+   "ipk_a": 0.6011446798799607,
    "mode": "CCM",
-   "t_on_s": 6.247894376978901e-07
+   "t_on_s": 6.242821475161906e-07
   },
-  "neg vin=4.278007281815662 fsw=1500000 L=3.76u": {
-   "duty": 0.7809867971223626,
-   "ripple_a": 0.5923878023211628,
-   "ipk_a": 0.6607498578263394,
+  "neg vin=4.2938798340254305 fsw=1500000 L=3.76u": {
+   "duty": 0.7803526843952383,
+   "ripple_a": 0.5941029530057313,
+   "ipk_a": 0.6605549751805337,
    "mode": "CCM",
-   "t_on_s": 5.206578647482418e-07
+   "t_on_s": 5.202351229301589e-07
   },
-  "neg vin=4.278007281815662 fsw=1500000 L=5.64u": {
-   "duty": 0.7809867971223626,
-   "ripple_a": 0.39492520154744193,
-   "ipk_a": 0.5620185574394789,
+  "neg vin=4.2938798340254305 fsw=1500000 L=5.64u": {
+   "duty": 0.7803526843952383,
+   "ripple_a": 0.3960686353371543,
+   "ipk_a": 0.5615378163462452,
    "mode": "CCM",
-   "t_on_s": 5.206578647482418e-07
+   "t_on_s": 5.202351229301589e-07
   },
   "neg vin=5.0 fsw=1250000 L=3.76u": {
    "duty": 0.6767349833317235,

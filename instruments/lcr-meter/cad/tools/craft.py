@@ -394,7 +394,7 @@ def merge_overlaps(routing):
                     ti, tj = routing['tracks'][i], routing['tracks'][j]
                     p, a, b = tuple(ti['points'][ei]), tuple(ti['points'][1 - ei]), tuple(tj['points'][1 - ej])
                     if math.dist(p, a) <= math.dist(p, b) and (interior(a, p, b) or key(a) == key(b)):
-                        hit = (i, j, a)
+                        hit = (i, j, p, a, b)
                         break
                 if hit:
                     break
@@ -402,18 +402,16 @@ def merge_overlaps(routing):
                 break
         if not hit:
             return n
-        i, j, a = hit
+        i, j, p, a, b = hit
         ti, tj = routing['tracks'][i], routing['tracks'][j]
-        p0, p1 = tj['points']
         w = max(ti['width'], tj['width'])
         keep = [x for k, x in enumerate(routing['tracks']) if k not in (i, j)]
-        if key(a) == key(tuple(p1)) or key(a) == key(tuple(p0)):
+        if key(a) == key(b):
             keep.append(dict(tj, width=w))                       # a duplicate segment
         else:
-            near, far = (p0, p1) if math.dist(p0, a) < math.dist(p1, a) else (p1, p0)
-            # the overlapped part (near -> a) takes the wider width; the rest keeps the route's width
-            keep.append(dict(tj, width=w, points=[list(near), list(a)]))
-            keep.append(dict(tj, points=[list(a), list(far)]))
+            # the overlapped part (p -> a) takes the wider width; the rest (a -> b) keeps the route's width
+            keep.append(dict(tj, width=w, points=[list(p), list(a)]))
+            keep.append(dict(tj, points=[list(a), list(b)]))
         routing['tracks'] = keep
         n += 1
 
