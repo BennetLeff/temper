@@ -37,7 +37,7 @@ The analog copper is unchanged: all 562 items are identical to the extracted boa
 
 ## Dispositions
 
-Severities are the reviewers'. "Bring-up" means a check in `docs/bring-up-rev-e.md`. "Firmware" means the list below; the firmware cannot be built in this environment.
+Severities are the reviewers'. "Bring-up" means a check in `docs/bring-up-rev-e.md`. "Firmware" means the list below.
 
 | ID | Severity | Disposition |
 |---|---|---|
@@ -87,7 +87,9 @@ Severities are the reviewers'. "Bring-up" means a check in `docs/bring-up-rev-e.
 
 The OK-NOTE rows (PE-9…16, S8…15, L2, L10…12, N1…9, C-09…11, C-14…15, AFE-10…14, RC-03, 05, 06, 13…16) need no action.
 
-## Firmware items (not built here: no arm-none-eabi toolchain)
+## Firmware items
+
+Items 1–4 are done in `../../firmware-rev-e/` (commit f13087113, 2026-10-30): host tests pass for both sample rates, and the images were rebuilt with Pico SDK 2.2.0 and Arm GNU 14.2.rel1. Nothing has run on a board. The SDK hard-codes 250 mA, so the firmware has its own USB descriptors (bus powered, 500 mA). A clock-error fallback shows in a new `STATUS` command. The K3 wetting cycle (item 4) and the drive strength (item 5) remain open.
 
 1. USB: bus-powered, `USBD_MAX_POWER_MA=500`; drop `PICO_STDIO_USB_DEVICE_SELF_POWERED` (PE-3).
 2. Codec: VREF_QCHG for the 2.2 µF C62 (C-02); INCAP_QCHG = 1 and a capture skip of ≥ 0.3 s (C-04); the clock-error fallback (C-05).

@@ -36,6 +36,8 @@ Placement-preview checks from the datasheet audit (2026-10-30, `validation/datas
 - **Y1**: orient by pad geometry, since the part's chamfer mark is unreliable.
 - **K1–K4**: check the rotation and the stripe against pad 1.
 
+JLC preview, 2026-10-30 (`fab-quote.json` `assembly_quote`): C117, U17, U1, K1–K4 and the +/− markers of D5–D8 and D15–D20 are correct. Y1 was not placed: ABM8-272-T3 was out of stock at JLC, so its check is still open. D4's pad 1 is on the left; its lens is not readable at the preview's resolution. The assembly flow shows no vendor DFM before an order.
+
 Process notes:
 
 - **K1–K4 (TQ2SA):** a single reflow; no ultrasonic cleaning; no silicone coating or grease near the relays (Panasonic TQ catalog ASCTB14E p.19).

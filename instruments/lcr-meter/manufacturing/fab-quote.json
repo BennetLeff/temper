@@ -18,8 +18,8 @@
   "Board": 9.1,
   "total_usd": 52.4
  },
- "note": "Price read only. Shipping, tax and coupons excluded. The Gerber re-quote matches the signed-out read.",
- "gerber_quote": {
+ "note": "Price read only. Shipping, tax and coupons excluded. Nothing added to cart.",
+ "gerber_quote_2026_10_29_previous_board": {
   "date": "2026-10-29",
   "gerber_zip_sha256": "e4d0ab136f0a1e2c98ceb7b5113c4607f6c4338222bcebb2f3b27955ed5c04e1",
   "board_sha256": "811927569d2b9f4925cc043bdfc59cd45e89619a89306888b9cf9f140da52f15",
@@ -32,5 +32,54 @@
   "total_usd": 25.7,
   "source": "https://cart.jlcpcb.com/quote in Chrome, signed out: manufacturing/temper-lcr-gerbers.zip uploaded, options as 'options' above; Tented still greyed out. Nothing added to cart.",
   "assembly_step": "PCB Assembly on (Economic, top side, 5, tooling holes added by JLCPCB, Confirm Parts Placement Yes); NEXT requires sign-in, so the BOM/CPL upload, placement preview and DFM review were not reached."
+ },
+ "gerber_quote": {
+  "date": "2026-10-30",
+  "gerber_zip_sha256": "a065b92ae4ed73e9c943a296fbe1a45e0abc965fc1612a5ede1e3a39d0a2273b",
+  "board_sha256": "780bf3aef5ba341ad6dbde36b00f73b8c0cba0760d93c497ea63ae0f9f5db2ee",
+  "detected": "Detected 4 layer board of 100x100mm(3.937x3.937 inches).",
+  "lines": {
+   "Special Offer": 8.0,
+   "Via Covering (Plugged)": 0.0,
+   "Surface Finish (ENIG 1 u\")": 17.7
+  },
+  "total_usd": 25.7,
+  "source": "https://cart.jlcpcb.com/quote in Chrome, signed in by the owner: manufacturing/temper-lcr-gerbers.zip uploaded, options as 'options' above (1.6 mm, 1 oz / 0.5 oz, Plugged; Tented still greyed out). Nothing added to cart."
+ },
+ "assembly_quote": {
+  "date": "2026-10-30",
+  "bom_sha256": "a95cab9d6e28109ca3a3bfb70a2292430fcf3adeed8c87b82c8b2fe7c3eccbc6",
+  "cpl_sha256": "1ce82923479a40b32bc65f50902c868f6461f609c709608b5330cfdb72558e81",
+  "options": "PCB Assembly Economic, top side, qty 5, tooling holes added by JLCPCB, Confirm Parts Placement Yes, parts selection by customer; build 3 days PCB / 3-4 days assembly",
+  "bom_match": "68 lines detected, 67 confirmed, 1 inventory shortage: Y1 ABM8-272-T3 C20625731 \"5 shortfall\" (JLC stock 0; was 675 in jlc-parts-2026-10-30.json the same morning). Part search for ABM8-272-T3 also lists C9900092541, stock 0; idle-parts stock 0. Every other line matched the CPL part number, including C486059 LM3880, C433208 PCG, C1779, C23630, C22936.",
+  "priced_without": [
+   "Y1"
+  ],
+  "lines": {
+   "PCB price": 25.7,
+   "Setup fee": 8.24,
+   "Stencil": 1.55,
+   "Panel": 0.0,
+   "Large size": 0.0,
+   "Components (67 items)": 213.22,
+   "Extended components fee": 77.25,
+   "SMT assembly": 6.11,
+   "Confirm parts placement": 0.45,
+   "Nitrogen reflow soldering": 0.91
+  },
+  "pcba_usd": 307.73,
+  "total_usd": 333.43,
+  "vs_estimate": "order_estimate.py economic 5 boards $354.32 includes Y1 and $12.30 X-ray; the page has no X-ray line and adds nitrogen reflow $0.91. Y1 adds about $3.29 parts + the extended fee.",
+  "placement_preview": {
+   "C117": "model negative band north, + marker on the south land (pad 1, 5V): correct",
+   "U17": "model pin-1 marker on the north-west pin, matches silk triangle: correct",
+   "U1": "model pin-1 dot and footprint pin-1 marker together (bottom right as viewed): correct",
+   "K1-K4": "relay stripe at the footprint pin-1 end on all four (K4 rotated as laid out): correct",
+   "D5-D8, D15-D20": "JLC +/- markers checked against the board's anode pads: + on the anode end for all ten (D18 reversed on purpose)",
+   "Y1": "not placed in this quote (out of stock), so the pad-geometry check (M1) is still open",
+   "D4": "pad 1 (GND) on the left per the CPL; the side-view lens direction is not readable at the preview resolution"
+  },
+  "dfm": "The assembly flow shows no vendor DFM result before an order (only a link to the separate JLCDFM tool). The exposed-pad via treatment still needs vendor DFM acceptance at order.",
+  "source": "cart.jlcpcb.com/smt-order in Chrome, signed in by the owner; nothing added to cart, nothing ordered."
  }
 }

@@ -45,7 +45,7 @@ Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm
 | Interference and rail monitors, rerun 2026-10-30 (*audit*) | `rev_e_spurs.json` and `rail_monitor_window.json` byte-identical to 2026-10-29 | `power-spurs/` |
 | GND pours (*audit*) | In2 45.9 %, B.Cu 46.5 %; 115 stitching vias; 994 teardrop zones, none disabled; BCLK loop 40.8 mm² | `pour-report-rev-f.json` |
 
-**Not established:** everything listed under Rev E below. Ordering steps open: the 2026-10-29 Gerber quote ($25.70, `../manufacturing/fab-quote.json`) was on the previous board; re-upload these Gerbers (same size and layers), then sign in for the BOM/CPL upload, the placement preview (check C117 +, U17 pin 1, Y1 pin 1, K1–K4) and the DFM review. Firmware items from the audit are open (`datasheet-audit-rev-f/README.md`). No purchase has occurred.
+**Not established:** everything listed under Rev E below. Ordering steps open: the JLC re-quote of these Gerbers on 2026-10-30 ($25.70 fab, $333.43 for 5 assembled without Y1; `../manufacturing/fab-quote.json`) found **Y1 ABM8-272-T3 out of stock** at JLC (0, was 675 that morning). The preview checks passed except Y1 (not placed) and D4's lens (not readable). Still open: Y1 sourcing, the vendor DFM (at order) and the edge-rail option. Firmware items are done in host tests and builds (`../firmware-rev-e/README.md`), not on a board. No purchase has occurred.
 
 ## Revision E verification receipt (superseded by Rev F; same circuit, kept as history)
 
