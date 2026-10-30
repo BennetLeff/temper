@@ -120,3 +120,29 @@ def test_models_3d_native_pads():
                                  '(pad "2" smd roundrect (at 0.825 0) (size 1 1))')
     assert pads == {'1': (-0.825, -0.5), '2': (0.825, 0.0)}
     assert math.isclose(models_3d.UNIT, 0.254)
+
+
+def _search_reply(*codes):
+    return json.dumps({'data': {'componentPageInfo': {'list': [
+        {'componentCode': c, 'componentModelEn': f'M-{c}', 'componentBrandEn': 'B', 'describe': 'd',
+         'componentLibraryType': 'expand', 'preferredComponentFlag': 0, 'stockCount': 100,
+         'leastPatchNumber': 5, 'lossNumber': 2, 'dataManualUrl': 'u',
+         'componentPrices': [{'startNumber': 1, 'productPrice': 0.5}, {'startNumber': 10, 'productPrice': 0.4}]}
+        for c in codes]}}}).encode()
+
+
+def test_parts_snapshot_keeps_only_the_exact_code():
+    from temper_boardkit.jlc import parts
+    seen = []
+
+    def post(body):
+        seen.append(json.loads(body)['keyword'])
+        return _search_reply(seen[-1], seen[-1] + '9')          # the search also returns a longer code
+    snap = parts.snapshot(['C2', 'C1', 'C2'], post=post, today='2026-10-29')
+    assert seen == ['C1', 'C2'] and snap['fetched'] == '2026-10-29' and snap['source'] == parts.SOURCE
+    assert snap['parts']['C1'] == {'model': 'M-C1', 'library': 'expand', 'preferred': False, 'stock': 100,
+                                   'least': 5, 'loss': 2, 'tiers': [[1, 0.5], [10, 0.4]]}
+    assert list(parts.lookup('C1', extra=True, post=lambda b: _search_reply('C1'))) == [
+        'model', 'brand', 'describe', 'library', 'preferred', 'stock', 'least', 'loss', 'tiers', 'datasheet']
+    with pytest.raises(AssertionError):
+        parts.lookup('C3', post=lambda b: _search_reply('C1'))
