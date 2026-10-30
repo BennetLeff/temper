@@ -470,6 +470,13 @@ for v in routing['vias']:
     v['drill'] = 0.3
     v['diameter'] = max(v.get('diameter', 0.6), 0.45)
 
+# ------------------------------------------------------------------ craft passes (cad/tools/craft.py, 2026-10-29)
+# T-junction splits, straight land entries, 45-degree chamfers on 90-degree bends, 0.6 mm via pads where
+# they clear.  Deterministic edits of the copper above; predrc enforces the same rules (design.board.craft).
+import craft  # noqa: E402
+design['board']['craft'] = True
+CRAFT = craft.run({'parts': list(parts.values()), 'board': design['board']}, routing)
+
 # ------------------------------------------------------------------ silk and reference text
 design['board']['silk'] = [
     ['TEMPER LCR REV F', 111, 140.2, 1.0],
@@ -503,6 +510,7 @@ def main():
     if a.pads:
         pads_of(*a.pads.split(','))
     design['parts'] = [parts[p['ref']] for p in design['parts']]
+    print('craft:', CRAFT)
     print(f"{len(design['parts'])} parts, {len(routing['tracks'])} tracks, {len(routing['vias'])} vias; "
           f"copied {sum(n for n, _ in COPIED.values())} segments / {sum(v for _, v in COPIED.values())} vias, "
           f"pruned {pruned}")
@@ -521,7 +529,8 @@ def main():
     if not a.no_write:
         clean = {'tracks': [{k: v for k, v in t.items() if k != 'src'} for t in routing['tracks']],
                  'vias': [{k: v for k, v in v.items() if k != 'src'} for v in routing['vias']],
-                 'zones': routing['zones'], 'keepouts': routing['keepouts']}
+                 'zones': routing['zones'], 'keepouts': routing['keepouts'],
+                 'craft_exceptions': routing['craft_exceptions']}
         (CAD / 'design.json').write_text(json.dumps(design, indent=2) + '\n')
         (CAD / 'routing.json').write_text(json.dumps(clean, indent=2) + '\n')
 

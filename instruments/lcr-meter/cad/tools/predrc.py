@@ -15,6 +15,11 @@ once by cad/tools/pad_library.py, and checks with shapely what KiCad's DRC would
               45 degrees (an acid trap), or folding back over each other (0 degrees: a stub that runs out and
               back, or a duplicate segment).  Sub-micron jogs are merged first (ANGLE_JOIN); T-joints onto
               a segment's interior are not end points and are not checked.  KiCad has no equivalent rule.
+  craft       (boards with design.board.craft; cad/tools/craft.py) tjunction: a track end inside another
+              segment of its net and layer; pad_entry: a track leaving an SMD land off the land centre's
+              horizontal/vertical line (radial for round lands); corner90: a 90-degree bend between two
+              segments (not at a via or inside a land); via_ring: a via under 0.6 mm that would clear at
+              0.6 mm.  Listed exceptions (routing.json craft_exceptions) are the ones no candidate fits.
   unconnected pads of one net in more than one copper island (union-find over pads, track anchors,
               vias; In1.Cu is the GND plane, so GND vias and GND through-hole pads join it)
   dangling    a via joining copper on fewer than two layers (a GND via in the In1 plane is joined), or
@@ -123,7 +128,7 @@ def static_items(design):
             if not layers:
                 continue            # paste-only aperture (exposed-pad windows): no copper
             pads.append({'geom': g, 'net': net, 'layers': layers, 'ref': ref, 'num': num, 'at': centre,
-                         'smd': p['attr'] == 'smd', 'who': f'{ref}.{num}', 'kind': 'pad',
+                         'smd': p['attr'] == 'smd', 'who': f'{ref}.{num}', 'kind': 'pad', 'shape': p['shape'],
                          'exposed': (ref, num) in EXPOSED})
             if p['attr'] == 'pth':
                 dw, dh = p['drill']
@@ -358,6 +363,9 @@ def check(design, routing, cache=True):
             add('width', 'via', v, {'who': 'via 0.45/0.3'}, v['d'], list(v['at']))
     for a in angle_checks(routing):
         viol.append(a)
+    if board.get('craft'):          # Rev F craft rules (cad/tools/craft.py): T-junctions, land entries, corners, via pads
+        import craft
+        viol += craft.checks(design, routing, pads)
     zones = [Polygon(z['points']).buffer(-0.3) for z in routing.get('zones', []) if z['net'] == 'GND' and z['layer'] == 'In1.Cu']
     def plane_ok(at):
         return not zones or any(z.contains(Point(at)) for z in zones)

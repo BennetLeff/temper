@@ -590,3 +590,6 @@ V('3V3', 92.0, 129.4)
 T('3V3', 'F.Cu', (92.0, 129.4), (92.0, 131.6), w=0.3)
 V('GND', 93.9, 134.2)
 T('GND', 'F.Cu', (93.9, 134.2), (92.0, 134.2), w=0.3)
+# Rev E copy of the U14 3V3 drop along x 58.95, lying on the hand 3V3 run but ending 6.5 um past its
+# corner: the corner's chamfer (craft pass) would leave it dangling, so it goes.
+DROP('3V3', 58.9, 92.7, 59.0, 93.71)
