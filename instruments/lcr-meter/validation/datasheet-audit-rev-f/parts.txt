@@ -1,0 +1,872 @@
+C1  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              3V3
+       2 2_2              GND
+C2  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              3V3
+       2 2_2              GND
+C3  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              3V3
+       2 2_2              GND
+C4  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              3V3
+       2 2_2              GND
+C5  value=1uF 50V X5R  mpn=CL10A105KB8NNNC  lcsc=C15849  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              3V3
+       2 2_2              GND
+C6  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              3V3
+       2 2_2              GND
+C7  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              3V3
+       2 2_2              GND
+C8  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              1V1
+       2 2_2              GND
+C9  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              1V1
+       2 2_2              GND
+C10  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              3V3
+       2 2_2              GND
+C11  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              3V3
+       2 2_2              GND
+C12  value=15pF C0G  mpn=CL10C150JB8NNNC  lcsc=C1644  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              XIN
+       2 2_2              GND
+C13  value=15pF C0G  mpn=CL10C150JB8NNNC  lcsc=C1644  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              XTAL_OUT
+       2 2_2              GND
+C14  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              RUN
+       2 2_2              GND
+C15  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              USB_VBUS
+       2 2_2              GND
+C16  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              5V
+       2 2_2              GND
+C17  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              3V3
+       2 2_2              GND
+C18  value=10uF 25V X5R  mpn=CL21A106KAYNNNE  lcsc=C15850  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              3V3
+       2 2_2              GND
+C34  value=560pF C0G 5%  mpn=CC0603JRNPO9BN561  lcsc=C107054  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              SOURCE_AC
+       2 2_2              SRC_AC_CMID
+C35  value=560pF C0G 5%  mpn=CC0603JRNPO9BN561  lcsc=C107054  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              SRC_FB_CMID
+       2 2_2              SOURCE_FB
+C37  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              12V
+       2 2_2              GND
+C38  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              -12V
+       2 2_2              GND
+C39  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              12V
+       2 2_2              GND
+C40  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              -12V
+       2 2_2              GND
+C42  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              12V
+       2 2_2              GND
+C43  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              -12V
+       2 2_2              GND
+C44  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              12V
+       2 2_2              GND
+C45  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              -12V
+       2 2_2              GND
+C46  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              12V
+       2 2_2              GND
+C47  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              -12V
+       2 2_2              GND
+C48  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              12V
+       2 2_2              GND
+C49  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              -12V
+       2 2_2              GND
+C50  value=10nF 50V  mpn=0603B103K500NT  lcsc=C57112  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              12V
+       2 2_2              GND
+C51  value=10nF 50V  mpn=0603B103K500NT  lcsc=C57112  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              -12V
+       2 2_2              GND
+C52  value=10nF 50V  mpn=0603B103K500NT  lcsc=C57112  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              12V
+       2 2_2              GND
+C53  value=10nF 50V  mpn=0603B103K500NT  lcsc=C57112  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              -12V
+       2 2_2              GND
+C60  value=10uF 25V X5R  mpn=CL21A106KAYNNNE  lcsc=C15850  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              3V3A
+       2 2_2              GND
+C61  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              3V3A
+       2 2_2              GND
+C62  value=1uF 50V X5R  mpn=CL10A105KB8NNNC  lcsc=C15849  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              CODEC_VREF
+       2 2_2              GND
+C63  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              CODEC_DREG
+       2 2_2              GND
+C64  value=10uF 25V X5R  mpn=CL21A106KAYNNNE  lcsc=C15850  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              CODEC_DREG
+       2 2_2              GND
+C65  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              3V3
+       2 2_2              GND
+C66  value=10uF 25V X5R  mpn=CL21A106KAYNNNE  lcsc=C15850  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              3V3
+       2 2_2              GND
+C67  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              5VA
+       2 2_2              GND
+C68  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              3V3A
+       2 2_2              GND
+C69  value=560pF C0G 5%  mpn=CC0603JRNPO9BN561  lcsc=C107054  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              C2M_DIV
+       2 2_2              GND
+C70  value=560pF C0G 5%  mpn=CC0603JRNPO9BN561  lcsc=C107054  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              C2P_DIV
+       2 2_2              GND
+C72  value=560pF C0G 5%  mpn=CC0603JRNPO9BN561  lcsc=C107054  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              C1M_DIV
+       2 2_2              GND
+C73  value=560pF C0G 5%  mpn=CC0603JRNPO9BN561  lcsc=C107054  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              C1P_DIV
+       2 2_2              GND
+C74  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              C2M_CLP
+       2 2_2              C2M_DIV
+C75  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              C2P_CLP
+       2 2_2              C2P_DIV
+C76  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              C1M_CLP
+       2 2_2              C1M_DIV
+C77  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              C1P_CLP
+       2 2_2              C1P_DIV
+C78  value=100pF C0G 5%  mpn=CL10C101JB8NNNC  lcsc=C14858  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              DUT_LO
+       2 2_2              GND
+C80  value=10uF 50V X7R  mpn=CL32B106KBJNNNE  lcsc=C138687  SMT  fp=LCR:C_1210_3225Metric
+       1 1_1              5V
+       2 2_2              GND
+C81  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              CONV_VIN
+       2 2_2              GND
+C82  value=10uF 50V X7R  mpn=CL32B106KBJNNNE  lcsc=C138687  SMT  fp=LCR:C_1210_3225Metric
+       1 1_1              5V
+       2 2_2              GND
+C83  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              5V
+       2 2_2              GND
+C84  value=220nF 25V  mpn=CL10B224KA8NNNC  lcsc=C21120  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              CONV_REF
+       2 2_2              GND
+C85  value=4.7nF 50V  mpn=0603B472K500NT  lcsc=C53987  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              CONV_CN
+       2 2_2              GND
+C86  value=10nF 50V  mpn=0603B103K500NT  lcsc=C57112  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              CONV_CP
+       2 2_2              GND
+C87  value=15pF C0G  mpn=CL10C150JB8NNNC  lcsc=C1644  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              RAW_P
+       2 2_2              CONV_FBP
+C88  value=4.7pF C0G  mpn=0603CG4R7C500NT  lcsc=C1669  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              RAW_N
+       2 2_2              CONV_FBN
+C89  value=10uF 50V X7R  mpn=CL32B106KBJNNNE  lcsc=C138687  SMT  fp=LCR:C_1210_3225Metric
+       1 1_1              RAW_P
+       2 2_2              GND
+C90  value=10uF 50V X7R  mpn=CL32B106KBJNNNE  lcsc=C138687  SMT  fp=LCR:C_1210_3225Metric
+       1 1_1              RAW_P
+       2 2_2              GND
+C91  value=10uF 50V X7R  mpn=CL32B106KBJNNNE  lcsc=C138687  SMT  fp=LCR:C_1210_3225Metric
+       1 1_1              RAW_N
+       2 2_2              GND
+C92  value=10uF 50V X7R  mpn=CL32B106KBJNNNE  lcsc=C138687  SMT  fp=LCR:C_1210_3225Metric
+       1 1_1              RAW_N
+       2 2_2              GND
+C93  value=10nF 50V  mpn=0603B103K500NT  lcsc=C57112  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              REGP_NR
+       2 2_2              GND
+C94  value=10uF 50V X7R  mpn=CL32B106KBJNNNE  lcsc=C138687  SMT  fp=LCR:C_1210_3225Metric
+       1 1_1              LDOIN_P
+       2 2_2              GND
+C95  value=10uF 50V X7R  mpn=CL32B106KBJNNNE  lcsc=C138687  SMT  fp=LCR:C_1210_3225Metric
+       1 1_1              12V
+       2 2_2              GND
+C96  value=10nF 50V  mpn=0603B103K500NT  lcsc=C57112  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              12V
+       2 2_2              REGP_FB
+C97  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              LDOIN_P
+       2 2_2              GND
+C98  value=10nF 50V  mpn=0603B103K500NT  lcsc=C57112  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              REGN_NR
+       2 2_2              GND
+C99  value=10uF 50V X7R  mpn=CL32B106KBJNNNE  lcsc=C138687  SMT  fp=LCR:C_1210_3225Metric
+       1 1_1              LDOIN_N
+       2 2_2              GND
+C100  value=10uF 50V X7R  mpn=CL32B106KBJNNNE  lcsc=C138687  SMT  fp=LCR:C_1210_3225Metric
+       1 1_1              -12V
+       2 2_2              GND
+C101  value=10nF 50V  mpn=0603B103K500NT  lcsc=C57112  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              -12V
+       2 2_2              REGN_FB
+C102  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              LDOIN_N
+       2 2_2              GND
+C103  value=22uF 25V X5R  mpn=CL31A226KAHNNNE  lcsc=C12891  SMT  fp=LCR:C_1206_3216Metric
+       1 1_1              5VA
+       2 2_2              GND
+C104  value=100pF C0G 5%  mpn=CL10C101JB8NNNC  lcsc=C14858  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              TIA_SUM
+       2 2_2              TIA_OUT
+C110  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              GND
+       2 2_2              MON12
+C111  value=100nF 50V  mpn=CC0603KRX7R9BB104  lcsc=C14663  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              GND
+       2 2_2              MON_N12
+C112  value=22uF 25V X5R  mpn=CL31A226KAHNNNE  lcsc=C12891  SMT  fp=LCR:C_1206_3216Metric
+       1 1_1              VRLY
+       2 2_2              GND
+C113  value=1uF 50V  mpn=CL21B105KBFNNNE  lcsc=C28323  SMT  fp=LCR:C_0805_2012Metric
+       1 1_1              USB_VBUS
+       2 2_2              GND
+C114  value=560pF C0G 5%  mpn=CC0603JRNPO9BN561  lcsc=C107054  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              SRC_AC_CMID
+       2 2_2              GND
+C115  value=560pF C0G 5%  mpn=CC0603JRNPO9BN561  lcsc=C107054  SMT  fp=LCR:C_0603_1608Metric
+       1 1_1              EXCITE
+       2 2_2              SRC_FB_CMID
+D1  value=SRV05-4  mpn=SRV05-4  lcsc=C7420376  SMT  fp=LCR:SOT-23-6
+       1 IO1_1            USB_DP
+       2 GND_2            GND
+       3 IO2_3            USB_DM
+       4 IO2_4            USB_DM
+       5 VBUS_5           USB_VBUS
+       6 IO1_6            USB_DP
+D2  value=SS14  mpn=SS14  lcsc=C2480  SMT  fp=LCR:D_SMA
+       1 K_1              RAW_P
+       2 A_2              SW_P
+D3  value=SS14  mpn=SS14  lcsc=C2480  SMT  fp=LCR:D_SMA
+       1 K_1              SW_N
+       2 A_2              RAW_N
+D4  value=ORANGE  mpn=LTST-S270KFKT  lcsc=C160472  SMT  fp=LCR:LED_LiteOn_LTST-S270KFKT_SideView
+       1 K_1              GND
+       2 A_2              LED_A
+D5  value=1N4148WS  mpn=1N4148WS  lcsc=C2128  SMT  fp=LCR:D_SOD-323
+       1 K_1              VRLY
+       2 A_2              RLY_RST
+D6  value=1N4148WS  mpn=1N4148WS  lcsc=C2128  SMT  fp=LCR:D_SOD-323
+       1 K_1              VRLY
+       2 A_2              RLY_SET_MED
+D7  value=1N4148WS  mpn=1N4148WS  lcsc=C2128  SMT  fp=LCR:D_SOD-323
+       1 K_1              VRLY
+       2 A_2              RLY_SET_LO
+D8  value=1N4148WS  mpn=1N4148WS  lcsc=C2128  SMT  fp=LCR:D_SOD-323
+       1 K_1              VRLY
+       2 A_2              RLY_SET_HI
+D9  value=1N4148WS  mpn=1N4148WS  lcsc=C2128  SMT  fp=LCR:D_SOD-323
+       1 K_1              VRLY
+       2 A_2              RLY_SET_REF
+D11  value=BAT54S  mpn=BAT54S  lcsc=C7420333  SMT  fp=LCR:SOT-23
+       1 A1_1             GND
+       2 K2_2             3V3A
+       3 K1A2_3           C2M_CLP
+D12  value=BAT54S  mpn=BAT54S  lcsc=C7420333  SMT  fp=LCR:SOT-23
+       1 A1_1             GND
+       2 K2_2             3V3A
+       3 K1A2_3           C2P_CLP
+D13  value=BAT54S  mpn=BAT54S  lcsc=C7420333  SMT  fp=LCR:SOT-23
+       1 A1_1             GND
+       2 K2_2             3V3A
+       3 K1A2_3           C1M_CLP
+D14  value=BAT54S  mpn=BAT54S  lcsc=C7420333  SMT  fp=LCR:SOT-23
+       1 A1_1             GND
+       2 K2_2             3V3A
+       3 K1A2_3           C1P_CLP
+D15  value=RED  mpn=KT-0603R  lcsc=C2286  SMT  fp=LCR:LED_0603_1608Metric
+       1 K_1              GND
+       2 A_2              LED_5V
+D16  value=RED  mpn=KT-0603R  lcsc=C2286  SMT  fp=LCR:LED_0603_1608Metric
+       1 K_1              GND
+       2 A_2              LED_3V3
+D17  value=RED  mpn=KT-0603R  lcsc=C2286  SMT  fp=LCR:LED_0603_1608Metric
+       1 K_1              GND
+       2 A_2              LED_P12
+D18  value=RED  mpn=KT-0603R  lcsc=C2286  SMT  fp=LCR:LED_0603_1608Metric
+       1 K_1              LED_N12
+       2 A_2              GND
+D19  value=RED  mpn=KT-0603R  lcsc=C2286  SMT  fp=LCR:LED_0603_1608Metric
+       1 K_1              GND
+       2 A_2              LED_HB
+D20  value=RED  mpn=KT-0603R  lcsc=C2286  SMT  fp=LCR:LED_0603_1608Metric
+       1 K_1              GND
+       2 A_2              LED_FLT
+FB1  value=100R@100MHz 800mA  mpn=GZ2012D101TF  lcsc=C1015  SMT  fp=LCR:L_0805_2012Metric
+       1 1_1              5V
+       2 2_2              5VA
+J1  value=USB-C  mpn=TYPE-C-31-M-12  lcsc=C165948  SMT  fp=LCR:USB_C_Receptacle_HRO_TYPE-C-31-M-12
+      A1 GND_A1           GND
+      A4 VBUS_A4          USB_VBUS
+      A5 CC1_A5           CC1
+      A6 D+_A6            USB_DP
+      A7 D-_A7            USB_DM
+      A8 SBU1_A8          unconnected-(J1-SBU1-PadA8)
+      A9 VBUS_A9          USB_VBUS
+      B1 GND_B1           GND
+      B4 VBUS_B4          USB_VBUS
+      B5 CC2_B5           CC2
+      B6 D+_B6            USB_DP
+      B7 D-_B7            USB_DM
+      B8 SBU2_B8          unconnected-(J1-SBU2-PadB8)
+      B9 VBUS_B9          USB_VBUS
+      SH SHIELD_SH        GND
+     A12 GND_A12          GND
+     B12 GND_B12          GND
+J3  value=BNC HCUR  mpn=BNC-KYWE-295-W4-N  lcsc=C41416668  Hand fit  fp=LCR:BNC_SAMZO_KYWE-295-W4-N_Horizontal
+       1                  GND
+       2                  GND
+       3                  GND
+       4                  GND
+       5                  DUT_HI
+J4  value=SWD CLK / DATA  mpn=TSW-102-07-G-S  lcsc=C7402729  DNP  fp=LCR:PinHeader_1x02_P2.54mm_Vertical
+       1 1_1              SWCLK
+       2 2_2              SWDIO
+J5  value=SWD GND / VTREF  mpn=TSW-102-07-G-S  lcsc=C7402729  DNP  fp=LCR:PinHeader_1x02_P2.54mm_Vertical
+       1 1_1              GND
+       2 2_2              3V3
+J6  value=UART TX / RX  mpn=TSW-102-07-G-S  lcsc=C7402729  DNP  fp=LCR:PinHeader_1x02_P2.54mm_Vertical
+       1 1_1              UART_TX
+       2 2_2              UART_RX
+J7  value=BNC HPOT  mpn=BNC-KYWE-295-W4-N  lcsc=C41416668  Hand fit  fp=LCR:BNC_SAMZO_KYWE-295-W4-N_Horizontal
+       1                  GND
+       2                  GND
+       3                  GND
+       4                  GND
+       5                  HPOT
+J8  value=BNC LPOT  mpn=BNC-KYWE-295-W4-N  lcsc=C41416668  Hand fit  fp=LCR:BNC_SAMZO_KYWE-295-W4-N_Horizontal
+       1                  GND
+       2                  GND
+       3                  GND
+       4                  GND
+       5                  LPOT
+J9  value=BNC LCUR  mpn=BNC-KYWE-295-W4-N  lcsc=C41416668  Hand fit  fp=LCR:BNC_SAMZO_KYWE-295-W4-N_Horizontal
+       1                  GND
+       2                  GND
+       3                  GND
+       4                  GND
+       5                  DUT_LO
+K1  value=TQ2SA-L2-5V 100R  mpn=TQ2SA-L2-5V-Z  lcsc=C2684450  SMT  fp=LCR:Relay_DPDT_Panasonic_TQ2SA_SMD
+       1 SET+_1           VRLY
+       2 NC1_2            unconnected-(K1-NC1-Pad2)
+       3 COM1_3           SOURCE_BUF
+       4 NO1_4            RG100
+       5 SET-_5           RLY_SET_LO
+       6 RST-_6           RLY_RST
+       7 NO2_7            RF100
+       8 COM2_8           TIA_OUT
+       9 NC2_9            unconnected-(K1-NC2-Pad9)
+      10 RST+_10          VRLY
+K2  value=TQ2SA-L2-5V 5k  mpn=TQ2SA-L2-5V-Z  lcsc=C2684450  SMT  fp=LCR:Relay_DPDT_Panasonic_TQ2SA_SMD
+       1 SET+_1           VRLY
+       2 NC1_2            unconnected-(K2-NC1-Pad2)
+       3 COM1_3           SOURCE_BUF
+       4 NO1_4            RG5K
+       5 SET-_5           RLY_SET_MED
+       6 RST-_6           RLY_RST
+       7 NO2_7            RF5K
+       8 COM2_8           TIA_OUT
+       9 NC2_9            unconnected-(K2-NC2-Pad9)
+      10 RST+_10          VRLY
+K3  value=TQ2SA-L2-5V 100k  mpn=TQ2SA-L2-5V-Z  lcsc=C2684450  SMT  fp=LCR:Relay_DPDT_Panasonic_TQ2SA_SMD
+       1 SET+_1           VRLY
+       2 NC1_2            unconnected-(K3-NC1-Pad2)
+       3 COM1_3           SOURCE_BUF
+       4 NO1_4            RG100K
+       5 SET-_5           RLY_SET_HI
+       6 RST-_6           RLY_RST
+       7 NO2_7            RF100K
+       8 COM2_8           TIA_OUT
+       9 NC2_9            unconnected-(K3-NC2-Pad9)
+      10 RST+_10          VRLY
+K4  value=TQ2SA-L2-5V REF  mpn=TQ2SA-L2-5V-Z  lcsc=C2684450  SMT  fp=LCR:Relay_DPDT_Panasonic_TQ2SA_SMD
+       1 SET+_1           VRLY
+       2 NC1_2            unconnected-(K4-NC1-Pad2)
+       3 COM1_3           unconnected-(K4-COM1-Pad3)
+       4 NO1_4            unconnected-(K4-NO1-Pad4)
+       5 SET-_5           RLY_SET_REF
+       6 RST-_6           RLY_RST
+       7 NO2_7            REF_A
+       8 COM2_8           DUT_HI
+       9 NC2_9            unconnected-(K4-NC2-Pad9)
+      10 RST+_10          VRLY
+L1  value=4.7uH 3.8A shielded  mpn=FNR5040S4R7MT  lcsc=C167963  SMT  fp=LCR:L_Changjiang_FNR5040S
+       1 1_1              5V
+       2 2_2              SW_P
+L2  value=4.7uH 3.8A shielded  mpn=FNR5040S4R7MT  lcsc=C167963  SMT  fp=LCR:L_Changjiang_FNR5040S
+       1 1_1              SW_N
+       2 2_2              GND
+Q2  value=AO3400A  mpn=AO3400A  lcsc=C20917  SMT  fp=LCR:SOT-23
+       1 G_1              RNG_RESET_G
+       2 S_2              GND
+       3 D_3              RLY_RST
+Q3  value=AO3400A  mpn=AO3400A  lcsc=C20917  SMT  fp=LCR:SOT-23
+       1 G_1              RNG_SET_MED_G
+       2 S_2              GND
+       3 D_3              RLY_SET_MED
+Q4  value=AO3400A  mpn=AO3400A  lcsc=C20917  SMT  fp=LCR:SOT-23
+       1 G_1              RNG_SET_LO_G
+       2 S_2              GND
+       3 D_3              RLY_SET_LO
+Q5  value=AO3400A  mpn=AO3400A  lcsc=C20917  SMT  fp=LCR:SOT-23
+       1 G_1              RNG_SET_HI_G
+       2 S_2              GND
+       3 D_3              RLY_SET_HI
+Q6  value=AO3400A  mpn=AO3400A  lcsc=C20917  SMT  fp=LCR:SOT-23
+       1 G_1              RNG_SET_REF_G
+       2 S_2              GND
+       3 D_3              RLY_SET_REF
+R1  value=5.1k  mpn=0603WAF5101T5E  lcsc=C23186  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              CC1
+       2 2_2              GND
+R2  value=5.1k  mpn=0603WAF5101T5E  lcsc=C23186  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              CC2
+       2 2_2              GND
+R3  value=27R  mpn=0603WAF270JT5E  lcsc=C25190  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              USB_DM
+       2 2_2              USB_DM_MCU
+R4  value=27R  mpn=0603WAF270JT5E  lcsc=C25190  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              USB_DP
+       2 2_2              USB_DP_MCU
+R5  value=100k  mpn=0603WAF1003T5E  lcsc=C25803  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              USB_VBUS
+       2 2_2              USB_SENSE
+R6  value=100k  mpn=0603WAF1003T5E  lcsc=C25803  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              USB_SENSE
+       2 2_2              GND
+R7  value=10k  mpn=0603WAF1002T5E  lcsc=C25804  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              QSPI_CS
+       2 2_2              3V3
+R8  value=1k  mpn=0603WAF1001T5E  lcsc=C21190  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              QSPI_CS
+       2 2_2              BOOTSEL
+R9  value=10k  mpn=0603WAF1002T5E  lcsc=C25804  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RUN
+       2 2_2              3V3
+R10  value=1k  mpn=0603WAF1001T5E  lcsc=C21190  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              XOUT
+       2 2_2              XTAL_OUT
+R12  value=390  mpn=0603WAF3900T5E  lcsc=C23151  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              STATUS
+       2 2_2              LED_A
+R13  value=33R  mpn=0603WAF330JT5E  lcsc=C23140  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              QSPI_CLK
+       2 2_2              QSPI_CLK_FLASH
+R30  value=2.2k 0.1%  mpn=RT0603BRD072K2L  lcsc=C861295  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              DAC_P
+       2 2_2              SOURCE_AC
+R31  value=2.2k 0.1%  mpn=RT0603BRD072K2L  lcsc=C861295  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              SOURCE_FB
+       2 2_2              DAC_M
+R32  value=2k 0.1%  mpn=AR03BTCX2001  lcsc=C318130  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              SOURCE_AC
+       2 2_2              GND
+R33  value=2k 0.1%  mpn=AR03BTCX2001  lcsc=C318130  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              EXCITE
+       2 2_2              SOURCE_FB
+R40  value=100R 0.1%  mpn=RT0603BRD07100RL  lcsc=C122970  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RG100
+       2 2_2              DUT_HI
+R41  value=5k 0.1%  mpn=AR03BTCX5001  lcsc=C2828621  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RG5K
+       2 2_2              DUT_HI
+R42  value=100k 0.1%  mpn=RT0603BRD07100KL  lcsc=C122538  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RG100K
+       2 2_2              DUT_HI
+R43  value=100R 0.1%  mpn=RT0603BRD07100RL  lcsc=C122970  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              TIA_SUM
+       2 2_2              RF100
+R44  value=5k 0.1%  mpn=AR03BTCX5001  lcsc=C2828621  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              TIA_SUM
+       2 2_2              RF5K
+R45  value=100k 0.1%  mpn=RT0603BRD07100KL  lcsc=C122538  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              TIA_SUM
+       2 2_2              RF100K
+R60  value=1k 0.1%  mpn=RT0603BRD071KL  lcsc=C110776  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              HIGH_BUF
+       2 2_2              C1P_DIV
+R61  value=1k 0.1%  mpn=RT0603BRD071KL  lcsc=C110776  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              LOW_BUF
+       2 2_2              C1M_DIV
+R62  value=1k 0.1%  mpn=RT0603BRD071KL  lcsc=C110776  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              C2M_DIV
+       2 2_2              GND
+R63  value=1k 0.1%  mpn=RT0603BRD071KL  lcsc=C110776  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              C2P_DIV
+       2 2_2              GND
+R64  value=1k 0.1%  mpn=RT0603BRD071KL  lcsc=C110776  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              C1M_DIV
+       2 2_2              GND
+R65  value=1k 0.1%  mpn=RT0603BRD071KL  lcsc=C110776  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              C1P_DIV
+       2 2_2              GND
+R66  value=1k 0.1%  mpn=RT0603BRD071KL  lcsc=C110776  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              LOW_BUF
+       2 2_2              C2P_DIV
+R67  value=1k 0.1%  mpn=RT0603BRD071KL  lcsc=C110776  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              TIA_OUT
+       2 2_2              C2M_DIV
+R68  value=470R  mpn=0603WAF4700T5E  lcsc=C23179  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              C2M_PIN
+       2 2_2              C2M_CLP
+R69  value=470R  mpn=0603WAF4700T5E  lcsc=C23179  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              C2P_PIN
+       2 2_2              C2P_CLP
+R70  value=470R  mpn=0603WAF4700T5E  lcsc=C23179  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              C1M_PIN
+       2 2_2              C1M_CLP
+R71  value=470R  mpn=0603WAF4700T5E  lcsc=C23179  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              C1P_PIN
+       2 2_2              C1P_CLP
+R72  value=4.7k  mpn=0603WAF4701T5E  lcsc=C23162  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              3V3
+       2 2_2              I2C_SDA
+R73  value=4.7k  mpn=0603WAF4701T5E  lcsc=C23162  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              3V3
+       2 2_2              I2C_SCL
+R74  value=100R  mpn=0603WAF1000T5E  lcsc=C22775  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RNG_RESET
+       2 2_2              RNG_RESET_G
+R75  value=100k  mpn=0603WAF1003T5E  lcsc=C25803  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RNG_RESET_G
+       2 2_2              GND
+R76  value=100R  mpn=0603WAF1000T5E  lcsc=C22775  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RNG_SET_MED
+       2 2_2              RNG_SET_MED_G
+R77  value=100k  mpn=0603WAF1003T5E  lcsc=C25803  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RNG_SET_MED_G
+       2 2_2              GND
+R78  value=100R  mpn=0603WAF1000T5E  lcsc=C22775  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RNG_SET_LO
+       2 2_2              RNG_SET_LO_G
+R79  value=100k  mpn=0603WAF1003T5E  lcsc=C25803  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RNG_SET_LO_G
+       2 2_2              GND
+R80  value=100R  mpn=0603WAF1000T5E  lcsc=C22775  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              5V
+       2 2_2              CONV_VIN
+R81  value=430k  mpn=0603WAF4303T5E  lcsc=C25969  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RAW_P
+       2 2_2              CONV_FBP
+R82  value=40.2k  mpn=0603WAF4022T5E  lcsc=C12447  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              CONV_FBP
+       2 2_2              GND
+R83  value=240k  mpn=0603WAF2403T5E  lcsc=C4197  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RAW_N
+       2 2_2              CONV_FBN_MID
+R84  value=150k  mpn=0603WAF1503T5E  lcsc=C22807  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              CONV_FBN
+       2 2_2              CONV_REF
+R85  value=82k  mpn=0603WAF8202T5E  lcsc=C23254  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              12V
+       2 2_2              REGP_FB
+R86  value=9.1k  mpn=0603WAF9101T5E  lcsc=C23260  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              REGP_FB
+       2 2_2              GND
+R87  value=100k 0.1%  mpn=RT0603BRD07100KL  lcsc=C122538  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              -12V
+       2 2_2              REGN_FB
+R88  value=1k 0.1%  mpn=RT0603BRD071KL  lcsc=C110776  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              REGN_DIV
+       2 2_2              REGN_DIV2
+R89  value=5k 0.1%  mpn=AR03BTCX5001  lcsc=C2828621  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              REGN_FB
+       2 2_2              REGN_DIV
+R94  value=22R 0.1%  mpn=RT0603BRD0722RL  lcsc=C861239  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              DUT_LO
+       2 2_2              TIA_SUM
+R95  value=1R  mpn=0603WAF100KT5E  lcsc=C22936  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RAW_P
+       2 2_2              LDOIN_P
+R96  value=1R  mpn=0603WAF100KT5E  lcsc=C22936  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RAW_N
+       2 2_2              LDOIN_N
+R97  value=100k  mpn=0603WAF1003T5E  lcsc=C25803  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              MON12
+       2 2_2              12V
+R98  value=10k  mpn=0603WAF1002T5E  lcsc=C25804  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              GND
+       2 2_2              MON12
+R99  value=10k  mpn=0603WAF1002T5E  lcsc=C25804  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              3V3
+       2 2_2              MON_N12
+R100  value=150k  mpn=0603WAF1503T5E  lcsc=C22807  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              MON_N12
+       2 2_2              -12V
+R101  value=2.2R  mpn=0603WAF220KT5E  lcsc=C22939  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              5V
+       2 2_2              VRLY
+R102  value=100R  mpn=0603WAF1000T5E  lcsc=C22775  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RNG_SET_HI
+       2 2_2              RNG_SET_HI_G
+R103  value=100k  mpn=0603WAF1003T5E  lcsc=C25803  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RNG_SET_HI_G
+       2 2_2              GND
+R104  value=47R  mpn=0603WAF470JT5E  lcsc=C23182  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              SRC_DRV
+       2 2_2              SOURCE_BUF
+R105  value=1k  mpn=0603WAF1001T5E  lcsc=C21190  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              DUT_HI
+       2 2_2              HPOT
+R106  value=1k  mpn=0603WAF1001T5E  lcsc=C21190  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              DUT_LO
+       2 2_2              LPOT
+R107  value=1k 0.1%  mpn=RT0603BRD071KL  lcsc=C110776  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              DUT_LO
+       2 2_2              REF_A
+R108  value=100R  mpn=0603WAF1000T5E  lcsc=C22775  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RNG_SET_REF
+       2 2_2              RNG_SET_REF_G
+R109  value=100k  mpn=0603WAF1003T5E  lcsc=C25803  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              RNG_SET_REF_G
+       2 2_2              GND
+R110  value=24k 1%  mpn=0603WAF2402T5E  lcsc=C23352  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              VBUS_ILIM
+       2 2_2              GND
+R111  value=1.5M  mpn=0603WAF1504T5E  lcsc=C4172  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              CONV_FBN
+       2 2_2              CONV_FBN_MID
+R112  value=5k 0.1%  mpn=AR03BTCX5001  lcsc=C2828621  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              REGN_DIV2
+       2 2_2              GND
+R113  value=5.1k  mpn=0603WAF5101T5E  lcsc=C23186  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              LED_5V
+       2 2_2              5V
+R114  value=3k  mpn=0603WAF3001T5E  lcsc=C4211  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              LED_3V3
+       2 2_2              3V3
+R115  value=24k 1%  mpn=0603WAF2402T5E  lcsc=C23352  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              LED_P12
+       2 2_2              12V
+R116  value=24k 1%  mpn=0603WAF2402T5E  lcsc=C23352  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              LED_N12
+       2 2_2              -12V
+R117  value=3k  mpn=0603WAF3001T5E  lcsc=C4211  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              LED_HB
+       2 2_2              HEARTBEAT
+R118  value=3k  mpn=0603WAF3001T5E  lcsc=C4211  SMT  fp=LCR:R_0603_1608Metric
+       1 1_1              LED_FLT
+       2 2_2              FAULT
+SW1  value=BOOTSEL  mpn=TS-1088-AR02016  lcsc=C720477  SMT  fp=LCR:SW_SPST_TS-1088-xR020
+       1 1_1              BOOTSEL
+       2 2_2              GND
+SW2  value=RESET  mpn=TS-1088-AR02016  lcsc=C720477  SMT  fp=LCR:SW_SPST_TS-1088-xR020
+       1 1_1              RUN
+       2 2_2              GND
+U1  value=RP2040  mpn=RP2040  lcsc=C2040  SMT  fp=LCR:QFN-56-1EP_7x7mm_P0.4mm_EP3.2x3.2mm
+       1 IOVDD_1          3V3
+       2 GPIO0_2          unconnected-(U1-GPIO0-Pad2)
+       3 GPIO1_3          unconnected-(U1-GPIO1-Pad3)
+       4 GPIO2_4          I2S_DIN
+       5 GPIO3_5          I2S_DOUT
+       6 GPIO4_6          I2S_BCLK
+       7 GPIO5_7          I2S_FSYNC
+       8 GPIO6_8          RNG_SET_HI
+       9 GPIO7_9          RNG_SET_LO
+      10 IOVDD_10         3V3
+      11 GPIO8_11         I2C_SDA
+      12 GPIO9_12         I2C_SCL
+      13 GPIO10_13        RNG_RESET
+      14 GPIO11_14        RNG_SET_MED
+      15 GPIO12_15        unconnected-(U1-GPIO12-Pad15)
+      16 GPIO13_16        USB_SENSE
+      17 GPIO14_17        RNG_SET_REF
+      18 GPIO15_18        unconnected-(U1-GPIO15-Pad18)
+      19 TESTEN_19        GND
+      20 XIN_20           XIN
+      21 XOUT_21          XOUT
+      22 IOVDD_22         3V3
+      23 DVDD_23          1V1
+      24 SWCLK_24         SWCLK
+      25 SWDIO_25         SWDIO
+      26 RUN_26           RUN
+      27 GPIO16_27        unconnected-(U1-GPIO16-Pad27)
+      28 GPIO17_28        unconnected-(U1-GPIO17-Pad28)
+      29 GPIO18_29        unconnected-(U1-GPIO18-Pad29)
+      30 GPIO19_30        unconnected-(U1-GPIO19-Pad30)
+      31 GPIO20_31        unconnected-(U1-GPIO20-Pad31)
+      32 GPIO21_32        unconnected-(U1-GPIO21-Pad32)
+      33 IOVDD_33         3V3
+      34 GPIO22_34        FAULT
+      35 GPIO23_35        HEARTBEAT
+      36 GPIO24_36        unconnected-(U1-GPIO24-Pad36)
+      37 GPIO25_37        STATUS
+      38 GPIO26_38        MON12
+      39 GPIO27_39        MON_N12
+      40 GPIO28_40        UART_TX
+      41 GPIO29_41        UART_RX
+      42 IOVDD_42         3V3
+      43 ADC_AVDD_43      3V3
+      44 VREG_VIN_44      3V3
+      45 VREG_VOUT_45     1V1
+      46 USB_DM_46        USB_DM_MCU
+      47 USB_DP_47        USB_DP_MCU
+      48 USB_VDD_48       3V3
+      49 IOVDD_49         3V3
+      50 DVDD_50          1V1
+      51 QSPI_SD3_51      QSPI3
+      52 QSPI_SCLK_52     QSPI_CLK
+      53 QSPI_SD0_53      QSPI0
+      54 QSPI_SD2_54      QSPI2
+      55 QSPI_SD1_55      QSPI1
+      56 QSPI_SS_56       QSPI_CS
+      57 GND_57           GND
+U2  value=GD25Q16ESIGR  mpn=GD25Q16ESIGR  lcsc=C2922792  SMT  fp=LCR:SOIC-8_5.3x5.3mm_P1.27mm
+       1 CS_1             QSPI_CS
+       2 DO_2             QSPI1
+       3 WP_3             QSPI2
+       4 GND_4            GND
+       5 DI_5             QSPI0
+       6 CLK_6            QSPI_CLK_FLASH
+       7 HOLD_7           QSPI3
+       8 VCC_8            3V3
+U3  value=3.3V AP2112K  mpn=AP2112K-3.3TRG1  lcsc=C51118  SMT  fp=LCR:SOT-23-5
+       1 VIN_1            5V
+       2 GND_2            GND
+       3 EN_3             5V
+       4 NC_4             unconnected-(U3-NC-Pad4)
+       5 VOUT_5           3V3
+U5  value=OPA197IDBVR  mpn=OPA197IDBVR  lcsc=C221351  SMT  fp=LCR:SOT-23-5
+       1 OUT_1            EXCITE
+       2 VS-_2            -12V
+       3 IN+_3            SOURCE_AC
+       4 IN-_4            SOURCE_FB
+       5 VS+_5            12V
+U6  value=OPA2810IDGKR  mpn=OPA2810IDGKR  lcsc=C2864204  SMT  fp=LCR:VSSOP-8_3x3mm_P0.65mm
+       1 OUT_1            SRC_DRV
+       2 -_2              SRC_DRV
+       3 +_3              EXCITE
+       4 VS-_4            -12V
+       5 +_5              HPOT
+       6 -_6              HIGH_BUF
+       7 OUT_7            HIGH_BUF
+       8 VS+_8            12V
+U7  value=OPA2810IDGKR  mpn=OPA2810IDGKR  lcsc=C2864204  SMT  fp=LCR:VSSOP-8_3x3mm_P0.65mm
+       1 OUT_1            TIA_OUT
+       2 -_2              TIA_SUM
+       3 +_3              GND
+       4 VS-_4            -12V
+       5 +_5              LPOT
+       6 -_6              LOW_BUF
+       7 OUT_7            LOW_BUF
+       8 VS+_8            12V
+U11  value=TPS7A4901DGNR  mpn=TPS7A4901DGNR  lcsc=C16430  SMT  fp=LCR:HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm
+       1 OUT_1            12V
+       2 FB_2             REGP_FB
+       3 NC_3             unconnected-(U11-NC-Pad3)
+       4 GND_4            GND
+       5 EN_5             LDOIN_P
+       6 NR/SS_6          REGP_NR
+       7 DNC_7            unconnected-(U11-DNC-Pad7)
+       8 IN_8             LDOIN_P
+       9 EP_9             GND
+U12  value=TPS7A3001DGNR  mpn=TPS7A3001DGNR  lcsc=C33835  SMT  fp=LCR:HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm
+       1 OUT_1            -12V
+       2 FB_2             REGN_FB
+       3 NC_3             unconnected-(U12-NC-Pad3)
+       4 GND_4            GND
+       5 EN_5             LDOIN_N
+       6 NR/SS_6          REGN_NR
+       7 DNC_7            unconnected-(U12-DNC-Pad7)
+       8 IN_8             LDOIN_N
+       9 EP_9             GND
+U13  value=TPS65131RGER  mpn=TPS65131RGER  lcsc=C87663  SMT  fp=LCR:VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm
+       1 INP_1            SW_P
+       2 PGND_2           GND
+       3 PGND_3           GND
+       4 VIN_4            CONV_VIN
+       5 INN_5            5V
+       6 INN_6            5V
+       7 BSW_7            unconnected-(U13-BSW-Pad7)
+       8 ENP_8            3V3
+       9 PSP_9            GND
+      10 ENN_10           3V3
+      11 PSN_11           GND
+      12 NC_12            unconnected-(U13-NC-Pad12)
+      13 OUTN_13          SW_N
+      14 OUTN_14          SW_N
+      15 VNEG_15          RAW_N
+      16 FBN_16           CONV_FBN
+      17 VREF_17          CONV_REF
+      18 CN_18            CONV_CN
+      19 AGND_19          GND
+      20 NC_20            unconnected-(U13-NC-Pad20)
+      21 CP_21            CONV_CP
+      22 FBP_22           CONV_FBP
+      23 VPOS_23          RAW_P
+      24 INP_24           SW_P
+      25 EP_25            GND
+U14  value=TAC5112  mpn=TAC5112IRGER  lcsc=C44853692  SMT  fp=LCR:TI_RGE0024R_VQFN-24-1EP_4x4mm_P0.5mm_EP2.1mm_CornerPads
+       1 DREG_1           CODEC_DREG
+       2 BCLK_2           I2S_BCLK
+       3 FSYNC_3          I2S_FSYNC
+       4 DOUT_4           I2S_DOUT
+       5 DIN_5            I2S_DIN
+       6 IOVDD_6          3V3
+       7 SCL_7            I2C_SCL
+       8 SDA_8            I2C_SDA
+       9 GPIO1_9          unconnected-(U14-GPIO1-Pad9)
+      10 GPIO2_10         unconnected-(U14-GPIO2-Pad10)
+      11 GPO1_11          unconnected-(U14-GPO1-Pad11)
+      12 GPI1_12          GND
+      13 ADDR_13          GND
+      14 MICBIAS_14       unconnected-(U14-MICBIAS-Pad14)
+      15 IN1P_15          C1P_PIN
+      16 IN1M_16          C1M_PIN
+      17 IN2P_17          C2P_PIN
+      18 IN2M_18          C2M_PIN
+      19 OUT1M_19         DAC_M
+      20 OUT1P_20         DAC_P
+      21 OUT2P_21         unconnected-(U14-OUT2P-Pad21)
+      22 OUT2M_22         unconnected-(U14-OUT2M-Pad22)
+      23 AVDD_23          3V3A
+      24 VREF_24          CODEC_VREF
+      25 VSS_25           GND
+      A1 VSS_A1           GND
+      A2 VSS_A2           GND
+      A3 VSS_A3           GND
+      A4 VSS_A4           GND
+U15  value=3.3V AP2112K  mpn=AP2112K-3.3TRG1  lcsc=C51118  SMT  fp=LCR:SOT-23-5
+       1 VIN_1            5VA
+       2 GND_2            GND
+       3 EN_3             5VA
+       4 NC_4             unconnected-(U15-NC-Pad4)
+       5 VOUT_5           3V3A
+U16  value=TPS2553  mpn=TPS2553DBVR  lcsc=C55266  SMT  fp=LCR:SOT-23-6
+       1 IN_1             USB_VBUS
+       2 GND_2            GND
+       3 EN_3             USB_VBUS
+       4 ~{FAULT}_4       unconnected-(U16-~{FAULT}-Pad4)
+       5 ILIM_5           VBUS_ILIM
+       6 OUT_6            5V
+Y1  value=12MHz CL10pF  mpn=ABM8-272-T3  lcsc=C20625731  SMT  fp=LCR:Crystal_SMD_3225-4Pin_3.2x2.5mm
+       1 X1_1             XIN
+       2 GND_2            GND
+       3 X2_3             XTAL_OUT
+       4 GND_4            GND

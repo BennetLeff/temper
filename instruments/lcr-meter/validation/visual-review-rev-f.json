@@ -1,0 +1,35 @@
+{
+ "revision": "F",
+ "board_sha256": "811927569d2b9f4925cc043bdfc59cd45e89619a89306888b9cf9f140da52f15",
+ "review_date": "2026-10-29",
+ "method": "Each listed render of the board (cad/render_previews.py at 7560034f9) opened and inspected whole and in quadrants at full resolution. Supplements, does not replace, ERC/DRC/parity, the JLC fab pass and the independent pin audit.",
+ "images_sha256": {
+  "pcb-front.png": "453d15ef47169e4f063042ed7fe41b954f75d2e62daa3eb515addad002396b40",
+  "gerber-top-copper.png": "7fdc8439c43f74e7c5431954667dc128da84e9fd721552d76b7a502b13ec3b1a",
+  "gerber-ground.png": "3fa8caa8533697ac7e9ab374845e127604d912f34c8a5e680acd8019a3a03070",
+  "gerber-inner-routing.png": "1c33c009ed794f8968480bebf00de15508ca4899b2ab41d63c21ba9f9d5e8433",
+  "gerber-bottom-copper.png": "6d6896c247b04209cc5b5a65e48e96071fcd52b0bc363af85611e4df9b7ee30e",
+  "gerber-top-mask.png": "f1d37687e1494905d4b0e7806bab3d904bc186c0258a79c4ae0287687911f075",
+  "gerber-bottom-mask.png": "0848b55afea3014631391f809aefeba64b699edb4f3188ef390b615e319ddc2f",
+  "gerber-top-paste.png": "d6f26fe3839e894b5d9f4ce240c9ffe891f806707fea50bfba14d67b1e177e98",
+  "gerber-top-silk.png": "79716aaee28d37eeaab89bc718af41fa9083a8521b658fd27b549441ece4edca",
+  "assembly-top.png": "99ad0cf62f00e27afe823ee59e6f0c6ddd2e2f5c0575ca9f0920bf098416ac96"
+ },
+ "not_reviewed_this_pass": [
+  "gerber-outline.png (outline checked on every other layer and by DRC/edge_clearance.py)",
+  "schematic pages (review basis: native ERC and parity)"
+ ],
+ "observations": {
+  "gerber-ground.png": "In1.Cu is one GND plane. Voids only at the intended op-amp input relief: the U5 block (rectangle, top left), U6 (strip) and the U7/TIA L-shape. BNC centre pins, THT headers and signal vias cleared; four mounting holes.",
+  "gerber-inner-routing.png": "In2.Cu: the analog buses in the upper half (SOURCE_BUF / TIA_OUT down the relay column, HPOT/LPOT legs), unpoured there by design; GND pour over the lower half and the LDO/switcher corner. The D4 LED line runs down the left edge to the digital block; the edge-clearance check puts the nearest track 0.90 mm from the V-cut edge.",
+  "gerber-bottom-copper.png": "B.Cu: DUT_HI along the BNC band then down to K4 as documented; the RP2040 relay-drive bundle and the rail-monitor taps; the 2.0 mm 5 V trunk along the south edge from J1 to the switcher; GND pour over the lower half. No B.Cu components.",
+  "pcb-front.png": "Silk: BNC labels HCUR/HPOT/LPOT/LCUR at J3/J7/J8/J9 and the DISCHARGED DUT ONLY warning; TP labels (5V, 3V3, GND, +12, -12, RAW+, RAW-, VRLY, RST, K1-K4); LED labels 5V/3V3/+12/-12/HB/FLT; TEMPER LCR REV F. Switcher island (U13, L1/L2, D2/D3) bottom right, the codec top left: far corners.",
+  "gerber-top-copper.png": "F.Cu matches pcb-front.png: four identical codec input legs (D11-D14 clamps, C69-C77, R62-R65); relay column K1-K3 with R40-R42/R43-R45 stubs; U16/U3/D1 at J1; compact switcher loop around U13.",
+  "gerber-top-mask.png": "Openings for all SMT lands, exposed pads, THT, the 14 test pads and three fiducials; vias covered.",
+  "gerber-bottom-mask.png": "Bottom openings only for THT pads (BNCs, J4-J6), the USB shell slots and pegs, and the mounting holes: vias tented.",
+  "gerber-top-paste.png": "Exposed pads windowpaned (U1 2x2, U14 2x2, U13 3x3, U11/U12 2x3); no paste on THT, test pads or fiducials; SOD-323 apertures small (0.6 x 0.45 mm lands, the KiCad SOD-323 land) but present on all five diodes.",
+  "gerber-top-silk.png": "References legible at review zoom; no silk seen on lands (the fab pass checks 0.15 mm); polarity marks at D1, D11-D14 and the IC pin-1 corners.",
+  "assembly-top.png": "Every part outline has its reference, including the packed supply/LDO parts not on silk; J4-J6 (DNP) outlines present; FID1-FID3 and H1-H4 shown."
+ },
+ "findings": []
+}

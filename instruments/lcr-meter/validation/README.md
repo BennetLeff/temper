@@ -31,8 +31,12 @@ Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm
 | Teardrops | 939 KiCad teardrop zones; 383 / 413 via ends and 425 / 602 pad ends carry one; none disabled; two rebuilds byte-identical | `pour-report-rev-f.json` |
 | References and drawings | 190 of 216 references on silk (26 on the assembly drawing only); `manufacturing/assembly-top.pdf`, `manufacturing/fab-drawing.pdf` and the Dwgs.User Gerber | `../cad/tools/silk_library.json`, `../manufacturing/` |
 | Enclosure wall rise at 2.3 W (estimate) | 8.0 K (Rev E box 6.4 K) | `docs/rev-f-before-after.md` |
+| Visual review of the exported layers (2026-10-29) | F.Cu, In1 (GND), In2, B.Cu, both masks, paste, silk and the assembly drawing opened whole and in quadrants; no findings | `visual-review-rev-f.json` |
+| Source stage U5, rerun 2026-10-29 | byte-identical to the committed result (assumed strays, layout-independent) | `stability-full-chain/source_stage.json` (`source_stage.py`) |
+| Interference, codec chain, rerun 2026-10-29 | SOF sweep, source-cap options, range screen unchanged; switcher-collision errors move by at most +1.9 % (the regulator model now reads Rev F's placement and copper) | `power-spurs/rev_e_spurs.json` (`rev_e_spurs.py`) |
+| Accuracy map, rerun 2026-10-29 | results byte-identical (layout-independent) | `rev-e-accuracy-map/results/` (`rerun.sh`) |
 
-**Not rerun for Rev F** (layout-independent or assumed strays): `source_stage.py`, `rev_e_spurs.py`, the accuracy map, the visual-review receipt. **Not established:** everything listed under Rev E below. Ordering steps open: JLC re-quote with the Gerbers, via covering "Plugged" in vendor DFM, placement-preview approval. No manufacturer upload or purchase has occurred.
+**Not established:** everything listed under Rev E below. Ordering steps open: JLC re-quote with the Gerbers, via covering "Plugged" in vendor DFM, placement-preview approval. No manufacturer upload or purchase has occurred.
 
 ## Revision E verification receipt (superseded by Rev F; same circuit, kept as history)
 
