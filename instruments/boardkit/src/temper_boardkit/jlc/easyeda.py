@@ -21,7 +21,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-import urllib.request
+import subprocess
 from pathlib import Path
 
 UNIT = 0.254            # mm per EasyEDA canvas unit (10 mil)
@@ -37,8 +37,9 @@ def record(lcsc, cache_dir, fetch=True):
     if not path.exists():
         if not fetch:
             raise FileNotFoundError(path)
-        req = urllib.request.Request(source_url(lcsc), headers={'User-Agent': 'Mozilla/5.0'})
-        path.write_bytes(urllib.request.urlopen(req, timeout=30).read())
+        # curl: KiCad's bundled Python and macOS python3 fail certificate checks on this host
+        path.write_bytes(subprocess.run(['curl', '-s', '-f', '-m', '30', '-A', 'Mozilla/5.0', source_url(lcsc)],
+                                        check=True, capture_output=True).stdout)
     raw = path.read_bytes()
     return json.loads(raw)['result'], hashlib.sha256(raw).hexdigest(), path.name
 

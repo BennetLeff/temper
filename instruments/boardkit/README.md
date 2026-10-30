@@ -22,6 +22,7 @@ zapote rule owner.
 | `jlc` | `RULES` (legend, mask, edge limits) quoting `jlc/data/jlc-capabilities-excerpts.txt` | stdlib |
 | `jlc.easyeda` | EasyEDA/LCSC record fetch and cache (lceda.cn mirror), PAD parsing, `renumber`, `fit_cpl_offset` (CPL rotation), `fit_rigid` (3D model placement) | stdlib |
 | `jlc.placement` | JLC placement-preview simulation from the CPL against the Gerber pads; SVG overlay | stdlib |
+| `jlc.parts` | JLC assembly-library snapshot (price tiers, stock, library class, attrition, minimum) by curl POST, the schema `jlc.order` callers read | curl |
 | `jlc.order` | one assembly fee model (Economic, Standard, hand fit), `tier_price`, `buy_qty`, `is_extended`, X-ray tiers | stdlib |
 | `jlc.models_3d` | exact-part STEP models from EasyEDA placed in the KiCad footprint frame | OCP (CAD env) |
 | `kicad` | lazily imported pcbnew: `load_board`, `pad_table`, `footprint_pads`, `edge_clearance`, `via_in_pad(_audit)`, `joint_counts`, `MODEL_SWAP` / `apply_model_swap` | KiCad's Python |
@@ -74,38 +75,23 @@ LCR meter, `instruments/lcr-meter` (migrated; outputs byte-identical, see the mi
 | `manufacturing/order_estimate.py` | `jlc.order.fees` / `tier_price` / `buy_qty` / `is_extended`, `kicad.joint_counts` |
 | `cad/build_cad.py` | `kicad.apply_model_swap` (`MODEL_SWAP`) |
 | `cad/tools/pour.py`, `pour_report.py`, `validation/power-spurs/current_check.py` | import `temper_boardkit.craft` |
+| `calkit/order_estimate.py` | `jlc.order` (was a copy of the fee constants); `order-estimate-5.json` unchanged |
+| `manufacturing/prices/fetch_jlc_parts.py`, `calkit/fetch_jlc_parts.py` | `jlc.parts.snapshot` (calkit with `extra=True`); a live fetch matches the committed snapshots' schema, key order and source string |
 
-`calkit/order_estimate.py` still carries its own copy of the fee constants (it says so); move it to
-`jlc.order` when it is next touched.
+Wireless thermometer RB1, `instruments/wireless-thermometer/proto/revisions/rb1-ads-readout` (migrated on branch
+`infra/rb1-boardkit`; `checks/dfm.json`, `checks/placement-preview.svg`, `fab/bom-jlc.csv`, `fab/cpl-jlc.csv`,
+`fab/placement-audit.json` and both order-estimate texts regenerate byte-identical):
 
-Wireless thermometer RB1: not migrated (its worktree is live).  Mapping:
-
-| RB1 (`rb1-ads-readout/`) | boardkit |
+| RB1 file | now |
 |---|---|
-| `gerber_read.py`: `read_gerber`, `read_drill`, `aperture_shape` | `gerber.read_gerber`, `read_drill`, `aperture_shape` (same parser; `parse_gerber` / `parse_drill` take text) |
-| `dfm_checks.py` `JLC`, `TOL` | `jlc.RULES` (same values, plus `edge_copper_vcut`), `gerber.TOL` |
-| `dfm_checks.py` `gxy`, `key`, `ap_geom`, `flash_geoms`, `draw_geoms`, `region_geoms` | `gerber.gxy(org)`, `gerber.key`, `GerberSet` methods |
-| section 1 copper union, hole union-find, `pads`, `pads_on`, `pad_comp`, shorts / opens / missing / extra | `gerber.Copper`, `gerber.connectivity(copper, expected_pad_nets, net_ties)` |
-| section 1 outline, drill sets, paste | `gerber.outline`, `gerber.drill_check(expected_pth, expected_npth)`, `gerber.paste_check(assembled_refs, bare_also)` |
-| section 2 EasyEDA pads about the head, CPL placement, pad error, SVG | `jlc.easyeda.pads_about_head`, `jlc.placement.read_cpl` / `simulate` / `overlay_svg` |
-| section 3 kicad_pcb s-expression texts, silk, mask | `gerber.sexpr`, `silk_texts`, `silk_check`, `mask_check(via_d=0.3)` |
-| `order_estimate.py` `EXT_FEE`, `SETUP_STENCIL`, `JOINT`, tier price, buy quantity, extended rule | `jlc.order.ECONOMIC['extended_line']`, `ECONOMIC['setup'] + ECONOMIC['stencil']`, `SMT_JOINT`, `tier_price`, `buy_qty`, `is_extended` |
-| `sources/jlc-capabilities-excerpts.txt` | `jlc/data/jlc-capabilities-excerpts.txt` (copied verbatim) |
+| `gerber_read.py`, `sources/jlc-capabilities-excerpts.txt` | deleted: `temper_boardkit.gerber`, `jlc/data/` (the excerpt was identical) |
+| `dfm_checks.py` sections 1-3 | `gerber.GerberSet`, `Copper`, `connectivity`, `outline`, `drill_check`, `paste_check`, `mask_check`, `silk_texts`, `silk_check`; `jlc.easyeda.pads_about_head`, `jlc.placement`. RB1 keeps its inputs (drill sets from `pcb/layout.json`, THT pad names, pin-map inversion) and its `dfm.json` key names |
+| `dfm_checks.py` sections 4-6 | unchanged: land patterns, I2C rise time, mux settling are RB1 physics |
+| `fab.py` | `jlc.easyeda.record` / `easyeda_pads` / `fit_cpl_offset` |
+| `order_estimate.py` | `jlc.order` constants, `buy_qty`, `tier_price`, `is_extended`; `--fetch` is `jlc.parts.snapshot`. RB1's total stays setup + stencil + extended fees + joints (no placement confirmation; no leadless part, so no X-ray) |
 
-RB1 behaviour not reproduced here (stays in RB1 when it migrates):
-
-* sections 4-6 of `dfm_checks.py` (land patterns against datasheets, I2C rise time, mux settling): board
-  physics, not tooling;
-* the expected drill sets: RB1 derives them from `pcb/layout.json` vias, the THT pads of `J1`/`J2`/`J3`/`TP*`
-  and four corner holes; `drill_check` takes them as arguments, and `paste_check(bare_also=...)` takes the THT
-  pad names;
-* `pin-map.json` is stored KiCad -> EasyEDA; `simulate(pin_map=...)` wants EasyEDA -> KiCad (invert it);
-* silk result keys are renamed (`below_1.0mm_height` -> `below_text_height`, `below_0.15mm_stroke` ->
-  `below_line_width`, `warn_ratio_below_1to6` -> `warn_ratio`), so `checks/dfm.json` would change shape;
-* `order_estimate.py`'s JLC parts-API snapshot fetch (curl POST), `PCB_RANGE`, and joints from
-  `fab/placement-audit.json`; and RB1's total, which is setup + stencil + extended fees + joints only, while
-  `jlc.order.fees` also adds X-ray, placement confirmation and the fab quote;
-* no RB1 output has been regenerated through boardkit, so there is no identical-output proof for RB1 yet.
+Not migrated: frozen snapshots under `r18/` and the order folders, and R24 (live in another session; its
+`jlc_stock` tool is a candidate for `jlc.parts`).
 
 ## Tests
 
