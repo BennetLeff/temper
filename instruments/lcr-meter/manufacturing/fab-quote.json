@@ -1,13 +1,36 @@
 {
  "qty": 5,
  "lines": {
-  "Special offer (board; the page shows no engineering-fee line at 100 x 100 mm)": 8.00,
-  "Surface finish (ENIG 1 u\")": 17.70
+  "Special offer (board; the page shows no engineering-fee line at 100 x 100 mm)": 8.0,
+  "Surface finish (ENIG 1 u\")": 17.7
  },
- "total_usd": 25.70,
+ "total_usd": 25.7,
  "source": "https://cart.jlcpcb.com/quote, read 2026-10-29 in Chrome, signed out, no Gerber uploaded, nothing added to cart",
  "options": "FR-4, 4 layers, 100 x 100 mm, qty 5, 1 design, single PCB, 1.6 mm, green/white, FR4 TG135, ENIG 1 u\", 1 oz outer / 0.5 oz inner, stackup JLC04161H-7628, via covering Plugged (page default; 'Tented' is greyed out for this configuration), 0.3 mm/(0.4/0.45 mm) min via, +-0.2 mm outline, flying-probe test, 3-4 day build",
  "via_covering_note": "The quote page offers Plugged (default, $0), Untented, and filled options; Tented is not selectable for 4-layer here, unlike the 2026-10-29 FABRICATION.md assumption. Plugged also cost $0.",
- "rev_e_same_page_same_day": {"dimensions_mm": [140, 105], "Engineering fee": 25.00, "Surface finish (ENIG)": 18.30, "Board": 9.10, "total_usd": 52.40},
- "note": "Price read only. Shipping, tax and coupons excluded. Re-quote with the Gerbers at upload."
+ "rev_e_same_page_same_day": {
+  "dimensions_mm": [
+   140,
+   105
+  ],
+  "Engineering fee": 25.0,
+  "Surface finish (ENIG)": 18.3,
+  "Board": 9.1,
+  "total_usd": 52.4
+ },
+ "note": "Price read only. Shipping, tax and coupons excluded. The Gerber re-quote matches the signed-out read.",
+ "gerber_quote": {
+  "date": "2026-10-29",
+  "gerber_zip_sha256": "e4d0ab136f0a1e2c98ceb7b5113c4607f6c4338222bcebb2f3b27955ed5c04e1",
+  "board_sha256": "811927569d2b9f4925cc043bdfc59cd45e89619a89306888b9cf9f140da52f15",
+  "detected": "Detected 4 layer board of 100x100mm(3.937x3.937 inches).",
+  "lines": {
+   "Special Offer": 8.0,
+   "Via Covering (Plugged)": 0.0,
+   "Surface Finish (ENIG 1 u\")": 17.7
+  },
+  "total_usd": 25.7,
+  "source": "https://cart.jlcpcb.com/quote in Chrome, signed out: manufacturing/temper-lcr-gerbers.zip uploaded, options as 'options' above; Tented still greyed out. Nothing added to cart.",
+  "assembly_step": "PCB Assembly on (Economic, top side, 5, tooling holes added by JLCPCB, Confirm Parts Placement Yes); NEXT requires sign-in, so the BOM/CPL upload, placement preview and DFM review were not reached."
+ }
 }
