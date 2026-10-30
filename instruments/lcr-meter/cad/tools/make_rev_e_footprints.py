@@ -12,8 +12,10 @@
 - SAMZO BNC-KYWE-295-W4-N (LCSC C41416668): right-angle PCB BNC. Signal pin 5 at the centre,
   1.8 mm pad / 1.2 mm drill; ground legs 1-4 at (+-4, +-4) mm, 2.0 mm pad / 1.4 mm drill: the
   pad numbers, positions and holes of the JLC/EasyEDA record (sources/rev-e/BNC-KYWE-295 notes in
-  docs/rev-e-plan.md).  10 mm square body, 13.55 mm flange; the jack faces -y and the board edge
-  sits 6.0 mm in front of the centre.  The square pad pattern does not key the jack, so the
+  docs/rev-e-plan.md).  SAMZO drawing BNCKYWE-P03900 (sources/rev-f/BNC-KYWE-295-W4-N.txt): body
+  10 x 10, flange 1.1 x 13.55 with its rear face 5.0 in front of the centre pin, 29.5 overall, so
+  the barrel tip is 24.5 in front of the centre; the jack faces -y and the board edge sits 6.0 mm in
+  front of the centre (the flange stands 0.1 proud).  The square pad pattern does not key the jack, so the
   footprint marks the opening on silk and fab.
 """
 from pathlib import Path
@@ -160,9 +162,9 @@ fp.SetAttributes(k.FP_THROUGH_HOLE)
 tht(fp, '5', 0, 0, 1.8, 1.2)
 for number, x, y in [('1', 4, -4), ('2', 4, 4), ('3', -4, 4), ('4', -4, -4)]:
     tht(fp, number, x, y, 2.0, 1.4)
-rect(fp, k.F_Fab, -5, -4.5, 5, 5.5, 0.1)                # body
-rect(fp, k.F_Fab, -6.775, -6.0, 6.775, -4.5, 0.1)       # flange at the board edge
-rect(fp, k.F_Fab, -4.8, -18.0, 4.8, -6.0, 0.1)          # barrel beyond the edge
+rect(fp, k.F_Fab, -5, -5.0, 5, 5.0, 0.1)                # body
+rect(fp, k.F_Fab, -6.775, -6.1, 6.775, -5.0, 0.1)       # flange at the board edge
+rect(fp, k.F_Fab, -5.5, -24.5, 5.5, -6.1, 0.1)          # M12 thread and barrel beyond the edge
 line(fp, k.F_SilkS, (-5.1, 5.6), (5.1, 5.6), 0.12)       # back of the body
 line(fp, k.F_SilkS, (-5.1, 5.6), (-5.1, 5.1), 0.12)
 line(fp, k.F_SilkS, (5.1, 5.6), (5.1, 5.1), 0.12)

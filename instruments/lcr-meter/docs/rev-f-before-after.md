@@ -201,7 +201,7 @@ Assembly is identical: 23 extended and 39 basic/preferred lines, the same joints
 | BNC centres from the left board edge | 58 / 80 / 102 / 124 mm | 17 / 39 / 61 / 83 mm (same 22 mm pitch and order) |
 | USB-C cut-out, centre behind the front (jack) edge | 32 mm, left wall | 77 mm, left wall |
 
-The jacks' 12 mm overhang of the front edge, the panel order (HCUR, HPOT, LPOT, LCUR), the leads and the cal kit do not change.
+The jacks' reach in front of the board edge (18.5 mm, SAMZO drawing BNCKYWE-P03900; earlier text said 12 mm, from the footprint's fab outline), the panel order (HCUR, HPOT, LPOT, LCUR), the leads and the cal kit do not change.
 
 ## 8. Thermal (estimate, not a bound)
 

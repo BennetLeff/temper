@@ -1,0 +1,27 @@
+SAMZO BNC-KYWE-295-W4-N (LCSC C41416668): right-angle PCB BNC, 4 ground legs, nickel plated.
+Drawing BNCKYWE-P03900, part no. BNCKYWE-230610, rev A1 (2018-06-12), one page. Source and hash:
+C41416668-lookup.json (pdfUrl, sha256 1a4353d6...cf5e418). Transcribed 2026-10-29; dimensions in mm.
+
+Dimensioned on the drawing
+- Overall length 29.5 (rear of body to barrel tip). Model code: KYWE series, 29.5 mm length, W4 = 4 legs.
+- Body: 10 long (rear face to flange), 10 wide, 12.2 high.
+- Flange: 1.1 thick, 13.55 high (side view) / round 13.55 (front view).
+- Coupling thread M12; barrel 9.6; bayonet studs 2 dia; barrel envelope 11 (top view).
+- Pins: 1 wide; legs on an 8 x 8 square, centre pin at its centre. PCB layout: 8 x 8 square,
+  1.2 holes as drawn (the footprint uses the EasyEDA record's 1.4 legs / 1.2 centre).
+- Accessories ("nut and washer"): hex nut 13.95, M12; toothed lock washer 15.5 dia.
+- 50 ohm, DC-3 GHz, VSWR 1.3 max, 500 V rms working, insulation 5000 Mohm min, -65 to +165 C.
+- General tolerance: +-0.15 (0-2), +-0.25 (2-5), +-0.15 (0-2 second row as printed), +-0.35 (>5).
+
+Read off the drawing (scaled, not dimensioned; 6x render, about 18.4 px/mm)
+- Centre pin 5.0 behind the flange's rear face (the pin sits at the body's centre: 10 / 2).
+- Flange bottom flush with the body bottom (the board), so the coupling axis is at
+  13.55 / 2 = 6.78 above the board's top face (the axis is drawn at 6.8 above, 5.4 below the body top).
+- Thread length about 6.6 from the flange's front face.
+
+Derived for the layout and the enclosure (centre pin = footprint origin, toward the jack = -y)
+- Flange rear face 5.0, front face 6.1 in front of the centre pin; the board edge is at 6.0, so the
+  flange stands 0.1 proud of the edge and can bear on the inside of the front wall.
+- Barrel tip 24.5 in front of the centre pin: 18.4 in front of the flange face.
+- Panel mount: the wall can be clamped between the flange and the nut on the M12 thread (about 6.6
+  long, less the nut and washer); otherwise a clearance hole over M12.

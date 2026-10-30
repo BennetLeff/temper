@@ -4,7 +4,7 @@
 
 Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm (no autorouter), SHA256:
 
-`6f1ca57ae2dca207c16f0a5ba30e3cf9e83dbda44c6d462140fa365786b0aaf4`
+`846d9226ae057ac6c1e54d7b8b5223d3e13cbaf468bd38803c4517db64486f47`
 
 (2026-10-29, after the indicator-LED change: D4 front-panel side-looking LED, D15–D20 debug LEDs; [rev-f-plan.md](../docs/rev-f-plan.md) "Indicator LEDs".) KiCad 10.0.4. The full before/after comparison with Rev E is [rev-f-before-after.md](../docs/rev-f-before-after.md); the plan, gates and decisions are [rev-f-plan.md](../docs/rev-f-plan.md).
 
