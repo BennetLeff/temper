@@ -12,6 +12,11 @@ kicad-cli sch erc --severity-all --exit-code-violations --format json \
 kicad-cli pcb drc --severity-all --all-track-errors --schematic-parity \
   --refill-zones --exit-code-violations --format json \
   --output validation/drc.json cad/temper-lcr.kicad_pcb
+# JLC's limits as a separate KiCad DRC pass (temper_boardkit.fab: board copy, profile rules, self-test board)
+rm -rf build/fab-check
+PYTHONPATH=../boardkit/src python3 -m temper_boardkit.cli fab cad/temper-lcr.kicad_pcb \
+  --profile jlcpcb-4layer-1oz --out build/fab-check
+cp build/fab-check/fab-check.json validation/fab-check.json
 kicad-cli sch export netlist --format kicadxml --output build/netlist.xml cad/temper-lcr.kicad_sch
 kicad-cli pcb export pos --format csv --units mm --use-drill-file-origin \
   --output build/positions.csv cad/temper-lcr.kicad_pcb

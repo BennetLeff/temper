@@ -4,7 +4,9 @@
 
 Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm (no autorouter), SHA256:
 
-`056dd18407aceda4ae1ef3ef553b541d2acb7aed26340569ad6edcc4b8aa0e57`
+`811927569d2b9f4925cc043bdfc59cd45e89619a89306888b9cf9f140da52f15`
+
+(2026-10-29, the JLC fab pass's silk fixes: TP1–TP14 silk rings, U14 corner marks and the D4 silk line moved to ≥ 0.16 mm from their pads. Silk only; copper as on `056dd184…0e57`, on which the extraction and stability rows were run.)
 
 (2026-10-29, after the indicator-LED change (D4 front-panel side-looking LED, D15–D20 debug LEDs; [rev-f-plan.md](../docs/rev-f-plan.md) "Indicator LEDs") and the fabrication cleanups: pre-DRC angle rule, three fiducials, silk at 1.0 / 0.15 mm, nine test pads, edge-rail decision; then the review craft pass: craft rules (T-junctions, land entries, chamfers, 0.6 mm vias), 2.0 mm 5 V trunk and IPC-2152 supply sizing, GND pours on In2 / B.Cu with stitching, teardrops, references on silk, five relay-coil test pads, fabrication and assembly drawings.) KiCad 10.0.4. The full before/after comparison with Rev E is [rev-f-before-after.md](../docs/rev-f-before-after.md); the plan, gates and decisions are [rev-f-plan.md](../docs/rev-f-plan.md).
 
@@ -21,6 +23,7 @@ Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm
 | Parts and placements | 213 fitted of 216, 209 SMT placements, 66 SMT lines (24 extended: C160472 added); LED CPL offsets 0 (C2286 RMS 0.04 mm, C160472 RMS 0.10 mm) | `cad-bom-parity.json`, `../sources/placement-rev-c.json` |
 | Switcher pickup (relative to Rev E, not a bound) | TIA C104 loop +4.5 dB, RF100K loop +4.3 dB; Kelvin inputs −23 to −42 dB | `power-spurs/switcher_pickup-rev-f.json` |
 | Fiducials and test pads | FID1–FID3 (Fiducial_1mm_Mask2mm), no copper within 2.0 mm; TP1–TP9 (TestPoint_Pad_D1.5mm) on 5V, 3V3, ±12V, RAW_P/N, VRLY and two GND; TP10–TP14 on the relay coil lines at the drivers, 10.7–19.0 mm from analog copper (asserted in `rev_f.py`); all board-only, absent from BOM and CPL (209 placements unchanged); order estimates unchanged | `cad/design.json` `board`, `../manufacturing/cpl-jlcpcb.csv`, `../manufacturing/order-estimate-{2,5}.json` |
+| JLC fab pass (`jlcpcb-4layer-1oz`, read 2026-10-29) | PASS: every profile rule fired on the self-test board; the board has no finding. Before the silk fixes: 23 pad-to-silk at 0.12–0.14 mm (TP1–TP14 rings, U14, D4) | `fab-check.json` (`temper_boardkit.fab`, run by `cad/rebuild.sh`) |
 | Edge copper (V-cut rails left and right) | nearest copper to the left/right edges 0.50 mm (GND plane and pours, all inset 0.5 mm), nearest track 0.90 mm, nearest land 0.95 mm (L2) | `edge-clearance-rev-f.json` (`cad/tools/edge_clearance.py`) |
 | Craft rules (pre-DRC, `temper_boardkit.craft` in `instruments/boardkit`) | T-junctions 53 → 0; 90° bends 140 → 8, off-axis land entries 246 → 24 (all listed exceptions in `routing.json`); vias 307 → 425 (0.45 mm pads 198 → 36, the rest 0.60 / 0.55); `test_craft.py` 28 pass | `../cad/routing.json` `craft_exceptions`; from `instruments/boardkit`: `PYTHONPATH=src uv run --no-project --with shapely --with numpy --with pytest python -m pytest` |
 | Supply copper, IPC-2152 at 10 °C rise | 7 supply nets, every segment and via PASS (1.17 A on USB_VBUS / 5V); 5 V trunk 49.8 mΩ, 23.0 mV at 0.4617 A | `power-spurs/current_check.json`, `power-spurs/regulator_check.json` |

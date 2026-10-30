@@ -114,8 +114,9 @@ rect(fp, k.F_Fab, -2, -2, 2, 2, 0.1)
 line(fp, k.F_Fab, (-2, -1.4), (-1.4, -2), 0.1)
 for sx in (-1, 1):
     for sy in (-1, 1):
-        line(fp, k.F_SilkS, (2.11 * sx, 2.11 * sy), (1.55 * sx, 2.11 * sy), 0.12)
-        line(fp, k.F_SilkS, (2.11 * sx, 2.11 * sy), (2.11 * sx, 1.55 * sy), 0.12)
+        # corner marks end 0.17 mm from the nearest pad (JLC pad to silk >= 0.15 mm)
+        line(fp, k.F_SilkS, (2.11 * sx, 2.11 * sy), (1.6 * sx, 2.11 * sy), 0.12)
+        line(fp, k.F_SilkS, (2.11 * sx, 2.11 * sy), (2.11 * sx, 1.6 * sy), 0.12)
 line(fp, k.F_SilkS, (-2.45, -1.25), (-2.45, -0.9), 0.15)   # pin-1 tick, clear of the pads
 rect(fp, k.F_CrtYd, -2.45, -2.45, 2.45, 2.45, 0.05)
 fp.Reference().SetPosition(vec(0, -3.2))

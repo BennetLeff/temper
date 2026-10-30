@@ -51,7 +51,7 @@ for p in PARTS:
 # matching package model, or at the exact-part USB-C model that cad/tools/models_3d.py writes to cad/3dmodels/.
 sys.path.insert(0, str(ROOT / 'tools'))
 import boardkit_path  # noqa: E402,F401
-from temper_boardkit.kicad import apply_model_swap  # noqa: E402
+from temper_boardkit.kicad import apply_model_swap, clear_silk_circles  # noqa: E402
 apply_model_swap(LOCAL)
 (ROOT / 'fp-lib-table').write_text('(fp_lib_table (version 7) (lib (name "LCR") (type "KiCad") (uri "${KIPRJMOD}/LCR.pretty") (options "") (descr "Vendored KiCad 10 footprints")))\n')
 # Adapt USB mechanical slots and signal lands to verified HRO 2020 drawing.
@@ -153,6 +153,7 @@ for i,(x,y) in enumerate(BOARD.get('fiducials',[]),1):
 for i,(name,net,x,y,d) in enumerate(BOARD.get('testpoints',[]),1):
     f=k.FootprintLoad(str(LIBS/'TestPoint.pretty'),f'TestPoint_Pad_D{d:.1f}mm');f.SetReference('TP'+str(i));f.SetValue(name);f.SetPosition(pos(x,y));f.Reference().SetLayer(k.F_Fab);f.SetAttributes(BOARD_ONLY)
     for pad in f.Pads():pad.SetNet(nets[net])
+    clear_silk_circles(f)  # library ring sits 0.14 mm from the pad; JLC pad to silk >= 0.15
     b.Add(f)
 for text,x,y,size in SILK:
     t=k.PCB_TEXT(b);t.SetText(text);t.SetPosition(pos(x,y));t.SetTextSize(pos(size,size));t.SetTextThickness(mm(.15));t.SetLayer(k.F_SilkS);b.Add(t)

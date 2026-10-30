@@ -1,0 +1,62 @@
+{
+ "pass": true,
+ "profile": "jlcpcb-4layer-1oz",
+ "profile_read": "2026-10-29",
+ "board": "cad/temper-lcr.kicad_pcb",
+ "board_sha256": "811927569d2b9f4925cc043bdfc59cd45e89619a89306888b9cf9f140da52f15",
+ "rules_sha256": "f5013cede5f07bbb04fcef38377103139cc29af57491aa21e4c4440e616387a6",
+ "kicad": "10.0.4",
+ "rules": [
+  "boardkit fab copper clearance",
+  "boardkit fab pad to track",
+  "boardkit fab SMD pad to pad",
+  "boardkit fab via hole to copper",
+  "boardkit fab NPTH hole to copper",
+  "boardkit fab PTH hole to copper",
+  "boardkit fab inner PTH hole to copper",
+  "boardkit fab hole to hole",
+  "boardkit fab via hole to via hole",
+  "boardkit fab copper to edge",
+  "boardkit fab track width",
+  "boardkit fab via ring",
+  "boardkit fab PTH ring",
+  "boardkit fab via drill",
+  "boardkit fab PTH drill",
+  "boardkit fab NPTH drill",
+  "boardkit fab silk text height",
+  "boardkit fab silk text thickness",
+  "boardkit fab silk text height B",
+  "boardkit fab silk text thickness B",
+  "boardkit fab pad to silk",
+  "boardkit fab solder mask web"
+ ],
+ "selftest_silent_rules": [],
+ "findings": {},
+ "counts": {},
+ "cleared_local_clearances": [
+  {
+   "kind": "pad",
+   "item": "FID1.",
+   "clearance_mm": 0.6
+  },
+  {
+   "kind": "pad",
+   "item": "FID3.",
+   "clearance_mm": 0.6
+  },
+  {
+   "kind": "pad",
+   "item": "FID2.",
+   "clearance_mm": 0.6
+  }
+ ],
+ "solder_mask_min_web_mm": {
+  "board": 0.0,
+  "applied": 0.1
+ },
+ "not_covered": [
+  "silkscreen graphic line width (KiCad constrains text strokes only)",
+  "board size against maximum_board_mm (read the outline: gerber.outline)",
+  "JLC's 0.09 mm local BGA pad spacing (the stricter general rows are kept)"
+ ]
+}
