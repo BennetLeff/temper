@@ -22,7 +22,8 @@ from pathlib import Path
 import pcbnew as k
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import craft  # noqa: E402  (pure-data checks only: KiCad's Python has no shapely)
+import boardkit_path  # noqa: E402,F401
+from temper_boardkit import craft  # noqa: E402  (pure-data checks only: KiCad's Python has no shapely)
 
 ROOT = Path(__file__).resolve().parents[2]
 NM = 1e-6

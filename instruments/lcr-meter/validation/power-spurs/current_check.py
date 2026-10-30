@@ -36,8 +36,9 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT / 'cad' / 'tools'))
-import craft  # noqa: E402
+import boardkit_path  # noqa: E402,F401
 import predrc  # noqa: E402
+from temper_boardkit import craft  # noqa: E402
 
 DT = 10.0
 T_MM = {'F.Cu': 0.035, 'B.Cu': 0.035, 'In1.Cu': 0.0152, 'In2.Cu': 0.0152}

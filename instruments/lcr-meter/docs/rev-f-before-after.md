@@ -244,7 +244,7 @@ The jacks' reach in front of the board edge (18.5 mm, SAMZO drawing BNCKYWE-P039
 
 ## 10. Review craft pass (2026-10-29)
 
-After a mock professional review, the board got the craft fixes a layout reviewer asks for. Each has a permanent check (pre-DRC, a `cad/tools` script or an assert in `rev_f.py`), and every pass and check lives in one pure module, `cad/tools/craft.py`, with `cad/tools/test_craft.py` (28 synthetic cases). Before = `ae4525852`, after = this tree. Decisions and reasons are rows in [rev-f-plan.md](rev-f-plan.md).
+After a mock professional review, the board got the craft fixes a layout reviewer asks for. Each has a permanent check (pre-DRC, a `cad/tools` script or an assert in `rev_f.py`), and every pass and check lives in one pure module, `cad/tools/craft.py`, with `cad/tools/test_craft.py` (28 synthetic cases); both have since moved to `packages/temper-boardkit` (`temper_boardkit.craft`, `tests/test_craft.py`). Before = `ae4525852`, after = this tree. Decisions and reasons are rows in [rev-f-plan.md](rev-f-plan.md).
 
 | Item | Before | After |
 |---|---|---|

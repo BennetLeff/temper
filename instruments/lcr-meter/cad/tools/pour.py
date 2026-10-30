@@ -22,8 +22,9 @@ from __future__ import annotations
 from shapely.geometry import Polygon, box
 from shapely.ops import unary_union
 
-import craft
+import boardkit_path  # noqa: F401
 import predrc
+from temper_boardkit import craft
 
 ANALOG = set('''C1M_CLP C1M_DIV C1M_PIN C1P_CLP C1P_DIV C1P_PIN C2M_CLP C2M_DIV C2M_PIN C2P_CLP C2P_DIV C2P_PIN
 CODEC_VREF DAC_M DAC_P DUT_HI DUT_LO EXCITE HIGH_BUF HPOT LOW_BUF LPOT REF_A RF100 RF100K RF5K RG100 RG100K

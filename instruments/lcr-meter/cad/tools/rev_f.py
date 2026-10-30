@@ -36,6 +36,8 @@ ROOT = CAD.parent
 REV_E = '48b012771'
 sys.path.insert(0, str(CAD / 'tools'))
 import predrc  # noqa: E402
+from temper_boardkit import craft, model  # noqa: E402  (predrc put packages/temper-boardkit/src on the path)
+from temper_boardkit.model import norm_rot, r3, rot, unrot  # noqa: E402,F401
 
 
 def git_json(name):
@@ -95,34 +97,10 @@ for p in NEW_PARTS:
 design['parts'] += NEW_PARTS
 
 
-def rot(dx, dy, t):
-    c, s = math.cos(math.radians(t)), math.sin(math.radians(t))
-    return dx * c + dy * s, -dx * s + dy * c
-
-
-def unrot(dx, dy, t):
-    return rot(dx, dy, -t)
-
-
-def r3(v):
-    return round(v + 0.0, 4)
-
-
-def fp(ref):
-    return LIB[parts[ref]['footprint'].split(':', 1)[1]]
-
-
-def pad_local(ref, num):
-    for p in fp(ref)['pads']:
-        if p['num'] == num:
-            return p['at']
-    raise KeyError(f'{ref}.{num}')
-
-
-def pad_at(ref, num, pose):
-    lx, ly = pad_local(ref, num)
-    bx, by = rot(lx, ly, pose[2])
-    return (r3(pose[0] + bx), r3(pose[1] + by))
+# Pad addressing and the hand-routing helpers (P, B, T, T45, V, DROP, WIDEN, KO) are temper_boardkit.model.Layout;
+# rev_f_routes.py calls them by these names, and their 'src' quotes its line.
+L = model.Layout(LIB, parts, src_file='rev_f_routes.py', src_default='rev_f.py')
+fp, pad_local, pad_at = L.fp, L.pad_local, L.pad_at
 
 
 # ------------------------------------------------------------------ board
@@ -165,17 +143,8 @@ for name, (pivot, to, turn, refs) in GROUPS.items():
         GROUP_OF[r] = name
 
 
-def B(group, x, y):
-    """A Rev E board coordinate taken through a rigid group's transform."""
-    g = GROUPS[group]
-    dx, dy = rot(x - g['pivot'][0], y - g['pivot'][1], g['turn'])
-    return (r3(g['to'][0] + dx), r3(g['to'][1] + dy))
-
-
-def norm_rot(t):
-    t = (t + 180) % 360 - 180
-    return 180 if t == -180 else t
-
+L.groups = GROUPS
+B = L.B
 
 for name, g in GROUPS.items():
     for r in g['refs']:
@@ -244,11 +213,7 @@ if unplaced:
     print('WARNING unplaced (left at Rev E coordinates):', ' '.join(unplaced))
 
 
-def P(ref_pin, dx=0.0, dy=0.0):
-    """Board-frame pad centre after placement, plus an optional offset."""
-    ref, num = ref_pin.split('.')
-    x, y = pad_at(ref, num, parts[ref]['pcb'])
-    return (r3(x + dx), r3(y + dy))
+P = L.P
 
 
 # ------------------------------------------------------------------ copy rigid-group copper
@@ -288,6 +253,7 @@ def foreign_pad(pt, members):
 
 
 routing = {'tracks': [], 'vias': [], 'zones': [], 'keepouts': []}
+L.routing = routing
 COPIED = {}
 for name, g in GROUPS.items():
     members = set(g['refs'])
@@ -345,70 +311,7 @@ for ko in rev_e_routing['keepouts']:
 SRC_FILE = CAD / 'tools' / 'rev_f_routes.py'
 
 
-def _src():
-    f = sys._getframe(2)
-    return f'rev_f_routes.py:{f.f_lineno}' if f.f_code.co_filename.endswith('rev_f_routes.py') else 'rev_f.py'
-
-
-def T(net, layer, *pts, w=0.2):
-    pts = [P(p) if isinstance(p, str) else (r3(p[0]), r3(p[1])) for p in pts]
-    routing['tracks'].append({'net': net, 'layer': layer, 'width': w, 'points': [list(p) for p in pts],
-                              'src': _src()})
-
-
-def T45(net, layer, a, b, first='h', w=0.2):
-    """Two segments a -> corner -> b: one orthogonal leg and one 45-degree leg.  first='h' or 'v'
-    puts the horizontal / vertical leg first; first='d' puts the diagonal first (the orthogonal leg
-    then runs along whichever axis has the longer span).  Pure geometry: no obstacle awareness."""
-    a = P(a) if isinstance(a, str) else a
-    b = P(b) if isinstance(b, str) else b
-    dx, dy = b[0] - a[0], b[1] - a[1]
-    sx, sy = math.copysign(1, dx), math.copysign(1, dy)
-    d = min(abs(dx), abs(dy))
-    if first in ('h', 'v'):
-        assert (first == 'h') == (abs(dx) >= abs(dy)), f'T45 {net}: first={first} but |dx|={abs(dx):.3f} |dy|={abs(dy):.3f}'
-        c = (b[0] - sx * d, a[1]) if first == 'h' else (a[0], b[1] - sy * d)
-    else:
-        c = (a[0] + sx * d, a[1] + sy * d)
-    routing['tracks'].append({'net': net, 'layer': layer, 'width': w,
-                              'points': [[r3(a[0]), r3(a[1])], [r3(c[0]), r3(c[1])], [r3(b[0]), r3(b[1])]],
-                              'src': _src()})
-
-
-def V(net, x, y=None, d=0.45):
-    """A via.  A copied Rev E via of the same net at the same spot is replaced (no stacked drills; the
-    hand via's 0.45 mm land is the smaller one)."""
-    if isinstance(x, str) or (isinstance(x, tuple) and y is None):
-        x, y = P(x) if isinstance(x, str) else x
-    routing['vias'][:] = [v for v in routing['vias'] if not (v['net'] == net and str(v.get('src', '')).startswith('copy:')
-                                                          and math.dist(v['at'], (x, y)) < 0.01)]
-    routing['vias'].append({'net': net, 'at': [r3(x), r3(y)], 'diameter': d, 'drill': 0.3, 'src': _src()})
-
-
-def DROP(net, x0, y0, x1, y1):
-    """Remove copied Rev E copper of one net inside a box (a Rev E escape that the Rev F route replaces)."""
-    inside = lambda p: x0 <= p[0] <= x1 and y0 <= p[1] <= y1
-    routing['tracks'][:] = [t for t in routing['tracks'] if not (t['net'] == net and str(t.get('src', '')).startswith('copy:')
-                                                                and all(inside(p) for p in t['points']))]
-    routing['vias'][:] = [v for v in routing['vias'] if not (v['net'] == net and str(v.get('src', '')).startswith('copy:')
-                                                          and inside(v['at']))]
-
-
-def WIDEN(net, layer, x0, y0, x1, y1, w):
-    """Set the width of every track of one net and layer lying wholly inside a box (current capacity,
-    validation/power-spurs/current_check.py).  Geometry is unchanged; predrc checks the clearance."""
-    n = 0
-    for t in routing['tracks']:
-        if t['net'] == net and t['layer'] == layer and all(x0 <= x <= x1 and y0 <= y <= y1 for x, y in t['points']):
-            t['width'] = max(t.get('width', 0.2), w)
-            n += 1
-    assert n, f'WIDEN {net} {layer}: nothing in the box'
-
-
-def KO(name, pts, layers=('In1.Cu', 'In2.Cu', 'B.Cu')):
-    routing['keepouts'].append({'name': name, 'layers': list(layers), 'points': [list(p) for p in pts],
-                                'tracks': True})
-
+T, T45, V, DROP, WIDEN, KO = L.T, L.T45, L.V, L.DROP, L.WIDEN, L.KO
 
 exec(compile(SRC_FILE.read_text(), str(SRC_FILE), 'exec'), globals())
 
@@ -482,10 +385,9 @@ for v in routing['vias']:
     v['drill'] = 0.3
     v['diameter'] = max(v.get('diameter', 0.6), 0.45)
 
-# ------------------------------------------------------------------ craft passes (cad/tools/craft.py, 2026-10-29)
+# ------------------------------------------------------------------ craft passes (temper_boardkit.craft, 2026-10-29)
 # T-junction splits, straight land entries, 45-degree chamfers on 90-degree bends, 0.6 mm via pads where
 # they clear.  Deterministic edits of the copper above; predrc enforces the same rules (design.board.craft).
-import craft  # noqa: E402
 design['board']['craft'] = True
 design['board']['teardrops'] = True        # KiCad teardrops on every via and pad (cad/fill_zones.py)
 CRAFT = craft.run(routing, *predrc.craft_inputs({'parts': list(parts.values()), 'board': design['board']}),

@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import re
 import shutil
+import sys
 import uuid
 from pathlib import Path
 import pcbnew as k
@@ -46,21 +47,12 @@ for p in PARTS:
     lib, name = p['footprint'].split(':')
     if lib != 'LCR':
         shutil.copyfile(LIBS / (lib + '.pretty') / (name + '.kicad_mod'), LOCAL / (name + '.kicad_mod'))
-# KiCad 10 ships no 3D model under these footprints' model paths: point them at a matching package
-# model, or at the exact-part USB-C model that cad/tools/models_3d.py writes to cad/3dmodels/.
-KI3D = '${KICAD10_3DMODEL_DIR}/'
-MODEL_SWAP = {
-    'USB_C_Receptacle_HRO_TYPE-C-31-M-12': ('Connector_USB.3dshapes/USB_C_Receptacle_HRO_TYPE-C-31-M-12.step',
-                                            '${KIPRJMOD}/3dmodels/USB_C_Receptacle_HRO_TYPE-C-31-M-12.step'),
-    'VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm': ('Package_DFN_QFN.3dshapes/VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm.step',
-                                               KI3D + 'Package_DFN_QFN.3dshapes/Texas_RGE0024C_VQFN-24-1EP_4x4mm_P0.5mm_EP2.1x2.1mm.step'),
-    'HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm': ('Package_SO.3dshapes/HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm.step',
-                                                 KI3D + 'Package_SO.3dshapes/MSOP-8-1EP_3x3mm_P0.65mm_EP1.68x1.88mm.step'),
-}
-for name, (old, new) in MODEL_SWAP.items():
-    path = LOCAL / (name + '.kicad_mod')
-    if path.exists():
-        path.write_text(path.read_text().replace(KI3D + old, new))
+# KiCad 10 ships no 3D model under some footprints' model paths: temper_boardkit.kicad.MODEL_SWAP points them at a
+# matching package model, or at the exact-part USB-C model that cad/tools/models_3d.py writes to cad/3dmodels/.
+sys.path.insert(0, str(ROOT / 'tools'))
+import boardkit_path  # noqa: E402,F401
+from temper_boardkit.kicad import apply_model_swap  # noqa: E402
+apply_model_swap(LOCAL)
 (ROOT / 'fp-lib-table').write_text('(fp_lib_table (version 7) (lib (name "LCR") (type "KiCad") (uri "${KIPRJMOD}/LCR.pretty") (options "") (descr "Vendored KiCad 10 footprints")))\n')
 # Adapt USB mechanical slots and signal lands to verified HRO 2020 drawing.
 usb_path=LOCAL/'USB_C_Receptacle_HRO_TYPE-C-31-M-12.kicad_mod'
