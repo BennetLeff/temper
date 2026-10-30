@@ -26,7 +26,7 @@ for build in "temper-lcr-rev-e 0 640" "temper-lcr-rev-e-375k 1 288"; do
     # Averaging, waveform, codec-sequence and relay logic, compiled for and run on the build host.
     ${CC:-cc} -std=c11 -O2 -Wall -Wextra -Werror -pedantic -DLCR_FS_375K="$FS_375K" -I"$ROOT/src" \
         "$ROOT/test/test_host.c" "$ROOT/src/syncavg.c" "$ROOT/src/wave.c" "$ROOT/src/tac5112.c" \
-        "$ROOT/src/relay.c" -lm -o "$DIR/test_host"
+        "$ROOT/src/relay.c" "$ROOT/src/rails.c" -lm -o "$DIR/test_host"
     "$DIR/test_host" >> "$ROOT/verification/host-test.txt"
     "$BUILD/bin_to_uf2" "$DIR/temper_lcr.bin" "$ROOT/bin/$NAME.uf2" | sed "s/^/$NAME: /" >> "$ROOT/verification/uf2.txt"
     cp "$DIR/temper_lcr.elf" "$ROOT/bin/$NAME.elf"

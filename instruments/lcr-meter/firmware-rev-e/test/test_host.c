@@ -1,16 +1,18 @@
 /* Host test for the SDK-free Rev E modules, built with the system C compiler:
      cc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -Isrc test/test_host.c src/syncavg.c \
-        src/wave.c src/tac5112.c src/relay.c -lm
+        src/wave.c src/tac5112.c src/relay.c src/rails.c -lm
    (add -DLCR_FS_375K=1 for the 375 kHz build; build.sh runs both).
    It checks the synchronous averager and raw capture against a direct reference with a
    simulated DMA producer (including ring wrap, odd start words and overrun), the waveform
    limit and tone generator, the CRC, the TAC5112 bring-up sequence against a model of the
-   register file, and the relay coil sequence against a model of the four drivers. */
+   register file (quick-charge settings, the clock fallback, the post-power-up settling), the
+   relay coil sequence against a model of the four drivers, and the analog-rail start gate. */
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "pins.h"
+#include "rails.h"
 #include "relay.h"
 #include "syncavg.h"
 #include "tac5112.h"
@@ -179,6 +181,12 @@ typedef struct {
     uint32_t elapsed_ms, wake_ms, channel_ms;
     uint8_t order[64];
     bool clock_ok;
+    bool flags;      /* a clock that is not ok also sets DSP_CLK_ERR in CLK_ERR_STS0 */
+    bool fix_enabled; /* a clock that is not ok is cured by CLK_CFG0 == fix_cfg at the next power-up */
+    uint8_t fix_cfg;
+    uint8_t stuck_err0; /* CLK_ERR_STS0 bits that stay set whatever the clock setting */
+    unsigned clk_cfg_writes;
+    uint8_t clk_cfg_order[8];
 } codec_model;
 static bool model_write(void *context, uint8_t reg, uint8_t value) {
     codec_model *m = context;
@@ -186,6 +194,7 @@ static bool model_write(void *context, uint8_t reg, uint8_t value) {
     m->order[m->writes++ % 64] = reg;
     if (reg == TAC_SW_RESET && value == 1u) {
         memset(m->reg, 0, sizeof m->reg);
+        m->reg[TAC_MISC_CFG1] = 0x15u; /* reset value, Table 8-8 */
         m->awake = 0;
         return true;
     }
@@ -195,11 +204,14 @@ static bool model_write(void *context, uint8_t reg, uint8_t value) {
     }
     if (reg >= 0x10u && reg != TAC_PAGE_CFG && !m->channel_ms) m->channel_ms = m->elapsed_ms;
     m->reg[reg] = value;
+    if (reg == TAC_CLK_CFG0 && m->clk_cfg_writes < 8u) m->clk_cfg_order[m->clk_cfg_writes++] = value;
     if (reg == TAC_PWR_CFG) {
+        bool clk = m->clock_ok || (m->fix_enabled && m->reg[TAC_CLK_CFG0] == m->fix_cfg);
+        m->reg[TAC_CLK_ERR_STS0] = (uint8_t)(value ? (!clk && m->flags ? 0x80u : 0u) | m->stuck_err0 : 0u);
         uint8_t up = (value & 0x80u ? m->reg[TAC_CH_EN] & 0xF0u : 0u) | (value & 0x40u ? m->reg[TAC_CH_EN] & 0x0Fu : 0u);
         m->reg[TAC_DEV_STS0] = up;
         m->reg[TAC_DEV_STS1] = (uint8_t)((up ? 7u : 6u) << 5);
-        m->reg[TAC_CLK_DET_STS0] = (uint8_t)((m->clock_ok ? TAC_RATE_BIN : 15u) << 2);
+        m->reg[TAC_CLK_DET_STS0] = (uint8_t)((clk ? TAC_RATE_BIN : 15u) << 2);
     }
     return true;
 }
@@ -218,7 +230,12 @@ static void test_codec(void) {
     CHECK(m.awake);
     CHECK(m.channel_ms >= m.wake_ms + 10u); /* channel registers 10 ms after leaving sleep */
     CHECK(m.order[m.writes - 1] == TAC_PWR_CFG && m.order[m.writes - 2] == TAC_CH_EN);
-    CHECK(m.reg[TAC_DEV_MISC_CFG] == 0x09u);
+    /* VREF_QCHG [5:4] = 1 (10 ms) for the 2.2 uF C62, SLEEP_EXIT_VREF_EN and SLEEP_ENZ (Table 8-5). */
+    CHECK(m.reg[TAC_DEV_MISC_CFG] == 0x19u && ((m.reg[TAC_DEV_MISC_CFG] >> 4) & 3u) == 1u);
+    CHECK(m.channel_ms >= m.wake_ms + TAC_WAKE_MS);
+    /* INCAP_QCHG [7:6] = 1 (12.5 ms), the other MISC_CFG1 bits at their reset value 0x15. */
+    CHECK(m.reg[TAC_MISC_CFG1] == 0x55u);
+    CHECK(m.clk_cfg_writes == 0u && m.reg[TAC_CLK_CFG0] == TAC_CLK_AUTO); /* a good clock stays on auto */
     CHECK(m.reg[TAC_INTF_CFG1] == 0x51u);
 #if !LCR_FS_375K
     CHECK(m.reg[TAC_PASI_CFG0] == 0x30u); /* TDM, 32-bit slots */
@@ -244,6 +261,53 @@ static void test_codec(void) {
     CHECK(tac5112_check(&io, TAC_POWER_ALL) == TAC_ERR_POWER);
     CHECK(tac5112_power(&io, TAC_POWER_ALL) == TAC_OK);
 
+    /* Clock fallback (audit C-05): a wrong rate with the error flag. PASI_FS_RATE_NO_LIM is
+       tried first, then the fixed bin; each with the channels down around the write. */
+    CHECK(TAC_CLK_NO_LIM == 0x02u && TAC_CLK_FIXED == (TAC_RATE_BIN << 2));
+    for (int stage = 0; stage < 2; ++stage) {
+        codec_model f = {.nack_at = -1, .flags = true, .fix_enabled = true,
+                         .fix_cfg = stage == 0 ? TAC_CLK_NO_LIM : TAC_CLK_FIXED};
+        io.context = &f;
+        tac5112_clock clock;
+        CHECK(tac5112_start_report(&io, &clock) == TAC_OK);
+        CHECK(clock.mode == (stage == 0 ? TAC_CLOCK_NO_LIM : TAC_CLOCK_FIXED));
+        CHECK(clock.err0 == 0u && clock.err1 == 0u);
+        CHECK(f.clk_cfg_writes == (unsigned)stage + 1u && f.clk_cfg_order[0] == TAC_CLK_NO_LIM);
+        if (stage) CHECK(f.clk_cfg_order[1] == TAC_CLK_FIXED);
+        CHECK(f.reg[TAC_PWR_CFG] == TAC_POWER_ALL);
+        CHECK(strcmp(tac5112_clock_name(clock.mode), stage ? "fixed" : "no_lim") == 0);
+    }
+    /* A flag with the right detected rate that no setting clears: reported, auto restored, not fatal. */
+    codec_model stuck = {.nack_at = -1, .clock_ok = true, .stuck_err0 = 0x08u};
+    io.context = &stuck;
+    tac5112_clock clock;
+    CHECK(tac5112_start_report(&io, &clock) == TAC_OK);
+    CHECK(clock.mode == TAC_CLOCK_ERROR && clock.err0 == 0x08u);
+    CHECK(stuck.clk_cfg_writes == 3u && stuck.reg[TAC_CLK_CFG0] == TAC_CLK_AUTO);
+    /* Neither fallback cures a clock that is wrong: the start fails and CLK_CFG0 is auto again. */
+    codec_model dead = {.nack_at = -1, .flags = true};
+    io.context = &dead;
+    CHECK(tac5112_start_report(&io, &clock) == TAC_ERR_CLOCK);
+    CHECK(clock.mode == TAC_CLOCK_ERROR && clock.err0 == 0x80u);
+    CHECK(dead.clk_cfg_writes == 3u && dead.clk_cfg_order[2] == TAC_CLK_AUTO && dead.reg[TAC_CLK_CFG0] == TAC_CLK_AUTO);
+    CHECK(strcmp(tac5112_clock_name(clock.mode), "error") == 0);
+    /* Only the configuration flags count: the stop and FS-change flags are masked. */
+    uint8_t e0 = 0, e1 = 0;
+    codec_model masked = {.nack_at = -1};
+    io.context = &masked;
+    masked.reg[TAC_CLK_ERR_STS0] = 0x02u | 0x04u;
+    masked.reg[TAC_CLK_ERR_STS1] = 0x10u;
+    CHECK(tac5112_clock_flags(&io, &e0, &e1) == TAC_OK && e0 == 0u && e1 == 0u);
+    masked.reg[TAC_CLK_ERR_STS0] = 0x98u;
+    masked.reg[TAC_CLK_ERR_STS1] = 0x80u;
+    CHECK(tac5112_clock_flags(&io, &e0, &e1) == TAC_OK && e0 == 0x98u && e1 == 0x80u);
+
+    /* Captures wait until 0.3 s after the last ADC power-up (audit C-04). */
+    CHECK(tac5112_settle_remaining_ms(0u) == 300u && tac5112_settle_remaining_ms(120u) == 180u);
+    CHECK(tac5112_settle_remaining_ms(300u) == 0u && tac5112_settle_remaining_ms(100000u) == 0u);
+    CHECK(TAC_ADC_SETTLE_MS * 1u >= 270u); /* 6.8 tau of the 40 ms input time constant */
+
+    io.context = &m;
     codec_model bad = {.nack_at = 5, .clock_ok = true};
     io.context = &bad;
     CHECK(tac5112_start(&io) == TAC_ERR_BUS);
@@ -328,6 +392,75 @@ static void test_relays(void) {
     CHECK(!m.closed[3] && m.closed[2] && !m.closed[0] && !m.closed[1]);
 }
 
+/* ------------------------------------------------------------------ analog rails */
+#define SAMPLES 256u
+/* Sum of SAMPLES conversions for a pin voltage, as a nominal board produces. */
+static uint32_t pin_sum(double volts) { return (uint32_t)(volts / 3.3 * RAIL_ADC_CODES * SAMPLES + 0.5); }
+static uint32_t p12_sum(double rail) { return pin_sum(rail * 10.0 / 110.0); }
+static uint32_t n12_sum(double rail) { return pin_sum((3.3 * 150.0 + rail * 10.0) / 160.0); }
+
+/* Poll a rail model that starts at `t0` ms and ramps in `ramp` ms (or never: ramp < 0) every
+   RAIL_POLL_MS like main.c's rails_wait(); returns the decision and the time it was made. */
+static rails_decision gate_run(int ramp, uint32_t *at) {
+    unsigned streak = 0;
+    for (uint32_t t = 0;; t += RAIL_POLL_MS) {
+        double up = ramp < 0 ? 0.0 : t >= (uint32_t)ramp ? 1.0 : (double)t / ramp;
+        int32_t p = rails_p12_mv(p12_sum(12.0 * up), SAMPLES), n = rails_n12_mv(n12_sum(-12.0 * up), SAMPLES);
+        rails_decision d = rails_poll(rails_in_window(p, n), t, &streak);
+        if (d != RAILS_WAIT) {
+            *at = t;
+            return d;
+        }
+    }
+}
+
+static void test_rails(void) {
+    /* Windows: the host's (host/src/lib.rs), checked against it by host/tests/rev_e.rs. */
+    CHECK(RAIL_P12_MIN_MV == 10200 && RAIL_P12_MAX_MV == 13400);
+    CHECK(RAIL_N12_MIN_MV == -14100 && RAIL_N12_MAX_MV == -10500);
+    /* Conversion: nominal rails read back within a few mV (the ADC and divider arithmetic of
+       host rails_from_line). */
+    CHECK(abs(rails_p12_mv(p12_sum(12.0), SAMPLES) - 12000) < 10);
+    CHECK(abs(rails_n12_mv(n12_sum(-12.0), SAMPLES) + 12000) < 10);
+    CHECK(abs(rails_p12_mv(p12_sum(13.4), SAMPLES) - 13400) < 10);
+    CHECK(abs(rails_n12_mv(n12_sum(-10.5), SAMPLES) + 10500) < 10);
+    /* Nothing powered: MON12 0 V, MON_N12 pulled to 3V3 x 150/160 = 3.09 V (host test
+       rail_monitor_conversion_and_windows): both far outside. */
+    CHECK(rails_p12_mv(0, SAMPLES) == 0);
+    CHECK(rails_n12_mv(n12_sum(0.0), SAMPLES) == 0 || abs(rails_n12_mv(n12_sum(0.0), SAMPLES)) < 10);
+    CHECK(!rails_in_window(rails_p12_mv(0, SAMPLES), rails_n12_mv(n12_sum(0.0), SAMPLES)));
+    /* Window edges, each rail on its own. */
+    CHECK(rails_in_window(12000, -12000));
+    CHECK(rails_in_window(RAIL_P12_MIN_MV, -12000) && !rails_in_window(RAIL_P12_MIN_MV - 1, -12000));
+    CHECK(rails_in_window(RAIL_P12_MAX_MV, -12000) && !rails_in_window(RAIL_P12_MAX_MV + 1, -12000));
+    CHECK(rails_in_window(12000, RAIL_N12_MIN_MV) && !rails_in_window(12000, RAIL_N12_MIN_MV - 1));
+    CHECK(rails_in_window(12000, RAIL_N12_MAX_MV) && !rails_in_window(12000, RAIL_N12_MAX_MV + 1));
+    /* One rail up, the other missing: never healthy. */
+    CHECK(!rails_in_window(12000, rails_n12_mv(n12_sum(0.0), SAMPLES)));
+    CHECK(!rails_in_window(0, -12000));
+    /* Gate: needs RAIL_STABLE_POLLS consecutive in-window polls. */
+    unsigned streak = 0;
+    CHECK(rails_poll(true, 0, &streak) == RAILS_WAIT && streak == 1u);
+    CHECK(rails_poll(true, 5, &streak) == RAILS_WAIT && rails_poll(false, 10, &streak) == RAILS_WAIT && streak == 0u);
+    for (unsigned i = 1; i < RAIL_STABLE_POLLS; ++i) CHECK(rails_poll(true, 20, &streak) == RAILS_WAIT);
+    CHECK(rails_poll(true, 20, &streak) == RAILS_UP);
+    /* Timeout: out of window at RAIL_TIMEOUT_MS; but a healthy poll wins on the same tick. */
+    streak = 0;
+    CHECK(rails_poll(false, RAIL_TIMEOUT_MS - 1u, &streak) == RAILS_WAIT);
+    CHECK(rails_poll(false, RAIL_TIMEOUT_MS, &streak) == RAILS_TIMEOUT);
+    streak = RAIL_STABLE_POLLS - 1u;
+    CHECK(rails_poll(true, RAIL_TIMEOUT_MS, &streak) == RAILS_UP);
+    /* Simulated start-ups: the U17 sequence plus LDO soft-start is done in about 100 ms. */
+    uint32_t at = 0;
+    CHECK(gate_run(100, &at) == RAILS_UP && at >= 100u && at <= 100u + 6u * RAIL_POLL_MS);
+    CHECK(gate_run(0, &at) == RAILS_UP && at == (RAIL_STABLE_POLLS - 1u) * RAIL_POLL_MS);
+    CHECK(gate_run(400, &at) == RAILS_UP && at < RAIL_TIMEOUT_MS);
+    CHECK(gate_run(700, &at) == RAILS_TIMEOUT && at == RAIL_TIMEOUT_MS);
+    CHECK(gate_run(-1, &at) == RAILS_TIMEOUT && at == RAIL_TIMEOUT_MS);
+    /* The 5 ms polls cover the sequence: 20-60 ms boost enable + 8.5-11.5 ms inverter + 14 ms. */
+    CHECK(RAIL_TIMEOUT_MS >= 5u * (60u + 12u + 14u));
+}
+
 int main(void) {
     test_average(16, 1000, 0, 3);
     test_average(375, 3 * 375, 1, 7);   /* odd start: frames straddle the ring wrap */
@@ -345,13 +478,15 @@ int main(void) {
     test_wave();
     test_codec();
     test_relays();
+    test_rails();
     if (failures) {
         fprintf(stderr, "FAIL: %d checks\n", failures);
         return 1;
     }
     printf("PASS (fs %u Hz): syncavg averaging/raw/extremes/ring wrap/odd start/overrun; wave CRC, limit "
-           "derivation, tone lines at 1/27/60 kHz and bounds; TAC5112 bring-up order, values, status; "
-           "relays RESET-then-SET, one coil at a time, K4 only with a range, boot opens K4\n",
+           "derivation, tone lines at 1/27/60 kHz and bounds; TAC5112 bring-up order, values, status, "
+           "VREF/INCAP quick charge, clock fallback, ADC settling; relays RESET-then-SET, one coil at a time, "
+           "K4 only with a range, boot opens K4; analog-rail windows, conversion, gate and timeout\n",
            FS_HZ);
     return 0;
 }

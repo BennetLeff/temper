@@ -13,6 +13,7 @@
 #include "hardware/pio.h"
 #include "tusb.h"
 #include "pins.h"
+#include "rails.h"
 #include "relay.h"
 #include "syncavg.h"
 #include "tac5112.h"
@@ -54,6 +55,13 @@ static PIO tdm_pio = pio0;
 static uint tdm_sm;
 static int ch_txd, ch_txc, ch_snap, ch_rxd;
 static bool codec_ok = false;
+/* The +-12 V monitors read inside their windows (rails.h): until then the codec is not started
+   (DAC powered down) and the range relays are not pulsed. */
+static bool analog_ok = false;
+static int32_t mon12_mv, mon_n12_mv; /* the last poll, millivolts */
+static tac5112_clock codec_clock;        /* which CLK_CFG0 setting the codec runs with */
+static uint32_t adc_powered_ms;          /* to_ms_since_boot at the last ADC power-up */
+static bool range_commanded = false;     /* a RANGE command has completed since boot */
 static bool reply_error = false; /* the current command printed an ERR reply (FAULT LED) */
 static int range_ohm = 0;
 static char unit_id[PICO_UNIQUE_BOARD_ID_SIZE_BYTES * 2 + 1];
@@ -74,6 +82,42 @@ static void io_sleep(void *context, uint32_t ms) {
     sleep_ms(ms);
 }
 static const tac5112_io codec = {0, i2c_put, i2c_get, io_sleep};
+/* Every codec start goes through here: the ADC power-up time is what captures wait on. */
+static tac5112_status codec_start(void) {
+    tac5112_status status = tac5112_start_report(&codec, &codec_clock);
+    adc_powered_ms = to_ms_since_boot(get_absolute_time());
+    return status;
+}
+/* Captures discard the input coupling capacitors' settling after an ADC power-up (audit C-04):
+   wait out what is left of TAC_ADC_SETTLE_MS before the capture starts. */
+static void adc_settle_wait(void) {
+    uint32_t remaining = tac5112_settle_remaining_ms(to_ms_since_boot(get_absolute_time()) - adc_powered_ms);
+    if (remaining) sleep_ms(remaining);
+}
+
+/* ---------------------------------------------------------------- analog rails */
+static uint32_t rail_sum(uint input) {
+    adc_select_input(input);
+    (void)adc_read();
+    uint32_t sum = 0;
+    for (uint i = 0; i < RAIL_SAMPLES; ++i) sum += adc_read();
+    return sum;
+}
+/* Poll MON12 and MON_N12 until both are stably inside their windows, or RAIL_TIMEOUT_MS has
+   passed (audit L5, L6, S16: the converters are enabled by U17 20-100 ms after power-up, so
+   the +-12 V LDOs may still be ramping when main() starts). */
+static bool rails_wait(void) {
+    absolute_time_t start = get_absolute_time();
+    unsigned streak = 0;
+    while (true) {
+        mon12_mv = rails_p12_mv(rail_sum(0), RAIL_SAMPLES);
+        mon_n12_mv = rails_n12_mv(rail_sum(1), RAIL_SAMPLES);
+        uint32_t elapsed_ms = (uint32_t)(absolute_time_diff_us(start, get_absolute_time()) / 1000);
+        rails_decision d = rails_poll(rails_in_window(mon12_mv, mon_n12_mv), elapsed_ms, &streak);
+        if (d != RAILS_WAIT) return d == RAILS_UP;
+        sleep_ms(RAIL_POLL_MS);
+    }
+}
 
 /* ---------------------------------------------------------------- TDM stream */
 /* The stream never stops: BCLK and FSYNC run from boot so the codec PLL stays locked.
@@ -227,7 +271,7 @@ static capture_result capture(syncavg_t *s, uint32_t skip, uint8_t power, uint32
 #define LOOP_FRAMES (4u * LOOP_PERIOD)
 static const char *selftest(void) {
     /* A codec that lost its configuration (brown-out, bus fault) is brought up again once. */
-    if (tac5112_check(&codec, TAC_POWER_ALL) != TAC_OK && tac5112_start(&codec) != TAC_OK)
+    if (tac5112_check(&codec, TAC_POWER_ALL) != TAC_OK && codec_start() != TAC_OK)
         return "codec_status";
     if (!wave_silence()) return "stream_sync";
     const char *failure = NULL;
@@ -287,14 +331,27 @@ static bool select_relays(int ohm, bool reference, bool force) {
 }
 static bool select_range(int ohm) { return select_relays(ohm, false, false); }
 
-/* ---------------------------------------------------------------- protocol 3 */
-static uint32_t rail_sum(uint input) {
-    adc_select_input(input);
-    (void)adc_read();
-    uint32_t sum = 0;
-    for (uint i = 0; i < RAIL_SAMPLES; ++i) sum += adc_read();
-    return sum;
+/* Codec start, loopback self-test, then the relay initialisation (TQ catalog p.16: set and reset
+   just after power-on, audit RC-04), once the rails are up. The first pulse is the first thing
+   that touches the analog path. Boot and the SELFTEST recovery both run it. Returns NULL or the
+   failure. The range is not reported (INFO 0) until a RANGE command has completed. */
+static const char *analog_bring_up(void) {
+    const char *failure = codec_start() == TAC_OK ? selftest() : "codec_status";
+    /* Relays keep their state through power-off (K4 too, if power failed during a
+       REFCAPTURE): always RESET all four and start on the 100 kOhm range, K4 open. */
+    if (!select_relays(100000, false, true) && !failure) failure = "stream_sync";
+    range_commanded = false;
+    return failure;
 }
+/* Commands that drive the DAC or the relays, or capture: refused until the rails were up. */
+static bool needs_analog(const char *line) {
+    static const char *const names[] = {"RANGE", "TONE", "WAVE", "RAW", "CAPTURE", "REFCAPTURE"};
+    for (unsigned i = 0; i < sizeof names / sizeof names[0]; ++i)
+        if (!strncmp(line, names[i], strlen(names[i]))) return true;
+    return false;
+}
+
+/* ---------------------------------------------------------------- protocol 3 */
 static bool read_exact(uint8_t *buffer, size_t length) {
     for (size_t i = 0; i < length; ++i) {
         int c = getchar_timeout_us(200000);
@@ -329,7 +386,7 @@ static void process_command(const char *line) {
     char trailing;
     if (!strcmp(line, "INFO")) {
         printf("INFO 3 %s %s %u %u %u %d %" PRIu32 " %" PRIu32 " %" PRIu32 " %s\n", HARDWARE_REVISION,
-               unit_id, SYSTEM_CLOCK_HZ, FS_HZ, WAVE_MAX_PERIOD, range_ohm, wave_period, wave_cycles,
+               unit_id, SYSTEM_CLOCK_HZ, FS_HZ, WAVE_MAX_PERIOD, range_commanded ? range_ohm : 0, wave_period, wave_cycles,
                wave_mv, codec_ok ? "PASS" : "FAIL");
         return;
     }
@@ -370,8 +427,21 @@ static void process_command(const char *line) {
         reset_usb_boot(0, 0);
         return;
     }
+    if (!strcmp(line, "STATUS")) {
+        printf("STATUS rails %s %" PRId32 " %" PRId32 " codec %s clock %s %u %u\n", analog_ok ? "PASS" : "FAIL",
+               mon12_mv, mon_n12_mv, codec_ok ? "PASS" : "FAIL", tac5112_clock_name(codec_clock.mode),
+               codec_clock.err0, codec_clock.err1);
+        return;
+    }
     if (!strcmp(line, "SELFTEST")) {
-        const char *failure = selftest();
+        const char *failure;
+        if (analog_ok) failure = selftest();
+        else if (!(analog_ok = rails_wait())) failure = "rail_fault";
+        else {
+            /* The rails came up after the boot gate gave up: finish the bring-up it skipped. */
+            wave_silence();
+            failure = analog_bring_up();
+        }
         codec_ok = failure == NULL;
         if (failure) {
             printf("SELFTEST FAIL %s\n", failure);
@@ -379,9 +449,16 @@ static void process_command(const char *line) {
         } else reply("SELFTEST PASS");
         return;
     }
+    if (!analog_ok && needs_analog(line)) {
+        reply("ERR rail_fault");
+        return;
+    }
     if (sscanf(line, "RANGE %" SCNu32 " %c", &a, &trailing) == 1) {
         if (a != 100u && a != 5000u && a != 100000u) reply("ERR range");
-        else reply(select_range((int)a) ? "OK" : "ERR stream_sync");
+        else if (select_range((int)a)) {
+            range_commanded = true;
+            reply("OK");
+        } else reply("ERR stream_sync");
         return;
     }
     if (sscanf(line, "TONE %" SCNu32 " %" SCNu32 " %" SCNu32 " %c", &a, &b, &c, &trailing) == 3) {
@@ -449,6 +526,7 @@ static void process_command(const char *line) {
         reply("ERR limits_or_selftest");
         return;
     }
+    adc_settle_wait(); /* >= TAC_ADC_SETTLE_MS after the last ADC power-up (audit C-04) */
     /* The reference relay is closed only here, together with one range relay, and opened
        again (RESET, then the range that was selected before) before the reply. */
     int restore = range_ohm ? range_ohm : (int)c;
@@ -508,10 +586,11 @@ int main(void) {
     ch_rxd = dma_claim_unused_channel(true);
     stream_start(); /* silent waveform, clocks running before the codec is configured */
     sleep_ms(5);    /* codec POR: 2 ms after the supplies */
-    codec_ok = tac5112_start(&codec) == TAC_OK && selftest() == NULL;
-    /* Relays keep their state through power-off (K4 too, if power failed during a
-       REFCAPTURE): always RESET all four and start on the 100 kOhm range, K4 open. */
-    if (!select_relays(100000, false, true)) codec_ok = false;
+    /* The analog rails come up 20-100 ms after power-up (U17): the DAC stays off and the relays
+       at rest until both monitors read inside their windows; on a timeout the codec is not
+       started, INFO says FAIL, STATUS shows the readings and FAULT lights. SELFTEST retries. */
+    analog_ok = rails_wait();
+    codec_ok = analog_ok && analog_bring_up() == NULL;
     gpio_put(PIN_LED_FAULT, !codec_ok);
     while (!gpio_get(PIN_USB_VBUS)) tight_loop_contents();
     stdio_init_all();

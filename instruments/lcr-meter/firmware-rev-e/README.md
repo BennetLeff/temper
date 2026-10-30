@@ -3,8 +3,8 @@
 This firmware is for the Rev E board: a TAC5112 codec in place of the ADS9224R, both THS4551s and the AD9833 ([front-end design](../docs/rev-e-front-end.md)), three latching range relays ([range switching](../docs/rev-e-range-switching.md)) and a fourth latching relay, K4, that switches an internal 1 kΩ 0.1 % reference across HCUR–LCUR. It does **not** run on Rev D; Rev D keeps `../firmware/`. No Rev E board exists yet. Everything below is checked by host tests, an instruction-level PIO model and a static cycle bound, not on hardware.
 
 - **Target:** bare RP2040, 12 MHz crystal. Two builds: the default 187.5 kHz image at a 120 MHz system clock, and a 375 kHz variant at 108 MHz ([Sample rate](#sample-rate)).
-- **Toolchain:** Pico SDK 2.2.0 and Arm GNU 14.2.rel1, the same pins as Rev D. The images in `bin/` from 2026-10-29 (HB/FLT LEDs) were built with Arm GNU 15.2.rel1 against the pinned SDK, because 14.2.rel1 was not installed on the build Mac; `verification/` records that build (host tests, PIO check and the hot-loop bound all PASS).
-- **Interface:** USB CDC, protocol 3.
+- **Toolchain:** Pico SDK 2.2.0 and Arm GNU 14.2.rel1, the same pins as Rev D. The images in `bin/` from 2026-10-30 (Rev F datasheet-audit items) were built with Arm GNU 14.2.rel1 against the pinned SDK; `verification/` records that build (host tests, PIO check and the hot-loop bound all PASS). Earlier images were built with 15.2.rel1.
+- **Interface:** USB CDC, protocol 3. The board is bus powered: the configuration descriptor says bus powered, 500 mA ([USB](#usb-bus-powered-500-ma)).
 - **Hardware identity:** `E-codec`.
 
 ## Build and flash
@@ -43,13 +43,31 @@ Flash `bin/temper-lcr-rev-e.uf2` (or `bin/temper-lcr-rev-e-375k.uf2`) the same w
 | 11 | RNG_SET_MED: SET coil AO3400A for 5 kΩ | K2 |
 | 13 | USB VBUS / 2 sense | connector divider |
 | 14 | RNG_SET_REF (board net RLY_SET_REF): SET coil AO3400A Q6, 100 Ω gate resistor R108, 100 kΩ pull-down R109, for the 1 kΩ reference | K4 |
-| 22 | FAULT debug LED (Rev F D20 "FLT"): on while the codec self-test has failed or the last command replied ERR; a successful command clears it; dark during captures | Rev F only; unconnected on Rev E |
+| 22 | FAULT debug LED (Rev F D20 "FLT"): on while the codec self-test or the analog-rail start gate has failed, or the last command replied ERR; a successful command clears it; dark during captures | Rev F only; unconnected on Rev E |
 | 23 | HEARTBEAT debug LED (Rev F D19 "HB"): toggles every 500 ms while the main loop waits for commands; dark during captures | Rev F only; unconnected on Rev E |
 | 25 | STATUS / capture LED: lit for the duration of each capture (Rev F: front-panel orange D4) | |
 | 26, 27 | ±12 V monitors (ADC0, ADC1), unchanged from Rev D | |
 | 28, 29 | optional UART0 header | |
 
 DIN and DOUT trade places against the first wiring draft so the board reuses the Rev D ADC/DDS breakouts. The relay GPIOs are the ADS9224R/AD9833 pins next to the codec bus, so the drive lines leave the RP2040 on the same side. All five relay gates (GPIO 6, 7, 10, 11, 14) need 100 kΩ pull-downs: the RP2040 pads reset with pull-down, so the relays stay put through reset. The firmware drives all five low at boot before anything else.
+
+## USB: bus powered, 500 mA
+
+Rev F takes all its power from VBUS (audit PE-3). The firmware no longer defines `PICO_STDIO_USB_DEVICE_SELF_POWERED`, and the configuration descriptor declares bus power with bMaxPower 500 mA (the board draws about 0.46 A).
+
+Pico SDK 2.2.0 has no setting for the declared current. `pico_stdio_usb`'s default descriptors fix `USBD_MAX_POWER_MA` at 250 for a bus-powered device, and at 1 with the self-powered macro, with no `#ifndef`, so defining `USBD_MAX_POWER_MA=500` would only redefine it. `CMakeLists.txt` therefore sets `PICO_STDIO_USB_USE_DEFAULT_DESCRIPTORS=0`, and `src/usb_descriptors.c` supplies the three TinyUSB descriptor callbacks with the SDK's own content (VID/PID 2E8A:000A, strings, unique-ID serial, one CDC function) and `USBD_MAX_POWER_MA` 500. The built configuration descriptor reads `09 02 4b 00 02 01 00 80 fa`: bmAttributes 0x80 (bus powered, no remote wake-up), bMaxPower 0xFA = 500 mA.
+
+## Analog rails and the start gate
+
+Rev F enables the TPS65131 ±14 V converters from the LM3880 sequencer U17, not from the firmware: the boost enables 20–60 ms after USB attach, the inverter 8.5–11.5 ms later, and the ±12 V LDOs then soft-start over 9–14 ms. The 3V3 rail and this firmware come up before that, so `main()` first waits for the rails (`src/rails.c`, audit L5, L6, S16):
+
+- **Windows.** MON12 (ADC0) and MON_N12 (ADC1) are read as the sum of 256 conversions every 5 ms and converted as the host does (`../host/src/lib.rs` `rails_from_line`). Both must lie in the host's gross-fault windows: +12 V in 10.2–13.4 V, −12 V in −14.1 to −10.5 V (`RAIL_P12_*`, `RAIL_N12_*` in `rails.h`). They are the `host_window_pos_abs_v` and `host_window_neg_abs_v` of `../validation/power-spurs/rail_monitor_window.json`; `../host/tests/rev_e.rs` fails if `rails.h` and the host constants differ.
+- **Gate.** Four consecutive in-window polls (20 ms) release it, so a soft-start passing through the window does not. The timeout is 500 ms, about five times the 90–100 ms of the sequence.
+- **Until then** the codec is not started (the DAC stays powered down), the waveform is silent and no relay is pulsed. The first relay pulse is the boot RESET plus 100 kΩ SET, after the codec self-test.
+- **On timeout** `codec_ok` is false: `INFO` ends in `FAIL`, the FAULT LED (GPIO 22) lights, `SELFTEST` replies `SELFTEST FAIL rail_fault`, and `RANGE`, `TONE`, `WAVE`, `RAW`, `CAPTURE` and `REFCAPTURE` reply `ERR rail_fault`. `STATUS` shows the last readings. A later `SELFTEST` polls the rails again for up to 500 ms and, if they are up, runs the whole bring-up that boot skipped. `OFF`, `RAILS`, `CODEC`, `REG`, `INFO` and `BOOT` still work.
+- **Not monitored** after the gate: `RAILS` reads the monitors on demand and the host checks its windows.
+
+`STATUS` is a new command, additive to protocol 3 (the host does not send it): `STATUS rails PASS|FAIL MON12_MV MON_N12_MV codec PASS|FAIL clock MODE ERR0 ERR1`. `INFO` keeps its twelve fields, because the host parses it strictly.
 
 ## Relays (`src/relay.c`, `src/main.c`)
 
@@ -61,6 +79,10 @@ Every switch runs the same sequence, one coil driver on at a time:
 3. SET the range relay for 20 ms.
 4. Only for `REFCAPTURE`: SET K4 for 20 ms.
 5. Wait 10 ms, then restore the waveform.
+
+**Initialisation and reported state (audit RC-04).** TQ catalog p.16 advises initialising a latching relay (set and reset) just after power-on, because transport and handling can change its position. Boot does that once the rails are up. `INFO` nevertheless reports range 0 (unknown) until the first `RANGE` command has completed, so a host never trusts a range the firmware chose itself. The 20 ms pulse stays (RC-02: the vendor asks for at least 10 ms).
+
+**Wetting (RC-07), TODO.** Contact current on the 100 kΩ range is below the 10 µA reference minimum of the contact rating. If the bench shows more than 100 ppm repeatability after cycling K3 twenty times, add a K3 wetting cycle before calibration: RESET, SET K3, repeated, with the source silent. It is not implemented.
 
 K4 is only ever set right after a RESET and a range SET, so it is never closed without exactly one range relay. Only `REFCAPTURE` sets it, and the same command RESETs it again before replying. Boot RESETs all four and selects 100 kΩ even if the source cannot be silenced, so a K4 latched closed by a power loss mid-`REFCAPTURE` opens at the next power-up. `test/test_host.c` checks the sequence against a model of the five drivers: RESET first, one range, K4 only when asked, 20 ms pulses, never two drivers on, and every relay state from any latched start.
 
@@ -76,8 +98,9 @@ K4 is only ever set right after a RESET and a range SET, so it is never closed w
 The RP2040 is the bus clock controller. In the default build BCLK is 12 MHz (120 MHz / 10) and FSYNC is 187.5 kHz (64 BCLK per frame); the 375 kHz build uses 18 MHz and 48 BCLK ([Sample rate](#sample-rate)). Both run from boot and never stop. The codec runs in target mode with its PLL on BCLK; auto clock detection should report the 167.6–197.8 kHz bin (375 kHz: 335.2–395.5 kHz). The bring-up sequence, after the 2 ms POR wait:
 
 1. SW_RESET, wait 10 ms (the datasheet's wait before an exit-sleep write; a reset ends in sleep).
-2. Wake (DEV_MISC_CFG = 0x09: VREF on, AREG for AVDD 3.3 V), wait 10 ms.
-3. Register writes:
+2. Wake (DEV_MISC_CFG = 0x19: VREF on, AREG for AVDD 3.3 V, VREF_QCHG = 1 for the Rev F 2.2 µF C62), wait 20 ms.
+3. MISC_CFG1: INCAP_QCHG = 1, read-modify-write.
+4. Register writes:
 
 | Register | Value | Meaning |
 |---|---|---|
@@ -95,6 +118,19 @@ The firmware then waits 50 ms and requires all three of these:
 - DEV_STS0 shows both ADC channels and DAC channel 1 up;
 - DEV_STS1 mode is 7 (active);
 - CLK_DET_STS0 shows the build's bin (10 for 187.5 kHz, 5 for 375 kHz).
+
+**Quick charge (audit C-02, C-04).** All three register positions are from SLASF24A (PDF page numbers).
+- **VREF.** DEV_MISC_CFG P0_R2 [5:4] VREF_QCHG (Table 8-5, p99): 0 = 3.5 ms (default), 1 = 10 ms, 2 = 50 ms, 3 = 100 ms. 7.3.5 (p44) says the 3.5 ms default is for a 1 µF capacitor and to reconfigure it for a larger one. C62 is 2.2 µF on Rev F, so 1 (10 ms), written in the same write that exits sleep; the 20 ms wait that follows covers it.
+- **Inputs.** MISC_CFG1 P0_R5 [7:6] INCAP_QCHG (Table 8-8, p100): 0 = 2.5 ms (default), 1 = 12.5 ms. The default is set for coupling capacitors up to 1 µF (7.3.3, p42); C74–C77 are 1 µF X7R +10 %. Set to 1. The register's other bits (SHDN_CFG, DREG_KA_TIME, a reserved pair) keep their reset value, so it is read, modified and written.
+- **Settling.** After an ADC power-up the coupling capacitors settle through the 40 kΩ input with τ = 40 ms: 85 µV takes 0.27 s. The firmware stamps the time of every codec start and, before each `RAW`, `CAPTURE` or `REFCAPTURE`, waits until 300 ms have passed since it (`TAC_ADC_SETTLE_MS`). The loopback self-test reads digital data and does not wait. The host's own `SKIP` is on top of that and is unchanged. In practice the wait is over by the time the first command arrives: it only costs time after a `SELFTEST` that restarted the codec.
+
+**Clock fallback (audit C-05).** After the status check the firmware reads CLK_ERR_STS0/1 (Tables 8-57 and 8-58, p126–127). A clock error is a wrong detected rate, or DSP_CLK_ERR [7], SRC_RATIO_ERR [4] or DEM_RATE_ERR [3] in CLK_ERR_STS0, or PASI_BCLK_FS_RATIO_ERR [7] in CLK_ERR_STS1. The "clock stopped" and PASI_FS_ERR flags are not counted: BCLK and FSYNC run from boot, before the codec is configured, so they may be set by history. On a clock error it applies the documented fallbacks in turn (CLK_CFG0 P0_R50, Table 8-47, p121–122), each with the channels powered down around the write, since the setting belongs before power-up:
+1. PASI_FS_RATE_NO_LIM [1] = 1: auto mode with 5 % instead of 1 % tolerance (CLK_CFG0 = 0x02).
+2. Semi-automatic: PASI_SAMP_RATE [7:2] = the build's bin, 10 for 187.5 kHz and 5 for 375 kHz (CLK_CFG0 = 0x28 or 0x14).
+
+If neither clears the error, CLK_CFG0 returns to 0 (auto) and `STATUS` reports `clock error`. A start still fails only for a wrong detected rate, as before; flags that persist with the right rate are reported, not fatal. `STATUS` shows the setting in use (`auto`, `no_lim`, `fixed` or `error`) and the masked flag bytes. `SELFTEST PASS` is unchanged because the host compares it exactly. The register map is unambiguous for this, so it is implemented; whether the codec's auto-detect actually flags 187.5 kHz is a bring-up question (check 1 below).
+
+**I2S edge rate (audit R5, C-12): not changed.** The RP2040 pads drive 4 mA with slow slew by default. The firmware keeps them, because the margins are large (33.7 ns setup against 8 ns) and only the edge rate is unquantified. If bring-up check 2 shows BCLK, FSYNC or DIN edges slower than 10 ns or ringing, set the pad drive to 8 or 12 mA and `SLEWFAST` on GPIO 2, 4 and 5.
 
 **Filters.** Earlier versions of this firmware wrote DSP_CFG0/1 = 0x02, which selects the linear-phase filters. In the 192 kHz class, which includes 187.5 kHz, those filters do not reach 85 kHz:
 - The ADC filter is specified flat only to 0.223·fs = 41.8 kHz, and attenuates by at least 80 dB from 0.391·fs = 73.3 kHz (SLASF24A Table 7-31).
@@ -142,9 +178,10 @@ ASCII commands end in LF.
 
 | Command | Reply |
 |---|---|
-| `INFO` | `INFO 3 E-codec UNIT_ID 120000000 187500 4096 RANGE PERIOD CYCLES MV PASS\|FAIL` (CYCLES and MV are 0 for silence or an uploaded waveform). The 375 kHz build reports `108000000 375000`. |
-| `SELFTEST` | `SELFTEST PASS`, or `SELFTEST FAIL reason` |
-| `RANGE 100\|5000\|100000` | `OK`. Silences the source, sends a 20 ms RESET pulse (all four relays, K4 included) then a 20 ms SET pulse, waits 10 ms, restores the waveform ([Relays](#relays-srcrelayc-srcmainc)). Boot selects 100 kΩ. |
+| `INFO` | `INFO 3 E-codec UNIT_ID 120000000 187500 4096 RANGE PERIOD CYCLES MV PASS\|FAIL` (CYCLES and MV are 0 for silence or an uploaded waveform; RANGE is 0 until the first `RANGE` command has completed; FAIL includes a rail fault). The 375 kHz build reports `108000000 375000`. |
+| `SELFTEST` | `SELFTEST PASS`, or `SELFTEST FAIL reason`. `rail_fault` means the ±12 V rails were not in their windows within 500 ms ([Analog rails](#analog-rails-and-the-start-gate)). |
+| `STATUS` | `STATUS rails PASS\|FAIL MON12_MV MON_N12_MV codec PASS\|FAIL clock auto\|no_lim\|fixed\|error ERR0 ERR1`: the start gate, the last rail readings in mV, and the clock setting in use with the masked CLK_ERR_STS bytes. |
+| `RANGE 100\|5000\|100000` | `OK`. Silences the source, sends a 20 ms RESET pulse (all four relays, K4 included) then a 20 ms SET pulse, waits 10 ms, restores the waveform ([Relays](#relays-srcrelayc-srcmainc)). Boot initialises the relays on 100 kΩ, but `INFO` reports 0 until this command has completed. Refused with `ERR rail_fault` if the rails never came up. |
 | `OFF` | `OK`. Silence (zeros, period 16). The stream keeps running. |
 | `RAILS` | as Rev D |
 | `CODEC` | `CODEC DEV_STS0 DEV_STS1 CLK_DET_STS0 CLK_ERR_STS0 CLK_ERR_STS1` (decimal) |
@@ -224,7 +261,7 @@ The self-test is a digital loopback:
 - The firmware plays a pseudo-random period-61 pattern within the source limit.
 - Two raw captures must each return slot 0 = pattern[(*j* − 5) mod 61] >> 8 and slot 1 = 0 for all 244 frames.
 
-This exercises the PIO bit timing on real pins, the slot order, the DMA chain and the snapshot alignment. It runs at boot after codec bring-up and on `SELFTEST`.
+This exercises the PIO bit timing on real pins, the slot order, the DMA chain and the snapshot alignment. It runs at boot after codec bring-up and on `SELFTEST`, and only once the analog rails are up.
 
 - **Recovery.** If the codec fails its status check first (lost configuration, brown-out, bus fault), `SELFTEST` runs the full bring-up again once.
 - **Cleanup.** Every exit path restores silence, normal DOUT and DAC power, so one transient fault cannot make later self-tests fail.
@@ -243,8 +280,9 @@ This exercises the PIO bit timing on real pins, the slot order, the DMA chain an
 
 The PIO model was also checked against hand-mutated programs. For `tdm`: a changed delay, a removed FSYNC, a short slot, forced-zero data, and a misplaced push or pull all fail it. For `tdm375`: wrong loop counts in either slot, a short `in null`, a shortened high phase, a lengthened bit, a removed pull, data instead of zeros in slot 1, and two side-set errors all fail it.
 
-**No physical board has been tested.** On the first board, check in this order:
-1. `CODEC`: the codec reports the 187.5 kHz bin with its PLL locked.
+**No physical board has been tested.** The images in `bin/` were rebuilt on 2026-10-30 for the Rev F audit items; the host tests (including the codec model, clock fallback and rail gate) and the descriptor bytes above are all that has run. On the first board, check in this order:
+0. Power-up and USB: `STATUS` shows `rails PASS`; the descriptor reports bus powered, 500 mA (`system_profiler SPUSBDataType` shows "Current Required (mA): 500"); with U17 in place the boost and inverter start 20–60 ms and 8.5–11.5 ms after attach (scope SW_P, SW_N).
+1. `CODEC` and `STATUS`: the codec reports the 187.5 kHz bin with its PLL locked, `clock auto 0 0`. If the auto detect flags an error, `STATUS` shows which fallback cleared it.
 2. BCLK, FSYNC, DIN and DOUT on a logic analyser: TDM timing, and DOUT settled well inside the 41.7 ns from the rising edge to the sample (27.8 ns in the 375 kHz build), and BCLK rise and fall within 10 ns (6.10).
 3. `SELFTEST`, including the loopback behaviour above.
 4. Silence and `RAW` noise against the noise check.

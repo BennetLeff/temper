@@ -2686,6 +2686,7 @@ fn firmware_host_contract_rev_e() {
     let pins = include_str!("../../firmware-rev-e/src/pins.h");
     let syncavg = include_str!("../../firmware-rev-e/src/syncavg.h");
     let main = include_str!("../../firmware-rev-e/src/main.c");
+    let rails = include_str!("../../firmware-rev-e/src/rails.h");
     let constant = |source: &str, name: &str| -> i64 {
         source
             .lines()
@@ -2721,6 +2722,17 @@ fn firmware_host_contract_rev_e() {
             / constant(pins, "FRAME_BCLKS"),
         i64::from(SAMPLE_RATE_HZ)
     );
+    // The firmware's start gate (rails.h) uses the host's rail windows, in millivolts.
+    let mv = |v: f64| (v * 1000.0).round() as i64;
+    assert_eq!(constant(rails, "RAIL_P12_MIN_MV"), mv(temper_lcr::RAIL_P12_WINDOW_V.0));
+    assert_eq!(constant(rails, "RAIL_P12_MAX_MV"), mv(temper_lcr::RAIL_P12_WINDOW_V.1));
+    assert_eq!(constant(rails, "RAIL_N12_MIN_MV"), mv(temper_lcr::RAIL_N12_WINDOW_V.0));
+    assert_eq!(constant(rails, "RAIL_N12_MAX_MV"), mv(temper_lcr::RAIL_N12_WINDOW_V.1));
+    assert_eq!(
+        constant(rails, "RAIL_ADC_REF_MV"),
+        mv(temper_lcr::RAIL_ADC_REFERENCE_V)
+    );
+    assert_eq!(constant(rails, "RAIL_ADC_CODES"), 4096);
     // 24-bit samples in 32-bit words: the firmware shifts by 8.
     assert_eq!(constant(syncavg, "SYNCAVG_SHIFT"), 8);
     assert_eq!(ADC_FULL_SCALE_CODE, 1 << 23);
