@@ -1,0 +1,144 @@
+{
+ "board": "cad/temper-lcr.kicad_pcb",
+ "board_sha256": "e765313aa4b536c1220033fd4cac6225f0b7eaeeaf27cd6b5231f7e1388ca3cd",
+ "outline_mm": [
+  50.0,
+  45.0,
+  150.0,
+  145.0
+ ],
+ "edges": {
+  "front_y_min": {
+   "nearest_copper": {
+    "mm": 0.4,
+    "item": "smt_land",
+    "who": "D4.1",
+    "layer": "F.Cu"
+   },
+   "nearest_track_or_via": {
+    "mm": 0.85,
+    "item": "track",
+    "who": "GND",
+    "layer": "F.Cu"
+   },
+   "nearest_land": {
+    "mm": 0.4,
+    "item": "smt_land",
+    "who": "D4.1",
+    "layer": "F.Cu"
+   },
+   "smt_parts_within_2mm": [
+    {
+     "ref": "D4",
+     "mm": 0.4
+    },
+    {
+     "ref": "R12",
+     "mm": 1.375
+    }
+   ]
+  },
+  "back_y_max": {
+   "nearest_copper": {
+    "mm": 0.4,
+    "item": "track",
+    "who": "5V",
+    "layer": "B.Cu"
+   },
+   "nearest_track_or_via": {
+    "mm": 0.4,
+    "item": "track",
+    "who": "5V",
+    "layer": "B.Cu"
+   },
+   "nearest_land": {
+    "mm": 0.45,
+    "item": "smt_land",
+    "who": "C82.1",
+    "layer": "F.Cu"
+   },
+   "smt_parts_within_2mm": [
+    {
+     "ref": "C82",
+     "mm": 0.45
+    },
+    {
+     "ref": "C80",
+     "mm": 0.65
+    },
+    {
+     "ref": "R80",
+     "mm": 0.775
+    },
+    {
+     "ref": "SW1",
+     "mm": 0.9
+    },
+    {
+     "ref": "R8",
+     "mm": 1.025
+    },
+    {
+     "ref": "L1",
+     "mm": 1.25
+    }
+   ]
+  },
+  "left_x_min": {
+   "nearest_copper": {
+    "mm": 0.5,
+    "item": "zone_fill",
+    "who": "GND",
+    "layer": "In1.Cu"
+   },
+   "nearest_track_or_via": {
+    "mm": 0.9,
+    "item": "track",
+    "who": "STATUS",
+    "layer": "In2.Cu"
+   },
+   "nearest_land": {
+    "mm": 1.525,
+    "item": "smt_land",
+    "who": "R110.1",
+    "layer": "F.Cu"
+   },
+   "smt_parts_within_2mm": [
+    {
+     "ref": "R110",
+     "mm": 1.525
+    }
+   ]
+  },
+  "right_x_max": {
+   "nearest_copper": {
+    "mm": 0.5,
+    "item": "zone_fill",
+    "who": "GND",
+    "layer": "In1.Cu"
+   },
+   "nearest_track_or_via": {
+    "mm": 1.4,
+    "item": "track",
+    "who": "GND",
+    "layer": "F.Cu"
+   },
+   "nearest_land": {
+    "mm": 0.95,
+    "item": "smt_land",
+    "who": "L2.2",
+    "layer": "F.Cu"
+   },
+   "smt_parts_within_2mm": [
+    {
+     "ref": "L2",
+     "mm": 0.95
+    },
+    {
+     "ref": "C99",
+     "mm": 1.95
+    }
+   ]
+  }
+ }
+}

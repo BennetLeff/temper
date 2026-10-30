@@ -4,9 +4,9 @@
 
 Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm (no autorouter), SHA256:
 
-`846d9226ae057ac6c1e54d7b8b5223d3e13cbaf468bd38803c4517db64486f47`
+`e765313aa4b536c1220033fd4cac6225f0b7eaeeaf27cd6b5231f7e1388ca3cd`
 
-(2026-10-29, after the indicator-LED change: D4 front-panel side-looking LED, D15–D20 debug LEDs; [rev-f-plan.md](../docs/rev-f-plan.md) "Indicator LEDs".) KiCad 10.0.4. The full before/after comparison with Rev E is [rev-f-before-after.md](../docs/rev-f-before-after.md); the plan, gates and decisions are [rev-f-plan.md](../docs/rev-f-plan.md).
+(2026-10-29, after the indicator-LED change (D4 front-panel side-looking LED, D15–D20 debug LEDs; [rev-f-plan.md](../docs/rev-f-plan.md) "Indicator LEDs") and the fabrication cleanups: pre-DRC angle rule, three fiducials, silk at 1.0 / 0.15 mm, nine test pads, edge-rail decision.) KiCad 10.0.4. The full before/after comparison with Rev E is [rev-f-before-after.md](../docs/rev-f-before-after.md); the plan, gates and decisions are [rev-f-plan.md](../docs/rev-f-plan.md).
 
 | Check | Result | Evidence |
 |---|---|---|
@@ -15,11 +15,13 @@ Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm
 | DFM via audit | 33 exposed-pad thermal vias only; no other via drill or ring on an SMT land; every via tented in CAD | `via-in-pad-process.json` (`cad/audit_dfm.py`) |
 | Layout audit | decoupling, exposed-pad vias, regulator support parts, feedback lengths | `layout-audit-rev-f.json` (`cad/tools/audit_layout.py`) |
 | Extracted parasitics (gate G1, high corner) | source 11.39 pF ≤ 13.7, tia 13.63 pF ≤ 14.7 | `layout-parasitics/extracted_revf.json` (`run_reve.sh revf`) |
-| Loop stability, as built (not rerun for the LEDs: no analog-net copper moved) | 360 cases with dip refinement; worst drive 47.84°, TIA 57.32°, HIGH 57.56°, LOW 56.71°; lossy RG-58 leads within 0.4° | `stability-full-chain/` (`revfcng100`, `revflossycng100`) |
+| Loop stability, as built (not rerun for the LEDs, fiducials or test pads: no analog-net copper moved; per-net diff against `7222e98cb` changes only 3V3, 5V, ±12V, GND, RAW_P/N, VRLY, USB_VBUS, USB_DP, RUN, UART_RX/TX) | 360 cases with dip refinement; worst drive 47.84°, TIA 57.32°, HIGH 57.56°, LOW 56.71°; lossy RG-58 leads within 0.4° | `stability-full-chain/` (`revfcng100`, `revflossycng100`) |
 | Regulators | 51 PASS, 2 FLAG (USB unconfigured draw; R95/R96 headroom with TCR), 0 FAIL; input estimate 0.4617 A with the LEDs at about 0.5 mA (38 mA under 0.5 A); 5 V trunk 39.7 mV | `power-spurs/regulator_check.json` |
 | Rail monitor windows | unchanged with the ±12 V LED loads: +12 [10.2, 13.4] V, −12 [10.5, 14.1] V | `power-spurs/rail_monitor_window.json` |
 | Parts and placements | 213 fitted of 216, 209 SMT placements, 66 SMT lines (24 extended: C160472 added); LED CPL offsets 0 (C2286 RMS 0.04 mm, C160472 RMS 0.10 mm) | `cad-bom-parity.json`, `../sources/placement-rev-c.json` |
 | Switcher pickup (relative to Rev E, not a bound) | TIA C104 loop +6.0 dB, RF100K loop +4.3 dB; Kelvin inputs −23 to −42 dB | `power-spurs/switcher_pickup-rev-f.json` |
+| Fiducials and test pads | FID1–FID3 (Fiducial_1mm_Mask2mm), no copper within 2.0 mm; TP1–TP9 (TestPoint_Pad_D1.5mm) on 5V, 3V3, ±12V, RAW_P/N, VRLY and two GND; all board-only, absent from BOM and CPL (209 placements unchanged); order estimates unchanged | `cad/design.json` `board`, `../manufacturing/cpl-jlcpcb.csv`, `../manufacturing/order-estimate-{2,5}.json` |
+| Edge copper (V-cut rails left and right) | nearest copper to the left/right edges 0.50 mm (In1 plane), nearest track 0.90 mm, nearest land 0.95 mm (L2) | `edge-clearance-rev-f.json` (`cad/tools/edge_clearance.py`) |
 | Enclosure wall rise at 2.3 W (estimate) | 8.0 K (Rev E box 6.4 K) | `docs/rev-f-before-after.md` |
 
 **Not rerun for Rev F** (layout-independent or assumed strays): `source_stage.py`, `rev_e_spurs.py`, the accuracy map, the visual-review receipt. **Not established:** everything listed under Rev E below. Ordering steps open: JLC re-quote with the Gerbers, via covering "Plugged" in vendor DFM, placement-preview approval. No manufacturer upload or purchase has occurred.

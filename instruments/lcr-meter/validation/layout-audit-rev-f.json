@@ -977,7 +977,7 @@
    100.05,
    100.05
   ],
-  "courtyard_fraction": 0.321,
+  "courtyard_fraction": 0.327,
   "sheets": {
    "range": {
     "courtyard_mm2": 892,
@@ -986,11 +986,11 @@
      49
     ]
    },
-   "codec": {
-    "courtyard_mm2": 228,
+   "source": {
+    "courtyard_mm2": 68,
     "centroid_span_mm": [
-     61,
-     37
+     13,
+     17
     ]
    },
    "power": {
@@ -1000,11 +1000,11 @@
      56
     ]
    },
-   "source": {
-    "courtyard_mm2": 68,
+   "codec": {
+    "courtyard_mm2": 228,
     "centroid_span_mm": [
-     13,
-     17
+     61,
+     37
     ]
    },
    "digital": {
@@ -1022,10 +1022,10 @@
     ]
    },
    "mechanical": {
-    "courtyard_mm2": 149,
+    "courtyard_mm2": 207,
     "centroid_span_mm": [
-     92,
-     87
+     94,
+     93
     ]
    }
   }
