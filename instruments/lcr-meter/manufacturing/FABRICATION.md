@@ -11,7 +11,17 @@ Revision F is the Rev E circuit (TI TIDA-060029 based, TAC5112 codec front end, 
 - Keep the deliberate plane voids around the op-amp signal pins and feedback networks. Ground remains a plane elsewhere. Do not merge or redraw these voids during CAM preparation.
 - Use the separate plated and nonplated Excellon drill files. USB shell slots must remain routed slots, not substituted round holes. Review the slot maps against the supplied connector drawings.
 - Drill/place origin is lower-left outline corner, board coordinate (50,145), exported (0,0). Positive exported placement Y points upward. Gerber, drill and CPL use the same origin.
-- The Gerber zip is the fabrication input. Preview PNG/SVG/PDF files are for inspection only. Request removable vendor process rails/tooling/fiducials if required, returning depanelized 100 × 100 mm boards. The BNC barrels overhang the top edge: no rail on that edge after depanelization. This does not add another functional circuit board.
+- The Gerber zip is the fabrication input. Preview PNG/SVG/PDF files are for inspection only. Three global fiducials (FID1–FID3, 1 mm copper in a 2 mm mask opening, no copper within 2 mm) sit near three corners, so no rail fiducials are needed.
+- **Edge rails: order option "Edge rails added by JLCPCB", V-cut rails on the LEFT and RIGHT edges only.** Every edge has SMT copper within 2 mm (table), so JLC's SMT line needs rails. No rail on the front (BNC) edge: the BNC barrels reach 18.5 mm past it, D4's lens is flush with it, and the BNCs are hand-fitted after reflow. No rail on the back edge either. Paste in the order remark: *"V-cut edge rails on the left and right edges only (the edges perpendicular to the BNC edge); no rail on the BNC edge or the opposite edge; ship depanelized or with rails, either is fine"*. The rails add no functional circuit board. If the boards come with rails, snap them off downward (bottom side), away from J1: J1's shell overhangs the left edge by 0.2 mm but sits at least 0.9 mm above the board.
+
+| Edge | Nearest SMT land (copper to edge) | Other edge parts | Rail |
+|---|---|---|---|
+| Front, y 45 (BNC edge) | D4 0.40 mm | BNC J3, J7–J9 overhang (hand-fitted) | none |
+| Back, y 145 | C82 0.45 mm (C80 0.65, R80 0.78) | | none |
+| Left, x 50 | R110 1.52 mm | J1 USB-C shell overhangs 0.2 mm, ≥ 0.9 mm above the board | V-cut |
+| Right, x 150 | L2 0.95 mm | | V-cut |
+
+Copper to the V-cut edges: the nearest copper to the left and right edges is the In1 GND plane at 0.50 mm (its outline is inset 0.5 mm). The nearest track is 0.90 mm (STATUS, In2, left edge) and the nearest lands are R110 1.52 mm and L2 0.95 mm. Nothing is within 0.4 mm of either edge.
 
 ## Assembly
 
