@@ -565,3 +565,28 @@ for _i, (_fx, _fy) in enumerate(design['board']['fiducials'], 1):
     KO(f'FID{_i} clear', [(round(_fx + 2.02 * math.cos(math.radians(15 * _k)), 3),
                            round(_fy + 2.02 * math.sin(math.radians(15 * _k)), 3)) for _k in range(24)],
        layers=('F.Cu',))
+# Test points (KiCad TestPoint_Pad_D1.5mm, bare pad, board-only).  Each sits on existing supply copper
+# or on a stub of <= 2.7 mm from an existing via, or on a new via standing in for the stub (GND to the
+# In1 plane, 3V3 to its B.Cu trunk); no analog copper moves.  >= 15 mm from U6, U7, K1-K4 and the BNCs.
+# Two GND points, each 2.6 mm from a rail point (scope ground-spring reach): one in the power area
+# beside 5V, one in the digital area beside 3V3.        (name, net, x, y, pad d, label x, label y)
+TESTPOINTS = [
+    ('5V',   '5V',     100.5, 116.5, 1.5, 100.5, 118.4),   # east of the 5V riser via (98.7, 116.5)
+    ('GND',  'GND',    103.1, 116.5, 1.5, 103.1, 118.4),   # south of Q4's GND via (103.1, 113.8)
+    ('+12',  '12V',    106.0, 121.2, 1.5, 106.0, 119.4),   # on the 12V run to R115 (no new copper)
+    ('-12',  '-12V',   109.8, 117.6, 1.5, 109.8, 115.7),   # north of the -12V via (109.8, 119.4)
+    ('VRLY', 'VRLY',   123.6, 109.6, 1.5, 123.9, 107.7),   # east of D8's VRLY via (121.1, 109.6)
+    ('RAW+', 'RAW_P',  128.775, 115.0, 1.5, 125.5, 115.0), # on the RAW_P run C90 -> R95 (no new copper)
+    ('RAW-', 'RAW_N',  142.5, 115.0, 1.5, 139.2, 115.0),   # on the RAW_N run C91/C92 -> R96 (no new copper)
+    ('3V3',  '3V3',     92.0, 131.6, 1.5,  89.2, 131.6),   # new via on the 3V3 B.Cu trunk at y 129.4
+    ('GND',  'GND',     92.0, 134.2, 1.5,  89.2, 134.2),   # new GND via east
+]
+design['board']['testpoints'] = [list(t[:5]) for t in TESTPOINTS]
+T('5V', 'F.Cu', (98.7, 116.5), (100.5, 116.5), w=0.3)
+T('GND', 'F.Cu', (103.1, 113.8), (103.1, 116.5), w=0.3)
+T('-12V', 'F.Cu', (109.8, 119.4), (109.8, 117.6), w=0.3)
+T('VRLY', 'F.Cu', (121.1, 109.6), (123.6, 109.6), w=0.3)
+V('3V3', 92.0, 129.4)
+T('3V3', 'F.Cu', (92.0, 129.4), (92.0, 131.6), w=0.3)
+V('GND', 93.9, 134.2)
+T('GND', 'F.Cu', (93.9, 134.2), (92.0, 134.2), w=0.3)

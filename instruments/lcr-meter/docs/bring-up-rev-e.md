@@ -40,6 +40,22 @@ Rev F adds an orange front-panel light and six red debug LEDs, visible with the 
 
 With a blank flash (no firmware) HB, FLT and STATUS stay dark: the RP2040 pads reset as inputs with pull-downs. HB blinks with the bench supply alone, because the firmware's main loop runs once it sees VBUS, computer or not. The rail LEDs draw about 2 mA in all (about 0.4–0.6 mA each; 5 V input share of all LEDs about 12 mA, `regulator_check.py`), so record the idle current in §2.1 with them lit.
 
+Rev F also has nine bare 1.5 mm test pads (board-only, not on the BOM), labelled on silk. Each GND pad is 2.6 mm from a rail pad, so a scope ground spring reaches both: probe 5V, +12, −12 against the power-area GND (TP2) and 3V3 against the digital GND (TP9). Positions are KiCad board coordinates (mm; the board spans x 50–150, y 45–145, the BNC edge at y 45). Expected values are the §2 rail checks at 5.0 V in.
+
+| TP | Silk | Net | Position (x, y) | Where | Expect |
+|---|---|---|---|---|---|
+| TP1 | 5V | 5V | 100.5, 116.5 | power area, above the rail-LED row | about 0.08 V below VBUS (4.92 V at 5.0 V in) |
+| TP2 | GND | GND | 103.1, 116.5 | beside TP1 | 0 V (scope ground, power area) |
+| TP3 | +12 | 12V | 106.0, 121.2 | on the 12V run to R115 | +11.65…+12.29 V |
+| TP4 | -12 | −12V | 109.8, 117.6 | above the −12 rail-LED column (R116, D18) | −11.67…−12.32 V |
+| TP5 | VRLY | VRLY | 123.6, 109.6 | east of D8 | about 5 V |
+| TP6 | RAW+ | RAW_P | 128.775, 115.0 | on the RAW_P run to R95 | +14.3 V nominal (+13.8…+14.9 V) |
+| TP7 | RAW- | RAW_N | 142.5, 115.0 | on the RAW_N run to R96 | −14.1 V nominal (−13.3…−14.8 V) |
+| TP8 | 3V3 | 3V3 | 92.0, 131.6 | digital area, east of J5 | 3.3 V |
+| TP9 | GND | GND | 92.0, 134.2 | beside TP8 | 0 V (scope ground, digital area) |
+
+CODEC_VREF and 5VA have no test pad: both sit in the analog core, where a pad would need new copper next to the codec. Measure them at their decoupling capacitors.
+
 ## 2. Power and rails, no computer
 
 1. Leave the jacks open. Apply 5.0 V through the USB-C breakout into J1 with a 0.5 A limit. Record the current, and watch for heating. U16 soft-starts the 5 V rail and limits it at 1.0–1.16 A (R110, TPS2553 datasheet eq. 1); the bench limit is the tighter one here.
