@@ -4,7 +4,7 @@ python3 cad/tools/predrc.py [--design D.json] [--routing R.json] [--json OUT] [-
                             [--kicad DRC.json]
 
 The checks (clearance, edge, holes, keepouts, via-on-land, width, courtyard, angle, craft, unconnected,
-dangling) are packages/temper-boardkit/src/temper_boardkit/predrc.py; this file holds what is the LCR's:
+dangling) are instruments/boardkit/src/temper_boardkit/predrc.py; this file holds what is the LCR's:
   * the footprint geometry dumped once by cad/tools/pad_library.py (cad/tools/pad_library.json);
   * the five exposed-pad thermal sets that may carry vias (the audit_dfm.py set);
   * In1.Cu is the GND plane: GND vias and GND through-hole pads inside its zone join it;

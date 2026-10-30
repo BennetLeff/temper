@@ -36,7 +36,7 @@ ROOT = CAD.parent
 REV_E = '48b012771'
 sys.path.insert(0, str(CAD / 'tools'))
 import predrc  # noqa: E402
-from temper_boardkit import craft, model  # noqa: E402  (predrc put packages/temper-boardkit/src on the path)
+from temper_boardkit import craft, model  # noqa: E402  (predrc put instruments/boardkit/src on the path)
 from temper_boardkit.model import norm_rot, r3, rot, unrot  # noqa: E402,F401
 
 
