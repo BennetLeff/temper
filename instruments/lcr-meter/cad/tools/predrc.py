@@ -11,6 +11,10 @@ once by cad/tools/pad_library.py, and checks with shapely what KiCad's DRC would
   via_land    a via ring on an SMD land other than the five exposed-pad thermal sets (audit_dfm rule)
   width       track < 0.15 mm, via < 0.45 mm, drill < 0.3 mm
   courtyard   F.CrtYd overlap between footprints
+  angle       two segments of one net and layer meeting at a shared end point with an inner angle under
+              45 degrees (an acid trap), or folding back over each other (0 degrees: a stub that runs out and
+              back, or a duplicate segment).  Sub-micron jogs are merged first (ANGLE_JOIN); T-joints onto
+              a segment's interior are not end points and are not checked.  KiCad has no equivalent rule.
   unconnected pads of one net in more than one copper island (union-find over pads, track anchors,
               vias; In1.Cu is the GND plane, so GND vias and GND through-hole pads join it)
   dangling    a via joining copper on fewer than two layers (a GND via in the In1 plane is joined), or
@@ -45,6 +49,7 @@ CAD = Path(__file__).resolve().parents[1]
 LIB = json.loads((CAD / 'tools' / 'pad_library.json').read_text())
 CU = ['F.Cu', 'In1.Cu', 'In2.Cu', 'B.Cu']
 CLEAR, EDGE, HOLE, HOLE2HOLE = 0.15, 0.3, 0.2, 0.25
+MIN_ANGLE, ANGLE_TOL, ANGLE_JOIN = 45.0, 0.1, 0.002    # deg, deg (45-degree legs on rounded coordinates), mm
 EPS = 1e-4
 EXPOSED = {('U1', '57'), ('U11', '9'), ('U12', '9'), ('U13', '25'), ('U14', '25')}
 DEFAULT_OUTLINE = [50, 45, 190, 150]
@@ -206,6 +211,32 @@ def dyn_items(routing):
     return tracks, vias
 
 
+def angle_checks(routing):
+    """Inner angles at shared segment end points, per net and layer (see the module docstring)."""
+    q = lambda p: (round(p[0] / ANGLE_JOIN), round(p[1] / ANGLE_JOIN))
+    ends = defaultdict(list)
+    for i, t in enumerate(routing['tracks']):
+        src = t.get('src', f'routing.json tracks[{i}]')
+        pts = [tuple(p) for p in t['points']]
+        for a, b in zip(pts, pts[1:]):
+            if math.dist(a, b) < ANGLE_JOIN:
+                continue            # a sub-micron jog: its two neighbours meet at the merged point
+            ends[(t['net'], t['layer'], q(a))].append((a, b, src))
+            ends[(t['net'], t['layer'], q(b))].append((b, a, src))
+    out = []
+    for (net, layer, _), legs in ends.items():
+        for x in range(len(legs)):
+            for y in range(x + 1, len(legs)):
+                (p, u, s1), (_, v, s2) = legs[x], legs[y]
+                du, dv = (u[0] - p[0], u[1] - p[1]), (v[0] - p[0], v[1] - p[1])
+                c = (du[0] * dv[0] + du[1] * dv[1]) / (math.hypot(*du) * math.hypot(*dv))
+                ang = math.degrees(math.acos(max(-1.0, min(1.0, c))))
+                if ang < MIN_ANGLE - ANGLE_TOL:
+                    out.append({'kind': 'angle', 'layer': layer, 'a': s1, 'b': s2, 'nets': [net, net],
+                                'mm': round(ang, 2), 'at': [round(p[0], 4), round(p[1], 4)], 'src': s1})
+    return out
+
+
 def check(design, routing, cache=True):
     t0 = time.time()
     h = hashlib.sha256(Path(__file__).read_bytes() + json.dumps([[p['ref'], p['footprint'], p['pcb'], p['pins']] for p in design['parts']]
@@ -319,6 +350,8 @@ def check(design, routing, cache=True):
     for v in vias:
         if v['d'] < 0.45 - EPS or v['drill'] < 0.3 - EPS or (v['d'] - v['drill']) / 2 < 0.075 - EPS:
             add('width', 'via', v, {'who': 'via 0.45/0.3'}, v['d'], list(v['at']))
+    for a in angle_checks(routing):
+        viol.append(a)
     zones = [Polygon(z['points']).buffer(-0.3) for z in routing.get('zones', []) if z['net'] == 'GND' and z['layer'] == 'In1.Cu']
     def plane_ok(at):
         return not zones or any(z.contains(Point(at)) for z in zones)

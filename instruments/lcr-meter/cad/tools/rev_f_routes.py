@@ -56,7 +56,7 @@ T('GND', 'F.Cu', 'C43.2', (86.0, 75.5))
 V('GND', 85.4, 77.9)
 T('GND', 'F.Cu', 'C45.2', (85.4, 77.9))
 V('12V', 84.4, 80.3)
-T('12V', 'F.Cu', (84.4, 80.3), 'C42.1', 'C44.1')
+T('12V', 'F.Cu', (84.4, 80.3), 'C42.1', (85.125, 80.9), 'C44.1')   # straight down out of C42.1: 46 deg, not 44 (angle rule)
 V('GND', 87.5, 80.4)
 T('GND', 'F.Cu', 'C42.2', (87.5, 80.4))
 V('GND', 87.4, 83.3)
@@ -515,7 +515,7 @@ T('SWDIO', 'In2.Cu', (71.557, 121.6), (68.6, 121.6), (68.0, 121.0), (68.0, 110.5
 
 # ============================================================== 9. switcher <-> LDO links, U13 EN, K4 gate
 # RAW_P: R95 (LDO group) straight down F.Cu x 128.775 into C90's RAW_P land
-T('RAW_P', 'F.Cu', 'R95.1', (128.775, 127.975), 'C90.1', w=0.3)
+T('RAW_P', 'F.Cu', 'R95.1', (128.775, 127.975), w=0.3)   # tees into the copied 0.2 mm RAW_P run to C90.1 (no doubled leg)
 # RAW_N: Rev E route out of U13 pin 15 (F stub, via, B.Cu north, via, F.Cu into the C91/C92 bar), then
 # on north along x 142.5 to R96 under U12; R96 -> U12 LDOIN_N
 T('RAW_N', 'F.Cu', 'U13.15', (137.75, 132.6017), (139.0369, 131.3148), (139.0369, 130.293))
@@ -531,7 +531,7 @@ T('3V3', 'B.Cu', (97.3, 124.6), (99.5, 124.6))
 V('3V3', 99.5, 124.6)
 T('3V3', 'In2.Cu', (99.5, 124.6), (100.2, 123.9), (141.2, 123.9), (141.2, 136.4))
 V('3V3', 141.2, 136.4)
-T('3V3', 'F.Cu', (141.2, 136.4), (140.5497, 135.7497), (140.1642, 135.7048))
+T('3V3', 'F.Cu', (141.2, 136.4), (140.5497, 135.7497), (140.5497, 135.7048))   # onto the ring's east end at 90 deg
 V('GND', 148.35, 125.4)
 T('GND', 'F.Cu', 'L2.2', (148.35, 125.4), w=0.5)
 # K4 reference gate: R108 -> Q6 gate, R109 pull-down, GND vias
@@ -541,3 +541,19 @@ V('GND', 138.4, 79.4)
 T('GND', 'F.Cu', 'R109.2', (138.4, 79.4))
 V('GND', 142.6, 79.9)
 T('GND', 'F.Cu', 'Q6.2', (142.6, 79.9))
+
+# ============================================================== 11. angle-rule cleanups (2026-10-29)
+# predrc's angle rule (inner angle >= 45 deg at shared end points, no fold-backs) found Rev E copies that
+# double a hand route and run past its end, and one acute GND fork.  The copies go; the hand routes stay.
+DROP('RAW_N', 142.4, 119.4, 142.6, 123.5)          # copy along x 142.5 under the hand RAW_N run
+DROP('USB_VBUS', 83.1, 115.4, 83.25, 116.4)        # copy into R5.1 under the hand USB_VBUS end
+DROP('RUN', 66.1, 119.2, 70.7, 119.4)              # copy along y 119.29, 0.2 mm past the RUN via
+DROP('UART_TX', 69.5, 125.6, 69.7, 127.2)          # copy along x 69.6 under the hand UART_TX leg
+DROP('UART_RX', 69.9, 125.7, 70.6, 125.8)          # copy at 5 deg to the hand UART_RX escape
+DROP('USB_DP', 64.4, 121.0, 65.6, 122.2)           # copy past the hand USB_DP via
+DROP('USB_VBUS', 58.05, 124.5, 58.2, 124.55)       # 0.06 mm copy stub doubling back inside J1's VBUS land
+# U13 GND pins 2 and 3 met their via at 27.7 deg: straight down, then 45-degree legs (90 deg at the via)
+DROP('GND', 136.6, 136.9, 137.4, 138.1)
+V('GND', 137.0, 138.0, d=0.6)                      # the copied 0.6 mm via, re-placed (DROP takes vias too)
+T('GND', 'F.Cu', 'U13.2', (136.75, 137.75), (137.0, 138.0), w=0.35)
+T('GND', 'F.Cu', 'U13.3', (137.25, 137.75), (137.0, 138.0), w=0.35)
