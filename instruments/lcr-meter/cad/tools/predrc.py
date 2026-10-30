@@ -96,6 +96,12 @@ def static_items(design):
     parts = list(design['parts'])
     for i, (x, y) in enumerate(board.get('holes', DEFAULT_HOLES), 1):
         parts.append({'ref': f'H{i}', 'footprint': 'x:MountingHole_3.2mm_M3', 'pins': {}, 'pcb': [x, y, 0]})
+    # board-only fiducials and test points (build_cad.py places the same KiCad library footprints)
+    for i, (x, y) in enumerate(board.get('fiducials', []), 1):
+        parts.append({'ref': f'FID{i}', 'footprint': 'x:Fiducial_1mm_Mask2mm', 'pins': {}, 'pcb': [x, y, 0]})
+    for i, (_, net, x, y, d) in enumerate(board.get('testpoints', []), 1):
+        parts.append({'ref': f'TP{i}', 'footprint': f'x:TestPoint_Pad_D{d:.1f}mm', 'pins': {'1': net},
+                      'pcb': [x, y, 0]})
     for part in parts:
         ref, (x, y, t) = part['ref'], part['pcb']
         fp = LIB[fp_name(part)]

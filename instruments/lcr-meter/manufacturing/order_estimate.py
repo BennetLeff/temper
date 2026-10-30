@@ -64,6 +64,8 @@ def board_counts():
     leadless, tht_refs = [], []
     for fp in board.GetFootprints():
         ref = fp.GetReference()
+        if fp.GetAttributes() & k.FP_BOARD_ONLY:
+            continue        # mounting holes, fiducials, bare-pad test points: no part, no joint
         # Unnumbered pads are paste windows on exposed pads, not joints.
         pads = [p for p in fp.Pads() if p.GetAttribute() != k.PAD_ATTRIB_NPTH and p.GetNumber()]
         if ref in placed:

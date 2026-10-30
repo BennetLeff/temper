@@ -151,6 +151,14 @@ for a,c in [((X0,Y0),(X1,Y0)),((X1,Y0),(X1,Y1)),((X1,Y1),(X0,Y1)),((X0,Y1),(X0,Y
     s=k.PCB_SHAPE();s.SetShape(k.SHAPE_T_SEGMENT);s.SetStart(pos(*a));s.SetEnd(pos(*c));s.SetLayer(k.Edge_Cuts);s.SetWidth(mm(.05));b.Add(s)
 for i,(x,y) in enumerate(HOLES,1):
     f=k.FootprintLoad(str(LIBS/'MountingHole.pretty'),'MountingHole_3.2mm_M3');f.SetReference('H'+str(i));f.SetPosition(pos(x,y));f.Reference().SetLayer(k.F_Fab);f.SetAttributes(k.FP_EXCLUDE_FROM_BOM|k.FP_EXCLUDE_FROM_POS_FILES|k.FP_BOARD_ONLY);b.Add(f)
+# Rev F: global fiducials and bare-pad test points, board-only (no BOM line, no placement).
+BOARD_ONLY=k.FP_SMD|k.FP_EXCLUDE_FROM_BOM|k.FP_EXCLUDE_FROM_POS_FILES|k.FP_BOARD_ONLY
+for i,(x,y) in enumerate(BOARD.get('fiducials',[]),1):
+    f=k.FootprintLoad(str(LIBS/'Fiducial.pretty'),'Fiducial_1mm_Mask2mm');f.SetReference('FID'+str(i));f.SetPosition(pos(x,y));f.Reference().SetLayer(k.F_Fab);f.SetAttributes(BOARD_ONLY);b.Add(f)
+for i,(name,net,x,y,d) in enumerate(BOARD.get('testpoints',[]),1):
+    f=k.FootprintLoad(str(LIBS/'TestPoint.pretty'),f'TestPoint_Pad_D{d:.1f}mm');f.SetReference('TP'+str(i));f.SetValue(name);f.SetPosition(pos(x,y));f.Reference().SetLayer(k.F_Fab);f.SetAttributes(BOARD_ONLY)
+    for pad in f.Pads():pad.SetNet(nets[net])
+    b.Add(f)
 for text,x,y,size in SILK:
     t=k.PCB_TEXT(b);t.SetText(text);t.SetPosition(pos(x,y));t.SetTextSize(pos(size,size));t.SetTextThickness(mm(.15));t.SetLayer(k.F_SilkS);b.Add(t)
 # Explicit human-authored track list. All segments are in board millimetres.

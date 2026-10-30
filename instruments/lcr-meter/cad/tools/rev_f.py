@@ -131,6 +131,10 @@ design['board'] = {
     'holes': [[54, 54], [146, 54], [54, 141], [146, 141]],
     'ref_text': {},
     'silk': [],          # filled at the end of this file once placement is known
+    # global fiducials (KiCad Fiducial_1mm_Mask2mm, board-only), three corners, asymmetric; each has
+    # no copper within 2.0 mm of its centre (F.Cu rule area in rev_f_routes.py section 12)
+    'fiducials': [[53.0, 59.0], [147.0, 48.0], [147.0, 136.0]],
+    'testpoints': [],    # [name, net, x, y, pad diameter]: rev_f_routes.py section 12
 }
 
 # ------------------------------------------------------------------ rigid groups

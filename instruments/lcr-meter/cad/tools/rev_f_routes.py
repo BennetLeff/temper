@@ -557,3 +557,11 @@ DROP('GND', 136.6, 136.9, 137.4, 138.1)
 V('GND', 137.0, 138.0, d=0.6)                      # the copied 0.6 mm via, re-placed (DROP takes vias too)
 T('GND', 'F.Cu', 'U13.2', (136.75, 137.75), (137.0, 138.0), w=0.35)
 T('GND', 'F.Cu', 'U13.3', (137.25, 137.75), (137.0, 138.0), w=0.35)
+
+# ============================================================== 12. fiducials and test points (2026-10-29)
+# Fiducials: no copper within 2.0 mm of the centre on F.Cu (1 mm beyond the 2 mm mask opening).  A
+# 24-gon of circumradius 2.02 mm keeps its flats beyond 2.0 mm.
+for _i, (_fx, _fy) in enumerate(design['board']['fiducials'], 1):
+    KO(f'FID{_i} clear', [(round(_fx + 2.02 * math.cos(math.radians(15 * _k)), 3),
+                           round(_fy + 2.02 * math.sin(math.radians(15 * _k)), 3)) for _k in range(24)],
+       layers=('F.Cu',))
