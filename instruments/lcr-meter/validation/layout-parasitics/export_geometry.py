@@ -83,15 +83,19 @@ for z in board.Zones():
 
 # Confirm the stored fill is current: refill an in-memory copy and compare areas.
 filler = k.ZONE_FILLER(board)
-stored = {(z['net'], z['layer']): z['area_mm2'] for z in zones}
+stored = [z['area_mm2'] for z in zones]          # same zone/layer order as the export loop
 filler.Fill(board.Zones())
+n = 0
 for z in board.Zones():
     if z.GetIsRuleArea():
         continue
     for l in CU:
         if z.IsOnLayer(l):
             a = z.GetFilledPolysList(l).Area() * NM * NM
-            s = stored[(z.GetNetname(), board.GetLayerName(l))]
+            s = stored[n]
+            n += 1
+            if s == 0:
+                continue
             refill_check.append({'net': z.GetNetname(), 'layer': board.GetLayerName(l),
                                  'stored_mm2': round(s, 4), 'refilled_mm2': round(a, 4),
                                  'rel_diff': abs(a - s) / s})

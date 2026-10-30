@@ -488,6 +488,10 @@ import craft  # noqa: E402
 design['board']['craft'] = True
 CRAFT = craft.run({'parts': list(parts.values()), 'board': design['board']}, routing)
 
+# ------------------------------------------------------------------ GND pours and stitching (cad/tools/pour.py)
+import pour  # noqa: E402
+POUR = pour.add({'parts': list(parts.values()), 'board': design['board']}, routing, V)
+
 # ------------------------------------------------------------------ silk and reference text
 design['board']['silk'] = [
     ['TEMPER LCR REV F', 111, 140.2, 1.0],
@@ -522,6 +526,7 @@ def main():
         pads_of(*a.pads.split(','))
     design['parts'] = [parts[p['ref']] for p in design['parts']]
     print('craft:', CRAFT)
+    print('pour:', POUR)
     print(f"{len(design['parts'])} parts, {len(routing['tracks'])} tracks, {len(routing['vias'])} vias; "
           f"copied {sum(n for n, _ in COPIED.values())} segments / {sum(v for _, v in COPIED.values())} vias, "
           f"pruned {pruned}")

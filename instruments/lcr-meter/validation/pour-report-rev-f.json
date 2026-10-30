@@ -1,0 +1,182 @@
+[
+ {
+  "board": "1ab859588:instruments/lcr-meter/cad/temper-lcr.kicad_pcb",
+  "copper_mm2": {
+   "F.Cu": 1108.7,
+   "In1.Cu": 9574.5,
+   "In2.Cu": 458.7,
+   "B.Cu": 589.0
+  },
+  "board_mm2": 10010.0,
+  "return": {
+   "I2S_BCLK": {
+    "buried_run_mm": 65.11,
+    "over_adjacent_gnd_fill_mm": 0.0,
+    "mean_reference_height_mm": 1.291,
+    "loop_area_mm2": 84.03
+   },
+   "I2S_FSYNC": {
+    "buried_run_mm": 65.48,
+    "over_adjacent_gnd_fill_mm": 0.0,
+    "mean_reference_height_mm": 1.23,
+    "loop_area_mm2": 80.54
+   },
+   "I2S_DIN": {
+    "buried_run_mm": 65.96,
+    "over_adjacent_gnd_fill_mm": 0.0,
+    "mean_reference_height_mm": 1.291,
+    "loop_area_mm2": 85.13
+   },
+   "I2S_DOUT": {
+    "buried_run_mm": 69.42,
+    "over_adjacent_gnd_fill_mm": 0.0,
+    "mean_reference_height_mm": 1.291,
+    "loop_area_mm2": 89.59
+   },
+   "QSPI1": {
+    "buried_run_mm": 13.75,
+    "over_adjacent_gnd_fill_mm": 0.0,
+    "mean_reference_height_mm": 1.065,
+    "loop_area_mm2": 14.65
+   },
+   "QSPI2": {
+    "buried_run_mm": 13.94,
+    "over_adjacent_gnd_fill_mm": 0.0,
+    "mean_reference_height_mm": 1.065,
+    "loop_area_mm2": 14.84
+   },
+   "QSPI3": {
+    "buried_run_mm": 2.72,
+    "over_adjacent_gnd_fill_mm": 0.0,
+    "mean_reference_height_mm": 1.291,
+    "loop_area_mm2": 3.52
+   },
+   "QSPI_CS": {
+    "buried_run_mm": 14.77,
+    "over_adjacent_gnd_fill_mm": 0.0,
+    "mean_reference_height_mm": 1.065,
+    "loop_area_mm2": 15.73
+   },
+   "USB_DP": {
+    "buried_run_mm": 27.17,
+    "over_adjacent_gnd_fill_mm": 0.0,
+    "mean_reference_height_mm": 1.183,
+    "loop_area_mm2": 32.13
+   },
+   "USB_DM": {
+    "buried_run_mm": 15.59,
+    "over_adjacent_gnd_fill_mm": 0.0,
+    "mean_reference_height_mm": 1.291,
+    "loop_area_mm2": 20.12
+   },
+   "USB_DP_MCU": {
+    "buried_run_mm": 4.95,
+    "over_adjacent_gnd_fill_mm": 0.0,
+    "mean_reference_height_mm": 1.291,
+    "loop_area_mm2": 6.39
+   },
+   "USB_DM_MCU": {
+    "buried_run_mm": 4.89,
+    "over_adjacent_gnd_fill_mm": 0.0,
+    "mean_reference_height_mm": 1.291,
+    "loop_area_mm2": 6.32
+   }
+  },
+  "copper_fraction": {
+   "F.Cu": 0.111,
+   "In1.Cu": 0.956,
+   "In2.Cu": 0.046,
+   "B.Cu": 0.059
+  }
+ },
+ {
+  "board": "instruments/lcr-meter/cad/temper-lcr.kicad_pcb",
+  "copper_mm2": {
+   "F.Cu": 1141.7,
+   "In1.Cu": 9574.5,
+   "In2.Cu": 4610.9,
+   "B.Cu": 4650.2
+  },
+  "board_mm2": 10010.0,
+  "return": {
+   "I2S_BCLK": {
+    "buried_run_mm": 65.11,
+    "over_adjacent_gnd_fill_mm": 40.04,
+    "mean_reference_height_mm": 0.626,
+    "loop_area_mm2": 40.77
+   },
+   "I2S_FSYNC": {
+    "buried_run_mm": 65.48,
+    "over_adjacent_gnd_fill_mm": 42.47,
+    "mean_reference_height_mm": 0.542,
+    "loop_area_mm2": 35.51
+   },
+   "I2S_DIN": {
+    "buried_run_mm": 65.96,
+    "over_adjacent_gnd_fill_mm": 46.29,
+    "mean_reference_height_mm": 0.533,
+    "loop_area_mm2": 35.13
+   },
+   "I2S_DOUT": {
+    "buried_run_mm": 69.42,
+    "over_adjacent_gnd_fill_mm": 43.67,
+    "mean_reference_height_mm": 0.611,
+    "loop_area_mm2": 42.41
+   },
+   "QSPI1": {
+    "buried_run_mm": 13.75,
+    "over_adjacent_gnd_fill_mm": 5.82,
+    "mean_reference_height_mm": 0.703,
+    "loop_area_mm2": 9.67
+   },
+   "QSPI2": {
+    "buried_run_mm": 13.94,
+    "over_adjacent_gnd_fill_mm": 8.51,
+    "mean_reference_height_mm": 0.543,
+    "loop_area_mm2": 7.57
+   },
+   "QSPI3": {
+    "buried_run_mm": 2.72,
+    "over_adjacent_gnd_fill_mm": 0.69,
+    "mean_reference_height_mm": 1.017,
+    "loop_area_mm2": 2.77
+   },
+   "QSPI_CS": {
+    "buried_run_mm": 14.77,
+    "over_adjacent_gnd_fill_mm": 11.79,
+    "mean_reference_height_mm": 0.383,
+    "loop_area_mm2": 5.65
+   },
+   "USB_DP": {
+    "buried_run_mm": 27.17,
+    "over_adjacent_gnd_fill_mm": 12.47,
+    "mean_reference_height_mm": 0.76,
+    "loop_area_mm2": 20.65
+   },
+   "USB_DM": {
+    "buried_run_mm": 15.59,
+    "over_adjacent_gnd_fill_mm": 7.53,
+    "mean_reference_height_mm": 0.769,
+    "loop_area_mm2": 11.99
+   },
+   "USB_DP_MCU": {
+    "buried_run_mm": 4.95,
+    "over_adjacent_gnd_fill_mm": 0.96,
+    "mean_reference_height_mm": 1.081,
+    "loop_area_mm2": 5.35
+   },
+   "USB_DM_MCU": {
+    "buried_run_mm": 4.89,
+    "over_adjacent_gnd_fill_mm": 1.65,
+    "mean_reference_height_mm": 0.926,
+    "loop_area_mm2": 4.53
+   }
+  },
+  "copper_fraction": {
+   "F.Cu": 0.114,
+   "In1.Cu": 0.956,
+   "In2.Cu": 0.461,
+   "B.Cu": 0.465
+  }
+ }
+]

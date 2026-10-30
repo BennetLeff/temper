@@ -341,6 +341,8 @@ def check(design, routing, cache=True):
                 add('hole2hole', 'drill', dr, o, d, list(dr['at']))
     # keepouts
     for ko in routing.get('keepouts', []):
+        if not ko.get('tracks', True):
+            continue                # a zone-fill-only rule area: copper may cross it
         poly = Polygon(ko['points'])
         for it in tracks + vias:
             if any(l in ko['layers'] for l in it['layers']) and it['geom'].intersects(poly):

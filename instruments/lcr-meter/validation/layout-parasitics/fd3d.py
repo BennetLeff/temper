@@ -25,7 +25,7 @@ import scipy.sparse as sp
 import shapely
 
 from common import (EPS0, HERE, LAYERS, NOMINAL_STACKUP, STACKUPS, geometry, item_shape,
-                    plane_in1)
+                    plane_in1, rings_to_polys)
 
 import os
 CONDUCTORS = os.environ.get('LP_CONDUCTORS', 'DUT_LO,TIA_OUT,DUT_HI,RF100,RF5K,RF100K,LOW_BUF,HIGH_BUF').split(',')
@@ -182,6 +182,20 @@ def build(dx, window, stackup, bc):
     g = geometry()
     # ground plane In1 (actual fill)
     lab[kl['In1.Cu']][rasterize(plane_in1().intersection(win), xs, ys)] = 0
+    # every other filled zone (Rev F: GND pours on B.Cu / In2, teardrops on any net), at its net's label
+    for z in g['zones']:
+        if (z['layer'] == 'In1.Cu' and z['net'] == 'GND') or z['layer'] not in kl or not z['filled']:
+            continue
+        s = rings_to_polys(z['filled']).intersection(win)
+        if s.is_empty:
+            continue
+        m = rasterize(s, xs, ys)
+        v = tid.get(z['net'], 0)
+        sl = lab[kl[z['layer']]]
+        if v == 0:
+            sl[m & (sl < 0)] = 0
+        else:
+            sl[m] = v
     # planar copper of all items
     for it in g['items']:
         v = tid.get(it['net'], 0)
