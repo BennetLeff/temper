@@ -1,10 +1,11 @@
-"""Command-line entry points: pre-DRC, Gerber DFM check, edge clearance.
+"""Command-line entry points: pre-DRC, Gerber DFM check, edge clearance, fab-house pass.
 
   boardkit-predrc --lib pad_library.json --design design.json --routing routing.json
                   [--exposed U1.57,U11.9] [--plane GND:In1.Cu] [--edge-exempt J] [--json OUT] [--kicad DRC.json]
   boardkit-gerber-check --gerbers DIR --name NAME [--pad-nets PADNETS.json] [--assembled REFS] [--pcb B.kicad_pcb]
                   [--json OUT]
   boardkit-edge-clearance BOARD.kicad_pcb [OUT.json]          (KiCad's Python: needs pcbnew)
+  boardkit-fab-check BOARD.kicad_pcb --profile jlcpcb-4layer-1oz --out NEW_DIR [--kicad-cli K] [--kicad-python P]
 
 Each exits non-zero when its check fails.  Board-specific scripts call the modules directly instead.
 """
@@ -91,6 +92,20 @@ def edge_main(argv=None):
     return 0
 
 
-if __name__ == '__main__':      # python -m temper_boardkit.cli predrc|gerber|edge ...
+def fab_main(argv=None):
+    from . import fab
+    ap = argparse.ArgumentParser(prog='boardkit-fab-check')
+    ap.add_argument('board')
+    ap.add_argument('--profile', required=True, help='a name in jlc/data/fab-profiles or a profile json path')
+    ap.add_argument('--out', required=True, help='new directory for the board copy, rules and DRC reports')
+    ap.add_argument('--kicad-cli', default=fab.KICAD_CLI)
+    ap.add_argument('--kicad-python', default=fab.KICAD_PYTHON)
+    a = ap.parse_args(argv)
+    report = fab.run(a.board, a.profile, a.out, a.kicad_cli, a.kicad_python)
+    print(fab.summary(report))
+    return 0 if report['pass'] else 1
+
+
+if __name__ == '__main__':      # python -m temper_boardkit.cli predrc|gerber|edge|fab ...
     cmd = sys.argv[1] if len(sys.argv) > 1 else ''
-    sys.exit({'predrc': predrc_main, 'gerber': gerber_main, 'edge': edge_main}[cmd](sys.argv[2:]))
+    sys.exit({'predrc': predrc_main, 'gerber': gerber_main, 'edge': edge_main, 'fab': fab_main}[cmd](sys.argv[2:]))

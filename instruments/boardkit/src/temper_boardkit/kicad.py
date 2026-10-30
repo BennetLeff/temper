@@ -224,3 +224,24 @@ def apply_model_swap(pretty_dir, swaps=None):
             path.write_text(path.read_text().replace(KI3D + old, new))
             done.append(name)
     return done
+
+
+def clear_silk_circles(fp, gap=0.16):
+    """Grow each silk circle of a footprint that rings a round pad so its inner edge stays gap mm from the pad
+    copper (JLC: 0.15 mm pad to silkscreen; KiCad's TestPoint_Pad_D*mm rings sit 0.14 mm away).  Concentric
+    circles only; returns [(old radius, new radius)] in mm."""
+    k = pcbnew()
+    changed = []
+    for item in fp.GraphicalItems():
+        if item.GetLayer() not in (k.F_SilkS, k.B_SilkS) or item.GetShape() != k.SHAPE_T_CIRCLE:
+            continue
+        c, r, w = item.GetCenter(), k.ToMM(item.GetRadius()), k.ToMM(item.GetWidth())
+        rings = [k.ToMM(p.GetSize().x) / 2 for p in fp.Pads()
+                 if p.GetShape() == k.PAD_SHAPE_CIRCLE and p.GetPosition() == c]
+        if not rings:
+            continue
+        need = max(rings) + gap + w / 2
+        if r < need:
+            item.SetEnd(k.VECTOR2I(c.x + k.FromMM(need), c.y))
+            changed.append((round(r, 4), round(need, 4)))
+    return changed

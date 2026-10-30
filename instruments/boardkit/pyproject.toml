@@ -13,6 +13,7 @@ test = ["pytest>=7.4"]
 boardkit-predrc = "temper_boardkit.cli:predrc_main"
 boardkit-gerber-check = "temper_boardkit.cli:gerber_main"
 boardkit-edge-clearance = "temper_boardkit.cli:edge_main"
+boardkit-fab-check = "temper_boardkit.cli:fab_main"
 
 [build-system]
 requires = ["hatchling"]

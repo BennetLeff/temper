@@ -25,8 +25,11 @@ zapote rule owner.
 | `jlc.parts` | JLC assembly-library snapshot (price tiers, stock, library class, attrition, minimum) by curl POST, the schema `jlc.order` callers read | curl |
 | `jlc.order` | one assembly fee model (Economic, Standard, hand fit), `tier_price`, `buy_qty`, `is_extended`, X-ray tiers | stdlib |
 | `jlc.models_3d` | exact-part STEP models from EasyEDA placed in the KiCad footprint frame | OCP (CAD env) |
-| `kicad` | lazily imported pcbnew: `load_board`, `pad_table`, `footprint_pads`, `edge_clearance`, `via_in_pad(_audit)`, `joint_counts`, `MODEL_SWAP` / `apply_model_swap` | KiCad's Python |
-| `cli` | `boardkit-predrc`, `boardkit-gerber-check`, `boardkit-edge-clearance` | as the modules |
+| `kicad` | lazily imported pcbnew: `load_board`, `clear_silk_circles`, `pad_table`, `footprint_pads`, `edge_clearance`, `via_in_pad(_audit)`, `joint_counts`, `MODEL_SWAP` / `apply_model_swap` | KiCad's Python |
+| `fab` | fab-house limits as a separate KiCad DRC pass: profile -> `.kicad_dru` rules, board copy without local clearances, a self-test board on which every rule must fire, findings attributed by rule name (`boardkit-fab-check`) | kicad-cli, KiCad's Python for `run` |
+| `jlc/data/fab-profiles` | JLC `jlcpcb-{2,4}layer-{1,2}oz.json` (schema `zapote.fab-profile.v1`): each limit with JLC's own sentence, a verbatim substring of `jlc/data/jlc-capabilities-2026-10-29.txt` (tested) | data |
+| `kicad_scripts` | `fab_board_copy.py`, `fab_selftest_board.py`, run under KiCad's Python by `fab.run` | KiCad's Python |
+| `cli` | `boardkit-predrc`, `boardkit-gerber-check`, `boardkit-edge-clearance`, `boardkit-fab-check` | as the modules |
 
 `model`, `craft`, `kicad`, `jlc`, `jlc.easyeda`, `jlc.order` and `jlc.placement` are Python 3.9 compatible and
 import under KiCad's bundled Python, which has neither shapely nor numpy.  Nothing is imported by the package
@@ -58,6 +61,22 @@ PYTHONPATH=src uv run --no-project --with shapely --with numpy python -m temper_
 
 The package is not a member of the root uv workspace yet: adding it needs `uv lock` online (shapely and numpy
 are not in the root lock), which has not been run.
+
+## From zapote
+
+`zapote/` (the cooker boards' Rust validation workspace) keeps its engineering rules in Rust and was surveyed
+for reuse on 2026-10-29.  Taken: the fab profiles (re-read from JLC's page the same day: the 2-layer 1 oz PTH ring
+minimum is now 0.18 mm, and there was no 2-layer 1 oz profile) and the fab pass (`zapote-drc` `fab_rules.rs`,
+`zapote-harness` `fab_check.rs`, `tools/fab_board_copy.py`, `tools/make_fab_selftest_board.py`), ported to
+Python with track width, rings, drill sizes, hole-to-hole and copper-to-edge rules added and self-tested.
+The profiles keep zapote's schema, so `zapote-check --profile` can read them.  Not taken: zapote's DRC has
+no acute-angle, teardrop, sliver or via-in-pad checks (boardkit's own), its current check is IPC-2221 (boardkit's
+`craft` uses IPC-2152), and the prebuilt `zapote-check` binary resolves its extractor through a deleted
+worktree path.  `zapote/tools/silk_legend_minimums.py` (raises silk text to a profile's minimums) is a candidate
+once a board needs it.
+
+Board results, 2026-10-29: LCR Rev F (`jlcpcb-4layer-1oz`) and RB1 (`jlcpcb-2layer-1oz`), see the boards'
+validation records.
 
 ## Per-board migration
 

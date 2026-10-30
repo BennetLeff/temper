@@ -1,0 +1,65 @@
+{
+ "schema": "zapote.fab-profile.v1",
+ "name": "jlcpcb-2layer-2oz",
+ "vendor": "JLCPCB",
+ "source": "https://jlcpcb.com/capabilities/pcb-capabilities",
+ "read": "2026-10-29",
+ "source_text": "temper_boardkit/jlc/data/jlc-capabilities-2026-10-29.txt",
+ "limits": {
+  "minimum_annular_ring_mm": 0.254,
+  "minimum_hole_clearance_mm": 0.45,
+  "minimum_via_annular_ring_mm": 0.05,
+  "minimum_via_hole_clearance_mm": 0.2,
+  "minimum_track_width_mm": 0.16,
+  "minimum_via_drill_mm": 0.15,
+  "minimum_pth_drill_mm": 0.15,
+  "maximum_pth_drill_mm": 6.3,
+  "minimum_npth_drill_mm": 0.5,
+  "minimum_copper_to_edge_mm": 0.2,
+  "maximum_board_mm": [
+   670.0,
+   600.0
+  ],
+  "minimum_copper_clearance_mm": 0.16,
+  "minimum_via_hole_to_copper_mm": 0.2,
+  "minimum_pth_hole_to_copper_mm": 0.28,
+  "minimum_npth_hole_to_copper_mm": 0.2,
+  "minimum_silk_text_height_mm": 1.0,
+  "minimum_silk_line_width_mm": 0.15,
+  "minimum_smd_pad_to_pad_mm": 0.15,
+  "minimum_pad_to_silk_mm": 0.15,
+  "minimum_solder_mask_web_mm": 0.2
+ },
+ "quotes": {
+  "minimum_annular_ring_mm": "2 oz: 0.254 mm or above",
+  "minimum_hole_clearance_mm": "Pad Hole-to-Hole Spacing 0.45mm",
+  "minimum_via_annular_ring_mm": "① Via diameter should be 0.1mm(0.15mm preferred) larger than Via hole size.",
+  "minimum_via_hole_clearance_mm": "Via Hole-to-Hole Spacing 0.2mm",
+  "minimum_track_width_mm": "2-layer: 0.16 / 0.16 mm (6.5 / 6.5 mil)",
+  "minimum_via_drill_mm": "Min. Via hole size/diameter 0.15/0.25mm",
+  "minimum_pth_drill_mm": "2-layer: 0.15 – 6.3 mm",
+  "maximum_pth_drill_mm": "2-layer: 0.15 – 6.3 mm",
+  "minimum_npth_drill_mm": "Min. Non-plated holes 0.50mm",
+  "minimum_copper_to_edge_mm": "① Copper clearance from routed board edges: ≧0.2 mm",
+  "maximum_board_mm": "FR4(2-layer): 670 × 600 mm",
+  "minimum_copper_clearance_mm": "2-layer: 0.16 / 0.16 mm (6.5 / 6.5 mil)",
+  "minimum_via_hole_to_copper_mm": "Via hole to Track 0.2mm",
+  "minimum_pth_hole_to_copper_mm": "PTH to Track 0.28mm 0.35mm is recommended, minimum 0.28mm",
+  "minimum_npth_hole_to_copper_mm": "NPTH to Track 0.2mm",
+  "minimum_silk_text_height_mm": "Minimum text height 40 mil (1.0mm)",
+  "minimum_silk_line_width_mm": "Minimum Line Width ≥0.15mm Characters width less than 0.15mm will be unidentifiable.",
+  "minimum_smd_pad_to_pad_mm": "SMD pad to pad clearance (different nets) 0.15mm",
+  "minimum_pad_to_silk_mm": "The Minimum Distance Between Pad and Silkscreen is 0.15mm.",
+  "minimum_solder_mask_web_mm": "2oz: Min. pad spacing: 0.20 mm (any color)"
+ },
+ "derivations": {
+  "minimum_via_annular_ring_mm": "Via ring = (diameter - hole) / 2 = 0.1 mm / 2 = 0.05 mm (the stated minimum, not the 0.15 mm preferred margin).",
+  "minimum_silk_text_height_mm": "40 mil = 1.016 mm; JLC states 1.0 mm for this row, which is used."
+ },
+ "notes": [
+  "2-layer FR4, 2 oz finished outer copper. Same schema and keys as zapote/fab-profiles (zapote-check can read it); values re-read from the page on 2026-10-29, every quote a verbatim substring of source_text.",
+  "Ring limits are the vendor absolute minimum; the recommended figure stays in the quote, not enforced.",
+  "Hole spacing: via/via pairs use Via Hole-to-Hole Spacing; every other pair uses Pad Hole-to-Hole Spacing (JLC states no via-to-pad rule; the stricter is kept).",
+  "Solder-mask web 0.20 mm on 2 oz, any colour."
+ ]
+}
