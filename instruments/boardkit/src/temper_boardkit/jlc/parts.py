@@ -26,10 +26,10 @@ def record(c, extra=False):
     if extra:
         out.update({'brand': c.get('componentBrandEn'), 'describe': c.get('describe')})
     out.update({'library': c['componentLibraryType'], 'preferred': bool(c['preferredComponentFlag']),
-                'stock': c['stockCount'], 'least': c['leastPatchNumber'], 'loss': c['lossNumber'],
-                'tiers': [[p['startNumber'], p['productPrice']] for p in c['componentPrices']]})
+                'stock': c['stockCount'], 'least': c['leastPatchNumber'], 'loss': c['lossNumber']})
     if extra:
         out['datasheet'] = c.get('dataManualUrl')
+    out['tiers'] = [[p['startNumber'], p['productPrice']] for p in c['componentPrices']]
     return out
 
 
