@@ -535,7 +535,7 @@
    "value": 0.4617,
    "limit": 0.1,
    "status": "FLAG",
-   "note": "A; USB 2.0 7.2.1 allows one unit load (100 mA) before configuration. The board powers everything at attach (TPS2553 SOT-23 pin 3 EN, active high, on USB_VBUS). Hosts commonly tolerate it; a strict hub may not. firmware-rev-e also declares PICO_STDIO_USB_DEVICE_SELF_POWERED=1 on a bus-powered board (should be bus-powered, 500 mA max power)"
+   "note": "A; USB 2.0 7.2.1 allows one unit load (100 mA) before configuration. The board powers everything at attach (TPS2553 SOT-23 pin 3 EN, active high, on USB_VBUS). Hosts commonly tolerate it; a strict hub may not. firmware-rev-e declares bus-powered, 500 mA max power (src/usb_descriptors.c, 2026-10-30)"
   },
   {
    "item": "Switcher magnetics/switch nodes to nearest analog IC (CPL centres)",

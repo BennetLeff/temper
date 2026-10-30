@@ -240,8 +240,10 @@ T('RLY_SET_REF', 'F.Cu', (147.9, 70.95), 'D9.2')
 T('USB_VBUS', 'F.Cu', 'C15.1', (61.225, 127.9), (60.075, 129.05), 'C113.1', w=0.4)
 T('USB_VBUS', 'F.Cu', 'U16.3', (57.75, 128.95), (57.75, 130.85), 'U16.1', w=0.4)
 T('USB_VBUS', 'F.Cu', 'C113.1', (57.75, 129.05), w=0.4)
-V('GND', 59.2, 131.9)
-T('GND', 'F.Cu', 'C113.2', (59.2, 131.9))
+# C113's ground leg through R121 (hot-plug damping), then a GND via south of R121
+T('VBUS_DAMP', 'F.Cu', 'C113.2', 'R121.1', w=0.4)
+V('GND', 61.0, 133.45)
+T('GND', 'F.Cu', 'R121.2', (61.0, 133.45), w=0.4)
 V('GND', 55.6, 129.9)                      # inside the SOT-23-6 body, between the pin columns
 T('GND', 'F.Cu', 'U16.2', (55.6, 129.9))
 T('VBUS_ILIM', 'F.Cu', 'U16.5', (52.825, 129.9), 'R110.1')
@@ -645,7 +647,7 @@ TESTPOINTS = [
     ('DOUT',  'I2S_DOUT',  56.2,  98.4, 1.0, 53.2,  98.4),
     ('DIN',   'I2S_DIN',   56.2, 100.4, 1.0, 53.5, 100.4),
     ('GND',   'GND',       56.2, 102.4, 1.0, 53.5, 102.4),
-    ('VB',    'USB_VBUS',  62.225, 128.9, 1.0, 62.0, 130.45),
+    ('VB',    'USB_VBUS',  62.225, 128.9, 1.0, 62.28, 130.36),    # label clear of R121 (hot-plug damping)
     ('GND',   'GND',       64.225, 128.9, 1.0, 64.8, 127.2),
 ]
 design['board']['testpoints'] = [list(t[:5]) for t in TESTPOINTS]

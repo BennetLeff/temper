@@ -96,7 +96,7 @@ The TPS65131 enables come from U17 (LM3880). FLAG1 releases ENP and FLAG2 releas
    - 5V stays ≥ 3.86 V through both starts (model worst case; 3.7 V is the 3V3 headroom line).
 
    Any repeated ramp on 5V or RAW_P is a UVLO hiccup: stop and record it.
-3. Hot-plug at the VB pad (TP20, USB_VBUS at U16 IN, with the GND pad beside it), using 1 m and 2 m cables. The peak must stay under 7 V (TPS2553 IN abs max), and under 6 V wherever it reaches U13 VIN.
+3. Hot-plug at the VB pad (TP20, USB_VBUS at U16 IN, with the GND pad beside it), using 1 m and 2 m cables, and at least once with a **USB-A to C cable** from an always-on port: that is the hard-step case. The peak must stay under 7 V (TPS2553 IN abs max), and under 6 V wherever it reaches U13 VIN. `validation/power-spurs/hotplug_spice.py` predicts at most 6.24 V with R121; a higher reading means the cable is outside its assumed 0.3–1.5 µH / 0.05–0.30 Ω, so record the cable and rerun the script with it.
 
 ## 3. Firmware and digital
 

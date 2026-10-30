@@ -1,5 +1,5 @@
 {
-  "board_sha256": "780bf3aef5ba341ad6dbde36b00f73b8c0cba0760d93c497ea63ae0f9f5db2ee",
+  "board_sha256": "490892127c7f1713881aaff3e4493406874ff5b9f9b311f81d124b095d4a76ca",
   "method": "native pcbnew PAD.HitTest with drill-radius accuracy; all SMT pads/all through vias",
   "required_process": "standard tented vias (no POFV); thermal vias in the five exposed pads stay open on top under paste, per the TI package notes (filled, plugged or tented); obtain vendor DFM approval",
   "unexpected_via_ring_smt_overlaps": [],

@@ -26,7 +26,7 @@ Fixed on the board:
 | U17 LM3880MF-1AA sequencer. FLAG1 drives ENP and FLAG2 drives ENN, open-drain, with R119/R120 100 k pull-ups to 3V3. C116 100 nF is on U17 EN; C118 100 nF bypasses U17 | PE-5, S1, S2 | TPS65131 SLVS493E 6.1: EN abs max VIN + 0.3 V; 6.5: VIL 0.4 / VIH 1.4 V, UVLO 2.1–2.7 V; 7.3.5: soft-start. LM3880 SNVS451M: 8.1.1 pull-ups; 8.3 EN not tied to VCC; Table 10-2 (AA: 10 ms ±15 %) | `../power-spurs/startup_surge.json`: 128 / 128 corners pass, 5 V ≥ 3.86 V after the first enable |
 | C117 330 µF 10 V polymer on 5 V (Nichicon PCG1A331MCL1GS) | PE-5, S1 | Carries each converter's start-up surge above the U16 limit. PCG catalog: ±20 %, 23 mΩ, one reflow at 260 °C | `startup_surge.json`: with U17 but without C117, 32 / 128 corners pass |
 | R110 stays 24 k (U16 limit 0.99 A minimum) | PE-5 | Raising the limit to 1.8 A (R110 15 k) was tried: 27 segments and 5 vias then failed the IPC-2152 10 °C rule | `../power-spurs/current_check.json` |
-| C113 1 → 4.7 µF on USB_VBUS at U16 IN | PE-1 | TPS2553 SLVS841F 10.2.1.2.4: "Additional input capacitance may be needed" against hot-plug ringing (IN abs max 7 V). VBUS capacitance stays under the USB 10 µF limit | bring-up: scope U16 IN on hot-plug |
+| C113 1 → 4.7 µF on USB_VBUS at U16 IN, then R121 1.5 Ω in C113's ground leg | PE-1 | TPS2553 SLVS841F 10.2.1.2.4: "Additional input capacitance may be needed" against hot-plug ringing (IN abs max 7 V). VBUS capacitance stays under the USB 10 µF limit. A ceramic alone rings with the cable: an ngspice sweep showed 78 / 96 USB-A plug-in corners over 7 V with C113 4.7 µF straight to GND. D1 (SRV05-4, VBR ≥ 6.0 V, no maximum) cannot be counted on | `../power-spurs/hotplug_spice.json`: with R121, 0 / 96 over 6.5 V, worst 6.24 V; bring-up: scope the VB pad |
 | R101 2.2 → 1 Ω (VRLY feed) | RC-01 | TQ2SA must-operate 3.75 V (≈ 4.05 V warm): four RESET coils at the 4.40 V USB minimum see 4.10 → 4.19 V | `../../docs/rev-e-range-switching.md` |
 | C62 (codec VREF) 1 µF X5R 50 V → 2.2 µF X5R 16 V, same land | C-02 | TAC5112 SLASF24A 7.3.5: "minimum 1uF". The old part is about 0.65 µF at 2.75 V, −10 % and 85 °C; the new one is about 1.3 µF | firmware: VREF_QCHG (list below) |
 | Test pads TP15–TP21: I2S BCLK, FSYNC, DOUT, DIN at the codec end with a GND pad; USB_VBUS at U16 IN with a GND pad | C-07, D-1, MCU D1, PE-1 | digital and supply nets only | `../../cad/tools/rev_f_routes.py` TESTPOINTS |
@@ -41,7 +41,7 @@ Severities are the reviewers'. "Bring-up" means a check in `docs/bring-up-rev-e.
 
 | ID | Severity | Disposition |
 |---|---|---|
-| PE-1 | RISK (high) | Fixed: C113 4.7 µF. Bring-up: scope U16 IN on hot-plug with 1 m and 2 m cables at the new VB pad |
+| PE-1 | RISK (high) | Fixed: C113 4.7 µF damped by R121 1.5 Ω (`hotplug_spice.py`). Bring-up: scope U16 IN on hot-plug with 1 m and 2 m cables and a USB-A to C cable at the new VB pad |
 | PE-2 | VIOLATION (known FLAG) | Accepted for Rev F, as already argued in `regulator_check.json`: the board draws about 0.46 A from attach. C117 adds an inrush of about 2 ms at the U16 limit. TPS2553 SLVS841F 11.2: a bus-powered function above 44 Ω ∥ 10 µF must limit inrush, and U16 is that limiter |
 | PE-3 | RISK | Firmware: bus-powered, 500 mA max power |
 | PE-4 | RISK | Bring-up: scope U16 IN/OUT and a USB meter during power-up |

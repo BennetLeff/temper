@@ -115,6 +115,12 @@ design['pinouts']['SEQ'] = {'1': ['VCC', 'power_in'], '2': ['GND', 'power_in'], 
 parts['C113'].update(value='4.7uF 25V X5R', mpn='CL21A475KAQNNNE', manufacturer='Samsung Electro-Mechanics',
                      lcsc='C1779', unit_usd=0.0343, stock=1868135,
                      source_query='TPS2553 IN bulk against hot-plug ringing (SLVS841F 10.2.1.2.4)')
+# ...but a ceramic alone rings with the cable: a USB-A port is always live, so plugging in is a hard step, and
+# 0.3-1.5 uH of cable into 2.5-5.2 uF peaks at up to 10.4 V (78 of 96 corners over 7 V); D1 (SRV05-4, VBR
+# >= 6.0 V with no maximum, ~2 ohm dynamic) cannot be counted on.  R121 1.5 ohm in C113's ground leg damps it:
+# 0 of 96 corners over 6.5 V, worst 6.24 V (validation/power-spurs/hotplug_spice.py).  C15 100 nF stays U16's
+# direct IN bypass (SLVS841F 10.2.1.2.4: 0.1 uF or greater ceramic).
+parts['C113']['pins'] = {'1': 'USB_VBUS', '2': 'VBUS_DAMP'}
 # Relay coil drive: four RESET coils (112 mA) through R101 at the 4.40 V USB minimum see 4.10 V on 2.2 ohm,
 # 4.19 V on 1 ohm, against 3.75 V must-operate (TQ2SA, ~4.05 V warm).  1 ohm is R95/R96's line.
 # Codec VREF (audit C-02): TAC5112 7.3.5 "minimum 1uF"; 1 uF X5R at 2.75 V, -10 % and 85 C is ~0.65 uF.
@@ -133,6 +139,9 @@ START_PARTS = [
           fp='Capacitor_SMD:C_0603_1608Metric', mfr='YAGEO'),
     _part('C118', 'C', '100nF 50V', {'1': 'GND', '2': '3V3'}, 'CC0603KRX7R9BB104', 'C14663', 0.0086, 38089472,
           'U17 VCC bypass', fp='Capacitor_SMD:C_0603_1608Metric', mfr='YAGEO'),
+    dict(_part('R121', 'R', '1.5R', {'1': 'VBUS_DAMP', '2': 'GND'}, '0603WAF150KT5E', 'C22769', 0.0028, 220482,
+               'C113 hot-plug damping in its ground leg (hotplug_spice.py: 1.5 ohm, worst 6.24 V vs 7 V abs max)'),
+         library_type='extended'),
     dict(_part('U17', 'SEQ', 'LM3880-1AA', {'1': '3V3', '2': 'GND', '3': 'SEQ_EN', '4': None, '5': 'CONV_ENN',
                                            '6': 'CONV_ENP'}, 'LM3880MF-1AA/NOPB', 'C486059', 1.8617, 221,
                'TPS65131 enable sequencer: FLAG1 ENP, FLAG2 ENN, 10 ms steps (SNVS451M Table 10-2, AA)',
@@ -236,6 +245,7 @@ PLACE = {
     # power entry under the receptacle: TPS2553 (IN/EN east, OUT/ILIM west), C113 at IN, C16 shared by
     # U16 OUT and U3 IN, U3 with C17 at OUT; the 5 V trunk leaves on B.Cu east of U3
     'U16': (55.6, 129.9, 180), 'C113': (59.2, 130.0, -90), 'R110': (52.0, 129.9, 90),
+    'R121': (61.0, 131.725, 270),
     'C16': (55.0, 132.9, 180), 'U3': (56.85, 135.9, 0), 'C17': (60.0, 135.65, -90),
     # codec 5VA filter at U15
     'FB1': (53.0, 87.0, 90), 'C103': (55.2, 87.0, -90),

@@ -1,0 +1,319 @@
+{
+ "ngspice": "** ngspice-41 : Circuit level simulation program",
+ "limits_v": {
+  "abs_max": 7.0,
+  "recommended_max": 6.5
+ },
+ "as_built a_to_c no_d1 (pass/fail row)": {
+  "corners": 96,
+  "over_abs_max_7v": 0,
+  "over_recommended_6v5": 0,
+  "pass": true,
+  "worst": {
+   "set": "as_built a_to_c no_d1 (pass/fail row)",
+   "vbus": 5.5,
+   "l_uh": 1.5,
+   "r_ohm": 0.05,
+   "c113_uf": 2.538,
+   "vpk": 6.24,
+   "vend": 5.5
+  },
+  "best": {
+   "set": "as_built a_to_c no_d1 (pass/fail row)",
+   "vbus": 5.0,
+   "l_uh": 0.3,
+   "r_ohm": 0.3,
+   "c113_uf": 5.17,
+   "vpk": 4.999,
+   "vend": 4.999
+  }
+ },
+ "as_built a_to_c d1_at_min_vbr": {
+  "corners": 96,
+  "over_abs_max_7v": 0,
+  "over_recommended_6v5": 0,
+  "pass": true,
+  "worst": {
+   "set": "as_built a_to_c d1_at_min_vbr",
+   "vbus": 5.5,
+   "l_uh": 1.5,
+   "r_ohm": 0.05,
+   "c113_uf": 2.538,
+   "vpk": 6.197,
+   "vend": 5.5
+  },
+  "best": {
+   "set": "as_built a_to_c d1_at_min_vbr",
+   "vbus": 5.0,
+   "l_uh": 0.3,
+   "r_ohm": 0.3,
+   "c113_uf": 5.17,
+   "vpk": 4.999,
+   "vend": 4.999
+  }
+ },
+ "as_built c_to_c no_d1, 100 us ramp": {
+  "corners": 96,
+  "over_abs_max_7v": 0,
+  "over_recommended_6v5": 0,
+  "pass": true,
+  "worst": {
+   "set": "as_built c_to_c no_d1, 100 us ramp",
+   "vbus": 5.5,
+   "l_uh": 1.5,
+   "r_ohm": 0.05,
+   "c113_uf": 2.538,
+   "vpk": 5.538,
+   "vend": 5.5
+  },
+  "best": {
+   "set": "as_built c_to_c no_d1, 100 us ramp",
+   "vbus": 5.0,
+   "l_uh": 0.3,
+   "r_ohm": 0.05,
+   "c113_uf": 5.17,
+   "vpk": 5.0,
+   "vend": 5.0
+  }
+ },
+ "before R121 (C113 4.7 uF straight to GND) a_to_c no_d1": {
+  "corners": 96,
+  "over_abs_max_7v": 78,
+  "over_recommended_6v5": 87,
+  "pass": false,
+  "worst": {
+   "set": "before R121 (C113 4.7 uF straight to GND) a_to_c no_d1",
+   "vbus": 5.5,
+   "l_uh": 1.5,
+   "r_ohm": 0.05,
+   "c113_uf": 2.538,
+   "vpk": 10.427,
+   "vend": 4.994
+  },
+  "best": {
+   "set": "before R121 (C113 4.7 uF straight to GND) a_to_c no_d1",
+   "vbus": 5.0,
+   "l_uh": 0.3,
+   "r_ohm": 0.3,
+   "c113_uf": 5.17,
+   "vpk": 5.379,
+   "vend": 5.0
+  }
+ },
+ "before_audit (C113 1 uF) a_to_c no_d1": {
+  "corners": 96,
+  "over_abs_max_7v": 95,
+  "over_recommended_6v5": 96,
+  "pass": false,
+  "worst": {
+   "set": "before_audit (C113 1 uF) a_to_c no_d1",
+   "vbus": 5.5,
+   "l_uh": 1.5,
+   "r_ohm": 0.05,
+   "c113_uf": 0.54,
+   "vpk": 10.713,
+   "vend": 5.595
+  },
+  "best": {
+   "set": "before_audit (C113 1 uF) a_to_c no_d1",
+   "vbus": 5.0,
+   "l_uh": 0.3,
+   "r_ohm": 0.3,
+   "c113_uf": 1.1,
+   "vpk": 6.845,
+   "vend": 5.0
+  }
+ },
+ "fix: 0.22 ohm in series with C113": {
+  "corners": 96,
+  "over_abs_max_7v": 40,
+  "over_recommended_6v5": 58,
+  "pass": false,
+  "worst": {
+   "set": "fix: 0.22 ohm in series with C113",
+   "vbus": 5.5,
+   "l_uh": 1.5,
+   "r_ohm": 0.05,
+   "c113_uf": 2.538,
+   "vpk": 8.848,
+   "vend": 5.499
+  },
+  "best": {
+   "set": "fix: 0.22 ohm in series with C113",
+   "vbus": 5.0,
+   "l_uh": 0.3,
+   "r_ohm": 0.3,
+   "c113_uf": 5.17,
+   "vpk": 5.0,
+   "vend": 5.0
+  }
+ },
+ "fix: 0.47 ohm in series with C113": {
+  "corners": 96,
+  "over_abs_max_7v": 10,
+  "over_recommended_6v5": 23,
+  "pass": false,
+  "worst": {
+   "set": "fix: 0.47 ohm in series with C113",
+   "vbus": 5.5,
+   "l_uh": 1.5,
+   "r_ohm": 0.05,
+   "c113_uf": 2.538,
+   "vpk": 7.788,
+   "vend": 5.5
+  },
+  "best": {
+   "set": "fix: 0.47 ohm in series with C113",
+   "vbus": 5.0,
+   "l_uh": 0.3,
+   "r_ohm": 0.2,
+   "c113_uf": 5.17,
+   "vpk": 5.0,
+   "vend": 5.0
+  }
+ },
+ "fix: 0.68 ohm in series with C113": {
+  "corners": 96,
+  "over_abs_max_7v": 2,
+  "over_recommended_6v5": 11,
+  "pass": false,
+  "worst": {
+   "set": "fix: 0.68 ohm in series with C113",
+   "vbus": 5.5,
+   "l_uh": 1.5,
+   "r_ohm": 0.05,
+   "c113_uf": 2.538,
+   "vpk": 7.231,
+   "vend": 5.5
+  },
+  "best": {
+   "set": "fix: 0.68 ohm in series with C113",
+   "vbus": 5.0,
+   "l_uh": 0.3,
+   "r_ohm": 0.1,
+   "c113_uf": 5.17,
+   "vpk": 5.0,
+   "vend": 5.0
+  }
+ },
+ "fix: 1 ohm in series with C113": {
+  "corners": 96,
+  "over_abs_max_7v": 0,
+  "over_recommended_6v5": 2,
+  "pass": true,
+  "worst": {
+   "set": "fix: 1 ohm in series with C113",
+   "vbus": 5.5,
+   "l_uh": 1.5,
+   "r_ohm": 0.05,
+   "c113_uf": 2.538,
+   "vpk": 6.695,
+   "vend": 5.5
+  },
+  "best": {
+   "set": "fix: 1 ohm in series with C113",
+   "vbus": 5.0,
+   "l_uh": 0.3,
+   "r_ohm": 0.1,
+   "c113_uf": 5.17,
+   "vpk": 5.0,
+   "vend": 5.0
+  }
+ },
+ "fix: 1.5 ohm in series with C113": {
+  "corners": 96,
+  "over_abs_max_7v": 0,
+  "over_recommended_6v5": 0,
+  "pass": true,
+  "worst": {
+   "set": "fix: 1.5 ohm in series with C113",
+   "vbus": 5.5,
+   "l_uh": 1.5,
+   "r_ohm": 0.05,
+   "c113_uf": 2.538,
+   "vpk": 6.242,
+   "vend": 5.5
+  },
+  "best": {
+   "set": "fix: 1.5 ohm in series with C113",
+   "vbus": 5.0,
+   "l_uh": 0.3,
+   "r_ohm": 0.3,
+   "c113_uf": 5.17,
+   "vpk": 4.999,
+   "vend": 4.999
+  }
+ },
+ "fix: 2.2 ohm in series with C113": {
+  "corners": 96,
+  "over_abs_max_7v": 0,
+  "over_recommended_6v5": 5,
+  "pass": true,
+  "worst": {
+   "set": "fix: 2.2 ohm in series with C113",
+   "vbus": 5.5,
+   "l_uh": 0.3,
+   "r_ohm": 0.05,
+   "c113_uf": 2.538,
+   "vpk": 6.86,
+   "vend": 5.5
+  },
+  "best": {
+   "set": "fix: 2.2 ohm in series with C113",
+   "vbus": 5.0,
+   "l_uh": 0.6,
+   "r_ohm": 0.3,
+   "c113_uf": 5.17,
+   "vpk": 4.995,
+   "vend": 4.995
+  }
+ },
+ "fix: snubber 0.47 ohm + 4.7 uF beside C113": {
+  "corners": 96,
+  "over_abs_max_7v": 47,
+  "over_recommended_6v5": 59,
+  "pass": false,
+  "worst": {
+   "set": "fix: snubber 0.47 ohm + 4.7 uF beside C113",
+   "vbus": 5.5,
+   "l_uh": 1.5,
+   "r_ohm": 0.05,
+   "c113_uf": 2.538,
+   "vpk": 9.148,
+   "vend": 5.708
+  },
+  "best": {
+   "set": "fix: snubber 0.47 ohm + 4.7 uF beside C113",
+   "vbus": 5.0,
+   "l_uh": 0.3,
+   "r_ohm": 0.2,
+   "c113_uf": 5.17,
+   "vpk": 5.0,
+   "vend": 5.0
+  }
+ },
+ "fix: snubber 1 ohm + 4.7 uF beside C113": {
+  "corners": 96,
+  "over_abs_max_7v": 47,
+  "over_recommended_6v5": 58,
+  "pass": false,
+  "worst": {
+   "set": "fix: snubber 1 ohm + 4.7 uF beside C113",
+   "vbus": 5.5,
+   "l_uh": 1.5,
+   "r_ohm": 0.05,
+   "c113_uf": 2.538,
+   "vpk": 8.739,
+   "vend": 5.503
+  },
+  "best": {
+   "set": "fix: snubber 1 ohm + 4.7 uF beside C113",
+   "vbus": 5.0,
+   "l_uh": 0.3,
+   "r_ohm": 0.3,
+   "c113_uf": 2.538,
+   "vpk": 5.0,
+   "vend": 5.0
+  }
+ }
+}

@@ -6,7 +6,7 @@
    "model": "GZ2012D101TF",
    "library": "base",
    "preferred": false,
-   "stock": 2319785,
+   "stock": 2313843,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -40,7 +40,7 @@
    "model": "CC0603JRNPO9BN561",
    "library": "expand",
    "preferred": false,
-   "stock": 256580,
+   "stock": 253619,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -74,7 +74,7 @@
    "model": "RT0603BRD071KL",
    "library": "expand",
    "preferred": false,
-   "stock": 1569426,
+   "stock": 1544122,
    "least": 20,
    "loss": 8,
    "tiers": [
@@ -108,7 +108,7 @@
    "model": "RT0603BRD07100KL",
    "library": "expand",
    "preferred": false,
-   "stock": 1332850,
+   "stock": 1371381,
    "least": 20,
    "loss": 8,
    "tiers": [
@@ -142,7 +142,7 @@
    "model": "RT0603BRD07100RL",
    "library": "expand",
    "preferred": false,
-   "stock": 358500,
+   "stock": 361054,
    "least": 20,
    "loss": 8,
    "tiers": [
@@ -176,7 +176,7 @@
    "model": "0603WAF4022T5E",
    "library": "expand",
    "preferred": true,
-   "stock": 154925,
+   "stock": 154375,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -210,7 +210,7 @@
    "model": "CL31A226KAHNNNE",
    "library": "base",
    "preferred": false,
-   "stock": 1779284,
+   "stock": 1775464,
    "least": 5,
    "loss": 4,
    "tiers": [
@@ -244,7 +244,7 @@
    "model": "CL32B106KBJNNNE",
    "library": "expand",
    "preferred": false,
-   "stock": 107511,
+   "stock": 101368,
    "least": 5,
    "loss": 0,
    "tiers": [
@@ -278,7 +278,7 @@
    "model": "CC0603KRX7R9BB104",
    "library": "base",
    "preferred": false,
-   "stock": 37911847,
+   "stock": 42234361,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -287,23 +287,23 @@
      0.0086
     ],
     [
-     500,
+     1000,
      0.0067
     ],
     [
-     1500,
+     3000,
      0.0057
     ],
     [
-     4000,
+     8000,
      0.005
     ],
     [
-     24000,
+     48000,
      0.0045
     ],
     [
-     48000,
+     96000,
      0.0042
     ]
    ]
@@ -312,7 +312,7 @@
    "model": "CL10C101JB8NNNC",
    "library": "base",
    "preferred": false,
-   "stock": 4500024,
+   "stock": 4477733,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -346,25 +346,25 @@
    "model": "CL10A105KB8NNNC",
    "library": "base",
    "preferred": false,
-   "stock": 12503248,
+   "stock": 12320341,
    "least": 20,
    "loss": 10,
    "tiers": [
     [
      1,
-     0.014
+     0.0139
     ],
     [
      500,
-     0.0108
+     0.0107
     ],
     [
      1500,
-     0.0094
+     0.0093
     ],
     [
      4000,
-     0.0083
+     0.0082
     ],
     [
      24000,
@@ -372,7 +372,7 @@
     ],
     [
      48000,
-     0.0076
+     0.0075
     ]
    ]
   },
@@ -380,7 +380,7 @@
    "model": "CL21A106KAYNNNE",
    "library": "base",
    "preferred": false,
-   "stock": 8449644,
+   "stock": 8419684,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -448,7 +448,7 @@
    "model": "TPS7A4901DGNR",
    "library": "expand",
    "preferred": false,
-   "stock": 2323,
+   "stock": 7524,
    "least": 2,
    "loss": 0,
    "tiers": [
@@ -482,7 +482,7 @@
    "model": "CL10C150JB8NNNC",
    "library": "base",
    "preferred": false,
-   "stock": 1062397,
+   "stock": 1052755,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -516,7 +516,7 @@
    "model": "TYPE-C-31-M-12",
    "library": "expand",
    "preferred": false,
-   "stock": 285437,
+   "stock": 283779,
    "least": 2,
    "loss": 0,
    "tiers": [
@@ -550,7 +550,7 @@
    "model": "0603CG4R7C500NT",
    "library": "expand",
    "preferred": true,
-   "stock": 602399,
+   "stock": 601944,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -584,7 +584,7 @@
    "model": "FNR5040S4R7MT",
    "library": "expand",
    "preferred": false,
-   "stock": 33829,
+   "stock": 33772,
    "least": 5,
    "loss": 4,
    "tiers": [
@@ -618,7 +618,7 @@
    "model": "CL21A475KAQNNNE",
    "library": "base",
    "preferred": false,
-   "stock": 1864246,
+   "stock": 1870490,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -652,7 +652,7 @@
    "model": "RP2040",
    "library": "expand",
    "preferred": false,
-   "stock": 64694,
+   "stock": 62549,
    "least": 0,
    "loss": 0,
    "tiers": [
@@ -686,7 +686,7 @@
    "model": "ABM8-272-T3",
    "library": "expand",
    "preferred": false,
-   "stock": 675,
+   "stock": 0,
    "least": 5,
    "loss": 0,
    "tiers": [
@@ -720,7 +720,7 @@
    "model": "AO3400A",
    "library": "base",
    "preferred": false,
-   "stock": 1125167,
+   "stock": 1062429,
    "least": 5,
    "loss": 4,
    "tiers": [
@@ -754,7 +754,7 @@
    "model": "CL10B224KA8NNNC",
    "library": "base",
    "preferred": false,
-   "stock": 1017501,
+   "stock": 1011842,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -788,7 +788,7 @@
    "model": "0603WAF1001T5E",
    "library": "base",
    "preferred": false,
-   "stock": 31838598,
+   "stock": 31310638,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -822,7 +822,7 @@
    "model": "1N4148WS",
    "library": "base",
    "preferred": false,
-   "stock": 2676997,
+   "stock": 2589375,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -856,7 +856,7 @@
    "model": "OPA197IDBVR",
    "library": "expand",
    "preferred": false,
-   "stock": 85801,
+   "stock": 85767,
    "least": 0,
    "loss": 0,
    "tiers": [
@@ -886,11 +886,45 @@
     ]
    ]
   },
+  "C22769": {
+   "model": "0603WAF150KT5E",
+   "library": "expand",
+   "preferred": false,
+   "stock": 220482,
+   "least": 20,
+   "loss": 10,
+   "tiers": [
+    [
+     1,
+     0.0028
+    ],
+    [
+     1000,
+     0.0022
+    ],
+    [
+     5000,
+     0.0018
+    ],
+    [
+     10000,
+     0.0016
+    ],
+    [
+     50000,
+     0.0014
+    ],
+    [
+     50200,
+     0.0014
+    ]
+   ]
+  },
   "C22775": {
    "model": "0603WAF1000T5E",
    "library": "base",
    "preferred": false,
-   "stock": 9708376,
+   "stock": 9524288,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -924,7 +958,7 @@
    "model": "0603WAF1503T5E",
    "library": "base",
    "preferred": false,
-   "stock": 864027,
+   "stock": 852876,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -958,7 +992,7 @@
    "model": "KT-0603R",
    "library": "base",
    "preferred": false,
-   "stock": 7335497,
+   "stock": 7288344,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -992,7 +1026,7 @@
    "model": "0603WAF100KT5E",
    "library": "base",
    "preferred": false,
-   "stock": 170919,
+   "stock": 169567,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1026,7 +1060,7 @@
    "model": "0603WAF330JT5E",
    "library": "base",
    "preferred": false,
-   "stock": 4308465,
+   "stock": 4285188,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1060,7 +1094,7 @@
    "model": "0603WAF3900T5E",
    "library": "base",
    "preferred": false,
-   "stock": 2244740,
+   "stock": 2221700,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1094,7 +1128,7 @@
    "model": "0603WAF4701T5E",
    "library": "base",
    "preferred": false,
-   "stock": 15761896,
+   "stock": 15674627,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1128,7 +1162,7 @@
    "model": "0603WAF4700T5E",
    "library": "base",
    "preferred": false,
-   "stock": 4629141,
+   "stock": 4576950,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1162,7 +1196,7 @@
    "model": "0603WAF470JT5E",
    "library": "base",
    "preferred": false,
-   "stock": 1598909,
+   "stock": 1558264,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1196,7 +1230,7 @@
    "model": "0603WAF5101T5E",
    "library": "base",
    "preferred": false,
-   "stock": 21452274,
+   "stock": 21371217,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1230,7 +1264,7 @@
    "model": "0603WAF8202T5E",
    "library": "base",
    "preferred": false,
-   "stock": 1088128,
+   "stock": 1087279,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1264,7 +1298,7 @@
    "model": "0603WAF9101T5E",
    "library": "base",
    "preferred": false,
-   "stock": 619179,
+   "stock": 611154,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1298,7 +1332,7 @@
    "model": "0603WAF2402T5E",
    "library": "base",
    "preferred": false,
-   "stock": 672200,
+   "stock": 670184,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1332,7 +1366,7 @@
    "model": "CL10A225KO8NNNC",
    "library": "base",
    "preferred": false,
-   "stock": 2873317,
+   "stock": 2853095,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1366,7 +1400,7 @@
    "model": "SS14",
    "library": "base",
    "preferred": false,
-   "stock": 1835232,
+   "stock": 1825863,
    "least": 5,
    "loss": 10,
    "tiers": [
@@ -1400,7 +1434,7 @@
    "model": "0603WAF270JT5E",
    "library": "expand",
    "preferred": true,
-   "stock": 385979,
+   "stock": 384239,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1434,7 +1468,7 @@
    "model": "0603WAF1003T5E",
    "library": "base",
    "preferred": false,
-   "stock": 17971885,
+   "stock": 17757297,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1468,7 +1502,7 @@
    "model": "0603WAF1002T5E",
    "library": "base",
    "preferred": false,
-   "stock": 40628105,
+   "stock": 40312067,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1502,7 +1536,7 @@
    "model": "0603WAF4303T5E",
    "library": "expand",
    "preferred": true,
-   "stock": 187476,
+   "stock": 186566,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1536,7 +1570,7 @@
    "model": "TQ2SA-L2-5V-Z",
    "library": "expand",
    "preferred": false,
-   "stock": 1380,
+   "stock": 1375,
    "least": 0,
    "loss": 0,
    "tiers": [
@@ -1570,7 +1604,7 @@
    "model": "AR03BTCX5001",
    "library": "expand",
    "preferred": false,
-   "stock": 55479,
+   "stock": 55151,
    "least": 20,
    "loss": 8,
    "tiers": [
@@ -1604,7 +1638,7 @@
    "model": "CL21B105KBFNNNE",
    "library": "base",
    "preferred": false,
-   "stock": 2336993,
+   "stock": 2317003,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1672,7 +1706,7 @@
    "model": "GD25Q16ESIGR",
    "library": "expand",
    "preferred": false,
-   "stock": 35881,
+   "stock": 50000,
    "least": 0,
    "loss": 0,
    "tiers": [
@@ -1706,7 +1740,7 @@
    "model": "AR03BTCX2001",
    "library": "expand",
    "preferred": false,
-   "stock": 56868,
+   "stock": 56708,
    "least": 5,
    "loss": 8,
    "tiers": [
@@ -1740,7 +1774,7 @@
    "model": "TPS7A3001DGNR",
    "library": "expand",
    "preferred": false,
-   "stock": 6706,
+   "stock": 6704,
    "least": 0,
    "loss": 0,
    "tiers": [
@@ -1808,7 +1842,7 @@
    "model": "0603WAF1504T5E",
    "library": "expand",
    "preferred": true,
-   "stock": 82586,
+   "stock": 82581,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1842,7 +1876,7 @@
    "model": "0603WAF2403T5E",
    "library": "expand",
    "preferred": true,
-   "stock": 160458,
+   "stock": 157538,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -1876,7 +1910,7 @@
    "model": "0603WAF3001T5E",
    "library": "base",
    "preferred": false,
-   "stock": 7021783,
+   "stock": 6995510,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -2020,7 +2054,7 @@
    "model": "AP2112K-3.3TRG1",
    "library": "expand",
    "preferred": false,
-   "stock": 8921,
+   "stock": 8559,
    "least": 5,
    "loss": 0,
    "tiers": [
@@ -2054,7 +2088,7 @@
    "model": "0603B472K500NT",
    "library": "base",
    "preferred": false,
-   "stock": 937649,
+   "stock": 888612,
    "least": 20,
    "loss": 10,
    "tiers": [
@@ -2088,7 +2122,7 @@
    "model": "TPS2553DBVR",
    "library": "expand",
    "preferred": false,
-   "stock": 47203,
+   "stock": 46902,
    "least": 5,
    "loss": 0,
    "tiers": [
@@ -2122,33 +2156,33 @@
    "model": "0603B103K500NT",
    "library": "base",
    "preferred": false,
-   "stock": 5678195,
+   "stock": 5631095,
    "least": 20,
    "loss": 10,
    "tiers": [
     [
      1,
-     0.0103
+     0.0097
     ],
     [
      500,
-     0.008
+     0.0075
     ],
     [
      1500,
-     0.007
+     0.0066
     ],
     [
      4000,
-     0.0062
+     0.0058
     ],
     [
      24000,
-     0.0059
+     0.0056
     ],
     [
      48000,
-     0.0057
+     0.0054
     ]
    ]
   },
@@ -2156,7 +2190,7 @@
    "model": "TS-1088-AR02016",
    "library": "base",
    "preferred": false,
-   "stock": 615175,
+   "stock": 605226,
    "least": 5,
    "loss": 4,
    "tiers": [
@@ -2190,7 +2224,7 @@
    "model": "TSW-102-07-G-S",
    "library": "expand",
    "preferred": false,
-   "stock": 1446,
+   "stock": 1435,
    "least": 2,
    "loss": 0,
    "tiers": [
@@ -2224,7 +2258,7 @@
    "model": "BAT54S",
    "library": "expand",
    "preferred": true,
-   "stock": 757380,
+   "stock": 755043,
    "least": 10,
    "loss": 5,
    "tiers": [
@@ -2258,7 +2292,7 @@
    "model": "SRV05-4",
    "library": "expand",
    "preferred": true,
-   "stock": 118364,
+   "stock": 117412,
    "least": 5,
    "loss": 4,
    "tiers": [
@@ -2292,7 +2326,7 @@
    "model": "RT0603BRD0722RL",
    "library": "expand",
    "preferred": false,
-   "stock": 13765,
+   "stock": 13745,
    "least": 20,
    "loss": 8,
    "tiers": [
@@ -2326,7 +2360,7 @@
    "model": "RT0603BRD072K2L",
    "library": "expand",
    "preferred": false,
-   "stock": 129833,
+   "stock": 129485,
    "least": 20,
    "loss": 8,
    "tiers": [
@@ -2360,7 +2394,7 @@
    "model": "TPS65131RGER",
    "library": "expand",
    "preferred": false,
-   "stock": 1831,
+   "stock": 1824,
    "least": 0,
    "loss": 0,
    "tiers": [

@@ -453,8 +453,8 @@ def main():
     check("USB 2.0 unconfigured draw (U16 EN tied to VBUS: full load from attach)", I_IN_EST, USB2_UNCONFIGURED_A,
           I_IN_EST <= USB2_UNCONFIGURED_A,
           "A; USB 2.0 7.2.1 allows one unit load (100 mA) before configuration. The board powers everything at "
-          "attach (TPS2553 SOT-23 pin 3 EN, active high, on USB_VBUS). Hosts commonly tolerate it; a strict hub may not. firmware-rev-e also declares "
-          "PICO_STDIO_USB_DEVICE_SELF_POWERED=1 on a bus-powered board (should be bus-powered, 500 mA max power)")
+          "attach (TPS2553 SOT-23 pin 3 EN, active high, on USB_VBUS). Hosts commonly tolerate it; a strict hub may not. firmware-rev-e declares "
+          "bus-powered, 500 mA max power (src/usb_descriptors.c, 2026-10-30)")
     near = min((dist(l, u), l, u) for l in ("L1", "L2", "D2", "D3", "U13")
                for u in ("U4", "U5", "U6", "U7", "U8", "U9", "U10", "U14") if u in POS)   # U14: Rev E codec
     check("Switcher magnetics/switch nodes to nearest analog IC (CPL centres)", f"{near[0]:.1f} mm ({near[1]}-{near[2]})",

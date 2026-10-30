@@ -725,9 +725,9 @@
         0
       ],
       "C17": [
-        61.545,
-        132.762,
-        90
+        58.477,
+        133.319,
+        0
       ],
       "C18": [
         59.112,
@@ -1195,8 +1195,8 @@
       ],
       [
         "VB",
-        62.0,
-        130.45,
+        62.28,
+        130.36,
         1.0
       ],
       [
@@ -6121,7 +6121,7 @@
       "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "pins": {
         "1": "USB_VBUS",
-        "2": "GND"
+        "2": "VBUS_DAMP"
       },
       "pcb": [
         59.2,
@@ -7946,6 +7946,30 @@
       "library_type": "basic",
       "assembly": "SMT",
       "source_query": "U17 VCC bypass"
+    },
+    {
+      "ref": "R121",
+      "value": "1.5R",
+      "kind": "R",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "pins": {
+        "1": "VBUS_DAMP",
+        "2": "GND"
+      },
+      "pcb": [
+        61.0,
+        131.725,
+        270
+      ],
+      "sheet": "power",
+      "mpn": "0603WAF150KT5E",
+      "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
+      "lcsc": "C22769",
+      "unit_usd": 0.0028,
+      "stock": 220482,
+      "library_type": "extended",
+      "assembly": "SMT",
+      "source_query": "C113 hot-plug damping in its ground leg (hotplug_spice.py: 1.5 ohm, worst 6.24 V vs 7 V abs max)"
     },
     {
       "ref": "U17",
