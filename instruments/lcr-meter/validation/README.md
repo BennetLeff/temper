@@ -4,9 +4,9 @@
 
 Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm (no autorouter), SHA256:
 
-`e765313aa4b536c1220033fd4cac6225f0b7eaeeaf27cd6b5231f7e1388ca3cd`
+`056dd18407aceda4ae1ef3ef553b541d2acb7aed26340569ad6edcc4b8aa0e57`
 
-(2026-10-29, after the indicator-LED change (D4 front-panel side-looking LED, D15–D20 debug LEDs; [rev-f-plan.md](../docs/rev-f-plan.md) "Indicator LEDs") and the fabrication cleanups: pre-DRC angle rule, three fiducials, silk at 1.0 / 0.15 mm, nine test pads, edge-rail decision.) KiCad 10.0.4. The full before/after comparison with Rev E is [rev-f-before-after.md](../docs/rev-f-before-after.md); the plan, gates and decisions are [rev-f-plan.md](../docs/rev-f-plan.md).
+(2026-10-29, after the indicator-LED change (D4 front-panel side-looking LED, D15–D20 debug LEDs; [rev-f-plan.md](../docs/rev-f-plan.md) "Indicator LEDs") and the fabrication cleanups: pre-DRC angle rule, three fiducials, silk at 1.0 / 0.15 mm, nine test pads, edge-rail decision; then the review craft pass: craft rules (T-junctions, land entries, chamfers, 0.6 mm vias), 2.0 mm 5 V trunk and IPC-2152 supply sizing, GND pours on In2 / B.Cu with stitching, teardrops, references on silk, five relay-coil test pads, fabrication and assembly drawings.) KiCad 10.0.4. The full before/after comparison with Rev E is [rev-f-before-after.md](../docs/rev-f-before-after.md); the plan, gates and decisions are [rev-f-plan.md](../docs/rev-f-plan.md).
 
 | Check | Result | Evidence |
 |---|---|---|
@@ -14,14 +14,19 @@ Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm
 | Independent audit (Rev F) | 656 pins, 12 relief pins, 0 findings | `independent-verification-rev-f.json` (`independent_check.py f`) |
 | DFM via audit | 33 exposed-pad thermal vias only; no other via drill or ring on an SMT land; every via tented in CAD | `via-in-pad-process.json` (`cad/audit_dfm.py`) |
 | Layout audit | decoupling, exposed-pad vias, regulator support parts, feedback lengths | `layout-audit-rev-f.json` (`cad/tools/audit_layout.py`) |
-| Extracted parasitics (gate G1, high corner) | source 11.39 pF ≤ 13.7, tia 13.63 pF ≤ 14.7 | `layout-parasitics/extracted_revf.json` (`run_reve.sh revf`) |
-| Loop stability, as built (not rerun for the LEDs, fiducials or test pads: no analog-net copper moved; per-net diff against `7222e98cb` changes only 3V3, 5V, ±12V, GND, RAW_P/N, VRLY, USB_VBUS, USB_DP, RUN, UART_RX/TX) | 360 cases with dip refinement; worst drive 47.84°, TIA 57.32°, HIGH 57.56°, LOW 56.71°; lossy RG-58 leads within 0.4° | `stability-full-chain/` (`revfcng100`, `revflossycng100`) |
-| Regulators | 51 PASS, 2 FLAG (USB unconfigured draw; R95/R96 headroom with TCR), 0 FAIL; input estimate 0.4617 A with the LEDs at about 0.5 mA (38 mA under 0.5 A); 5 V trunk 39.7 mV | `power-spurs/regulator_check.json` |
+| Extracted parasitics (gate G1, high corner), rerun with the pours and teardrops | source 11.68 pF ≤ 13.7, tia 14.02 pF ≤ 14.7 (before the pours 11.39 / 13.63) | `layout-parasitics/extracted_revf.json` (`run_reve.sh revf`; fd3d rasterizes every zone fill) |
+| Loop stability, as built (rerun on the extraction above) | 360 cases with dip refinement; worst drive 47.76°, TIA 57.28°, HIGH 57.57°, LOW 56.61° (Rev E 46.83 / 57.21 / 57.05 / 55.89°); lossy RG-58 leads 47.76 / 57.68 / 57.55 / 56.58° | `stability-full-chain/` (`revfcng100`, `revflossycng100`) |
+| Regulators | 51 PASS, 2 FLAG (USB unconfigured draw; R95/R96 headroom with TCR), 0 FAIL; input estimate 0.4617 A with the LEDs at about 0.5 mA (38 mA under 0.5 A); 5 V trunk 23.0 mV (2.0 mm strip) | `power-spurs/regulator_check.json` |
 | Rail monitor windows | unchanged with the ±12 V LED loads: +12 [10.2, 13.4] V, −12 [10.5, 14.1] V | `power-spurs/rail_monitor_window.json` |
 | Parts and placements | 213 fitted of 216, 209 SMT placements, 66 SMT lines (24 extended: C160472 added); LED CPL offsets 0 (C2286 RMS 0.04 mm, C160472 RMS 0.10 mm) | `cad-bom-parity.json`, `../sources/placement-rev-c.json` |
-| Switcher pickup (relative to Rev E, not a bound) | TIA C104 loop +6.0 dB, RF100K loop +4.3 dB; Kelvin inputs −23 to −42 dB | `power-spurs/switcher_pickup-rev-f.json` |
-| Fiducials and test pads | FID1–FID3 (Fiducial_1mm_Mask2mm), no copper within 2.0 mm; TP1–TP9 (TestPoint_Pad_D1.5mm) on 5V, 3V3, ±12V, RAW_P/N, VRLY and two GND; all board-only, absent from BOM and CPL (209 placements unchanged); order estimates unchanged | `cad/design.json` `board`, `../manufacturing/cpl-jlcpcb.csv`, `../manufacturing/order-estimate-{2,5}.json` |
-| Edge copper (V-cut rails left and right) | nearest copper to the left/right edges 0.50 mm (In1 plane), nearest track 0.90 mm, nearest land 0.95 mm (L2) | `edge-clearance-rev-f.json` (`cad/tools/edge_clearance.py`) |
+| Switcher pickup (relative to Rev E, not a bound) | TIA C104 loop +4.5 dB, RF100K loop +4.3 dB; Kelvin inputs −23 to −42 dB | `power-spurs/switcher_pickup-rev-f.json` |
+| Fiducials and test pads | FID1–FID3 (Fiducial_1mm_Mask2mm), no copper within 2.0 mm; TP1–TP9 (TestPoint_Pad_D1.5mm) on 5V, 3V3, ±12V, RAW_P/N, VRLY and two GND; TP10–TP14 on the relay coil lines at the drivers, 10.7–19.0 mm from analog copper (asserted in `rev_f.py`); all board-only, absent from BOM and CPL (209 placements unchanged); order estimates unchanged | `cad/design.json` `board`, `../manufacturing/cpl-jlcpcb.csv`, `../manufacturing/order-estimate-{2,5}.json` |
+| Edge copper (V-cut rails left and right) | nearest copper to the left/right edges 0.50 mm (GND plane and pours, all inset 0.5 mm), nearest track 0.90 mm, nearest land 0.95 mm (L2) | `edge-clearance-rev-f.json` (`cad/tools/edge_clearance.py`) |
+| Craft rules (pre-DRC, `cad/tools/craft.py`) | T-junctions 53 → 0; 90° bends 140 → 8, off-axis land entries 246 → 24 (all listed exceptions in `routing.json`); vias 307 → 425 (0.45 mm pads 198 → 36, the rest 0.60 / 0.55); `test_craft.py` 28 pass | `../cad/routing.json` `craft_exceptions`, `python3 -m pytest cad/tools/test_craft.py` |
+| Supply copper, IPC-2152 at 10 °C rise | 7 supply nets, every segment and via PASS (1.17 A on USB_VBUS / 5V); 5 V trunk 49.8 mΩ, 23.0 mV at 0.4617 A | `power-spurs/current_check.json`, `power-spurs/regulator_check.json` |
+| GND pours and return paths | copper In2 4.6 → 46 %, B.Cu 5.9 → 46.5 %; 118 stitching vias; I2S BCLK loop 84.0 → 40.8 mm², USB_DP 32.1 → 20.6 mm² | `pour-report-rev-f.json` (`cad/tools/pour_report.py`) |
+| Teardrops | 939 KiCad teardrop zones; 383 / 413 via ends and 425 / 602 pad ends carry one; none disabled; two rebuilds byte-identical | `pour-report-rev-f.json` |
+| References and drawings | 190 of 216 references on silk (26 on the assembly drawing only); `manufacturing/assembly-top.pdf`, `manufacturing/fab-drawing.pdf` and the Dwgs.User Gerber | `../cad/tools/silk_library.json`, `../manufacturing/` |
 | Enclosure wall rise at 2.3 W (estimate) | 8.0 K (Rev E box 6.4 K) | `docs/rev-f-before-after.md` |
 
 **Not rerun for Rev F** (layout-independent or assumed strays): `source_stage.py`, `rev_e_spurs.py`, the accuracy map, the visual-review receipt. **Not established:** everything listed under Rev E below. Ordering steps open: JLC re-quote with the Gerbers, via covering "Plugged" in vendor DFM, placement-preview approval. No manufacturer upload or purchase has occurred.

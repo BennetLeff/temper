@@ -7,12 +7,12 @@ Rev F is the Rev E circuit (same netlist, same BOM) re-laid from 140 × 105 mm t
 **Verdict.** **Rev F is a viable replacement for Rev E on the evidence below. It is not ordered.** The Rev F package sits in `manufacturing/rev-f/`; Rev E's `manufacturing/` is unchanged.
 
 - **Build gates:** all clean.
-- **Gate G1:** the extracted node capacitances pass (source 11.4 ≤ 13.7 pF, tia 13.6 ≤ 14.7 pF at the high corner).
-- **Stability:** every loop's worst phase margin over the 360-case matrix is at or above Rev E's, with the lossless or the lossy lead model (drive +1.0°, TIA +0.1°, HIGH +0.5°, LOW +0.8°).
+- **Gate G1:** the extracted node capacitances pass (source 11.7 ≤ 13.7 pF, tia 14.0 ≤ 14.7 pF at the high corner, after the GND pours and teardrops of §10; 11.4 / 13.6 before them).
+- **Stability:** every loop's worst phase margin over the 360-case matrix is at or above Rev E's, with the lossless or the lossy lead model (after §10: drive +0.9°, TIA +0.1°, HIGH +0.5°, LOW +0.7°).
 - **min |1+T|:** at or above Rev E's in every loop once the matrix resolves narrow dips (§3).
 - **Fabrication:** JLC's quote page reads **$25.70 for five boards against $52.40** for the Rev E outline, same day, same options.
 - **What it costs:**
-  - a 5 V trunk three times longer (38 mV at 0.45 A, PASS);
+  - a 5 V trunk three times longer (23 mV at 0.46 A on the 2.0 mm strip, PASS);
   - the TIA's C104 loop sits nearer the switcher (+6 dB relative near-field pickup; not a bound);
   - the box wall runs about 1.6 K warmer (8.0 vs 6.4 K rise, estimate).
 - **Enclosure:** the footprint shrinks by 30 %.
@@ -242,12 +242,36 @@ The jacks' reach in front of the board edge (18.5 mm, SAMZO drawing BNCKYWE-P039
 6. **Not rerun for Rev F** (layout-independent or assumed-strays inputs): `source_stage.py` (U5 strays are assumed values, not extracted), `rev_e_spurs.py`, `rail_monitor_window.py` (same dividers), the accuracy map, and the visual-review receipt. `regulator_check-rev-f.json` predates the C104 move, which touches none of its rows.
 7. **Fabrication options**: "Tented" vias are not selectable on today's quote page (§6). Confirm the via covering and re-quote with the Gerbers at upload; the JLC placement preview is still required for the CPL.
 
+## 10. Review craft pass (2026-10-29)
+
+After a mock professional review, the board got the craft fixes a layout reviewer asks for. Each has a permanent check (pre-DRC, a `cad/tools` script or an assert in `rev_f.py`), and every pass and check lives in one pure module, `cad/tools/craft.py`, with `cad/tools/test_craft.py` (28 synthetic cases). Before = `ae4525852`, after = this tree. Decisions and reasons are rows in [rev-f-plan.md](rev-f-plan.md).
+
+| Item | Before | After |
+|---|---|---|
+| T-junctions onto a segment | 53 | **0** |
+| 90° bends (not at a via or in a land) | 140 | **8**, each a listed exception (no 45° cut fits) |
+| Track leaving a land off its axis | 246 | **24** ends, all listed exceptions |
+| Vias (all 0.30 mm drill) | 307: 198 × 0.45, 27 × 0.55, 82 × 0.60 mm | **425**: 36 × 0.45, 27 × 0.55, 362 × 0.60 mm (118 GND stitching) |
+| Copper: F / In1 / In2 / B | 11 / 96 / 4.6 / 5.9 % | 12 / 96 / **46 / 46.5 %** (GND pours off the analog core, 1.7 mm off every analog net) |
+| I2S BCLK return loop (reference height × run) | 84.0 mm² (1.29 mm) | **40.8 mm²** (0.63 mm); USB_DP 32.1 → 20.6 mm² |
+| 5 V trunk U16 → U13 | 84.2 mΩ, 38.9 mV | **49.8 mΩ, 23.0 mV** (2.0 mm B.Cu strip) |
+| IPC-2152 supply check (10 °C rise) | none | 7 nets, 0 FAIL |
+| Teardrops | none | 939 (KiCad's generator, deterministic rebuild) |
+| References on silk | 7 (IC, by hand) | **190 of 216**; all on `manufacturing/assembly-top.pdf` |
+| Relay-coil test pads | none | TP10–TP14 at the drivers, ≥ 10.7 mm from analog copper |
+| Fabrication drawing | order notes only | `manufacturing/fab-drawing.pdf` + Dwgs.User Gerber |
+| G1, high corner: source / tia | 11.39 / 13.63 pF | **11.68 / 14.02 pF** (≤ 13.7 / 14.7) |
+| Worst PM drive / TIA / HIGH / LOW (lossless) | 47.84 / 57.32 / 57.56 / 56.71° | **47.76 / 57.28 / 57.57 / 56.61°** (Rev E 46.83 / 57.21 / 57.05 / 55.89°) |
+| TIA C104 loop, switcher pickup vs Rev E | +6.0 dB | +4.5 dB (chamfers shortened the loop) |
+
+The pours and teardrops cost G1 margin: the tia node rises 0.39 pF at the high corner (DUT_LO +0.62, LPOT +0.46 pF), leaving 0.68 pF to the 14.7 pF gate. The matrix moves by at most 0.1°. C80's GND return via moved from 1.23 to 2.14 mm when the trunk widened (`layout-audit-rev-f.json`).
+
 ## Reproduce
 
 ```sh
 cd instruments/lcr-meter
 python3 cad/tools/rev_f.py --check               # placement + routes -> cad/design.json, cad/routing.json, pre-DRC
-sh cad/package_rev_f.sh                          # rebuild (ERC/DRC/DFM) -> manufacturing/rev-f/, Rev E outputs restored
+LCR_SKIP_ARCHIVE=1 sh cad/rebuild.sh               # rebuild (ERC/DRC/DFM, Gerbers, drawings) -> manufacturing/
 <kicad-python> validation/independent_check.py f
 LCR_REV=f <kicad-python> cad/tools/audit_layout.py
 sh validation/layout-parasitics/run_reve.sh revf  # FD extraction -> extracted_revf.json, stability-full-chain/revf_extracted.rs

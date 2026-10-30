@@ -183,15 +183,15 @@ def build(dx, window, stackup, bc):
     # ground plane In1 (actual fill)
     lab[kl['In1.Cu']][rasterize(plane_in1().intersection(win), xs, ys)] = 0
     # every other filled zone (Rev F: GND pours on B.Cu / In2, teardrops on any net), at its net's label
-    for z in g['zones']:
-        if (z['layer'] == 'In1.Cu' and z['net'] == 'GND') or z['layer'] not in kl or not z['filled']:
+    for zn in g['zones']:            # (not `z`: that is the stack-height array used below)
+        if (zn['layer'] == 'In1.Cu' and zn['net'] == 'GND') or zn['layer'] not in kl or not zn['filled']:
             continue
-        s = rings_to_polys(z['filled']).intersection(win)
+        s = rings_to_polys(zn['filled']).intersection(win)
         if s.is_empty:
             continue
         m = rasterize(s, xs, ys)
-        v = tid.get(z['net'], 0)
-        sl = lab[kl[z['layer']]]
+        v = tid.get(zn['net'], 0)
+        sl = lab[kl[zn['layer']]]
         if v == 0:
             sl[m & (sl < 0)] = 0
         else:
