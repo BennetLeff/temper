@@ -192,6 +192,12 @@ if routing.exists():
             for x,y in ko['points']:z.Outline().Append(mm(x),mm(y))
             b.Add(z)
     # Native CLI --refill-zones performs filling in its initialized KiCad context.
+# Rev F: teardrops on every via and pad (KiCad's own generator; cad/fill_zones.py has kicad-cli create them).
+if BOARD.get('teardrops'):
+    for t in b.GetTracks():
+        if isinstance(t,k.PCB_VIA):t.SetTeardropsEnabled(True)
+    for f in b.GetFootprints():
+        for pad in f.Pads():pad.SetTeardropsEnabled(True)
 k.SaveBoard(str(ROOT/'temper-lcr.kicad_pcb'),b)
 board_path=ROOT/'temper-lcr.kicad_pcb'
 item_index=iter(range(100000))

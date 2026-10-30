@@ -486,6 +486,7 @@ for v in routing['vias']:
 # they clear.  Deterministic edits of the copper above; predrc enforces the same rules (design.board.craft).
 import craft  # noqa: E402
 design['board']['craft'] = True
+design['board']['teardrops'] = True        # KiCad teardrops on every via and pad (cad/fill_zones.py)
 CRAFT = craft.run({'parts': list(parts.values()), 'board': design['board']}, routing)
 
 # ------------------------------------------------------------------ GND pours and stitching (cad/tools/pour.py)
