@@ -143,6 +143,6 @@ def test_parts_snapshot_keeps_only_the_exact_code():
     assert snap['parts']['C1'] == {'model': 'M-C1', 'library': 'expand', 'preferred': False, 'stock': 100,
                                    'least': 5, 'loss': 2, 'tiers': [[1, 0.5], [10, 0.4]]}
     assert list(parts.lookup('C1', extra=True, post=lambda b: _search_reply('C1'))) == [
-        'model', 'brand', 'describe', 'library', 'preferred', 'stock', 'least', 'loss', 'tiers', 'datasheet']
+        'model', 'brand', 'describe', 'library', 'preferred', 'stock', 'least', 'loss', 'datasheet', 'tiers']
     with pytest.raises(AssertionError):
         parts.lookup('C3', post=lambda b: _search_reply('C1'))
