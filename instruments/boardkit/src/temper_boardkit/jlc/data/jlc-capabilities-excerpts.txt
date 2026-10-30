@@ -1,0 +1,9 @@
+JLCPCB PCB capabilities, https://jlcpcb.com/capabilities/pcb-capabilities, fetched 2026-10-29, html sha256 1e9e113d6375e75855b460da132bf0c4fc852b0334b0d9d22ac8072eb63911d1
+Text excerpts (tags stripped) used by dfm_checks.py:
+
+Legend Features Capability Description Patterns Minimum Line Width ≥0.15mm Characters width less than 0.15mm will be unidentifiable. Minimum text height 40 mil (1.0mm) Characters height less than 40 mil(1.0mm) will be unidentifiable. Character width to height ratio 1:6 The preferred ratio of width to height is 1:6. Hollow-carved Character width to height ratio 1:6 The preferred ratio of width to height is 1:6 Pad To Silkscreen 0.15mm The Minimum Distance Between Pad and Silkscreen is 0.15mm. Outline Features Capabi
+
+Soldermask Features Capability Description Patterns Soldermask Expansion 1:1 LDI equipment upgraded in June 2025. Pad size:soldermask opening can be 1:1(Previous production file will be followed in Reorder). Keep at least 0.09 mm clearance between soldermask openings and neighboring traces. Soldermask bridge 0.10mm 1oz: Min. pad spacing: 0.10 mm (green, red, yellow, blue, purple) Min. pad spacing: 0.13 mm (black, white) 2oz: Min. pad spacing: 0.20 mm (any color) Plugged vias Filled with soldermask Vias are filled w
+
+Outline Features Capability Description Patterns Routed 0.2mm ① Copper clearance from routed board edges: ≧0.2 mm ② Copper clearance from routed slots: ≧0.2 mm ③ Dimension tolerance for routed board edges: ±0.2 mm (regular precision); ±0.1 mm (high precision) ④ Minimum dimension 50*50mm for high precision, and at least 3 tooling holes with minimum 1.5mm diameter on different corners. ⑤ Minimum slot width for aluminum/copper core PCB: 1.6mm. V-Cut 0.4mm ① Copper clearance from V-cut board edges: ≧0.4 mm ② Dimension 
+
