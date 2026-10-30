@@ -39,6 +39,9 @@ from temper_boardkit import craft, kicad
 The LCR meter does this once in `instruments/lcr-meter/cad/tools/boardkit_path.py`; its scripts `import
 boardkit_path` first.
 
+A sparse worktree (`git sparse-checkout list` showing only `/instruments/`) must add the package first:
+`git sparse-checkout add /packages/`.
+
 From uv, without building the workspace (the root workspace holds a maturin crate):
 
 ```sh
