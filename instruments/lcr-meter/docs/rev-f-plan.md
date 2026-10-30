@@ -227,6 +227,7 @@ The trunk runs from U16 OUT (left edge) to U13: 99 mm Manhattan, against 26 mm f
 | 2026-10-30 | **Seven more test pads (TP15–TP21): I2S BCLK / FSYNC / DOUT / DIN + GND at the codec end; USB_VBUS + GND at U16 IN** | No probe access to the I2S bus or to the hot-plug overshoot node. Digital and supply nets only; nothing on analog nodes |
 | 2026-10-30 | **DUT-jack protection deferred to Rev G as a study** (residual-voltage sense, series R at the follower inputs, clamps on the jack side) | The jacks are unprotected (audit AFE-01…04), but any change to the verified TIA/follower nodes needs re-extraction and the stability matrix. Rev F relies on the DISCHARGED / DUT ONLY silk and on procedure |
 | 2026-10-30 | **U16 FAULT stays unconnected; no scope-trigger pad** | No board area near U16. A firmware debug build can pulse the FLT LED line (R118) as a trigger |
+| 2026-10-30 | **Y1 stays ABM8-272-T3 (C20625731); source it with a JLC parts pre-order from LCSC when JLC's assembly stock is 0** | JLC's stock went 675 → 0 on 2026-10-30 while LCSC still had 250 ready to ship. RP2040 HDG §2.3 tunes R10 1 k and C12/C13 15 pF to this crystal (ESR ≤ 50 Ω, drive ≤ 200 µW, CL 10 pF) and asks for extensive testing of any other. No 10 pF crystal in JLC's library meets both limits (best: 60 Ω / 100 µW, or < 100 Ω / 300 µW) |
 
 ## Indicator LEDs (2026-10-29)
 
