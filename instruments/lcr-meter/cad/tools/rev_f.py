@@ -473,15 +473,17 @@ for v in routing['vias']:
 # ------------------------------------------------------------------ silk and reference text
 design['board']['silk'] = [
     ['TEMPER LCR REV F', 111, 140.2, 1.0],
-    ['HCUR', 67, 57.4, 0.8], ['HPOT', 89, 57.4, 0.8], ['LPOT', 111, 57.4, 0.8], ['LCUR', 133, 57.4, 0.8],
-    ['DISCHARGED', 100, 46.6, 0.8], ['DUT ONLY', 100, 47.8, 0.8],
-    # debug LED labels (2026-10-29): rail LEDs under their column, HB / FLT above theirs
-    ['5V', 102.0, 133.3, 0.8], ['3V3', 104.6, 133.3, 0.8], ['+12', 107.2, 133.3, 0.8], ['-12', 109.8, 133.3, 0.8],
-    ['HB', 58.8, 102.6, 0.8], ['FLT', 61.2, 102.6, 0.8],
+    ['HCUR', 67, 57.4, 1.0], ['HPOT', 89, 57.4, 1.0], ['LPOT', 111, 57.4, 1.0], ['LCUR', 133, 57.4, 1.0],
+    ['DISCHARGED', 100, 46.35, 1.0], ['DUT ONLY', 100, 47.95, 1.0],
+    # debug LED labels (2026-10-29): rail LEDs under their column (staggered: 1.0 mm text is wider than
+    # the 2.6 mm column pitch), HB / FLT above theirs
+    ['5V', 102.0, 133.3, 1.0], ['3V3', 104.6, 134.8, 1.0], ['+12', 107.2, 133.3, 1.0], ['-12', 109.8, 134.8, 1.0],
+    ['HB', 58.8, 102.6, 1.0], ['FLT', 61.2, 102.6, 1.0],
 ]
 # IC reference text (the only references on silk): clear of lands and of each other
+design['board']['ref_size'] = [1.0, 0.15]     # IC references on silk: 1.0 mm high, 0.15 mm stroke (2026-10-29)
 design['board']['ref_text'] = {'U3': [56.85, 138.3], 'U7': [118.3, 68.2], 'U13': [141.9, 134.6], 'U14': [64.0, 95.2],
-                               'U16': [52.3, 132.3]}
+                               'U16': [51.9, 132.4], 'U6': [82.0, 68.3], 'U15': [56.6, 79.7]}
 
 
 def pads_of(*refs):
