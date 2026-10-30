@@ -1,0 +1,127 @@
+{
+ "Relay_DPDT_Panasonic_TQ2SA_SMD": {
+  "lcsc": "C2684450",
+  "easyeda_title": "RELAY-SMD_TQ2SA-3V",
+  "model_title": "RELAY-SMD_TQ2SA-3V",
+  "uuid": "42b34c239d584b23978418759430c88c",
+  "source_url": "https://modules.easyeda.com/qAxj6KHrDKw4blvCG8QJPs7Y/42b34c239d584b23978418759430c88c",
+  "raw_sha256": "7414a3e4f8f56771adf45865d8d38e28984d5619dbd4f5a4807cd3094989c91d",
+  "pad_fit": {
+   "turn_deg": 0,
+   "rms_mm": 0.3,
+   "matched_pads": 10,
+   "next_rms_mm": 8.629
+  },
+  "correction": {
+   "kind": "seat",
+   "lift_mm": 0.7
+  },
+  "bbox_mm": {
+   "min": [
+    -7.0,
+    -5.75,
+    -0.0
+   ],
+   "max": [
+    7.0,
+    5.75,
+    5.6
+   ]
+  }
+ },
+ "BNC_SAMZO_KYWE-295-W4-N_Horizontal": {
+  "lcsc": "C41416668",
+  "easyeda_title": "BNC-TH_BNC-KYWE-295-W4-N",
+  "model_title": "BNC-TH_BNC-KYWE-295-W4-N",
+  "uuid": "93aeab175e7a4640bd7018791213edd3",
+  "source_url": "https://modules.easyeda.com/qAxj6KHrDKw4blvCG8QJPs7Y/93aeab175e7a4640bd7018791213edd3",
+  "raw_sha256": "c9a20d762c6ac4473b567aa0345ff877330da327612f029d33f939ceed09346c",
+  "pad_fit": {
+   "turn_deg": 0,
+   "rms_mm": 0.0,
+   "matched_pads": 5,
+   "next_rms_mm": 7.155
+  },
+  "correction": {
+   "kind": "bnc",
+   "turned_deg": 180,
+   "pin_centre_shift_mm": [
+    -0.045,
+    2.275
+   ],
+   "body_lift_mm": 2.3
+  },
+  "bbox_mm": {
+   "min": [
+    -6.75,
+    -5.01,
+    -3.8
+   ],
+   "max": [
+    6.75,
+    24.5,
+    13.75
+   ]
+  }
+ },
+ "USB_C_Receptacle_HRO_TYPE-C-31-M-12": {
+  "lcsc": "C165948",
+  "easyeda_title": "USB-C_SMD-TYPE-C-31-M-12_1",
+  "model_title": "USB-C_SMD-TYPE-C-31-M-12_1",
+  "uuid": "617b05f9bba7410b96c001093d8189e4",
+  "source_url": "https://modules.easyeda.com/qAxj6KHrDKw4blvCG8QJPs7Y/617b05f9bba7410b96c001093d8189e4",
+  "raw_sha256": "b083e67ce4d06850a2c3835a6366f4012b2def64f8f2781636381ebcaa33e9a0",
+  "pad_fit": {
+   "turn_deg": 0,
+   "rms_mm": 0.0001,
+   "matched_pads": 8,
+   "next_rms_mm": 1.62
+  },
+  "correction": {
+   "kind": "seat",
+   "lift_mm": 0.033
+  },
+  "bbox_mm": {
+   "min": [
+    -4.552,
+    -2.504,
+    0.0
+   ],
+   "max": [
+    4.552,
+    5.396,
+    4.215
+   ]
+  }
+ },
+ "LED_LiteOn_LTST-S270KFKT_SideView": {
+  "lcsc": "C160472",
+  "easyeda_title": "LED-SMD_L1.7-W0.6-RD",
+  "model_title": "LED-SMD_L1.7-W0.6-H1.2",
+  "uuid": "bb96c19dacb74f28ad7ca2620b713918",
+  "source_url": "https://modules.easyeda.com/qAxj6KHrDKw4blvCG8QJPs7Y/bb96c19dacb74f28ad7ca2620b713918",
+  "raw_sha256": "e346f1378f8b350f8378932422ae43ea05e8e7164465c46b0b60045dc6e0b2d7",
+  "pad_fit": {
+   "turn_deg": 0,
+   "rms_mm": 0.1,
+   "matched_pads": 2,
+   "next_rms_mm": 1.345
+  },
+  "correction": {
+   "kind": "seat",
+   "lift_mm": 0.3
+  },
+  "bbox_mm": {
+   "min": [
+    -0.825,
+    -0.368,
+    0.0
+   ],
+   "max": [
+    0.825,
+    0.777,
+    0.605
+   ]
+  }
+ }
+}

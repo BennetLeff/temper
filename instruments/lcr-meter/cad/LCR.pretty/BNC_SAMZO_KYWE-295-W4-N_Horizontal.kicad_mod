@@ -299,4 +299,15 @@
 		(uuid "f28a9d1c-cfe6-4ba1-b7c9-4c294bf89b91")
 	)
 	(embedded_fonts no)
+	(model "${KIPRJMOD}/3dmodels/BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
 )

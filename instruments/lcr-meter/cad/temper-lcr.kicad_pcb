@@ -2308,6 +2308,17 @@
 			(uuid "1c1877c6-3d8f-5e91-9d10-a2ba69857e72")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/3dmodels/Relay_DPDT_Panasonic_TQ2SA_SMD.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "LCR:R_0603_1608Metric"
 		(layer "F.Cu")
@@ -5649,7 +5660,7 @@
 			(uuid "5d9a16fd-0f34-55dc-9a65-db63a8e4b01d")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm.step"
+		(model "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/MSOP-8-1EP_3x3mm_P0.65mm_EP1.68x1.88mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -6918,6 +6929,17 @@
 			(uuid "fea93a11-c698-5510-8e60-267ac2c2104a")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/3dmodels/BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "LCR:SOT-23"
 		(layer "F.Cu")
@@ -15775,7 +15797,7 @@
 			(uuid "eed8ead7-22c2-5d91-9cc7-873afa6697c9")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm.step"
+		(model "${KICAD10_3DMODEL_DIR}/Package_SO.3dshapes/MSOP-8-1EP_3x3mm_P0.65mm_EP1.68x1.88mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -17451,6 +17473,17 @@
 			(uuid "0e7a3452-e5e4-5149-9029-3944033280a1")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/Texas_RGE0024C_VQFN-24-1EP_4x4mm_P0.5mm_EP2.1x2.1mm.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "LCR:C_0603_1608Metric"
 		(layer "F.Cu")
@@ -20172,6 +20205,17 @@
 			(uuid "7ea47f9a-7929-5cbb-8ff5-d7a46ed042c4")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/3dmodels/Relay_DPDT_Panasonic_TQ2SA_SMD.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "LCR:C_0603_1608Metric"
 		(layer "F.Cu")
@@ -28159,6 +28203,17 @@
 			(uuid "1f9725bb-c2c0-5265-9fc3-cdf3b941a870")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/3dmodels/BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "LCR:PinHeader_1x02_P2.54mm_Vertical"
 		(layer "F.Cu")
@@ -34990,7 +35045,7 @@
 			(uuid "f69e2a88-5934-5c1b-ab53-e1899c15e3c8")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/Connector_USB.3dshapes/USB_C_Receptacle_HRO_TYPE-C-31-M-12.step"
+		(model "${KIPRJMOD}/3dmodels/USB_C_Receptacle_HRO_TYPE-C-31-M-12.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -39791,6 +39846,17 @@
 			(uuid "cdb1007d-c99f-5d72-8657-f1427c699839")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/3dmodels/BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "LCR:SOT-23"
 		(layer "F.Cu")
@@ -42787,7 +42853,7 @@
 			(uuid "c73770f8-4848-565d-976e-b55464beecac")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm.step"
+		(model "${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/Texas_RGE0024C_VQFN-24-1EP_4x4mm_P0.5mm_EP2.1x2.1mm.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -46550,6 +46616,17 @@
 			(uuid "d4f52fc0-7379-5d72-a911-325f46609cca")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/3dmodels/LED_LiteOn_LTST-S270KFKT_SideView.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "LCR:C_0603_1608Metric"
 		(layer "F.Cu")
@@ -51259,6 +51336,17 @@
 			(uuid "4861bd89-9feb-56ca-9397-499085497d0d")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/3dmodels/BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "MountingHole_3.2mm_M3"
 		(layer "F.Cu")
@@ -52329,6 +52417,17 @@
 			(uuid "5f5e8021-c307-5f53-8904-1c37f5e782ee")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/3dmodels/Relay_DPDT_Panasonic_TQ2SA_SMD.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "LCR:C_0603_1608Metric"
 		(layer "F.Cu")
@@ -53707,6 +53806,17 @@
 			(uuid "e46ae886-8764-5a79-a0a4-2fe38c01a92e")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/3dmodels/Relay_DPDT_Panasonic_TQ2SA_SMD.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "LCR:Crystal_SMD_3225-4Pin_3.2x2.5mm"
 		(layer "F.Cu")

@@ -16,3 +16,5 @@
 /archive/**/*.log
 /archive/**/*.pdf
 /.superpowers/
+# Vendor 3D models (EasyEDA/LCSC) placed by cad/tools/models_3d.py; rerun it after a fresh checkout.
+/cad/3dmodels/*.step

@@ -269,4 +269,15 @@
 		(uuid "d35c46f7-f114-484c-93ae-972e3323cf90")
 	)
 	(embedded_fonts no)
+	(model "${KIPRJMOD}/3dmodels/Relay_DPDT_Panasonic_TQ2SA_SMD.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
 )

@@ -70,6 +70,14 @@ def base(name, descr):
     return fp
 
 
+def model(fp, path):
+    """3D model, already in the footprint frame (no offset or rotation): KiCad's library, or
+    cad/3dmodels/ written by cad/tools/models_3d.py from the part's LCSC record."""
+    m = k.FP_3DMODEL()
+    m.m_Filename = path
+    fp.Add3DModel(m)
+
+
 SMD = k.LSET()
 for layer in (k.F_Cu, k.F_Paste, k.F_Mask):
     SMD.AddLayer(layer)
@@ -111,6 +119,7 @@ rect(fp, k.F_CrtYd, -2.45, -2.45, 2.45, 2.45, 0.05)
 fp.Reference().SetPosition(vec(0, -3.2))
 fp.Value().SetPosition(vec(0, 3.2))
 fp.Value().SetLayer(k.F_Fab)
+model(fp, '${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/Texas_RGE0024C_VQFN-24-1EP_4x4mm_P0.5mm_EP2.1x2.1mm.step')
 k.FootprintSave(str(LIB), fp)
 
 # Panasonic TQ2SA, SA terminals
@@ -128,6 +137,7 @@ rect(fp, k.F_CrtYd, -7.25, -6.5, 7.25, 6.5, 0.05)
 fp.Reference().SetPosition(vec(0, 0))
 fp.Value().SetPosition(vec(0, 1.5))
 fp.Value().SetLayer(k.F_Fab)
+model(fp, '${KIPRJMOD}/3dmodels/Relay_DPDT_Panasonic_TQ2SA_SMD.step')
 k.FootprintSave(str(LIB), fp)
 
 
@@ -162,5 +172,6 @@ rect(fp, k.F_CrtYd, -7.0, -6.0, 7.0, 5.75, 0.05)
 fp.Reference().SetPosition(vec(0, 2.0))
 fp.Value().SetPosition(vec(0, 3.5))
 fp.Value().SetLayer(k.F_Fab)
+model(fp, '${KIPRJMOD}/3dmodels/BNC_SAMZO_KYWE-295-W4-N_Horizontal.step')
 k.FootprintSave(str(LIB), fp)
 print('wrote', LIB)

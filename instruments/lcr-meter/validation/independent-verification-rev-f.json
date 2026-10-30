@@ -1,6 +1,6 @@
 {
  "revision": "F",
- "board_sha256": "7e3d62381bb02c1f0478286f98f5ea8f3cc6b64f17d46b788937b15180147981",
+ "board_sha256": "6f1ca57ae2dca207c16f0a5ba30e3cf9e83dbda44c6d462140fa365786b0aaf4",
  "kicad_version": "10.0.4",
  "method": "Independent post-build audit of the native board against cad/design.json (read-only).",
  "source_pins_checked": 656,
@@ -158,7 +158,7 @@
  "pass": true,
  "limits": "Pad-centre and net checks on native data; not electromagnetic extraction or physical qualification.",
  "files_sha256": {
-  "cad/temper-lcr.kicad_pcb": "7e3d62381bb02c1f0478286f98f5ea8f3cc6b64f17d46b788937b15180147981",
+  "cad/temper-lcr.kicad_pcb": "6f1ca57ae2dca207c16f0a5ba30e3cf9e83dbda44c6d462140fa365786b0aaf4",
   "cad/temper-lcr.kicad_pro": "2a88c5d30f3031b6fbcea98ba304bcf75032400ac3bee7344b46b61517301a33",
   "cad/design.json": "f767cbe29ab7bedaa37ab78561f4b26b6e8928d2badfafa77a1e03941d2a14ab",
   "cad/routing.json": "8c335d931c3b581e304cdd69db95f221b7c79984ca12118dd60b22f1e65e734f",
