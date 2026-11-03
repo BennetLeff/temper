@@ -1,0 +1,2018 @@
+{
+ "net_intervals_v": {
+  "GND": [
+   0,
+   0
+  ],
+  "USB_VBUS": [
+   0,
+   6.5
+  ],
+  "VBUS_DAMP": [
+   -1.0,
+   1.0
+  ],
+  "5V": [
+   0,
+   5.5
+  ],
+  "CONV_VIN": [
+   0,
+   5.5
+  ],
+  "5VA": [
+   0,
+   5.5
+  ],
+  "VRLY": [
+   0,
+   5.5
+  ],
+  "3V3": [
+   0,
+   3.366
+  ],
+  "3V3A": [
+   0,
+   3.366
+  ],
+  "1V1": [
+   0,
+   1.155
+  ],
+  "CODEC_DREG": [
+   0,
+   3.366
+  ],
+  "CODEC_VREF": [
+   0,
+   2.805
+  ],
+  "RAW_P": [
+   0,
+   14.736
+  ],
+  "LDOIN_P": [
+   0,
+   14.736
+  ],
+  "RAW_N": [
+   -14.805,
+   0
+  ],
+  "LDOIN_N": [
+   -14.805,
+   0
+  ],
+  "12V": [
+   0,
+   12.381
+  ],
+  "-12V": [
+   -12.186,
+   0
+  ],
+  "DAC_P": [
+   0,
+   3.366
+  ],
+  "DAC_M": [
+   0,
+   3.366
+  ],
+  "SOURCE_AC": [
+   0,
+   3.366
+  ],
+  "SOURCE_FB": [
+   0,
+   3.366
+  ],
+  "SRC_AC_CMID": [
+   0,
+   3.366
+  ],
+  "SRC_FB_CMID": [
+   0,
+   3.366
+  ],
+  "EXCITE": [
+   -1.7,
+   1.7
+  ],
+  "C1P_CLP": [
+   -0.5,
+   3.866
+  ],
+  "C1P_PIN": [
+   -0.5,
+   3.866
+  ],
+  "C1M_CLP": [
+   -0.5,
+   3.866
+  ],
+  "C1M_PIN": [
+   -0.5,
+   3.866
+  ],
+  "C2P_CLP": [
+   -0.5,
+   3.866
+  ],
+  "C2P_PIN": [
+   -0.5,
+   3.866
+  ],
+  "C2M_CLP": [
+   -0.5,
+   3.866
+  ],
+  "C2M_PIN": [
+   -0.5,
+   3.866
+  ],
+  "RNG_RESET_G": [
+   0,
+   3.366
+  ],
+  "RNG_SET_LO_G": [
+   0,
+   3.366
+  ],
+  "RNG_SET_MED_G": [
+   0,
+   3.366
+  ],
+  "RNG_SET_HI_G": [
+   0,
+   3.366
+  ],
+  "RNG_SET_REF_G": [
+   0,
+   3.366
+  ]
+ },
+ "default_analog_interval_v": [
+  -14.805,
+  14.736
+ ],
+ "hotplug_worst_v": null,
+ "rows": [
+  {
+   "ref": "C1",
+   "value": "100nF 50V",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C10",
+   "value": "1uF 50V",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C100",
+   "value": "10uF 50V X7R",
+   "nets": [
+    "-12V",
+    "GND"
+   ],
+   "worst_v": 12.19,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C101",
+   "value": "10nF 50V",
+   "nets": [
+    "-12V",
+    "REGN_FB"
+   ],
+   "worst_v": 26.92,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C102",
+   "value": "100nF 50V",
+   "nets": [
+    "LDOIN_N",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C103",
+   "value": "22uF 25V X5R",
+   "nets": [
+    "5VA",
+    "GND"
+   ],
+   "worst_v": 5.5,
+   "rating_v": 25.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C104",
+   "value": "100pF C0G 5%",
+   "nets": [
+    "TIA_SUM",
+    "TIA_OUT"
+   ],
+   "worst_v": 29.54,
+   "rating_v": 50.0,
+   "rating_source": "MPN CL10C101JB8NNNC"
+  },
+  {
+   "ref": "C11",
+   "value": "100nF 50V",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C110",
+   "value": "100nF 50V",
+   "nets": [
+    "GND",
+    "MON12"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C111",
+   "value": "100nF 50V",
+   "nets": [
+    "GND",
+    "MON_N12"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C112",
+   "value": "22uF 25V X5R",
+   "nets": [
+    "VRLY",
+    "GND"
+   ],
+   "worst_v": 5.5,
+   "rating_v": 25.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C113",
+   "value": "4.7uF 25V X5R",
+   "nets": [
+    "USB_VBUS",
+    "VBUS_DAMP"
+   ],
+   "worst_v": 7.5,
+   "rating_v": 25.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C114",
+   "value": "560pF C0G 5%",
+   "nets": [
+    "SRC_AC_CMID",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "MPN CC0603JRNPO9BN561"
+  },
+  {
+   "ref": "C115",
+   "value": "560pF C0G 5%",
+   "nets": [
+    "EXCITE",
+    "SRC_FB_CMID"
+   ],
+   "worst_v": 5.07,
+   "rating_v": 50.0,
+   "rating_source": "MPN CC0603JRNPO9BN561"
+  },
+  {
+   "ref": "C116",
+   "value": "100nF 50V",
+   "nets": [
+    "GND",
+    "SEQ_EN"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C117",
+   "value": "330uF 10V polymer",
+   "nets": [
+    "5V",
+    "GND"
+   ],
+   "worst_v": 5.5,
+   "rating_v": 10.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C118",
+   "value": "100nF 50V",
+   "nets": [
+    "GND",
+    "3V3"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C12",
+   "value": "15pF C0G",
+   "nets": [
+    "XIN",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "MPN CL10C150JB8NNNC"
+  },
+  {
+   "ref": "C13",
+   "value": "15pF C0G",
+   "nets": [
+    "XTAL_OUT",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "MPN CL10C150JB8NNNC"
+  },
+  {
+   "ref": "C14",
+   "value": "100nF 50V",
+   "nets": [
+    "RUN",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C15",
+   "value": "100nF 50V",
+   "nets": [
+    "USB_VBUS",
+    "GND"
+   ],
+   "worst_v": 6.5,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C16",
+   "value": "1uF 50V",
+   "nets": [
+    "5V",
+    "GND"
+   ],
+   "worst_v": 5.5,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C17",
+   "value": "1uF 50V",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C18",
+   "value": "10uF 25V X5R",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 25.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C2",
+   "value": "100nF 50V",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C3",
+   "value": "100nF 50V",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C34",
+   "value": "560pF C0G 5%",
+   "nets": [
+    "SOURCE_AC",
+    "SRC_AC_CMID"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "MPN CC0603JRNPO9BN561"
+  },
+  {
+   "ref": "C35",
+   "value": "560pF C0G 5%",
+   "nets": [
+    "SRC_FB_CMID",
+    "SOURCE_FB"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "MPN CC0603JRNPO9BN561"
+  },
+  {
+   "ref": "C37",
+   "value": "100nF 50V",
+   "nets": [
+    "12V",
+    "GND"
+   ],
+   "worst_v": 12.38,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C38",
+   "value": "100nF 50V",
+   "nets": [
+    "-12V",
+    "GND"
+   ],
+   "worst_v": 12.19,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C39",
+   "value": "1uF 50V",
+   "nets": [
+    "12V",
+    "GND"
+   ],
+   "worst_v": 12.38,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C4",
+   "value": "100nF 50V",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C40",
+   "value": "1uF 50V",
+   "nets": [
+    "-12V",
+    "GND"
+   ],
+   "worst_v": 12.19,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C42",
+   "value": "100nF 50V",
+   "nets": [
+    "12V",
+    "GND"
+   ],
+   "worst_v": 12.38,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C43",
+   "value": "100nF 50V",
+   "nets": [
+    "-12V",
+    "GND"
+   ],
+   "worst_v": 12.19,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C44",
+   "value": "1uF 50V",
+   "nets": [
+    "12V",
+    "GND"
+   ],
+   "worst_v": 12.38,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C45",
+   "value": "1uF 50V",
+   "nets": [
+    "-12V",
+    "GND"
+   ],
+   "worst_v": 12.19,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C46",
+   "value": "100nF 50V",
+   "nets": [
+    "12V",
+    "GND"
+   ],
+   "worst_v": 12.38,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C47",
+   "value": "100nF 50V",
+   "nets": [
+    "-12V",
+    "GND"
+   ],
+   "worst_v": 12.19,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C48",
+   "value": "1uF 50V",
+   "nets": [
+    "12V",
+    "GND"
+   ],
+   "worst_v": 12.38,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C49",
+   "value": "1uF 50V",
+   "nets": [
+    "-12V",
+    "GND"
+   ],
+   "worst_v": 12.19,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C5",
+   "value": "1uF 50V X5R",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C50",
+   "value": "10nF 50V",
+   "nets": [
+    "12V",
+    "GND"
+   ],
+   "worst_v": 12.38,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C51",
+   "value": "10nF 50V",
+   "nets": [
+    "-12V",
+    "GND"
+   ],
+   "worst_v": 12.19,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C52",
+   "value": "10nF 50V",
+   "nets": [
+    "12V",
+    "GND"
+   ],
+   "worst_v": 12.38,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C53",
+   "value": "10nF 50V",
+   "nets": [
+    "-12V",
+    "GND"
+   ],
+   "worst_v": 12.19,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C6",
+   "value": "100nF 50V",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C60",
+   "value": "10uF 25V X5R",
+   "nets": [
+    "3V3A",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 25.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C61",
+   "value": "100nF 50V",
+   "nets": [
+    "3V3A",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C62",
+   "value": "2.2uF 16V X5R",
+   "nets": [
+    "CODEC_VREF",
+    "GND"
+   ],
+   "worst_v": 2.81,
+   "rating_v": 16.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C63",
+   "value": "100nF 50V",
+   "nets": [
+    "CODEC_DREG",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C64",
+   "value": "10uF 25V X5R",
+   "nets": [
+    "CODEC_DREG",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 25.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C65",
+   "value": "100nF 50V",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C66",
+   "value": "10uF 25V X5R",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 25.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C67",
+   "value": "1uF 50V",
+   "nets": [
+    "5VA",
+    "GND"
+   ],
+   "worst_v": 5.5,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C68",
+   "value": "1uF 50V",
+   "nets": [
+    "3V3A",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C69",
+   "value": "560pF C0G 5%",
+   "nets": [
+    "C2M_DIV",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "MPN CC0603JRNPO9BN561"
+  },
+  {
+   "ref": "C7",
+   "value": "100nF 50V",
+   "nets": [
+    "3V3",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C70",
+   "value": "560pF C0G 5%",
+   "nets": [
+    "C2P_DIV",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "MPN CC0603JRNPO9BN561"
+  },
+  {
+   "ref": "C72",
+   "value": "560pF C0G 5%",
+   "nets": [
+    "C1M_DIV",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "MPN CC0603JRNPO9BN561"
+  },
+  {
+   "ref": "C73",
+   "value": "560pF C0G 5%",
+   "nets": [
+    "C1P_DIV",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "MPN CC0603JRNPO9BN561"
+  },
+  {
+   "ref": "C74",
+   "value": "1uF 50V",
+   "nets": [
+    "C2M_CLP",
+    "C2M_DIV"
+   ],
+   "worst_v": 18.67,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C75",
+   "value": "1uF 50V",
+   "nets": [
+    "C2P_CLP",
+    "C2P_DIV"
+   ],
+   "worst_v": 18.67,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C76",
+   "value": "1uF 50V",
+   "nets": [
+    "C1M_CLP",
+    "C1M_DIV"
+   ],
+   "worst_v": 18.67,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C77",
+   "value": "1uF 50V",
+   "nets": [
+    "C1P_CLP",
+    "C1P_DIV"
+   ],
+   "worst_v": 18.67,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C78",
+   "value": "100pF C0G 5%",
+   "nets": [
+    "DUT_LO",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "MPN CL10C101JB8NNNC"
+  },
+  {
+   "ref": "C8",
+   "value": "1uF 50V",
+   "nets": [
+    "1V1",
+    "GND"
+   ],
+   "worst_v": 1.16,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C80",
+   "value": "10uF 50V X7R",
+   "nets": [
+    "5V",
+    "GND"
+   ],
+   "worst_v": 5.5,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C81",
+   "value": "100nF 50V",
+   "nets": [
+    "CONV_VIN",
+    "GND"
+   ],
+   "worst_v": 5.5,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C82",
+   "value": "10uF 50V X7R",
+   "nets": [
+    "5V",
+    "GND"
+   ],
+   "worst_v": 5.5,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C83",
+   "value": "100nF 50V",
+   "nets": [
+    "5V",
+    "GND"
+   ],
+   "worst_v": 5.5,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C84",
+   "value": "220nF 25V",
+   "nets": [
+    "CONV_REF",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 25.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C85",
+   "value": "4.7nF 50V",
+   "nets": [
+    "CONV_CN",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C86",
+   "value": "10nF 50V",
+   "nets": [
+    "CONV_CP",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C87",
+   "value": "15pF C0G",
+   "nets": [
+    "RAW_P",
+    "CONV_FBP"
+   ],
+   "worst_v": 29.54,
+   "rating_v": 50.0,
+   "rating_source": "MPN CL10C150JB8NNNC"
+  },
+  {
+   "ref": "C88",
+   "value": "4.7pF C0G",
+   "nets": [
+    "RAW_N",
+    "CONV_FBN"
+   ],
+   "worst_v": 29.54,
+   "rating_v": 50.0,
+   "rating_source": "MPN 0603CG4R7C500NT"
+  },
+  {
+   "ref": "C89",
+   "value": "10uF 50V X7R",
+   "nets": [
+    "RAW_P",
+    "GND"
+   ],
+   "worst_v": 14.74,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C9",
+   "value": "100nF 50V",
+   "nets": [
+    "1V1",
+    "GND"
+   ],
+   "worst_v": 1.16,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C90",
+   "value": "10uF 50V X7R",
+   "nets": [
+    "RAW_P",
+    "GND"
+   ],
+   "worst_v": 14.74,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C91",
+   "value": "10uF 50V X7R",
+   "nets": [
+    "RAW_N",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C92",
+   "value": "10uF 50V X7R",
+   "nets": [
+    "RAW_N",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C93",
+   "value": "10nF 50V",
+   "nets": [
+    "REGP_NR",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C94",
+   "value": "10uF 50V X7R",
+   "nets": [
+    "LDOIN_P",
+    "GND"
+   ],
+   "worst_v": 14.74,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C95",
+   "value": "10uF 50V X7R",
+   "nets": [
+    "12V",
+    "GND"
+   ],
+   "worst_v": 12.38,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C96",
+   "value": "10nF 50V",
+   "nets": [
+    "12V",
+    "REGP_FB"
+   ],
+   "worst_v": 27.19,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C97",
+   "value": "100nF 50V",
+   "nets": [
+    "LDOIN_P",
+    "GND"
+   ],
+   "worst_v": 14.74,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C98",
+   "value": "10nF 50V",
+   "nets": [
+    "REGN_NR",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C99",
+   "value": "10uF 50V X7R",
+   "nets": [
+    "LDOIN_N",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "R1",
+   "value": "5.1k",
+   "nets": [
+    "CC1",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00222,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R10",
+   "value": "1k",
+   "nets": [
+    "XOUT",
+    "XTAL_OUT"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.01133,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R100",
+   "value": "150k",
+   "nets": [
+    "MON_N12",
+    "-12V"
+   ],
+   "worst_v": 26.92,
+   "power_w": 0.00483,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R101",
+   "value": "1R",
+   "nets": [
+    "5V",
+    "VRLY"
+   ],
+   "worst_v": 5.5,
+   "power_w": 0.01262,
+   "basis": "VRLY: four TQ2SA-L2-5V RESET coils at once, 5 V / 178 ohm each (relay.c, TQ datasheet coil table)"
+  },
+  {
+   "ref": "R102",
+   "value": "100R",
+   "nets": [
+    "RNG_SET_HI",
+    "RNG_SET_HI_G"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.0144,
+   "basis": "RP2040 GPIO at its 12 mA maximum drive setting into an AO3400A gate"
+  },
+  {
+   "ref": "R103",
+   "value": "100k",
+   "nets": [
+    "RNG_SET_HI_G",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00011,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R104",
+   "value": "47R",
+   "nets": [
+    "SRC_DRV",
+    "SOURCE_BUF"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00629,
+   "basis": "U6A drive 1.7 V peak into R104 + R40 (100 R range, DUT shorted)"
+  },
+  {
+   "ref": "R105",
+   "value": "1k",
+   "nets": [
+    "DUT_HI",
+    "HPOT"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00289,
+   "basis": "at most the 1.7 V excitation across 1 k (DUT nets: DUT_HI <= EXCITE, DUT_LO at the TIA virtual ground)"
+  },
+  {
+   "ref": "R106",
+   "value": "1k",
+   "nets": [
+    "DUT_LO",
+    "LPOT"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00289,
+   "basis": "at most the 1.7 V excitation across 1 k (DUT nets: DUT_HI <= EXCITE, DUT_LO at the TIA virtual ground)"
+  },
+  {
+   "ref": "R107",
+   "value": "1k 0.1%",
+   "nets": [
+    "DUT_LO",
+    "REF_A"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00289,
+   "basis": "at most the 1.7 V excitation across 1 k (DUT nets: DUT_HI <= EXCITE, DUT_LO at the TIA virtual ground)"
+  },
+  {
+   "ref": "R108",
+   "value": "100R",
+   "nets": [
+    "RNG_SET_REF",
+    "RNG_SET_REF_G"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.0144,
+   "basis": "RP2040 GPIO at its 12 mA maximum drive setting into an AO3400A gate"
+  },
+  {
+   "ref": "R109",
+   "value": "100k",
+   "nets": [
+    "RNG_SET_REF_G",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00011,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R110",
+   "value": "24k 1%",
+   "nets": [
+    "VBUS_ILIM",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "power_w": 0.00913,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R111",
+   "value": "1.5M",
+   "nets": [
+    "CONV_FBN",
+    "CONV_FBN_MID"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00058,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R112",
+   "value": "5k 0.1%",
+   "nets": [
+    "REGN_DIV2",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "power_w": 6e-05,
+   "basis": "TPS7A3001 feedback chain R87 + R89 + R88 + R112 from -12 V"
+  },
+  {
+   "ref": "R113",
+   "value": "5.1k",
+   "nets": [
+    "LED_5V",
+    "5V"
+   ],
+   "worst_v": 5.5,
+   "power_w": 0.00593,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R114",
+   "value": "3k",
+   "nets": [
+    "LED_3V3",
+    "3V3"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00378,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R115",
+   "value": "24k 1%",
+   "nets": [
+    "LED_P12",
+    "12V"
+   ],
+   "worst_v": 27.19,
+   "power_w": 0.03079,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R116",
+   "value": "24k 1%",
+   "nets": [
+    "LED_N12",
+    "-12V"
+   ],
+   "worst_v": 26.92,
+   "power_w": 0.0302,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R117",
+   "value": "3k",
+   "nets": [
+    "LED_HB",
+    "HEARTBEAT"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00378,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R118",
+   "value": "3k",
+   "nets": [
+    "LED_FLT",
+    "FAULT"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00378,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R119",
+   "value": "100k",
+   "nets": [
+    "CONV_ENP",
+    "3V3"
+   ],
+   "worst_v": 18.17,
+   "power_w": 0.0033,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R12",
+   "value": "390",
+   "nets": [
+    "STATUS",
+    "LED_A"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.02905,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R120",
+   "value": "100k",
+   "nets": [
+    "CONV_ENN",
+    "3V3"
+   ],
+   "worst_v": 18.17,
+   "power_w": 0.0033,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R121",
+   "value": "1.5R",
+   "nets": [
+    "VBUS_DAMP",
+    "GND"
+   ],
+   "worst_v": 1.0,
+   "power_w": null,
+   "basis": "hot-plug pulse, not a continuous load: at most 79 uJ per plug-in (C113 5.2 uF max at 5.5 V), peak current under 3.7 A for microseconds; UNI-ROYAL publishes no 0603WAF pulse curve, so the bench check is bring-up 2a step 3 (repeated USB-A plug-ins, R121 unchanged)"
+  },
+  {
+   "ref": "R13",
+   "value": "33R",
+   "nets": [
+    "QSPI_CLK",
+    "QSPI_CLK_FLASH"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00475,
+   "basis": "RP2040 QSPI pad at its 12 mA maximum drive setting (datasheet 2.19.4 / 5.5.3)"
+  },
+  {
+   "ref": "R2",
+   "value": "5.1k",
+   "nets": [
+    "CC2",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00222,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R3",
+   "value": "27R",
+   "nets": [
+    "USB_DM",
+    "USB_DM_MCU"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.0294,
+   "basis": "USB FS driver 3.3 V into 28 ohm min source + 27 ohm + 45 ohm line, held continuously"
+  },
+  {
+   "ref": "R30",
+   "value": "2.2k 0.1%",
+   "nets": [
+    "DAC_P",
+    "SOURCE_AC"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00515,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R31",
+   "value": "2.2k 0.1%",
+   "nets": [
+    "SOURCE_FB",
+    "DAC_M"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00515,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R32",
+   "value": "2k 0.1%",
+   "nets": [
+    "SOURCE_AC",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00566,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R33",
+   "value": "2k 0.1%",
+   "nets": [
+    "EXCITE",
+    "SOURCE_FB"
+   ],
+   "worst_v": 5.07,
+   "power_w": 0.01283,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R4",
+   "value": "27R",
+   "nets": [
+    "USB_DP",
+    "USB_DP_MCU"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.0294,
+   "basis": "USB FS driver 3.3 V into 28 ohm min source + 27 ohm + 45 ohm line, held continuously"
+  },
+  {
+   "ref": "R40",
+   "value": "100R 0.1%",
+   "nets": [
+    "RG100",
+    "DUT_HI"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.01337,
+   "basis": "U6A drive 1.7 V peak into R104 + R40, DUT shorted"
+  },
+  {
+   "ref": "R41",
+   "value": "5k 0.1%",
+   "nets": [
+    "RG5K",
+    "DUT_HI"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00057,
+   "basis": "U6A drive 1.7 V peak into R104 + R41, DUT shorted"
+  },
+  {
+   "ref": "R42",
+   "value": "100k 0.1%",
+   "nets": [
+    "RG100K",
+    "DUT_HI"
+   ],
+   "worst_v": 29.54,
+   "power_w": 3e-05,
+   "basis": "U6A drive 1.7 V peak into R104 + R42, DUT shorted"
+  },
+  {
+   "ref": "R43",
+   "value": "100R 0.1%",
+   "nets": [
+    "TIA_SUM",
+    "RF100"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.01337,
+   "basis": "the TIA feedback carries the DUT current of R40"
+  },
+  {
+   "ref": "R44",
+   "value": "5k 0.1%",
+   "nets": [
+    "TIA_SUM",
+    "RF5K"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00057,
+   "basis": "the TIA feedback carries the DUT current of R41"
+  },
+  {
+   "ref": "R45",
+   "value": "100k 0.1%",
+   "nets": [
+    "TIA_SUM",
+    "RF100K"
+   ],
+   "worst_v": 29.54,
+   "power_w": 3e-05,
+   "basis": "the TIA feedback carries the DUT current of R42"
+  },
+  {
+   "ref": "R5",
+   "value": "100k",
+   "nets": [
+    "USB_VBUS",
+    "USB_SENSE"
+   ],
+   "worst_v": 6.5,
+   "power_w": 0.00042,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R6",
+   "value": "100k",
+   "nets": [
+    "USB_SENSE",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00011,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R60",
+   "value": "1k 0.1%",
+   "nets": [
+    "HIGH_BUF",
+    "C1P_DIV"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.03058,
+   "basis": "codec input divider (1 k + 1 k) from an OPA2810 output at its +-11.06 V swing (afe.md)"
+  },
+  {
+   "ref": "R61",
+   "value": "1k 0.1%",
+   "nets": [
+    "LOW_BUF",
+    "C1M_DIV"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.03058,
+   "basis": "codec input divider (1 k + 1 k) from an OPA2810 output at its +-11.06 V swing (afe.md)"
+  },
+  {
+   "ref": "R62",
+   "value": "1k 0.1%",
+   "nets": [
+    "C2M_DIV",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "power_w": 0.03058,
+   "basis": "codec input divider (1 k + 1 k) from an OPA2810 output at its +-11.06 V swing (afe.md)"
+  },
+  {
+   "ref": "R63",
+   "value": "1k 0.1%",
+   "nets": [
+    "C2P_DIV",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "power_w": 0.03058,
+   "basis": "codec input divider (1 k + 1 k) from an OPA2810 output at its +-11.06 V swing (afe.md)"
+  },
+  {
+   "ref": "R64",
+   "value": "1k 0.1%",
+   "nets": [
+    "C1M_DIV",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "power_w": 0.03058,
+   "basis": "codec input divider (1 k + 1 k) from an OPA2810 output at its +-11.06 V swing (afe.md)"
+  },
+  {
+   "ref": "R65",
+   "value": "1k 0.1%",
+   "nets": [
+    "C1P_DIV",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "power_w": 0.03058,
+   "basis": "codec input divider (1 k + 1 k) from an OPA2810 output at its +-11.06 V swing (afe.md)"
+  },
+  {
+   "ref": "R66",
+   "value": "1k 0.1%",
+   "nets": [
+    "LOW_BUF",
+    "C2P_DIV"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.03058,
+   "basis": "codec input divider (1 k + 1 k) from an OPA2810 output at its +-11.06 V swing (afe.md)"
+  },
+  {
+   "ref": "R67",
+   "value": "1k 0.1%",
+   "nets": [
+    "TIA_OUT",
+    "C2M_DIV"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.03058,
+   "basis": "codec input divider (1 k + 1 k) from an OPA2810 output at its +-11.06 V swing (afe.md)"
+  },
+  {
+   "ref": "R68",
+   "value": "470R",
+   "nets": [
+    "C2M_PIN",
+    "C2M_CLP"
+   ],
+   "worst_v": 4.37,
+   "power_w": 0.04056,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R69",
+   "value": "470R",
+   "nets": [
+    "C2P_PIN",
+    "C2P_CLP"
+   ],
+   "worst_v": 4.37,
+   "power_w": 0.04056,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R7",
+   "value": "10k",
+   "nets": [
+    "QSPI_CS",
+    "3V3"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00113,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R70",
+   "value": "470R",
+   "nets": [
+    "C1M_PIN",
+    "C1M_CLP"
+   ],
+   "worst_v": 4.37,
+   "power_w": 0.04056,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R71",
+   "value": "470R",
+   "nets": [
+    "C1P_PIN",
+    "C1P_CLP"
+   ],
+   "worst_v": 4.37,
+   "power_w": 0.04056,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R72",
+   "value": "4.7k",
+   "nets": [
+    "3V3",
+    "I2C_SDA"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00241,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R73",
+   "value": "4.7k",
+   "nets": [
+    "3V3",
+    "I2C_SCL"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00241,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R74",
+   "value": "100R",
+   "nets": [
+    "RNG_RESET",
+    "RNG_RESET_G"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.0144,
+   "basis": "RP2040 GPIO at its 12 mA maximum drive setting into an AO3400A gate"
+  },
+  {
+   "ref": "R75",
+   "value": "100k",
+   "nets": [
+    "RNG_RESET_G",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00011,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R76",
+   "value": "100R",
+   "nets": [
+    "RNG_SET_MED",
+    "RNG_SET_MED_G"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.0144,
+   "basis": "RP2040 GPIO at its 12 mA maximum drive setting into an AO3400A gate"
+  },
+  {
+   "ref": "R77",
+   "value": "100k",
+   "nets": [
+    "RNG_SET_MED_G",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00011,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R78",
+   "value": "100R",
+   "nets": [
+    "RNG_SET_LO",
+    "RNG_SET_LO_G"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.0144,
+   "basis": "RP2040 GPIO at its 12 mA maximum drive setting into an AO3400A gate"
+  },
+  {
+   "ref": "R79",
+   "value": "100k",
+   "nets": [
+    "RNG_SET_LO_G",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00011,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R8",
+   "value": "1k",
+   "nets": [
+    "QSPI_CS",
+    "BOOTSEL"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.01133,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R80",
+   "value": "100R",
+   "nets": [
+    "5V",
+    "CONV_VIN"
+   ],
+   "worst_v": 5.5,
+   "power_w": 0.00014,
+   "basis": "TPS65131 VIN: control supply only, IQ 120 uA max (7.5), taken 10x"
+  },
+  {
+   "ref": "R81",
+   "value": "430k",
+   "nets": [
+    "RAW_P",
+    "CONV_FBP"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00203,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R82",
+   "value": "40.2k",
+   "nets": [
+    "CONV_FBP",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "power_w": 0.00545,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R83",
+   "value": "240k",
+   "nets": [
+    "RAW_N",
+    "CONV_FBN_MID"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00364,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R84",
+   "value": "150k",
+   "nets": [
+    "CONV_FBN",
+    "CONV_REF"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00582,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R85",
+   "value": "82k",
+   "nets": [
+    "12V",
+    "REGP_FB"
+   ],
+   "worst_v": 27.19,
+   "power_w": 0.00901,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R86",
+   "value": "9.1k",
+   "nets": [
+    "REGP_FB",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "power_w": 0.02409,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R87",
+   "value": "100k 0.1%",
+   "nets": [
+    "-12V",
+    "REGN_FB"
+   ],
+   "worst_v": 26.92,
+   "power_w": 0.00121,
+   "basis": "TPS7A3001 feedback chain R87 + R89 + R88 + R112 from -12 V"
+  },
+  {
+   "ref": "R88",
+   "value": "1k 0.1%",
+   "nets": [
+    "REGN_DIV",
+    "REGN_DIV2"
+   ],
+   "worst_v": 29.54,
+   "power_w": 1e-05,
+   "basis": "TPS7A3001 feedback chain R87 + R89 + R88 + R112 from -12 V"
+  },
+  {
+   "ref": "R89",
+   "value": "5k 0.1%",
+   "nets": [
+    "REGN_FB",
+    "REGN_DIV"
+   ],
+   "worst_v": 29.54,
+   "power_w": 6e-05,
+   "basis": "TPS7A3001 feedback chain R87 + R89 + R88 + R112 from -12 V"
+  },
+  {
+   "ref": "R9",
+   "value": "10k",
+   "nets": [
+    "RUN",
+    "3V3"
+   ],
+   "worst_v": 3.37,
+   "power_w": 0.00113,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R94",
+   "value": "22R 0.1%",
+   "nets": [
+    "DUT_LO",
+    "TIA_SUM"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00294,
+   "basis": "the DUT current into the TIA: 100 R range, DUT shorted"
+  },
+  {
+   "ref": "R95",
+   "value": "1R",
+   "nets": [
+    "RAW_P",
+    "LDOIN_P"
+   ],
+   "worst_v": 14.74,
+   "power_w": 0.00128,
+   "basis": "regulator_check.json loads_a.pos (+12 V rail load)"
+  },
+  {
+   "ref": "R96",
+   "value": "1R",
+   "nets": [
+    "RAW_N",
+    "LDOIN_N"
+   ],
+   "worst_v": 14.81,
+   "power_w": 0.00159,
+   "basis": "regulator_check.json loads_a.neg (-12 V rail load)"
+  },
+  {
+   "ref": "R97",
+   "value": "100k",
+   "nets": [
+    "MON12",
+    "12V"
+   ],
+   "worst_v": 27.19,
+   "power_w": 0.00739,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R98",
+   "value": "10k",
+   "nets": [
+    "GND",
+    "MON12"
+   ],
+   "worst_v": 14.81,
+   "power_w": 0.02192,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R99",
+   "value": "10k",
+   "nets": [
+    "3V3",
+    "MON_N12"
+   ],
+   "worst_v": 18.17,
+   "power_w": 0.03302,
+   "basis": "worst voltage across"
+  }
+ ],
+ "findings": [],
+ "notes": [
+  {
+   "ref": "R121",
+   "detail": "hot-plug pulse, not a continuous load: at most 79 uJ per plug-in (C113 5.2 uF max at 5.5 V), peak current under 3.7 A for microseconds; UNI-ROYAL publishes no 0603WAF pulse curve, so the bench check is bring-up 2a step 3 (repeated USB-A plug-ins, R121 unchanged)"
+  }
+ ]
+}

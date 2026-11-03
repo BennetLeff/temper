@@ -27,6 +27,8 @@ kicad-cli pcb export drill --format excellon --drill-origin plot --excellon-unit
   --excellon-separate-th --excellon-oval-format route --generate-map --map-format pdf \
   --generate-report --report-path manufacturing/drill-report.txt \
   --output manufacturing/gerbers/ cad/temper-lcr.kicad_pcb
+# IPC-D-356 netlist for JLC's bare-board electrical test; archive_package.py zips it with the Gerbers
+kicad-cli pcb export ipcd356 --output manufacturing/gerbers/temper-lcr.d356 cad/temper-lcr.kicad_pcb
 kicad-cli sch export pdf --output previews/schematic.pdf cad/temper-lcr.kicad_sch
 kicad-cli pcb export svg --layers F.Cu,F.SilkS,Edge.Cuts --mode-single \
   --fit-page-to-board --exclude-drawing-sheet --output previews/pcb-front.svg cad/temper-lcr.kicad_pcb

@@ -1,0 +1,2473 @@
+{
+ "schema": "temper-lcr-pinout-ledger-v1",
+ "revision": "F",
+ "written": "2026-11-03",
+ "board_sha256": "490892127c7f1713881aaff3e4493406874ff5b9f9b311f81d124b095d4a76ca",
+ "how": "Each part row holds the manufacturer pin table (datasheet name per pad), the land-pattern numbers and the net each datasheet function must carry on this board. Expected nets were written from the datasheet function and the circuit intent (firmware pins.h for RP2040 GPIOs), then compared with design.json by pinout_check.py. PDFs are not committed; each datasheet is cited by URL and the SHA-256 of the PDF fetched on 2026-11-03.",
+ "datasheets": {
+  "rp2040": {
+   "doc": "Raspberry Pi RP2040 Datasheet (build dea0a54-clean, LCSC copy)",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/3dad1d8f987a4e00bfc677055df1f959.pdf?productCode=C2040",
+   "sha256": "8ca7cede0476b9a7dcb4e5f7669e2dc249c55ea6f9782a63cdd0fae228580724",
+   "repo_text": "sources/new/RP2040-datasheet.txt (build 3184e62-clean)"
+  },
+  "gd25q16e": {
+   "doc": "GigaDevice GD25Q16E datasheet Rev 1.1 (2020-04-15)",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/6b8a460d13f4182b5e51681bc7a2ff41.pdf?productCode=C2922792",
+   "sha256": "e664882f90d940a273ba712d7552c49a1546f7e8fddc80ef6f064bd6c1feceaa",
+   "repo_text": "sources/new/GD25Q16E.txt"
+  },
+  "ap2112": {
+   "doc": "Diodes AP2112 DS39724 Rev. 2-2",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/5b29baebdc4332b382a530ff21092301.pdf?productCode=C51118",
+   "sha256": "ef8d376f2ec356e29172eb9e053819a0ebdcc576dba7fc9ab0505c568427920f",
+   "repo_text": "sources/new/AP2112.txt"
+  },
+  "opa197": {
+   "doc": "TI OPA197 SBOS737C (March 2018)",
+   "url": "https://www.ti.com/lit/ds/symlink/opa197.pdf",
+   "sha256": "27653a7d5e965cbb2d23f7998919ebd774efd5cd3e126b8f0881469ae91166fd",
+   "repo_text": "sources/ti/OPA197.txt"
+  },
+  "opa2810": {
+   "doc": "TI OPA2810 SBOS789C (Feb 2020)",
+   "url": "https://www.ti.com/lit/ds/symlink/opa2810.pdf",
+   "sha256": "6ee8a464a8f0bd03c16fc91e594a017d3c3956e6bf53c80e01611fb34876506d",
+   "repo_text": "sources/ti/OPA2810.txt"
+  },
+  "tps7a49": {
+   "doc": "TI TPS7A49 SBVS121E (May 2015)",
+   "url": "https://www.ti.com/lit/ds/symlink/tps7a49.pdf",
+   "sha256": "f69e957b22bcc2db72149f57c96501aedeb4ed214f016c98f562d71411474182",
+   "repo_text": "sources/ti/TPS7A49.txt"
+  },
+  "tps7a30": {
+   "doc": "TI TPS7A30 SBVS125D (June 2015)",
+   "url": "https://www.ti.com/lit/ds/symlink/tps7a30.pdf",
+   "sha256": "b60d6fd8d7220e9f8a4dcfeaa7438a5e5e419ef589e1ea85e9d04781f2203ae5",
+   "repo_text": "sources/ti/TPS7A30.txt"
+  },
+  "tps65131": {
+   "doc": "TI TPS6513x SLVS493E (April 2022)",
+   "url": "https://www.ti.com/lit/ds/symlink/tps65131.pdf",
+   "sha256": "e8360b9509047317416cfd9163a09d8cdf5c8accbd4e702ad6a43292ef48e0ed",
+   "repo_text": "sources/ti/TPS65131.txt"
+  },
+  "tac5112": {
+   "doc": "TI TAC5112 SLASF24A (January 2025)",
+   "url": "https://www.ti.com/lit/ds/symlink/tac5112.pdf",
+   "sha256": "54b43ca9dea36e363f05c2992992dde6099fa4c5ef59266f032b4fceee4f0eab",
+   "repo_text": "sources/rev-e/TAC5112.txt"
+  },
+  "tps2553": {
+   "doc": "TI TPS255x SLVS841G (October 2026); SLVS841F text in repo has the same pin table",
+   "url": "https://www.ti.com/lit/ds/symlink/tps2553.pdf",
+   "sha256": "edd76d150b073ae8d4addbf85f6845b8c722fbd0b35ef025ac3c9e704a6a3385",
+   "repo_text": "sources/ti/TPS2553.txt (SLVS841F)"
+  },
+  "lm3880": {
+   "doc": "TI LM3880 SNVS451M (March 2021)",
+   "url": "https://www.ti.com/lit/ds/symlink/lm3880.pdf",
+   "sha256": "31b99b605b27a17cbf50459827252954c6bd56c391a036738f3c05c9d4693219"
+  },
+  "srv05": {
+   "doc": "Zhuhai Hongjiacheng (R+O) SRV05-4 Rev 2.1",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/c94a8eedc13753364c00c764db36d52a.pdf?productCode=C7420376",
+   "sha256": "90157fa267715fddf9668b3e21a1b0d7c74898ad5bf8b6bf5635539e31d65f82"
+  },
+  "bat54s": {
+   "doc": "Zhuhai Hongjiacheng (R+O) \"BAT54 THRU BAT54S\" Rev 2.0",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/34ea9f8d4a2e2e40eea56b51198e5fd8.pdf?productCode=C7420333",
+   "sha256": "8c5fbf8f378ffcf628e234e1ba617c1708a65c5b1e8e796cb26e071058b9d143"
+  },
+  "ao3400a": {
+   "doc": "AOS AO3400A (Rev 3)",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/130876b936da464599428c58fd8de8f6.pdf?productCode=C20917",
+   "sha256": "e5bfeef6cd3aa209f2e191ba42d5616259e8e7143ff01ed6c532b8ec3b13ab73"
+  },
+  "ss14": {
+   "doc": "MDD SS12 thru SS1200 Rev 2025A3",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/9977bb85cd7e349115b7bcb7054cfa0d.pdf?productCode=C2480",
+   "sha256": "1c2e8ca38c0a1afef95e4e329afc215094264244d161999f40765f5ef79d5720",
+   "repo_text": "sources/new/SS14-MDD-C2480.txt"
+  },
+  "1n4148ws": {
+   "doc": "Jiangsu Changjiang BAV16WS/1N4148WS (A, May 2011)",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/460cf88f750c4519b4ed435068ee729e.pdf?productCode=C2128",
+   "sha256": "59e951bd3155eb4a94e958d10edc3b7d17325f38cf06784cac07fbcc9fcabf2e"
+  },
+  "kt0603r": {
+   "doc": "KENTO KT-0603R specification for approval, Rev A.0 (2018-12-06)",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/011ec3e8cb1e825f6961d29bc4db4c7a.pdf?productCode=C2286",
+   "sha256": "a3bac1cc9c59cb306ad03512945cce12c87bb54252abc223b796e1d20d41d4a1"
+  },
+  "ltst": {
+   "doc": "Lite-On LTST-S270KFKT DS22-2000-209 Rev E",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/75c89c654e6607fc1b2c93fee0f7c0b5.pdf?productCode=C160472",
+   "sha256": "4d3dd0703b046fd3c0695f891308a0364df76124ad06c4ccdc53651ecc58a4fe",
+   "repo_text": "sources/rev-f/LTST-S270KFKT.txt"
+  },
+  "abm8": {
+   "doc": "Abracon ABM8-272-T3, drawing 456603 rev IR (2023-11-16)",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/d5520a242c89eeaef42f6496027f72da.pdf?productCode=C20625731",
+   "sha256": "f4b5787cbc51e7f6366333491ec09884ad406dd348fe540040f0fc043ab5457f"
+  },
+  "hro": {
+   "doc": "HRO TYPE-C-31-M-12 drawing (2020-12-08, rev A)",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/9e56b777c022540fcce7c7f67825f55e.pdf?productCode=C165948",
+   "sha256": "6ae33d50ac47820114661138dc4e4659f40fdc5d4f485b46685dfec338da1a9e"
+  },
+  "tq": {
+   "doc": "Panasonic TQ Relays catalog ASCTB14E 201911 (LCSC copy via C2684449; C2684450 itself has no LCSC PDF)",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/d18d9cc7cc93e0d08819c050a0e31cbb.pdf?productCode=C2684449",
+   "sha256": "ca7aa6e3fe9f899f774581aef8e49e7411b1a2b60541819ee36355af7a0d4d9e",
+   "also": "Panasonic ASCTB14E 202507 (https://www.tti.com/content/dam/tti-commons/supplier/panasonic/ecom/panasonic-tq-series-datasheet.pdf, sha256 77c8c77c0036759ae750809c39d0520218805949ff0971c2beee80017bfec838) p.13: same drawings"
+  },
+  "bnc": {
+   "doc": "SAMZO BNCKYWE-P03900 rev A1 (2018-06-12)",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/aeeb4809156e427b68c59de41d5fc14b.pdf?productCode=C41416668",
+   "sha256": "1a4353d6ecf3fdb05e1f22faa7ca2e089df683257df0509a07048f730cf5e418",
+   "repo_text": "sources/rev-f/BNC-KYWE-295-W4-N.txt"
+  },
+  "fnr": {
+   "doc": "Changjiang FNR series catalog",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/a0b12ba9dfe6b9e66b6bb852b7c71c03.pdf?productCode=C167963",
+   "sha256": "0d75da6de91b9af75d47408ced71e790c0806e3b0644e15ac6bdad44e7e2cc3c"
+  },
+  "ts1088": {
+   "doc": "XunPu TS-1088-ARXXXXX drawing REV A",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/0475ac02febf455ca9ddcfb380b0df0d.pdf?productCode=C720477",
+   "sha256": "368d4cc2c26b08cb63e1b67193f671d0860b6d3fb2e6b9f2696ffade401afc30"
+  },
+  "pcg": {
+   "doc": "Nichicon PCG series catalog pages (CAT.8100H p.38-67 excerpt, 2 pages)",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/698b61208cdf22d4cecca6fb036b0f8f.pdf?productCode=C433208",
+   "sha256": "63c8763eb38eebe6bb550801bd3c782fbfcbbd7b5af67920a276fc28b2ede663"
+  },
+  "tsw": {
+   "doc": "Samtec TSW F-224",
+   "url": "https://datasheet.lcsc.com/datasheet/pdf/1a761b8a25ca9ca1f2ff255bb6132249.pdf?productCode=C7402729",
+   "sha256": "48690a44341cbe55f2a0c854c959f29c49d81e69097525044264df96657d25fc"
+  }
+ },
+ "polarized_extra": [
+  "C117"
+ ],
+ "limits": "Checks pad numbering, pad geometry and nets against datasheet text and drawings read by a reviewer; tolerances flag gross land-pattern differences, not IPC fillet compliance. JLC orientation uses the EasyEDA record of the LCSC part, which is what JLC places from; the vendor placement preview remains the final check.",
+ "parts": [
+  {
+   "id": "RP2040",
+   "refs": [
+    "U1"
+   ],
+   "mpn": "RP2040",
+   "lcsc": "C2040",
+   "lcsc_package": "LQFN-56_L7.0-W7.0-P0.4-EP",
+   "cite": "Pin list: section 5.2.2.2 (Tables \"GPIO pins\", \"QSPI pins\", crystal, SWD, misc, USB, power); GPIO functions: section 1.4.3 (GPIO8 F3 = I2C0 SDA, GPIO9 F3 = I2C0 SCL, GPIO28 F2 = UART0 TX, GPIO29 F2 = UART0 RX, GPIO26/27 = ADC0/1); land: section 5.1.1 Recommended PCB Footprint (0.20 x 0.875 pads on 0.40 mm, 7.75 / 6.00 outer / inner, 3.20 ePad)",
+   "pins": {
+    "1": "IOVDD",
+    "10": "IOVDD",
+    "22": "IOVDD",
+    "33": "IOVDD",
+    "42": "IOVDD",
+    "49": "IOVDD",
+    "19": "TESTEN",
+    "20": "XIN",
+    "21": "XOUT",
+    "23": "DVDD",
+    "50": "DVDD",
+    "24": "SWCLK",
+    "25": "SWD",
+    "26": "RUN",
+    "43": "ADC_AVDD",
+    "44": "VREG_VIN",
+    "45": "VREG_VOUT",
+    "46": "USB_DM",
+    "47": "USB_DP",
+    "48": "USB_VDD",
+    "51": "QSPI_SD3",
+    "52": "QSPI_SCLK",
+    "53": "QSPI_SD0",
+    "54": "QSPI_SD2",
+    "55": "QSPI_SD1",
+    "56": "QSPI_CSn",
+    "57": "GND",
+    "2": "GPIO0",
+    "3": "GPIO1",
+    "4": "GPIO2",
+    "5": "GPIO3",
+    "6": "GPIO4",
+    "7": "GPIO5",
+    "8": "GPIO6",
+    "9": "GPIO7",
+    "11": "GPIO8",
+    "12": "GPIO9",
+    "13": "GPIO10",
+    "14": "GPIO11",
+    "15": "GPIO12",
+    "16": "GPIO13",
+    "17": "GPIO14",
+    "18": "GPIO15",
+    "27": "GPIO16",
+    "28": "GPIO17",
+    "29": "GPIO18",
+    "30": "GPIO19",
+    "31": "GPIO20",
+    "32": "GPIO21",
+    "34": "GPIO22",
+    "35": "GPIO23",
+    "36": "GPIO24",
+    "37": "GPIO25",
+    "38": "GPIO26",
+    "39": "GPIO27",
+    "40": "GPIO28",
+    "41": "GPIO29"
+   },
+   "design_alias": {
+    "SWDIO": "SWD",
+    "QSPI_SS": "QSPI_CSn"
+   },
+   "nets": {
+    "U1": {
+     "2": null,
+     "3": null,
+     "4": "I2S_DIN",
+     "5": "I2S_DOUT",
+     "6": "I2S_BCLK",
+     "7": "I2S_FSYNC",
+     "8": "RNG_SET_HI",
+     "9": "RNG_SET_LO",
+     "11": "I2C_SDA",
+     "12": "I2C_SCL",
+     "13": "RNG_RESET",
+     "14": "RNG_SET_MED",
+     "15": null,
+     "16": "USB_SENSE",
+     "17": "RNG_SET_REF",
+     "18": null,
+     "27": null,
+     "28": null,
+     "29": null,
+     "30": null,
+     "31": null,
+     "32": null,
+     "34": "FAULT",
+     "35": "HEARTBEAT",
+     "36": null,
+     "37": "STATUS",
+     "38": "MON12",
+     "39": "MON_N12",
+     "40": "UART_TX",
+     "41": "UART_RX",
+     "1": "3V3",
+     "10": "3V3",
+     "22": "3V3",
+     "33": "3V3",
+     "42": "3V3",
+     "49": "3V3",
+     "43": "3V3",
+     "44": "3V3",
+     "48": "3V3",
+     "23": "1V1",
+     "50": "1V1",
+     "45": "1V1",
+     "19": "GND",
+     "57": "GND",
+     "20": "XIN",
+     "21": "XOUT",
+     "24": "SWCLK",
+     "25": "SWDIO",
+     "26": "RUN",
+     "46": "USB_DM_MCU",
+     "47": "USB_DP_MCU",
+     "51": "QSPI3",
+     "52": "QSPI_CLK",
+     "53": "QSPI0",
+     "54": "QSPI2",
+     "55": "QSPI1",
+     "56": "QSPI_CS"
+    }
+   },
+   "net_has": {
+    "USB_DM_MCU": [
+     "R3"
+    ],
+    "USB_DP_MCU": [
+     "R4"
+    ],
+    "XTAL_OUT": [
+     "R10",
+     "Y1"
+    ],
+    "QSPI_CS": [
+     "R7",
+     "U2"
+    ],
+    "RUN": [
+     "R9",
+     "SW2"
+    ],
+    "1V1": [
+     "C8"
+    ]
+   },
+   "land": {
+    "pads": 57,
+    "pitch": [
+     "1",
+     "2",
+     0.4
+    ],
+    "span": [
+     "1",
+     "42",
+     6.875
+    ],
+    "tol_span": 0.1,
+    "pad1": [
+     0.2,
+     0.875
+    ],
+    "ep": [
+     3.2,
+     3.2
+    ],
+    "ep_pad": "57",
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8",
+     "9",
+     "10",
+     "11",
+     "12",
+     "13",
+     "14",
+     "15",
+     "16",
+     "17",
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "24",
+     "25",
+     "26",
+     "27",
+     "28",
+     "29",
+     "30",
+     "31",
+     "32",
+     "33",
+     "34",
+     "35",
+     "36",
+     "37",
+     "38",
+     "39",
+     "40",
+     "41",
+     "42",
+     "43",
+     "44",
+     "45",
+     "46",
+     "47",
+     "48",
+     "49",
+     "50",
+     "51",
+     "52",
+     "53",
+     "54",
+     "55",
+     "56"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "GPIO numbers come from firmware-rev-e/src/pins.h; each is mapped to a package pin through the datasheet pin list, not through design.json. GPIO0/1/12/15-21/24 are unconnected (reset state: pull-down).",
+    "Board pad 1-42 centre distance 6.875 mm = (7.75 + 6.00) / 2, the datasheet footprint exactly."
+   ],
+   "datasheet_ref": "rp2040"
+  },
+  {
+   "id": "GD25Q16ESIGR",
+   "refs": [
+    "U2"
+   ],
+   "mpn": "GD25Q16ESIGR",
+   "lcsc": "C2922792",
+   "lcsc_package": "SOP-8_L5.3-W5.3",
+   "cite": "Table 1 Pin Description (p.5); section 9 Ordering: \"S: SOP8 208mil\", GD25Q16ESIG = SOP8 208mil; 10.2 Package SOP8 208MIL: e 1.27, E 7.70-8.10, L 0.50-0.85, b 0.31-0.51",
+   "pins": {
+    "1": "CS#",
+    "2": "SO(IO1)",
+    "3": "WP#(IO2)",
+    "4": "VSS",
+    "5": "SI(IO0)",
+    "6": "SCLK",
+    "7": "HOLD#(IO3)",
+    "8": "VCC"
+   },
+   "design_alias": {
+    "CS": "CS",
+    "DO": "SOIO1",
+    "WP": "WPIO2",
+    "GND": "VSS",
+    "DI": "SIIO0",
+    "CLK": "SCLK",
+    "HOLD": "HOLDIO3"
+   },
+   "nets": {
+    "U2": {
+     "1": "QSPI_CS",
+     "2": "QSPI1",
+     "3": "QSPI2",
+     "4": "GND",
+     "5": "QSPI0",
+     "6": "QSPI_CLK_FLASH",
+     "7": "QSPI3",
+     "8": "3V3"
+    }
+   },
+   "net_has": {
+    "QSPI_CLK_FLASH": [
+     "R13"
+    ]
+   },
+   "land": {
+    "pads": 8,
+    "pitch": [
+     "1",
+     "2",
+     1.27
+    ],
+    "span": [
+     "1",
+     "8",
+     7.225
+    ],
+    "pad1": [
+     0.41,
+     0.675
+    ],
+    "pad_ratio": [
+     0.6,
+     2.5
+    ],
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8"
+    ],
+    "derived": "No land pattern in the datasheet: span = E nom 7.90 - L nom 0.675; pad1 = lead b nom x L nom. Board pad spans |x| 2.775-4.40 mm and covers the lead foot (|x| 3.10 worst-case inner to 4.05 outer)."
+   },
+   "jlc": {},
+   "notes": [
+    "RP2040 QSPI_SDn -> flash IOn: SD0->SI(IO0), SD1->SO(IO1), SD2->WP(IO2), SD3->HOLD(IO3), SCLK via R13 33R, SS->CS# with R7 pull-up.",
+    "design.json pinouts[\"FLASH\"] uses generic DO/DI names; aliased to the GigaDevice names."
+   ],
+   "datasheet_ref": "gd25q16e"
+  },
+  {
+   "id": "AP2112K-3.3",
+   "refs": [
+    "U3",
+    "U15"
+   ],
+   "mpn": "AP2112K-3.3TRG1",
+   "lcsc": "C51118",
+   "lcsc_package": "SOT-25-5",
+   "cite": "Pin Assignments / Pin Descriptions (p.1-2): SOT25 1 VIN, 2 GND, 3 EN, 4 NC, 5 VOUT; Ordering \"K: SOT25\"; Suggested Pad Layout (SOT25): X 0.55, Y 0.80, C1 2.40, C2 0.95",
+   "pins": {
+    "1": "VIN",
+    "2": "GND",
+    "3": "EN",
+    "4": "NC",
+    "5": "VOUT"
+   },
+   "nets": {
+    "U3": {
+     "1": "5V",
+     "2": "GND",
+     "3": "5V",
+     "4": null,
+     "5": "3V3"
+    },
+    "U15": {
+     "1": "5VA",
+     "2": "GND",
+     "3": "5VA",
+     "4": null,
+     "5": "3V3A"
+    }
+   },
+   "nc_pads": [
+    "4"
+   ],
+   "land": {
+    "pads": 5,
+    "pitch": [
+     "1",
+     "2",
+     0.95
+    ],
+    "span": [
+     "1",
+     "5",
+     2.4
+    ],
+    "pad1": [
+     0.55,
+     0.8
+    ],
+    "pad_ratio": [
+     0.6,
+     1.8
+    ],
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "EN tied to VIN (always on) is allowed: \"Chip Enable, H - normal work\".",
+    "Board pads 0.60 x 1.325 (KiCad SOT-23-5) are 0.5 mm longer than Diodes' 0.80 suggestion, mostly inward; not gross."
+   ],
+   "datasheet_ref": "ap2112"
+  },
+  {
+   "id": "OPA197 DBV",
+   "refs": [
+    "U5"
+   ],
+   "mpn": "OPA197IDBVR",
+   "lcsc": "C221351",
+   "lcsc_package": "SOT-23-5",
+   "cite": "Section 5 Pin Configuration, DBV 5-pin SOT top view and \"Pin Functions: OPA197\" (p.3-4): OUT 1, V- 2, +IN 3, -IN 4, V+ 5; DBV0005A land pattern example: 5X (1.1) x 5X (0.6), (2.6), 2X (0.95)",
+   "pins": {
+    "1": "OUT",
+    "2": "V-",
+    "3": "+IN",
+    "4": "-IN",
+    "5": "V+"
+   },
+   "design_alias": {
+    "VS-": "V-",
+    "IN+": "+IN",
+    "IN-": "-IN",
+    "VS+": "V+"
+   },
+   "nets": {
+    "U5": {
+     "1": "EXCITE",
+     "2": "-12V",
+     "3": "SOURCE_AC",
+     "4": "SOURCE_FB",
+     "5": "12V"
+    }
+   },
+   "land": {
+    "pads": 5,
+    "pitch": [
+     "1",
+     "2",
+     0.95
+    ],
+    "span": [
+     "1",
+     "5",
+     2.6
+    ],
+    "pad1": [
+     0.6,
+     1.1
+    ],
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "design.json kind is \"OPA810\" (Rev E part); the pin map is identical for the OPA197 DBV (checked by name above).",
+    "Board pad centres 2.275 mm apart vs TI 2.6 (KiCad SOT-23-5 pads run 0.27 mm further inward); outer edges agree within 0.05 mm."
+   ],
+   "datasheet_ref": "opa197"
+  },
+  {
+   "id": "OPA2810 DGK",
+   "refs": [
+    "U6",
+    "U7"
+   ],
+   "mpn": "OPA2810IDGKR",
+   "lcsc": "C2864204",
+   "lcsc_package": "VSSOP-8",
+   "cite": "Section 6 Pin Configuration and Functions (p.3): VO1 1, VIN1- 2, VIN1+ 3, VS- 4, VIN2+ 5, VIN2- 6, VO2 7, VS+ 8; DGK0008A land pattern example: 8X (1.4) x 8X (0.45), 6X (0.65), (4.4)",
+   "pins": {
+    "1": "VO1",
+    "2": "VIN1-",
+    "3": "VIN1+",
+    "4": "VS-",
+    "5": "VIN2+",
+    "6": "VIN2-",
+    "7": "VO2",
+    "8": "VS+"
+   },
+   "design_alias": {
+    "OUT_A": "VO1",
+    "IN-_A": "VIN1-",
+    "IN+_A": "VIN1+",
+    "IN+_B": "VIN2+",
+    "IN-_B": "VIN2-",
+    "OUT_B": "VO2"
+   },
+   "nets": {
+    "U6": {
+     "1": "SRC_DRV",
+     "2": "SRC_DRV",
+     "3": "EXCITE",
+     "4": "-12V",
+     "5": "HPOT",
+     "6": "HIGH_BUF",
+     "7": "HIGH_BUF",
+     "8": "12V"
+    },
+    "U7": {
+     "1": "TIA_OUT",
+     "2": "TIA_SUM",
+     "3": "GND",
+     "4": "-12V",
+     "5": "LPOT",
+     "6": "LOW_BUF",
+     "7": "LOW_BUF",
+     "8": "12V"
+    }
+   },
+   "land": {
+    "pads": 8,
+    "pitch": [
+     "1",
+     "2",
+     0.65
+    ],
+    "span": [
+     "1",
+     "8",
+     4.4
+    ],
+    "pad1": [
+     0.45,
+     1.4
+    ],
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "U6A unity-gain source driver (out = -in = SRC_DRV), U6B / U7B followers on HPOT / LPOT, U7A TIA with +in on GND."
+   ],
+   "datasheet_ref": "opa2810"
+  },
+  {
+   "id": "TPS7A4901 DGN",
+   "refs": [
+    "U11"
+   ],
+   "mpn": "TPS7A4901DGNR",
+   "lcsc": "C16430",
+   "lcsc_package": "HVSSOP-8",
+   "cite": "Section 5 Pin Configuration and Functions (p.4): OUT 1, FB 2, NC 3, GND 4, EN 5, NR/SS 6, DNC 7, IN 8, PowerPAD \"left open or tied to ground\"; DNC \"Do not route this pin to any electrical net, not even GND or IN\"; EN \"can be connected to IN\"; DGN0008D land: 8X (1.4) x (0.45), (4.4), pad 1.57 x 1.89",
+   "pins": {
+    "1": "OUT",
+    "2": "FB",
+    "3": "NC",
+    "4": "GND",
+    "5": "EN",
+    "6": "NR/SS",
+    "7": "DNC",
+    "8": "IN",
+    "9": "PowerPAD"
+   },
+   "design_alias": {
+    "EP": "PowerPAD"
+   },
+   "nets": {
+    "U11": {
+     "1": "12V",
+     "2": "REGP_FB",
+     "3": null,
+     "4": "GND",
+     "5": "LDOIN_P",
+     "6": "REGP_NR",
+     "7": null,
+     "8": "LDOIN_P",
+     "9": "GND"
+    }
+   },
+   "nc_pads": [
+    "3",
+    "7"
+   ],
+   "nc_allowed": {
+    "3": [
+     "GND"
+    ]
+   },
+   "net_has": {
+    "REGP_FB": [
+     "R85",
+     "R86"
+    ],
+    "REGP_NR": [
+     "C93"
+    ]
+   },
+   "land": {
+    "pads": 9,
+    "pitch": [
+     "1",
+     "2",
+     0.65
+    ],
+    "span": [
+     "1",
+     "8",
+     4.4
+    ],
+    "pad1": [
+     0.45,
+     1.4
+    ],
+    "ep": [
+     1.57,
+     1.89
+    ],
+    "ep_pad": "9",
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "Board signal pads 1.45 x 0.50 at 4.30 mm centres vs TI 1.4 x 0.45 at 4.4: within 0.1 mm."
+   ],
+   "datasheet_ref": "tps7a49"
+  },
+  {
+   "id": "TPS7A3001 DGN",
+   "refs": [
+    "U12"
+   ],
+   "mpn": "TPS7A3001DGNR",
+   "lcsc": "C33835",
+   "lcsc_package": "HVSSOP-8",
+   "cite": "Section 5 Pin Configuration and Functions (p.4): OUT 1, FB 2, NC 3, GND 4, EN 5, NR/SS 6, DNC 7, IN 8; NC \"must either be left open or tied to GND\"; PowerPAD \"Must either be left open or tied to GND\"; EN \"can be connected to IN, if not used\"; land DGN0008D (TPS7A49 doc, same package)",
+   "pins": {
+    "1": "OUT",
+    "2": "FB",
+    "3": "NC",
+    "4": "GND",
+    "5": "EN",
+    "6": "NR/SS",
+    "7": "DNC",
+    "8": "IN",
+    "9": "PowerPAD"
+   },
+   "design_alias": {
+    "EP": "PowerPAD"
+   },
+   "nets": {
+    "U12": {
+     "1": "-12V",
+     "2": "REGN_FB",
+     "3": null,
+     "4": "GND",
+     "5": "LDOIN_N",
+     "6": "REGN_NR",
+     "7": null,
+     "8": "LDOIN_N",
+     "9": "GND"
+    }
+   },
+   "nc_pads": [
+    "3",
+    "7"
+   ],
+   "nc_allowed": {
+    "3": [
+     "GND"
+    ]
+   },
+   "net_has": {
+    "REGN_FB": [
+     "R87",
+     "R89"
+    ],
+    "REGN_NR": [
+     "C98"
+    ]
+   },
+   "land": {
+    "pads": 9,
+    "pitch": [
+     "1",
+     "2",
+     0.65
+    ],
+    "span": [
+     "1",
+     "8",
+     4.4
+    ],
+    "pad1": [
+     0.45,
+     1.4
+    ],
+    "ep": [
+     1.57,
+     1.89
+    ],
+    "ep_pad": "9",
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "Negative LDO: the PowerPAD goes to GND (allowed), not to IN."
+   ],
+   "datasheet_ref": "tps7a30"
+  },
+  {
+   "id": "TPS65131 RGE",
+   "refs": [
+    "U13"
+   ],
+   "mpn": "TPS65131RGER",
+   "lcsc": "C87663",
+   "lcsc_package": "QFN-24_L4.0-W4.0-P0.50",
+   "cite": "Figure 5-1 RGE top view and Table 5-1 Pin Functions (p.3); 9 Layout: \"connect the PGND plane with the exposed thermal pad\"; RGE0024B land pattern example: 24X (0.6) x (0.25), 20X (0.5), (3.8), thermal pad (2.45)",
+   "pins": {
+    "1": "INP",
+    "2": "PGND",
+    "3": "PGND",
+    "4": "VIN",
+    "5": "INN",
+    "6": "INN",
+    "7": "BSW",
+    "8": "ENP",
+    "9": "PSP",
+    "10": "ENN",
+    "11": "PSN",
+    "12": "NC",
+    "13": "OUTN",
+    "14": "OUTN",
+    "15": "VNEG",
+    "16": "FBN",
+    "17": "VREF",
+    "18": "CN",
+    "19": "AGND",
+    "20": "NC",
+    "21": "CP",
+    "22": "FBP",
+    "23": "VPOS",
+    "24": "INP",
+    "25": "Thermal Pad"
+   },
+   "design_alias": {
+    "EP": "Thermal Pad"
+   },
+   "nets": {
+    "U13": {
+     "1": "SW_P",
+     "24": "SW_P",
+     "2": "GND",
+     "3": "GND",
+     "4": "CONV_VIN",
+     "5": "5V",
+     "6": "5V",
+     "7": null,
+     "8": "CONV_ENP",
+     "9": "GND",
+     "10": "CONV_ENN",
+     "11": "GND",
+     "12": null,
+     "20": null,
+     "13": "SW_N",
+     "14": "SW_N",
+     "15": "RAW_N",
+     "16": "CONV_FBN",
+     "17": "CONV_REF",
+     "18": "CONV_CN",
+     "19": "GND",
+     "21": "CONV_CP",
+     "22": "CONV_FBP",
+     "23": "RAW_P",
+     "25": "GND"
+    }
+   },
+   "nc_pads": [
+    "12",
+    "20"
+   ],
+   "net_has": {
+    "CONV_REF": [
+     "C84",
+     "R84"
+    ],
+    "CONV_FBN": [
+     "R84",
+     "R111"
+    ],
+    "CONV_FBP": [
+     "R81",
+     "R82"
+    ],
+    "CONV_CP": [
+     "C86"
+    ],
+    "CONV_CN": [
+     "C85"
+    ],
+    "SW_P": [
+     "L1",
+     "D2"
+    ],
+    "SW_N": [
+     "L2",
+     "D3"
+    ],
+    "CONV_VIN": [
+     "R80",
+     "C81"
+    ]
+   },
+   "land": {
+    "pads": 25,
+    "pitch": [
+     "1",
+     "2",
+     0.5
+    ],
+    "span": [
+     "1",
+     "18",
+     3.8
+    ],
+    "tol_span": 0.25,
+    "pad1": [
+     0.25,
+     0.6
+    ],
+    "pad_ratio": [
+     0.6,
+     1.4
+    ],
+    "ep": [
+     2.45,
+     2.45
+    ],
+    "ep_pad": "25",
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8",
+     "9",
+     "10",
+     "11",
+     "12",
+     "13",
+     "14",
+     "15",
+     "16",
+     "17",
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "24"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "PSP / PSN on GND: power-save off, forced PWM (Table 5-1 \"0 V: disabled\"). BSW (gate drive output for an optional battery switch) left open.",
+    "VREF carries C84 220 nF and the lower FBN resistor R84, as Table 5-1 requires.",
+    "Board pads 0.775 long at 3.975 mm centres vs TI 0.6 at 3.8: same inner edge (1.6 mm from centre), 0.175 mm more toe. Not gross."
+   ],
+   "datasheet_ref": "tps65131"
+  },
+  {
+   "id": "TAC5112 RGE0024R",
+   "refs": [
+    "U14"
+   ],
+   "mpn": "TAC5112IRGER",
+   "lcsc": "C44853692",
+   "lcsc_package": "VQFN-24_L4.0-W4.0-P0.50",
+   "cite": "Figure 5-1 and Table 5-1 Pin Functions (p.4-6), corner pins A1-A4 VSS, thermal pad VSS; Table 7-72 ADDR to VSS = 0x50; RGE0024R land pattern example: 24X (0.6) x (0.24), (3.8), SQ (2.1), 4X SQ (0.25) corner pads at (3.45)",
+   "pins": {
+    "A1": "VSS",
+    "1": "DREG",
+    "2": "BCLK",
+    "3": "FSYNC",
+    "4": "DOUT",
+    "5": "DIN",
+    "6": "IOVDD",
+    "A2": "VSS",
+    "7": "SCL",
+    "8": "SDA",
+    "9": "GPIO1",
+    "10": "GPIO2",
+    "11": "GPO1",
+    "12": "GPI1",
+    "A3": "VSS",
+    "13": "ADDR",
+    "14": "MICBIAS",
+    "15": "IN1P",
+    "16": "IN1M",
+    "17": "IN2P",
+    "18": "IN2M",
+    "A4": "VSS",
+    "19": "OUT1M",
+    "20": "OUT1P",
+    "21": "OUT2P",
+    "22": "OUT2M",
+    "23": "AVDD",
+    "24": "VREF",
+    "25": "VSS"
+   },
+   "nets": {
+    "U14": {
+     "1": "CODEC_DREG",
+     "2": "I2S_BCLK",
+     "3": "I2S_FSYNC",
+     "4": "I2S_DOUT",
+     "5": "I2S_DIN",
+     "6": "3V3",
+     "7": "I2C_SCL",
+     "8": "I2C_SDA",
+     "9": null,
+     "10": null,
+     "11": null,
+     "12": "GND",
+     "13": "GND",
+     "14": null,
+     "15": "C1P_PIN",
+     "16": "C1M_PIN",
+     "17": "C2P_PIN",
+     "18": "C2M_PIN",
+     "19": "DAC_M",
+     "20": "DAC_P",
+     "21": null,
+     "22": null,
+     "23": "3V3A",
+     "24": "CODEC_VREF",
+     "25": "GND",
+     "A1": "GND",
+     "A2": "GND",
+     "A3": "GND",
+     "A4": "GND"
+    }
+   },
+   "net_has": {
+    "CODEC_DREG": [
+     "C63",
+     "C64"
+    ],
+    "CODEC_VREF": [
+     "C62"
+    ],
+    "I2C_SDA": [
+     "R72",
+     "U1"
+    ],
+    "I2C_SCL": [
+     "R73",
+     "U1"
+    ]
+   },
+   "land": {
+    "pads": 29,
+    "pitch": [
+     "1",
+     "2",
+     0.5
+    ],
+    "span": [
+     "1",
+     "18",
+     3.8
+    ],
+    "tol_span": 0.05,
+    "pad1": [
+     0.24,
+     0.6
+    ],
+    "pad_ratio": [
+     0.9,
+     1.1
+    ],
+    "ep": [
+     2.1,
+     2.1
+    ],
+    "ep_pad": "25",
+    "positions": {
+     "A1": [
+      -1.725,
+      -1.725
+     ],
+     "A2": [
+      -1.725,
+      1.725
+     ],
+     "A3": [
+      1.725,
+      1.725
+     ],
+     "A4": [
+      1.725,
+      -1.725
+     ]
+    },
+    "tol": 0.02,
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8",
+     "9",
+     "10",
+     "11",
+     "12",
+     "13",
+     "14",
+     "15",
+     "16",
+     "17",
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "24"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "Firmware pins.h: RP2040 DOUT (GPIO2, net I2S_DIN) -> codec DIN pin 5; codec DOUT pin 4 -> GPIO3 (net I2S_DOUT). Net names follow the codec side.",
+    "GPIO1 (reset: IRQ output, Table 8-11), GPIO2, GPO1, MICBIAS, OUT2P/M open; GPI1 on GND. No datasheet rule against it."
+   ],
+   "datasheet_ref": "tac5112"
+  },
+  {
+   "id": "TPS2553 DBV",
+   "refs": [
+    "U16"
+   ],
+   "mpn": "TPS2553DBVR",
+   "lcsc": "C55266",
+   "lcsc_package": "SOT-23-6",
+   "cite": "Section 5 (rev G) / 6 (rev F) Pin Configuration, DBV top view and Table 5-1: IN 1, GND 2, EN 3 (TPS2553: active high), FAULT 4, ILIM 5, OUT 6; DBV0006A land pattern example (1.1 x 0.6, 2.6, 0.95)",
+   "pins": {
+    "1": "IN",
+    "2": "GND",
+    "3": "EN",
+    "4": "/FAULT",
+    "5": "ILIM",
+    "6": "OUT"
+   },
+   "nets": {
+    "U16": {
+     "1": "USB_VBUS",
+     "2": "GND",
+     "3": "USB_VBUS",
+     "4": null,
+     "5": "VBUS_ILIM",
+     "6": "5V"
+    }
+   },
+   "net_has": {
+    "VBUS_ILIM": [
+     "R110"
+    ]
+   },
+   "land": {
+    "pads": 6,
+    "pitch": [
+     "1",
+     "2",
+     0.95
+    ],
+    "span": [
+     "1",
+     "6",
+     2.6
+    ],
+    "pad1": [
+     0.6,
+     1.1
+    ],
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "EN tied to IN is correct only for the active-high TPS2553 (the TPS2552 would never turn on); the BOM, design and LCSC record all say TPS2553DBVR.",
+    "FAULT is an open-drain output; leaving it open is allowed (prior audit PE-7)."
+   ],
+   "datasheet_ref": "tps2553"
+  },
+  {
+   "id": "LM3880-1AA DBV",
+   "refs": [
+    "U17"
+   ],
+   "mpn": "LM3880MF-1AA/NOPB",
+   "lcsc": "C486059",
+   "lcsc_package": "SOT-23-6",
+   "cite": "Section 5 Figure 5-1 DBV top view and Pin Functions (p.3): VCC 1, GND 2, EN 3, FLAG3 4, FLAG2 5, FLAG1 6; 6.5: EN pull-up 7 uA; 8.2.1: -1AA sequence 1-2-3 (FLAG1 first); DBV land pattern example (6X 0.6, 2.6, 0.95)",
+   "pins": {
+    "1": "VCC",
+    "2": "GND",
+    "3": "EN",
+    "4": "FLAG3",
+    "5": "FLAG2",
+    "6": "FLAG1"
+   },
+   "nets": {
+    "U17": {
+     "1": "3V3",
+     "2": "GND",
+     "3": "SEQ_EN",
+     "4": null,
+     "5": "CONV_ENN",
+     "6": "CONV_ENP"
+    }
+   },
+   "net_has": {
+    "SEQ_EN": [
+     "C116"
+    ],
+    "CONV_ENP": [
+     "R119",
+     "U13"
+    ],
+    "CONV_ENN": [
+     "R120",
+     "U13"
+    ]
+   },
+   "land": {
+    "pads": 6,
+    "pitch": [
+     "1",
+     "2",
+     0.95
+    ],
+    "span": [
+     "1",
+     "6",
+     2.6
+    ],
+    "pad1": [
+     0.6,
+     1.1
+    ],
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "FLAG1 (first) -> ENP (boost), FLAG2 (second) -> ENN, as docs and the datasheet-audit README intend. EN has only C116: the internal 7 uA pull-up charges it (datasheet Figure 7-1 delay)."
+   ],
+   "datasheet_ref": "lm3880"
+  },
+  {
+   "id": "SRV05-4 (R+O)",
+   "refs": [
+    "D1"
+   ],
+   "mpn": "SRV05-4",
+   "lcsc": "C7420376",
+   "lcsc_package": "SOT-23-6",
+   "cite": "p.1 Function Diagram: pins 1, 3, 4, 6 I/O; 2 GND; 5 V05 (rail); pin-1 dot bottom-left of the top view; p.3 Suggested Pad Layout: J 0.60, K 0.90, X 0.95",
+   "second_source": "Second source: Zhuhai Hongjiacheng (brand R+O), not Semtech. Checked against its own datasheet.",
+   "pins": {
+    "1": "IO1",
+    "2": "GND",
+    "3": "IO2",
+    "4": "IO3",
+    "5": "V05",
+    "6": "IO4"
+   },
+   "design_alias": {
+    "IO2": "IO2",
+    "VBUS": "V05"
+   },
+   "skip_names": true,
+   "nets": {
+    "D1": {
+     "1": "USB_DP",
+     "2": "GND",
+     "3": "USB_DM",
+     "4": "USB_DM",
+     "5": "USB_VBUS",
+     "6": "USB_DP"
+    }
+   },
+   "land": {
+    "pads": 6,
+    "pitch": [
+     "1",
+     "2",
+     0.95
+    ],
+    "pad1": [
+     0.6,
+     0.9
+    ],
+    "pad_ratio": [
+     0.6,
+     1.6
+    ],
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "design.json names pins 3/4 IO2/IO2 and 1/6 IO1/IO1 (it pairs channels); the four I/O channels are independent, so pairing is electrical only. Names not compared."
+   ],
+   "datasheet_ref": "srv05"
+  },
+  {
+   "id": "BAT54S (R+O)",
+   "refs": [
+    "D11",
+    "D12",
+    "D13",
+    "D14"
+   ],
+   "mpn": "BAT54S",
+   "lcsc": "C7420333",
+   "lcsc_package": "SOT-23",
+   "cite": "p.1 Function Diagram (BAT54S): pin 1 anode of D1, pin 3 cathode of D1 / anode of D2, pin 2 cathode of D2 (rendered and read at 600 dpi); p.3 Suggested Pad Layout: J 0.75-0.85, K 0.85-0.95, M 1.95-2.05, N 1.85-1.95",
+   "second_source": "Second source: Zhuhai Hongjiacheng (brand R+O). The LCSC/EasyEDA symbol labels pins \"1=K1, 2=K2, 3=A\" (a BAT54A pinout); that symbol is wrong, the datasheet and the board agree. JLC places by pad geometry, not symbol names.",
+   "pins": {
+    "1": "A1",
+    "2": "K2",
+    "3": "K1/A2"
+   },
+   "skip_names": true,
+   "nets": {
+    "D11": {
+     "1": "GND",
+     "2": "3V3A",
+     "3": "C2M_CLP"
+    },
+    "D12": {
+     "1": "GND",
+     "2": "3V3A",
+     "3": "C2P_CLP"
+    },
+    "D13": {
+     "1": "GND",
+     "2": "3V3A",
+     "3": "C1M_CLP"
+    },
+    "D14": {
+     "1": "GND",
+     "2": "3V3A",
+     "3": "C1P_CLP"
+    }
+   },
+   "land": {
+    "pads": 3,
+    "pitch": [
+     "1",
+     "2",
+     1.9
+    ],
+    "tol_pitch": 0.05,
+    "pad1": [
+     0.8,
+     0.9
+    ],
+    "pad_ratio": [
+     0.6,
+     1.8
+    ],
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "design.json kind \"BAT54S\" has no pinout table; pin functions checked from the datasheet directly."
+   ],
+   "datasheet_ref": "bat54s"
+  },
+  {
+   "id": "AO3400A",
+   "refs": [
+    "Q2",
+    "Q3",
+    "Q4",
+    "Q5",
+    "Q6"
+   ],
+   "mpn": "AO3400A",
+   "lcsc": "C20917",
+   "lcsc_package": "SOT-23",
+   "cite": "p.1 SOT23 top view: pin-1 dot at G, S the other lead on that side, D the single lead (JEDEC TO-236 order 1 G, 2 S, 3 D)",
+   "pins": {
+    "1": "G",
+    "2": "S",
+    "3": "D"
+   },
+   "skip_names": true,
+   "nets": {
+    "Q2": {
+     "1": "RNG_RESET_G",
+     "2": "GND",
+     "3": "RLY_RST"
+    },
+    "Q3": {
+     "1": "RNG_SET_MED_G",
+     "2": "GND",
+     "3": "RLY_SET_MED"
+    },
+    "Q4": {
+     "1": "RNG_SET_LO_G",
+     "2": "GND",
+     "3": "RLY_SET_LO"
+    },
+    "Q5": {
+     "1": "RNG_SET_HI_G",
+     "2": "GND",
+     "3": "RLY_SET_HI"
+    },
+    "Q6": {
+     "1": "RNG_SET_REF_G",
+     "2": "GND",
+     "3": "RLY_SET_REF"
+    }
+   },
+   "land": {
+    "pads": 3,
+    "pitch": [
+     "1",
+     "2",
+     1.9
+    ],
+    "tol_pitch": 0.05,
+    "pin1": [
+     "-",
+     "-"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "The AOS sheet draws pin positions but prints no pin numbers; the numbering is the JEDEC SOT-23 convention, and the LCSC symbol (1 G, 2 S, 3 D) agrees. No land pattern in this sheet."
+   ],
+   "datasheet_ref": "ao3400a"
+  },
+  {
+   "id": "SS14 (MDD)",
+   "refs": [
+    "D2",
+    "D3"
+   ],
+   "mpn": "SS14",
+   "lcsc": "C2480",
+   "lcsc_package": "SMA",
+   "cite": "Mechanical data: \"Color band denotes cathode end\"; Suggested Pad Layout: A 1.68, B 1.52, C 3.93, E 5.45 (pad 1.52 x 1.68 at 3.93 centres)",
+   "pins": {
+    "1": "K",
+    "2": "A"
+   },
+   "nets": {
+    "D2": {
+     "1": "RAW_P",
+     "2": "SW_P"
+    },
+    "D3": {
+     "1": "SW_N",
+     "2": "RAW_N"
+    }
+   },
+   "land": {
+    "pads": 2,
+    "span": [
+     "1",
+     "2",
+     3.93
+    ],
+    "tol_span": 0.2,
+    "pad1": [
+     1.52,
+     1.68
+    ],
+    "pad_ratio": [
+     0.6,
+     1.8
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "Boost rectifier: anode SW_P, cathode RAW_P. Inverter: cathode on SW_N (OUTN), anode on RAW_N (VNEG), the TPS65131 topology.",
+    "Board pads 2.5 x 1.8 at 4.0 mm (KiCad D_SMA) extend 0.45 mm further inward than MDD's; outer edge 3.25 vs 2.73 from centre."
+   ],
+   "datasheet_ref": "ss14"
+  },
+  {
+   "id": "1N4148WS (CJ)",
+   "refs": [
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9"
+   ],
+   "mpn": "1N4148WS",
+   "lcsc": "C2128",
+   "lcsc_package": "SOD-323",
+   "cite": "Two-page sheet: SOD-323 drawing with cathode band; no land pattern given",
+   "pins": {
+    "1": "K",
+    "2": "A"
+   },
+   "nets": {
+    "D5": {
+     "1": "VRLY",
+     "2": "RLY_RST"
+    },
+    "D6": {
+     "1": "VRLY",
+     "2": "RLY_SET_MED"
+    },
+    "D7": {
+     "1": "VRLY",
+     "2": "RLY_SET_LO"
+    },
+    "D8": {
+     "1": "VRLY",
+     "2": "RLY_SET_HI"
+    },
+    "D9": {
+     "1": "VRLY",
+     "2": "RLY_SET_REF"
+    }
+   },
+   "land": {
+    "pads": 2
+   },
+   "jlc": {},
+   "notes": [
+    "Flyback: cathode on the coil supply VRLY, anode on the low-side drain. EasyEDA C2128 pad 1 = K with the silk bar on that side."
+   ],
+   "datasheet_ref": "1n4148ws"
+  },
+  {
+   "id": "KT-0603R LED",
+   "refs": [
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D19",
+    "D20"
+   ],
+   "mpn": "KT-0603R",
+   "lcsc": "C2286",
+   "lcsc_package": "LED-SMD_L1.6-W0.8",
+   "cite": "p.2 \"Package Profile & Soldering PAD Suggested\": vendor pin 1 = anode (\"+\"), pin 2 = cathode (green mark); pads 0.70 x 0.70, 0.70 gap",
+   "pins": {
+    "1": "K",
+    "2": "A"
+   },
+   "nets": {
+    "D15": {
+     "1": "GND",
+     "2": "LED_5V"
+    },
+    "D16": {
+     "1": "GND",
+     "2": "LED_3V3"
+    },
+    "D17": {
+     "1": "GND",
+     "2": "LED_P12"
+    },
+    "D18": {
+     "1": "LED_N12",
+     "2": "GND"
+    },
+    "D19": {
+     "1": "GND",
+     "2": "LED_HB"
+    },
+    "D20": {
+     "1": "GND",
+     "2": "LED_FLT"
+    }
+   },
+   "land": {
+    "pads": 2,
+    "span": [
+     "1",
+     "2",
+     1.4
+    ],
+    "tol_span": 0.25,
+    "pad1": [
+     0.7,
+     0.7
+    ],
+    "pad_ratio": [
+     0.6,
+     1.5
+    ]
+   },
+   "jlc": {
+    "map": {
+     "1": "2",
+     "2": "1"
+    }
+   },
+   "notes": [
+    "Vendor and EasyEDA number the anode 1; the KiCad footprint numbers the cathode 1. The JLC check maps EasyEDA pad 2 (cathode) onto board pad 1: with CPL offset 0 the cathode lands on the cathode pad.",
+    "D18 is reversed on purpose: anode on GND, cathode toward -12 V through R116."
+   ],
+   "datasheet_ref": "kt0603r"
+  },
+  {
+   "id": "LTST-S270KFKT",
+   "refs": [
+    "D4"
+   ],
+   "mpn": "LTST-S270KFKT",
+   "lcsc": "C160472",
+   "lcsc_package": "LED-SMD_L1.7-W0.6",
+   "cite": "p.1 Package Dimensions (cathode mark, polarity), suggested lands two 1.10 x 1.10 pads with 0.90 gap (sources/rev-f/LTST-S270KFKT.txt header)",
+   "pins": {
+    "1": "K",
+    "2": "A"
+   },
+   "nets": {
+    "D4": {
+     "1": "GND",
+     "2": "LED_A"
+    }
+   },
+   "land": {
+    "pads": 2,
+    "span": [
+     "1",
+     "2",
+     2.0
+    ],
+    "tol_span": 0.05,
+    "pad1": [
+     1.1,
+     1.1
+    ],
+    "pad_ratio": [
+     0.95,
+     1.05
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "Lens direction (front edge) is a mechanical check; D4 is not in the list of parts the 2026-10-30 placement preview passed (C117, U17, U1, K1-K4, D5-D8, D15-D20). Check D4 lens and cathode in the final preview."
+   ],
+   "attention": [
+    "D4 was not among the parts the 2026-10-30 placement preview passed; confirm lens toward the front edge and cathode on pad 1 (GND) in the final preview."
+   ],
+   "datasheet_ref": "ltst"
+  },
+  {
+   "id": "ABM8-272-T3",
+   "refs": [
+    "Y1"
+   ],
+   "mpn": "ABM8-272-T3",
+   "lcsc": "C20625731",
+   "lcsc_package": "CRYSTAL-SMD_4P-L3.2-W2.5",
+   "cite": "p.2 5.0 Mechanical Dimensions: crystal between #1 and #3 (diagonal, internal line in the drawing), #2/#4 lid; pads 1.4 x 1.1, 0.8 gap; note \"the chamfer could be located on pin #1, 3, or 4\"",
+   "pins": {
+    "1": "X1",
+    "2": "GND",
+    "3": "X2",
+    "4": "GND"
+   },
+   "skip_names": true,
+   "nets": {
+    "Y1": {
+     "1": "XIN",
+     "2": "GND",
+     "3": "XTAL_OUT",
+     "4": "GND"
+    }
+   },
+   "net_has": {
+    "XIN": [
+     "C12",
+     "U1"
+    ],
+    "XTAL_OUT": [
+     "C13",
+     "R10"
+    ]
+   },
+   "land": {
+    "pads": 4,
+    "pitch": [
+     "1",
+     "2",
+     2.2
+    ],
+    "tol_pitch": 0.05,
+    "pad1": [
+     1.4,
+     1.1
+    ],
+    "pad_ratio": [
+     0.9,
+     1.15
+    ],
+    "pin1": [
+     "-",
+     "+"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "Pads 1 and 3 are diagonal on the board, as on the part. A 90 degree placement error would put the crystal across the two GND pads; the body chamfer is not a reliable pin-1 mark (datasheet note), so check pad 1 by geometry in the preview (prior audit M1)."
+   ],
+   "attention": [
+    "Body chamfer is not a pin-1 mark on this crystal (datasheet note); in the preview confirm the crystal pads 1/3 by pad geometry (EasyEDA record lands pad-for-pad at CPL 0)."
+   ],
+   "datasheet_ref": "abm8"
+  },
+  {
+   "id": "HRO TYPE-C-31-M-12",
+   "refs": [
+    "J1"
+   ],
+   "mpn": "TYPE-C-31-M-12",
+   "lcsc": "C165948",
+   "lcsc_package": "TYPE-C-31-M-12",
+   "cite": "Single-sheet drawing: pin table (A1 GND ... B12 GND) and RECOMMEND P.C.B LAYOUT: pad order A1/B12, A4/B9, B8, A5, B7, A6, A7, B6, A8, B5, B4/A9, B1/A12; widths 4-0.60 / 8-0.30; centre spans 2.50, 3.50, 4.80, 6.40; shell slots 0.6 x 1.7 / 0.6 x 1.4 at 8.65, 4.18 apart; holes 0.60 at 5.78",
+   "pins": {
+    "A1": "GND",
+    "A4": "VBUS",
+    "A5": "CC1",
+    "A6": "DP1",
+    "A7": "DN1",
+    "A8": "SBU1",
+    "A9": "VBUS",
+    "A12": "GND",
+    "B1": "GND",
+    "B4": "VBUS",
+    "B5": "CC2",
+    "B6": "DP2",
+    "B7": "DN2",
+    "B8": "SBU2",
+    "B9": "VBUS",
+    "B12": "GND",
+    "SH": "SHELL"
+   },
+   "design_alias": {
+    "D+": "DP1",
+    "D-": "DN1",
+    "SHIELD": "SHELL"
+   },
+   "skip_names": true,
+   "nets": {
+    "J1": {
+     "A1": "GND",
+     "A12": "GND",
+     "B1": "GND",
+     "B12": "GND",
+     "A4": "USB_VBUS",
+     "A9": "USB_VBUS",
+     "B4": "USB_VBUS",
+     "B9": "USB_VBUS",
+     "A5": "CC1",
+     "B5": "CC2",
+     "A6": "USB_DP",
+     "B6": "USB_DP",
+     "A7": "USB_DM",
+     "B7": "USB_DM",
+     "A8": null,
+     "B8": null,
+     "SH": "GND"
+    }
+   },
+   "net_has": {
+    "CC1": [
+     "R1"
+    ],
+    "CC2": [
+     "R2"
+    ],
+    "USB_DP": [
+     "R4",
+     "D1"
+    ],
+    "USB_DM": [
+     "R3",
+     "D1"
+    ]
+   },
+   "land": {
+    "pads": 20,
+    "positions": {
+     "A1": [
+      -3.2,
+      -3.67
+     ],
+     "B12": [
+      -3.2,
+      -3.67
+     ],
+     "A4": [
+      -2.4,
+      -3.67
+     ],
+     "B9": [
+      -2.4,
+      -3.67
+     ],
+     "B8": [
+      -1.75,
+      -3.67
+     ],
+     "A5": [
+      -1.25,
+      -3.67
+     ],
+     "B7": [
+      -0.75,
+      -3.67
+     ],
+     "A6": [
+      -0.25,
+      -3.67
+     ],
+     "A7": [
+      0.25,
+      -3.67
+     ],
+     "B6": [
+      0.75,
+      -3.67
+     ],
+     "A8": [
+      1.25,
+      -3.67
+     ],
+     "B5": [
+      1.75,
+      -3.67
+     ],
+     "B4": [
+      2.4,
+      -3.67
+     ],
+     "A9": [
+      2.4,
+      -3.67
+     ],
+     "B1": [
+      3.2,
+      -3.67
+     ],
+     "A12": [
+      3.2,
+      -3.67
+     ]
+    },
+    "tol": 0.02,
+    "pad1": [
+     0.6,
+     1.14
+    ],
+    "pad1_ref": "A1",
+    "pad_ratio": [
+     0.95,
+     1.05
+    ]
+   },
+   "jlc": {
+    "map": {
+     "A1B12": "A1",
+     "A4B9": "A4",
+     "B1A12": "B1",
+     "B4A9": "B4",
+     "1": null,
+     "2": null,
+     "3": null,
+     "4": null
+    }
+   },
+   "notes": [
+    "CC1 / CC2 each have their own 5.1 k pull-down (R1, R2): a sink that works in both plug orientations. D+ and D- are joined across both rows. SBU open. Shell on GND.",
+    "Shell slots on the board (1.0 x 2.1 / 1.0 x 1.8 pads, 0.6 x 1.7 / 0.6 x 1.4 drills, x +-4.325, y -3.10 / +1.08) match the drawing (8.65, 4.18)."
+   ],
+   "datasheet_ref": "hro"
+  },
+  {
+   "id": "TQ2SA-L2-5V",
+   "refs": [
+    "K1",
+    "K2",
+    "K3",
+    "K4"
+   ],
+   "mpn": "TQ2SA-L2-5V-Z",
+   "lcsc": "C2684450",
+   "lcsc_package": "TQ2SA",
+   "cite": "p.11 \"2. Surface-mount terminal\": SA type suggested mounting pad (top view) 1 x 2.94 pads, 2.54 pitch, 9.56 row centres; Schematic (Top view) 2-coil latching (Reset condition): coil 1(+) / 5(-) (open box), coil 10(+) / 6(-) (filled box); contacts in reset: 3-2 and 8-9 closed, 4 and 7 open; \"Orientation (indicates PIN No.1) stripe\" (p.12 packing)",
+   "pins": {
+    "1": "SET+",
+    "2": "NC1",
+    "3": "COM1",
+    "4": "NO1",
+    "5": "SET-",
+    "6": "RST-",
+    "7": "NO2",
+    "8": "COM2",
+    "9": "NC2",
+    "10": "RST+"
+   },
+   "nets": {
+    "K1": {
+     "1": "VRLY",
+     "2": null,
+     "3": "SOURCE_BUF",
+     "4": "RG100",
+     "5": "RLY_SET_LO",
+     "6": "RLY_RST",
+     "7": "RF100",
+     "8": "TIA_OUT",
+     "9": null,
+     "10": "VRLY"
+    },
+    "K2": {
+     "1": "VRLY",
+     "2": null,
+     "3": "SOURCE_BUF",
+     "4": "RG5K",
+     "5": "RLY_SET_MED",
+     "6": "RLY_RST",
+     "7": "RF5K",
+     "8": "TIA_OUT",
+     "9": null,
+     "10": "VRLY"
+    },
+    "K3": {
+     "1": "VRLY",
+     "2": null,
+     "3": "SOURCE_BUF",
+     "4": "RG100K",
+     "5": "RLY_SET_HI",
+     "6": "RLY_RST",
+     "7": "RF100K",
+     "8": "TIA_OUT",
+     "9": null,
+     "10": "VRLY"
+    },
+    "K4": {
+     "1": "VRLY",
+     "2": null,
+     "3": null,
+     "4": null,
+     "5": "RLY_SET_REF",
+     "6": "RLY_RST",
+     "7": "REF_A",
+     "8": "DUT_HI",
+     "9": null,
+     "10": "VRLY"
+    }
+   },
+   "land": {
+    "pads": 10,
+    "pitch": [
+     "1",
+     "2",
+     2.54
+    ],
+    "span": [
+     "1",
+     "10",
+     9.56
+    ],
+    "tol_span": 0.02,
+    "pad1": [
+     1.0,
+     2.94
+    ],
+    "pad_ratio": [
+     0.98,
+     1.02
+    ],
+    "pin1": [
+     "-",
+     "+"
+    ],
+    "ring": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8",
+     "9",
+     "10"
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "Coil polarity (+ on VRLY at pins 1 and 10, low-side switch on 5 and 6) and the contact map (range resistor on NO pins 4 / 7, closed only after SET) follow the drawing directly.",
+    "Which coil is SET is NOT printed in words: Panasonic draws the 1-5 coil open and the 6-10 coil filled in the \"Reset condition\" schematic, and no TQ document found states set/reset by pin number. The board (and prior audit RC-03) assume 1-5 = SET. If that reading were wrong the board still works with a firmware change (pulse the shared RESET line to set all four, then the per-relay lines to drop the unwanted ones), so this is not a board-dead risk. Bring-up: pulse RNG_SET_LO alone and confirm K1 closes (continuity SOURCE_BUF-RG100).",
+    "EasyEDA C2684450 pads are 1.2 x 3.3 at 10.16 mm rows (not the Panasonic 9.56); only used here for JLC orientation, where pad 1 lands on pad 1 within 0.3 mm."
+   ],
+   "attention": [
+    "Set/reset coil identity (1-5 = SET) is read from Panasonic's open/filled coil drawing, not from a printed label; polarity and contact map are verified. Consequence if wrong: firmware change only (feature-recoverable). Confirm at bring-up: pulse RNG_SET_LO alone, K1 must close SOURCE_BUF-RG100."
+   ],
+   "datasheet_ref": "tq"
+  },
+  {
+   "id": "BNC-KYWE-295-W4-N",
+   "refs": [
+    "J3",
+    "J7",
+    "J8",
+    "J9"
+   ],
+   "mpn": "BNC-KYWE-295-W4-N",
+   "lcsc": "C41416668",
+   "lcsc_package": "BNC-KYWE-295-W4-N",
+   "jlc_assembled": false,
+   "cite": "Drawing BNCKYWE-P03900 rev A1: four shell legs on an 8 x 8 mm square, centre pin at its centre, PCB holes 1.2 as drawn (transcribed in sources/rev-f/BNC-KYWE-295-W4-N.txt)",
+   "pins": {
+    "1": "SHELL",
+    "2": "SHELL",
+    "3": "SHELL",
+    "4": "SHELL",
+    "5": "CENTRE"
+   },
+   "skip_names": true,
+   "nets": {
+    "J3": {
+     "1": "GND",
+     "2": "GND",
+     "3": "GND",
+     "4": "GND",
+     "5": "DUT_HI"
+    },
+    "J7": {
+     "1": "GND",
+     "2": "GND",
+     "3": "GND",
+     "4": "GND",
+     "5": "HPOT"
+    },
+    "J8": {
+     "1": "GND",
+     "2": "GND",
+     "3": "GND",
+     "4": "GND",
+     "5": "LPOT"
+    },
+    "J9": {
+     "1": "GND",
+     "2": "GND",
+     "3": "GND",
+     "4": "GND",
+     "5": "DUT_LO"
+    }
+   },
+   "land": {
+    "pads": 5,
+    "positions": {
+     "1": [
+      4,
+      -4
+     ],
+     "2": [
+      4,
+      4
+     ],
+     "3": [
+      -4,
+      4
+     ],
+     "4": [
+      -4,
+      -4
+     ],
+     "5": [
+      0,
+      0
+     ]
+    },
+    "tol": 0.02
+   },
+   "notes": [
+    "Hand-fitted by JLC (not in the CPL). Shell legs drilled 1.4 mm (EasyEDA record) vs 1.2 mm drawn: 1.0 mm legs fit either; prior audit RC-11. The centre pin is the only signal pad, so there is no pin-1 hazard."
+   ],
+   "datasheet_ref": "bnc"
+  },
+  {
+   "id": "FNR5040S4R7MT",
+   "refs": [
+    "L1",
+    "L2"
+   ],
+   "mpn": "FNR5040S4R7MT",
+   "lcsc": "C167963",
+   "lcsc_package": "FNR50XXS",
+   "cite": "Shape and Dimensions table, FNR5040S row, Fig.3 recommended land: a 2.3 (gap), b 1.4 (pad width), c 4.2 (pad length)",
+   "pins": {
+    "1": "1",
+    "2": "2"
+   },
+   "nets": {
+    "L1": {
+     "1": "5V",
+     "2": "SW_P"
+    },
+    "L2": {
+     "1": "SW_N",
+     "2": "GND"
+    }
+   },
+   "land": {
+    "pads": 2,
+    "span": [
+     "1",
+     "2",
+     3.7
+    ],
+    "tol_span": 0.02,
+    "pad1": [
+     1.4,
+     4.2
+    ],
+    "pad_ratio": [
+     0.98,
+     1.02
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "Shielded drum inductor, non-polar. Boost: VIN(5V) -> L1 -> SW_P; inverter: OUTN (SW_N) -> L2 -> GND, as the TPS65131 application."
+   ],
+   "datasheet_ref": "fnr"
+  },
+  {
+   "id": "GZ2012D101TF",
+   "refs": [
+    "FB1"
+   ],
+   "mpn": "GZ2012D101TF",
+   "lcsc": "C1015",
+   "lcsc_package": "L0805",
+   "cite": "No datasheet PDF retrieved (LCSC/JLC links return an HTML page). Non-polar 0805 ferrite; board pads 0.875 x 1.2 at 2.125 mm (KiCad 0805) vs EasyEDA C1015 1.13 x 1.38 at 1.93.",
+   "pins": {
+    "1": "1",
+    "2": "2"
+   },
+   "nets": {
+    "FB1": {
+     "1": "5V",
+     "2": "5VA"
+    }
+   },
+   "land": {
+    "pads": 2
+   },
+   "jlc": {},
+   "notes": [
+    "No primary datasheet checked for this part: only the LCSC package (L0805) and the EasyEDA land were compared. Two-terminal, non-polar: no pinout risk."
+   ],
+   "attention": [
+    "No primary datasheet retrieved; non-polar 0805 ferrite checked against the LCSC package and EasyEDA land only."
+   ]
+  },
+  {
+   "id": "TS-1088-AR02016",
+   "refs": [
+    "SW1",
+    "SW2"
+   ],
+   "mpn": "TS-1088-AR02016",
+   "lcsc": "C720477",
+   "lcsc_package": "SW-SMD",
+   "cite": "Drawing TS-1088-ARXXXXX REV A: circuit diagram 1-2 (SPST); PCB welding drawing 5.50 outer, 3.40 inner, 2.00 tall",
+   "pins": {
+    "1": "1",
+    "2": "2"
+   },
+   "nets": {
+    "SW1": {
+     "1": "BOOTSEL",
+     "2": "GND"
+    },
+    "SW2": {
+     "1": "RUN",
+     "2": "GND"
+    }
+   },
+   "land": {
+    "pads": 2,
+    "span": [
+     "1",
+     "2",
+     4.45
+    ],
+    "tol_span": 0.02,
+    "pad1": [
+     1.05,
+     2.0
+    ],
+    "pad_ratio": [
+     0.98,
+     1.02
+    ]
+   },
+   "jlc": {},
+   "notes": [
+    "BOOTSEL pulls QSPI_CS low through R8 1 k (RP2040 hardware design guide); RESET shorts RUN to GND (R9 10 k pull-up, C14)."
+   ],
+   "datasheet_ref": "ts1088"
+  },
+  {
+   "id": "PCG1A331MCL1GS",
+   "refs": [
+    "C117"
+   ],
+   "mpn": "PCG1A331MCL1GS",
+   "lcsc": "C433208",
+   "lcsc_package": "CAP-SMD_BD8.0",
+   "cite": "PCG catalog excerpt: PCG1A331MCL1GS 10 V 330 uF, 8 x 7L; the land-size page (\"page 18, 19\") is not in the LCSC excerpt",
+   "pins": {
+    "1": "+",
+    "2": "-"
+   },
+   "skip_names": true,
+   "nets": {
+    "C117": {
+     "1": "5V",
+     "2": "GND"
+    }
+   },
+   "land": {
+    "pads": 2,
+    "span": [
+     "1",
+     "2",
+     6.534
+    ],
+    "tol_span": 0.5
+   },
+   "jlc": {},
+   "notes": [
+    "Polarity: pad 1 (+) on 5V, matching the EasyEDA \"+\" pad 1 (placement-library audit) and the 2026-10-30 preview. Land compared with the EasyEDA record only (4.2 x 1.4 at 6.53 mm vs board 4.15 x 1.9 at 6.95 mm): the Nichicon land page was not retrieved."
+   ],
+   "attention": [
+    "Nichicon land-size page not retrieved; land checked against the EasyEDA record (within 0.5 mm span). Polarity verified (pad 1 = + = 5V)."
+   ],
+   "datasheet_ref": "pcg"
+  },
+  {
+   "id": "TSW-102-07-G-S (DNP)",
+   "refs": [
+    "J4",
+    "J5",
+    "J6"
+   ],
+   "mpn": "TSW-102-07-G-S",
+   "lcsc": "C7402729",
+   "jlc_assembled": false,
+   "cite": "Samtec F-224: 2.54 mm pitch, .025\" posts, hole .040\"",
+   "pins": {
+    "1": "1",
+    "2": "2"
+   },
+   "skip_names": true,
+   "nets": {
+    "J4": {
+     "1": "SWCLK",
+     "2": "SWDIO"
+    },
+    "J5": {
+     "1": "GND",
+     "2": "3V3"
+    },
+    "J6": {
+     "1": "UART_TX",
+     "2": "UART_RX"
+    }
+   },
+   "land": {
+    "pads": 2,
+    "pitch": [
+     "1",
+     "2",
+     2.54
+    ],
+    "tol_pitch": 0.01
+   },
+   "notes": [
+    "Do-not-fit headers: net sanity only. SWCLK/SWDIO go to RP2040 pins 24/25; UART_TX/RX to GPIO28/29 (UART0 TX/RX)."
+   ],
+   "datasheet_ref": "tsw"
+  }
+ ]
+}

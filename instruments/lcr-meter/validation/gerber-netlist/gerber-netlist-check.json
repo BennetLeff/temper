@@ -1,0 +1,384 @@
+{
+ "tool": "validation/gerber-netlist/gerber_netlist_check.py",
+ "method": "exact polygons (shapely) from Gerber copper + Excellon; plated barrels join layers; labels from IPC-D-356 positions, nets of record from the schematic netlist by (ref, pin)",
+ "inputs": {
+  "fab_files": {
+   "zip": "manufacturing/temper-lcr-gerbers.zip",
+   "sha256": "e3f1e91366adf66e1b78acae22ddb71efc1f803e0d8557fabd37c4a69b9a7201"
+  },
+  "zip_members_used": {
+   "temper-lcr-B_Cu.gbl": "d3a7fdaa50a24837b464e70261ab003b05f8cf68154189946981b622ae9a2992",
+   "temper-lcr-F_Cu.gtl": "00639dfd6a3b4cb122e55117c93f9cd3559c850ed2abf212c84f2cc1e70e7b98",
+   "temper-lcr-In1_Cu.g1": "a92942150840ec0a5010ea3afa37b5ef22711b6195ef6f24d013c8e9d136edf4",
+   "temper-lcr-In2_Cu.g2": "bd733067a3f2bdc6c0f52c0fcb6c386a072a233217289979a36b138f9ce15885",
+   "temper-lcr-NPTH.drl": "df7a69b490c06d7d728dbd40bbdfece097cdc764afc2db8d0b22caae7873c440",
+   "temper-lcr-PTH.drl": "89bdd82f3b25dd0dfb8a73e5c934cae4fa2358a7233ad81cda4af1057feb339b"
+  },
+  "ipc_d356": {
+   "source": "fab set:temper-lcr.d356",
+   "sha256": "9bf5e4a7f70cc9f6cb69a440e141a850839353ff4fdb7e308195053a38fc85ba"
+  },
+  "schematic": {
+   "path": "cad/temper-lcr.kicad_sch",
+   "sha256": "846d49be1efd5758c78c4a923d3c04813f4cfeeebeee0a9fa492c7a2360bfcea"
+  },
+  "schematic_netlist": {
+   "source": "kicad-cli sch export netlist cad/temper-lcr.kicad_sch (exported at run time)",
+   "sha256": "d6e23135ac8bd04c1df57a59aa7717ae384a48958f59832262c461f235fd50a7"
+  },
+  "board_for_reference_only": {
+   "path": "cad/temper-lcr.kicad_pcb",
+   "sha256": "490892127c7f1713881aaff3e4493406874ff5b9f9b311f81d124b095d4a76ca",
+   "note": "not read by the checker; IPC-356 positions come from it"
+  }
+ },
+ "versions": {
+  "python": "3.12.12",
+  "shapely": "2.2.0",
+  "gerbonara": "1.6.3"
+ },
+ "pass": true,
+ "counts": {
+  "copper_pieces_per_layer": {
+   "F.Cu": 542,
+   "In1.Cu": 177,
+   "In2.Cu": 185,
+   "B.Cu": 183
+  },
+  "copper_components": 171,
+  "pth_holes": 469,
+  "pth_slots": 4,
+  "npth_holes": 6,
+  "ipc_records": 1146,
+  "ipc_pads": 701,
+  "ipc_vias": 439,
+  "schematic_nets": 168,
+  "nets_checked_for_opens": 128,
+  "single_pin_nets": 40,
+  "components_with_pads": 171,
+  "board_only_pads": 21
+ },
+ "shorts": [],
+ "opens": [],
+ "pads_off_copper": [],
+ "ipc_net_name_mismatch": [],
+ "via_net_mismatch": [],
+ "pads_not_in_schematic": [],
+ "board_only_pads": [
+  {
+   "x": 6.2001,
+   "y": 44.5999,
+   "ref": "TP18",
+   "pin": "1",
+   "net": "I2S_DIN"
+  },
+  {
+   "x": 41.9989,
+   "y": 10.8001,
+   "ref": "TP9",
+   "pin": "1",
+   "net": "GND"
+  },
+  {
+   "x": 6.2001,
+   "y": 42.6009,
+   "ref": "TP19",
+   "pin": "1",
+   "net": "GND"
+  },
+  {
+   "x": 53.1012,
+   "y": 28.4988,
+   "ref": "TP2",
+   "pin": "1",
+   "net": "GND"
+  },
+  {
+   "x": 55.9994,
+   "y": 23.7998,
+   "ref": "TP3",
+   "pin": "1",
+   "net": "12V"
+  },
+  {
+   "x": 57.2008,
+   "y": 33.401,
+   "ref": "TP10",
+   "pin": "1",
+   "net": "RLY_SET_LO"
+  },
+  {
+   "x": 38.9001,
+   "y": 36.4998,
+   "ref": "TP11",
+   "pin": "1",
+   "net": "RLY_SET_MED"
+  },
+  {
+   "x": 47.2948,
+   "y": 29.9999,
+   "ref": "TP14",
+   "pin": "1",
+   "net": "RLY_RST"
+  },
+  {
+   "x": 92.4992,
+   "y": 29.9999,
+   "ref": "TP7",
+   "pin": "1",
+   "net": "RAW_N"
+  },
+  {
+   "x": 6.2001,
+   "y": 48.6004,
+   "ref": "TP16",
+   "pin": "1",
+   "net": "I2S_FSYNC"
+  },
+  {
+   "x": 14.224,
+   "y": 16.1011,
+   "ref": "TP21",
+   "pin": "1",
+   "net": "GND"
+  },
+  {
+   "x": 41.9989,
+   "y": 13.401,
+   "ref": "TP8",
+   "pin": "1",
+   "net": "3V3"
+  },
+  {
+   "x": 6.2001,
+   "y": 50.5993,
+   "ref": "TP15",
+   "pin": "1",
+   "net": "I2S_BCLK"
+  },
+  {
+   "x": 78.7756,
+   "y": 29.9999,
+   "ref": "TP6",
+   "pin": "1",
+   "net": "RAW_P"
+  },
+  {
+   "x": 50.5003,
+   "y": 28.4988,
+   "ref": "TP1",
+   "pin": "1",
+   "net": "5V"
+  },
+  {
+   "x": 73.599,
+   "y": 35.4,
+   "ref": "TP5",
+   "pin": "1",
+   "net": "VRLY"
+  },
+  {
+   "x": 59.7992,
+   "y": 27.399,
+   "ref": "TP4",
+   "pin": "1",
+   "net": "-12V"
+  },
+  {
+   "x": 71.9988,
+   "y": 33.401,
+   "ref": "TP12",
+   "pin": "1",
+   "net": "RLY_SET_HI"
+  },
+  {
+   "x": 6.2001,
+   "y": 46.5988,
+   "ref": "TP17",
+   "pin": "1",
+   "net": "I2S_DOUT"
+  },
+  {
+   "x": 97.8992,
+   "y": 69.4004,
+   "ref": "TP13",
+   "pin": "1",
+   "net": "RLY_SET_REF"
+  },
+  {
+   "x": 12.225,
+   "y": 16.1011,
+   "ref": "TP20",
+   "pin": "1",
+   "net": "USB_VBUS"
+  }
+ ],
+ "schematic_pins_without_board_pad": [],
+ "plated_barrels_touching_no_copper": [],
+ "pth_holes_not_in_ipc": [],
+ "npth_in_ipc_without_drill": [],
+ "floating_copper": [],
+ "via_only_copper": [],
+ "npth_cutting_copper": [],
+ "npth_min_clearance_to_copper_mm": {
+  "F.Cu": 0.2199,
+  "In1.Cu": 0.2005,
+  "In2.Cu": 0.2005,
+  "B.Cu": 0.2005
+ },
+ "min_gap_between_different_nets": {
+  "F.Cu": {
+   "gap_mm": 0.15,
+   "at": [
+    65.15,
+    73.575
+   ],
+   "nets": [
+    [
+     "GND"
+    ],
+    [
+     "-12V"
+    ]
+   ]
+  },
+  "In1.Cu": {
+   "gap_mm": 0.1551,
+   "at": [
+    19.1725,
+    17.6299
+   ],
+   "nets": [
+    [
+     "UART_TX"
+    ],
+    [
+     "GND"
+    ]
+   ]
+  },
+  "In2.Cu": {
+   "gap_mm": 0.15,
+   "at": [
+    18.95,
+    21.625
+   ],
+   "nets": [
+    [
+     "HEARTBEAT"
+    ],
+    [
+     "FAULT"
+    ]
+   ]
+  },
+  "B.Cu": {
+   "gap_mm": 0.15,
+   "at": [
+    34.375,
+    29.03
+   ],
+   "nets": [
+    [
+     "I2S_DIN"
+    ],
+    [
+     "3V3"
+    ]
+   ]
+  }
+ },
+ "gaps_below_warn": {
+  "threshold_mm": 0.1,
+  "pairs": []
+ },
+ "single_pin_nets": [
+  "unconnected-(J1-SBU1-PadA8)",
+  "unconnected-(J1-SBU2-PadB8)",
+  "unconnected-(K1-NC1-Pad2)",
+  "unconnected-(K1-NC2-Pad9)",
+  "unconnected-(K2-NC1-Pad2)",
+  "unconnected-(K2-NC2-Pad9)",
+  "unconnected-(K3-NC1-Pad2)",
+  "unconnected-(K3-NC2-Pad9)",
+  "unconnected-(K4-COM1-Pad3)",
+  "unconnected-(K4-NC1-Pad2)",
+  "unconnected-(K4-NC2-Pad9)",
+  "unconnected-(K4-NO1-Pad4)",
+  "unconnected-(U1-GPIO0-Pad2)",
+  "unconnected-(U1-GPIO1-Pad3)",
+  "unconnected-(U1-GPIO12-Pad15)",
+  "unconnected-(U1-GPIO15-Pad18)",
+  "unconnected-(U1-GPIO16-Pad27)",
+  "unconnected-(U1-GPIO17-Pad28)",
+  "unconnected-(U1-GPIO18-Pad29)",
+  "unconnected-(U1-GPIO19-Pad30)",
+  "unconnected-(U1-GPIO20-Pad31)",
+  "unconnected-(U1-GPIO21-Pad32)",
+  "unconnected-(U1-GPIO24-Pad36)",
+  "unconnected-(U11-DNC-Pad7)",
+  "unconnected-(U11-NC-Pad3)",
+  "unconnected-(U12-DNC-Pad7)",
+  "unconnected-(U12-NC-Pad3)",
+  "unconnected-(U13-BSW-Pad7)",
+  "unconnected-(U13-NC-Pad12)",
+  "unconnected-(U13-NC-Pad20)",
+  "unconnected-(U14-GPIO1-Pad9)",
+  "unconnected-(U14-GPIO2-Pad10)",
+  "unconnected-(U14-GPO1-Pad11)",
+  "unconnected-(U14-MICBIAS-Pad14)",
+  "unconnected-(U14-OUT2M-Pad22)",
+  "unconnected-(U14-OUT2P-Pad21)",
+  "unconnected-(U15-NC-Pad4)",
+  "unconnected-(U16-~{FAULT}-Pad4)",
+  "unconnected-(U17-FLAG3-Pad4)",
+  "unconnected-(U3-NC-Pad4)"
+ ],
+ "geometry_sanity": {
+  "chord_error_mm": 0.0005,
+  "region_area_vs_shoelace_max_rel": 2.0785329026267514e-10,
+  "roundrect_flash_hull_minus_area_max_mm2": 2.6645352591003757e-15,
+  "primitive_counts": {
+   "ArcPoly": 1627,
+   "Circle": 4895,
+   "Rectangle": 2573,
+   "Line": 1756
+  }
+ },
+ "timing_s": {
+  "geometry": 1.0,
+  "total": 1.3
+ },
+ "self_test": {
+  "short": {
+   "mutation": "F.Cu: 0.10 mm draw from U1-3 (27.437,19.700) to U1-4 (27.437,20.099)",
+   "expected_short_between": [
+    "I2S_DIN",
+    "unconnected-(U1-GPIO1-Pad3)"
+   ],
+   "checker_pass": false,
+   "shorts_reported": [
+    [
+     "I2S_DIN",
+     "unconnected-(U1-GPIO1-Pad3)"
+    ]
+   ],
+   "caught": true
+  },
+  "open": {
+   "mutation": "F.Cu: Gerber line 6268 draw (80.425,81.540)->(83.220,81.540) turned into a move; it was the only track joining R107-2 and K4-7",
+   "expected_open_on": "REF_A",
+   "checker_pass": false,
+   "opens_reported": [
+    "REF_A"
+   ],
+   "caught": true
+  },
+  "floating": {
+   "mutation": "B.Cu: 0.5 mm flash at (38.0, 43.0)",
+   "floating_reported": 1,
+   "caught": true
+  },
+  "all_caught": true
+ }
+}

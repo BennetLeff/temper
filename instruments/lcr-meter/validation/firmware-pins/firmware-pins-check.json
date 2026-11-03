@@ -1,0 +1,304 @@
+{
+ "inputs": {
+  "cad/design.json": "26e3efe155ed43b8b3646a1c2ba3dcca96ef074be7e7e637992e04ada1f66801",
+  "firmware-rev-e/src/pins.h": "97a6f1f58a8e75fa4a6277fdb7ce06bc0971b560855826a56984a51f84d0a56e",
+  "firmware-rev-e/src/relay.c": "5bafd6729c0ca3c09b40133e7ec5a189dd51344e2eed1c04e35a00db31922927",
+  "firmware-rev-e/src/rails.c": "338c3b0db7923e2e846727ab45590b390f7db8b95f52531b68f5ebe0e6f93491",
+  "firmware-rev-e/src/main.c": "42543a1a71a5c7a6f7e8711402ff54e4ebc283163e3828acb4c938a49c386fce"
+ },
+ "findings": [],
+ "passes": [
+  {
+   "check": "gpio net",
+   "detail": "PIN_I2S_DIN = GPIO2 = U1 pad 4: net I2S_DIN, expected I2S_DIN"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_I2S_DOUT = GPIO3 = U1 pad 5: net I2S_DOUT, expected I2S_DOUT"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_I2S_BCLK = GPIO4 = U1 pad 6: net I2S_BCLK, expected I2S_BCLK"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_I2S_FSYNC = GPIO5 = U1 pad 7: net I2S_FSYNC, expected I2S_FSYNC"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_I2C_SDA = GPIO8 = U1 pad 11: net I2C_SDA, expected I2C_SDA"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_I2C_SCL = GPIO9 = U1 pad 12: net I2C_SCL, expected I2C_SCL"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_RNG_SET_HI = GPIO6 = U1 pad 8: net RNG_SET_HI, expected RNG_SET_HI"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_RNG_SET_LO = GPIO7 = U1 pad 9: net RNG_SET_LO, expected RNG_SET_LO"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_RNG_RESET = GPIO10 = U1 pad 13: net RNG_RESET, expected RNG_RESET"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_RNG_SET_MED = GPIO11 = U1 pad 14: net RNG_SET_MED, expected RNG_SET_MED"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_RNG_SET_REF = GPIO14 = U1 pad 17: net RNG_SET_REF, expected RNG_SET_REF"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_USB_VBUS = GPIO13 = U1 pad 16: net USB_SENSE, expected USB_SENSE"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_LED = GPIO25 = U1 pad 37: net STATUS, expected STATUS"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_LED_FAULT = GPIO22 = U1 pad 34: net FAULT, expected FAULT"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_LED_HEARTBEAT = GPIO23 = U1 pad 35: net HEARTBEAT, expected HEARTBEAT"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_MON12 = GPIO26 = U1 pad 38: net MON12, expected MON12"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_MON_N12 = GPIO27 = U1 pad 39: net MON_N12, expected MON_N12"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_UART_TX = GPIO28 = U1 pad 40: net UART_TX, expected UART_TX"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_UART_RX = GPIO29 = U1 pad 41: net UART_RX, expected UART_RX"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 4 GPIO2 net I2S_DIN is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 5 GPIO3 net I2S_DOUT is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 6 GPIO4 net I2S_BCLK is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 7 GPIO5 net I2S_FSYNC is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 8 GPIO6 net RNG_SET_HI is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 9 GPIO7 net RNG_SET_LO is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 11 GPIO8 net I2C_SDA is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 12 GPIO9 net I2C_SCL is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 13 GPIO10 net RNG_RESET is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 14 GPIO11 net RNG_SET_MED is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 16 GPIO13 net USB_SENSE is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 17 GPIO14 net RNG_SET_REF is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 34 GPIO22 net FAULT is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 35 GPIO23 net HEARTBEAT is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 37 GPIO25 net STATUS is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 38 GPIO26 net MON12 is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 39 GPIO27 net MON_N12 is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 40 GPIO28 net UART_TX is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 41 GPIO29 net UART_RX is in pins.h"
+  },
+  {
+   "check": "i2c block",
+   "detail": "main.c initialises i2c0, the block on GPIO8/9"
+  },
+  {
+   "check": "function select",
+   "detail": "PIN_I2C_SDA GPIO8 offers I2C0 SDA: yes (datasheet 2.19.2 row: 8       SPI1 RX      UART1 TX      I2C0 SDA     PWM4 A      SIO   PIO0    PIO1                          USB VBUS EN)"
+  },
+  {
+   "check": "function select",
+   "detail": "PIN_I2C_SCL GPIO9 offers I2C0 SCL: yes (datasheet 2.19.2 row: 9       SPI1 CSn     UART1 RX      I2C0 SCL     PWM4 B      SIO   PIO0    PIO1                          USB OVCUR DET)"
+  },
+  {
+   "check": "function select",
+   "detail": "PIN_UART_TX GPIO28 offers UART0 TX: yes (datasheet 2.19.2 row: 28      SPI1 RX    UART0 TX    I2C0 SDA     PWM6 A      SIO   PIO0    PIO1                        USB VBUS DET)"
+  },
+  {
+   "check": "function select",
+   "detail": "PIN_UART_RX GPIO29 offers UART0 RX: yes (datasheet 2.19.2 row: 29      SPI1 CSn   UART0 RX    I2C0 SCL     PWM6 B      SIO   PIO0    PIO1                        USB VBUS EN)"
+  },
+  {
+   "check": "adc channel",
+   "detail": "PIN_MON12 GPIO26 is ADC0; main.c reads ADC0"
+  },
+  {
+   "check": "adc channel",
+   "detail": "PIN_MON_N12 GPIO27 is ADC1; main.c reads ADC1"
+  },
+  {
+   "check": "pio side-set",
+   "detail": "BCLK GPIO4, FSYNC GPIO5"
+  },
+  {
+   "check": "relay ranges",
+   "detail": "relay.c ranges [100, 5000, 100000], design.json ranges [100, 5000, 100000]"
+  },
+  {
+   "check": "relay set coil",
+   "detail": "100 ohm: PIN_RNG_SET_LO -> R78 -> Q4 (source GND) -> [('K1', 'SET-')], expected [('K1', 'SET-')]"
+  },
+  {
+   "check": "relay set coil",
+   "detail": "5000 ohm: PIN_RNG_SET_MED -> R76 -> Q3 (source GND) -> [('K2', 'SET-')], expected [('K2', 'SET-')]"
+  },
+  {
+   "check": "relay set coil",
+   "detail": "100000 ohm: PIN_RNG_SET_HI -> R102 -> Q5 (source GND) -> [('K3', 'SET-')], expected [('K3', 'SET-')]"
+  },
+  {
+   "check": "relay set coil",
+   "detail": "REF: PIN_RNG_SET_REF -> Q6 -> [('K4', 'SET-')], expected [K4 SET-]"
+  },
+  {
+   "check": "relay reset coil",
+   "detail": "RESET: PIN_RNG_RESET -> Q2 -> [('K1', 'RST-'), ('K2', 'RST-'), ('K3', 'RST-'), ('K4', 'RST-')], expected [('K1', 'RST-'), ('K2', 'RST-'), ('K3', 'RST-'), ('K4', 'RST-')]"
+  },
+  {
+   "check": "relay coil supply",
+   "detail": "K1 SET+ VRLY, RST+ VRLY"
+  },
+  {
+   "check": "relay contacts",
+   "detail": "100 ohm K1: NO1 RG100 on R40 ['DUT_HI', 'RG100'], NO2 RF100 on R43 ['RF100', 'TIA_SUM']"
+  },
+  {
+   "check": "relay coil supply",
+   "detail": "K2 SET+ VRLY, RST+ VRLY"
+  },
+  {
+   "check": "relay contacts",
+   "detail": "5000 ohm K2: NO1 RG5K on R41 ['DUT_HI', 'RG5K'], NO2 RF5K on R44 ['RF5K', 'TIA_SUM']"
+  },
+  {
+   "check": "relay coil supply",
+   "detail": "K3 SET+ VRLY, RST+ VRLY"
+  },
+  {
+   "check": "relay contacts",
+   "detail": "100000 ohm K3: NO1 RG100K on R42 ['DUT_HI', 'RG100K'], NO2 RF100K on R45 ['RF100K', 'TIA_SUM']"
+  },
+  {
+   "check": "led",
+   "detail": "PIN_LED -> ['R12'] -> LED_A: {'A': 'D4'}, D4 K on GND"
+  },
+  {
+   "check": "led",
+   "detail": "PIN_LED_FAULT -> ['R118'] -> LED_FLT: {'A': 'D20'}, D20 K on GND"
+  },
+  {
+   "check": "led",
+   "detail": "PIN_LED_HEARTBEAT -> ['R117'] -> LED_HB: {'A': 'D19'}, D19 K on GND"
+  },
+  {
+   "check": "codec pin",
+   "detail": "PIN_I2S_DIN net I2S_DIN; TAC5112 DIN on I2S_DIN"
+  },
+  {
+   "check": "codec pin",
+   "detail": "PIN_I2S_DOUT net I2S_DOUT; TAC5112 DOUT on I2S_DOUT"
+  },
+  {
+   "check": "codec pin",
+   "detail": "PIN_I2S_BCLK net I2S_BCLK; TAC5112 BCLK on I2S_BCLK"
+  },
+  {
+   "check": "codec pin",
+   "detail": "PIN_I2S_FSYNC net I2S_FSYNC; TAC5112 FSYNC on I2S_FSYNC"
+  },
+  {
+   "check": "codec pin",
+   "detail": "PIN_I2C_SDA net I2C_SDA; TAC5112 SDA on I2C_SDA"
+  },
+  {
+   "check": "codec pin",
+   "detail": "PIN_I2C_SCL net I2C_SCL; TAC5112 SCL on I2C_SCL"
+  },
+  {
+   "check": "codec address",
+   "detail": "ADDR on GND, firmware address 0x50"
+  },
+  {
+   "check": "i2c pull-up",
+   "detail": "I2C_SDA: pull-ups to 3V3 ['R72']"
+  },
+  {
+   "check": "i2c pull-up",
+   "detail": "I2C_SCL: pull-ups to 3V3 ['R73']"
+  },
+  {
+   "check": "rail divider",
+   "detail": "MON12: 12V-100000-MON12-10000-GND; rails.c scales by 11"
+  },
+  {
+   "check": "rail divider",
+   "detail": "MON_N12: -12V-150000-MON_N12-10000-3V3; rails.c uses 160k total, 150k to 3V3"
+  },
+  {
+   "check": "usb sense",
+   "detail": "divider (100000.0, 100000.0, 'GND'): VBUS 4.4 V -> 2.20 V (VIH 2.0 V), 5.5 V -> 2.75 V (IOVDD 3.3 V)"
+  }
+ ]
+}

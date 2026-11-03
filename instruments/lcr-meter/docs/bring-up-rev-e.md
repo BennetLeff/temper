@@ -96,7 +96,7 @@ The TPS65131 enables come from U17 (LM3880). FLAG1 releases ENP and FLAG2 releas
    - 5V stays ≥ 3.86 V through both starts (model worst case; 3.7 V is the 3V3 headroom line).
 
    Any repeated ramp on 5V or RAW_P is a UVLO hiccup: stop and record it.
-3. Hot-plug at the VB pad (TP20, USB_VBUS at U16 IN, with the GND pad beside it), using 1 m and 2 m cables, and at least once with a **USB-A to C cable** from an always-on port: that is the hard-step case. The peak must stay under 7 V (TPS2553 IN abs max), and under 6 V wherever it reaches U13 VIN. `validation/power-spurs/hotplug_spice.py` predicts at most 6.24 V with R121; a higher reading means the cable is outside its assumed 0.3–1.5 µH / 0.05–0.30 Ω, so record the cable and rerun the script with it.
+3. Hot-plug at the VB pad (TP20, USB_VBUS at U16 IN, with the GND pad beside it), using 1 m and 2 m cables, and at least once with a **USB-A to C cable** from an always-on port: that is the hard-step case. The peak must stay under 7 V (TPS2553 IN abs max), and under 6 V wherever it reaches U13 VIN. `validation/power-spurs/hotplug_spice.py` predicts at most 6.24 V with R121; a higher reading means the cable is outside its assumed 0.3–1.5 µH / 0.05–0.30 Ω, so record the cable and rerun the script with it. Then do ten USB-A plug-ins and, unpowered, measure R121 in place (VBUS_DAMP to GND): it must still read about 1.5 Ω. Each plug-in puts at most 79 µJ into it (`validation/passive-ratings/`), and UNI-ROYAL publishes no 0603WAF pulse curve.
 
 ## 3. Firmware and digital
 
@@ -117,6 +117,7 @@ The TPS65131 enables come from U17 (LM3880). FLAG1 releases ENP and FLAG2 releas
 
 ## 4. Relays
 
+0. **Which coil is SET (Rev F, pinout ledger 2026-11-03).** Panasonic's TQ drawing marks the two coils open (1–5) and filled (6–10) but never labels SET; the board assumes 1–5 is SET. The relays latch, so set a state powered and read it unpowered (relays can ship in either state, so the reading before first power-up means nothing). Power up and let the boot RESET run, unplug, and measure K1 COM1 to NO1 (SOURCE_BUF to RG100, at the relay pads): open. Power up, `temper-lcr range PORT 100`, unplug, measure again: about 0 Ω. If it is the other way round (closed after boot, open after `range`), coil 6–10 is SET: nothing is damaged, and the firmware fix is to swap roles (pulse the shared line to close all four, then the per-range lines to open the three not wanted). Record which.
 1. With the source silent, run `temper-lcr range PORT 100`, then 5000, then 100000. Scope VRLY during a RESET pulse (all four coils): at least 4.5 V. Record the waveform. On Rev F, scope TP14 (RESET) and the SET pad of the range being selected (TP10–TP13) at the same time: each drain pulls low for 20 ms, RESET first.
 2. **K4 stays open.**
    - Run `refcheck PORT 5000 1500 ref.json` with the jacks open, then a normal `capture` of the open jacks on the 5 kΩ range. The capture must read far above 1 kΩ: if it reads about 1 kΩ, K4 is still closed.
