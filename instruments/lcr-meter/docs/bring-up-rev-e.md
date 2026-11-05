@@ -10,7 +10,10 @@ Applies to the Rev E board (`E-codec`, protocol 3): TAC5112 codec, latching rang
 - The cal kit card, Kelvin clip leads (jaws < 14 mm) and four BNC–clip leads.
 - `firmware-rev-e/bin/temper-lcr-rev-e.uf2` and `host/bin/temper-lcr-macos-arm64` (`temper-lcr` below).
 
-**Safety.** The DUT shares USB ground. Measure only discharged, isolated parts. Check residual voltage on any capacitor before clipping on.
+**Safety.** The DUT shares USB ground. Measure only discharged, isolated parts. The jacks have no protection: the model in `validation/charged-dut/` puts the limit at 7 V with Kelvin clips when the meter is powered, and about 1 V when it is not. So:
+1. Power the meter and wait for range 100k before connecting anything.
+2. Discharge every capacitor through a resistor and confirm **below 1 V** with a DMM before clipping on. For tank or bus capacitors, use a resistor rated for the voltage, such as 10 kΩ 5 W.
+3. Never measure a part that is still in a circuit.
 
 **Record keeping.** Commit every capture, `info`/`codec` printout, scope screenshot and note to `validation/bring-up-rev-e/` with the step number. Then a later agent can redo the analysis without the board.
 

@@ -1,0 +1,2310 @@
+{
+ "generated_by": "validation/charged-dut/charged_dut_spice.py",
+ "assumptions": {
+  "rails_v": [
+   11.86,
+   -11.87
+  ],
+  "rail_c_f": 5e-06,
+  "rail_load_a": [
+   0.0358,
+   0.0399
+  ],
+  "lead": {
+   "l_h": 3e-07,
+   "r_ohm": 0.05,
+   "cable_c_f": 1e-10
+  },
+  "dut": {
+   "esr": 0.01,
+   "esl": 5e-09
+  },
+  "esd_cell": "diode IS 1e-15, RS 2 ohm",
+  "opamp": "A0 1e5, GBW 10 MHz, swing VS-0.23, Isc 108 mA, off below VS 4 V"
+ },
+ "limits": {
+  "in_ma": 10.0,
+  "out_ma": 40.0,
+  "vdiff": 7.0,
+  "vs_total": 28.0,
+  "p_pk_w": 0.625,
+  "c_v": 50.0
+ },
+ "v_grid": [
+  1,
+  2,
+  3,
+  5,
+  7,
+  10,
+  13,
+  16,
+  20,
+  30,
+  50,
+  100,
+  200,
+  400,
+  1000
+ ],
+ "c_grid": [
+  1e-08,
+  1e-06,
+  0.0001
+ ],
+ "keysight_e4980a": {
+  "source": "E4980A user guide, Measurement circuit protection, Table 52",
+  "rule": "1000 V for C < 2 uF; sqrt(2/C) V for C >= 2 uF (1 J)",
+  "at_c": {
+   "1e-08": 1000.0,
+   "1e-06": 1000.0,
+   "0.0001": 141.4
+  }
+ },
+ "classes": "A: every rating held. B: only the 10 mA continuous input/ESD current is exceeded, by\n    pulses no bigger than the HBM pulse the part is rated for (peak 1.67 A and I2t 2.1e-7 A2s per pin; a longer\n    pulse of equal I2t heats the junction less, so this is conservative), every absolute-maximum\n    voltage held. C: anything else. Output current above 40 mA is reported but not judged: SBOS789C 7.1 note 4\n    makes it a long-term electromigration limit, and the part limits itself at about 100 mA (ISC, 7.5).",
+ "hbm_reference": {
+  "peak_ma": 1666.6666666666667,
+  "charge_uc": 0.25,
+  "i2t_a2s": 2.0833333333333336e-07,
+  "note": "OPA2810 7.2 HBM 2500 V (100 pF, 1.5 k)"
+ },
+ "safe_voltage": {
+  "kelvin": {
+   "powered/100R": {
+    "1e-08": {
+     "v_within_ratings": 7,
+     "v_within_ratings_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 7.85 V > 7",
+       "u6b Vdiff 7.86 V > 7"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 7.85 V > 7",
+       "u6b Vdiff 7.86 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 7,
+     "v_within_ratings_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8 V > 7"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 7,
+     "v_within_ratings_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8 V > 7"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8 V > 7"
+      ]
+     }
+    }
+   },
+   "powered/5k": {
+    "1e-08": {
+     "v_within_ratings": 7,
+     "v_within_ratings_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.65 V > 7"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.65 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 7,
+     "v_within_ratings_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.73 V > 7"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.73 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 7,
+     "v_within_ratings_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.73 V > 7"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.73 V > 7"
+      ]
+     }
+    }
+   },
+   "powered/100k": {
+    "1e-08": {
+     "v_within_ratings": 7,
+     "v_within_ratings_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.68 V > 7"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.68 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 7,
+     "v_within_ratings_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.75 V > 7"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.75 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 7,
+     "v_within_ratings_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.76 V > 7"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.76 V > 7"
+      ]
+     }
+    }
+   },
+   "powered/reset": {
+    "1e-08": {
+     "v_within_ratings": 7,
+     "v_within_ratings_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.68 V > 7"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.68 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 7,
+     "v_within_ratings_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.79 V > 7"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.79 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 7,
+     "v_within_ratings_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.79 V > 7",
+       "u6b Vdiff 8.82 V > 7",
+       "u7b Vdiff 7.3 V > 7"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "u6b Vdiff 8.79 V > 7",
+       "u6b Vdiff 8.82 V > 7",
+       "u7b Vdiff 7.3 V > 7"
+      ]
+     }
+    }
+   },
+   "unpowered/100R": {
+    "1e-08": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 36.8 mA > 10",
+       "u7a input 15.1 mA > 10",
+       "u7b input 31.8 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "R94 0.823 W peak > 0.625",
+       "u6a input 34.4 mA > 10",
+       "u6a output ESD 34.1 mA > 10",
+       "u6b input 996 mA > 10",
+       "u7a input 189 mA > 10",
+       "u7b input 901 mA > 10"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 79.1 mA > 10",
+       "u7a input 15.5 mA > 10",
+       "u7b input 72.4 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u6a input 12.1 mA > 10",
+       "u6a output ESD 11.8 mA > 10",
+       "u6b input 727 mA > 10",
+       "u6b input 727 mA, I2t 9.6e-07 A2s > HBM",
+       "u7a input 66.9 mA > 10",
+       "u7b input 678 mA > 10"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 84 mA > 10",
+       "u7a input 15.5 mA > 10",
+       "u7b input 77 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 2,
+     "v_hbm_scale_ends_at": {
+      "v": 3,
+      "limits": [
+       "u6b input 309 mA > 10",
+       "u6b input 309 mA, I2t 7e-07 A2s > HBM",
+       "u7a input 28.8 mA > 10",
+       "u7b input 287 mA > 10",
+       "u7b input 287 mA, I2t 5.5e-07 A2s > HBM"
+      ]
+     }
+    }
+   },
+   "unpowered/100k": {
+    "1e-08": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 40.6 mA > 10",
+       "u7a input 14.8 mA > 10",
+       "u7b input 33.8 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "R94 1.02 W peak > 0.625",
+       "u6b input 1.01e+03 mA > 10",
+       "u7a input 214 mA > 10",
+       "u7b input 914 mA > 10"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 79.9 mA > 10",
+       "u7a input 15 mA > 10",
+       "u7b input 71.5 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u6b input 727 mA > 10",
+       "u6b input 727 mA, I2t 9.8e-07 A2s > HBM",
+       "u7a input 75.4 mA > 10",
+       "u7b input 668 mA > 10",
+       "u7b input 668 mA, I2t 8.2e-07 A2s > HBM"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 84.5 mA > 10",
+       "u7a input 15 mA > 10",
+       "u7b input 75.7 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 2,
+     "v_hbm_scale_ends_at": {
+      "v": 3,
+      "limits": [
+       "u6b input 309 mA > 10",
+       "u6b input 309 mA, I2t 8.3e-07 A2s > HBM",
+       "u7a input 34.1 mA > 10",
+       "u7b input 282 mA > 10",
+       "u7b input 282 mA, I2t 5.5e-07 A2s > HBM"
+      ]
+     }
+    }
+   }
+  },
+  "sense_first": {
+   "powered/100R": {
+    "1e-08": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.03 V > 7",
+       "u7b Vdiff 9.01 V > 7"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.03 V > 7",
+       "u7b Vdiff 9.01 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.04 V > 7",
+       "u7b Vdiff 9.02 V > 7"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.04 V > 7",
+       "u7b Vdiff 9.02 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.04 V > 7",
+       "u7b Vdiff 9.02 V > 7"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.04 V > 7",
+       "u7b Vdiff 9.02 V > 7"
+      ]
+     }
+    }
+   },
+   "powered/5k": {
+    "1e-08": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.08 V > 7",
+       "u7b Vdiff 9.04 V > 7"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.08 V > 7",
+       "u7b Vdiff 9.04 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.1 V > 7",
+       "u7b Vdiff 9.06 V > 7"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.1 V > 7",
+       "u7b Vdiff 9.06 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.1 V > 7",
+       "u7b Vdiff 9.06 V > 7"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.1 V > 7",
+       "u7b Vdiff 9.06 V > 7"
+      ]
+     }
+    }
+   },
+   "powered/100k": {
+    "1e-08": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.08 V > 7",
+       "u7b Vdiff 9.04 V > 7"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.08 V > 7",
+       "u7b Vdiff 9.04 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.1 V > 7",
+       "u7b Vdiff 9.06 V > 7"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.1 V > 7",
+       "u7b Vdiff 9.06 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.1 V > 7",
+       "u7b Vdiff 9.06 V > 7"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.1 V > 7",
+       "u7b Vdiff 9.06 V > 7"
+      ]
+     }
+    }
+   },
+   "powered/reset": {
+    "1e-08": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.08 V > 7",
+       "u7b Vdiff 9.04 V > 7"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.08 V > 7",
+       "u7b Vdiff 9.04 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.1 V > 7",
+       "u7b Vdiff 9.06 V > 7"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.1 V > 7",
+       "u7b Vdiff 9.06 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.1 V > 7",
+       "u7b Vdiff 9.06 V > 7"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b Vdiff 9.1 V > 7",
+       "u7b Vdiff 9.06 V > 7"
+      ]
+     }
+    }
+   },
+   "unpowered/100R": {
+    "1e-08": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 36.9 mA > 10",
+       "u7b input 36.8 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 13,
+     "v_hbm_scale_ends_at": {
+      "v": 16,
+      "limits": [
+       "u6b input 1.28e+03 mA > 10",
+       "u6b input 1.28e+03 mA, I2t 2.1e-07 A2s > HBM",
+       "u7b input 1.28e+03 mA > 10",
+       "u7b input 1.28e+03 mA, I2t 2.1e-07 A2s > HBM"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 76.4 mA > 10",
+       "u7b input 76.4 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u6b input 705 mA > 10",
+       "u6b input 705 mA, I2t 9.4e-07 A2s > HBM",
+       "u7b input 705 mA > 10",
+       "u7b input 705 mA, I2t 9.4e-07 A2s > HBM"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 80.6 mA > 10",
+       "u7b input 80.6 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 2,
+     "v_hbm_scale_ends_at": {
+      "v": 3,
+      "limits": [
+       "u6b input 297 mA > 10",
+       "u6b input 297 mA, I2t 7.2e-07 A2s > HBM",
+       "u7b input 297 mA > 10",
+       "u7b input 297 mA, I2t 7.2e-07 A2s > HBM"
+      ]
+     }
+    }
+   },
+   "unpowered/100k": {
+    "1e-08": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 36.8 mA > 10",
+       "u7b input 36.6 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 13,
+     "v_hbm_scale_ends_at": {
+      "v": 16,
+      "limits": [
+       "u6b input 1.28e+03 mA > 10",
+       "u6b input 1.28e+03 mA, I2t 2.1e-07 A2s > HBM",
+       "u7b input 1.28e+03 mA > 10",
+       "u7b input 1.28e+03 mA, I2t 2.1e-07 A2s > HBM"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 76.5 mA > 10",
+       "u7b input 76.2 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u6b input 709 mA > 10",
+       "u6b input 709 mA, I2t 9.5e-07 A2s > HBM",
+       "u7b input 708 mA > 10",
+       "u7b input 708 mA, I2t 9.4e-07 A2s > HBM"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 81 mA > 10",
+       "u7b input 80.7 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 2,
+     "v_hbm_scale_ends_at": {
+      "v": 3,
+      "limits": [
+       "u6b input 297 mA > 10",
+       "u6b input 297 mA, I2t 8e-07 A2s > HBM",
+       "u7b input 297 mA > 10",
+       "u7b input 297 mA, I2t 7e-07 A2s > HBM"
+      ]
+     }
+    }
+   }
+  },
+  "current_only": {
+   "powered/100R": {
+    "1e-08": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "RF 0.804 W peak > 0.625",
+       "RG 0.79 W peak > 0.625"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "RF 0.804 W peak > 0.625",
+       "RG 0.79 W peak > 0.625"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "RF 0.868 W peak > 0.625",
+       "RG 0.805 W peak > 0.625"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "RF 0.868 W peak > 0.625",
+       "RG 0.805 W peak > 0.625"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 10,
+     "v_within_ratings_ends_at": {
+      "v": 13,
+      "limits": [
+       "RF 0.869 W peak > 0.625",
+       "RG 0.806 W peak > 0.625"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "RF 0.869 W peak > 0.625",
+       "RG 0.806 W peak > 0.625"
+      ]
+     }
+    }
+   },
+   "powered/5k": {
+    "1e-08": {
+     "v_within_ratings": 16,
+     "v_within_ratings_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.14 V > 7"
+      ]
+     },
+     "v_hbm_scale": 16,
+     "v_hbm_scale_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.14 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 16,
+     "v_within_ratings_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.2 V > 7"
+      ]
+     },
+     "v_hbm_scale": 16,
+     "v_hbm_scale_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.2 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 16,
+     "v_within_ratings_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.2 V > 7"
+      ]
+     },
+     "v_hbm_scale": 16,
+     "v_hbm_scale_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.2 V > 7"
+      ]
+     }
+    }
+   },
+   "powered/100k": {
+    "1e-08": {
+     "v_within_ratings": 16,
+     "v_within_ratings_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.15 V > 7"
+      ]
+     },
+     "v_hbm_scale": 16,
+     "v_hbm_scale_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.15 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 16,
+     "v_within_ratings_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.22 V > 7"
+      ]
+     },
+     "v_hbm_scale": 16,
+     "v_hbm_scale_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.22 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 16,
+     "v_within_ratings_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.22 V > 7"
+      ]
+     },
+     "v_hbm_scale": 16,
+     "v_hbm_scale_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.22 V > 7"
+      ]
+     }
+    }
+   },
+   "powered/reset": {
+    "1e-08": {
+     "v_within_ratings": 16,
+     "v_within_ratings_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.15 V > 7"
+      ]
+     },
+     "v_hbm_scale": 16,
+     "v_hbm_scale_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.15 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 16,
+     "v_within_ratings_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.22 V > 7"
+      ]
+     },
+     "v_hbm_scale": 16,
+     "v_hbm_scale_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.22 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 16,
+     "v_within_ratings_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.22 V > 7"
+      ]
+     },
+     "v_hbm_scale": 16,
+     "v_hbm_scale_ends_at": {
+      "v": 20,
+      "limits": [
+       "u7a Vdiff 8.22 V > 7"
+      ]
+     }
+    }
+   },
+   "unpowered/100R": {
+    "1e-08": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 10.6 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "RG 0.751 W peak > 0.625",
+       "u6a input 43.5 mA > 10",
+       "u6a output ESD 43.2 mA > 10",
+       "u6b input 13.6 mA > 10",
+       "u7a input 127 mA > 10"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 10.8 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "RG 0.772 W peak > 0.625",
+       "u6a input 44.1 mA > 10",
+       "u6a output ESD 43.8 mA > 10",
+       "u6b input 13.6 mA > 10",
+       "u7a input 128 mA > 10",
+       "u7a input 128 mA, I2t 2.8e-07 A2s > HBM"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 10.8 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u6a input 14.9 mA > 10",
+       "u6a input 14.9 mA, I2t 2.6e-07 A2s > HBM",
+       "u6a output ESD 14.6 mA > 10",
+       "u7a input 42.4 mA > 10",
+       "u7a input 42.4 mA, I2t 6.5e-07 A2s > HBM"
+      ]
+     }
+    }
+   },
+   "unpowered/100k": {
+    "1e-08": {
+     "v_within_ratings": 2,
+     "v_within_ratings_ends_at": {
+      "v": 3,
+      "limits": [
+       "u7a input 19.5 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 16,
+     "v_hbm_scale_ends_at": {
+      "v": 20,
+      "limits": [
+       "R105 0.827 W peak > 0.625",
+       "R94 0.711 W peak > 0.625",
+       "u6b input 28.8 mA > 10",
+       "u7a input 179 mA > 10",
+       "u7a output ESD 19.7 mA > 10"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 2,
+     "v_within_ratings_ends_at": {
+      "v": 3,
+      "limits": [
+       "u7a input 19.7 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 16,
+     "v_hbm_scale_ends_at": {
+      "v": 20,
+      "limits": [
+       "R105 0.845 W peak > 0.625",
+       "R94 0.711 W peak > 0.625",
+       "u6b input 29 mA > 10",
+       "u7a input 179 mA > 10",
+       "u7a output ESD 20.8 mA > 10"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 2,
+     "v_within_ratings_ends_at": {
+      "v": 3,
+      "limits": [
+       "u7a input 19.7 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a input 38.7 mA > 10",
+       "u7a input 38.7 mA, I2t 3.2e-07 A2s > HBM"
+      ]
+     }
+    }
+   }
+  },
+  "h_to_gnd": {
+   "powered/100R": {
+    "1e-08": {
+     "v_within_ratings": 5,
+     "v_within_ratings_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.78 V > 7",
+       "u6b Vdiff 9.79 V > 7",
+       "u6b input 24.5 mA > 10",
+       "u6b input 24.8 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.78 V > 7",
+       "u6b Vdiff 9.79 V > 7",
+       "u6b input 24.5 mA > 10",
+       "u6b input 24.8 mA > 10"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 5,
+     "v_within_ratings_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.87 V > 7",
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 37.1 mA > 10",
+       "u6b input 37.4 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.87 V > 7",
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 37.1 mA > 10",
+       "u6b input 37.4 mA > 10"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 5,
+     "v_within_ratings_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 37.2 mA > 10",
+       "u6b input 37.5 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 37.2 mA > 10",
+       "u6b input 37.5 mA > 10"
+      ]
+     }
+    }
+   },
+   "powered/5k": {
+    "1e-08": {
+     "v_within_ratings": 5,
+     "v_within_ratings_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.72 V > 7",
+       "u6b Vdiff 9.74 V > 7",
+       "u6b input 25.3 mA > 10",
+       "u6b input 25.6 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.72 V > 7",
+       "u6b Vdiff 9.74 V > 7",
+       "u6b input 25.3 mA > 10",
+       "u6b input 25.6 mA > 10"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 5,
+     "v_within_ratings_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.87 V > 7",
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 39.6 mA > 10",
+       "u6b input 39.8 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.87 V > 7",
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 39.6 mA > 10",
+       "u6b input 39.8 mA > 10"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 5,
+     "v_within_ratings_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 39.7 mA > 10",
+       "u6b input 39.9 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 39.7 mA > 10",
+       "u6b input 39.9 mA > 10"
+      ]
+     }
+    }
+   },
+   "powered/100k": {
+    "1e-08": {
+     "v_within_ratings": 5,
+     "v_within_ratings_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.74 V > 7",
+       "u6b Vdiff 9.75 V > 7",
+       "u6b input 25.1 mA > 10",
+       "u6b input 25.7 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.74 V > 7",
+       "u6b Vdiff 9.75 V > 7",
+       "u6b input 25.1 mA > 10",
+       "u6b input 25.7 mA > 10"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 5,
+     "v_within_ratings_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 39.7 mA > 10",
+       "u6b input 39.9 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 39.7 mA > 10",
+       "u6b input 39.9 mA > 10"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 5,
+     "v_within_ratings_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 39.7 mA > 10",
+       "u6b input 40 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 39.7 mA > 10",
+       "u6b input 40 mA > 10"
+      ]
+     }
+    }
+   },
+   "powered/reset": {
+    "1e-08": {
+     "v_within_ratings": 5,
+     "v_within_ratings_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.74 V > 7",
+       "u6b Vdiff 9.75 V > 7",
+       "u6b input 25.1 mA > 10",
+       "u6b input 25.7 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.74 V > 7",
+       "u6b Vdiff 9.75 V > 7",
+       "u6b input 25.1 mA > 10",
+       "u6b input 25.7 mA > 10"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 5,
+     "v_within_ratings_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 39.7 mA > 10",
+       "u6b input 39.9 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.88 V > 7",
+       "u6b input 39.7 mA > 10",
+       "u6b input 39.9 mA > 10"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 5,
+     "v_within_ratings_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.88 V > 7",
+       "u6b Vdiff 9.92 V > 7",
+       "u6b input 40 mA > 10",
+       "u6b input 42.3 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "u6b Vdiff 9.88 V > 7",
+       "u6b Vdiff 9.92 V > 7",
+       "u6b input 40 mA > 10",
+       "u6b input 42.3 mA > 10"
+      ]
+     }
+    }
+   },
+   "unpowered/100R": {
+    "1e-08": {
+     "v_within_ratings": 0.0,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 28.6 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 7,
+     "v_hbm_scale_ends_at": {
+      "v": 10,
+      "limits": [
+       "RG 0.844 W peak > 0.625",
+       "u6a input 46.1 mA > 10",
+       "u6a output ESD 45.8 mA > 10",
+       "u6b input 1.22e+03 mA > 10"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 0.0,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 72.6 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 467 mA > 10",
+       "u6b input 467 mA, I2t 2.7e-07 A2s > HBM"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 0.0,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 80.4 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 525 mA > 10",
+       "u6b input 525 mA, I2t 1.7e-06 A2s > HBM"
+      ]
+     }
+    }
+   },
+   "unpowered/100k": {
+    "1e-08": {
+     "v_within_ratings": 0.0,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 29.9 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b input 1.66e+03 mA > 10",
+       "u6b input 1.66e+03 mA, I2t 2.8e-07 A2s > HBM"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 0.0,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 72.9 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 465 mA > 10",
+       "u6b input 465 mA, I2t 2.7e-07 A2s > HBM"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 0.0,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 80 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 519 mA > 10",
+       "u6b input 519 mA, I2t 1.8e-06 A2s > HBM"
+      ]
+     }
+    }
+   }
+  },
+  "l_to_gnd": {
+   "powered/100R": {
+    "1e-08": {
+     "v_within_ratings": 2,
+     "v_within_ratings_ends_at": {
+      "v": 3,
+      "limits": [
+       "RF 1.02 W peak > 0.625"
+      ]
+     },
+     "v_hbm_scale": 2,
+     "v_hbm_scale_ends_at": {
+      "v": 3,
+      "limits": [
+       "RF 1.02 W peak > 0.625"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "RF 0.81 W peak > 0.625"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "RF 0.81 W peak > 0.625"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "RF 0.823 W peak > 0.625"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "RF 0.823 W peak > 0.625"
+      ]
+     }
+    }
+   },
+   "powered/5k": {
+    "1e-08": {
+     "v_within_ratings": 3,
+     "v_within_ratings_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 7.94 V > 7"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 7.94 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 3,
+     "v_within_ratings_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.34 V > 7"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.34 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 3,
+     "v_within_ratings_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.34 V > 7"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.34 V > 7"
+      ]
+     }
+    }
+   },
+   "powered/100k": {
+    "1e-08": {
+     "v_within_ratings": 3,
+     "v_within_ratings_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.04 V > 7"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.04 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 3,
+     "v_within_ratings_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.44 V > 7"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.44 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 3,
+     "v_within_ratings_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.44 V > 7"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.44 V > 7"
+      ]
+     }
+    }
+   },
+   "powered/reset": {
+    "1e-08": {
+     "v_within_ratings": 3,
+     "v_within_ratings_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.05 V > 7"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.05 V > 7"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 3,
+     "v_within_ratings_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.4 V > 7",
+       "u7a Vdiff 8.45 V > 7"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.4 V > 7",
+       "u7a Vdiff 8.45 V > 7"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 3,
+     "v_within_ratings_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.4 V > 7",
+       "u7a Vdiff 8.46 V > 7"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "u7a Vdiff 8.4 V > 7",
+       "u7a Vdiff 8.46 V > 7"
+      ]
+     }
+    }
+   },
+   "unpowered/100R": {
+    "1e-08": {
+     "v_within_ratings": 0.0,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 18.1 mA > 10",
+       "u7b input 25.5 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "R94 1.16 W peak > 0.625",
+       "u7a input 225 mA > 10",
+       "u7b input 740 mA > 10"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 0.0,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 19.4 mA > 10",
+       "u7b input 71.7 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 53.8 mA > 10",
+       "u7b input 463 mA > 10",
+       "u7b input 463 mA, I2t 2.5e-07 A2s > HBM"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 0.0,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 19.4 mA > 10",
+       "u7b input 80.6 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 53.8 mA > 10",
+       "u7b input 525 mA > 10",
+       "u7b input 525 mA, I2t 1.5e-06 A2s > HBM"
+      ]
+     }
+    }
+   },
+   "unpowered/100k": {
+    "1e-08": {
+     "v_within_ratings": 0.0,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 19 mA > 10",
+       "u7b input 25.5 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "R94 1.16 W peak > 0.625",
+       "u7a input 229 mA > 10",
+       "u7b input 739 mA > 10"
+      ]
+     }
+    },
+    "1e-06": {
+     "v_within_ratings": 0.0,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 20 mA > 10",
+       "u7b input 72 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 55.1 mA > 10",
+       "u7b input 466 mA > 10",
+       "u7b input 466 mA, I2t 2.5e-07 A2s > HBM"
+      ]
+     }
+    },
+    "0.0001": {
+     "v_within_ratings": 0.0,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 20 mA > 10",
+       "u7b input 80.6 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 55.1 mA > 10",
+       "u7b input 527 mA > 10",
+       "u7b input 527 mA, I2t 1.5e-06 A2s > HBM"
+      ]
+     }
+    }
+   }
+  }
+ },
+ "events_kelvin": [
+  {
+   "event": "film cap left charged by a DMM diode test",
+   "c_f": 1e-08,
+   "v": 3.0,
+   "energy_j": 4.5000000000000006e-08,
+   "keysight_limit_v": 1000.0,
+   "meter": {
+    "powered/100k": {
+     "class": "A",
+     "limits_crossed": [],
+     "notes": [],
+     "esd_peak_ma": 0.472,
+     "esd_charge_uc": 0.0001,
+     "worst_pin": "u7b",
+     "time_over_10ma_us": 0.0,
+     "esd_i2t_a2s": 1.88e-14,
+     "vdiff_max": 1.3,
+     "max_resistor_energy": [
+      "RF",
+      6.1758980529566545e-09
+     ],
+     "vcc_max": 11.86,
+     "vee_min": -11.87
+    },
+    "powered/100R": {
+     "class": "A",
+     "limits_crossed": [],
+     "notes": [],
+     "esd_peak_ma": 0.452,
+     "esd_charge_uc": 0.0001,
+     "worst_pin": "u7b",
+     "time_over_10ma_us": 0.0,
+     "esd_i2t_a2s": 1.35e-14,
+     "vdiff_max": 1.07,
+     "max_resistor_energy": [
+      "RF",
+      2.6941787912913905e-08
+     ],
+     "vcc_max": 11.86,
+     "vee_min": -11.87
+    },
+    "unpowered/100k": {
+     "class": "B",
+     "limits_crossed": [
+      "u6b input 124 mA > 10",
+      "u7a input 29.9 mA > 10",
+      "u7b input 110 mA > 10"
+     ],
+     "notes": [],
+     "esd_peak_ma": 123.546,
+     "esd_charge_uc": 0.0269,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 0.227,
+     "esd_i2t_a2s": 1.78e-09,
+     "vdiff_max": 0.86,
+     "max_resistor_energy": [
+      "R94",
+      1.1045812246668686e-09
+     ],
+     "vcc_max": 0.0,
+     "vee_min": -0.0
+    }
+   }
+  },
+  {
+   "event": "ceramic decoupling cap pulled from a live 5 V board",
+   "c_f": 1e-06,
+   "v": 5.0,
+   "energy_j": 1.2499999999999999e-05,
+   "keysight_limit_v": 1000.0,
+   "meter": {
+    "powered/100k": {
+     "class": "A",
+     "limits_crossed": [],
+     "notes": [],
+     "esd_peak_ma": 0.581,
+     "esd_charge_uc": 0.0001,
+     "worst_pin": "u7b",
+     "time_over_10ma_us": 0.0,
+     "esd_i2t_a2s": 3.31e-14,
+     "vdiff_max": 3.08,
+     "max_resistor_energy": [
+      "RF",
+      1.1935978355032161e-06
+     ],
+     "vcc_max": 11.86,
+     "vee_min": -11.87
+    },
+    "powered/100R": {
+     "class": "A",
+     "limits_crossed": [],
+     "notes": [
+      "u7a output 54.7 mA (transient; self-limited)"
+     ],
+     "esd_peak_ma": 0.561,
+     "esd_charge_uc": 0.0001,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 0.0,
+     "esd_i2t_a2s": 2.42e-14,
+     "vdiff_max": 2.78,
+     "max_resistor_energy": [
+      "RF",
+      7.392267619038058e-06
+     ],
+     "vcc_max": 11.86,
+     "vee_min": -11.87
+    },
+    "unpowered/100k": {
+     "class": "C",
+     "limits_crossed": [
+      "u6b input 727 mA, I2t 9.8e-07 A2s > HBM",
+      "u7b input 668 mA, I2t 8.2e-07 A2s > HBM",
+      "u6b input 727 mA > 10",
+      "u7a input 75.4 mA > 10",
+      "u7b input 668 mA > 10"
+     ],
+     "notes": [],
+     "esd_peak_ma": 727.459,
+     "esd_charge_uc": 4.3257,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 13.728,
+     "esd_i2t_a2s": 9.76e-07,
+     "vdiff_max": 1.8,
+     "max_resistor_energy": [
+      "R94",
+      1.6640364980157667e-07
+     ],
+     "vcc_max": 0.5,
+     "vee_min": -0.49
+    }
+   }
+  },
+  {
+   "event": "electrolytic after a 12 V bias test",
+   "c_f": 0.0001,
+   "v": 12.0,
+   "energy_j": 0.007200000000000001,
+   "keysight_limit_v": 141.4213562373095,
+   "meter": {
+    "powered/100k": {
+     "class": "C",
+     "limits_crossed": [
+      "u6b Vdiff 9.56 V > 7",
+      "u7b Vdiff 7.47 V > 7",
+      "u6b input 55.5 mA > 10"
+     ],
+     "notes": [
+      "u7a output 58 mA (transient; self-limited)"
+     ],
+     "esd_peak_ma": 55.486,
+     "esd_charge_uc": 14.6164,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 0.0,
+     "esd_i2t_a2s": 1.62e-09,
+     "vdiff_max": 9.56,
+     "max_resistor_energy": [
+      "RF",
+      0.0006667819482934815
+     ],
+     "vcc_max": 11.86,
+     "vee_min": -11.87
+    },
+    "powered/100R": {
+     "class": "C",
+     "limits_crossed": [
+      "u6b Vdiff 9.74 V > 7",
+      "RF 0.921 W peak > 0.625",
+      "u6b input 40.6 mA > 10"
+     ],
+     "notes": [
+      "u6a output 77.4 mA (transient; self-limited)",
+      "u7a output 104 mA (transient; self-limited)"
+     ],
+     "esd_peak_ma": 40.624,
+     "esd_charge_uc": 0.002,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 0.003,
+     "esd_i2t_a2s": 4.1e-12,
+     "vdiff_max": 9.74,
+     "max_resistor_energy": [
+      "RF",
+      0.004257558199293661
+     ],
+     "vcc_max": 11.86,
+     "vee_min": -11.87
+    },
+    "unpowered/100k": {
+     "class": "C",
+     "limits_crossed": [
+      "u6b input 2.45e+03 mA, I2t 4.2e-05 A2s > HBM",
+      "u7a input 224 mA, I2t 6.6e-07 A2s > HBM",
+      "u7b input 2.25e+03 mA, I2t 3.3e-05 A2s > HBM",
+      "R94 1.11 W peak > 0.625",
+      "u6b input 2.45e+03 mA > 10",
+      "u7a input 224 mA > 10"
+     ],
+     "notes": [],
+     "esd_peak_ma": 2448.342,
+     "esd_charge_uc": 1131.0344,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 33689.493,
+     "esd_i2t_a2s": 4.2e-05,
+     "vdiff_max": 5.78,
+     "max_resistor_energy": [
+      "RF",
+      2.7696854262822868e-05
+     ],
+     "vcc_max": 5.11,
+     "vee_min": -5.03
+    }
+   }
+  },
+  {
+   "event": "resonant-tank film cap, partly bled",
+   "c_f": 1e-06,
+   "v": 30.0,
+   "energy_j": 0.00045,
+   "keysight_limit_v": 1000.0,
+   "meter": {
+    "powered/100k": {
+     "class": "C",
+     "limits_crossed": [
+      "u6b input 1.01e+03 mA, I2t 1.9e-06 A2s > HBM",
+      "u6b Vdiff 11.6 V > 7",
+      "u7a Vdiff 13.2 V > 7",
+      "u7b input 930 mA, I2t 1.6e-06 A2s > HBM",
+      "u7b Vdiff 11.5 V > 7",
+      "R94 1.11 W peak > 0.625"
+     ],
+     "notes": [
+      "u7a output 110 mA (transient; self-limited)"
+     ],
+     "esd_peak_ma": 1011.96,
+     "esd_charge_uc": 6.9853,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 100.735,
+     "esd_i2t_a2s": 1.93e-06,
+     "vdiff_max": 13.22,
+     "max_resistor_energy": [
+      "RF",
+      2.588776826068771e-05
+     ],
+     "vcc_max": 12.44,
+     "vee_min": -12.44
+    },
+    "powered/100R": {
+     "class": "C",
+     "limits_crossed": [
+      "u6a Vdiff 11 V > 7",
+      "u6b input 974 mA, I2t 1.8e-06 A2s > HBM",
+      "u6b Vdiff 11.6 V > 7",
+      "u7a Vdiff 13 V > 7",
+      "u7b input 967 mA, I2t 1.7e-06 A2s > HBM",
+      "u7b Vdiff 11.5 V > 7"
+     ],
+     "notes": [
+      "u6a output 124 mA (transient; self-limited)",
+      "u7a output 117 mA (transient; self-limited)"
+     ],
+     "esd_peak_ma": 974.177,
+     "esd_charge_uc": 5.2849,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 113.411,
+     "esd_i2t_a2s": 1.79e-06,
+     "vdiff_max": 13.04,
+     "max_resistor_energy": [
+      "RF",
+      0.0001967111928670263
+     ],
+     "vcc_max": 12.24,
+     "vee_min": -12.25
+    },
+    "unpowered/100k": {
+     "class": "C",
+     "limits_crossed": [
+      "u6b input 6.31e+03 mA, I2t 7.2e-05 A2s > HBM",
+      "u6b Vdiff 13.4 V > 7",
+      "u7a input 606 mA, I2t 4.7e-07 A2s > HBM",
+      "u7b input 5.81e+03 mA, I2t 6.1e-05 A2s > HBM",
+      "u7b Vdiff 12.5 V > 7",
+      "R94 8.11 W peak > 0.625"
+     ],
+     "notes": [],
+     "esd_peak_ma": 6313.079,
+     "esd_charge_uc": 27.8239,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 21.489,
+     "esd_i2t_a2s": 7.19e-05,
+     "vdiff_max": 13.44,
+     "max_resistor_energy": [
+      "R94",
+      1.0423450264500162e-05
+     ],
+     "vcc_max": 4.02,
+     "vee_min": -4.02
+    }
+   }
+  },
+  {
+   "event": "resonant-tank film cap straight off a running cooker",
+   "c_f": 1e-06,
+   "v": 400.0,
+   "energy_j": 0.07999999999999999,
+   "keysight_limit_v": 1000.0,
+   "meter": {
+    "powered/100k": {
+     "class": "C",
+     "limits_crossed": [
+      "u6b input 8.4e+04 mA, I2t 0.013 A2s > HBM",
+      "u6b Vdiff 171 V > 7",
+      "u7a input 8.04e+03 mA, I2t 8.2e-05 A2s > HBM",
+      "u7a Vdiff 65.6 V > 7",
+      "u7b input 7.74e+04 mA, I2t 0.011 A2s > HBM",
+      "u7b Vdiff 158 V > 7"
+     ],
+     "notes": [
+      "u7a output 166 mA (transient; self-limited)"
+     ],
+     "esd_peak_ma": 83998.032,
+     "esd_charge_uc": 368.9443,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 3224.237,
+     "esd_i2t_a2s": 0.0127,
+     "vdiff_max": 170.72,
+     "max_resistor_energy": [
+      "R94",
+      0.001808546487044043
+     ],
+     "vcc_max": 64.85,
+     "vee_min": -64.8
+    },
+    "powered/100R": {
+     "class": "C",
+     "limits_crossed": [
+      "u6a input 1.07e+03 mA, I2t 4.7e-07 A2s > HBM",
+      "u6a output ESD 1.07e+03 mA, I2t 4.7e-07 A2s > HBM",
+      "u6a Vdiff 61.2 V > 7",
+      "u6b input 8.35e+04 mA, I2t 0.012 A2s > HBM",
+      "u6b Vdiff 170 V > 7",
+      "u7a input 7.43e+03 mA, I2t 7.8e-05 A2s > HBM"
+     ],
+     "notes": [
+      "u6a output 212 mA (transient; self-limited)",
+      "u7a output 170 mA (transient; self-limited)"
+     ],
+     "esd_peak_ma": 83524.783,
+     "esd_charge_uc": 264.0277,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 105.848,
+     "esd_i2t_a2s": 0.0125,
+     "vdiff_max": 169.8,
+     "max_resistor_energy": [
+      "R94",
+      0.0021116468182534004
+     ],
+     "vcc_max": 64.35,
+     "vee_min": -64.3
+    },
+    "unpowered/100k": {
+     "class": "C",
+     "limits_crossed": [
+      "u6b input 8.93e+04 mA, I2t 0.014 A2s > HBM",
+      "u6b Vdiff 180 V > 7",
+      "u7a input 8.52e+03 mA, I2t 9.3e-05 A2s > HBM",
+      "u7a Vdiff 57.2 V > 7",
+      "u7b input 8.23e+04 mA, I2t 0.012 A2s > HBM",
+      "u7b Vdiff 166 V > 7"
+     ],
+     "notes": [
+      "u7a output 46.6 mA (transient; self-limited)"
+     ],
+     "esd_peak_ma": 89319.936,
+     "esd_charge_uc": 383.734,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 3522.507,
+     "esd_i2t_a2s": 0.0143,
+     "vdiff_max": 179.88,
+     "max_resistor_energy": [
+      "R94",
+      0.0020397315947040936
+     ],
+     "vcc_max": 56.44,
+     "vee_min": -56.39
+    }
+   }
+  },
+  {
+   "event": "Keysight E4980A limit at 2 uF (1 J)",
+   "c_f": 2e-06,
+   "v": 1000.0,
+   "energy_j": 1.0,
+   "keysight_limit_v": 1000.0,
+   "meter": {
+    "powered/100k": {
+     "class": "C",
+     "limits_crossed": [
+      "u6b input 2.26e+05 mA, I2t 0.13 A2s > HBM",
+      "u6b Vdiff 468 V > 7",
+      "u7a input 2.08e+04 mA, I2t 0.00085 A2s > HBM",
+      "u7a Vdiff 227 V > 7",
+      "u7b input 2.08e+05 mA, I2t 0.11 A2s > HBM",
+      "u7b Vdiff 433 V > 7"
+     ],
+     "notes": [
+      "u7a output 186 mA (transient; self-limited)"
+     ],
+     "esd_peak_ma": 225538.3,
+     "esd_charge_uc": 1918.6341,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 7984.984,
+     "esd_i2t_a2s": 0.134,
+     "vdiff_max": 467.52,
+     "max_resistor_energy": [
+      "R94",
+      0.01877125866210004
+     ],
+     "vcc_max": 226.25,
+     "vee_min": -225.94
+    },
+    "powered/100R": {
+     "class": "C",
+     "limits_crossed": [
+      "u6a input 2.83e+03 mA, I2t 5.8e-06 A2s > HBM",
+      "u6a output ESD 2.83e+03 mA, I2t 5.8e-06 A2s > HBM",
+      "u6a Vdiff 221 V > 7",
+      "u6b input 2.25e+05 mA, I2t 0.13 A2s > HBM",
+      "u6b Vdiff 468 V > 7",
+      "u7a input 1.94e+04 mA, I2t 0.00083 A2s > HBM"
+     ],
+     "notes": [
+      "u6a output 243 mA (transient; self-limited)",
+      "u7a output 191 mA (transient; self-limited)"
+     ],
+     "esd_peak_ma": 225032.58,
+     "esd_charge_uc": 1531.042,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 3712.123,
+     "esd_i2t_a2s": 0.132,
+     "vdiff_max": 468.13,
+     "max_resistor_energy": [
+      "R94",
+      0.019965742901554243
+     ],
+     "vcc_max": 225.52,
+     "vee_min": -225.2
+    },
+    "unpowered/100k": {
+     "class": "C",
+     "limits_crossed": [
+      "u6b input 2.31e+05 mA, I2t 0.14 A2s > HBM",
+      "u6b Vdiff 467 V > 7",
+      "u7a input 2.14e+04 mA, I2t 0.00089 A2s > HBM",
+      "u7a Vdiff 220 V > 7",
+      "u7b input 2.13e+05 mA, I2t 0.12 A2s > HBM",
+      "u7b Vdiff 431 V > 7"
+     ],
+     "notes": [
+      "u7a output 54.8 mA (transient; self-limited)"
+     ],
+     "esd_peak_ma": 231013.88,
+     "esd_charge_uc": 1945.6202,
+     "worst_pin": "u6b",
+     "time_over_10ma_us": 9362.781,
+     "esd_i2t_a2s": 0.141,
+     "vdiff_max": 467.12,
+     "max_resistor_energy": [
+      "R94",
+      0.01968234247887394
+     ],
+     "vcc_max": 219.74,
+     "vee_min": -219.41
+    }
+   }
+  }
+ ],
+ "option_a_1k_at_follower_inputs": {
+  "powered/100k, C 1 uF": {
+   "kelvin": {
+    "v_within_ratings": 7,
+    "v_within_ratings_ends_at": {
+     "v": 10,
+     "limits": [
+      "u6b Vdiff 8.38 V > 7"
+     ]
+    },
+    "v_hbm_scale": 7,
+    "v_hbm_scale_ends_at": {
+     "v": 10,
+     "limits": [
+      "u6b Vdiff 8.38 V > 7"
+     ]
+    }
+   },
+   "sense_first": {
+    "v_within_ratings": 10,
+    "v_within_ratings_ends_at": {
+     "v": 13,
+     "limits": [
+      "u6b Vdiff 8.67 V > 7",
+      "u7b Vdiff 8.64 V > 7"
+     ]
+    },
+    "v_hbm_scale": 10,
+    "v_hbm_scale_ends_at": {
+     "v": 13,
+     "limits": [
+      "u6b Vdiff 8.67 V > 7",
+      "u7b Vdiff 8.64 V > 7"
+     ]
+    }
+   }
+  }
+ },
+ "errors": [],
+ "cases_run": 2766
+}

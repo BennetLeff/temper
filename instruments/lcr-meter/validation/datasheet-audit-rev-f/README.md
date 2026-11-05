@@ -73,7 +73,7 @@ Severities are the reviewers'. "Bring-up" means a check in `docs/bring-up-rev-e.
 | C-05, C-06 | RISK | Bring-up 3.3: read CLK_DET_STS0 / CLK_ERR_STS. Fallback: PASI_FS_RATE_NO_LIM. 187.5 kHz lies in the auto 192 kHz bucket (174.64–193.92 kHz) |
 | C-07 | MISSING | Fixed: I2S test pads |
 | C-08 | RISK (low) | Assembly: X-ray U14 (EP vias inside the paste apertures) |
-| AFE-01 … AFE-04 | RISK (high consequence) | Deferred to Rev G as a study: the DUT jacks have no protection. The study would cover a residual-voltage sense, series R at the follower inputs, and clamps on the jack side, never on TIA_SUM. Any change to the verified TIA/follower nodes needs re-extraction and the stability matrix. Rev F: the silk says DISCHARGED / DUT ONLY; bring-up states the real limit of about 5 V residual |
+| AFE-01 … AFE-04 | RISK (high consequence) | Deferred to Rev G as a study: the DUT jacks have no protection. The study would cover a residual-voltage sense, series R at the follower inputs, and clamps on the jack side, never on TIA_SUM. Any change to the verified TIA/follower nodes needs re-extraction and the stability matrix. Rev F: the silk says DISCHARGED / DUT ONLY. Quantified 2026-11-05 in `../charged-dut/`: 7 V with Kelvin clips powered, about 1 V unpowered. Bring-up's rule is meter powered first, below 1 V on a DMM |
 | AFE-05, AFE-06 | RISK (accuracy) | Bring-up: amplitude sweep at 60 kHz, and ratio drift in a warm box (BAT54S Cj / leakage) |
 | AFE-07 … AFE-09 | RISK | Bring-up: AVDD on a +12 V step; connect no DUT until range = 100 k |
 | RC-01 | RISK | Fixed: R101 1 Ω |
