@@ -31,7 +31,7 @@ Bounding boxes are conservative.
 
 | Edge | Part | How far | Height above the board top | Note |
 |---|---|---|---|---|
-| Front | J3, J7, J8, J9 BNCs at x = 67, 89, 111, 133 (22 mm pitch) | Barrels reach 18.4 mm past the flange face; the flange stands 0.1 mm proud of the board edge | Axis at 6.78 mm; flange Ø13.55 | Wall clamped between flange and nut on the M12 thread, about 6.6 mm long. Wall + toothed washer + nut ≤ 6.6 mm; the nut's thickness is not on the drawing, so measure one |
+| Front | J3, J7, J8, J9 BNCs at x = 67, 89, 111, 133 (22 mm pitch) | Barrels reach 18.4 mm past the flange face; the flange stands 0.1 mm proud of the board edge | Axis at 6.78 mm; flange Ø13.55 | Wall clamped between flange and nut on the M12 thread, about 6.6 mm long. Wall + toothed washer + nut ≤ 6.6 mm. See "Front wall at the jacks" |
 | Front | D4, side-looking status LED, at x ≈ 55 | Lens flush with the edge (0.2 mm inside) | 0–0.6 mm | The wall needs a hole or light pipe right at board-top height |
 | Left | J1 USB-C, centred at y = 122 (77 mm behind the front edge) | Shell flare at the edge, body 0.3 mm inside | Shell 3.26 mm tall; axis about 1.63 mm above the board top | See "J1 3D model" below. The cutout must pass the cable's overmold, unless wall + gap is less than the plug shell's reach. Measure the cable you will use |
 | Back | SW1 BOOTSEL | 0.43 mm inside the edge | 2.0 mm | Pressed from the top (TS-1088); see access below |
@@ -52,8 +52,19 @@ Bounding boxes are conservative.
 - **Fix:** nylon standoffs, or insulating shoulder washers at H3 and H4, with nylon at all four for simplicity. This is a box rule, not a board change.
 
 **Access.**
-- **BOOTSEL (SW1) and RESET (SW2)** are pressed from the top, 0.4 and 4.9 mm from the back edge. With the lid on, either put pinholes in the lid over (85.2, 143.1) and (93.0, 138.6), or re-enable the firmware's 1200-baud reset (audit R4). Then BOOTSEL is needed only to recover a bricked board, with the lid off.
+- **BOOTSEL (SW1) and RESET (SW2) need no holes in the lid (audit R4 closed).** They are pressed from the top, 0.4 and 4.9 mm from the back edge (lid-off positions (85.2, 143.1) and (93.0, 138.6)).
+  - Reflash with the lid on: the Rev E firmware's `BOOT` command (`firmware-rev-e/src/main.c`, host `temper-lcr boot PORT`) calls `reset_usb_boot()`, and the RPI-RP2 drive appears.
+  - Reset with the lid on: the board is bus powered (audit PE-3), so unplugging USB-C is a full power cycle.
+  - BOOTSEL is needed only when a flashed image never reaches the command loop. Take the lid off for that.
+  - The SDK's 1200-baud reset stays off. It would not cover a hang during a capture, which runs with interrupts disabled. It would also reboot the meter whenever any program opens the port at 1200 baud.
 - **Debug LEDs D15–D20** are 1.1 mm tall and visible with the lid off only. D4 is the one meant to show through the wall.
+
+## Front wall at the jacks
+
+The SAMZO drawing does not give the nut's thickness or the toothed washer's. It draws them face-on only (13.95 A/F hex, Ø15.5 washer). The 6.6 mm thread length is also scaled off the drawing, not dimensioned. So the box fixes the wall instead:
+- **Make the wall 2.0 mm thick over a Ø17 mm spot face around each jack (the nut is 16.11 mm across corners; neighbouring spot faces stay 5 mm apart).** That leaves about 4.6 mm of thread for the washer and nut. A thicker wall elsewhere is fine.
+- **Use a Ø12.3 mm clearance hole.** The flange (Ø13.55) bears on the inside face.
+- **Before printing the panel,** caliper one jack's thread length, nut and washer from the LCSC order (they are hand-fitted parts that arrive with the board). Confirm that 2.0 mm + washer + nut leaves at least one full thread pitch engaged.
 
 ## J1 3D model is 1.2 mm behind the real part
 

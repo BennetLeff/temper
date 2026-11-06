@@ -64,7 +64,7 @@ Severities are the reviewers'. "Bring-up" means a check in `docs/bring-up-rev-e.
 | R1 | RISK (low) | Accepted |
 | R2 | RISK (low) | Doc: J5/J6 are 3.3 V only |
 | R3 | RISK (low) | Bring-up: scope 3V3, RUN and QSPI_CS together |
-| R4 | RISK (low) | Enclosure: SW1/SW2 must be reachable |
+| R4 | RISK (low) | Closed 2026-11-06: no lid holes. `BOOT` reflashes and unplugging USB resets; BOOTSEL only for an image that never runs (lid off). `enclosure-envelope/` |
 | R5, C-12 | RISK (low) | Firmware: GPIO drive strength / slew if bring-up shows slow or ringing I2S edges |
 | C-01 | RISK | Mostly settled by TI SBAA634A Table 2-3 (2026-10-30): at 40 k, CM_TOL 1 gives SNR 101 dB / THD+N -97 dB vs 102 / -97 in mode 0 and 100 / -96 in mode 2 (1 kHz, EVM). Bring-up: confirm at 27-60 kHz wideband (codec.md addendum) |
 | C-02 | RISK | Fixed: C62 2.2 µF. Firmware: VREF_QCHG |
