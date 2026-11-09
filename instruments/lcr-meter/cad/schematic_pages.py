@@ -31,6 +31,12 @@ def write_pages(root, data, symbols, geometry, pinout, local_fp, uid, q):
                   "RESET coils (K1-K4) in parallel on Q2; SET coils on Q3/Q4/Q5/Q6. 1N4148WS flyback per drain.\n"
                   "K4 reference: COM2 on HCUR, NO2 through R107 1k 0.1% to LCUR (REFCAPTURE, leads unplugged).\n"
                   "VRLY = 5V through R101 2.2R + C112 22uF. Firmware: source off, RESET 20ms, SET 20ms."),
+        "protect": ("Jack protection (Rev G)",
+                    "Each BNC: H4V5HD3B TVS to GND at the centre pin, then a normally-open TLP172AM photoMOS.\n"
+                    "Series 10R (HCUR / LCUR, CRCW0805-HP) and 100R (HPOT / LPOT, CRCW0603-HP) after the switch;\n"
+                    "second stage H3V3LD5B at DUT_HI / HPOT / LPOT (+ 1nF C0G on the POTs), BAV99 pair at DUT_LO.\n"
+                    "R105 / R106 and K4 (both poles) on the jack side. LED strings from VRLY, AO3400A on GPIO15.\n"
+                    "Residual-voltage senses: 1.5M from HCUR / LCUR to GPIO28 / 29, 240k to 3V3, 240k + 100nF to GND."),
         "digital": ("USB, RP2040 and boot / debug",
                     "External 5V input powers the instrument. USB VBUS is sensed only; no backfeed.\n"
                     "Native USB CDC; 120MHz MCU; dual-lane ADC acquisition at up to 1MSPS.\n"
@@ -57,7 +63,7 @@ def write_pages(root, data, symbols, geometry, pinout, local_fp, uid, q):
             f'(instances (project "temper-lcr" (path "/{rootid}" (page "{i}")))))'
         )
         root_chunks.append(
-            f'(text {q({"afe":"Matched RG/RF: 100R / 5k / 100k","source":"Coherent codec DAC excitation","codec":"Two channels / one frame clock","range":"Relay-selected ranges","digital":"USB control, firmware and host calibration","power":"External 5V → quiet +/-12V"}[sheet])} '
+            f'(text {q({"afe":"Matched RG/RF: 100R / 5k / 100k","source":"Coherent codec DAC excitation","codec":"Two channels / one frame clock","range":"Relay-selected ranges","protect":"Jack protection and isolation","digital":"USB control, firmware and host calibration","power":"External 5V → quiet +/-12V"}[sheet])} '
             f'(at {x+5} {y+20} 0) (effects (font (size 1.5 1.5)) (justify left)) '
             f'(uuid "{uid("overview-"+sheet)}"))'
         )
@@ -276,12 +282,15 @@ def _write_afe(root, data, symbols, local_fp, uid, q, title, notes):
         label('SOURCE_BUF',(56,60),180)
         note('Rev E: R104 47R isolates the SOURCE_BUF relay bus from U6A.',(30,80))
     # Rev E: four-terminal BNC jacks; HCUR keeps DUT_HI, LCUR keeps DUT_LO.
-    for ref,net,y in [('J3','DUT_HI',72),('J7','HPOT',80),('J8','LPOT',88),('J9','DUT_LO',96)]:
+    # Rev G: the jacks carry JK_* (jack side of the isolation switches) and R105/R106 move to the protect sheet
+    for ref,y in [('J3',72),('J7',80),('J8',88),('J9',96)]:
         component(ref,'AFE_BNC',(68,y))
-        label(net,(65,y));label('GND',(71,y),180)
-    for ref,a,b,y in [('R105','DUT_HI','HPOT',72),('R106','DUT_LO','LPOT',88)]:
+        label(parts[ref]['pins']['5'],(65,y));label('GND',(71,y),180)
+    for ref,y in [('R105',72),('R106',88)]:
+        if ref not in parts:
+            continue
         component(ref,'AFE_R',(84,y))
-        label(a,(81,y));label(b,(87,y),180)
+        label(parts[ref]['pins']['1'],(81,y));label(parts[ref]['pins']['2'],(87,y),180)
     note('J3 HCUR, J7 HPOT, J8 LPOT, J9 LCUR: BNC, 22 mm pitch, shells to GND.\n'
          'Connect an external, isolated, discharged DUT with Kelvin leads.\n'
          'R105/R106 1k tie each POT to its CUR for two-terminal leads.',(56,103))
