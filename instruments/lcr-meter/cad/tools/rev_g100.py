@@ -102,8 +102,9 @@ for name, b in BODIES.items():
 
 _tp = [list(t) for t in TESTPOINTS]
 _TP_MOVE = {  # (name, old x, old y) -> (x, y, label x, label y)
-    ('VB', 62.225): (59.4, 112.9, 59.4, 111.3),          # USB_VBUS at U16 IN, north of C113
-    ('GND', 64.225): (61.3, 112.9, 61.3, 111.3),
+    ('VB', 62.225): (59.25, 112.9, 59.25, 111.3),          # USB_VBUS at U16 IN, north of C113
+    ('GND', 64.225): (61.25, 112.9, 61.25, 111.3),
+    ('GND', 92.0): (94.6, 141.6, 97.2, 141.6),           # the debugger's GND beside TP8 3V3 (old spot is past the edge)
 }
 for t in _tp:
     for (nm, ox), new in _TP_MOVE.items():
@@ -112,14 +113,23 @@ for t in _tp:
 
 # ------------------------------------------------------------------ parts placed again (x, y, rot)
 PLACE_G100 = {
-    # QSPI flash west of U1's south side (pins 1-4 east, facing U1's QSPI pins), its passives around it
-    'U2': (62.6, 141.45, 180),
+    # QSPI flash west of U1's south side, against H3's courtyard; VCC (pin 8) north-east, beside its 100 nF C11, which
+    # stands between it and C8 (C8 0.25 mm east)
+    'U2': (62.1, 141.45, 0), 'C11': (67.48, 139.4, 90), 'C8': (69.2, 139.5, 90),
     # buttons east of U1, where J5 was (J5 goes: the debugger takes VTREF / GND from TP8 / TP9 beside them)
     'SW1': (87.1, 138.9, 0), 'SW2': (87.1, 142.9, 0),
     # debug LEDs (lid-off): HB / FLT between the power entry and J4, LED north, resistor south
-    'D19': (63.0, 113.5, 270), 'R117': (63.0, 116.5, 270), 'D20': (64.8, 113.5, 270), 'R118': (64.8, 116.5, 270),
+    'D19': (63.0, 113.5, 270), 'R117': (63.0, 116.5, 270), 'D20': (64.8, 111.75, 270), 'R118': (64.8, 114.75, 270),
     # RAW_P series resistor into the LDO pair: 2.8 mm north, clear of the switcher's new top row
     'R95': (129.6, 116.0, 0),
+    # CC1 pull-down upright between the 3V3 LDO's output cap C17 and R127 (the moved C17 lands on its old place)
+    'R1': (61.9, 122.2, 90),
+    # the flash's clock series resistor turned so its flash side faces west; the CS pull-up and BOOTSEL resistor in
+    # the free patch south of R3 / R4; the RUN pull-up beside SW2, the RUN cap beside SW1 (east of the buttons)
+    'R13': (73.5, 143.5, 180), 'R8': (78.6, 142.2, 0), 'R7': (78.6, 143.8, 0),
+    'R9': (83.25, 140.0, 90), 'C14': (91.0, 138.75, 90),
+    # 3V3 bulk next to R130's 3V3 run
+    'C18': (64.75, 125.0, 90),
 }
 for r, at in PLACE_G100.items():
     parts[r]['pcb'] = list(at)
