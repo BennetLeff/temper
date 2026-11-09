@@ -105,6 +105,8 @@ _TP_MOVE = {  # (name, old x, old y) -> (x, y, label x, label y)
     ('VB', 62.225): (59.25, 112.9, 59.25, 111.3),          # USB_VBUS at U16 IN, north of C113
     ('GND', 64.225): (61.25, 112.9, 61.25, 111.3),
     ('GND', 92.0): (94.6, 141.6, 97.2, 141.6),           # the debugger's GND beside TP8 3V3 (old spot is past the edge)
+    ('RAW+', 128.775): (128.775, 121.5, 128.775, 119.8),  # on RAW_P's run up to R95 (the switcher's top row took its spot)
+    ('RAW-', 142.5): (146.7, 125.4, 146.7, 123.7),        # east of C92, off RAW_N's row
 }
 for t in _tp:
     for (nm, ox), new in _TP_MOVE.items():
