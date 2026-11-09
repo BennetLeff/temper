@@ -3,7 +3,7 @@
 Datasheet audit items AFE-01 to AFE-04 found that the four BNC jacks have no protection, and Rev F defers protection to Rev G. This study measures the gap. For each way a charged capacitor can meet the jacks, it finds how much voltage the front end takes before a datasheet limit is crossed. It then compares that with a professional meter.
 
 ```sh
-python3 validation/charged-dut/charged_dut_spice.py --jobs 10      # self-test, then 3,686 transients (~8 min, 10 cores) -> charged-dut.json
+python3 validation/charged-dut/charged_dut_spice.py --jobs 10      # self-test, then 4,326 transients (~9 min, 10 cores) -> charged-dut.json
 python3 validation/charged-dut/charged_dut_spice.py --check-readme # the tables below == tables rendered from charged-dut.json
 python3 validation/charged-dut/charged_dut_spice.py --compare REF  # every threshold that differs from the JSON at git REF
 python3 validation/charged-dut/charged_dut_spice.py --bench        # bench-esd-knee.json, the bring-up prediction
@@ -89,7 +89,7 @@ Each scenario runs at:
 **Classes.**
 - **A, within ratings.** Every datasheet rating holds at every instant:
   - OPA2810: input current ≤ 10 mA, differential input ≤ 7 V, total supply ≤ 28 V;
-  - LDO outputs not reversed;
+  - LDO outputs not reversed, and no more than 0.3 V beyond their inputs (TPS7A49 / TPS7A30 "OUT pin to IN pin"). The inputs are RAW at its weakest corner (13.66 / −13.35 V) when powered, and 0 V unpowered;
   - TAC5112: pins −0.3 to 5.656 V, AVDD ≤ 3.9 V;
   - BAT54S: ≤ 600 mA;
   - resistors and capacitors within their working voltage.
@@ -108,15 +108,15 @@ Class A, with class B in brackets where higher. A range such as "7–10" is the 
 <!-- generated:thresholds -->
 | Scenario | Powered 10 nF | Powered 1 µF | Powered 100 µF | Unpowered 10 nF | Unpowered 1 µF | Unpowered 100 µF | First limit crossed, powered 1 µF |
 |---|---|---|---|---|---|---|---|
-| `kelvin` | 7 | 7 | 7 | 1 (16) | 1 (3) | 1 (2) | 10 V (100R): u6b Vdiff 7.98 V > 7 |
-| `sense_first` | 10 | 7–10 | 7–10 | 1 (13) | 1 (3) | 1 (2) | 10 V (reset): 3V3A 3.30..3.93 V outside TAC5112 AVDD -0.3..3.9 |
-| `current_only` | 16 | 7–16 | 7–16 | 1–2 (30) | 1–2 (10–20) | 1–2 (3) | 10 V (reset): 3V3A 3.30..3.93 V outside TAC5112 AVDD -0.3..3.9 |
+| `kelvin` | 7 | 7 | 7 | 1 (16) | 1 (3) | 1 | 10 V (100R): u6b Vdiff 7.98 V > 7 |
+| `sense_first` | 10 | 7–10 | 7–10 | 1 (13) | 1 (3) | 1 | 10 V (reset): 3V3A 3.30..3.93 V outside TAC5112 AVDD -0.3..3.9 |
+| `current_only` | 16 | 7–16 | 7–16 | 1–2 (30) | 1–2 (3–5) | 1–2 (2–3) | 10 V (reset): 3V3A 3.30..3.93 V outside TAC5112 AVDD -0.3..3.9 |
 | `h_to_gnd` | 5 | 5 | 5 | 0.5 (10) | 0.5 (1) | 0.5 (1) | 7 V (100R): u6b Vdiff 9.86 V > 7; u6b input 36.1 mA > 10 |
 | `l_to_gnd` | 3–5 | 3–5 | 3–5 | 0.5 (13) | 0.5 (1) | 0.5 (1) | 5 V (5k): u7a Vdiff 8.34 V > 7 |
 <!-- /generated -->
 
 <!-- generated:strict -->
-Counting the AFE-07 pin excursion as a failure, powered Kelvin falls from 7 V to 2–7 V.
+Counting the AFE-07 pin excursion as a failure (it happens whenever the TIA or a follower saturates negative), the powered limits fall: `kelvin` 7 → 2–7 V; `sense_first` 7–10 → 2–10 V; `current_only` 7–16 → 2–7 V; `h_to_gnd` 5 → 5 V; `l_to_gnd` 3–5 → 0–2 V.
 <!-- /generated -->
 
 <!-- generated:unrated -->
@@ -162,51 +162,51 @@ This is the audit's hedge: DNP footprints in series with HPOT and LPOT, at 1 µF
 | `current_only` | powered/100k | 10 | 10 |
 | `h_to_gnd` | powered/100k | 5 | 5 |
 | `l_to_gnd` | powered/100k | 3 | 3 |
-| `kelvin` | unpowered/100R | 1 (3) | 1 (10) |
-| `sense_first` | unpowered/100R | 1 (3) | 10 (30) |
-| `current_only` | unpowered/100R | 1 (10) | 1 (10) |
-| `h_to_gnd` | unpowered/100R | 0.5 (1) | 2 (16) |
-| `l_to_gnd` | unpowered/100R | 0.5 (1) | 0.5 (3) |
-| `kelvin` | unpowered/100k | 1 (3) | 1 (20) |
-| `sense_first` | unpowered/100k | 1 (3) | 10 (20) |
-| `current_only` | unpowered/100k | 2 (20) | 2 (30) |
-| `h_to_gnd` | unpowered/100k | 0.5 (1) | 5 (20) |
-| `l_to_gnd` | unpowered/100k | 0.5 (1) | 0.5 (3) |
+| `kelvin` | unpowered/100R | 1 (3) | 1 (3) |
+| `sense_first` | unpowered/100R | 1 (3) | 5 |
+| `current_only` | unpowered/100R | 1 (3) | 1 (3) |
+| `h_to_gnd` | unpowered/100R | 0.5 (1) | 2 (3) |
+| `l_to_gnd` | unpowered/100R | 0.5 (1) | 0.5 (2) |
+| `kelvin` | unpowered/100k | 1 (3) | 1 (5) |
+| `sense_first` | unpowered/100k | 1 (3) | 5 |
+| `current_only` | unpowered/100k | 2 (5) | 2 (7) |
+| `h_to_gnd` | unpowered/100k | 0.5 (1) | 3 |
+| `l_to_gnd` | unpowered/100k | 0.5 (1) | 0.5 (2) |
 <!-- /generated -->
 
 - **Powered:** it changes nothing. The limit is the step reaching the follower faster than it can slew, and a series resistor into a few pF does not slow that step.
-- **Unpowered:** it helps whenever the follower inputs are the path in. Sense jaws first rises from 1 to 10 V, and the H side ground-referenced from 0.5 to 2–5 V.
+- **Unpowered:** it helps whenever the follower inputs are the path in. Sense jaws first rises from 1 to 5 V, and the H side ground-referenced from 0.5 to 2–3 V. Beyond that, the rails pump past their unpowered LDOs' 0.3 V OUT-to-IN limit.
 - **Not with Kelvin clips:** these stay at 1 V. The current jacks reach U7A's input cell through R94 (22 Ω) and U6A's output cell through R104, and the option touches neither path.
 
 Option A alone therefore does not lift the normal-use unpowered limit, and it would still touch the verified follower nodes. It stays out of Rev F. It belongs in the Rev G network, together with a fix for the LCUR and HCUR paths.
 
-## ESD-cell sensitivity (unpowered, 1 µF)
+## ESD-cell sensitivity (unpowered)
 
-The cells' real forward voltage is not published. The model uses IS 10⁻¹⁵; this run repeats the unpowered rows with a stronger cell, IS 10⁻¹²:
+The cells' real forward voltage is not published. The model uses IS 10⁻¹⁵; this run repeats every unpowered row with a stronger cell, IS 10⁻¹², at all three capacitances:
 
 <!-- generated:esd_sensitivity -->
-| Scenario | Meter state (1 µF) | IS 1e-15 (VF 0.79 V at 10 mA) | IS 1e-12 (VF 0.62 V) |
+| Scenario | Meter state (10 nF–100 µF) | IS 1e-15 (VF 0.79 V at 10 mA) | IS 1e-12 (VF 0.62 V) |
 |---|---|---|---|
-| `kelvin` | unpowered/100R | 1 (3) | 1 (2) |
-| `sense_first` | unpowered/100R | 1 (3) | 1 (2) |
-| `current_only` | unpowered/100R | 1 (10) | 1 (10) |
-| `h_to_gnd` | unpowered/100R | 0.5 (1) | 0.5 (1) |
-| `l_to_gnd` | unpowered/100R | 0.5 (1) | 0.5 (1) |
-| `kelvin` | unpowered/100k | 1 (3) | 0.5 (2) |
-| `sense_first` | unpowered/100k | 1 (3) | 1 (2) |
-| `current_only` | unpowered/100k | 2 (20) | 1 (20) |
-| `h_to_gnd` | unpowered/100k | 0.5 (1) | 0.5 (1) |
-| `l_to_gnd` | unpowered/100k | 0.5 (1) | 0.5 (1) |
+| `kelvin` | unpowered/100R | 1 (1–16) | 1 (1–16) |
+| `sense_first` | unpowered/100R | 1 (1–13) | 1 (1–13) |
+| `current_only` | unpowered/100R | 1 (2–30) | 1 (1–30) |
+| `h_to_gnd` | unpowered/100R | 0.5 (1–10) | 0.5 (0.5–10) |
+| `l_to_gnd` | unpowered/100R | 0.5 (1–13) | 0.5 (0.5–13) |
+| `kelvin` | unpowered/100k | 1 (1–16) | 0.5–1 (1–13) |
+| `sense_first` | unpowered/100k | 1 (1–13) | 1 (1–13) |
+| `current_only` | unpowered/100k | 2 (3–30) | 1 (2–30) |
+| `h_to_gnd` | unpowered/100k | 0.5 (1–10) | 0.5 (0.5–10) |
+| `l_to_gnd` | unpowered/100k | 0.5 (1–13) | 0.5 (0.5–13) |
 <!-- /generated -->
 
 With the stronger cell, unpowered Kelvin on the 100 kΩ range falls to 0.5 V. At 0.5 V every unpowered scenario is within ratings in both models, which sets the discharge rule below.
 
 `--bench` writes the bring-up check of this knee, `bench-esd-knee.json`:
 - Leave the meter unpowered and the relays on 100 kΩ.
-- Push 1 mA and 5 mA into the HPOT and LPOT centre pins from a current-limited supply. 5 mA is half the 10 mA rating.
+- Push ±1 mA, and no more, into the HPOT and LPOT centre pins from a current-limited supply. Unpowered, the LDO inputs sit at 0 V, and their outputs may not rise more than 0.3 V above them; at 1 mA the rail reaches 0.13–0.25 V. The first version of this check used 5 mA, which pumps the rail to 1.5 V; the review caught it.
 - Read the pin and the ±12 V test pads.
 
-The pin-minus-rail difference is the real cell's forward voltage; place it between the two models.
+The pin-minus-rail difference is the real cell's forward voltage at 1 mA. The file also sweeps the cell strength from IS 10⁻¹⁵ to 10⁻¹⁰ at ±0.5 V, over every unpowered scenario, range and capacitance. The 0.5 V rule holds up to IS 3·10⁻¹¹, a cell with 0.45 V at 1 mA. **Bench pass: at least 0.45 V.**
 
 ## Decision for Rev F: no board change
 
@@ -241,7 +241,7 @@ That is the Rev G study already recorded in the plan.
 - **Codec pin:** modelled as its 40 kΩ input, with no internal clamp. A real internal diode would hold the pin slightly above the BAT54S clamp node.
 - **HBM comparison:** context, not a rating. A longer pulse of equal I²t heats a junction less, so the comparison is conservative for long events.
 - **Rails:** the 5 µF of rail capacitance and the resistive rail loads are assumptions, stated in the script.
-- **LDO reverse path:** not modelled.
+- **LDO reverse path:** not modelled. The OUT-beyond-IN rule above catches the condition, but not what follows it. A real LDO's reverse junction would clamp an unpowered rail near 0.7 V and pass the charge into RAW. The unpowered rails would then rise less than modelled, and the unpowered ESD currents would run somewhat larger and longer. This does not affect the 0.5 V rule, where nothing conducts.
 - **Unrated pulses:** resistor and relay pulses are reported, not judged.
 
 None of this changes the conclusion. The limits are a few volts, set by the 7 V differential, 10 mA and 3.9 V AVDD ratings, and they are reached in the first nanoseconds to microseconds of contact.

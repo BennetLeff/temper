@@ -35,6 +35,7 @@
   "vdiff": 7.0,
   "vs_total": 28.0,
   "c_v": 50.0,
+  "ldo_out_beyond_in_v": 0.3,
   "codec_pin_v": [
    -0.3,
    5.656
@@ -476,12 +477,12 @@
      "v_hbm_scale_ends_at": {
       "v": 5,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.49 vs IN 0.00, VEE -0.50 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.50 vs IN 0.00, VEE -0.49 vs IN 0.00)",
        "u6a input 12 mA > 10",
        "u6a output ESD 11.7 mA > 10",
        "u6b input 726 mA > 10",
-       "u6b input 726 mA, I2t 9.6e-07 A2s > HBM",
-       "u6b input 727 mA > 10",
-       "u6b input 727 mA, I2t 9.6e-07 A2s > HBM"
+       "u6b input 726 mA, I2t 9.6e-07 A2s > HBM"
       ]
      },
      "v_strict": 1,
@@ -499,27 +500,30 @@
      "v_within_ratings_ends_at": {
       "v": 2,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.27 vs IN 0.00, VEE -0.32 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.34 vs IN 0.00, VEE -0.26 vs IN 0.00)",
        "u6b input 84 mA > 10",
        "u7a input 15.4 mA > 10",
        "u7b input 76.9 mA > 10"
       ]
      },
-     "v_hbm_scale": 2,
+     "v_hbm_scale": 1,
      "v_hbm_scale_ends_at": {
-      "v": 3,
+      "v": 2,
       "limits": [
-       "u6b input 309 mA > 10",
-       "u6b input 309 mA, I2t 7.3e-07 A2s > HBM",
-       "u6b input 309 mA, I2t 7.4e-07 A2s > HBM",
-       "u7a input 29 mA > 10",
-       "u7b input 287 mA > 10",
-       "u7b input 287 mA, I2t 5.4e-07 A2s > HBM"
+       "LDO OUT beyond IN (VCC 0.27 vs IN 0.00, VEE -0.32 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.34 vs IN 0.00, VEE -0.26 vs IN 0.00)",
+       "u6b input 84 mA > 10",
+       "u7a input 15.4 mA > 10",
+       "u7b input 76.9 mA > 10"
       ]
      },
      "v_strict": 1,
      "v_strict_ends_at": {
       "v": 2,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.27 vs IN 0.00, VEE -0.32 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.34 vs IN 0.00, VEE -0.26 vs IN 0.00)",
        "u6b input 84 mA > 10",
        "u7a input 15.4 mA > 10",
        "u7b input 76.9 mA > 10"
@@ -573,11 +577,12 @@
      "v_hbm_scale_ends_at": {
       "v": 5,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.50 vs IN 0.00, VEE -0.49 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.50 vs IN 0.00, VEE -0.50 vs IN 0.00)",
        "u6b input 727 mA > 10",
        "u6b input 727 mA, I2t 9.8e-07 A2s > HBM",
        "u7a input 75.2 mA > 10",
-       "u7b input 668 mA > 10",
-       "u7b input 668 mA, I2t 8.2e-07 A2s > HBM"
+       "u7b input 668 mA > 10"
       ]
      },
      "v_strict": 1,
@@ -595,26 +600,27 @@
      "v_within_ratings_ends_at": {
       "v": 2,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.32 vs IN 0.00, VEE -0.27 vs IN 0.00)",
        "u6b input 84.6 mA > 10",
        "u7a input 14.7 mA > 10",
        "u7b input 75.7 mA > 10"
       ]
      },
-     "v_hbm_scale": 2,
+     "v_hbm_scale": 1,
      "v_hbm_scale_ends_at": {
-      "v": 3,
+      "v": 2,
       "limits": [
-       "u6b input 309 mA > 10",
-       "u6b input 309 mA, I2t 8.3e-07 A2s > HBM",
-       "u7a input 33.9 mA > 10",
-       "u7b input 282 mA > 10",
-       "u7b input 282 mA, I2t 5.5e-07 A2s > HBM"
+       "LDO OUT beyond IN (VCC 0.32 vs IN 0.00, VEE -0.27 vs IN 0.00)",
+       "u6b input 84.6 mA > 10",
+       "u7a input 14.7 mA > 10",
+       "u7b input 75.7 mA > 10"
       ]
      },
      "v_strict": 1,
      "v_strict_ends_at": {
       "v": 2,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.32 vs IN 0.00, VEE -0.27 vs IN 0.00)",
        "u6b input 84.6 mA > 10",
        "u7a input 14.7 mA > 10",
        "u7b input 75.7 mA > 10"
@@ -982,6 +988,8 @@
      "v_hbm_scale_ends_at": {
       "v": 5,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.49 vs IN 0.00, VEE -0.49 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.50 vs IN 0.00, VEE -0.49 vs IN 0.00)",
        "u6b input 705 mA > 10",
        "u6b input 705 mA, I2t 9.4e-07 A2s > HBM",
        "u7b input 705 mA > 10",
@@ -1002,25 +1010,25 @@
      "v_within_ratings_ends_at": {
       "v": 2,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.30 vs IN 0.00, VEE -0.27 vs IN 0.00)",
        "u6b input 80.8 mA > 10",
        "u7b input 80.6 mA > 10"
       ]
      },
-     "v_hbm_scale": 2,
+     "v_hbm_scale": 1,
      "v_hbm_scale_ends_at": {
-      "v": 3,
+      "v": 2,
       "limits": [
-       "u6b input 298 mA > 10",
-       "u6b input 298 mA, I2t 7.4e-07 A2s > HBM",
-       "u6b input 298 mA, I2t 7.5e-07 A2s > HBM",
-       "u7b input 298 mA > 10",
-       "u7b input 298 mA, I2t 6.9e-07 A2s > HBM"
+       "LDO OUT beyond IN (VCC 0.30 vs IN 0.00, VEE -0.27 vs IN 0.00)",
+       "u6b input 80.8 mA > 10",
+       "u7b input 80.6 mA > 10"
       ]
      },
      "v_strict": 1,
      "v_strict_ends_at": {
       "v": 2,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.30 vs IN 0.00, VEE -0.27 vs IN 0.00)",
        "u6b input 80.8 mA > 10",
        "u7b input 80.6 mA > 10"
       ]
@@ -1069,6 +1077,8 @@
      "v_hbm_scale_ends_at": {
       "v": 5,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.49 vs IN 0.00, VEE -0.50 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.50 vs IN 0.00, VEE -0.49 vs IN 0.00)",
        "u6b input 705 mA > 10",
        "u6b input 705 mA, I2t 9.4e-07 A2s > HBM",
        "u7b input 704 mA > 10",
@@ -1089,26 +1099,27 @@
      "v_within_ratings_ends_at": {
       "v": 2,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.32 vs IN 0.00, VEE -0.26 vs IN 0.00)",
        "u6b input 80.9 mA > 10",
        "u6b input 81 mA > 10",
        "u7b input 80.5 mA > 10",
        "u7b input 80.6 mA > 10"
       ]
      },
-     "v_hbm_scale": 2,
+     "v_hbm_scale": 1,
      "v_hbm_scale_ends_at": {
-      "v": 3,
+      "v": 2,
       "limits": [
-       "u6b input 298 mA > 10",
-       "u6b input 298 mA, I2t 8e-07 A2s > HBM",
-       "u7b input 297 mA > 10",
-       "u7b input 297 mA, I2t 7e-07 A2s > HBM"
+       "LDO OUT beyond IN (VCC 0.32 vs IN 0.00, VEE -0.26 vs IN 0.00)",
+       "u6b input 80.9 mA > 10",
+       "u7b input 80.5 mA > 10"
       ]
      },
      "v_strict": 1,
      "v_strict_ends_at": {
       "v": 2,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.32 vs IN 0.00, VEE -0.26 vs IN 0.00)",
        "u6b input 80.9 mA > 10",
        "u6b input 81 mA > 10",
        "u7b input 80.5 mA > 10",
@@ -1442,15 +1453,15 @@
        "u7a input 10.6 mA > 10"
       ]
      },
-     "v_hbm_scale": 10,
+     "v_hbm_scale": 3,
      "v_hbm_scale_ends_at": {
-      "v": 13,
+      "v": 5,
       "limits": [
-       "u6a input 44 mA > 10",
-       "u6a output ESD 43.7 mA > 10",
-       "u6b input 14 mA > 10",
-       "u7a input 127 mA > 10",
-       "u7a input 127 mA, I2t 2.7e-07 A2s > HBM"
+       "LDO OUT beyond IN (VCC 0.37 vs IN 0.00, VEE -0.40 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.41 vs IN 0.00, VEE -0.36 vs IN 0.00)",
+       "u6a input 15 mA > 10",
+       "u6a output ESD 14.7 mA > 10",
+       "u7a input 42.9 mA > 10"
       ]
      },
      "v_strict": 1,
@@ -1469,15 +1480,13 @@
        "u7a input 10.6 mA > 10"
       ]
      },
-     "v_hbm_scale": 3,
+     "v_hbm_scale": 2,
      "v_hbm_scale_ends_at": {
-      "v": 5,
+      "v": 3,
       "limits": [
-       "u6a input 15 mA > 10",
-       "u6a input 15 mA, I2t 2.8e-07 A2s > HBM",
-       "u6a output ESD 14.7 mA > 10",
-       "u7a input 42.9 mA > 10",
-       "u7a input 42.9 mA, I2t 5.6e-07 A2s > HBM"
+       "LDO OUT beyond IN (VCC 0.51 vs IN 0.00, VEE -0.60 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.65 vs IN 0.00, VEE -0.49 vs IN 0.00)",
+       "u7a input 21.2 mA > 10"
       ]
      },
      "v_strict": 1,
@@ -1526,15 +1535,13 @@
        "u7a input 19.3 mA > 10"
       ]
      },
-     "v_hbm_scale": 20,
+     "v_hbm_scale": 5,
      "v_hbm_scale_ends_at": {
-      "v": 30,
+      "v": 7,
       "limits": [
-       "u6b input 44.4 mA > 10",
-       "u6b input 44.4 mA, I2t 3.2e-07 A2s > HBM",
-       "u7a input 271 mA > 10",
-       "u7a input 271 mA, I2t 3e-07 A2s > HBM",
-       "u7a output ESD 32.8 mA > 10"
+       "LDO OUT beyond IN (VCC 0.35 vs IN 0.00, VEE -0.38 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.40 vs IN 0.00, VEE -0.34 vs IN 0.00)",
+       "u7a input 57.5 mA > 10"
       ]
      },
      "v_strict": 2,
@@ -1557,6 +1564,8 @@
      "v_hbm_scale_ends_at": {
       "v": 5,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.55 vs IN 0.00, VEE -0.58 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.64 vs IN 0.00, VEE -0.50 vs IN 0.00)",
        "u7a input 38.7 mA > 10",
        "u7a input 38.7 mA, I2t 3e-07 A2s > HBM"
       ]
@@ -1994,6 +2003,8 @@
      "v_hbm_scale_ends_at": {
       "v": 2,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -1.18 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 1.18 vs IN 0.00, VEE -0.00 vs IN 0.00)",
        "u6b input 524 mA > 10",
        "u6b input 524 mA, I2t 1.7e-06 A2s > HBM",
        "u6b input 525 mA > 10",
@@ -2070,6 +2081,8 @@
      "v_hbm_scale_ends_at": {
       "v": 2,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -1.18 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 1.18 vs IN 0.00, VEE -0.00 vs IN 0.00)",
        "u6b input 519 mA > 10",
        "u6b input 519 mA, I2t 1.8e-06 A2s > HBM"
       ]
@@ -2466,6 +2479,8 @@
      "v_hbm_scale_ends_at": {
       "v": 2,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -1.18 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 1.18 vs IN 0.00, VEE -0.00 vs IN 0.00)",
        "u7a input 53.6 mA > 10",
        "u7b input 523 mA > 10",
        "u7b input 523 mA, I2t 1.5e-06 A2s > HBM"
@@ -2551,6 +2566,8 @@
      "v_hbm_scale_ends_at": {
       "v": 2,
       "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -1.19 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 1.19 vs IN 0.00, VEE -0.00 vs IN 0.00)",
        "u7a input 55.5 mA > 10",
        "u7b input 520 mA > 10",
        "u7b input 520 mA, I2t 1.5e-06 A2s > HBM"
@@ -2703,6 +2720,7 @@
      "limits_crossed": [
       "u6b input 727 mA, I2t 9.8e-07 A2s > HBM",
       "u7b input 668 mA, I2t 8.2e-07 A2s > HBM",
+      "LDO OUT beyond IN (VCC 0.50 vs IN 0.00, VEE -0.49 vs IN 0.00)",
       "u6b input 727 mA > 10",
       "u7a input 75.2 mA > 10",
       "u7b input 668 mA > 10"
@@ -2793,6 +2811,7 @@
       "u6b input 2.45e+03 mA, I2t 4.3e-05 A2s > HBM",
       "u7a input 224 mA, I2t 6.7e-07 A2s > HBM",
       "u7b input 2.25e+03 mA, I2t 3.4e-05 A2s > HBM",
+      "LDO OUT beyond IN (VCC 5.09 vs IN 0.00, VEE -5.01 vs IN 0.00)",
       "u6b input 2.45e+03 mA > 10",
       "u7a input 224 mA > 10",
       "u7b input 2.25e+03 mA > 10"
@@ -2905,9 +2924,9 @@
       "u7a input 606 mA, I2t 4.7e-07 A2s > HBM",
       "u7b input 5.81e+03 mA, I2t 6.1e-05 A2s > HBM",
       "u7b Vdiff 12.8 V > 7",
+      "LDO OUT beyond IN (VCC 4.01 vs IN 0.00, VEE -4.01 vs IN 0.00)",
       "u6b input 6.31e+03 mA > 10",
-      "u7a input 606 mA > 10",
-      "u7b input 5.81e+03 mA > 10"
+      "u7a input 606 mA > 10"
      ],
      "notes": [
       "R94 8.11 W peak, 10.4 uJ (unrated pulse)",
@@ -3300,15 +3319,15 @@
       "u7a input 14.6 mA > 10"
      ]
     },
-    "v_hbm_scale": 10,
+    "v_hbm_scale": 3,
     "v_hbm_scale_ends_at": {
-     "v": 13,
+     "v": 5,
      "limits": [
-      "u6a input 39.3 mA > 10",
-      "u6a output ESD 39 mA > 10",
-      "u6b input 13.7 mA > 10",
-      "u7a input 158 mA > 10",
-      "u7a input 158 mA, I2t 2.7e-07 A2s > HBM"
+      "LDO OUT beyond IN (VCC 0.37 vs IN 0.00, VEE -0.40 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.41 vs IN 0.00, VEE -0.36 vs IN 0.00)",
+      "u6a input 13.5 mA > 10",
+      "u6a output ESD 13.2 mA > 10",
+      "u7a input 52.9 mA > 10"
      ]
     },
     "v_strict": 1,
@@ -3320,32 +3339,28 @@
     }
    },
    "sense_first": {
-    "v_within_ratings": 10,
+    "v_within_ratings": 5,
     "v_within_ratings_ends_at": {
-     "v": 13,
+     "v": 7,
      "limits": [
-      "u6b input 10.8 mA > 10",
-      "u7b input 10.8 mA > 10"
+      "LDO OUT beyond IN (VCC 0.28 vs IN 0.00, VEE -0.35 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.36 vs IN 0.00, VEE -0.27 vs IN 0.00)"
      ]
     },
-    "v_hbm_scale": 30,
+    "v_hbm_scale": 5,
     "v_hbm_scale_ends_at": {
-     "v": 50,
+     "v": 7,
      "limits": [
-      "u6a input 12.7 mA > 10",
-      "u6a output ESD 12.4 mA > 10",
-      "u6b input 44 mA > 10",
-      "u6b input 44 mA, I2t 2.8e-07 A2s > HBM",
-      "u7a input 34.1 mA > 10",
-      "u7b input 43.9 mA > 10"
+      "LDO OUT beyond IN (VCC 0.28 vs IN 0.00, VEE -0.35 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.36 vs IN 0.00, VEE -0.27 vs IN 0.00)"
      ]
     },
-    "v_strict": 10,
+    "v_strict": 5,
     "v_strict_ends_at": {
-     "v": 13,
+     "v": 7,
      "limits": [
-      "u6b input 10.8 mA > 10",
-      "u7b input 10.8 mA > 10"
+      "LDO OUT beyond IN (VCC 0.28 vs IN 0.00, VEE -0.35 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.36 vs IN 0.00, VEE -0.27 vs IN 0.00)"
      ]
     }
    },
@@ -3357,14 +3372,15 @@
       "u7a input 10.7 mA > 10"
      ]
     },
-    "v_hbm_scale": 10,
+    "v_hbm_scale": 3,
     "v_hbm_scale_ends_at": {
-     "v": 13,
+     "v": 5,
      "limits": [
-      "u6a input 44.1 mA > 10",
-      "u6a output ESD 43.8 mA > 10",
-      "u7a input 127 mA > 10",
-      "u7a input 127 mA, I2t 2.6e-07 A2s > HBM"
+      "LDO OUT beyond IN (VCC 0.37 vs IN 0.00, VEE -0.40 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.40 vs IN 0.00, VEE -0.36 vs IN 0.00)",
+      "u6a input 14.8 mA > 10",
+      "u6a output ESD 14.5 mA > 10",
+      "u7a input 42.5 mA > 10"
      ]
     },
     "v_strict": 1,
@@ -3384,15 +3400,14 @@
       "u6a output ESD 13.3 mA > 10"
      ]
     },
-    "v_hbm_scale": 16,
+    "v_hbm_scale": 3,
     "v_hbm_scale_ends_at": {
-     "v": 20,
+     "v": 5,
      "limits": [
-      "u6a input 101 mA > 10",
-      "u6a input 101 mA, I2t 2.3e-07 A2s > HBM",
-      "u6a output ESD 101 mA > 10",
-      "u6a output ESD 101 mA, I2t 2.3e-07 A2s > HBM",
-      "u6b input 35.8 mA > 10"
+      "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.56 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.57 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+      "u6a input 23.9 mA > 10",
+      "u6a output ESD 23.6 mA > 10"
      ]
     },
     "v_strict": 2,
@@ -3412,12 +3427,13 @@
       "u7a input 19.9 mA > 10"
      ]
     },
-    "v_hbm_scale": 3,
+    "v_hbm_scale": 2,
     "v_hbm_scale_ends_at": {
-     "v": 5,
+     "v": 3,
      "limits": [
-      "u7a input 171 mA > 10",
-      "u7a input 171 mA, I2t 2.8e-07 A2s > HBM"
+      "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.34 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.34 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+      "u7a input 92.1 mA > 10"
      ]
     },
     "v_strict": 0.5,
@@ -3438,16 +3454,13 @@
       "u7a input 13.7 mA > 10"
      ]
     },
-    "v_hbm_scale": 20,
+    "v_hbm_scale": 5,
     "v_hbm_scale_ends_at": {
-     "v": 30,
+     "v": 7,
      "limits": [
-      "u6b input 36.2 mA > 10",
-      "u6b input 36.2 mA, I2t 3.2e-07 A2s > HBM",
-      "u7a input 352 mA > 10",
-      "u7a input 352 mA, I2t 3e-07 A2s > HBM",
-      "u7a output ESD 25.1 mA > 10",
-      "u7b input 20.9 mA > 10"
+      "LDO OUT beyond IN (VCC 0.35 vs IN 0.00, VEE -0.38 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.40 vs IN 0.00, VEE -0.34 vs IN 0.00)",
+      "u7a input 74.1 mA > 10"
      ]
     },
     "v_strict": 1,
@@ -3459,30 +3472,28 @@
     }
    },
    "sense_first": {
-    "v_within_ratings": 10,
+    "v_within_ratings": 5,
     "v_within_ratings_ends_at": {
-     "v": 13,
+     "v": 7,
      "limits": [
-      "u6b input 10.9 mA > 10",
-      "u7b input 10.9 mA > 10"
+      "LDO OUT beyond IN (VCC 0.28 vs IN 0.00, VEE -0.31 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.33 vs IN 0.00, VEE -0.27 vs IN 0.00)"
      ]
     },
-    "v_hbm_scale": 20,
+    "v_hbm_scale": 5,
     "v_hbm_scale_ends_at": {
-     "v": 30,
+     "v": 7,
      "limits": [
-      "u6b input 26.1 mA > 10",
-      "u6b input 26.1 mA, I2t 2.2e-07 A2s > HBM",
-      "u7a input 18.8 mA > 10",
-      "u7b input 26 mA > 10"
+      "LDO OUT beyond IN (VCC 0.28 vs IN 0.00, VEE -0.31 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.33 vs IN 0.00, VEE -0.27 vs IN 0.00)"
      ]
     },
-    "v_strict": 10,
+    "v_strict": 5,
     "v_strict_ends_at": {
-     "v": 13,
+     "v": 7,
      "limits": [
-      "u6b input 10.9 mA > 10",
-      "u7b input 10.9 mA > 10"
+      "LDO OUT beyond IN (VCC 0.28 vs IN 0.00, VEE -0.31 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.33 vs IN 0.00, VEE -0.27 vs IN 0.00)"
      ]
     }
    },
@@ -3494,16 +3505,13 @@
       "u7a input 19.5 mA > 10"
      ]
     },
-    "v_hbm_scale": 30,
+    "v_hbm_scale": 7,
     "v_hbm_scale_ends_at": {
-     "v": 50,
+     "v": 10,
      "limits": [
-      "R105 68.9 V > 50 working",
-      "RG 76.2 V > 75 working",
-      "u6b input 23.9 mA > 10",
-      "u6b input 23.9 mA, I2t 4.8e-07 A2s > HBM",
-      "u7a input 459 mA > 10",
-      "u7a input 459 mA, I2t 4.8e-07 A2s > HBM"
+      "LDO OUT beyond IN (VCC 0.41 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.45 vs IN 0.00, VEE -0.39 vs IN 0.00)",
+      "u7a input 85.3 mA > 10"
      ]
     },
     "v_strict": 2,
@@ -3515,27 +3523,28 @@
     }
    },
    "h_to_gnd": {
-    "v_within_ratings": 5,
+    "v_within_ratings": 3,
     "v_within_ratings_ends_at": {
-     "v": 7,
+     "v": 5,
      "limits": [
-      "u6b input 12.2 mA > 10"
+      "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.31 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.32 vs IN 0.00, VEE -0.00 vs IN 0.00)"
      ]
     },
-    "v_hbm_scale": 20,
+    "v_hbm_scale": 3,
     "v_hbm_scale_ends_at": {
-     "v": 30,
+     "v": 5,
      "limits": [
-      "Rs_hpot 55 V > 50 working",
-      "u6b input 55 mA > 10",
-      "u6b input 55 mA, I2t 3.8e-07 A2s > HBM"
+      "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.31 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.32 vs IN 0.00, VEE -0.00 vs IN 0.00)"
      ]
     },
-    "v_strict": 5,
+    "v_strict": 3,
     "v_strict_ends_at": {
-     "v": 7,
+     "v": 5,
      "limits": [
-      "u6b input 12.2 mA > 10"
+      "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.31 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.32 vs IN 0.00, VEE -0.00 vs IN 0.00)"
      ]
     }
    },
@@ -3547,12 +3556,13 @@
       "u7a input 20.7 mA > 10"
      ]
     },
-    "v_hbm_scale": 3,
+    "v_hbm_scale": 2,
     "v_hbm_scale_ends_at": {
-     "v": 5,
+     "v": 3,
      "limits": [
-      "u7a input 175 mA > 10",
-      "u7a input 175 mA, I2t 3e-07 A2s > HBM"
+      "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.35 vs IN 0.00)",
+      "LDO OUT beyond IN (VCC 0.35 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+      "u7a input 94.3 mA > 10"
      ]
     },
     "v_strict": 0.5,
@@ -3568,282 +3578,898 @@
  "esd_cell_sensitivity": {
   "unpowered/100R": {
    "kelvin": {
-    "v_within_ratings": 1,
-    "v_within_ratings_ends_at": {
-     "v": 2,
-     "limits": [
-      "u6b input 151 mA > 10",
-      "u7a input 17.8 mA > 10",
-      "u7b input 140 mA > 10"
-     ]
+    "1e-08": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 64.6 mA > 10",
+       "u7a input 17.3 mA > 10",
+       "u7b input 57.3 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 16,
+     "v_hbm_scale_ends_at": {
+      "v": 20,
+      "limits": [
+       "u6a input 55.3 mA > 10",
+       "u6a output ESD 55 mA > 10",
+       "u6b input 1.65e+03 mA > 10",
+       "u6b input 1.65e+03 mA, I2t 3.4e-07 A2s > HBM",
+       "u7a input 310 mA > 10",
+       "u7b input 1.49e+03 mA > 10"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 64.6 mA > 10",
+       "u7a input 17.3 mA > 10",
+       "u7b input 57.3 mA > 10"
+      ]
+     }
     },
-    "v_hbm_scale": 2,
-    "v_hbm_scale_ends_at": {
-     "v": 3,
-     "limits": [
-      "u6b input 365 mA > 10",
-      "u6b input 365 mA, I2t 2.5e-07 A2s > HBM",
-      "u6b input 366 mA > 10",
-      "u6b input 366 mA, I2t 2.5e-07 A2s > HBM",
-      "u7a input 35 mA > 10",
-      "u7b input 340 mA > 10"
-     ]
+    "1e-06": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 151 mA > 10",
+       "u7a input 17.8 mA > 10",
+       "u7b input 140 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 2,
+     "v_hbm_scale_ends_at": {
+      "v": 3,
+      "limits": [
+       "u6b input 365 mA > 10",
+       "u6b input 365 mA, I2t 2.5e-07 A2s > HBM",
+       "u6b input 366 mA > 10",
+       "u6b input 366 mA, I2t 2.5e-07 A2s > HBM",
+       "u7a input 35 mA > 10",
+       "u7b input 340 mA > 10"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 151 mA > 10",
+       "u7a input 17.8 mA > 10",
+       "u7b input 140 mA > 10"
+      ]
+     }
     },
-    "v_strict": 1,
-    "v_strict_ends_at": {
-     "v": 2,
-     "limits": [
-      "u6b input 151 mA > 10",
-      "u7a input 17.8 mA > 10",
-      "u7b input 140 mA > 10"
-     ]
+    "0.0001": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.47 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.50 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "u6b input 162 mA > 10",
+       "u6b input 162 mA, I2t 2.3e-07 A2s > HBM",
+       "u7a input 17.8 mA > 10",
+       "u7b input 150 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.47 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.50 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "u6b input 162 mA > 10",
+       "u6b input 162 mA, I2t 2.3e-07 A2s > HBM",
+       "u7a input 17.8 mA > 10",
+       "u7b input 150 mA > 10"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.47 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.50 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "u6b input 162 mA > 10",
+       "u6b input 162 mA, I2t 2.3e-07 A2s > HBM",
+       "u7a input 17.8 mA > 10",
+       "u7b input 150 mA > 10"
+      ]
+     }
     }
    },
    "sense_first": {
-    "v_within_ratings": 1,
-    "v_within_ratings_ends_at": {
-     "v": 2,
-     "limits": [
-      "u6b input 146 mA > 10",
-      "u7b input 146 mA > 10"
-     ]
+    "1e-08": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 65.6 mA > 10",
+       "u7b input 65.5 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 13,
+     "v_hbm_scale_ends_at": {
+      "v": 16,
+      "limits": [
+       "u6b input 1.31e+03 mA > 10",
+       "u6b input 1.31e+03 mA, I2t 2.3e-07 A2s > HBM",
+       "u7b input 1.31e+03 mA > 10",
+       "u7b input 1.31e+03 mA, I2t 2.3e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 65.6 mA > 10",
+       "u7b input 65.5 mA > 10"
+      ]
+     }
     },
-    "v_hbm_scale": 2,
-    "v_hbm_scale_ends_at": {
-     "v": 3,
-     "limits": [
-      "u6b input 355 mA > 10",
-      "u6b input 355 mA, I2t 2.4e-07 A2s > HBM",
-      "u7b input 354 mA > 10",
-      "u7b input 354 mA, I2t 2.4e-07 A2s > HBM"
-     ]
+    "1e-06": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 146 mA > 10",
+       "u7b input 146 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 2,
+     "v_hbm_scale_ends_at": {
+      "v": 3,
+      "limits": [
+       "u6b input 355 mA > 10",
+       "u6b input 355 mA, I2t 2.4e-07 A2s > HBM",
+       "u7b input 354 mA > 10",
+       "u7b input 354 mA, I2t 2.4e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 146 mA > 10",
+       "u7b input 146 mA > 10"
+      ]
+     }
     },
-    "v_strict": 1,
-    "v_strict_ends_at": {
-     "v": 2,
-     "limits": [
-      "u6b input 146 mA > 10",
-      "u7b input 146 mA > 10"
-     ]
+    "0.0001": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.44 vs IN 0.00, VEE -0.44 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.46 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "u6b input 156 mA > 10",
+       "u6b input 156 mA, I2t 2.4e-07 A2s > HBM",
+       "u7b input 156 mA > 10",
+       "u7b input 156 mA, I2t 2.2e-07 A2s > HBM"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.44 vs IN 0.00, VEE -0.44 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.46 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "u6b input 156 mA > 10",
+       "u6b input 156 mA, I2t 2.4e-07 A2s > HBM",
+       "u7b input 156 mA > 10",
+       "u7b input 156 mA, I2t 2.2e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.44 vs IN 0.00, VEE -0.44 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.46 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "u6b input 156 mA > 10",
+       "u6b input 156 mA, I2t 2.4e-07 A2s > HBM",
+       "u7b input 156 mA > 10",
+       "u7b input 156 mA, I2t 2.2e-07 A2s > HBM"
+      ]
+     }
     }
    },
    "current_only": {
-    "v_within_ratings": 1,
-    "v_within_ratings_ends_at": {
-     "v": 2,
-     "limits": [
-      "u7a input 13.2 mA > 10"
-     ]
+    "1e-08": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 12.9 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 30,
+     "v_hbm_scale_ends_at": {
+      "v": 50,
+      "limits": [
+       "R105 52.8 V > 50 working",
+       "u6a input 179 mA > 10",
+       "u6a output ESD 178 mA > 10",
+       "u6b input 52.7 mA > 10",
+       "u7a input 523 mA > 10",
+       "u7a output ESD 15.4 mA > 10"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 12.9 mA > 10"
+      ]
+     }
     },
-    "v_hbm_scale": 10,
-    "v_hbm_scale_ends_at": {
-     "v": 13,
-     "limits": [
-      "u6a input 44.9 mA > 10",
-      "u6a output ESD 44.6 mA > 10",
-      "u6b input 13.4 mA > 10",
-      "u7a input 130 mA > 10",
-      "u7a input 130 mA, I2t 2.9e-07 A2s > HBM"
-     ]
+    "1e-06": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 13.2 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 3,
+     "v_hbm_scale_ends_at": {
+      "v": 5,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.42 vs IN 0.00, VEE -0.44 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.45 vs IN 0.00, VEE -0.41 vs IN 0.00)",
+       "u6a input 15.6 mA > 10",
+       "u6a output ESD 15.3 mA > 10",
+       "u7a input 44.5 mA > 10"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 13.2 mA > 10"
+      ]
+     }
     },
-    "v_strict": 1,
-    "v_strict_ends_at": {
-     "v": 2,
-     "limits": [
-      "u7a input 13.2 mA > 10"
-     ]
+    "0.0001": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.30 vs IN 0.00, VEE -0.36 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.39 vs IN 0.00, VEE -0.28 vs IN 0.00)",
+       "u7a input 13.2 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.30 vs IN 0.00, VEE -0.36 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.39 vs IN 0.00, VEE -0.28 vs IN 0.00)",
+       "u7a input 13.2 mA > 10"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.30 vs IN 0.00, VEE -0.36 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.39 vs IN 0.00, VEE -0.28 vs IN 0.00)",
+       "u7a input 13.2 mA > 10"
+      ]
+     }
     }
    },
    "h_to_gnd": {
-    "v_within_ratings": 0.5,
-    "v_within_ratings_ends_at": {
-     "v": 1,
-     "limits": [
-      "u6b input 139 mA > 10"
-     ]
+    "1e-08": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 49.1 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6a input 60.9 mA > 10",
+       "u6a output ESD 60.6 mA > 10",
+       "u6b input 1.65e+03 mA > 10",
+       "u6b input 1.65e+03 mA, I2t 2.8e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 49.1 mA > 10"
+      ]
+     }
     },
-    "v_hbm_scale": 1,
-    "v_hbm_scale_ends_at": {
-     "v": 2,
-     "limits": [
-      "u6b input 537 mA > 10",
-      "u6b input 537 mA, I2t 3.5e-07 A2s > HBM"
-     ]
+    "1e-06": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 139 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 537 mA > 10",
+       "u6b input 537 mA, I2t 3.5e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 139 mA > 10"
+      ]
+     }
     },
-    "v_strict": 0.5,
-    "v_strict_ends_at": {
-     "v": 1,
-     "limits": [
-      "u6b input 139 mA > 10"
-     ]
+    "0.0001": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+       "u6b input 156 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 0.5,
+     "v_hbm_scale_ends_at": {
+      "v": 1,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+       "u6b input 156 mA > 10"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+       "u6b input 156 mA > 10"
+      ]
+     }
     }
    },
    "l_to_gnd": {
-    "v_within_ratings": 0.5,
-    "v_within_ratings_ends_at": {
-     "v": 1,
-     "limits": [
-      "u7a input 22.1 mA > 10",
-      "u7b input 139 mA > 10"
-     ]
+    "1e-08": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 20.7 mA > 10",
+       "u7b input 43.6 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 13,
+     "v_hbm_scale_ends_at": {
+      "v": 16,
+      "limits": [
+       "u7a input 554 mA > 10",
+       "u7a output ESD 12.9 mA > 10",
+       "u7b input 1.84e+03 mA > 10",
+       "u7b input 1.84e+03 mA, I2t 3.2e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 20.7 mA > 10",
+       "u7b input 43.6 mA > 10"
+      ]
+     }
     },
-    "v_hbm_scale": 1,
-    "v_hbm_scale_ends_at": {
-     "v": 2,
-     "limits": [
-      "u7a input 59 mA > 10",
-      "u7b input 535 mA > 10",
-      "u7b input 535 mA, I2t 3.3e-07 A2s > HBM",
-      "u7b input 536 mA > 10",
-      "u7b input 536 mA, I2t 3.3e-07 A2s > HBM"
-     ]
+    "1e-06": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 22.1 mA > 10",
+       "u7b input 139 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 59 mA > 10",
+       "u7b input 535 mA > 10",
+       "u7b input 535 mA, I2t 3.3e-07 A2s > HBM",
+       "u7b input 536 mA > 10",
+       "u7b input 536 mA, I2t 3.3e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 22.1 mA > 10",
+       "u7b input 139 mA > 10"
+      ]
+     }
     },
-    "v_strict": 0.5,
-    "v_strict_ends_at": {
-     "v": 1,
-     "limits": [
-      "u7a input 22.1 mA > 10",
-      "u7b input 139 mA > 10"
-     ]
+    "0.0001": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.44 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+       "u7a input 22.1 mA > 10",
+       "u7b input 156 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 0.5,
+     "v_hbm_scale_ends_at": {
+      "v": 1,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.44 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+       "u7a input 22.1 mA > 10",
+       "u7b input 156 mA > 10"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.44 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+       "u7a input 22.1 mA > 10",
+       "u7b input 156 mA > 10"
+      ]
+     }
     }
    }
   },
   "unpowered/100k": {
    "kelvin": {
-    "v_within_ratings": 0.5,
-    "v_within_ratings_ends_at": {
-     "v": 1,
-     "limits": [
-      "u6b input 10.1 mA > 10"
-     ]
+    "1e-08": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 68.4 mA > 10",
+       "u7a input 17.3 mA > 10",
+       "u7b input 59.7 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 13,
+     "v_hbm_scale_ends_at": {
+      "v": 16,
+      "limits": [
+       "u6b input 1.31e+03 mA > 10",
+       "u6b input 1.31e+03 mA, I2t 2.2e-07 A2s > HBM",
+       "u7a input 276 mA > 10",
+       "u7b input 1.19e+03 mA > 10"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 68.4 mA > 10",
+       "u7a input 17.3 mA > 10",
+       "u7b input 59.7 mA > 10"
+      ]
+     }
     },
-    "v_hbm_scale": 2,
-    "v_hbm_scale_ends_at": {
-     "v": 3,
-     "limits": [
-      "u6b input 367 mA > 10",
-      "u6b input 367 mA, I2t 2.5e-07 A2s > HBM",
-      "u7a input 40.2 mA > 10",
-      "u7b input 335 mA > 10",
-      "u7b input 335 mA, I2t 2.1e-07 A2s > HBM"
-     ]
+    "1e-06": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 10.1 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 2,
+     "v_hbm_scale_ends_at": {
+      "v": 3,
+      "limits": [
+       "u6b input 367 mA > 10",
+       "u6b input 367 mA, I2t 2.5e-07 A2s > HBM",
+       "u7a input 40.2 mA > 10",
+       "u7b input 335 mA > 10",
+       "u7b input 335 mA, I2t 2.1e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 10.1 mA > 10"
+      ]
+     }
     },
-    "v_strict": 0.5,
-    "v_strict_ends_at": {
-     "v": 1,
-     "limits": [
-      "u6b input 10.1 mA > 10"
-     ]
+    "0.0001": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 10.1 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.44 vs IN 0.00, VEE -0.45 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.48 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "u6b input 162 mA > 10",
+       "u6b input 162 mA, I2t 2.9e-07 A2s > HBM",
+       "u7a input 19.9 mA > 10",
+       "u7b input 147 mA > 10"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 10.1 mA > 10"
+      ]
+     }
     }
    },
    "sense_first": {
-    "v_within_ratings": 1,
-    "v_within_ratings_ends_at": {
-     "v": 2,
-     "limits": [
-      "u6b input 147 mA > 10",
-      "u7b input 146 mA > 10"
-     ]
+    "1e-08": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 65.5 mA > 10",
+       "u7b input 65.2 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 13,
+     "v_hbm_scale_ends_at": {
+      "v": 16,
+      "limits": [
+       "u6b input 1.31e+03 mA > 10",
+       "u6b input 1.31e+03 mA, I2t 2.3e-07 A2s > HBM",
+       "u7b input 1.31e+03 mA > 10",
+       "u7b input 1.31e+03 mA, I2t 2.3e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 65.5 mA > 10",
+       "u7b input 65.2 mA > 10"
+      ]
+     }
     },
-    "v_hbm_scale": 2,
-    "v_hbm_scale_ends_at": {
-     "v": 3,
-     "limits": [
-      "u6b input 354 mA > 10",
-      "u6b input 354 mA, I2t 2.4e-07 A2s > HBM",
-      "u7b input 353 mA > 10",
-      "u7b input 353 mA, I2t 2.4e-07 A2s > HBM"
-     ]
+    "1e-06": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 147 mA > 10",
+       "u7b input 146 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 2,
+     "v_hbm_scale_ends_at": {
+      "v": 3,
+      "limits": [
+       "u6b input 354 mA > 10",
+       "u6b input 354 mA, I2t 2.4e-07 A2s > HBM",
+       "u7b input 353 mA > 10",
+       "u7b input 353 mA, I2t 2.4e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 147 mA > 10",
+       "u7b input 146 mA > 10"
+      ]
+     }
     },
-    "v_strict": 1,
-    "v_strict_ends_at": {
-     "v": 2,
-     "limits": [
-      "u6b input 147 mA > 10",
-      "u7b input 146 mA > 10"
-     ]
+    "0.0001": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.45 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.48 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "u6b input 156 mA > 10",
+       "u6b input 156 mA, I2t 2.7e-07 A2s > HBM",
+       "u7b input 156 mA > 10",
+       "u7b input 156 mA, I2t 2.2e-07 A2s > HBM"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.45 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.48 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "u6b input 156 mA > 10",
+       "u6b input 156 mA, I2t 2.7e-07 A2s > HBM",
+       "u7b input 156 mA > 10",
+       "u7b input 156 mA, I2t 2.2e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.45 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.48 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "u6b input 156 mA > 10",
+       "u6b input 156 mA, I2t 2.7e-07 A2s > HBM",
+       "u7b input 156 mA > 10",
+       "u7b input 156 mA, I2t 2.2e-07 A2s > HBM"
+      ]
+     }
     }
    },
    "current_only": {
-    "v_within_ratings": 1,
-    "v_within_ratings_ends_at": {
-     "v": 2,
-     "limits": [
-      "u7a input 11.6 mA > 10"
-     ]
+    "1e-08": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 11.3 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 30,
+     "v_hbm_scale_ends_at": {
+      "v": 50,
+      "limits": [
+       "R105 75.2 V > 50 working",
+       "RG 75.5 V > 75 working",
+       "u6b input 75.3 mA > 10",
+       "u7a input 461 mA > 10",
+       "u7a output ESD 51.6 mA > 10",
+       "u7b input 11.9 mA > 10"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 11.3 mA > 10"
+      ]
+     }
     },
-    "v_hbm_scale": 20,
-    "v_hbm_scale_ends_at": {
-     "v": 30,
-     "limits": [
-      "u6b input 45 mA > 10",
-      "u6b input 45 mA, I2t 3.3e-07 A2s > HBM",
-      "u7a input 275 mA > 10",
-      "u7a input 275 mA, I2t 3.1e-07 A2s > HBM",
-      "u7a output ESD 32.4 mA > 10"
-     ]
+    "1e-06": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 11.6 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 5,
+     "v_hbm_scale_ends_at": {
+      "v": 7,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.38 vs IN 0.00, VEE -0.41 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.37 vs IN 0.00)",
+       "u7a input 59.1 mA > 10"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 11.6 mA > 10"
+      ]
+     }
     },
-    "v_strict": 1,
-    "v_strict_ends_at": {
-     "v": 2,
-     "limits": [
-      "u7a input 11.6 mA > 10"
-     ]
+    "0.0001": {
+     "v_within_ratings": 1,
+     "v_within_ratings_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 11.6 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 2,
+     "v_hbm_scale_ends_at": {
+      "v": 3,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.25 vs IN 0.00, VEE -0.31 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.34 vs IN 0.00, VEE -0.23 vs IN 0.00)",
+       "u7a input 21.5 mA > 10"
+      ]
+     },
+     "v_strict": 1,
+     "v_strict_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 11.6 mA > 10"
+      ]
+     }
     }
    },
    "h_to_gnd": {
-    "v_within_ratings": 0.5,
-    "v_within_ratings_ends_at": {
-     "v": 1,
-     "limits": [
-      "u6b input 139 mA > 10"
-     ]
+    "1e-08": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 50.7 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 10,
+     "v_hbm_scale_ends_at": {
+      "v": 13,
+      "limits": [
+       "u6b input 1.69e+03 mA > 10",
+       "u6b input 1.69e+03 mA, I2t 3e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 50.7 mA > 10"
+      ]
+     }
     },
-    "v_hbm_scale": 1,
-    "v_hbm_scale_ends_at": {
-     "v": 2,
-     "limits": [
-      "u6b input 537 mA > 10",
-      "u6b input 537 mA, I2t 3.5e-07 A2s > HBM"
-     ]
+    "1e-06": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 139 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "u6b input 537 mA > 10",
+       "u6b input 537 mA, I2t 3.5e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "u6b input 139 mA > 10"
+      ]
+     }
     },
-    "v_strict": 0.5,
-    "v_strict_ends_at": {
-     "v": 1,
-     "limits": [
-      "u6b input 139 mA > 10"
-     ]
+    "0.0001": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+       "u6b input 155 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 0.5,
+     "v_hbm_scale_ends_at": {
+      "v": 1,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+       "u6b input 155 mA > 10"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.43 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.43 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+       "u6b input 155 mA > 10"
+      ]
+     }
     }
    },
    "l_to_gnd": {
-    "v_within_ratings": 0.5,
-    "v_within_ratings_ends_at": {
-     "v": 1,
-     "limits": [
-      "u7a input 22.8 mA > 10",
-      "u7b input 138 mA > 10"
-     ]
+    "1e-08": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 21.3 mA > 10",
+       "u7b input 43.7 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 13,
+     "v_hbm_scale_ends_at": {
+      "v": 16,
+      "limits": [
+       "u7a input 566 mA > 10",
+       "u7a output ESD 21.8 mA > 10",
+       "u7b input 1.85e+03 mA > 10",
+       "u7b input 1.85e+03 mA, I2t 3.2e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 21.3 mA > 10",
+       "u7b input 43.7 mA > 10"
+      ]
+     }
     },
-    "v_hbm_scale": 1,
-    "v_hbm_scale_ends_at": {
-     "v": 2,
-     "limits": [
-      "u7a input 60.8 mA > 10",
-      "u7b input 534 mA > 10",
-      "u7b input 534 mA, I2t 3.3e-07 A2s > HBM"
-     ]
+    "1e-06": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 22.8 mA > 10",
+       "u7b input 138 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 1,
+     "v_hbm_scale_ends_at": {
+      "v": 2,
+      "limits": [
+       "u7a input 60.8 mA > 10",
+       "u7b input 534 mA > 10",
+       "u7b input 534 mA, I2t 3.3e-07 A2s > HBM"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "u7a input 22.8 mA > 10",
+       "u7b input 138 mA > 10"
+      ]
+     }
     },
-    "v_strict": 0.5,
-    "v_strict_ends_at": {
-     "v": 1,
-     "limits": [
-      "u7a input 22.8 mA > 10",
-      "u7b input 138 mA > 10"
-     ]
+    "0.0001": {
+     "v_within_ratings": 0.5,
+     "v_within_ratings_ends_at": {
+      "v": 1,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.44 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.44 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+       "u7a input 22.9 mA > 10",
+       "u7b input 155 mA > 10"
+      ]
+     },
+     "v_hbm_scale": 0.5,
+     "v_hbm_scale_ends_at": {
+      "v": 1,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.44 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.44 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+       "u7a input 22.9 mA > 10",
+       "u7b input 155 mA > 10"
+      ]
+     },
+     "v_strict": 0.5,
+     "v_strict_ends_at": {
+      "v": 1,
+      "limits": [
+       "LDO OUT beyond IN (VCC 0.00 vs IN 0.00, VEE -0.44 vs IN 0.00)",
+       "LDO OUT beyond IN (VCC 0.44 vs IN 0.00, VEE -0.00 vs IN 0.00)",
+       "u7a input 22.9 mA > 10",
+       "u7b input 155 mA > 10"
+      ]
+     }
     }
    }
   }
  },
  "errors": [],
- "cases_run": 3686
+ "cases_run": 4326
 }

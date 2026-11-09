@@ -52,7 +52,9 @@ Datasheet limits (judged at every instant):
   OPA2810 SBOS789C 7.1: input current 10 mA (also 8.3.2: ESD cells "typically 10-mA continuous input and output
     currents"), output current 40 mA (note 4: electromigration, reported only), differential input 7 V, total
     supply 28 V (+-14 V);
-  TPS7A49 OUT >= -0.3 V, TPS7A30 OUT <= +0.3 V (abs max, SBVS121 / SBVS125);
+  TPS7A49 OUT >= -0.3 V, TPS7A30 OUT <= +0.3 V, and OUT no more than 0.3 V beyond IN (abs max, SBVS121 /
+    SBVS125: "OUT pin to IN pin" 0.3 V). IN is RAW_P / RAW_N at their weakest corner from
+    validation/power-spurs/regulator_check.json when powered, and 0 V unpowered;
   TAC5112 SLASF24A 6.1: analog input pins -0.3 .. 5.656 V, AVDD -0.3 .. 3.9 V. The BAT54S negative clamp holds a
     pin at -(0.3..0.4) V on any fast negative step at a follower or TIA output, in normal overloads too: that is
     audit AFE-07, accepted with a bench check. Down to -0.45 V it is reported (v_strict counts it as a failure);
@@ -80,6 +82,8 @@ import sys
 import tempfile
 
 HERE = pathlib.Path(__file__).resolve().parent
+REG = json.loads((HERE.parent / 'power-spurs' / 'regulator_check.json').read_text())
+LDO_IN = {'powered': (REG['vpos']['min'], REG['vneg']['min']), 'unpowered': (0.0, 0.0)}  # (TPS7A49 IN, TPS7A30 IN)
 NGSPICE = os.environ.get('NGSPICE') or shutil.which('ngspice') or '/opt/homebrew/bin/ngspice'
 
 VCC_NOM, VEE_NOM = 11.86, -11.87
@@ -107,7 +111,7 @@ V_GRID = [0.5, 1, 2, 3, 5, 7, 10, 13, 16, 20, 30, 50, 100, 200, 400, 1000]
 HBM_PEAK_MA, HBM_UC = 1e3 * 2500 / 1500, 100e-12 * 2500 * 1e6
 HBM_I2T = (2500 / 1500) ** 2 * 1500 * 100e-12 / 2   # Ipk^2 tau / 2, tau = 150 ns: 2.08e-7 A^2 s
 LIM = {'in_ma': 10.0, 'out_ma': 40.0, 'vdiff': 7.0, 'vs_total': 28.0, 'c_v': 50.0,
-       'codec_pin_v': [-0.3, 5.656], 'codec_pin_afe07_v': -0.45, 'avdd_v': [-0.3, 3.9], 'bat54_ifsm_ma': 600.0,
+       'ldo_out_beyond_in_v': 0.3, 'codec_pin_v': [-0.3, 5.656], 'codec_pin_afe07_v': -0.45, 'avdd_v': [-0.3, 3.9], 'bat54_ifsm_ma': 600.0,
        'unrated_r_peak_w': 0.625, 'unrated_relay_a': 2.0}
 RES = {  # name: (node a, node b, ohms, working V)
     'R94': ('dut_lo', 'tia_sum', 22.0, 75.0), 'R104': ('src_drv', 'sbuf', 47.0, 50.0),
@@ -374,6 +378,9 @@ def judge(r):
         c_fail.append(f'supply {r["vs_max"]:.3g} V > 28')
     if r['vcc_min'] < -0.3 or r['vee_max'] > 0.3:
         c_fail.append(f'rail reversed (VCC min {r["vcc_min"]:.2f}, VEE max {r["vee_max"]:.2f})')
+    in_p, in_n = LDO_IN[r['case'][1]]
+    if r['vcc_max'] > in_p + LIM['ldo_out_beyond_in_v'] or r['vee_min'] < in_n - LIM['ldo_out_beyond_in_v']:
+        c_fail.append(f'LDO OUT beyond IN (VCC {r["vcc_max"]:.2f} vs IN {in_p:.2f}, VEE {r["vee_min"]:.2f} vs IN {in_n:.2f})')
     if r['v3a_max'] > LIM['avdd_v'][1] or r['v3a_min'] < LIM['avdd_v'][0]:
         c_fail.append(f'3V3A {r["v3a_min"]:.2f}..{r["v3a_max"]:.2f} V outside TAC5112 AVDD -0.3..3.9')
     if max(r['c78_v'], r['c104_v']) > LIM['c_v']:
@@ -416,11 +423,7 @@ def selftest():
        (11 / 2 + AVDD / 2 - AVDD - VF) / 500 R; the simulated peak must agree within 5 %."""
     out, ok = {'bat54_vf': [], 'esd_vf_10ma': {}, 'afe07_step': {}}, True
 
-    def vf(model, i):
-        text = (f'* vf\n.model DX {model}\nI1 0 a DC {i:g}\nDX a 0 DX\nVt t 0 PWL(0 0 1u 1)\nRt t 0 1\nOPTIONS_LINE\n'
-                '.control\nset wr_singlescale\nset wr_vecnames\ntran 0.1u 1u\nwrdata OUT v(a)\n.endc\n.end\n')
-        col, _ = spice(text, 1e-6)
-        return col['v(a)'][-1]
+    vf = vf_at
 
     for i, vmax in BAT54_VF_MAX:
         vm = vf(DBAT, i)
@@ -451,13 +454,27 @@ def selftest():
     return out
 
 
+BENCH_I = (1e-3, -1e-3)
+IS_SWEEP = (1e-15, 1e-14, 1e-13, 1e-12, 3e-12, 1e-11, 3e-11, 1e-10)
+
+
+def vf_at(model, i):
+    """Forward voltage of a diode model at current i (A)."""
+    text = (f'* vf\n.model DX {model}\nI1 0 a DC {i:g}\nDX a 0 DX\nVt t 0 PWL(0 0 1u 1)\nRt t 0 1\nOPTIONS_LINE\n'
+            '.control\nset wr_singlescale\nset wr_vecnames\ntran 0.1u 1u\nwrdata OUT v(a)\n.endc\n.end\n')
+    col, _ = spice(text, 1e-6)
+    return col['v(a)'][-1]
+
+
 def bench_prediction():
     """Bring-up check of the unpowered ESD knee: meter unpowered, relays left on 100 k, a current-limited bench
-    supply pushes I into the HPOT or LPOT centre pin (shell = GND) and a DMM reads the pin. The model's answer for
-    both ESD-cell IS values; the real cells sit somewhere near or between them."""
+    supply pushes +-1 mA into the HPOT or LPOT centre pin (shell = GND); a DMM reads the pin and the +12 / -12 pad.
+    Only 1 mA: unpowered, the LDO inputs are at 0 V and their OUT may not rise more than 0.3 V above IN; at 1 mA
+    the rail reaches about 0.25 V. The pin-minus-rail difference is the cell's forward voltage at 1 mA; the sweep
+    gives the weakest-knee cell (largest IS) that still keeps the 0.5 V discharge rule."""
     rows = []
     for jack, clip, node in (('HPOT (J7)', 'clip_h', 'hpot'), ('LPOT (J8)', 'clip_l', 'lpot')):
-        for i in (1e-3, 5e-3, -1e-3, -5e-3):
+        for i in BENCH_I:
             row = {'jack': jack, 'i_ma': 1e3 * i}
             for is_ in (ESD_IS, ESD_IS_ALT):
                 text, _ = deck('sense_first', 'unpowered', '100k', 1e-6, 0.0, 0.0, is_)
@@ -468,13 +485,27 @@ def bench_prediction():
                 col, _ = spice('\n'.join(keep) + '\n', 20e-3)
                 row[f'v_is_{is_:g}'] = round(col[f'v({node})'][-1], 3)
                 row[f'rail_is_{is_:g}'] = round(col['v(vcc)' if i > 0 else 'v(vee)'][-1], 3)
+                row[f'pin_minus_rail_is_{is_:g}'] = round(row[f'v_is_{is_:g}'] - row[f'rail_is_{is_:g}'], 3)
             rows.append(row)
     # AFE-07 bench check: powered, 100 k range, a 1 uF film cap touched across HCUR-LCUR with two-terminal leads.
     v3a = []
     for v in (5.0, 7.0, 10.0, 13.0):
         r = run(('current_only', 'powered', '100k', 1e-6, v, 0.0, ESD_IS))
         v3a.append({'v_cap': v, 'v3a_max': round(r['v3a_max'], 3), 'class': judge(r)[0]})
+    # Which cell strength still keeps the 0.5 V rule: every unpowered scenario, range and C at +-0.5 V in class A.
+    sweep = []
+    for is_ in IS_SWEEP:
+        cases = [(s, p, rg, c, sgn * 0.5, 0.0, is_) for s in SCENARIOS for (p, rg) in UNPOWERED for c in C_GRID
+                 for sgn in (1, -1)]
+        with cf.ThreadPoolExecutor(max(1, (os.cpu_count() or 2) - 2)) as ex:
+            res = list(ex.map(run, cases))
+        ok = all('error' not in r and judge(r)[0] == 'A' for r in res)
+        vf1 = vf_at(f'D(IS={is_:g} N=1 RS=2)', 1e-3)
+        sweep.append({'esd_is': is_, 'vf_1ma': round(vf1, 3), 'rule_0p5v_holds': ok})
+    keep = [x for x in sweep if x['rule_0p5v_holds']]
     return {'setup': bench_prediction.__doc__.strip(), 'rows': rows,
+            'is_sweep_for_0p5v_rule': sweep,
+            'bench_pass_if_pin_minus_rail_at_1ma_above_v': max(keep, key=lambda x: x['esd_is'])['vf_1ma'] if keep else None,
             'v3a_two_terminal_1uF_100k': v3a}
 
 
@@ -548,17 +579,20 @@ def render(out):
 
     es = out['esd_cell_sensitivity']
     vfs = out['selftest']['esd_vf_10ma']
-    lines = [f"| Scenario | Meter state (1 µF) | IS {_g(ESD_IS)} (VF {vfs[_g(ESD_IS)]:.2f} V at 10 mA) | "
+    lines = [f"| Scenario | Meter state (10 nF–100 µF) | IS {_g(ESD_IS)} (VF {vfs[_g(ESD_IS)]:.2f} V at 10 mA) | "
              f"IS {_g(ESD_IS_ALT)} (VF {vfs[_g(ESD_IS_ALT)]:.2f} V) |", '|---|---|---|---|']
     for st, rows in es.items():
         for s, x in rows.items():
-            lines.append(f"| `{s}` | {st} | {_cell([sv[s][st]['1e-06']])} | {_cell([x])} |")
+            lines.append(f"| `{s}` | {st} | {_cell(list(sv[s][st].values()))} | {_cell(list(x.values()))} |")
     t['esd_sensitivity'] = '\n'.join(lines)
 
-    strict = [x['v_strict'] for st in pw for x in sv['kelvin'][st].values()]
-    within = [x['v_within_ratings'] for st in pw for x in sv['kelvin'][st].values()]
-    t['strict'] = (f"Counting the AFE-07 pin excursion as a failure, powered Kelvin falls from {_span(within)} V "
-                   f"to {_span(strict)} V.")
+    parts = []
+    for s in sv:
+        strict = [x['v_strict'] for st in pw for x in sv[s][st].values()]
+        within = [x['v_within_ratings'] for st in pw for x in sv[s][st].values()]
+        parts.append(f"`{s}` {_span(within)} → {_span(strict)} V")
+    t['strict'] = ("Counting the AFE-07 pin excursion as a failure (it happens whenever the TIA or a follower saturates "
+                   "negative), the powered limits fall: " + '; '.join(parts) + '.')
     u = out['unrated_in_class_a']
     t['unrated'] = (f"In every case counted as class A, the largest resistor pulse is {u['r_peak_w']:.3g} W peak "
                     f"({u['r_name']}, {u['case']}; {1e3 * u['r_energy_j']:.3g} mJ dissipated over the whole run, an "
@@ -649,8 +683,8 @@ def main():
     ev_cases = [('kelvin', p, rg, c, v, 0.0, ESD_IS) for (_, c, v) in EVENTS for (p, rg) in EVENT_STATES]
     opt_cases = [(s, p, rg, 1e-6, sgn * v, 1e3, ESD_IS) for s in scns for (p, rg) in OPT_STATES for v in V_GRID
                  for sgn in (1, -1)]
-    esd_cases = [(s, p, rg, 1e-6, sgn * v, 0.0, ESD_IS_ALT) for s in scns for (p, rg) in UNPOWERED for v in V_GRID
-                 for sgn in (1, -1)]
+    esd_cases = [(s, p, rg, c, sgn * v, 0.0, ESD_IS_ALT) for s in scns for (p, rg) in UNPOWERED for c in C_GRID
+                 for v in V_GRID for sgn in (1, -1)]
     all_cases = list(dict.fromkeys(cases + ev_cases + opt_cases + esd_cases))
     with cf.ThreadPoolExecutor(a.jobs) as ex:
         res = dict(zip(all_cases, ex.map(run, all_cases)))
@@ -712,7 +746,8 @@ def main():
         events.append({'event': label, 'c_f': c, 'v': v, 'energy_j': 0.5 * c * v * v,
                        'keysight_limit_v': 1000.0 if c < 2e-6 else math.sqrt(2 / c), 'meter': rows})
     option_a = {f'{p}/{rg}': {s: threshold(s, p, rg, 1e-6, 1e3) for s in scns} for (p, rg) in OPT_STATES}
-    esd_sens = {f'{p}/{rg}': {s: threshold(s, p, rg, 1e-6, 0.0, ESD_IS_ALT) for s in scns} for (p, rg) in UNPOWERED}
+    esd_sens = {f'{p}/{rg}': {s: {f'{c:g}': threshold(s, p, rg, c, 0.0, ESD_IS_ALT) for c in C_GRID} for s in scns}
+                for (p, rg) in UNPOWERED}
     out = {
         'generated_by': 'validation/charged-dut/charged_dut_spice.py',
         'assumptions': {'rails_v': [VCC_NOM, VEE_NOM], 'rail_c_f': C_RAIL, 'rail_load_a': [I_LOAD_P, I_LOAD_N],

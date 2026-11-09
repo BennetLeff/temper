@@ -17,52 +17,53 @@
    "resin_or_fdm_print": {
     "pos": 0.15,
     "dia": 0.15,
-    "undersize": 0.1
+    "undersize": 0.2
    }
   },
   "design": {
    "hole_dia": {
-    "laser_or_machined_metal": 12.5,
+    "laser_or_machined_metal": 12.7,
     "resin_or_fdm_print": 12.7
    },
    "wall": 2.0,
    "edge_relief_depth": 0.6,
+   "edge_relief_above_board_top": 0.3,
    "slot_float_y": 1.3,
    "slot_float_z": 0.6
   }
  },
  "checks": [
   {
-   "check": "laser_or_machined_metal / jig: hole \u00d8 needed vs \u00d812.5",
-   "value": 12.28,
-   "limit": 12.5,
+   "check": "laser_or_machined_metal / jig: hole \u00d8 needed vs \u00d812.7",
+   "value": 12.48,
+   "limit": 12.7,
    "pass": true,
    "required": true,
-   "note": "flange ring left on the worst side 0.21 mm"
+   "note": "flange ring left on the worst side 0.01 mm"
   },
   {
-   "check": "laser_or_machined_metal / soldered_first: hole \u00d8 needed vs \u00d812.5",
-   "value": 13.23,
-   "limit": 12.5,
+   "check": "laser_or_machined_metal / soldered_first: hole \u00d8 needed vs \u00d812.7",
+   "value": 13.43,
+   "limit": 12.7,
    "pass": false,
    "required": false,
-   "note": "flange ring left on the worst side -0.26 mm"
+   "note": "flange ring left on the worst side -0.46 mm"
   },
   {
    "check": "resin_or_fdm_print / jig: hole \u00d8 needed vs \u00d812.7",
-   "value": 12.53,
-   "limit": 12.7,
-   "pass": true,
-   "required": true,
-   "note": "flange ring left on the worst side 0.04 mm"
-  },
-  {
-   "check": "resin_or_fdm_print / soldered_first: hole \u00d8 needed vs \u00d812.7",
-   "value": 13.48,
+   "value": 12.83,
    "limit": 12.7,
    "pass": false,
    "required": false,
-   "note": "flange ring left on the worst side -0.44 mm"
+   "note": "flange ring left on the worst side -0.06 mm"
+  },
+  {
+   "check": "resin_or_fdm_print / soldered_first: hole \u00d8 needed vs \u00d812.7",
+   "value": 13.78,
+   "limit": 12.7,
+   "pass": false,
+   "required": false,
+   "note": "flange ring left on the worst side -0.54 mm"
   },
   {
    "check": "board edge ahead of the flanges, jig",
@@ -97,12 +98,20 @@
    "note": ""
   },
   {
-   "check": "thread left for toothed washer + nut",
-   "value": 4.6,
-   "limit": 0.0,
+   "check": "thread left at the shortest thread vs washer + nut",
+   "value": 4.25,
+   "limit": 3.5,
    "pass": true,
    "required": true,
-   "note": "scaled 6.6 mm thread minus the wall; caliper the nut and washer before cutting"
+   "note": "(6.6 - 0.35) mm thread minus the wall, against an assumed 3.5 mm washer + nut; caliper both"
+  },
+  {
+   "check": "relief top edge above the board top",
+   "value": 0.275,
+   "limit": 0.3,
+   "pass": true,
+   "required": true,
+   "note": "axis-height spread / 2 + seating"
   }
  ],
  "pass": true

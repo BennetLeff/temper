@@ -64,7 +64,7 @@ Bounding boxes are conservative.
 Checked by `bnc_panel_stack.py`, a linear worst-case tolerance stack. It writes `bnc-panel-stack.json` and exits 1 if a rule below fails. Its inputs:
 - **SAMZO drawing:** M12 thread, flange Ø13.55 × 1.1, 1.0 mm pins, and the drawing's general tolerances.
 - **JLCPCB published tolerances:** ±0.2 mm routed outline, +0.13/−0.08 mm drilled holes, ±0.075 mm hole position, ±10 % thickness.
-- **Stated assumptions:** the panel process tolerance, and how the jacks seat.
+- **Stated assumptions:** the panel process tolerance, how the jacks seat, the jack's thread-to-leg concentricity (0.1 mm; SAMZO gives none) and the washer-plus-nut thickness (3.5 mm).
 
 The drawing does not give the nut's thickness or the toothed washer's. It draws them face-on only (13.95 A/F hex, Ø15.5 washer). The 6.6 mm thread length is scaled off the drawing, not dimensioned.
 
@@ -73,14 +73,15 @@ The drawing does not give the nut's thickness or the toothed washer's. It draws 
 2. Put the legs into the board, and pull each flange against the plate.
 3. Solder, then tighten.
 
-Each jack's 0.09–0.34 mm of travel in its 1.4 mm holes then follows the plate. Soldered first, the four jacks need a Ø13.2 mm hole in metal (Ø13.5 printed). That leaves no flange to bear on the worst side, so a plate fitted to pre-soldered jacks does not work.
+Each jack's 0.09–0.34 mm of travel in its 1.4 mm holes then follows the plate. Soldered first, the four jacks need a Ø13.4 mm hole in metal. That leaves no flange to bear on the worst side, so a plate fitted to pre-soldered jacks does not work.
 
 **Front plate rules:**
-- **Hole:** Ø12.5 mm in laser-cut or machined metal (Ø12.28 needed), or Ø12.7 mm printed (Ø12.53 needed). The flange still bears on at least 0.21 mm (metal) or 0.04 mm (printed) on the worst side.
-- **Board-edge relief:** 0.6 mm deep on the plate's inside face, across the board edge, from 0.5 mm below the board bottom up to the board top. The routed edge can stand up to 0.49 mm ahead of the flanges, and the flanges must bear first, or tightening the nuts loads the solder joints. The plate needs the relief, so it is machined or printed, not plain sheet.
+- **Hole:** Ø12.7 mm in machined metal (Ø12.48 needed). With every tolerance at its limit at once, the flange still bears on the worst side, by 0.01 mm. A printed hole needs Ø12.83, which leaves no flange on the worst side; that is one more reason the plate is metal.
+- **Measure before cutting:** on the four jacks you will fit, measure the thread axis against the centre of the leg square (on a printed test plate, or with calipers across the legs and the thread). The stack assumes up to 0.1 mm. If any jack is off by more than 0.2 mm, rerun the script with the measured value.
+- **Board-edge relief:** 0.6 mm deep on the plate's inside face, across the board edge, from 0.5 mm below the board bottom to 0.3 mm above the board top. The routed edge can stand up to 0.49 mm ahead of the flanges, and the board top's height against the plate varies by 0.28 mm. The flanges must bear first, or tightening the nuts loads the solder joints. The plate needs the relief, so it is machined, not plain sheet.
 - **The jacks locate the plate, never the tray.** Give it at least 1.3 mm of float each way in y and 0.6 mm in z, because it can move 1.09 mm and 0.54 mm against the tray. The lid or a soft pad keeps it from rattling.
-- **Wall:** 2.0 mm at the jacks. That leaves 4.6 mm of the scaled thread for the toothed washer and nut. Caliper a jack's thread, nut and washer from the LCSC order before cutting, and confirm at least one full thread is engaged. A thicker wall elsewhere needs a spot face of Ø17 mm or more: the nut is 16.11 mm across corners, and neighbouring Ø17 spot faces stay 5 mm apart.
-- **Material:** metal at the jacks. Printed plastic creeps under a toothed washer and loosens the jacks. The chassis-grounding decision (rev-f-plan, 2026-10-29) also assumes a metal front wall that bonds to the BNC shells. If the box is printed, use a machined aluminium front plate, unanodised or masked around the holes, so the decision still holds.
+- **Wall:** 2.0 mm at the jacks. At the shortest thread (6.6 − 0.35 mm), that leaves 4.25 mm for the toothed washer and nut, against an assumed 3.5 mm. Caliper a jack's thread, nut and washer from the LCSC order before cutting. A thicker wall elsewhere needs a spot face of Ø17 mm or more: the nut is 16.11 mm across corners, and neighbouring Ø17 spot faces stay 5 mm apart.
+- **Material:** metal at the jacks. Printed plastic creeps under a toothed washer and loosens the jacks, and printed holes fail the stack. The chassis-grounding decision (rev-f-plan, 2026-10-29) also assumes a metal front wall that bonds to the BNC shells. If the box is printed, use a machined aluminium front plate, unanodised or masked around the holes, so the decision still holds.
 
 ## J1 3D model is 1.2 mm behind the real part
 

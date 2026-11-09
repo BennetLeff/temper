@@ -1,71 +1,90 @@
 {
- "setup": "Bring-up check of the unpowered ESD knee: meter unpowered, relays left on 100 k, a current-limited bench\n    supply pushes I into the HPOT or LPOT centre pin (shell = GND) and a DMM reads the pin. The model's answer for\n    both ESD-cell IS values; the real cells sit somewhere near or between them.",
+ "setup": "Bring-up check of the unpowered ESD knee: meter unpowered, relays left on 100 k, a current-limited bench\n    supply pushes +-1 mA into the HPOT or LPOT centre pin (shell = GND); a DMM reads the pin and the +12 / -12 pad.\n    Only 1 mA: unpowered, the LDO inputs are at 0 V and their OUT may not rise more than 0.3 V above IN; at 1 mA\n    the rail reaches about 0.25 V. The pin-minus-rail difference is the cell's forward voltage at 1 mA; the sweep\n    gives the weakest-knee cell (largest IS) that still keeps the 0.5 V discharge rule.",
  "rows": [
   {
    "jack": "HPOT (J7)",
    "i_ma": 1.0,
    "v_is_1e-15": 0.948,
    "rail_is_1e-15": 0.24,
+   "pin_minus_rail_is_1e-15": 0.708,
    "v_is_1e-12": 0.782,
-   "rail_is_1e-12": 0.251
-  },
-  {
-   "jack": "HPOT (J7)",
-   "i_ma": 5.0,
-   "v_is_1e-15": 2.313,
-   "rail_is_1e-15": 1.55,
-   "v_is_1e-12": 2.135,
-   "rail_is_1e-12": 1.55
+   "rail_is_1e-12": 0.251,
+   "pin_minus_rail_is_1e-12": 0.531
   },
   {
    "jack": "HPOT (J7)",
    "i_ma": -1.0,
    "v_is_1e-15": -0.925,
    "rail_is_1e-15": -0.217,
+   "pin_minus_rail_is_1e-15": -0.708,
    "v_is_1e-12": -0.758,
-   "rail_is_1e-12": -0.227
-  },
-  {
-   "jack": "HPOT (J7)",
-   "i_ma": -5.0,
-   "v_is_1e-15": -2.156,
-   "rail_is_1e-15": -1.392,
-   "v_is_1e-12": -1.978,
-   "rail_is_1e-12": -1.392
+   "rail_is_1e-12": -0.227,
+   "pin_minus_rail_is_1e-12": -0.531
   },
   {
    "jack": "LPOT (J8)",
    "i_ma": 1.0,
    "v_is_1e-15": 0.834,
    "rail_is_1e-15": 0.141,
+   "pin_minus_rail_is_1e-15": 0.693,
    "v_is_1e-12": 0.674,
-   "rail_is_1e-12": 0.156
-  },
-  {
-   "jack": "LPOT (J8)",
-   "i_ma": 5.0,
-   "v_is_1e-15": 2.213,
-   "rail_is_1e-15": 1.452,
-   "v_is_1e-12": 2.035,
-   "rail_is_1e-12": 1.452
+   "rail_is_1e-12": 0.156,
+   "pin_minus_rail_is_1e-12": 0.518
   },
   {
    "jack": "LPOT (J8)",
    "i_ma": -1.0,
    "v_is_1e-15": -0.821,
    "rail_is_1e-15": -0.127,
+   "pin_minus_rail_is_1e-15": -0.694,
    "v_is_1e-12": -0.66,
-   "rail_is_1e-12": -0.142
-  },
-  {
-   "jack": "LPOT (J8)",
-   "i_ma": -5.0,
-   "v_is_1e-15": -2.066,
-   "rail_is_1e-15": -1.304,
-   "v_is_1e-12": -1.887,
-   "rail_is_1e-12": -1.304
+   "rail_is_1e-12": -0.142,
+   "pin_minus_rail_is_1e-12": -0.518
   }
  ],
+ "is_sweep_for_0p5v_rule": [
+  {
+   "esd_is": 1e-15,
+   "vf_1ma": 0.717,
+   "rule_0p5v_holds": true
+  },
+  {
+   "esd_is": 1e-14,
+   "vf_1ma": 0.657,
+   "rule_0p5v_holds": true
+  },
+  {
+   "esd_is": 1e-13,
+   "vf_1ma": 0.598,
+   "rule_0p5v_holds": true
+  },
+  {
+   "esd_is": 1e-12,
+   "vf_1ma": 0.538,
+   "rule_0p5v_holds": true
+  },
+  {
+   "esd_is": 3e-12,
+   "vf_1ma": 0.51,
+   "rule_0p5v_holds": true
+  },
+  {
+   "esd_is": 1e-11,
+   "vf_1ma": 0.478,
+   "rule_0p5v_holds": true
+  },
+  {
+   "esd_is": 3e-11,
+   "vf_1ma": 0.45,
+   "rule_0p5v_holds": true
+  },
+  {
+   "esd_is": 1e-10,
+   "vf_1ma": 0.419,
+   "rule_0p5v_holds": false
+  }
+ ],
+ "bench_pass_if_pin_minus_rail_at_1ma_above_v": 0.45,
  "v3a_two_terminal_1uF_100k": [
   {
    "v_cap": 5.0,

@@ -39,15 +39,17 @@ FLANGE_PROUD_NOM = 0.1             # flange front face ahead of the board edge, 
 AXIS = (min(FLANGE_D / 2, 13.75 / 2) - TOL_GT5 / 2, max(FLANGE_D / 2, 13.75 / 2) + TOL_GT5 / 2)
 THREAD_LEN = 6.6
 SEAT_Z = 0.05                      # ASSUMED: jack body seating height spread after hand soldering
+CONCENTRICITY = 0.10               # ASSUMED: thread axis to leg-pattern centre; SAMZO gives none (measure before cutting)
+NUT_WASHER = 3.5                   # ASSUMED: toothed washer + nut thickness; the drawing gives neither (caliper)
 STANDOFF = 0.1                     # ASSUMED: standoff height and position tolerance (printed or machined)
 M3_PLAY = (3.2 - 3.0) / 2          # M3 screw in the 3.2 mm NPTH
 PROCESS = {  # ASSUMED, stated: hole position, hole diameter, systematic undersize
     'laser_or_machined_metal': {'pos': 0.10, 'dia': 0.10, 'undersize': 0.0},
-    'resin_or_fdm_print': {'pos': 0.15, 'dia': 0.15, 'undersize': 0.10},
+    'resin_or_fdm_print': {'pos': 0.15, 'dia': 0.15, 'undersize': 0.20},
 }
 DESIGN = {  # the rules in README.md
-    'hole_dia': {'laser_or_machined_metal': 12.5, 'resin_or_fdm_print': 12.7},
-    'wall': 2.0, 'edge_relief_depth': 0.6, 'slot_float_y': 1.3, 'slot_float_z': 0.6,
+    'hole_dia': {'laser_or_machined_metal': 12.7, 'resin_or_fdm_print': 12.7},
+    'wall': 2.0, 'edge_relief_depth': 0.6, 'edge_relief_above_board_top': 0.3, 'slot_float_y': 1.3, 'slot_float_z': 0.6,
 }
 
 float_min = (HOLE[0] - LEG[1]) / 2   # each jack's travel in its holes, per axis, worst tight
@@ -59,10 +61,10 @@ def hole_needed(proc, method):
     p = PROCESS[proc]
     if method == 'jig':
         # each jack follows its plate hole within its float; only the excess has to be cleared by the hole
-        radial = max(0.0, p['pos'] + HOLE_POS - float_min)
+        radial = max(0.0, p['pos'] + HOLE_POS + CONCENTRICITY - float_min)
     else:
         # jacks soldered wherever their float left them; the plate sees their full spread (x) and seating (z)
-        radial = float_max + HOLE_POS + p['pos'] + SEAT_Z
+        radial = float_max + HOLE_POS + p['pos'] + SEAT_Z + CONCENTRICITY
     return THREAD + 2 * radial + p['dia'] + p['undersize'], radial
 
 
@@ -85,8 +87,9 @@ def check():
             # smallest flange ring left bearing on the plate, on the worst side (hole made at its largest)
             ring = (FLANGE_D - TOL_GT5 - (d + PROCESS[proc]['dia'])) / 2 - radial
             good = need <= d and ring > 0
+            # Metal is required at the jacks (README), so the printed rows are shown for comparison only.
             add(f'{proc} / {method}: hole Ø needed vs Ø{d:g}', need, d, good,
-                f'flange ring left on the worst side {ring:.2f} mm', method == 'jig')
+                f'flange ring left on the worst side {ring:.2f} mm', method == 'jig' and proc != 'resin_or_fdm_print')
     # Board edge vs the plate's inside face (= the flange front faces). Jig: the jack is pulled forward
     # against the plate, so the tightest float is on our side; soldered first: it may sit anywhere.
     for method, gain in (('jig', -float_min), ('soldered_first', float_max)):
@@ -99,9 +102,14 @@ def check():
     add('plate y travel vs tray (slot float each side)', y, DESIGN['slot_float_y'], y <= DESIGN['slot_float_y'], '')
     z = STANDOFF + (BOARD_T[1] - BOARD_T[0]) / 2 + (AXIS[1] - AXIS[0]) / 2 + SEAT_Z
     add('plate z travel vs tray (slot float each side)', z, DESIGN['slot_float_z'], z <= DESIGN['slot_float_z'], '')
-    left = THREAD_LEN - DESIGN['wall']
-    add('thread left for toothed washer + nut', left, 0.0, left > 0,
-        'scaled 6.6 mm thread minus the wall; caliper the nut and washer before cutting')
+    left = THREAD_LEN - TOL_GT5 - DESIGN['wall']
+    add('thread left at the shortest thread vs washer + nut', left, NUT_WASHER, left >= NUT_WASHER,
+        f'(6.6 - 0.35) mm thread minus the wall, against an assumed {NUT_WASHER:g} mm washer + nut; caliper both')
+    # The relief must cover the board edge wherever the plate floats: the board top sits on the jack's datum, so
+    # its height against the plate varies with the axis-height spread and the seating.
+    above = (AXIS[1] - AXIS[0]) / 2 + SEAT_Z
+    add('relief top edge above the board top', above, DESIGN['edge_relief_above_board_top'],
+        above <= DESIGN['edge_relief_above_board_top'], 'axis-height spread / 2 + seating')
     out['pass'] = bool(ok)
     return out
 
