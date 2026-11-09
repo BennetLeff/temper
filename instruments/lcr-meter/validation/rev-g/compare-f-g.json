@@ -1,0 +1,645 @@
+{
+ "rev_f": "study/lcr-in-box",
+ "rev_f_commit": "9861d26c7",
+ "outline_mm": {
+  "f": [
+   100,
+   100
+  ],
+  "g": [
+   100,
+   110
+  ]
+ },
+ "board": {
+  "f": {
+   "footprints": 251,
+   "segments": 1736,
+   "arcs": 0,
+   "vias": 439,
+   "teardrops": 994,
+   "nets": 168
+  },
+  "g": {
+   "footprints": 281,
+   "segments": 1900,
+   "arcs": 0,
+   "vias": 464,
+   "teardrops": 1152,
+   "nets": 180
+  },
+  "refs_added_in_g": [
+   "C119",
+   "C120",
+   "C121",
+   "C122",
+   "D21",
+   "D22",
+   "D23",
+   "D24",
+   "D25",
+   "D26",
+   "D27",
+   "D28",
+   "Q7",
+   "R122",
+   "R123",
+   "R124",
+   "R125",
+   "R126",
+   "R127",
+   "R128",
+   "R129",
+   "R130",
+   "R131",
+   "R132",
+   "R133",
+   "R134",
+   "R135",
+   "U18",
+   "U19",
+   "U20",
+   "U21"
+  ],
+  "refs_removed_in_g": [
+   "J6"
+  ]
+ },
+ "cost_5_boards": {
+  "f": {
+   "totals": {
+    "economic": 358.17,
+    "standard": 462.91,
+    "jlc_hand_fit": 31.07
+   },
+   "economic": {
+    "SMT parts": 221.91,
+    "SMT joints": 5.21,
+    "X-ray": 12.3,
+    "Confirm placement": 0.45,
+    "PCB fabrication": 25.7,
+    "Setup": 8.18,
+    "Stencil": 1.53,
+    "Extended-part fee": 82.89
+   },
+   "board_counts": {
+    "placements": 216,
+    "smt_joints": 651,
+    "leadless": [
+     "U1",
+     "U13",
+     "U14"
+    ],
+    "tht_joints": 20
+   },
+   "extended_lines": 27,
+   "basic_or_preferred_lines": 42,
+   "lines": 71,
+   "fab_usd": 25.7,
+   "parts_smt_usd": 221.91,
+   "parts_hand_usd": 25.85,
+   "stock_findings": []
+  },
+  "g": {
+   "totals": {
+    "economic": 411.22,
+    "standard": 522.08,
+    "jlc_hand_fit": 31.07
+   },
+   "economic": {
+    "SMT parts": 238.11,
+    "SMT joints": 5.78,
+    "X-ray": 12.3,
+    "Confirm placement": 0.45,
+    "PCB fabrication": 49.7,
+    "Setup": 8.18,
+    "Stencil": 1.53,
+    "Extended-part fee": 95.17
+   },
+   "board_counts": {
+    "placements": 247,
+    "smt_joints": 723,
+    "leadless": [
+     "U1",
+     "U13",
+     "U14"
+    ],
+    "tht_joints": 20
+   },
+   "extended_lines": 31,
+   "basic_or_preferred_lines": 46,
+   "lines": 79,
+   "fab_usd": 49.7,
+   "parts_smt_usd": 238.11,
+   "parts_hand_usd": 25.85,
+   "stock_findings": []
+  },
+  "prices": "jlc-parts-2026-11-09.json"
+ },
+ "parasitics_pf": {
+  "f": {
+   "board_sha256": "056dd18407aceda4ae1ef3ef553b541d2acb7aed26340569ad6edcc4b8aa0e57",
+   "grid_uncertainty": 0.219,
+   "nodes": {
+    "source (SOURCE_BUF + selected RG)": {
+     "nom": 6.19,
+     "high": 11.68
+    },
+    "tia (TIA_OUT + selected RF)": {
+     "nom": 8.03,
+     "high": 14.02
+    },
+    "sum (TIA_SUM)": {
+     "nom": 0.68,
+     "high": 0.86
+    },
+    "sum <-> tia": {
+     "nom": 0.25,
+     "high": 0.4
+    },
+    "low (DUT_LO)": {
+     "nom": 7.95,
+     "high": 14.42
+    },
+    "hi (DUT_HI)": {
+     "nom": 11.86,
+     "high": 19.38
+    },
+    "HPOT": {
+     "nom": 4.5,
+     "high": 7.01
+    },
+    "LPOT": {
+     "nom": 5.29,
+     "high": 8.76
+    }
+   }
+  },
+  "g1_limit_high_pf": {
+   "source (SOURCE_BUF + selected RG)": 13.7,
+   "tia (TIA_OUT + selected RF)": 14.7
+  },
+  "g": {
+   "board_sha256": "b956ee70254f9146dc049c4c5bacf0c03a0b66f7b0833157d5d599e2451d981d",
+   "grid_uncertainty": 0.347,
+   "nodes": {
+    "source (SOURCE_BUF + selected RG)": {
+     "nom": 6.22,
+     "high": 13.03,
+     "high_at_u_ref": 11.8
+    },
+    "tia (TIA_OUT + selected RF)": {
+     "nom": 8.2,
+     "high": 15.95,
+     "high_at_u_ref": 14.44
+    },
+    "sum (TIA_SUM)": {
+     "nom": 0.71,
+     "high": 0.99,
+     "high_at_u_ref": 0.9
+    },
+    "sum <-> tia": {
+     "nom": 0.25,
+     "high": 0.41,
+     "high_at_u_ref": 0.37
+    },
+    "low (DUT_LO)": {
+     "nom": 4.24,
+     "high": 10.19,
+     "high_at_u_ref": 9.23
+    },
+    "hi (DUT_HI)": {
+     "nom": 6.13,
+     "high": 12.89,
+     "high_at_u_ref": 11.67
+    },
+    "HPOT": {
+     "nom": 1.9,
+     "high": 4.5,
+     "high_at_u_ref": 4.07
+    },
+    "LPOT": {
+     "nom": 2.04,
+     "high": 4.85,
+     "high_at_u_ref": 4.39
+    }
+   },
+   "u_ref": 0.219
+  }
+ },
+ "stability_360": {
+  "f": {
+   "drive": {
+    "cases": 90,
+    "worst_pm_deg": 47.76,
+    "min_abs_1_plus_t": 0.594
+   },
+   "high": {
+    "cases": 90,
+    "worst_pm_deg": 57.57,
+    "min_abs_1_plus_t": 0.201
+   },
+   "low": {
+    "cases": 90,
+    "worst_pm_deg": 56.61,
+    "min_abs_1_plus_t": 0.65
+   },
+   "tia": {
+    "cases": 90,
+    "worst_pm_deg": 57.28,
+    "min_abs_1_plus_t": 0.494
+   }
+  },
+  "g": {
+   "drive": {
+    "cases": 90,
+    "worst_pm_deg": 47.41,
+    "min_abs_1_plus_t": 0.595
+   },
+   "high": {
+    "cases": 90,
+    "worst_pm_deg": 57.81,
+    "min_abs_1_plus_t": 0.71
+   },
+   "low": {
+    "cases": 90,
+    "worst_pm_deg": 57.04,
+    "min_abs_1_plus_t": 0.701
+   },
+   "tia": {
+    "cases": 90,
+    "worst_pm_deg": 69.71,
+    "min_abs_1_plus_t": 0.701
+   }
+  }
+ },
+ "surge_1uF_lowest_class_a_v": {
+  "f": {
+   "v": 0.5,
+   "target_30v_met": false
+  },
+  "g": {
+   "v": 50,
+   "target_30v_met": true
+  }
+ },
+ "accuracy_lcr6100_1m": {
+  "linear": {
+   "f": {
+    "✓": 144,
+    "~": 22,
+    "✗": 43
+   },
+   "g": {
+    "✓": 144,
+    "~": 22,
+    "✗": 43
+   }
+  },
+  "drift": {
+   "f": {
+    "✓": 144,
+    "~": 22,
+    "✗": 43
+   },
+   "g": {
+    "✓": 144,
+    "~": 22,
+    "✗": 43
+   }
+  },
+  "level": {
+   "f": {
+    "✓": 144,
+    "~": 22,
+    "✗": 43
+   },
+   "g": {
+    "✓": 144,
+    "~": 23,
+    "✗": 42
+   }
+  }
+ },
+ "signal_100_range": {
+  "i_short_ma": [
+   10.059,
+   8.901
+  ],
+  "snr_loss_db": 1.06
+ },
+ "envelope": {
+  "f": {
+   "board_mm": [
+    100.05,
+    100.05
+   ],
+   "tallest_top_mm": 13.75,
+   "holes": {
+    "holes": [
+     {
+      "ref": "H3",
+      "x": 54.0,
+      "y": 141.0,
+      "drill": 3.2,
+      "nearest_parts_mm": [
+       [
+        3.93,
+        "U3",
+        1.55
+       ],
+       [
+        6.91,
+        "C17",
+        1.25
+       ],
+       [
+        7.0,
+        "C18",
+        1.25
+       ]
+      ],
+      "parts_clear_of_m3_hardware": true,
+      "nearest_copper_mm": {
+       "F.Cu": [
+        4.13,
+        "track/via 5V"
+       ],
+       "B.Cu": [
+        1.8,
+        "zone GND"
+       ]
+      },
+      "outer_copper_clear_of_m3_hardware": false
+     },
+     {
+      "ref": "H2",
+      "x": 146.0,
+      "y": 54.0,
+      "drill": 3.2,
+      "nearest_parts_mm": [
+       [
+        5.48,
+        "K4",
+        5.6
+       ],
+       [
+        6.25,
+        "J9",
+        13.75
+       ],
+       [
+        16.75,
+        "D9",
+        1.11
+       ]
+      ],
+      "parts_clear_of_m3_hardware": true,
+      "nearest_copper_mm": {
+       "F.Cu": [
+        5.58,
+        "pad FID2 "
+       ],
+       "B.Cu": [
+        8.06,
+        "pad J9 GND"
+       ]
+      },
+      "outer_copper_clear_of_m3_hardware": true
+     },
+     {
+      "ref": "H4",
+      "x": 146.0,
+      "y": 141.0,
+      "drill": 3.2,
+      "nearest_parts_mm": [
+       [
+        4.1,
+        "C81",
+        0.8
+       ],
+       [
+        4.27,
+        "R80",
+        0.45
+       ],
+       [
+        5.33,
+        "R119",
+        0.45
+       ]
+      ],
+      "parts_clear_of_m3_hardware": true,
+      "nearest_copper_mm": {
+       "F.Cu": [
+        3.3,
+        "track/via GND"
+       ],
+       "B.Cu": [
+        1.8,
+        "zone GND"
+       ]
+      },
+      "outer_copper_clear_of_m3_hardware": false
+     },
+     {
+      "ref": "H1",
+      "x": 54.0,
+      "y": 54.0,
+      "drill": 3.2,
+      "nearest_parts_mm": [
+       [
+        6.25,
+        "J3",
+        13.75
+       ],
+       [
+        6.5,
+        "R12",
+        0.45
+       ],
+       [
+        7.68,
+        "D4",
+        0.61
+       ]
+      ],
+      "parts_clear_of_m3_hardware": true,
+      "nearest_copper_mm": {
+       "F.Cu": [
+        4.6,
+        "pad FID1 "
+       ],
+       "B.Cu": [
+        5.45,
+        "track/via STATUS"
+       ]
+      },
+      "outer_copper_clear_of_m3_hardware": true
+     }
+    ],
+    "pattern_mm": [
+     92.0,
+     87.0
+    ],
+    "clear_radius_assumed_mm": 3.5
+   }
+  },
+  "g": {
+   "board_mm": [
+    100.05,
+    110.05
+   ],
+   "tallest_top_mm": 13.75,
+   "holes": {
+    "holes": [
+     {
+      "ref": "H2",
+      "x": 146.0,
+      "y": 54.0,
+      "drill": 3.2,
+      "nearest_parts_mm": [
+       [
+        4.52,
+        "R129",
+        0.45
+       ],
+       [
+        6.25,
+        "J9",
+        13.75
+       ],
+       [
+        8.57,
+        "U21",
+        2.3
+       ]
+      ],
+      "parts_clear_of_m3_hardware": true,
+      "nearest_copper_mm": {
+       "F.Cu": [
+        3.61,
+        "track/via JACK_LC"
+       ],
+       "B.Cu": [
+        3.5,
+        "track/via JK_HPOT"
+       ]
+      },
+      "outer_copper_clear_of_m3_hardware": true
+     },
+     {
+      "ref": "H3",
+      "x": 54.0,
+      "y": 151.0,
+      "drill": 3.2,
+      "nearest_parts_mm": [
+       [
+        3.93,
+        "U3",
+        1.55
+       ],
+       [
+        6.91,
+        "C17",
+        1.25
+       ],
+       [
+        7.0,
+        "C18",
+        1.25
+       ]
+      ],
+      "parts_clear_of_m3_hardware": true,
+      "nearest_copper_mm": {
+       "F.Cu": [
+        4.13,
+        "track/via GND"
+       ],
+       "B.Cu": [
+        1.8,
+        "zone GND"
+       ]
+      },
+      "outer_copper_clear_of_m3_hardware": false
+     },
+     {
+      "ref": "H4",
+      "x": 146.0,
+      "y": 151.0,
+      "drill": 3.2,
+      "nearest_parts_mm": [
+       [
+        4.1,
+        "C81",
+        0.8
+       ],
+       [
+        4.27,
+        "R80",
+        0.45
+       ],
+       [
+        5.33,
+        "R119",
+        0.45
+       ]
+      ],
+      "parts_clear_of_m3_hardware": true,
+      "nearest_copper_mm": {
+       "F.Cu": [
+        3.3,
+        "track/via GND"
+       ],
+       "B.Cu": [
+        1.8,
+        "zone GND"
+       ]
+      },
+      "outer_copper_clear_of_m3_hardware": false
+     },
+     {
+      "ref": "H1",
+      "x": 54.0,
+      "y": 54.0,
+      "drill": 3.2,
+      "nearest_parts_mm": [
+       [
+        4.8,
+        "R126",
+        0.45
+       ],
+       [
+        4.84,
+        "C121",
+        0.8
+       ],
+       [
+        6.25,
+        "J3",
+        13.75
+       ]
+      ],
+      "parts_clear_of_m3_hardware": true,
+      "nearest_copper_mm": {
+       "F.Cu": [
+        4.76,
+        "zone JACK_HC"
+       ],
+       "B.Cu": [
+        5.0,
+        "track/via JACK_HC"
+       ]
+      },
+      "outer_copper_clear_of_m3_hardware": true
+     }
+    ],
+    "pattern_mm": [
+     92.0,
+     97.0
+    ],
+    "clear_radius_assumed_mm": 3.5
+   }
+  }
+ }
+}

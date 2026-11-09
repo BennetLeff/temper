@@ -1,0 +1,23 @@
+{
+ "qty": 5,
+ "lines": {
+  "Engineering fee": 25.0,
+  "Via Covering": 0.0,
+  "Surface finish (ENIG 1 u\")": 17.9,
+  "Board": 6.8
+ },
+ "total_usd": 49.7,
+ "source": "https://cart.jlcpcb.com/quote, read 2026-11-09 in Chrome, signed out, no Gerber uploaded, nothing added to cart; lines re-read as page text the same day (ENIG is $17.90 at 100 x 110, $17.70 at 100 x 100)",
+ "options": "FR-4, 4 layers, 100 x 110 mm, qty 5, 1 design, single PCB, 1.6 mm, green/white, FR4 TG135, ENIG 1 u\", 1 oz outer / 0.5 oz inner, via covering Plugged (page default), 0.3 mm/(0.4/0.45 mm) min via, +-0.2 mm outline, flying-probe test, 3-4 day build (the options of manufacturing/fab-quote.json, height 110)",
+ "same_page_same_day_100x100": {
+  "lines": {
+   "Special Offer": 8.0,
+   "Via Covering": 0.0,
+   "Surface finish (ENIG 1 u\")": 17.7
+  },
+  "total_usd": 25.7,
+  "note": "Rev F's outline; unchanged from the 2026-10-29 / 2026-10-30 quotes in manufacturing/fab-quote.json"
+ },
+ "finding": "Past 100 x 100 mm the special offer ends: a $25.00 engineering fee and a $6.80 board line replace the $8.00 offer, and ENIG rises $0.20: +$24.00 per order of 5.",
+ "note": "Price read only. Shipping, tax and coupons excluded. Re-quote with the Gerbers at upload."
+}

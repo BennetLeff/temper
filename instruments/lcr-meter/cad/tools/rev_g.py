@@ -10,7 +10,7 @@ then:
   * Netlist: the jacks become JK_HCUR / JK_HPOT / JK_LPOT / JK_LCUR, each behind a TVS and a normally-open
     TLP172AM photoMOS and a series resistor; R105 / R106 / R107 and K4 (both poles) on the jack side;
     second-stage clamps on DUT_HI / HPOT / LPOT / DUT_LO; residual-voltage senses on GPIO 28 / 29; the LED
-    drive on GPIO 15; the UART header on GPIO 0 / 1.  Values and the screens behind them:
+    drive on GPIO 15; the UART header J6 dropped (docs/rev-g-plan.md).  Values and the screens behind them:
     validation/rev-g-protection/README.md; decisions: docs/rev-g-plan.md.
   * cad/tools/rev_g_routes.py adds the band copper by coordinates (no autorouter, no path search), then the
     craft passes, GND pours, silk and fab notes run as in Rev F.

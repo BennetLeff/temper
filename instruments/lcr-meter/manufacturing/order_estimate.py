@@ -31,9 +31,13 @@ N = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 MFG = ROOT / 'manufacturing'
 # LCR_MFG_DIR names another folder holding the BOM/CPL and receiving the estimate (Rev E's archived
 # package: LCR_MFG_DIR=manufacturing/rev-e LCR_FAB_QUOTE=manufacturing/rev-e/fab-quote.json); LCR_FAB_QUOTE
-# a JSON quote file replacing manufacturing/fab-quote.json. The price snapshot stays in manufacturing/prices/.
+# a JSON quote file replacing manufacturing/fab-quote.json. LCR_PRICES names another price snapshot (default
+# manufacturing/prices/jlc-parts-2026-10-30.json) and LCR_BOARD another board for the joint counts (Rev G's
+# comparison with Rev F: validation/rev-g/compare_f_g.sh).
 import os
 PKG = ROOT / os.environ['LCR_MFG_DIR'] if os.environ.get('LCR_MFG_DIR') else MFG
+PRICES = ROOT / os.environ.get('LCR_PRICES', 'manufacturing/prices/jlc-parts-2026-10-30.json')
+BOARD = ROOT / os.environ.get('LCR_BOARD', 'cad/temper-lcr.kicad_pcb')
 
 # JLC fabrication quote, read 2026-10-29 (fab-quote.json): 4 layers, 100 x 100 mm, qty 5, 1.6 mm,
 # FR4 TG 135-140, JLC04161H-7628, 1 oz outer / 0.5 oz inner, ENIG 1 u", 0.3 mm vias, no POFV.  At
@@ -43,13 +47,13 @@ FAB_QUOTE = json.loads((ROOT / os.environ.get('LCR_FAB_QUOTE', 'manufacturing/fa
 
 
 def board_counts():
-    board = kicad.load_board(ROOT / 'cad/temper-lcr.kicad_pcb')
+    board = kicad.load_board(BOARD)
     placed = {row['Designator'] for row in csv.DictReader(open(PKG / 'cpl-jlcpcb.csv'))}
     return kicad.joint_counts(board, placed, order.LEADLESS)
 
 
 def main():
-    snapshot = json.loads((MFG / 'prices/jlc-parts-2026-10-30.json').read_text())['parts']
+    snapshot = json.loads(PRICES.read_text())['parts']
     placements, smt_joints, leadless, tht_joints, tht_refs = board_counts()
     lines, findings = [], []
     for row in csv.DictReader(open(PKG / 'bom-complete.csv')):

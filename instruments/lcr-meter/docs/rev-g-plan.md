@@ -4,7 +4,9 @@ Rev G is Rev F with a protection network on the four BNC jacks: one normally ope
 
 **Status (2026-11-09): laid out, hand-routed, every board gate clean, extracted and stable, independently reviewed (no blocker; both MAJOR items dispositioned; the MAJOR-1 fix re-checked clean). Not orderable yet.** These steps remain before ordering:
 - JLC's placement preview;
-- any Rev F bring-up finding on the nodes Rev G touches.
+- any Rev F bring-up finding on the nodes Rev G touches. Rev F is not ordered, so this item is blocked; [bring-up-rev-g.md](bring-up-rev-g.md) prepares it.
+
+Against Rev F: [rev-g-before-after.md](rev-g-before-after.md) (+$53 for five boards, the same accuracy, a charged-part limit of 50 V against 0.5 V).
 
 `manufacturing/` and `previews/` on this branch stay Rev F. The Rev G evidence is in `../validation/rev-g/`. Rev F stays intact and orderable on `study/lcr-in-box`.
 
@@ -61,7 +63,7 @@ The board's analog copper was frozen at `b956ee70…981d`. Two later changes fol
 | Layout audit, edge clearance, pours | written; edge copper ≥ 0.50 mm on the V-cut edges (Rev F's) | `../validation/layout-audit-rev-g.json`, `../validation/rev-g/{edge-clearance,pour-report}.json` |
 | CPL rotations (`placement_offsets.py`) | TLP172AM 270° (RMS 0.05 mm, next 4.84 mm); H4V5HD3B 0° (0.02); H3V3LD5B 0° (0.05); BAV99 180° (0.28: LCSC's wide SOT-23 land, below); Q7 as Q6 | `../sources/placement-rev-c.json` |
 | Stability, Rev F board parasitics + Rev G network lumped (`revgcng100`), rerun with the 1.5 MΩ sense | worst drive 47.76°, HIGH 57.90°, LOW 57.17°, TIA 69.92°, the same as with 1 MΩ | `../validation/stability-full-chain/summary-revgcng100.md` |
-| Parasitic extraction of the Rev G board (`run_reve.sh revg`; whole board and band / corner / vert zooms new, Rev F's U7 / relay / hiside zooms reused since `copper-shift-delta.json` finds them unchanged) | board nodes behind the switches lighter than Rev F (nominal DUT_HI 6.13 pF vs 11.86, DUT_LO 4.24 vs 7.95, HPOT 1.90 vs 4.51, LPOT 2.04 vs 5.29); grid uncertainty ±35 % (Rev F ±22 %; set by a 0.004 pF DUT_HI–HPOT mutual) | `../validation/layout-parasitics/extracted_revg.json` |
+| Parasitic extraction of the Rev G board (`run_reve.sh revg`; whole board and band / corner / vert zooms new, Rev F's U7 / relay / hiside zooms reused since `copper-shift-delta.json` finds them unchanged) | board nodes behind the switches lighter than Rev F (nominal DUT_HI 6.13 pF vs 11.86, DUT_LO 4.24 vs 7.95, HPOT 1.90 vs 4.51, LPOT 2.04 vs 5.29); grid uncertainty ±35 % (Rev F ±22 %; set by a 0.004 pF DUT_HI–HPOT mutual). Gate G1 at the high corner: source 13.03 ≤ 13.7 pF, but **tia 15.95 > 14.7 pF at Rev G's own U**. At Rev F's U it is 11.80 / 14.44 pF, both within the limits (`../docs/rev-g-before-after.md` §3, decision below) | `../validation/layout-parasitics/extracted_revg.json`, `../validation/rev-g/compare-f-g.json` |
 | Stability on the extracted Rev G board (`revgxcng100`, 360 cases) | worst drive 47.41°, HIGH 57.81°, LOW 57.04°, TIA 69.71°; no upward crossings (Rev F 47.76 / 57.57 / 56.61 / 57.28°; Rev E drive 46.83°) | `../validation/stability-full-chain/summary-revgxcng100.md` |
 
 ## 3. Enclosure
@@ -115,8 +117,17 @@ The board grows 10 mm toward the back, and the front face does not change:
 | 2026-11-09 | **Review re-check (same reviewer, fresh export of the final board; `../validation/rev-g/independent-recheck-2026-11-09.md`): MAJOR-1 resolved, nothing else moved** | The only copper changes against the reviewed board are the four TVS returns (8 segments widened to 0.5 mm, 4 links, 4 tented 0.30 / 0.60 GND vias). Footprints, pours, rule areas, outline, nets and rules are identical. Each via sits in solid In1 GND (single fill, no islands). The nearest non-GND copper is ISO_SINK on In2 at 0.80 mm and JK_HCUR on B.Cu at 0.90 mm. DRC with the project file: 0 violations, 0 unconnected. One new cosmetic note: the D21–D24 reference text now sits over each tented via. Accepted: silk on mask-covered copper prints normally, and pad-to-silk is still 0 pairs under 0.15 mm |
 | 2026-11-09 | **Evidence in `validation/rev-g/`; `manufacturing/` and `previews/` stay Rev F until the review passes** | As Rev F did before its promotion (`rev-f-plan.md` §5, 2026-10-29): a study branch does not leave an orderable package for an unreviewed board. The BOM / CPL / orientation CSVs are kept there as evidence (no Gerbers) |
 | 2026-11-09 | **Protection screen, accuracy and stability models carry the 1.5 MΩ sense** (`protection_screen.py` `parts_jackside`) | The models describe the board as built |
+| 2026-11-09 | **Rev F / Rev G comparison: `rev-g-before-after.md`, every number from `validation/rev-g/compare_f_g.sh`** | It prices both BOMs from one same-day JLC snapshot, and reads the bare-board prices from JLC's quote page (signed out, nothing uploaded or added to the cart). Result: +$53.05 for five boards (Rev F $358.17, Rev G $411.22 economic). $24.00 of that is the bare-board step past 100 × 100 mm (a $25 engineering fee replaces the $8 special offer), $16.20 is parts and $12.28 is four extended-line fees. Accuracy verdicts are the same. Stability is within 0.35° in drive, and the TIA gains 12.4°. The charged-part limit rises from 0.5 V to 50 V. `manufacturing/order_estimate.py` takes `LCR_PRICES` / `LCR_BOARD` for this; its defaults are unchanged |
+| 2026-11-09 | **G1 tia at Rev G's own grid uncertainty (15.95 pF > 14.7) accepted: the stability matrix on the same wider corners is the controlling evidence, and it passes** | The excess comes from the U rule in `assemble_reve.py`, not from the copper. That rule takes the largest relative spread over every term, so one 0.004 pF DUT_HI–HPOT mutual (×1.62, about 0.001 pF absolute) widens every node's corners from ±22 % to ±35 %. At Rev F's U the node reads 14.44 pF. The fix belongs in the method, not the board (open item 3) |
 
 ## 6. Open items before Rev G is orderable
 
 1. **Placement preview** at JLC: D28 pin 3 toward DUT_LO; U18–U21 pin 1 (anode) orientation; D4 and Y1 as on Rev F.
-2. **Rev F bring-up** findings on the band nodes; confirm the TLP172AM COFF and the TVS capacitances (`rev-g-protection/README.md`, "Open items").
+2. **Rev F bring-up** findings on the band nodes; confirm the TLP172AM COFF and the TVS capacitances (`rev-g-protection/README.md`, "Open items"). **Blocked: Rev F has not been ordered (2026-11-09), so there is no board to bring up.** [bring-up-rev-g.md](bring-up-rev-g.md) has the preparation:
+   - Part A maps every Rev F bring-up step to its Rev G consequence;
+   - it explains how a Rev F fix reaches Rev G (`rev_g.py` executes `rev_f.py`; then `copper_shift_delta.sh`, the gates and a fresh review);
+   - it gives the three part measurements Rev F can make for Rev G;
+   - Part B lists the Rev G-only steps.
+
+   **The ordering choice is the owner's.** Rev G contains all of Rev F's circuit, so a Rev G board exercises every Rev F bring-up step except three that Rev G changes: §7's reference path, the unpowered ESD knee and AFE-07. Ordering Rev G instead of Rev F, rather than both, saves a spin; it costs $53 more than Rev F alone.
+3. **Grid-uncertainty rule (method, not board):** in `assemble_reve.py`, leave couplings below 0.01 pF out of U, the threshold that already decides whether a pair gets its own factor. Then rerun the assembly for Rev E, F and G, and the four stability matrices. It moves the corners toward nominal, inside the range the matrices have already run. It does not block an order.
