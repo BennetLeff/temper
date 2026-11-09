@@ -171,8 +171,11 @@ def codec_vecs():
     return vecs
 
 
-def deck(scn, power, rng, c, v, res_ser=0.0, esd_is=ESD_IS):
-    """res_ser: an optional series resistor at the HPOT and LPOT follower inputs (protection option A)."""
+def deck(scn, power, rng, c, v, res_ser=0.0, esd_is=ESD_IS, prot=None):
+    """res_ser: an optional series resistor at the HPOT and LPOT follower inputs (protection option A).
+    prot: an optional protection network, {'lines': [...], 'vecs': [...]}. The leads and cable capacitance then
+    land on jack nodes jk_hcur, jk_hpot, jk_lpot, jk_lcur, and the lines must connect those to the board nodes
+    dut_hi, hpot, lpot and dut_lo (validation/rev-g-protection/). Without it the deck is unchanged."""
     L = ['* charged DUT', f'.model DESD D(IS={esd_is:g} N=1 RS=2 CJO=1p)', '.model DCL D(IS=1e-12 N=1 RS=0.1)',
          'Vxclp xclp 0 16', 'Vxcln xcln 0 -16', 'Vexc excite 0 0']
     if power == 'powered':
@@ -196,6 +199,9 @@ def deck(scn, power, rng, c, v, res_ser=0.0, esd_is=ESD_IS):
     else:
         L += ['RGopen sbuf 0 1e12', 'RFopen tia_out 0 1e12']
     jacks = {'hcur': 'dut_hi', 'hpot': hp, 'lpot': lp, 'lcur': 'dut_lo'}
+    if prot:
+        jacks = {j: f'jk_{j}' for j in jacks}
+        L += prot['lines']
     touch = {'kelvin': {'hcur': 'h', 'hpot': 'h', 'lcur': 'l', 'lpot': 'l'},
              'sense_first': {'hpot': 'h', 'lpot': 'l'},
              'current_only': {'hcur': 'h', 'lcur': 'l'},
@@ -222,6 +228,8 @@ def deck(scn, power, rng, c, v, res_ser=0.0, esd_is=ESD_IS):
     for n in OPAMPS:
         vecs += [f'v({n}_pi)', f'v({n}_mi)'] + [f'i(Vam_{n}_{k})' for k in ('p', 'm', 'o', 'ep', 'en')]
     vecs += codec_vecs()
+    if prot:
+        vecs += prot.get('vecs', [])
     if res_ser:
         vecs += ['v(hpot_j)', 'v(lpot_j)']
     L += ['OPTIONS_LINE',
