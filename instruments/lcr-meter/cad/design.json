@@ -2651,7 +2651,7 @@
         "15": null,
         "16": "USB_SENSE",
         "17": "RNG_SET_REF",
-        "18": "ISO_EN",
+        "18": "ISO_DRIVE",
         "19": "GND",
         "20": "XIN",
         "21": "XOUT",
@@ -2673,8 +2673,8 @@
         "37": "STATUS",
         "38": "MON12",
         "39": "MON_N12",
-        "40": "SNS_HC",
-        "41": "SNS_LC",
+        "40": "JACK_HC",
+        "41": "JACK_LC",
         "42": "3V3",
         "43": "3V3",
         "44": "3V3",
@@ -8214,7 +8214,7 @@
       "footprint": "LCR:Toshiba_11-4M1S",
       "pins": {
         "1": "ISO_S1M",
-        "3": "ISO_DRV",
+        "3": "ISO_SINK",
         "4": "JK_HCUR",
         "6": "ISO_HCUR"
       },
@@ -8436,7 +8436,7 @@
       "footprint": "LCR:Toshiba_11-4M1S",
       "pins": {
         "1": "ISO_S2M",
-        "3": "ISO_DRV",
+        "3": "ISO_SINK",
         "4": "JK_LCUR",
         "6": "ISO_LCUR"
       },
@@ -8631,7 +8631,7 @@
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
         "1": "JK_HCUR",
-        "2": "SNS_HC"
+        "2": "JACK_HC"
       },
       "pcb": [
         59.2,
@@ -8646,7 +8646,7 @@
       "stock": null,
       "library_type": "preferred",
       "assembly": "SMT",
-      "source_query": "SNS_HC divider top, at the jack"
+      "source_query": "JACK_HC divider top, at the jack"
     },
     {
       "ref": "R127",
@@ -8654,7 +8654,7 @@
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
-        "1": "SNS_HC",
+        "1": "JACK_HC",
         "2": "3V3"
       },
       "pcb": [
@@ -8670,7 +8670,7 @@
       "stock": 163523,
       "library_type": "preferred",
       "assembly": "SMT",
-      "source_query": "SNS_HC bias to 3V3 (mid-scale)"
+      "source_query": "JACK_HC bias to 3V3 (mid-scale)"
     },
     {
       "ref": "R128",
@@ -8678,7 +8678,7 @@
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
-        "1": "SNS_HC",
+        "1": "JACK_HC",
         "2": "GND"
       },
       "pcb": [
@@ -8694,7 +8694,7 @@
       "stock": 163523,
       "library_type": "preferred",
       "assembly": "SMT",
-      "source_query": "SNS_HC divider bottom"
+      "source_query": "JACK_HC divider bottom"
     },
     {
       "ref": "C121",
@@ -8702,7 +8702,7 @@
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
-        "1": "SNS_HC",
+        "1": "JACK_HC",
         "2": "GND"
       },
       "pcb": [
@@ -8718,7 +8718,7 @@
       "stock": 38089472,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "SNS_HC filter, 11 ms with the divider"
+      "source_query": "JACK_HC filter, 11 ms with the divider"
     },
     {
       "ref": "R129",
@@ -8727,7 +8727,7 @@
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
         "1": "JK_LCUR",
-        "2": "SNS_LC"
+        "2": "JACK_LC"
       },
       "pcb": [
         141.5,
@@ -8742,7 +8742,7 @@
       "stock": null,
       "library_type": "preferred",
       "assembly": "SMT",
-      "source_query": "SNS_LC divider top, at the jack"
+      "source_query": "JACK_LC divider top, at the jack"
     },
     {
       "ref": "R130",
@@ -8750,7 +8750,7 @@
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
-        "1": "SNS_LC",
+        "1": "JACK_LC",
         "2": "3V3"
       },
       "pcb": [
@@ -8766,7 +8766,7 @@
       "stock": 163523,
       "library_type": "preferred",
       "assembly": "SMT",
-      "source_query": "SNS_LC bias to 3V3 (mid-scale)"
+      "source_query": "JACK_LC bias to 3V3 (mid-scale)"
     },
     {
       "ref": "R131",
@@ -8774,7 +8774,7 @@
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
-        "1": "SNS_LC",
+        "1": "JACK_LC",
         "2": "GND"
       },
       "pcb": [
@@ -8790,7 +8790,7 @@
       "stock": 163523,
       "library_type": "preferred",
       "assembly": "SMT",
-      "source_query": "SNS_LC divider bottom"
+      "source_query": "JACK_LC divider bottom"
     },
     {
       "ref": "C122",
@@ -8798,7 +8798,7 @@
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
-        "1": "SNS_LC",
+        "1": "JACK_LC",
         "2": "GND"
       },
       "pcb": [
@@ -8814,7 +8814,7 @@
       "stock": 38089472,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "SNS_LC filter, 11 ms with the divider"
+      "source_query": "JACK_LC filter, 11 ms with the divider"
     },
     {
       "ref": "R132",
@@ -8872,7 +8872,7 @@
       "pins": {
         "1": "ISO_G",
         "2": "GND",
-        "3": "ISO_DRV"
+        "3": "ISO_SINK"
       },
       "pcb": [
         77.45,
@@ -8895,7 +8895,7 @@
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
-        "1": "ISO_EN",
+        "1": "ISO_DRIVE",
         "2": "ISO_G"
       },
       "pcb": [

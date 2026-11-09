@@ -169,12 +169,12 @@ CANDIDATES = {
                        'r': {'hcur': 10.0, 'lcur': 10.0, 'hpot': 100.0, 'lpot': 100.0},
                        'tvs2': {'hcur': H3V3LD5B, 'hpot': H3V3LD5B, 'lpot': H3V3LD5B}, 'sch2': {'lcur': BAV99},
                        'cap2': {'hpot': 1e-9, 'lpot': 1e-9}, 'rcp_jack': True, 'ref_jack': True,
-                       'sense': {'hcur': 1e6, 'lcur': 1e6}, 'ref_bypass': True,
+                       'sense': {'hcur': 1.5e6, 'lcur': 1.5e6}, 'ref_bypass': True,
                        'note': '`parts` with R105 / R106 and the K4 + R107 reference on the jack side: the reference '
                                'current then takes the LCUR switch and 10 ohm, and the session check tracks them '
                                '(the surge deck has no K4; open, it is ~1 pF across the jacks); K4\'s free pole shorts '
                                'the HCUR and HPOT jacks during the check, so the HPOT side\'s capacitance drops out of '
-                               'it (no part added); plus the 1 MOhm residual-voltage sense on HCUR and LCUR'},
+                               'it (no part added); plus the 1.5 MOhm residual-voltage sense on HCUR and LCUR'},
     'iso_tvs2_lo': {'tvs': {j: TVS5 for j in JACKS}, 'iso': True,
                     'r': {'hcur': 10.0, 'lcur': 10.0, 'hpot': 100.0, 'lpot': 100.0},
                     'tvs2': {j: TVS3 for j in JACKS}, 'cap2': {'hpot': 1e-9, 'lpot': 1e-9},

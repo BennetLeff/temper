@@ -1,0 +1,248 @@
+Designator,MPN,LCSC,Native angle deg,Library offset deg,CPL angle deg,Pin1 board X mm,Pin1 board Y mm,Verification basis
+U1,RP2040,C2040,180,0,180.0,77.4375,136.1,LCSC EasyEDA pad-number audit; final JLC preview required
+U2,GD25Q16ESIGR,C2922792,0,270,270.0,70.4125,146.595,LCSC EasyEDA pad-number audit; final JLC preview required
+U3,AP2112K-3.3TRG1,C51118,0,270,270.0,55.7125,144.95,LCSC EasyEDA pad-number audit; final JLC preview required
+U5,OPA197IDBVR,C221351,0,180,180.0,69.3625,74.55,LCSC EasyEDA pad-number audit; final JLC preview required
+U6,OPA2810IDGKR,C2864204,90,270,0.0,85.525,78.1125,LCSC EasyEDA pad-number audit; final JLC preview required
+U7,OPA2810IDGKR,C2864204,90,270,0.0,113.525,82.1125,LCSC EasyEDA pad-number audit; final JLC preview required
+U11,TPS7A4901DGNR,C16430,0,270,270.0,127.85,109.025,LCSC EasyEDA pad-number audit; final JLC preview required
+U12,TPS7A3001DGNR,C33835,0,270,270.0,140.85,109.025,LCSC EasyEDA pad-number audit; final JLC preview required
+U13,TPS65131RGER,C87663,90,0,90.0,136.25,146.9875,LCSC EasyEDA pad-number audit; final JLC preview required
+D2,SS14,C2480,0,0,0.0,128.5,146.0,LCSC EasyEDA pad-number audit; final JLC preview required
+D3,SS14,C2480,90,0,90.0,140.5,140.0,LCSC EasyEDA pad-number audit; final JLC preview required
+L1,FNR5040S4R7MT,C167963,90,0,90.0,131.5,153.05,LCSC EasyEDA pad-number audit; final JLC preview required
+L2,FNR5040S4R7MT,C167963,0,0,0.0,144.65,140.0,LCSC EasyEDA pad-number audit; final JLC preview required
+FB1,GZ2012D101TF,C1015,90,0,90.0,53.0,98.0625,LCSC EasyEDA pad-number audit; final JLC preview required
+Y1,ABM8-272-T3,C20625731,0,0,0.0,73.9,123.85,LCSC EasyEDA pad-number audit; final JLC preview required
+SW1,TS-1088-AR02016,C720477,0,0,0.0,82.975,153.1,LCSC EasyEDA pad-number audit; final JLC preview required
+SW2,TS-1088-AR02016,C720477,180,0,180.0,95.225,148.6,LCSC EasyEDA pad-number audit; final JLC preview required
+D4,LTST-S270KFKT,C160472,0,0,0.0,54.0,45.95,LCSC EasyEDA pad-number audit; final JLC preview required
+J1,TYPE-C-31-M-12,C165948,-90,0,270.0,,,LCSC EasyEDA pad-number audit; final JLC preview required
+D1,SRV05-4,C7420376,0,270,270.0,61.8625,131.05,LCSC EasyEDA pad-number audit; final JLC preview required
+R1,0603WAF5101T5E,C23186,0,0,0.0,61.175,122.0,Nonpolar R/C; native angle retained
+R2,0603WAF5101T5E,C23186,0,0,0.0,61.175,125.0,Nonpolar R/C; native angle retained
+R3,0603WAF270JT5E,C25190,90,0,90.0,76.0,140.325,Nonpolar R/C; native angle retained
+R4,0603WAF270JT5E,C25190,90,0,90.0,78.0,140.325,Nonpolar R/C; native angle retained
+R5,0603WAF1003T5E,C25803,0,0,0.0,83.175,125.5,Nonpolar R/C; native angle retained
+R6,0603WAF1003T5E,C25803,0,0,0.0,83.175,128.5,Nonpolar R/C; native angle retained
+R7,0603WAF1002T5E,C25804,0,0,0.0,78.175,152.5,Nonpolar R/C; native angle retained
+R8,0603WAF1001T5E,C21190,0,0,0.0,67.175,153.5,Nonpolar R/C; native angle retained
+R9,0603WAF1002T5E,C25804,0,0,0.0,63.175,141.5,Nonpolar R/C; native angle retained
+R10,0603WAF1001T5E,C21190,90,0,90.0,71.0,123.325,Nonpolar R/C; native angle retained
+R12,0603WAF3900T5E,C23151,90,0,90.0,57.7,48.425,Nonpolar R/C; native angle retained
+R13,0603WAF330JT5E,C23140,0,0,0.0,72.675,143.5,Nonpolar R/C; native angle retained
+R33,AR03BTCX2001,C318130,0,0,0.0,70.675,71.5,Nonpolar R/C; native angle retained
+R40,RT0603BRD07100RL,C122970,180,0,180.0,92.725,77.54,Nonpolar R/C; native angle retained
+R41,AR03BTCX5001,C2828621,180,0,180.0,92.725,92.54,Nonpolar R/C; native angle retained
+R42,RT0603BRD07100KL,C122538,180,0,180.0,92.725,107.54,Nonpolar R/C; native angle retained
+R43,RT0603BRD07100RL,C122970,180,0,180.0,110.425,84.575,Nonpolar R/C; native angle retained
+R44,AR03BTCX5001,C2828621,180,0,180.0,110.425,86.2,Nonpolar R/C; native angle retained
+R45,RT0603BRD07100KL,C122538,180,0,180.0,110.425,87.9,Nonpolar R/C; native angle retained
+R94,RT0603BRD0722RL,C861239,90,0,90.0,113.8,87.525,Nonpolar R/C; native angle retained
+R95,0603WAF100KT5E,C22936,0,0,0.0,128.775,118.7678,Nonpolar R/C; native angle retained
+R96,0603WAF100KT5E,C22936,90,0,90.0,142.5,116.825,Nonpolar R/C; native angle retained
+R80,0603WAF1000T5E,C22775,90,0,90.0,141.5,153.825,Nonpolar R/C; native angle retained
+R81,0603WAF4303T5E,C25969,0,0,0.0,129.225,140.5,Nonpolar R/C; native angle retained
+R82,0603WAF4022T5E,C12447,0,0,0.0,132.275,140.5,Nonpolar R/C; native angle retained
+R83,0603WAF2403T5E,C4197,90,0,90.0,134.5,137.425,Nonpolar R/C; native angle retained
+R84,0603WAF1503T5E,C22807,-90,0,270.0,133.0,135.775,Nonpolar R/C; native angle retained
+R85,0603WAF8202T5E,C23254,0,0,0.0,124.175,109.75,Nonpolar R/C; native angle retained
+R86,0603WAF9101T5E,C23260,180,0,180.0,125.825,112.95,Nonpolar R/C; native angle retained
+R87,RT0603BRD07100KL,C122538,0,0,0.0,137.175,111.33,Nonpolar R/C; native angle retained
+R88,RT0603BRD071KL,C110776,0,0,0.0,137.175,114.57,Nonpolar R/C; native angle retained
+R89,AR03BTCX5001,C2828621,180,0,180.0,138.825,112.95,Nonpolar R/C; native angle retained
+R60,RT0603BRD071KL,C110776,90,0,90.0,85.6,70.725,Nonpolar R/C; native angle retained
+R61,RT0603BRD071KL,C110776,180,0,180.0,114.825,72.0,Nonpolar R/C; native angle retained
+R66,RT0603BRD071KL,C110776,180,0,180.0,114.825,73.6,Nonpolar R/C; native angle retained
+R67,RT0603BRD071KL,C110776,90,0,90.0,110.9,80.225,Nonpolar R/C; native angle retained
+C1,CC0603KRX7R9BB104,C14663,90,0,90.0,81.0,138.275,Nonpolar R/C; native angle retained
+C2,CC0603KRX7R9BB104,C14663,90,0,90.0,81.0,131.275,Nonpolar R/C; native angle retained
+C3,CC0603KRX7R9BB104,C14663,0,0,0.0,72.225,127.5,Nonpolar R/C; native angle retained
+C4,CC0603KRX7R9BB104,C14663,90,0,90.0,68.0,132.275,Nonpolar R/C; native angle retained
+C5,CL10A105KB8NNNC,C15849,0,0,0.0,72.225,139.5,Nonpolar R/C; native angle retained
+C6,CC0603KRX7R9BB104,C14663,90,0,90.0,81.0,134.775,Nonpolar R/C; native angle retained
+C7,CC0603KRX7R9BB104,C14663,0,0,0.0,69.225,142.5,Nonpolar R/C; native angle retained
+C8,CL21B105KBFNNNE,C28323,90,0,90.0,69.0,140.45,Nonpolar R/C; native angle retained
+C9,CC0603KRX7R9BB104,C14663,0,0,0.0,68.225,127.5,Nonpolar R/C; native angle retained
+C10,CL21B105KBFNNNE,C28323,0,0,0.0,81.05,142.5,Nonpolar R/C; native angle retained
+C11,CC0603KRX7R9BB104,C14663,90,0,90.0,80.5,148.275,Nonpolar R/C; native angle retained
+C12,CL10C150JB8NNNC,C1644,180,0,180.0,69.275,124.5,Nonpolar R/C; native angle retained
+C13,CL10C150JB8NNNC,C1644,0,0,0.0,74.225,119.5,Nonpolar R/C; native angle retained
+C14,CC0603KRX7R9BB104,C14663,0,0,0.0,63.225,144.5,Nonpolar R/C; native angle retained
+C15,CC0603KRX7R9BB104,C14663,0,0,0.0,61.225,137.0,Nonpolar R/C; native angle retained
+C16,CL21B105KBFNNNE,C28323,180,0,180.0,55.95,142.9,Nonpolar R/C; native angle retained
+C17,CL21B105KBFNNNE,C28323,-90,0,270.0,60.0,144.7,Nonpolar R/C; native angle retained
+C18,CL21A106KAYNNNE,C15850,0,0,0.0,61.05,150.5,LCSC EasyEDA pad-number audit; final JLC preview required
+C37,CC0603KRX7R9BB104,C14663,0,0,0.0,74.725,75.5,Nonpolar R/C; native angle retained
+C38,CC0603KRX7R9BB104,C14663,180,0,180.0,67.575,75.5,Nonpolar R/C; native angle retained
+C39,CL21B105KBFNNNE,C28323,90,0,90.0,77.5,80.45,Nonpolar R/C; native angle retained
+C40,CL21B105KBFNNNE,C28323,0,0,0.0,63.55,85.5,Nonpolar R/C; native angle retained
+C42,CC0603KRX7R9BB104,C14663,0,0,0.0,85.125,89.6,Nonpolar R/C; native angle retained
+C43,CC0603KRX7R9BB104,C14663,180,0,180.0,88.175,84.6,Nonpolar R/C; native angle retained
+C44,CL21B105KBFNNNE,C28323,0,0,0.0,85.05,91.6,Nonpolar R/C; native angle retained
+C45,CL21B105KBFNNNE,C28323,180,0,180.0,88.15,86.8,Nonpolar R/C; native angle retained
+C46,CC0603KRX7R9BB104,C14663,90,0,90.0,110.5,76.675,Nonpolar R/C; native angle retained
+C47,CC0603KRX7R9BB104,C14663,270,0,270.0,118.8,81.725,Nonpolar R/C; native angle retained
+C48,CL21B105KBFNNNE,C28323,90,0,90.0,108.6,75.55,Nonpolar R/C; native angle retained
+C49,CL21B105KBFNNNE,C28323,270,0,270.0,120.6,81.65,Nonpolar R/C; native angle retained
+C80,CL32B106KBJNNNE,C138687,180,0,180.0,127.075,153.0,LCSC EasyEDA pad-number audit; final JLC preview required
+C81,CC0603KRX7R9BB104,C14663,90,0,90.0,141.5,150.775,Nonpolar R/C; native angle retained
+C82,CL32B106KBJNNNE,C138687,90,0,90.0,138.0,153.975,LCSC EasyEDA pad-number audit; final JLC preview required
+C83,CC0603KRX7R9BB104,C14663,180,0,180.0,138.775,149.0,Nonpolar R/C; native angle retained
+C84,CL10B224KA8NNNC,C21120,90,0,90.0,138.0,140.775,Nonpolar R/C; native angle retained
+C85,0603B472K500NT,C53987,90,0,90.0,135.7,140.975,Nonpolar R/C; native angle retained
+C86,0603B103K500NT,C57112,180,0,180.0,134.075,142.5,Nonpolar R/C; native angle retained
+C87,CL10C150JB8NNNC,C1644,0,0,0.0,130.275,138.95,Nonpolar R/C; native angle retained
+C88,0603CG4R7C500NT,C1669,90,0,90.0,136.5,137.375,Nonpolar R/C; native angle retained
+C89,CL32B106KBJNNNE,C138687,90,0,90.0,126.3,142.975,LCSC EasyEDA pad-number audit; final JLC preview required
+C90,CL32B106KBJNNNE,C138687,90,0,90.0,127.0,137.975,LCSC EasyEDA pad-number audit; final JLC preview required
+C91,CL32B106KBJNNNE,C138687,90,0,90.0,140.5,133.475,LCSC EasyEDA pad-number audit; final JLC preview required
+C92,CL32B106KBJNNNE,C138687,90,0,90.0,144.5,133.475,LCSC EasyEDA pad-number audit; final JLC preview required
+C93,0603B103K500NT,C57112,-90,0,270.0,134.0,110.975,Nonpolar R/C; native angle retained
+C94,CL32B106KBJNNNE,C138687,0,0,0.0,131.525,105.3,LCSC EasyEDA pad-number audit; final JLC preview required
+C95,CL32B106KBJNNNE,C138687,90,0,90.0,124.9,108.075,LCSC EasyEDA pad-number audit; final JLC preview required
+C96,0603B103K500NT,C57112,0,0,0.0,124.225,111.33,Nonpolar R/C; native angle retained
+C97,CC0603KRX7R9BB104,C14663,90,0,90.0,134.0,109.375,Nonpolar R/C; native angle retained
+C98,0603B103K500NT,C57112,-90,0,270.0,147.0,110.975,Nonpolar R/C; native angle retained
+C99,CL32B106KBJNNNE,C138687,0,0,0.0,144.525,105.3,LCSC EasyEDA pad-number audit; final JLC preview required
+C100,CL32B106KBJNNNE,C138687,90,0,90.0,137.9,108.075,LCSC EasyEDA pad-number audit; final JLC preview required
+C101,0603B103K500NT,C57112,0,0,0.0,137.225,109.75,Nonpolar R/C; native angle retained
+C102,CC0603KRX7R9BB104,C14663,90,0,90.0,147.0,109.375,Nonpolar R/C; native angle retained
+C103,CL31A226KAHNNNE,C12891,-90,0,270.0,55.2,95.525,LCSC EasyEDA pad-number audit; final JLC preview required
+C50,0603B103K500NT,C57112,90,0,90.0,83.9,74.775,Nonpolar R/C; native angle retained
+C51,0603B103K500NT,C57112,90,0,90.0,89.1,78.375,Nonpolar R/C; native angle retained
+C52,0603B103K500NT,C57112,90,0,90.0,112.2,76.675,Nonpolar R/C; native angle retained
+C53,0603B103K500NT,C57112,270,0,270.0,117.2,81.725,Nonpolar R/C; native angle retained
+C104,CL10C101JB8NNNC,C14858,180,0,180.0,114.075,83.95,LCSC EasyEDA pad-number audit; final JLC preview required
+R97,0603WAF1003T5E,C25803,0,0,0.0,90.175,133.0,Nonpolar R/C; native angle retained
+R98,0603WAF1002T5E,C25804,180,0,180.0,91.825,134.6,Nonpolar R/C; native angle retained
+R99,0603WAF1002T5E,C25804,180,0,180.0,95.825,134.6,Nonpolar R/C; native angle retained
+R100,0603WAF1503T5E,C22807,0,0,0.0,94.175,133.0,Nonpolar R/C; native angle retained
+C110,CC0603KRX7R9BB104,C14663,180,0,180.0,91.775,136.2,Nonpolar R/C; native angle retained
+C111,CC0603KRX7R9BB104,C14663,180,0,180.0,95.775,136.2,Nonpolar R/C; native angle retained
+R31,RT0603BRD072K2L,C861295,90,0,90.0,75.5,73.325,Nonpolar R/C; native angle retained
+R30,RT0603BRD072K2L,C861295,90,0,90.0,68.5,81.325,Nonpolar R/C; native angle retained
+R32,AR03BTCX2001,C318130,0,0,0.0,63.675,81.5,Nonpolar R/C; native angle retained
+C34,CC0603JRNPO9BN561,C107054,-90,0,270.0,66.9,78.725,Nonpolar R/C; native angle retained
+C114,CC0603JRNPO9BN561,C107054,-90,0,270.0,66.9,81.725,Nonpolar R/C; native angle retained
+C35,CC0603JRNPO9BN561,C107054,0,0,0.0,70.725,68.7,Nonpolar R/C; native angle retained
+C115,CC0603JRNPO9BN561,C107054,0,0,0.0,67.725,68.7,Nonpolar R/C; native angle retained
+U14,TAC5112IRGER,C44853692,0,0,0.0,62.1,97.25,LCSC EasyEDA pad-number audit; final JLC preview required
+U15,AP2112K-3.3TRG1,C51118,0,270,270.0,55.3625,91.55,LCSC EasyEDA pad-number audit; final JLC preview required
+C67,CL21B105KBFNNNE,C28323,90,0,90.0,53.4,93.45,Nonpolar R/C; native angle retained
+C68,CL21B105KBFNNNE,C28323,-90,0,270.0,59.7,90.35,Nonpolar R/C; native angle retained
+C60,CL21A106KAYNNNE,C15850,-90,0,270.0,63.25,90.35,Nonpolar R/C; native angle retained
+C61,CC0603KRX7R9BB104,C14663,90,0,90.0,63.25,95.325,Nonpolar R/C; native angle retained
+C62,CL10A225KO8NNNC,C23630,90,0,90.0,61.6,95.325,Nonpolar R/C; native angle retained
+C63,CC0603KRX7R9BB104,C14663,180,0,180.0,59.575,97.25,Nonpolar R/C; native angle retained
+C64,CL21A106KAYNNNE,C15850,180,0,180.0,59.35,95.4,Nonpolar R/C; native angle retained
+C65,CC0603KRX7R9BB104,C14663,180,0,180.0,59.175,100.1,Nonpolar R/C; native angle retained
+C66,CL21A106KAYNNNE,C15850,180,0,180.0,58.95,102.0,Nonpolar R/C; native angle retained
+R72,0603WAF4701T5E,C23162,90,0,90.0,64.25,103.525,Nonpolar R/C; native angle retained
+R73,0603WAF4701T5E,C23162,90,0,90.0,62.75,103.525,Nonpolar R/C; native angle retained
+U16,TPS2553DBVR,C55266,180,180,0.0,56.7375,140.85,LCSC EasyEDA pad-number audit; final JLC preview required
+R110,0603WAF2402T5E,C23352,90,0,90.0,52.0,140.725,Nonpolar R/C; native angle retained
+C113,CL21A475KAQNNNE,C1779,-90,0,270.0,59.2,139.05,Nonpolar R/C; native angle retained
+R62,RT0603BRD071KL,C110776,90,0,90.0,80.6,88.625,Nonpolar R/C; native angle retained
+C69,CC0603JRNPO9BN561,C107054,90,0,90.0,79.0,88.575,Nonpolar R/C; native angle retained
+C74,CL21B105KBFNNNE,C28323,0,0,0.0,75.55,89.4,Nonpolar R/C; native angle retained
+D11,BAT54S,C7420333,0,180,180.0,71.8625,88.45,LCSC EasyEDA pad-number audit; final JLC preview required
+R68,0603WAF4700T5E,C23179,0,0,0.0,68.075,89.4,Nonpolar R/C; native angle retained
+R63,RT0603BRD071KL,C110776,-90,0,270.0,80.6,94.375,Nonpolar R/C; native angle retained
+C70,CC0603JRNPO9BN561,C107054,-90,0,270.0,79.0,94.425,Nonpolar R/C; native angle retained
+C75,CL21B105KBFNNNE,C28323,0,0,0.0,75.55,93.6,Nonpolar R/C; native angle retained
+D12,BAT54S,C7420333,0,180,180.0,71.8625,92.65,LCSC EasyEDA pad-number audit; final JLC preview required
+R69,0603WAF4700T5E,C23179,0,0,0.0,68.075,93.6,Nonpolar R/C; native angle retained
+R64,RT0603BRD071KL,C110776,90,0,90.0,80.6,100.825,Nonpolar R/C; native angle retained
+C72,CC0603JRNPO9BN561,C107054,90,0,90.0,79.0,100.775,LCSC EasyEDA pad-number audit; final JLC preview required
+C76,CL21B105KBFNNNE,C28323,0,0,0.0,75.55,101.6,Nonpolar R/C; native angle retained
+D13,BAT54S,C7420333,0,180,180.0,71.8625,100.65,LCSC EasyEDA pad-number audit; final JLC preview required
+R70,0603WAF4700T5E,C23179,0,0,0.0,68.075,101.6,Nonpolar R/C; native angle retained
+R65,RT0603BRD071KL,C110776,-90,0,270.0,80.6,106.575,Nonpolar R/C; native angle retained
+C73,CC0603JRNPO9BN561,C107054,-90,0,270.0,79.0,106.625,LCSC EasyEDA pad-number audit; final JLC preview required
+C77,CL21B105KBFNNNE,C28323,0,0,0.0,75.55,105.8,Nonpolar R/C; native angle retained
+D14,BAT54S,C7420333,0,180,180.0,71.8625,104.85,LCSC EasyEDA pad-number audit; final JLC preview required
+R71,0603WAF4700T5E,C23179,0,0,0.0,68.075,105.8,Nonpolar R/C; native angle retained
+C78,CL10C101JB8NNNC,C14858,270,0,270.0,113.8,89.025,Nonpolar R/C; native angle retained
+R105,0603WAF1001T5E,C21190,0,0,0.0,77.175,51.0,Nonpolar R/C; native angle retained
+R106,0603WAF1001T5E,C21190,180,0,180.0,122.825,51.0,Nonpolar R/C; native angle retained
+K2,TQ2SA-L2-5V-Z,C2684450,270,0,270.0,95.22,84.92,LCSC EasyEDA pad-number audit; final JLC preview required
+K1,TQ2SA-L2-5V-Z,C2684450,270,0,270.0,95.22,69.92,LCSC EasyEDA pad-number audit; final JLC preview required
+K3,TQ2SA-L2-5V-Z,C2684450,270,0,270.0,95.22,99.92,LCSC EasyEDA pad-number audit; final JLC preview required
+Q3,AO3400A,C20917,0,180,180.0,88.0625,120.65,LCSC EasyEDA pad-number audit; final JLC preview required
+D6,1N4148WS,C2128,90,0,90.0,91.2575,118.65,LCSC EasyEDA pad-number audit; final JLC preview required
+R76,0603WAF1000T5E,C22775,0,0,0.0,84.7325,120.65,Nonpolar R/C; native angle retained
+R77,0603WAF1003T5E,C25803,180,0,180.0,86.3825,122.4,Nonpolar R/C; native angle retained
+Q4,AO3400A,C20917,0,180,180.0,103.0625,120.65,LCSC EasyEDA pad-number audit; final JLC preview required
+D7,1N4148WS,C2128,90,0,90.0,106.2575,118.65,LCSC EasyEDA pad-number audit; final JLC preview required
+R78,0603WAF1000T5E,C22775,0,0,0.0,99.7325,120.65,Nonpolar R/C; native angle retained
+R79,0603WAF1003T5E,C25803,180,0,180.0,101.3825,122.4,Nonpolar R/C; native angle retained
+Q5,AO3400A,C20917,0,180,180.0,117.8625,120.65,LCSC EasyEDA pad-number audit; final JLC preview required
+D8,1N4148WS,C2128,90,0,90.0,121.0575,118.65,LCSC EasyEDA pad-number audit; final JLC preview required
+R102,0603WAF1000T5E,C22775,0,0,0.0,114.5325,120.65,Nonpolar R/C; native angle retained
+R103,0603WAF1003T5E,C25803,180,0,180.0,116.1825,122.4,Nonpolar R/C; native angle retained
+Q2,AO3400A,C20917,0,180,180.0,95.42,120.65,LCSC EasyEDA pad-number audit; final JLC preview required
+D5,1N4148WS,C2128,0,0,0.0,94.6075,116.6,LCSC EasyEDA pad-number audit; final JLC preview required
+R74,0603WAF1000T5E,C22775,0,0,0.0,92.09,120.65,Nonpolar R/C; native angle retained
+R75,0603WAF1003T5E,C25803,180,0,180.0,93.74,122.4,Nonpolar R/C; native angle retained
+K4,TQ2SA-L2-5V-Z,C2684450,90,0,90.0,142.78,81.08,LCSC EasyEDA pad-number audit; final JLC preview required
+R107,RT0603BRD071KL,C110776,0,0,0.0,128.775,73.46,Nonpolar R/C; native angle retained
+Q6,AO3400A,C20917,0,180,180.0,143.5625,87.05,LCSC EasyEDA pad-number audit; final JLC preview required
+D9,1N4148WS,C2128,90,0,90.0,146.5,83.05,LCSC EasyEDA pad-number audit; final JLC preview required
+R108,0603WAF1000T5E,C22775,0,0,0.0,139.375,87.0,Nonpolar R/C; native angle retained
+R109,0603WAF1003T5E,C25803,180,0,180.0,141.025,88.8,Nonpolar R/C; native angle retained
+R101,0603WAF100KT5E,C22936,0,0,0.0,99.675,116.4,Nonpolar R/C; native angle retained
+C112,CL31A226KAHNNNE,C12891,270,0,270.0,103.3,115.525,Nonpolar R/C; native angle retained
+R112,AR03BTCX5001,C2828621,180,0,180.0,138.825,116.19,Nonpolar R/C; native angle retained
+R111,0603WAF1504T5E,C4172,180,0,180.0,135.925,134.3,Nonpolar R/C; native angle retained
+R104,0603WAF470JT5E,C23182,270,0,270.0,85.1,80.375,Nonpolar R/C; native angle retained
+R113,0603WAF5101T5E,C23186,90,0,90.0,102.0,137.825,Nonpolar R/C; native angle retained
+D15,KT-0603R,C2286,90,0,90.0,102.0,140.7875,LCSC EasyEDA pad-number audit; final JLC preview required
+R114,0603WAF3001T5E,C4211,90,0,90.0,104.6,137.825,Nonpolar R/C; native angle retained
+D16,KT-0603R,C2286,90,0,90.0,104.6,140.7875,LCSC EasyEDA pad-number audit; final JLC preview required
+R115,0603WAF2402T5E,C23352,90,0,90.0,107.2,137.825,Nonpolar R/C; native angle retained
+D17,KT-0603R,C2286,90,0,90.0,107.2,140.7875,LCSC EasyEDA pad-number audit; final JLC preview required
+R116,0603WAF2402T5E,C23352,90,0,90.0,109.8,137.825,Nonpolar R/C; native angle retained
+D18,KT-0603R,C2286,270,0,270.0,109.8,139.2125,LCSC EasyEDA pad-number audit; final JLC preview required
+R117,0603WAF3001T5E,C4211,270,0,270.0,58.8,118.075,Nonpolar R/C; native angle retained
+D19,KT-0603R,C2286,270,0,270.0,58.8,115.1125,LCSC EasyEDA pad-number audit; final JLC preview required
+R118,0603WAF3001T5E,C4211,270,0,270.0,61.2,118.075,Nonpolar R/C; native angle retained
+D20,KT-0603R,C2286,270,0,270.0,61.2,115.1125,LCSC EasyEDA pad-number audit; final JLC preview required
+R119,0603WAF1003T5E,C25803,270,0,270.0,141.5,145.975,Nonpolar R/C; native angle retained
+R120,0603WAF1003T5E,C25803,90,0,90.0,141.55,144.125,Nonpolar R/C; native angle retained
+C116,CC0603KRX7R9BB104,C14663,0,0,0.0,131.625,130.949999,Nonpolar R/C; native angle retained
+C118,CC0603KRX7R9BB104,C14663,0,0,0.0,131.625,129.05,Nonpolar R/C; native angle retained
+R121,0603WAF150KT5E,C22769,270,0,270.0,61.0,140.9,Nonpolar R/C; native angle retained
+U17,LM3880MF-1AA/NOPB,C486059,0,180,180.0,134.8625,129.05,LCSC EasyEDA pad-number audit; final JLC preview required
+C117,PCG1A331MCL1GS,C433208,90,0,90.0,118.6,151.075,LCSC EasyEDA pad-number audit; final JLC preview required
+D21,H4V5HD3B,C20615803,0,0,0.0,67.0,58.2,LCSC EasyEDA pad-number audit; final JLC preview required
+U18,"TLP172AM(TPL,E)",C2152276,180,270,90.0,73.3,62.87,LCSC EasyEDA pad-number audit; final JLC preview required
+R122,CRCW080510R0FKEAHP,C844598,180,0,180.0,65.012499,62.87,Nonpolar R/C; native angle retained
+D22,H4V5HD3B,C20615803,0,0,0.0,89.0,58.2,LCSC EasyEDA pad-number audit; final JLC preview required
+U19,"TLP172AM(TPL,E)",C2152276,0,270,270.0,82.7,60.33,LCSC EasyEDA pad-number audit; final JLC preview required
+R123,CRCW0603100RFKEAHP,C844725,0,0,0.0,91.075,62.87,Nonpolar R/C; native angle retained
+D23,H4V5HD3B,C20615803,0,0,0.0,111.0,58.2,LCSC EasyEDA pad-number audit; final JLC preview required
+U20,"TLP172AM(TPL,E)",C2152276,0,270,270.0,104.7,60.33,LCSC EasyEDA pad-number audit; final JLC preview required
+R124,CRCW0603100RFKEAHP,C844725,0,0,0.0,113.075,62.87,Nonpolar R/C; native angle retained
+D24,H4V5HD3B,C20615803,0,0,0.0,133.0,58.2,LCSC EasyEDA pad-number audit; final JLC preview required
+U21,"TLP172AM(TPL,E)",C2152276,180,270,90.0,139.3,62.87,LCSC EasyEDA pad-number audit; final JLC preview required
+R125,CRCW080510R0FKEAHP,C844598,180,0,180.0,130.9125,62.87,Nonpolar R/C; native angle retained
+D25,H3V3LD5B,C20615817,180,0,180.0,61.8,62.87,LCSC EasyEDA pad-number audit; final JLC preview required
+D26,H3V3LD5B,C20615817,180,0,180.0,86.6,67.2,LCSC EasyEDA pad-number audit; final JLC preview required
+D27,H3V3LD5B,C20615817,0,0,0.0,116.9,67.4,LCSC EasyEDA pad-number audit; final JLC preview required
+C119,CC0603JRNPO9BN102,C106246,180,0,180.0,86.375,65.4,Nonpolar R/C; native angle retained
+C120,CC0603JRNPO9BN102,C106246,0,0,0.0,117.125,65.599999,Nonpolar R/C; native angle retained
+D28,"BAV99,215",C2500,180,180,0.0,125.8375,66.15,LCSC EasyEDA pad-number audit; final JLC preview required
+R126,0603WAF1504T5E,C4172,270,0,270.0,59.2,52.175,Nonpolar R/C; native angle retained
+R127,0603WAF2403T5E,C4197,270,0,270.0,64.599999,120.775,Nonpolar R/C; native angle retained
+R128,0603WAF2403T5E,C4197,0,0,0.0,54.575,60.8,Nonpolar R/C; native angle retained
+C121,CC0603KRX7R9BB104,C14663,0,0,0.0,54.625,59.2,Nonpolar R/C; native angle retained
+R129,0603WAF1504T5E,C4172,0,0,0.0,140.675,51.0,Nonpolar R/C; native angle retained
+R130,0603WAF2403T5E,C4197,270,0,270.0,66.2,120.775,Nonpolar R/C; native angle retained
+R131,0603WAF2403T5E,C4197,0,0,0.0,54.575,64.2,Nonpolar R/C; native angle retained
+C122,CC0603KRX7R9BB104,C14663,0,0,0.0,54.625,62.6,Nonpolar R/C; native angle retained
+R132,0603WAF3000T5E,C23025,90,0,90.0,95.22,66.424999,Nonpolar R/C; native angle retained
+R133,0603WAF3000T5E,C23025,90,0,90.0,101.4,61.425,Nonpolar R/C; native angle retained
+Q7,AO3400A,C20917,180,180,0.0,78.3875,60.15,LCSC EasyEDA pad-number audit; final JLC preview required
+R134,0603WAF1000T5E,C22775,90,0,90.0,78.3875,63.225,Nonpolar R/C; native angle retained
+R135,0603WAF1003T5E,C25803,90,0,90.0,80.2,60.15,Nonpolar R/C; native angle retained

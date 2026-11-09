@@ -97,13 +97,21 @@ for ref in ('U6', 'U7'):
         if best[1] > 2.54:
             findings.append(f'{ref}.{num} bypass {best[0]} at {best[1]:.2f} mm')
 
-# 5. R_iso topology (Rev D on; Rev E adds the range relays, which leave TIA_SUM unchanged; Rev F as Rev E).
+# 5. R_iso topology (Rev D on; Rev E adds the range relays, which leave TIA_SUM unchanged; Rev F as Rev E;
+#    Rev G puts the jack protection between each jack and Rev F's node: jack -> TLP172AM -> series R -> node).
 topology = {}
-if REV in ('d', 'e', 'f'):          # Rev F re-lays Rev E's circuit: same topology
+if REV in ('d', 'e', 'f', 'g'):     # Rev F re-lays Rev E's circuit: same topology
     # Rev E: four-terminal jacks; LCUR (J9.5) feeds R94, the followers sense HPOT/LPOT (J7.5/J8.5)
     lo = {('J3', '2'): 'DUT_LO', ('U7', '5'): 'DUT_LO'} if REV == 'd' else {
         ('J9', '5'): 'DUT_LO', ('J3', '5'): 'DUT_HI', ('J7', '5'): 'HPOT', ('J8', '5'): 'LPOT',
         ('U6', '5'): 'HPOT', ('U7', '5'): 'LPOT'}
+    if REV == 'g':
+        lo = {('U6', '5'): 'HPOT', ('U7', '5'): 'LPOT'}
+        for jack, name, sw, (d_jack, d_iso), r, node in (
+                ('J3', 'HCUR', 'U18', '46', 'R122', 'DUT_HI'), ('J7', 'HPOT', 'U19', '64', 'R123', 'HPOT'),
+                ('J8', 'LPOT', 'U20', '64', 'R124', 'LPOT'), ('J9', 'LCUR', 'U21', '46', 'R125', 'DUT_LO')):
+            jk, iso = f'JK_{name}', f'ISO_{name}'
+            lo.update({(jack, '5'): jk, (sw, d_jack): jk, (sw, d_iso): iso, (r, '1'): iso, (r, '2'): node})
     expect = {**lo, ('R94', '1'): 'DUT_LO', ('R94', '2'): 'TIA_SUM',
               ('U7', '2'): 'TIA_SUM', ('C104', '1'): 'TIA_SUM', ('C104', '2'): 'TIA_OUT',
               ('R43', '1'): 'TIA_SUM', ('R44', '1'): 'TIA_SUM', ('R45', '1'): 'TIA_SUM'}

@@ -1,0 +1,144 @@
+{
+ "reference_rev": "9861d26c7",
+ "transform": "y > 57.0 moved +10.0 mm",
+ "analog_items": {
+  "rev_f": 400,
+  "rev_g": 403,
+  "identical_after_transform": 361
+ },
+ "added_in_rev_g": {
+  "DUT_HI": {
+   "items": 10,
+   "bbox": [
+    61.8,
+    62.87,
+    90.2,
+    77.54
+   ]
+  },
+  "DUT_LO": {
+   "items": 7,
+   "bbox": [
+    122.6,
+    62.87,
+    129.09,
+    70.1
+   ]
+  },
+  "HPOT": {
+   "items": 13,
+   "bbox": [
+    86.38,
+    62.87,
+    92.72,
+    73.89
+   ]
+  },
+  "LPOT": {
+   "items": 10,
+   "bbox": [
+    114.72,
+    62.87,
+    117.12,
+    70.8
+   ]
+  },
+  "SOURCE_FB": {
+   "items": 2,
+   "bbox": [
+    72.33,
+    71.5,
+    73.8,
+    72.97
+   ]
+  }
+ },
+ "removed_from_rev_f": {
+  "DUT_HI": {
+   "items": 14,
+   "bbox": [
+    67.0,
+    51.0,
+    133.22,
+    77.54
+   ]
+  },
+  "DUT_LO": {
+   "items": 10,
+   "bbox": [
+    119.62,
+    51.0,
+    133.0,
+    73.46
+   ]
+  },
+  "HPOT": {
+   "items": 7,
+   "bbox": [
+    87.47,
+    51.0,
+    89.0,
+    73.89
+   ]
+  },
+  "LPOT": {
+   "items": 6,
+   "bbox": [
+    111.0,
+    51.0,
+    117.97,
+    70.8
+   ]
+  },
+  "SOURCE_FB": {
+   "items": 2,
+   "bbox": [
+    72.33,
+    71.5,
+    73.8,
+    72.97
+   ]
+  }
+ },
+ "changed_bbox": [
+  61.8,
+  51.0,
+  133.22,
+  77.54
+ ],
+ "gnd_fill_change_below_y68": {
+  "B.Cu": {
+   "area_mm2": 48.39,
+   "nearest_unchanged_analog_mm": 12.58,
+   "nearest_unchanged_extracted_mm": 24.6,
+   "bbox": [
+    54.86,
+    118.1,
+    87.55,
+    150.05
+   ]
+  },
+  "In1.Cu": {
+   "area_mm2": 13.52,
+   "nearest_unchanged_analog_mm": 2.83,
+   "nearest_unchanged_extracted_mm": 2.83,
+   "bbox": [
+    54.7,
+    69.6,
+    143.28,
+    150.05
+   ]
+  },
+  "In2.Cu": {
+   "area_mm2": 96.79,
+   "nearest_unchanged_analog_mm": 1.88,
+   "nearest_unchanged_extracted_mm": 10.69,
+   "bbox": [
+    51.3,
+    108.5,
+    87.55,
+    154.05
+   ]
+  }
+ }
+}

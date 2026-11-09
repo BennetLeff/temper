@@ -121,12 +121,12 @@ drop_track(take('DUT_LO', 'F.Cu', first=(130.5, 70.1)))   # R107 now joins JK_LC
 for t in list(routing['tracks']):
     if t['net'] in ('UART_TX', 'UART_RX'):
         if t['layer'] == 'F.Cu':
-            t['net'] = {'UART_TX': 'SNS_HC', 'UART_RX': 'SNS_LC'}[t['net']]
+            t['net'] = {'UART_TX': 'JACK_HC', 'UART_RX': 'JACK_LC'}[t['net']]
         else:
             routing['tracks'].remove(t)
 for v in routing['vias']:
     if v['net'] in ('UART_TX', 'UART_RX'):
-        v['net'] = {'UART_TX': 'SNS_HC', 'UART_RX': 'SNS_LC'}[v['net']]
+        v['net'] = {'UART_TX': 'JACK_HC', 'UART_RX': 'JACK_LC'}[v['net']]
 assert {(n, l) for n, l, _ in CROSSING} == {('DUT_HI', 'B.Cu'), ('DUT_HI', 'F.Cu'), ('HPOT', 'F.Cu'),
                                               ('LPOT', 'F.Cu'), ('DUT_LO', 'F.Cu'), ('STATUS', 'In2.Cu')}, CROSSING
 for t in routing['tracks']:                  # what still spans the cut is vertical there
@@ -141,7 +141,7 @@ parts['R105']['pins'] = {'1': 'JK_HCUR', '2': 'JK_HPOT'}
 parts['R106']['pins'] = {'1': 'JK_LCUR', '2': 'JK_LPOT'}
 parts['R107']['pins']['1'] = 'JK_LCUR'
 parts['K4']['pins'].update({'8': 'JK_HCUR', '3': 'JK_HCUR', '4': 'JK_HPOT'})   # pole 1 shorts HCUR-HPOT (bypass)
-parts['U1']['pins'].update({'40': 'SNS_HC', '41': 'SNS_LC', '18': 'ISO_EN'})
+parts['U1']['pins'].update({'40': 'JACK_HC', '41': 'JACK_LC', '18': 'ISO_DRIVE'})
 # The optional UART header goes (docs/rev-g-plan.md): the firmware never enables UART stdio, GPIO 28 / 29 are now
 # the jack senses, and GPIO 0 / 1 cannot leave U1's east side past the I2S / QSPI / USB escape vias.
 assert parts['J6']['pins'] == {'1': 'UART_TX', '2': 'UART_RX'}, parts['J6']
@@ -188,9 +188,9 @@ for i, (name, (j, jk)) in enumerate(JACKS.items()):
     iso = 'ISO_' + name
     G_PARTS.append(new(f'D{21 + i}', 'TVS', 'H4V5HD3B', 'LCR:D_SOD-323_HJC', {'1': jk, '2': 'GND'}, *_TVS,
                        f'{name} jack TVS, bidirectional 4.5 V standoff, VC 10 V at 40 A 8/20 ({_SEL})'))
-    # LED strings: HCUR + HPOT on ISO_S1, LPOT + LCUR on ISO_S2, both sunk by Q7 (ISO_DRV)
-    a, k_ = {'HPOT': ('ISO_S1', 'ISO_S1M'), 'HCUR': ('ISO_S1M', 'ISO_DRV'),
-             'LPOT': ('ISO_S2', 'ISO_S2M'), 'LCUR': ('ISO_S2M', 'ISO_DRV')}[name]
+    # LED strings: HCUR + HPOT on ISO_S1, LPOT + LCUR on ISO_S2, both sunk by Q7 (ISO_SINK)
+    a, k_ = {'HPOT': ('ISO_S1', 'ISO_S1M'), 'HCUR': ('ISO_S1M', 'ISO_SINK'),
+             'LPOT': ('ISO_S2', 'ISO_S2M'), 'LCUR': ('ISO_S2M', 'ISO_SINK')}[name]
     d_jack, d_in = ('4', '6') if name in ('HCUR', 'LCUR') else ('6', '4')   # output pins interchangeable: north = jack
     G_PARTS.append(new(f'U{18 + i}', 'PHOTOMOS', 'TLP172AM', 'LCR:Toshiba_11-4M1S',
                        {'1': a, '3': k_, d_jack: jk, d_in: iso}, *_MOS,
@@ -209,7 +209,7 @@ for i, net in enumerate(('HPOT', 'LPOT')):
 G_PARTS.append(new('D28', 'BAV99', 'BAV99', 'Package_TO_SOT_SMD:SOT-23', {'1': 'GND', '2': 'GND', '3': 'DUT_LO'},
                    *_PAIR, f'DUT_LO (TIA input) +-0.6 V clamp pair ({_SEL})'))
 # residual-voltage senses: 1.5M from the CUR jack, 240k to 3V3, 240k + 100 nF to GND (drive_budget.py)
-for k_, (jk, sns, r0, c) in enumerate((('JK_HCUR', 'SNS_HC', 126, 121), ('JK_LCUR', 'SNS_LC', 129, 122))):
+for k_, (jk, sns, r0, c) in enumerate((('JK_HCUR', 'JACK_HC', 126, 121), ('JK_LCUR', 'JACK_LC', 129, 122))):
     G_PARTS += [
         like('R111', f'R{r0}', {'1': jk, '2': sns}, f'{sns} divider top, at the jack'),
         like('R83', f'R{r0 + 1}', {'1': sns, '2': '3V3'}, f'{sns} bias to 3V3 (mid-scale)'),
@@ -221,8 +221,8 @@ G_PARTS += [
         'HCUR + HPOT LED string, 5.0 mA at 4.31 V and VF 1.4 V (drive_budget.py)'),
     new('R133', 'R', '300R', 'Resistor_SMD:R_0603_1608Metric', {'1': 'VRLY', '2': 'ISO_S2'}, *_R300,
         'LPOT + LCUR LED string, 5.0 mA at 4.31 V and VF 1.4 V (drive_budget.py)'),
-    like('Q6', 'Q7', {'1': 'ISO_G', '2': 'GND', '3': 'ISO_DRV'}, 'isolation LED sink (the Q6 pattern)'),
-    like('R108', 'R134', {'1': 'ISO_EN', '2': 'ISO_G'}, 'Q7 gate resistor (GPIO15)'),
+    like('Q6', 'Q7', {'1': 'ISO_G', '2': 'GND', '3': 'ISO_SINK'}, 'isolation LED sink (the Q6 pattern)'),
+    like('R108', 'R134', {'1': 'ISO_DRIVE', '2': 'ISO_G'}, 'Q7 gate resistor (GPIO15)'),
     like('R109', 'R135', {'1': 'ISO_G', '2': 'GND'}, 'Q7 gate pull-down: switches open from power-up'),
 ]
 for p in G_PARTS:

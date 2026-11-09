@@ -21,9 +21,10 @@
 #define PIN_MON_N12 27u    /* ADC1: -12 V via 150k from -12 V / 10k to 3V3 */
 #define RAIL_SAMPLES 256u
 /* Rev G (LCR_REV_G=1, validation/rev-g-protection/): the four jack isolation switches and the two
-   CUR-jack residual-voltage senses (jackguard.h). The senses take ADC2 / ADC3, so the optional UART0
-   header moves to GPIO 0 / 1 (UART0's other pin pair, unconnected on Rev F; CMakeLists.txt). Rev E / F
-   builds define none of the Rev G pins. */
+   CUR-jack residual-voltage senses (jackguard.h). The senses take ADC2 / ADC3, GPIO 28 / 29, which carried
+   the optional UART0 header J6 on Rev E / F; Rev G has no UART header (GPIO 0 / 1, UART0's other pair, have
+   no escape from U1 on the 100 x 110 board; docs/rev-g-plan.md). Rev E / F builds define none of the
+   Rev G pins. */
 #ifndef LCR_REV_G
 #define LCR_REV_G 0
 #endif
@@ -31,11 +32,9 @@
 #define PIN_UART_TX 28u    /* Optional UART0 header */
 #define PIN_UART_RX 29u
 #else
-#define PIN_UART_TX 0u     /* Optional UART0 header */
-#define PIN_UART_RX 1u
 /* GPIO 15 (U1 pin 18), beside K4's GPIO 14: GPIO 12 has no escape (USB_SENSE runs over U1 pin 15). */
 #define PIN_ISO_DRIVE 15u  /* AO3400A gate (100 Ohm, 100 kOhm pull-down): the four TLP172AM LEDs; high = jacks on */
-#define PIN_JACK_HC 28u    /* ADC2: HCUR jack sense, 1 MOhm / 200 kOhm to 3V3 / 249 kOhm, 100 nF */
+#define PIN_JACK_HC 28u    /* ADC2: HCUR jack sense, 1.5 MOhm / 240 kOhm to 3V3 / 240 kOhm, 100 nF */
 #define PIN_JACK_LC 29u    /* ADC3: LCUR jack sense, the same divider */
 #endif
 #define CODEC_I2C_ADDRESS 0x50u /* TAC5112 ADDR pin shorted to ground (Table 7-72) */

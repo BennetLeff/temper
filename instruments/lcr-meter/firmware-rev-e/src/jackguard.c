@@ -1,9 +1,9 @@
 #include "jackguard.h"
 
 int32_t jackguard_mv(uint32_t sum, uint32_t samples) {
-    /* pin (mV) = mean code / 4096 * 3300; V_jack = pin * 10.016064 - 3300 * 5. */
+    /* pin (mV) = mean code / 4096 * 3300; V_jack = pin * 13.5 - 3300 * 6.25. */
     int64_t scale = (int64_t)samples * JG_ADC_CODES;
-    int64_t numerator = (int64_t)sum * JG_ADC_REF_MV * JG_RTOP_G_PPM - scale * JG_ADC_REF_MV * JG_RTOP_RBIAS * 1000000;
+    int64_t numerator = (int64_t)sum * JG_ADC_REF_MV * JG_RTOP_G_PPM - scale * JG_ADC_REF_MV * JG_RTOP_RBIAS_PPM;
     return (int32_t)(numerator / (scale * 1000000));
 }
 

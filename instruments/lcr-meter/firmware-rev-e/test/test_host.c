@@ -467,8 +467,8 @@ static void test_rails(void) {
 /* Sense pin codes (sum of SAMPLES conversions) for a jack at v volts, through the divider of
    drive_budget.py: R_TOP 1 MOhm, R_BIAS 200 kOhm to 3V3, R_GND 249 kOhm. */
 static uint32_t jack_sum(double v) {
-    double g = 1 / 1e6 + 1 / 200e3 + 1 / 249e3;
-    double pin = (v / 1e6 + 3.3 / 200e3) / g;
+    double g = 1 / 1.5e6 + 1 / 240e3 + 1 / 240e3;
+    double pin = (v / 1.5e6 + 3.3 / 240e3) / g;
     return (uint32_t)lround(pin / 3.3 * 4096.0 * SAMPLES);
 }
 
@@ -532,7 +532,7 @@ static void test_jackguard(void) {
        swing is not over. A trip from the capture loop re-arms like a polled one. */
     CHECK(!jackguard_over(JG_TRIP_MV, -JG_TRIP_MV) && !jackguard_over(1700, -1700));
     CHECK(jackguard_over(JG_TRIP_MV + 1, 0) && jackguard_over(0, -JG_TRIP_MV - 1));
-    CHECK(abs(jackguard_mv(jack_sum(-3.5) / SAMPLES, 1u) + 3500) < 20);   /* one code ~ 8 mV of jack */
+    CHECK(abs(jackguard_mv(jack_sum(-3.5) / SAMPLES, 1u) + 3500) < 20);   /* one code ~ 11 mV of jack */
     CHECK(jg_run(&g, true, 0, 0, &t, 100) && jackguard_ready(&g));
     jackguard_trip(&g, t);
     CHECK(g.state == JG_TRIPPED && !jackguard_ready(&g));

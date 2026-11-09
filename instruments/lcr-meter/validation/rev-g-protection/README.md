@@ -21,7 +21,7 @@ This study designs the Rev G protection while Rev F is built. The values it once
 | At DUT_HI, HPOT, LPOT | H3V3LD5B TVS (C20615817, preferred); + 1 nF C0G on HPOT / LPOT (C106246) | ×3, ×2 |
 | At DUT_LO | BAV99 as an antiparallel pair (C2500, basic) | ×1 |
 | **Moved to the jack side** | R105 / R106 (CUR–POT 1 kΩ) and the K4 + R107 reference branch | — |
-| HCUR and LCUR jacks | residual-voltage sense, 1 MΩ to an ADC pin biased at mid-scale | ×2 |
+| HCUR and LCUR jacks | residual-voltage sense, 1.5 MΩ to an ADC pin biased at mid-scale | ×2 |
 | K4 pole 1 (unused on Rev F) | shorts the HCUR and HPOT jacks during the reference check | — |
 
 What it achieves, each from the section below:
@@ -55,7 +55,7 @@ The cost of the move is surge margin. Class A ends at 50 V instead of 200 V in t
 | 5 | Accuracy map and noise rows | done (with 3) |
 | 6 | Isolation switch drive, residual-voltage sense, power budget, firmware sequencing | done |
 | 7 | Sensitivity to the bring-up unknowns, IEC 61000-4-2 ESD, the HPOT reference residual, the in-capture trip | done (2026-11-09) |
-| — | Schematic and layout | start after Rev F bring-up passes (2026-11-08 sequencing), with these values ("Open items") |
+| — | Schematic and layout | started 2026-11-09 by owner decision, ahead of Rev F bring-up; laid out and hand-routed (`../../docs/rev-g-plan.md`) |
 
 ```sh
 python3 validation/rev-g-protection/protection_screen.py --jobs 10   # ~20 min for all 12 candidates -> protection-screen.json
@@ -255,15 +255,15 @@ The screen runs the parts with those models (`H4V5HD3B`, `H3V3LD5B`, `BAV99`, `T
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 100 | 0.059 | 0.06 | 0.066 | 0.059 | 0.059 | 0.061 | 0.056 | 0.065 | 0.021 | 0.058 | 0.096 |
 | 5k | 0.0051 | 0.0033 | 0.0026 | 0.0017 | 0.0022 | 0.0034 | 0.012 | 0.025 | 0.053 | 0.12 | 0.18 |
-| 100k | 0.0033 | 0.0017 | 0.0011 | 0.0009 | 0.0018 | 0.0016 | 0.0053 | 0.02 | 0.046 | 0.12 | 0.16 |
+| 100k | 0.0032 | 0.0016 | 0.0011 | 0.00091 | 0.0018 | 0.0016 | 0.0053 | 0.02 | 0.046 | 0.12 | 0.16 |
 
 `parts_jackside`, level mode: worst added corner error over the usable cells (max of |Z| and phase), %; — = no usable cell
 
 | Range | 50 | 100 | 200 | 500 | 1k | 2k | 5k | 10k | 20k | 50k | 85k |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 100 | 0.059 | 0.06 | 0.066 | 0.059 | 0.059 | 0.061 | 0.056 | 0.061 | 0.032 | 0.074 | 0.078 |
-| 5k | 0.0051 | 0.0034 | 0.0026 | 0.0019 | 0.0016 | 0.0018 | 0.0021 | 0.0019 | 0.0051 | 0.0088 | 0.014 |
-| 100k | 0.0033 | 0.0017 | 0.001 | 0.00093 | 0.0013 | 0.0016 | 0.0052 | 0.0048 | 0.014 | 0.024 | 0.024 |
+| 5k | 0.0051 | 0.0033 | 0.0026 | 0.0019 | 0.0016 | 0.0018 | 0.002 | 0.0019 | 0.0051 | 0.0088 | 0.014 |
+| 100k | 0.0032 | 0.0016 | 0.001 | 0.00094 | 0.0013 | 0.0016 | 0.0051 | 0.0047 | 0.014 | 0.024 | 0.024 |
 <!-- /generated -->
 
 <!-- generated:normal_signal -->
@@ -328,21 +328,22 @@ What it shows:
 ## Phase 6: drive, sense, budget and firmware
 
 **Drive and sense** (`drive_budget.py`, all checks PASS):
-- **Drive:** two strings of two TLP172AM LEDs from the switched 5 V, 300 Ω each, sunk by one AO3400A on GPIO 15 (U1 pin 18, next to K4's GPIO 14; GPIO 12 has no escape under USB_SENSE; the Q6 pattern, 100 kΩ gate pull-down). The switches are open from power-up until the firmware closes them, and open within 0.5 ms of losing VBUS. `part-selection/PARTS.md` suggested about 400 Ω; that gives 3.8 mA at the lowest rail, below the 5 mA RON is specified at, so it is 300 Ω here.
-  - 5.07 mA per LED at 4.32 V and VF max (≥ 5 mA recommended, IFT ≤ 3 mA);
-  - 11.0 mA at 5.5 V and VF min (≤ 25 mA);
-  - 16.4 mA total typical.
-- **Sense:** HCUR and LCUR jacks, each through 1 MΩ to an ADC pin biased by 200 kΩ to 3V3 and 249 kΩ to ground, with 100 nF. R105 / R106 on the jack side tie each POT jack to its CUR jack, so two senses cover all four jacks.
-  - Full scale is ±16.5 V. The pin stays at 0.65–2.65 V over the TVS clamp range (±10 V).
-  - The bias pushes 1.6 µA into a jack at 0 V. On LCUR that is 0.16 V DC at the TIA output on the 100 k range, against about ±11 V of swing.
-  - The filter time constant is 10 ms; settling from a clamped jack to half the close threshold takes 30 ms.
-  - The pins are GPIO 28 / 29 (ADC2 / ADC3). The optional UART header (J6) moves to GPIO 0 / 1, UART0's other pin pair, which Rev F leaves unconnected (U1 pins 2 / 3).
-- **USB:** 0.46 A (Rev F at attach) + 16.4 mA = 0.476 A typical, 0.482 A worst, under 0.5 A.
+- **Drive:** two strings of two TLP172AM LEDs from VRLY (the switched 5 V through R101, 1 Ω, which the relay coils share), 300 Ω each, sunk by one AO3400A on GPIO 15 (U1 pin 18, next to K4's GPIO 14; GPIO 12 has no escape under USB_SENSE; the Q6 pattern, 100 kΩ gate pull-down). The switches are open from power-up until the firmware closes them, and open within 0.5 ms of losing VBUS. `part-selection/PARTS.md` suggested about 400 Ω; that gives 3.8 mA at the lowest rail, below the 5 mA RON is specified at, so it is 300 Ω here.
+  - 5.03 mA per LED at 4.32 V and VF max (≥ 5 mA recommended, IFT ≤ 3 mA). Both strings drop 10 mV on R101, which is most of the margin; the minimum assumes the Rev F rail floor (4.32 V at VBUS 4.40 V);
+  - 4.59 mA during the RESET pulse (112 mA of coil current on R101, rail at 4.30 V), above IFT, so the switches stay closed through a range change; the coils still get 4.17 V against their 3.75 V must-operate;
+  - 10.9 mA at 5.5 V and VF min (≤ 25 mA);
+  - 16.3 mA total typical.
+- **Sense:** HCUR and LCUR jacks, each through 1.5 MΩ to an ADC pin biased by 240 kΩ to 3V3 and 240 kΩ to ground, with 100 nF. These are lines already on Rev F's BOM (R111, R83, C116); the study's 1 MΩ / 200 kΩ / 249 kΩ needed three new ones. `drive_budget.py` reads them from `cad/design.json`. R105 / R106 on the jack side tie each POT jack to its CUR jack, so two senses cover all four jacks.
+  - Full scale is −20.6 to +23.9 V, about 11 mV per code. The pin stays at 0.79–2.27 V over the TVS clamp range (±10 V).
+  - The bias pushes 1.0 µA into a jack at 0 V. On LCUR that is 0.10 V DC at the TIA output on the 100 k range, against about ±11 V of swing.
+  - The filter time constant is 11.1 ms; settling from a clamped jack to half the close threshold takes 33 ms, inside the firmware's 35 ms stable window (checked).
+  - The pins are GPIO 28 / 29 (ADC2 / ADC3). Rev G drops the optional UART header (J6): GPIO 0 / 1 have no escape from U1 on the Rev G board (`../../docs/rev-g-plan.md`).
+- **USB:** 0.46 A (Rev F at attach) + 16.3 mA = 0.476 A typical, 0.482 A worst, under 0.5 A.
 
 **Firmware** (`../../firmware-rev-e/src/jackguard.{h,c}`, built with `LCR_REV_G=1`):
-- **Close:** only with the rails up and both jacks below 1.0 V for 6 polls (30 ms). The 1.0 V threshold is below the second stage's 3.3 V standoff, so closing never makes it conduct.
+- **Close:** only with the rails up and both jacks below 1.0 V for 7 polls (35 ms). The 1.0 V threshold is below the second stage's 3.3 V standoff, so closing never makes it conduct.
 - **Settle:** captures wait out the switch's 2 ms tON (5 ms).
-- **Trip:** while closed, open on a rail fault or a jack above 3.0 V. The source is at most 1.7 V peak, and the filter passes 0.56 V of the lowest 46 Hz tone.
+- **Trip:** while closed, open on a rail fault or a jack above 3.0 V. The source is at most 1.7 V peak, and the filter passes 0.51 V of the lowest 46 Hz tone.
 - **Re-arm:** after 1 s of quiet jacks.
 - **During a capture** (phase 7): the guard is not polled inside a capture, which can last 60 s, so the capture loop takes one conversion per jack every 5 ms. Above 3.0 V it opens the switches, ends the capture with `ERR jacks_tripped` and leaves the guard tripped (it re-arms as above). That covers a source connected mid-capture, which would otherwise drive the 10 Ω CUR resistor and the second-stage clamp until the capture ended.
 - **Commands:** every analog command (RANGE, TONE, WAVE, RAW, CAPTURE, REFCAPTURE) polls the guard first and replies `ERR jacks_<state>` if the jacks are not connected. `JACKS` reports the state and both readings.
@@ -353,7 +354,7 @@ Verification:
 - Seven mutants are killed: no trip, no stable polls, no rail check, re-arm timed from the wrong instant; in the in-capture check, `>=` for `>`, one polarity dropped, and the trip not timed from its own instant.
 - The Rev G image builds with `-Werror`. The per-frame hot loop is unchanged (209 cycles against 640); the in-capture check runs between ring drains, about 4 µs per 5 ms against a ring that holds 22 ms.
 - The Rev E/F images do not include the module. Built at one path, HEAD and this tree give byte-identical UF2s.
-- `drive_budget.py` checks the thresholds and divider constants against `jackguard.h`.
+- `drive_budget.py` checks the thresholds, the divider constants and the stable window against `jackguard.h`, and `../firmware-pins/` traces the drive and both dividers from the firmware pins through `cad/design.json`.
 
 ## Phase 7: the open items, resolved in the box (2026-11-09)
 
@@ -428,13 +429,13 @@ K4's pole 1, unused on Rev F, shorts the HCUR and HPOT jacks while K4 is set (`r
 ### Firmware and pins
 
 - **In-capture trip:** see phase 6, "During a capture".
-- **UART:** the UART header moves to GPIO 0 / 1, not removed.
+- **UART:** the UART header moves to GPIO 0 / 1, not removed. Superseded at layout (2026-11-09): GPIO 0 / 1 have no escape on the Rev G board, so J6 is dropped (`../../docs/rev-g-plan.md`).
 - **Switch drive:** it moves from GPIO 12 to GPIO 15 (U1 pin 18). `../../firmware-rev-e/README.md` records that GPIO 12 has no escape on this board, because USB_SENSE runs over U1 pin 15. GPIO 15 sits next to K4's GPIO 14, whose driver is already near the jacks.
 - **Images:** Rev E / F are byte-identical to HEAD, built at one path.
 
 ## Schematic delta for Rev G (input to the CAD step)
 
-Against Rev F (`cad/design.json`). The BNCs are J3 / J7 / J8 / J9 = HCUR / HPOT / LPOT / LCUR. New nets: JK_HCUR, JK_HPOT, JK_LPOT, JK_LCUR (the BNC centre pins), ISO_x (switch to series R), SNS_HC / SNS_LC and ISO_DRV.
+Against Rev F (`cad/design.json`). The BNCs are J3 / J7 / J8 / J9 = HCUR / HPOT / LPOT / LCUR. New nets: JK_HCUR, JK_HPOT, JK_LPOT, JK_LCUR (the BNC centre pins), ISO_x (switch to series R), JACK_HC / JACK_LC (the senses, named after the firmware pins) and ISO_SINK (the LED strings' common cathode end); GPIO 15's net is ISO_DRIVE. This was the CAD input; the board as built, with reference designators, is in `../../docs/rev-g-plan.md`. Two rows changed at layout and are shown as built: the sense divider values and J6.
 
 | Part | Value / MPN | LCSC | Connection |
 |---|---|---|---|
@@ -447,11 +448,11 @@ Against Rev F (`cad/design.json`). The BNCs are J3 / J7 / J8 / J9 = HCUR / HPOT 
 | D | BAV99 | C2500 | pin 3 DUT_LO; pins 1, 2 GND |
 | R105 / R106 (moved) | 1 kΩ | (Rev F) | JK_HCUR – JK_HPOT, JK_LCUR – JK_LPOT |
 | K4 COM2 / R107 (moved) | (Rev F) | (Rev F) | COM2 to JK_HCUR; R107 REF_A – JK_LCUR |
-| R (×2) / R (×2) / R (×2) / C (×2) | 1 MΩ / 200 kΩ / 249 kΩ / 100 nF | | JK_HCUR (JK_LCUR) – SNS_HC (SNS_LC); SNS – 3V3; SNS – GND; SNS – GND; SNS_HC → GPIO 28, SNS_LC → GPIO 29 |
-| R (×2) | 300 Ω | | 5V – LED string 1 (U1, U2), 5V – LED string 2 (U3, U4), both strings to ISO_DRV |
-| Q | AO3400A | (Rev F line) | drain ISO_DRV, source GND, gate GPIO 15 (U1 pin 18) through 100 Ω, 100 kΩ gate – GND |
+| R (×2) / R (×2) / R (×2) / C (×2) | 1.5 MΩ / 240 kΩ / 240 kΩ / 100 nF (Rev F lines R111 / R83 / C116) | C4172 / C4197 / (Rev F) | JK_HCUR (JK_LCUR) – JACK_HC (JACK_LC); JACK – 3V3; JACK – GND; JACK – GND; JACK_HC → GPIO 28, JACK_LC → GPIO 29 |
+| R (×2) | 300 Ω | C23025 | VRLY – LED string 1 (HPOT, HCUR switches), VRLY – LED string 2 (LPOT, LCUR switches), both strings to ISO_SINK |
+| Q | AO3400A | (Rev F line) | drain ISO_SINK, source GND, gate GPIO 15 (U1 pin 18, net ISO_DRIVE) through 100 Ω, 100 kΩ gate – GND |
 | K4 pole 1 (added use) | (Rev F) | (Rev F) | COM1 (pin 3) to JK_HCUR, NO1 (pin 4) to JK_HPOT: shorts them while K4 is set |
-| J6 UART header (moved) | (Rev F) | (Rev F) | UART_TX → GPIO 0 (U1 pin 2), UART_RX → GPIO 1 (U1 pin 3); GPIO 28 / 29 are the senses |
+| J6 UART header (removed) | | | GPIO 28 / 29 are the senses; GPIO 0 / 1 have no escape from U1 on the Rev G board |
 
 C78 (100 pF, DUT_LO) and R94 stay where they are. The setup fee is 4 extended lines, about $12 per order (`PARTS.md`).
 
@@ -459,7 +460,7 @@ C78 (100 pF, DUT_LO) and R94 stay where they are. The setup fee is 4 extended li
 
 Resolved 2026-11-09 (phase 7): human ESD on the centre pins, a trip during a capture, the HPOT reference residual, the UART header, and the sensitivity of every value bring-up was to measure.
 
-- **Schematic and layout start when Rev F bring-up passes.** This is the 2026-11-08 sequencing, kept for its own reason: Rev G sits on Rev F's most sensitive nodes, and bring-up can move other parts of the board. The protection values no longer wait on it. The table above is the input to the CAD step. Layout is hand-routed, never autorouted, and gets an independent review before it is called orderable.
+- **Schematic and layout started 2026-11-09, ahead of Rev F bring-up (owner decision).** This overrides the 2026-11-08 sequencing. Its reason still stands: Rev G sits on Rev F's most sensitive nodes, and bring-up can move other parts of the board, so a bring-up finding on those nodes is applied to Rev G before it is ordered. Layout is hand-routed, never autorouted, and gets an independent review before it is called orderable (`../../docs/rev-g-plan.md`).
 - **Bring-up confirms three numbers; it does not size them.** Each pass limit is the value phase 7 shows still meets the target:
   - the TLP172AM's COFF at 0 V, 40 pF or less;
   - the H4V5HD3B's C at 0 V, 200 pF or less, and the H3V3LD5B's, 25 pF or less;

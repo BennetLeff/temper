@@ -12,8 +12,8 @@ set(LCR_FS_375K 0 CACHE STRING "1 builds the 375 kHz sample-rate variant")
 # 1 builds for Rev G: the jack isolation switches and residual-voltage senses (src/jackguard.h).
 set(LCR_REV_G 0 CACHE STRING "1 builds the Rev G jack-guard image")
 add_executable(temper_lcr src/main.c src/syncavg.c src/wave.c src/tac5112.c src/relay.c src/rails.c src/usb_descriptors.c)
-# The optional UART header (J6): GPIO 28 / 29 on Rev E / F; Rev G moves it to GPIO 0 / 1, since the jack senses
-# take ADC2 / ADC3 (src/pins.h).
+# The optional UART header (J6): GPIO 28 / 29 on Rev E / F. Rev G has no UART header, since the jack senses
+# take ADC2 / ADC3 (src/pins.h); UART stdio is disabled below, so the SDK's default pins 0 / 1 stay unused.
 set(LCR_UART_TX 28)
 set(LCR_UART_RX 29)
 if(LCR_REV_G)

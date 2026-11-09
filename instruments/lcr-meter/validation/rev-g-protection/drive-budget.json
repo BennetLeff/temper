@@ -1,51 +1,120 @@
 {
+ "design": {
+  "revision": "G",
+  "r101": [
+   "R101",
+   1.0
+  ],
+  "r_led": [
+   [
+    "R132",
+    300.0
+   ],
+   [
+    "R133",
+    300.0
+   ]
+  ],
+  "sense": {
+   "JACK_HC": {
+    "r_top": [
+     "R126",
+     1500000.0
+    ],
+    "r_bias": [
+     "R127",
+     240000.0
+    ],
+    "r_gnd": [
+     "R128",
+     240000.0
+    ],
+    "c_pin": [
+     "C121",
+     1.0000000000000001e-07
+    ]
+   },
+   "JACK_LC": {
+    "r_top": [
+     "R129",
+     1500000.0
+    ],
+    "r_bias": [
+     "R130",
+     240000.0
+    ],
+    "r_gnd": [
+     "R131",
+     240000.0
+    ],
+    "c_pin": [
+     "C122",
+     1.0000000000000001e-07
+    ]
+   }
+  }
+ },
  "drive": {
   "worst_low": {
    "v5": 4.32,
    "vf": 1.4,
-   "i_string_ma": 5.065822362939511,
-   "i_total_ma": 10.131644725879022
+   "i_coil_ma": 0.0,
+   "i_string_ma": 5.032279423936436,
+   "i_total_ma": 10.064558847872872,
+   "vrly": 4.309935441152128
   },
   "typical": {
    "v5": 5.0,
    "vf": 1.27,
-   "i_string_ma": 8.198633561073153,
-   "i_total_ma": 16.397267122146307
+   "i_coil_ma": 0.0,
+   "i_string_ma": 8.14434696242344,
+   "i_total_ma": 16.28869392484688,
+   "vrly": 4.983711306075153
   },
   "worst_high": {
    "v5": 5.5,
    "vf": 1.1,
-   "i_string_ma": 10.998166972171303,
-   "i_total_ma": 21.996333944342606
+   "i_coil_ma": 0.0,
+   "i_string_ma": 10.925343486177784,
+   "i_total_ma": 21.850686972355568,
+   "vrly": 5.478149313027645
+  },
+  "reset_pulse": {
+   "v5": 4.3,
+   "vf": 1.4,
+   "i_coil_ma": 112.4,
+   "i_string_ma": 4.593941400430392,
+   "i_total_ma": 9.187882800860784,
+   "vrly": 4.178412117199139
   }
  },
  "sense": {
-  "gain": 0.09983961507618283,
-  "mid_v": 1.6473536487570166,
+  "gain": 0.07407407407407407,
+  "mid_v": 1.5277777777777777,
   "pin_v": {
-   "-10 V": 0.6489574979951883,
-   "+0 V": 1.6473536487570166,
-   "+10 V": 2.645749799518845
+   "-10 V": 0.787037037037037,
+   "+0 V": 1.5277777777777777,
+   "+10 V": 2.268518518518518
   },
   "full_scale_jack_v": [
-   -16.5,
-   16.553012048192773
+   -20.625,
+   23.925
   ],
-  "bias_into_jack_ua": 1.6473536487570166,
+  "bias_into_jack_ua": 1.0185185185185186,
   "tia_dc_offset_v": {
-   "100": 0.00016473536487570165,
-   "5000": 0.008236768243785083,
-   "100000": 0.16473536487570165
+   "100": 0.00010185185185185186,
+   "5000": 0.005092592592592593,
+   "100000": 0.10185185185185186
   },
-  "lcur_ac_load": 3.3e-05,
-  "tau_ms": 9.983961507618284,
-  "settle_ms": 29.90927570629285,
-  "tone_ripple_at_46hz_jack_v": 0.5588173634812552
+  "lcur_ac_load": 2.2e-05,
+  "tau_ms": 11.11111111111111,
+  "settle_ms": 33.2859141505999,
+  "tone_ripple_at_46hz_jack_v": 0.5074368473727937
  },
  "usb_a": {
   "base": 0.46,
-  "with_drive_typ": 0.4763972671221463,
-  "with_drive_max": 0.4819963339443426
+  "with_drive_typ": 0.4762886939248469,
+  "with_drive_max": 0.4818506869723556
  },
  "timing": {
   "t_on_max_ms": 2.0,
@@ -69,44 +138,62 @@
    "pass_": true
   },
   {
+   "check": "firmware stable window (JG_STABLE_POLLS x JG_POLL_MS) >= sense settling from the clamp, ms",
+   "value": 1.714086,
+   "limit": 0.0,
+   "pass_": true
+  },
+  {
    "check": "LED current at the lowest rail, highest VF >= 5 mA",
-   "value": 5.065822,
+   "value": 5.032279,
    "limit": 5.0,
    "pass_": true
   },
   {
    "check": "LED current at the highest rail, lowest VF <= 25 mA",
-   "value": 10.998167,
+   "value": 10.925343,
    "limit": 25.0,
    "pass_": true
   },
   {
+   "check": "LED current during the RESET pulse, lowest rail, highest VF > IFT max 3 mA",
+   "value": 4.593941,
+   "limit": 3.0,
+   "pass_": true
+  },
+  {
+   "check": "relay coil voltage during the RESET pulse with the LED current on R101 >= 3.75 V",
+   "value": 4.172792,
+   "limit": 3.75,
+   "pass_": true
+  },
+  {
    "check": "sense pin at -10 V jack >= 0 V",
-   "value": 0.648957,
+   "value": 0.787037,
    "limit": 0.0,
    "pass_": true
   },
   {
    "check": "sense pin at +10 V jack <= 3.3 V",
-   "value": 2.64575,
+   "value": 2.268519,
    "limit": 3.3,
    "pass_": true
   },
   {
    "check": "TIA DC offset from the sense bias, 100 k range <= 2 % of the swing",
-   "value": 0.164735,
+   "value": 0.101852,
    "limit": 0.22,
    "pass_": true
   },
   {
    "check": "46 Hz tone ripple at the sense, as jack volts < the trip threshold",
-   "value": 0.558817,
+   "value": 0.507437,
    "limit": 3.0,
    "pass_": true
   },
   {
    "check": "USB load with the drive (typical) <= 0.5 A",
-   "value": 0.476397,
+   "value": 0.476289,
    "limit": 0.5,
    "pass_": true
   }

@@ -1,0 +1,2485 @@
+{
+ "method": "Pinout / land-pattern / JLC-package check of every multi-pin and polarized part (read-only).",
+ "board_sha256": "b956ee70254f9146dc049c4c5bacf0c03a0b66f7b0833157d5d599e2451d981d",
+ "board_sha256_ledger": "b956ee70254f9146dc049c4c5bacf0c03a0b66f7b0833157d5d599e2451d981d",
+ "design_sha256": "9eab5017f911f99b8d94b23d368c29ee32c327cebde79b167ef76b3b10022910",
+ "ledger_sha256": "7775adb4db9ed4e955a9ef7fc485dbe35c907facae5aa5db6d08e11399c5be56",
+ "kicad_version": "10.0.4",
+ "coverage": {
+  "parts_in_ledger": 68,
+  "uncovered": []
+ },
+ "summary": {
+  "PASS": 25,
+  "NOTE": 6,
+  "FINDING": 0
+ },
+ "parts": [
+  {
+   "id": "RP2040",
+   "refs": [
+    "U1"
+   ],
+   "mpn": "RP2040",
+   "lcsc": "C2040",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry RP2040 / C2040"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: RP2040 in LQFN-56_L7.0-W7.0-P0.4-EP"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['RP2040'] matches the datasheet table on 57 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U1: all 57 pads on the expected nets"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net USB_DM_MCU has ['R3']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net USB_DP_MCU has ['R4']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net XTAL_OUT has ['R10', 'Y1']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net QSPI_CS has ['R7', 'U2']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net RUN has ['R9', 'SW2']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net 1V1 has ['C8']"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "57 numbered copper pads on the board, datasheet 57"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 0.400 mm, datasheet 0.4 mm (tol 0.03)"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-42 6.875 mm, datasheet 6.875 mm (tol 0.1)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.20 x 0.88 mm, datasheet 0.2 x 0.875 mm (ratio 1.00, 1.00)"
+    },
+    {
+     "check": "exposed_pad",
+     "pass": true,
+     "detail": "3.20 x 3.20 mm, datasheet 3.2 x 3.2 mm"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-3.438, -2.600) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..56 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U1: CPL 180 deg (board 180 + 0); 57 EasyEDA pads land on same-function board pads, worst 0.013 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "GPIO numbers come from firmware-rev-e/src/pins.h; each is mapped to a package pin through the datasheet pin list, not through design.json. GPIO0/1/12/15-21/24 are unconnected (reset state: pull-down).",
+    "Board pad 1-42 centre distance 6.875 mm = (7.75 + 6.00) / 2, the datasheet footprint exactly."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "GD25Q16ESIGR",
+   "refs": [
+    "U2"
+   ],
+   "mpn": "GD25Q16ESIGR",
+   "lcsc": "C2922792",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry GD25Q16ESIGR / C2922792"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: GD25Q16ESIGR in SOP-8_L5.3-W5.3-P1.27-LS8.0-BL"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['FLASH'] matches the datasheet table on 8 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U2: all 8 pads on the expected nets"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net QSPI_CLK_FLASH has ['R13']"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "8 numbered copper pads on the board, datasheet 8"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 1.270 mm, datasheet 1.27 mm (tol 0.03)"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-8 7.175 mm, datasheet 7.225 mm (tol 0.5)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.65 x 1.62 mm, datasheet 0.41 x 0.675 mm (ratio 1.59, 2.41)"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-3.587, -1.905) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..8 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U2: CPL 270 deg (board 0 + 270); 8 EasyEDA pads land on same-function board pads, worst 0.045 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "RP2040 QSPI_SDn -> flash IOn: SD0->SI(IO0), SD1->SO(IO1), SD2->WP(IO2), SD3->HOLD(IO3), SCLK via R13 33R, SS->CS# with R7 pull-up.",
+    "design.json pinouts[\"FLASH\"] uses generic DO/DI names; aliased to the GigaDevice names."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "AP2112K-3.3",
+   "refs": [
+    "U3",
+    "U15"
+   ],
+   "mpn": "AP2112K-3.3TRG1",
+   "lcsc": "C51118",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry AP2112K-3.3TRG1 / C51118"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: AP2112K-3.3TRG1 in SOT-25-5_L2.9-W1.6-P0.95-LS2.8-BL"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['LDO'] matches the datasheet table on 5 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U3: all 5 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U15: all 5 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "5 numbered copper pads on the board, datasheet 5"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 0.950 mm, datasheet 0.95 mm (tol 0.03)"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-5 2.275 mm, datasheet 2.4 mm (tol 0.5)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.60 x 1.32 mm, datasheet 0.55 x 0.8 mm (ratio 1.09, 1.66)"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-1.137, -0.950) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..5 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U3: CPL 270 deg (board 0 + 270); 5 EasyEDA pads land on same-function board pads, worst 0.195 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U15: CPL 270 deg (board 0 + 270); 5 EasyEDA pads land on same-function board pads, worst 0.195 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "EN tied to VIN (always on) is allowed: \"Chip Enable, H - normal work\".",
+    "Board pads 0.60 x 1.325 (KiCad SOT-23-5) are 0.5 mm longer than Diodes' 0.80 suggestion, mostly inward; not gross."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "OPA197 DBV",
+   "refs": [
+    "U5"
+   ],
+   "mpn": "OPA197IDBVR",
+   "lcsc": "C221351",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry OPA197IDBVR / C221351"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: OPA197IDBVR in SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['OPA810'] matches the datasheet table on 5 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U5: all 5 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "5 numbered copper pads on the board, datasheet 5"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 0.950 mm, datasheet 0.95 mm (tol 0.03)"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-5 2.275 mm, datasheet 2.6 mm (tol 0.5)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.60 x 1.32 mm, datasheet 0.6 x 1.1 mm (ratio 1.00, 1.20)"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-1.137, -0.950) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..5 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U5: CPL 180 deg (board 0 + 180); 5 EasyEDA pads land on same-function board pads, worst 0.195 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "design.json kind is \"OPA810\" (Rev E part); the pin map is identical for the OPA197 DBV (checked by name above).",
+    "Board pad centres 2.275 mm apart vs TI 2.6 (KiCad SOT-23-5 pads run 0.27 mm further inward); outer edges agree within 0.05 mm."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "OPA2810 DGK",
+   "refs": [
+    "U6",
+    "U7"
+   ],
+   "mpn": "OPA2810IDGKR",
+   "lcsc": "C2864204",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry OPA2810IDGKR / C2864204"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: OPA2810IDGKR in VSSOP-8_L3.0-W3.0-P0.65-LS4.9-BL"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['OPA2810'] matches the datasheet table on 8 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U6: all 8 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U7: all 8 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "8 numbered copper pads on the board, datasheet 8"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 0.650 mm, datasheet 0.65 mm (tol 0.03)"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-8 4.225 mm, datasheet 4.4 mm (tol 0.5)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.50 x 1.62 mm, datasheet 0.45 x 1.4 mm (ratio 1.11, 1.16)"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-2.112, -0.975) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..8 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U6: CPL 0 deg (board 90 + 270); 8 EasyEDA pads land on same-function board pads, worst 0.087 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U7: CPL 0 deg (board 90 + 270); 8 EasyEDA pads land on same-function board pads, worst 0.087 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "U6A unity-gain source driver (out = -in = SRC_DRV), U6B / U7B followers on HPOT / LPOT, U7A TIA with +in on GND."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "TPS7A4901 DGN",
+   "refs": [
+    "U11"
+   ],
+   "mpn": "TPS7A4901DGNR",
+   "lcsc": "C16430",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry TPS7A4901DGNR / C16430"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: TPS7A4901DGNR in HVSSOP-8_L3.0-W3.0-P0.65-LS4.9-BL-EP_DGN0008D"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['TPS7A'] matches the datasheet table on 9 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U11: all 9 pads on the expected nets"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net REGP_FB has ['R85', 'R86']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net REGP_NR has ['C93']"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "9 numbered copper pads on the board, datasheet 9"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 0.650 mm, datasheet 0.65 mm (tol 0.03)"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-8 4.300 mm, datasheet 4.4 mm (tol 0.5)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.50 x 1.45 mm, datasheet 0.45 x 1.4 mm (ratio 1.11, 1.04)"
+    },
+    {
+     "check": "exposed_pad",
+     "pass": true,
+     "detail": "1.57 x 1.89 mm, datasheet 1.57 x 1.89 mm"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-2.150, -0.975) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..8 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U11: CPL 270 deg (board 0 + 270); 9 EasyEDA pads land on same-function board pads, worst 0.050 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "Board signal pads 1.45 x 0.50 at 4.30 mm centres vs TI 1.4 x 0.45 at 4.4: within 0.1 mm."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "TPS7A3001 DGN",
+   "refs": [
+    "U12"
+   ],
+   "mpn": "TPS7A3001DGNR",
+   "lcsc": "C33835",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry TPS7A3001DGNR / C33835"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: TPS7A3001DGNR in HVSSOP-8_L3.0-W3.0-P0.65-LS4.9-BL-EP_DGN0008D"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['TPS7A'] matches the datasheet table on 9 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U12: all 9 pads on the expected nets"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net REGN_FB has ['R87', 'R89']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net REGN_NR has ['C98']"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "9 numbered copper pads on the board, datasheet 9"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 0.650 mm, datasheet 0.65 mm (tol 0.03)"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-8 4.300 mm, datasheet 4.4 mm (tol 0.5)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.50 x 1.45 mm, datasheet 0.45 x 1.4 mm (ratio 1.11, 1.04)"
+    },
+    {
+     "check": "exposed_pad",
+     "pass": true,
+     "detail": "1.57 x 1.89 mm, datasheet 1.57 x 1.89 mm"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-2.150, -0.975) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..8 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U12: CPL 270 deg (board 0 + 270); 9 EasyEDA pads land on same-function board pads, worst 0.050 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "Negative LDO: the PowerPAD goes to GND (allowed), not to IN."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "TPS65131 RGE",
+   "refs": [
+    "U13"
+   ],
+   "mpn": "TPS65131RGER",
+   "lcsc": "C87663",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry TPS65131RGER / C87663"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: TPS65131RGER in QFN-24_L4.0-W4.0-P0.50-TL-EP2.6"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['TPS65131'] matches the datasheet table on 25 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U13: all 25 pads on the expected nets"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net CONV_REF has ['C84', 'R84']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net CONV_FBN has ['R84', 'R111']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net CONV_FBP has ['R81', 'R82']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net CONV_CP has ['C86']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net CONV_CN has ['C85']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net SW_P has ['L1', 'D2']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net SW_N has ['L2', 'D3']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net CONV_VIN has ['R80', 'C81']"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "25 numbered copper pads on the board, datasheet 25"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 0.500 mm, datasheet 0.5 mm (tol 0.03)"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-18 3.975 mm, datasheet 3.8 mm (tol 0.25)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.25 x 0.77 mm, datasheet 0.25 x 0.6 mm (ratio 1.00, 1.29)"
+    },
+    {
+     "check": "exposed_pad",
+     "pass": true,
+     "detail": "2.45 x 2.45 mm, datasheet 2.45 x 2.45 mm"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-1.987, -1.250) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..24 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U13: CPL 90 deg (board 90 + 0); 25 EasyEDA pads land on same-function board pads, worst 0.014 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "PSP / PSN on GND: power-save off, forced PWM (Table 5-1 \"0 V: disabled\"). BSW (gate drive output for an optional battery switch) left open.",
+    "VREF carries C84 220 nF and the lower FBN resistor R84, as Table 5-1 requires.",
+    "Board pads 0.775 long at 3.975 mm centres vs TI 0.6 at 3.8: same inner edge (1.6 mm from centre), 0.175 mm more toe. Not gross."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "TAC5112 RGE0024R",
+   "refs": [
+    "U14"
+   ],
+   "mpn": "TAC5112IRGER",
+   "lcsc": "C44853692",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry TAC5112IRGER / C44853692"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: TAC5112IRGER in VQFN-24_L4.0-W4.0-P0.50-BL-EP2.1_1"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['TAC5112'] matches the datasheet table on 29 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U14: all 29 pads on the expected nets"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net CODEC_DREG has ['C63', 'C64']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net CODEC_VREF has ['C62']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net I2C_SDA has ['R72', 'U1']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net I2C_SCL has ['R73', 'U1']"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "29 numbered copper pads on the board, datasheet 29"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 0.500 mm, datasheet 0.5 mm (tol 0.03)"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-18 3.800 mm, datasheet 3.8 mm (tol 0.05)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.24 x 0.60 mm, datasheet 0.24 x 0.6 mm (ratio 1.00, 1.00)"
+    },
+    {
+     "check": "exposed_pad",
+     "pass": true,
+     "detail": "2.10 x 2.10 mm, datasheet 2.1 x 2.1 mm"
+    },
+    {
+     "check": "positions",
+     "pass": true,
+     "detail": "4 pad centres within 0.000 mm of the datasheet"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-1.900, -1.250) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..24 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U14: CPL 0 deg (board 0 + 0); 29 EasyEDA pads land on same-function board pads, worst 0.000 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "Firmware pins.h: RP2040 DOUT (GPIO2, net I2S_DIN) -> codec DIN pin 5; codec DOUT pin 4 -> GPIO3 (net I2S_DOUT). Net names follow the codec side.",
+    "GPIO1 (reset: IRQ output, Table 8-11), GPIO2, GPO1, MICBIAS, OUT2P/M open; GPI1 on GND. No datasheet rule against it."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "TPS2553 DBV",
+   "refs": [
+    "U16"
+   ],
+   "mpn": "TPS2553DBVR",
+   "lcsc": "C55266",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry TPS2553DBVR / C55266"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: TPS2553DBVR in SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BR"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['USBSW'] matches the datasheet table on 6 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U16: all 6 pads on the expected nets"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net VBUS_ILIM has ['R110']"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "6 numbered copper pads on the board, datasheet 6"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 0.950 mm, datasheet 0.95 mm (tol 0.03)"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-6 2.275 mm, datasheet 2.6 mm (tol 0.5)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.60 x 1.32 mm, datasheet 0.6 x 1.1 mm (ratio 1.00, 1.20)"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-1.137, -0.950) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..6 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U16: CPL 0 deg (board 180 + 180); 6 EasyEDA pads land on same-function board pads, worst 0.213 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "EN tied to IN is correct only for the active-high TPS2553 (the TPS2552 would never turn on); the BOM, design and LCSC record all say TPS2553DBVR.",
+    "FAULT is an open-drain output; leaving it open is allowed (prior audit PE-7)."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "LM3880-1AA DBV",
+   "refs": [
+    "U17"
+   ],
+   "mpn": "LM3880MF-1AA/NOPB",
+   "lcsc": "C486059",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry LM3880MF-1AA/NOPB / C486059"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: LM3880MF-1AA/NOPB in SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BR"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['SEQ'] matches the datasheet table on 6 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U17: all 6 pads on the expected nets"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net SEQ_EN has ['C116']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net CONV_ENP has ['R119', 'U13']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net CONV_ENN has ['R120', 'U13']"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "6 numbered copper pads on the board, datasheet 6"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 0.950 mm, datasheet 0.95 mm (tol 0.03)"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-6 2.275 mm, datasheet 2.6 mm (tol 0.5)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.60 x 1.32 mm, datasheet 0.6 x 1.1 mm (ratio 1.00, 1.20)"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-1.137, -0.950) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..6 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U17: CPL 180 deg (board 0 + 180); 6 EasyEDA pads land on same-function board pads, worst 0.213 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "FLAG1 (first) -> ENP (boost), FLAG2 (second) -> ENN, as docs and the datasheet-audit README intend. EN has only C116: the internal 7 uA pull-up charges it (datasheet Figure 7-1 delay)."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "SRV05-4 (R+O)",
+   "refs": [
+    "D1"
+   ],
+   "mpn": "SRV05-4",
+   "lcsc": "C7420376",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry SRV05-4 / C7420376"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: SRV05-4 in SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BL-1"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D1: all 6 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "6 numbered copper pads on the board, datasheet 6"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 0.950 mm, datasheet 0.95 mm (tol 0.03)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.60 x 1.32 mm, datasheet 0.6 x 0.9 mm (ratio 1.00, 1.47)"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-1.137, -0.950) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..6 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D1: CPL 270 deg (board 0 + 270); 6 EasyEDA pads land on same-function board pads, worst 0.062 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "design.json names pins 3/4 IO2/IO2 and 1/6 IO1/IO1 (it pairs channels); the four I/O channels are independent, so pairing is electrical only. Names not compared."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "BAT54S (R+O)",
+   "refs": [
+    "D11",
+    "D12",
+    "D13",
+    "D14"
+   ],
+   "mpn": "BAT54S",
+   "lcsc": "C7420333",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry BAT54S / C7420333"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: BAT54S in SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D11: all 3 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D12: all 3 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D13: all 3 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D14: all 3 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "3 numbered copper pads on the board, datasheet 3"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 1.900 mm, datasheet 1.9 mm (tol 0.05)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.60 x 1.47 mm, datasheet 0.8 x 0.9 mm (ratio 0.75, 1.64)"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-0.938, -0.950) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..3 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D11: CPL 180 deg (board 0 + 180); 3 EasyEDA pads land on same-function board pads, worst 0.083 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D12: CPL 180 deg (board 0 + 180); 3 EasyEDA pads land on same-function board pads, worst 0.083 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D13: CPL 180 deg (board 0 + 180); 3 EasyEDA pads land on same-function board pads, worst 0.083 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D14: CPL 180 deg (board 0 + 180); 3 EasyEDA pads land on same-function board pads, worst 0.083 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "design.json kind \"BAT54S\" has no pinout table; pin functions checked from the datasheet directly."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "AO3400A",
+   "refs": [
+    "Q2",
+    "Q3",
+    "Q4",
+    "Q5",
+    "Q6",
+    "Q7"
+   ],
+   "mpn": "AO3400A",
+   "lcsc": "C20917",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry AO3400A / C20917"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: AO3400A in SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "Q2: all 3 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "Q3: all 3 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "Q4: all 3 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "Q5: all 3 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "Q6: all 3 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "Q7: all 3 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "3 numbered copper pads on the board, datasheet 3"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 1.900 mm, datasheet 1.9 mm (tol 0.05)"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-0.938, -0.950) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..3 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "Q2: CPL 180 deg (board 0 + 180); 3 EasyEDA pads land on same-function board pads, worst 0.083 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "Q3: CPL 180 deg (board 0 + 180); 3 EasyEDA pads land on same-function board pads, worst 0.083 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "Q4: CPL 180 deg (board 0 + 180); 3 EasyEDA pads land on same-function board pads, worst 0.083 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "Q5: CPL 180 deg (board 0 + 180); 3 EasyEDA pads land on same-function board pads, worst 0.083 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "Q6: CPL 180 deg (board 0 + 180); 3 EasyEDA pads land on same-function board pads, worst 0.083 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "Q7: CPL 0 deg (board 180 + 180); 3 EasyEDA pads land on same-function board pads, worst 0.083 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "The AOS sheet draws pin positions but prints no pin numbers; the numbering is the JEDEC SOT-23 convention, and the LCSC symbol (1 G, 2 S, 3 D) agrees. No land pattern in this sheet."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "SS14 (MDD)",
+   "refs": [
+    "D2",
+    "D3"
+   ],
+   "mpn": "SS14",
+   "lcsc": "C2480",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry SS14 / C2480"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: SS14 in SMA_L4.2-W2.6-LS5.0-RD_1"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['DIODE'] matches the datasheet table on 2 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D2: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D3: all 2 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "2 numbered copper pads on the board, datasheet 2"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-2 4.000 mm, datasheet 3.93 mm (tol 0.2)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "1.80 x 2.50 mm, datasheet 1.52 x 1.68 mm (ratio 1.18, 1.49)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D2: CPL 0 deg (board 0 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.035 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D3: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.035 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "Boost rectifier: anode SW_P, cathode RAW_P. Inverter: cathode on SW_N (OUTN), anode on RAW_N (VNEG), the TPS65131 topology.",
+    "Board pads 2.5 x 1.8 at 4.0 mm (KiCad D_SMA) extend 0.45 mm further inward than MDD's; outer edge 3.25 vs 2.73 from centre."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "1N4148WS (CJ)",
+   "refs": [
+    "D5",
+    "D6",
+    "D7",
+    "D8",
+    "D9"
+   ],
+   "mpn": "1N4148WS",
+   "lcsc": "C2128",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry 1N4148WS / C2128"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: 1N4148WS in SOD-323_L1.8-W1.3-LS2.5-RD"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['DIODE'] matches the datasheet table on 2 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D5: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D6: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D7: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D8: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D9: all 2 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "2 numbered copper pads on the board, datasheet 2"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D5: CPL 0 deg (board 0 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.122 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D6: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.122 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D7: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.122 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D8: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.122 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D9: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.122 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "Flyback: cathode on the coil supply VRLY, anode on the low-side drain. EasyEDA C2128 pad 1 = K with the silk bar on that side."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "KT-0603R LED",
+   "refs": [
+    "D15",
+    "D16",
+    "D17",
+    "D18",
+    "D19",
+    "D20"
+   ],
+   "mpn": "KT-0603R",
+   "lcsc": "C2286",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry KT-0603R / C2286"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: KT-0603R in LED-SMD_L1.6-W0.8-R-RD"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['LED'] matches the datasheet table on 2 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D15: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D16: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D17: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D18: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D19: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D20: all 2 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "2 numbered copper pads on the board, datasheet 2"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-2 1.575 mm, datasheet 1.4 mm (tol 0.25)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.88 x 0.95 mm, datasheet 0.7 x 0.7 mm (ratio 1.25, 1.36)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D15: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.037 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D16: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.037 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D17: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.037 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D18: CPL 270 deg (board -90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.037 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D19: CPL 270 deg (board -90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.037 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D20: CPL 270 deg (board -90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.037 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "Vendor and EasyEDA number the anode 1; the KiCad footprint numbers the cathode 1. The JLC check maps EasyEDA pad 2 (cathode) onto board pad 1: with CPL offset 0 the cathode lands on the cathode pad.",
+    "D18 is reversed on purpose: anode on GND, cathode toward -12 V through R116."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "LTST-S270KFKT",
+   "refs": [
+    "D4"
+   ],
+   "mpn": "LTST-S270KFKT",
+   "lcsc": "C160472",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry LTST-S270KFKT / C160472"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: LTST-S270KFKT in LED-SMD_L1.7-W0.6-RD"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['LED'] matches the datasheet table on 2 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D4: all 2 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "2 numbered copper pads on the board, datasheet 2"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-2 2.000 mm, datasheet 2.0 mm (tol 0.05)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "1.10 x 1.10 mm, datasheet 1.1 x 1.1 mm (ratio 1.00, 1.00)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D4: CPL 0 deg (board 0 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.100 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [
+    "D4 was not among the parts the 2026-10-30 placement preview passed; confirm lens toward the front edge and cathode on pad 1 (GND) in the final preview."
+   ],
+   "notes": [
+    "Lens direction (front edge) is a mechanical check; D4 is not in the list of parts the 2026-10-30 placement preview passed (C117, U17, U1, K1-K4, D5-D8, D15-D20). Check D4 lens and cathode in the final preview."
+   ],
+   "result": "NOTE"
+  },
+  {
+   "id": "ABM8-272-T3",
+   "refs": [
+    "Y1"
+   ],
+   "mpn": "ABM8-272-T3",
+   "lcsc": "C20625731",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry ABM8-272-T3 / C20625731"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: ABM8-272-T3 in CRYSTAL-SMD_4P-L3.2-W2.5-BL"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "Y1: all 4 pads on the expected nets"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net XIN has ['C12', 'U1']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net XTAL_OUT has ['C13', 'R10']"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "4 numbered copper pads on the board, datasheet 4"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 2.200 mm, datasheet 2.2 mm (tol 0.05)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "1.20 x 1.40 mm, datasheet 1.1 x 1.4 mm (ratio 1.09, 1.00)"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-1.100, +0.850) in the footprint frame, expected -x +y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..4 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "Y1: CPL 0 deg (board 0 + 0); 4 EasyEDA pads land on same-function board pads, worst 0.000 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [
+    "Body chamfer is not a pin-1 mark on this crystal (datasheet note); in the preview confirm the crystal pads 1/3 by pad geometry (EasyEDA record lands pad-for-pad at CPL 0)."
+   ],
+   "notes": [
+    "Pads 1 and 3 are diagonal on the board, as on the part. A 90 degree placement error would put the crystal across the two GND pads; the body chamfer is not a reliable pin-1 mark (datasheet note), so check pad 1 by geometry in the preview (prior audit M1)."
+   ],
+   "result": "NOTE"
+  },
+  {
+   "id": "HRO TYPE-C-31-M-12",
+   "refs": [
+    "J1"
+   ],
+   "mpn": "TYPE-C-31-M-12",
+   "lcsc": "C165948",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry TYPE-C-31-M-12 / C165948"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: TYPE-C-31-M-12 in USB-C_SMD-TYPE-C-31-M-12_1"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "J1: all 17 pads on the expected nets"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net CC1 has ['R1']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net CC2 has ['R2']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net USB_DP has ['R4', 'D1']"
+    },
+    {
+     "check": "support",
+     "pass": true,
+     "detail": "net USB_DM has ['R3', 'D1']"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "20 numbered copper pads on the board, datasheet 20"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.60 x 1.14 mm, datasheet 0.6 x 1.14 mm (ratio 1.00, 1.00)"
+    },
+    {
+     "check": "positions",
+     "pass": true,
+     "detail": "16 pad centres within 0.000 mm of the datasheet"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "J1: CPL 270 deg (board -90 + 0); 12 EasyEDA pads land on same-function board pads, worst 0.000 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "CC1 / CC2 each have their own 5.1 k pull-down (R1, R2): a sink that works in both plug orientations. D+ and D- are joined across both rows. SBU open. Shell on GND.",
+    "Shell slots on the board (1.0 x 2.1 / 1.0 x 1.8 pads, 0.6 x 1.7 / 0.6 x 1.4 drills, x +-4.325, y -3.10 / +1.08) match the drawing (8.65, 4.18)."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "TQ2SA-L2-5V",
+   "refs": [
+    "K1",
+    "K2",
+    "K3",
+    "K4"
+   ],
+   "mpn": "TQ2SA-L2-5V-Z",
+   "lcsc": "C2684450",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry TQ2SA-L2-5V-Z / C2684450"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: TQ2SA-L2-5V-Z in RELAY-SMD_TQ2SA-3V"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['RELAY2L'] matches the datasheet table on 10 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "K1: all 10 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "K2: all 10 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "K3: all 10 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "K4: all 10 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "10 numbered copper pads on the board, datasheet 10"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 2.540 mm, datasheet 2.54 mm (tol 0.03)"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-10 9.560 mm, datasheet 9.56 mm (tol 0.02)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "1.00 x 2.94 mm, datasheet 1.0 x 2.94 mm (ratio 1.00, 1.00)"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-5.080, +4.780) in the footprint frame, expected -x +y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..10 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "K1: CPL 270 deg (board -90 + 0); 10 EasyEDA pads land on same-function board pads, worst 0.300 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "K2: CPL 270 deg (board -90 + 0); 10 EasyEDA pads land on same-function board pads, worst 0.300 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "K3: CPL 270 deg (board -90 + 0); 10 EasyEDA pads land on same-function board pads, worst 0.300 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "K4: CPL 90 deg (board 90 + 0); 10 EasyEDA pads land on same-function board pads, worst 0.300 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [
+    "Set/reset coil identity (1-5 = SET) is read from Panasonic's open/filled coil drawing, not from a printed label; polarity and contact map are verified. Consequence if wrong: firmware change only (feature-recoverable). Confirm at bring-up: pulse RNG_SET_LO alone, K1 must close SOURCE_BUF-RG100."
+   ],
+   "notes": [
+    "Coil polarity (+ on VRLY at pins 1 and 10, low-side switch on 5 and 6) and the contact map (range resistor on NO pins 4 / 7, closed only after SET) follow the drawing directly.",
+    "Which coil is SET is NOT printed in words: Panasonic draws the 1-5 coil open and the 6-10 coil filled in the \"Reset condition\" schematic, and no TQ document found states set/reset by pin number. The board (and prior audit RC-03) assume 1-5 = SET. If that reading were wrong the board still works with a firmware change (pulse the shared RESET line to set all four, then the per-relay lines to drop the unwanted ones), so this is not a board-dead risk. Bring-up: pulse RNG_SET_LO alone and confirm K1 closes (continuity SOURCE_BUF-RG100).",
+    "EasyEDA C2684450 pads are 1.2 x 3.3 at 10.16 mm rows (not the Panasonic 9.56); only used here for JLC orientation, where pad 1 lands on pad 1 within 0.3 mm.",
+    "Rev G: K4 COM2 (pin 8) on JK_HCUR and pole 1 (COM1 pin 3, NO1 pin 4) shorts JK_HCUR to JK_HPOT while K4 is set (rev-g-protection phase 7, the reference bypass)."
+   ],
+   "result": "NOTE"
+  },
+  {
+   "id": "BNC-KYWE-295-W4-N",
+   "refs": [
+    "J3",
+    "J7",
+    "J8",
+    "J9"
+   ],
+   "mpn": "BNC-KYWE-295-W4-N",
+   "lcsc": "C41416668",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry BNC-KYWE-295-W4-N / C41416668"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: BNC-KYWE-295-W4-N in BNC-TH_BNC-KYWE-295-W4-N"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "J3: all 5 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "J7: all 5 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "J8: all 5 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "J9: all 5 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "5 numbered copper pads on the board, datasheet 5"
+    },
+    {
+     "check": "positions",
+     "pass": true,
+     "detail": "5 pad centres within 0.000 mm of the datasheet"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "Hand-fitted by JLC (not in the CPL). Shell legs drilled 1.4 mm (EasyEDA record) vs 1.2 mm drawn: 1.0 mm legs fit either; prior audit RC-11. The centre pin is the only signal pad, so there is no pin-1 hazard."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "FNR5040S4R7MT",
+   "refs": [
+    "L1",
+    "L2"
+   ],
+   "mpn": "FNR5040S4R7MT",
+   "lcsc": "C167963",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry FNR5040S4R7MT / C167963"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: FNR5040S4R7MT in IND-SMD_L5.0-W5.0_FNR50XXS"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['L'] matches the datasheet table on 2 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "L1: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "L2: all 2 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "2 numbered copper pads on the board, datasheet 2"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-2 3.700 mm, datasheet 3.7 mm (tol 0.02)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "1.40 x 4.20 mm, datasheet 1.4 x 4.2 mm (ratio 1.00, 1.00)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "L1: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.300 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "L2: CPL 0 deg (board 0 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.300 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "Shielded drum inductor, non-polar. Boost: VIN(5V) -> L1 -> SW_P; inverter: OUTN (SW_N) -> L2 -> GND, as the TPS65131 application."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "GZ2012D101TF",
+   "refs": [
+    "FB1"
+   ],
+   "mpn": "GZ2012D101TF",
+   "lcsc": "C1015",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry GZ2012D101TF / C1015"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: GZ2012D101TF in L0805"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['L'] matches the datasheet table on 2 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "FB1: all 2 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "2 numbered copper pads on the board, datasheet 2"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "FB1: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.096 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [
+    "No primary datasheet retrieved; non-polar 0805 ferrite checked against the LCSC package and EasyEDA land only."
+   ],
+   "notes": [
+    "No primary datasheet checked for this part: only the LCSC package (L0805) and the EasyEDA land were compared. Two-terminal, non-polar: no pinout risk."
+   ],
+   "result": "NOTE"
+  },
+  {
+   "id": "TS-1088-AR02016",
+   "refs": [
+    "SW1",
+    "SW2"
+   ],
+   "mpn": "TS-1088-AR02016",
+   "lcsc": "C720477",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry TS-1088-AR02016 / C720477"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: TS-1088-AR02016 in SW-SMD_L3.9-W3.0-P4.45"
+    },
+    {
+     "check": "pin_names",
+     "pass": true,
+     "detail": "design.json pinouts['SW'] matches the datasheet table on 2 pins"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "SW1: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "SW2: all 2 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "2 numbered copper pads on the board, datasheet 2"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-2 4.450 mm, datasheet 4.45 mm (tol 0.02)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "1.05 x 2.00 mm, datasheet 1.05 x 2.0 mm (ratio 1.00, 1.00)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "SW1: CPL 0 deg (board 0 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.040 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "SW2: CPL 180 deg (board 180 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.040 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "BOOTSEL pulls QSPI_CS low through R8 1 k (RP2040 hardware design guide); RESET shorts RUN to GND (R9 10 k pull-up, C14)."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "PCG1A331MCL1GS",
+   "refs": [
+    "C117"
+   ],
+   "mpn": "PCG1A331MCL1GS",
+   "lcsc": "C433208",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry PCG1A331MCL1GS / C433208"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: PCG1A331MCL1GS in CAP-SMD_BD8.0-L8.3-W8.3-FD"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "C117: all 2 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "2 numbered copper pads on the board, datasheet 2"
+    },
+    {
+     "check": "span",
+     "pass": true,
+     "detail": "pads 1-2 6.950 mm, datasheet 6.534 mm (tol 0.5)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "C117: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.208 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [
+    "Nichicon land-size page not retrieved; land checked against the EasyEDA record (within 0.5 mm span). Polarity verified (pad 1 = + = 5V)."
+   ],
+   "notes": [
+    "Polarity: pad 1 (+) on 5V, matching the EasyEDA \"+\" pad 1 (placement-library audit) and the 2026-10-30 preview. Land compared with the EasyEDA record only (4.2 x 1.4 at 6.53 mm vs board 4.15 x 1.9 at 6.95 mm): the Nichicon land page was not retrieved."
+   ],
+   "result": "NOTE"
+  },
+  {
+   "id": "TSW-102-07-G-S (DNP)",
+   "refs": [
+    "J4",
+    "J5"
+   ],
+   "mpn": "TSW-102-07-G-S",
+   "lcsc": "C7402729",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry TSW-102-07-G-S / C7402729"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "J4: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "J5: all 2 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "2 numbered copper pads on the board, datasheet 2"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 2.540 mm, datasheet 2.54 mm (tol 0.01)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "Do-not-fit headers: net sanity only. SWCLK/SWDIO go to RP2040 pins 24/25. Rev G has no UART header (J6): GPIO 28 / 29 are the jack senses."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "TLP172AM",
+   "refs": [
+    "U18",
+    "U19",
+    "U20",
+    "U21"
+   ],
+   "mpn": "TLP172AM(TPL,E)",
+   "lcsc": "C2152276",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry TLP172AM(TPL,E) / C2152276"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: TLP172AM(TPL,E in SOP-6_4P-L3.7-W4.6-P2.54-LS7.0-BL"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U18: all 4 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U19: all 4 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U20: all 4 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "U21: all 4 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "4 numbered copper pads on the board, datasheet 4"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-3 2.540 mm, datasheet 2.54 mm (tol 0.03)"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-3.150, -1.270) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..6 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U18: CPL 90 deg (board 180 + 270); 4 EasyEDA pads land on same-function board pads, worst 0.050 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U19: CPL 270 deg (board 0 + 270); 4 EasyEDA pads land on same-function board pads, worst 0.050 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U20: CPL 270 deg (board 0 + 270); 4 EasyEDA pads land on same-function board pads, worst 0.050 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "U21: CPL 90 deg (board 180 + 270); 4 EasyEDA pads land on same-function board pads, worst 0.050 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "The MOSFET output is symmetric: either drain can face the jack. The north pin of each part faces its jack (4 on HCUR / LCUR, 6 on HPOT / LPOT). LEDs: string 1 VRLY-R132-U19-U18-ISO_SINK, string 2 VRLY-R133-U20-U21-ISO_SINK.",
+    "The LCSC/EasyEDA record title truncates the MPN to \"TLP172AM(TPL,E\" (jlc_mpn); the LCSC code C2152276 is the TLP172AM(TPL,E)."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "H4V5HD3B (HJC)",
+   "refs": [
+    "D21",
+    "D22",
+    "D23",
+    "D24"
+   ],
+   "mpn": "H4V5HD3B",
+   "lcsc": "C20615803",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry H4V5HD3B / C20615803"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: H4V5HD3B in SOD-323_L1.8-W1.3-LS2.5-BI"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D21: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D22: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D23: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D24: all 2 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "2 numbered copper pads on the board, datasheet 2"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 2.200 mm, datasheet 2.2 mm (tol 0.03)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.80 x 0.80 mm, datasheet 0.8 x 0.8 mm (ratio 1.00, 1.00)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D21: CPL 0 deg (board 0 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.018 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D22: CPL 0 deg (board 0 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.018 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D23: CPL 0 deg (board 0 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.018 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D24: CPL 0 deg (board 0 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.018 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "Bidirectional: the pads are interchangeable. Pitch 2.2 = K 1.40 + J 0.80 (pads 0.80 x 0.80 at the minimums)."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "H3V3LD5B (HJC)",
+   "refs": [
+    "D25",
+    "D26",
+    "D27"
+   ],
+   "mpn": "H3V3LD5B",
+   "lcsc": "C20615817",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry H3V3LD5B / C20615817"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: H3V3LD5B in SOD-523_L1.2-W0.8-LS1.6-BI"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D25: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D26: all 2 pads on the expected nets"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D27: all 2 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "2 numbered copper pads on the board, datasheet 2"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 1.400 mm, datasheet 1.42 mm (tol 0.05)"
+    },
+    {
+     "check": "pad_size",
+     "pass": true,
+     "detail": "0.60 x 0.70 mm, datasheet 0.6 x 0.7 mm (ratio 1.00, 1.00)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D25: CPL 180 deg (board 180 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.050 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D26: CPL 180 deg (board 180 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.050 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D27: CPL 0 deg (board 0 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.050 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [],
+   "notes": [
+    "Bidirectional. KiCad D_SOD-523 unchanged: 0.6 x 0.7 pads on 1.4 mm centres, inside X / Y / Z."
+   ],
+   "result": "PASS"
+  },
+  {
+   "id": "BAV99",
+   "refs": [
+    "D28"
+   ],
+   "mpn": "BAV99,215",
+   "lcsc": "C2500",
+   "checks": [
+    {
+     "check": "identity",
+     "pass": true,
+     "detail": "design.json and JLC BOM carry BAV99,215 / C2500"
+    },
+    {
+     "check": "jlc_record",
+     "pass": true,
+     "detail": "LCSC record: BAV99,215 in SOT-23-3_L2.9-W1.6-P1.90-LS2.8-BR"
+    },
+    {
+     "check": "nets",
+     "pass": true,
+     "detail": "D28: all 3 pads on the expected nets"
+    },
+    {
+     "check": "pad_count",
+     "pass": true,
+     "detail": "3 numbered copper pads on the board, datasheet 3"
+    },
+    {
+     "check": "pitch",
+     "pass": true,
+     "detail": "pads 1-2 1.900 mm, datasheet 1.9 mm (tol 0.05)"
+    },
+    {
+     "check": "positions",
+     "pass": true,
+     "detail": "3 pad centres within 0.062 mm of the datasheet"
+    },
+    {
+     "check": "pin1",
+     "pass": true,
+     "detail": "pad 1 at (-0.938, -0.950) in the footprint frame, expected -x -y"
+    },
+    {
+     "check": "numbering",
+     "pass": true,
+     "detail": "pads 1..3 run counter-clockwise seen from the top"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D28: CPL 0 deg (board 180 + 180); 3 EasyEDA pads land on same-function board pads, worst 0.397 mm (tol 0.4)"
+    }
+   ],
+   "findings": [],
+   "attention": [
+    "The LCSC/EasyEDA record is the wide SOT-23 land (LS2.8): its pads sit up to 0.40 mm outside ours across the rows, symmetric about the centroid JLC places by (the next rotation is 1.83 mm off). Our KiCad SOT-23 rows are 1.875 mm apart against Nexperia's 2.0. Confirm D28 pin 3 toward DUT_LO in the placement preview."
+   ],
+   "notes": [
+    "Pins 1 and 2 on GND and pin 3 on DUT_LO make the series pair an antiparallel pair from DUT_LO to ground (rev-g-protection part-selection)."
+   ],
+   "result": "NOTE"
+  }
+ ],
+ "limits": "Checks pad numbering, pad geometry and nets against datasheet text and drawings read by a reviewer; tolerances flag gross land-pattern differences, not IPC fillet compliance. JLC orientation uses the EasyEDA record of the LCSC part, which is what JLC places from; the vendor placement preview remains the final check."
+}

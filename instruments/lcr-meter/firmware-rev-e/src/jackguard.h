@@ -13,21 +13,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/* Sense divider per CUR jack (drive_budget.py): R_TOP 1 MOhm from the jack, R_BIAS 200 kOhm to 3V3,
-   R_GND 249 kOhm to ground, 100 nF at the pin. pin = (V_jack / R_TOP + 3V3 / R_BIAS) / G, so
-   V_jack = pin * R_TOP * G - 3V3 * R_TOP / R_BIAS with R_TOP * G = 1 + 5 + 4.016064 = 10.016064. */
+/* Sense divider per CUR jack (drive_budget.py; design.json R126-R131, C121 / C122): R_TOP 1.5 MOhm from the
+   jack, R_BIAS 240 kOhm to 3V3, R_GND 240 kOhm to ground, 100 nF at the pin. pin = (V_jack / R_TOP + 3V3 / R_BIAS) / G,
+   so V_jack = pin * R_TOP * G - 3V3 * R_TOP / R_BIAS with R_TOP * G = 1 + 6.25 + 6.25 = 13.5 and R_TOP / R_BIAS = 6.25. */
 #define JG_ADC_REF_MV 3300
 #define JG_ADC_CODES 4096
-#define JG_RTOP_G_PPM 10016064    /* R_TOP * G, x 1e6 */
-#define JG_RTOP_RBIAS 5           /* R_TOP / R_BIAS */
+#define JG_RTOP_G_PPM 13500000       /* R_TOP * G, x 1e6 */
+#define JG_RTOP_RBIAS_PPM 6250000    /* R_TOP / R_BIAS, x 1e6 */
 
 /* Close only below CLOSE (the jack is effectively uncharged: the second-stage H3V3LD5B stands off
    3.3 V, so closing never makes it conduct); trip above TRIP while closed (the source is at most
-   1.7 V peak, and the sense filter passes 0.56 V of the lowest 46 Hz tone). Both apply to |V|. */
+   1.7 V peak, and the sense filter passes 0.50 V of the lowest 46 Hz tone). Both apply to |V|. */
 #define JG_CLOSE_MV 1000
 #define JG_TRIP_MV 3000
 #define JG_POLL_MS 5u
-#define JG_STABLE_POLLS 6u        /* 30 ms below CLOSE: the 10 ms sense filter settles from a clamped jack */
+#define JG_STABLE_POLLS 7u        /* 35 ms below CLOSE: the 11.1 ms sense filter settles from a clamped jack in 33 ms */
 #define JG_SETTLE_MS 5u           /* TLP172AM tON 2 ms max, before a capture may use the jacks */
 #define JG_REARM_MS 1000u         /* after a trip, continuous time below CLOSE before closing again */
 

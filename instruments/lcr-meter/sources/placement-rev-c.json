@@ -85,7 +85,20 @@
     "D19": 0,
     "D20": 0,
     "C117": 0,
-    "U17": 180
+    "U17": 180,
+    "D21": 0,
+    "D22": 0,
+    "D23": 0,
+    "D24": 0,
+    "D25": 0,
+    "D26": 0,
+    "D27": 0,
+    "D28": 180,
+    "Q7": 180,
+    "U18": 270,
+    "U19": 270,
+    "U20": 270,
+    "U21": 270
   },
   "parts": [
     {
@@ -5548,7 +5561,8 @@
         "Q3",
         "Q4",
         "Q5",
-        "Q6"
+        "Q6",
+        "Q7"
       ],
       "native_footprint": "Package_TO_SOT_SMD:SOT-23",
       "source_url": "https://lceda.cn/api/products/C20917/components?version=6.4.19.5",
@@ -5997,6 +6011,150 @@
         {
           "offset": 0,
           "rms": 2.9315987676523116
+        }
+      ]
+    },
+    {
+      "lcsc": "C20615803",
+      "mpn": "H4V5HD3B",
+      "references": [
+        "D21",
+        "D22",
+        "D23",
+        "D24"
+      ],
+      "native_footprint": "LCR:D_SOD-323_HJC",
+      "source_url": "https://lceda.cn/api/products/C20615803/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C20615803-product.json",
+      "source_sha256": "265c5934a96b8e51866c97d1d4304213246cd2bb466cb0be64c25e97cd20f63b",
+      "library_title": "SOD-323_L1.8-W1.3-LS2.5-BI",
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.017600000000015825,
+      "pad_center_fit_max_mm": 0.017600000000015825,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.017600000000015825
+        },
+        {
+          "offset": 90,
+          "rms": 1.5681293824171958
+        },
+        {
+          "offset": 270,
+          "rms": 1.5681293824171958
+        },
+        {
+          "offset": 180,
+          "rms": 2.2176000000000613
+        }
+      ]
+    },
+    {
+      "lcsc": "C20615817",
+      "mpn": "H3V3LD5B",
+      "references": [
+        "D25",
+        "D26",
+        "D27"
+      ],
+      "native_footprint": "Diode_SMD:D_SOD-523",
+      "source_url": "https://lceda.cn/api/products/C20615817/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C20615817-product.json",
+      "source_sha256": "217c6a43df5758cd95992b2bcb4bb46b334ce5841161555c56114365a4b18a9a",
+      "library_title": "SOD-523_L1.2-W0.8-LS1.6-BI",
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 0.04993499999999074,
+      "pad_center_fit_max_mm": 0.04993499999999074,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 0.04993499999999074
+        },
+        {
+          "offset": 90,
+          "rms": 1.0258667088004145
+        },
+        {
+          "offset": 270,
+          "rms": 1.0258667088004145
+        },
+        {
+          "offset": 180,
+          "rms": 1.4499349999999964
+        }
+      ]
+    },
+    {
+      "lcsc": "C2500",
+      "mpn": "BAV99,215",
+      "references": [
+        "D28"
+      ],
+      "native_footprint": "Package_TO_SOT_SMD:SOT-23",
+      "source_url": "https://lceda.cn/api/products/C2500/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C2500-product.json",
+      "source_sha256": "4152d8c2e153a84ea664c9ddd0f85a074e30ae33c5410ce86856ee4606121e96",
+      "library_title": "SOT-23-3_L2.9-W1.6-P1.90-LS2.8-BR",
+      "cpl_offset_ccw_deg": 180,
+      "matched_numbered_pads": 3,
+      "pad_center_fit_rms_mm": 0.280556402449762,
+      "pad_center_fit_max_mm": 0.39676666666662186,
+      "candidate_rms_mm": [
+        {
+          "offset": 180,
+          "rms": 0.280556402449762
+        },
+        {
+          "offset": 90,
+          "rms": 1.827690590596641
+        },
+        {
+          "offset": 270,
+          "rms": 1.827690590596641
+        },
+        {
+          "offset": 0,
+          "rms": 2.5694734664820817
+        }
+      ]
+    },
+    {
+      "lcsc": "C2152276",
+      "mpn": "TLP172AM(TPL,E)",
+      "references": [
+        "U18",
+        "U19",
+        "U20",
+        "U21"
+      ],
+      "native_footprint": "LCR:Toshiba_11-4M1S",
+      "source_url": "https://lceda.cn/api/products/C2152276/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C2152276-product.json",
+      "source_sha256": "f6affadd0a9dbf0ec30fadebf9c4dca8d181be2af57d0a7b9f3294f27e67f010",
+      "library_title": "SOP-6_4P-L3.7-W4.6-P2.54-LS7.0-BL",
+      "cpl_offset_ccw_deg": 270,
+      "matched_numbered_pads": 4,
+      "pad_center_fit_rms_mm": 0.049891999999999825,
+      "pad_center_fit_max_mm": 0.049891999999999825,
+      "candidate_rms_mm": [
+        {
+          "offset": 270,
+          "rms": 0.049891999999999825
+        },
+        {
+          "offset": 0,
+          "rms": 4.83607369791486
+        },
+        {
+          "offset": 180,
+          "rms": 4.83607369791486
+        },
+        {
+          "offset": 90,
+          "rms": 6.839059029695833
         }
       ]
     }

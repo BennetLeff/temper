@@ -9,7 +9,7 @@ const REVG_CANDIDATE: &str = "parts_jackside";
 const REVG_REF_BYPASS: bool = true;
 const REVG_PROT_NOM: &str = r"RgpHC jhc hi 11
 Cgp1HC jhc 0 1e-10
-Rgpg1HC jhc 0 999981
+Rgpg1HC jhc 0 1.49996e+06
 Cgp2HC hi 0 1.25e-11
 Rgpg2HC hi 0 5.1704e+10
 RgpHP jhp hpot 101
@@ -24,13 +24,13 @@ Cgp2LP lpot 0 1.0125e-09
 Rgpg2LP lpot 0 5.1704e+10
 RgpLC jlc low 11
 Cgp1LC jlc 0 1e-10
-Rgpg1LC jlc 0 999981
+Rgpg1LC jlc 0 1.49996e+06
 Cgp2LC low 0 3e-12
 Rgpg2LC low 0 3.25387e+07
 ";
 const REVG_PROT_HIGH: &str = r"RgpHC jhc hi 12
 Cgp1HC jhc 0 2e-10
-Rgpg1HC jhc 0 99998.1
+Rgpg1HC jhc 0 149996
 Cgp2HC hi 0 2.5e-11
 Rgpg2HC hi 0 5.1704e+09
 RgpHP jhp hpot 102
@@ -45,7 +45,7 @@ Cgp2LP lpot 0 1.025e-09
 Rgpg2LP lpot 0 5.1704e+09
 RgpLC jlc low 12
 Cgp1LC jlc 0 2e-10
-Rgpg1LC jlc 0 99998.1
+Rgpg1LC jlc 0 149996
 Cgp2LC low 0 6e-12
 Rgpg2LC low 0 3.25387e+06
 ";

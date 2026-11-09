@@ -1936,7 +1936,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -1951,7 +1951,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -1966,7 +1966,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -1981,7 +1981,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -1996,7 +1996,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -20101,7 +20101,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -20116,7 +20116,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -20131,7 +20131,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -20146,7 +20146,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -20161,7 +20161,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -20176,7 +20176,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -20191,7 +20191,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -23551,7 +23551,7 @@
       ]
     },
     {
-      "net": "ISO_DRV",
+      "net": "ISO_SINK",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -23566,7 +23566,7 @@
       ]
     },
     {
-      "net": "ISO_DRV",
+      "net": "ISO_SINK",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -23746,7 +23746,7 @@
       ]
     },
     {
-      "net": "ISO_DRV",
+      "net": "ISO_SINK",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -23761,7 +23761,7 @@
       ]
     },
     {
-      "net": "ISO_DRV",
+      "net": "ISO_SINK",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -23776,7 +23776,7 @@
       ]
     },
     {
-      "net": "ISO_DRV",
+      "net": "ISO_SINK",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -23791,7 +23791,7 @@
       ]
     },
     {
-      "net": "ISO_DRV",
+      "net": "ISO_SINK",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -23896,7 +23896,7 @@
       ]
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -23911,7 +23911,7 @@
       ]
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -23926,7 +23926,7 @@
       ]
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -23941,7 +23941,7 @@
       ]
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -23956,7 +23956,7 @@
       ]
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -23971,7 +23971,7 @@
       ]
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -23986,7 +23986,7 @@
       ]
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24001,7 +24001,7 @@
       ]
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24016,7 +24016,7 @@
       ]
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24031,7 +24031,7 @@
       ]
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24091,7 +24091,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24121,7 +24121,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24136,7 +24136,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24151,7 +24151,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24166,7 +24166,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24181,7 +24181,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24196,7 +24196,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24211,7 +24211,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24226,7 +24226,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24241,7 +24241,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24256,7 +24256,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24271,7 +24271,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24286,7 +24286,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24301,7 +24301,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "In2.Cu",
       "width": 0.2,
       "points": [
@@ -24316,7 +24316,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24331,7 +24331,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24346,7 +24346,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24361,7 +24361,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24376,7 +24376,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24391,7 +24391,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24406,7 +24406,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24421,7 +24421,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24556,7 +24556,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24571,7 +24571,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -24646,7 +24646,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24661,7 +24661,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24676,7 +24676,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24691,7 +24691,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24706,7 +24706,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24721,7 +24721,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24736,7 +24736,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24751,7 +24751,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24766,7 +24766,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24781,7 +24781,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24796,7 +24796,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24811,7 +24811,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24826,7 +24826,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -24841,7 +24841,7 @@
       ]
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "layer": "B.Cu",
       "width": 0.15,
       "points": [
@@ -25156,7 +25156,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -25171,7 +25171,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -25186,7 +25186,7 @@
       ]
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "layer": "F.Cu",
       "width": 0.15,
       "points": [
@@ -26251,7 +26251,7 @@
       ]
     },
     {
-      "net": "ISO_DRV",
+      "net": "ISO_SINK",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -26266,7 +26266,7 @@
       ]
     },
     {
-      "net": "ISO_DRV",
+      "net": "ISO_SINK",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -26281,7 +26281,7 @@
       ]
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -26296,7 +26296,7 @@
       ]
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "layer": "F.Cu",
       "width": 0.2,
       "points": [
@@ -30981,7 +30981,7 @@
       "drill": 0.3
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "at": [
         69.45,
         137.25
@@ -30990,7 +30990,7 @@
       "drill": 0.3
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "at": [
         69.9,
         137.7
@@ -31476,7 +31476,7 @@
       "drill": 0.3
     },
     {
-      "net": "ISO_DRV",
+      "net": "ISO_SINK",
       "at": [
         75.0,
         60.33
@@ -31503,7 +31503,7 @@
       "drill": 0.3
     },
     {
-      "net": "ISO_DRV",
+      "net": "ISO_SINK",
       "at": [
         140.9,
         60.33
@@ -31521,7 +31521,7 @@
       "drill": 0.3
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "at": [
         75.2,
         127.5
@@ -31530,7 +31530,7 @@
       "drill": 0.3
     },
     {
-      "net": "ISO_EN",
+      "net": "ISO_DRIVE",
       "at": [
         77.4,
         63.8
@@ -31539,7 +31539,7 @@
       "drill": 0.3
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "at": [
         59.2,
         57.6
@@ -31548,7 +31548,7 @@
       "drill": 0.3
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "at": [
         143.5,
         51.0
@@ -31557,7 +31557,7 @@
       "drill": 0.3
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "at": [
         53.0,
         59.2
@@ -31566,7 +31566,7 @@
       "drill": 0.3
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "at": [
         51.6,
         62.6
@@ -31593,7 +31593,7 @@
       "drill": 0.3
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "at": [
         64.6,
         118.6
@@ -31602,7 +31602,7 @@
       "drill": 0.3
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "at": [
         66.2,
         119.6
@@ -31611,7 +31611,7 @@
       "drill": 0.3
     },
     {
-      "net": "SNS_HC",
+      "net": "JACK_HC",
       "at": [
         55.75,
         118.6
@@ -31620,7 +31620,7 @@
       "drill": 0.3
     },
     {
-      "net": "SNS_LC",
+      "net": "JACK_LC",
       "at": [
         55.2,
         119.6

@@ -87,7 +87,7 @@ Ccsel_s srcbus 0 1p
 Cppsel srcbus tia 0.5p
 RgpHC jhc hi 11
 Cgp1HC jhc 0 1e-10
-Rgpg1HC jhc 0 999981
+Rgpg1HC jhc 0 1.49996e+06
 Cgp2HC hi 0 1.25e-11
 Rgpg2HC hi 0 5.1704e+10
 RgpHP jhp hpot 101
@@ -102,7 +102,7 @@ Cgp2LP lpot 0 1.0125e-09
 Rgpg2LP lpot 0 5.1704e+10
 RgpLC jlc low 11
 Cgp1LC jlc 0 1e-10
-Rgpg1LC jlc 0 999981
+Rgpg1LC jlc 0 1.49996e+06
 Cgp2LC low 0 3e-12
 Rgpg2LC low 0 3.25387e+07
 R105 jhc jhp 1k

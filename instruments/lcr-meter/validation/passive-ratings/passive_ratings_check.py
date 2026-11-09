@@ -23,6 +23,7 @@ Limits:
     (UNI-ROYAL 0603WAF, the lowest of the three families).
 """
 import json
+import math
 import os
 import re
 import sys
@@ -112,6 +113,18 @@ CURRENT = {
     **{r: (chain(N12, ('R87', 'R89', 'R88', 'R112')), 'TPS7A3001 feedback chain R87 + R89 + R88 + R112 from -12 V')
        for r in ('R87', 'R88', 'R89', 'R112')},
 }
+if design['revision'] == 'G':   # the jack protection (validation/rev-g-protection/), switches closed
+    led = json.loads((ROOT / 'validation/rev-g-protection/drive-budget.json').read_text())['drive']['worst_high']
+    CURRENT.update({
+        **{r: (led['i_string_ma'] / 1e3, 'TLP172AM LED string at 5.5 V and VF min (rev-g-protection/drive-budget.json worst_high)')
+           for r in ('R132', 'R133')},
+        'R134': (12e-3, 'RP2040 GPIO at its 12 mA maximum drive setting into an AO3400A gate'),
+        'R122': (i_short('R40'), 'HCUR series 10 ohm carries the DUT current: 100 R range, DUT shorted'),
+        'R125': (i_short('R40'), 'LCUR series 10 ohm carries the DUT current into the TIA: 100 R range, DUT shorted'),
+        **{r: (2 * math.pi * 85e3 * 1.025e-9 * DRIVE, 'POT series 100 ohm: the follower input draws nothing; the 1 nF C0G and '
+                  'the H3V3LD5B (25 pF max) behind it charge at the 85 kHz top tone, 1.7 V peak taken as RMS')
+           for r in ('R123', 'R124')},
+    })
 
 
 def nets_of(ref):

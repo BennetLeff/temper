@@ -4,7 +4,9 @@ Run with KiCad's bundled Python (it needs pcbnew):
   /Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3 \
       validation/pinout-ledger/pinout_check.py
 Writes validation/pinout-ledger/pinout-check.json; exits 1 if any part has a FINDING or a part is not in the ledger.
-`--ledger PATH` checks another ledger (used to prove the checks fire on seeded errors) and writes PATH.check.json.
+`--ledger PATH` checks another ledger (used to prove the checks fire on seeded errors, and for Rev G: ledger-rev-g.json)
+and writes PATH.check.json. `--package DIR` reads the JLC BOM and CPL from DIR (default manufacturing/; Rev G:
+validation/rev-g/).
 
 ledger.json holds what the manufacturer datasheets say (pin table, land pattern, package) and what each
 datasheet function should connect to on this board. This script compares that ledger with:
@@ -32,6 +34,8 @@ HERE = Path(__file__).resolve().parent
 MM = 1e-6
 LEDGER = Path(sys.argv[sys.argv.index('--ledger') + 1]) if '--ledger' in sys.argv else HERE / 'ledger.json'
 OUT = HERE / 'pinout-check.json' if LEDGER == HERE / 'ledger.json' else LEDGER.with_suffix('.check.json')
+# --package DIR: where the JLC BOM and CPL are (default manufacturing/; Rev G's are in validation/rev-g/)
+PACKAGE = ROOT / (sys.argv[sys.argv.index('--package') + 1] if '--package' in sys.argv else 'manufacturing')
 ledger = json.loads(LEDGER.read_text())
 design = json.loads((ROOT / 'cad/design.json').read_text())
 pcb_path = ROOT / 'cad/temper-lcr.kicad_pcb'
@@ -39,10 +43,10 @@ board = k.LoadBoard(str(pcb_path))
 parts = {p['ref']: p for p in design['parts']}
 fps = {f.GetReference(): f for f in board.GetFootprints()}
 bom = {}
-for row in csv.DictReader(open(ROOT / 'manufacturing/bom-jlcpcb.csv')):
+for row in csv.DictReader(open(PACKAGE / 'bom-jlcpcb.csv')):
     for ref in row['Designator'].split(','):
         bom[ref.strip()] = row['LCSC Part #']
-cpl = {r['Designator']: float(r['Rotation']) for r in csv.DictReader(open(ROOT / 'manufacturing/cpl-jlcpcb.csv'))}
+cpl = {r['Designator']: float(r['Rotation']) for r in csv.DictReader(open(PACKAGE / 'cpl-jlcpcb.csv'))}
 nets = {}
 for p in design['parts']:
     for num, net in p['pins'].items():
@@ -119,7 +123,7 @@ def check_entry(e):
     if head is not None:
         pkg, mpn = head.get('package', ''), head.get('Manufacturer Part', '')
         want = e.get('lcsc_package')
-        if mpn != e['mpn'] or (want and want not in pkg):
+        if mpn != e.get('jlc_mpn', e['mpn']) or (want and want not in pkg):   # jlc_mpn: the record's own (truncated) title
             bad('jlc_record', f'LCSC record says {mpn!r} in {pkg!r}; ledger wants {e["mpn"]!r} in {want!r}')
         else:
             ok('jlc_record', f'LCSC record: {mpn} in {pkg}')

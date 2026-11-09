@@ -1,13 +1,31 @@
 {
  "inputs": {
-  "cad/design.json": "26e3efe155ed43b8b3646a1c2ba3dcca96ef074be7e7e637992e04ada1f66801",
-  "firmware-rev-e/src/pins.h": "97a6f1f58a8e75fa4a6277fdb7ce06bc0971b560855826a56984a51f84d0a56e",
+  "cad/design.json": "bd1dcf699b780c5881b4442313cabc1992f634a4cbc0a055cc912c9560c14542",
+  "firmware-rev-e/src/pins.h": "27dc8de1c814b3a87129e81d1e40e380025dc886947fb35f32f5b944b1b0a075",
   "firmware-rev-e/src/relay.c": "5bafd6729c0ca3c09b40133e7ec5a189dd51344e2eed1c04e35a00db31922927",
   "firmware-rev-e/src/rails.c": "338c3b0db7923e2e846727ab45590b390f7db8b95f52531b68f5ebe0e6f93491",
-  "firmware-rev-e/src/main.c": "42543a1a71a5c7a6f7e8711402ff54e4ebc283163e3828acb4c938a49c386fce"
+  "firmware-rev-e/src/main.c": "aa5ca00ec0f537f0f9976123ff52d10c8625de8341fe079e503c08a368015c70",
+  "firmware-rev-e/src/jackguard.h": "c0838b791996f09d6f0b876c44d1c05f0f420eb72631944b27bf879fa19765d7"
  },
- "findings": [],
+ "findings": [
+  {
+   "check": "gpio net",
+   "detail": "PIN_UART_TX = GPIO28 = U1 pad 40: net JACK_HC, expected UART_TX"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_UART_RX = GPIO29 = U1 pad 41: net JACK_LC, expected UART_RX"
+  },
+  {
+   "check": "gpio claimed",
+   "detail": "U1 pad 18 GPIO15 net ISO_DRIVE is not in pins.h"
+  }
+ ],
  "passes": [
+  {
+   "check": "build",
+   "detail": "revision F: Rev G pins absent, UART header pins present"
+  },
   {
    "check": "gpio net",
    "detail": "PIN_I2S_DIN = GPIO2 = U1 pad 4: net I2S_DIN, expected I2S_DIN"
@@ -75,14 +93,6 @@
   {
    "check": "gpio net",
    "detail": "PIN_MON_N12 = GPIO27 = U1 pad 39: net MON_N12, expected MON_N12"
-  },
-  {
-   "check": "gpio net",
-   "detail": "PIN_UART_TX = GPIO28 = U1 pad 40: net UART_TX, expected UART_TX"
-  },
-  {
-   "check": "gpio net",
-   "detail": "PIN_UART_RX = GPIO29 = U1 pad 41: net UART_RX, expected UART_RX"
   },
   {
    "check": "gpio claimed",
@@ -154,11 +164,11 @@
   },
   {
    "check": "gpio claimed",
-   "detail": "U1 pad 40 GPIO28 net UART_TX is in pins.h"
+   "detail": "U1 pad 40 GPIO28 net JACK_HC is in pins.h"
   },
   {
    "check": "gpio claimed",
-   "detail": "U1 pad 41 GPIO29 net UART_RX is in pins.h"
+   "detail": "U1 pad 41 GPIO29 net JACK_LC is in pins.h"
   },
   {
    "check": "i2c block",
