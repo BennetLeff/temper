@@ -30,7 +30,7 @@ def write_pages(root, data, symbols, geometry, pinout, local_fp, uid, q):
                   "Pole 1: SOURCE_BUF -> RGx. Pole 2: TIA_OUT -> RFx. NC contacts unconnected.\n"
                   "RESET coils (K1-K4) in parallel on Q2; SET coils on Q3/Q4/Q5/Q6. 1N4148WS flyback per drain.\n"
                   "K4 reference: COM2 on HCUR, NO2 through R107 1k 0.1% to LCUR (REFCAPTURE, leads unplugged).\n"
-                  "VRLY = 5V through R101 2.2R + C112 22uF. Firmware: source off, RESET 20ms, SET 20ms."),
+                  "VRLY = 5V through R101 1R + C112 22uF. Firmware: source off, RESET 20ms, SET 20ms."),
         "protect": ("Jack protection (Rev G)",
                     "Each BNC: H4V5HD3B TVS to GND at the centre pin, then a normally-open TLP172AM photoMOS.\n"
                     "Series 10R (HCUR / LCUR, CRCW0805-HP) and 100R (HPOT / LPOT, CRCW0603-HP) after the switch;\n"
@@ -50,7 +50,7 @@ def write_pages(root, data, symbols, geometry, pinout, local_fp, uid, q):
     root_chunks = [
         f'(kicad_sch (version 20250114) (generator "lcr_adapter") (uuid "{rootid}") '
         '(paper "A3") (title_block (title "Temper LCR — TIDA-060029 based") '
-        '(date "2026-10-20") (rev "E") (company "Temper") '
+        f'(date "{data["date"]}") (rev "{data["revision"]}") (company "Temper") '
         '(comment 1 "Engineering prototype. One PCB. Isolated, discharged DUT only.")) (lib_symbols)'
     ]
     for i, (sheet, (title, notes)) in enumerate(sheets.items(), 2):
@@ -80,7 +80,7 @@ def write_pages(root, data, symbols, geometry, pinout, local_fp, uid, q):
             layout[p["ref"]] = (55 + (j % 6)*94, 160 + (j//6)*29)
         chunks = [
             f'(kicad_sch (version 20250114) (generator "lcr_adapter") (uuid "{uid("page-"+sheet)}") '
-            f'(paper "A2") (title_block (title {q(title)}) (date "2026-10-20") (rev "E") '
+            f'(paper "A2") (title_block (title {q(title)}) (date {q(data["date"])}) (rev {q(data["revision"])}) '
             '(company "Temper") (comment 1 "Global net names connect functional sheets. See TI conformance matrix.")) '
             f'(lib_symbols {" ".join(symbols)})'
         ]
@@ -206,7 +206,7 @@ def _write_afe(root, data, symbols, local_fp, uid, q, title, notes):
     if '(symbol "OPA2810_DUAL"' not in text:
         library.write_text(text[:-1]+'\n'+'\n'.join(s.replace('(symbol "LCR:', '(symbol "') for s in extra)+')\n')
     chunks = [f'(kicad_sch (version 20250114) (generator "lcr_adapter") (uuid "{uid("page-afe")}") '
-              f'(paper "A2") (title_block (title {q(title)}) (date "2026-10-20") (rev "E") (company "Temper")) '
+              f'(paper "A2") (title_block (title {q(title)}) (date {q(data["date"])}) (rev {q(data["revision"])}) (company "Temper")) '
               f'(lib_symbols {" ".join(symbols+extra)})']
     parts = {p['ref']:p for p in data['parts'] if p['sheet']=='afe'}
     endpoints = {}

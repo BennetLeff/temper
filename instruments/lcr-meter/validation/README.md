@@ -1,5 +1,17 @@
 # Verification receipts
 
+## Revision G verification receipt (study branch `study/lcr-rev-g`, not orderable yet)
+
+Board `cad/temper-lcr.kicad_pcb` on this branch is Rev G (100 × 110 mm, Rev F plus the jack protection), SHA256 `b7acaf7ea604639914b281b6147e02fc0c36eec21d78e2518587868dce78e3a0`. `manufacturing/` and `previews/` here are still Rev F, so the Rev F receipt below describes them, not this board.
+
+Every Rev G gate, with its result and evidence, is in [rev-g-plan.md](../docs/rev-g-plan.md) section 2:
+- board gates: ERC, DRC, fab pass, independent check (`independent_check.py g`), Gerber netlist, pinout ledger (`ledger-rev-g.json`), firmware pins, passive ratings, paste, USB, current, edge, envelope;
+- the shifted copper delta;
+- the band extraction (`run_reve.sh revg`) and the stability run on it (`revgxcng100`);
+- the independent review and its dispositions.
+
+The evidence files are in `rev-g/`.
+
 ## Revision F verification receipt
 
 Board `cad/temper-lcr.kicad_pcb`, the Rev E circuit hand-routed on 100 × 100 mm (no autorouter), SHA256:

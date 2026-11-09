@@ -2,8 +2,7 @@
 
 Rev G is Rev F with a protection network on the four BNC jacks: one normally open TLP172AM switch per jack, a jack TVS at each jack, and a series resistor and second-stage clamp behind each switch. Firmware closes the switches only when the rails are up and the jacks read near 0 V. The protection network was designed in `../validation/rev-g-protection/` (phases 1–7). This document records the schematic and layout step and its decisions.
 
-**Status (2026-11-09): laid out, hand-routed, every board gate clean. Not orderable.** These steps remain before ordering:
-- an independent review of the frozen export;
+**Status (2026-11-09): laid out, hand-routed, every board gate clean, extracted and stable, independently reviewed (no blocker; both MAJOR items dispositioned). Not orderable yet.** These steps remain before ordering:
 - JLC's placement preview;
 - any Rev F bring-up finding on the nodes Rev G touches.
 
@@ -39,16 +38,16 @@ Rev F's hand routes are therefore kept as coordinate transforms, and no autorout
 
 **Parts:**
 - 253 components and 247 SMT placements, against Rev F's 223 / 216.
-- 77 SMT lines (69 on Rev F), of which 31 are extended (27 on Rev F). The four new extended lines are the TLP172AM, the two thin-film resistors and the 1 nF C0G, about $12 of feeder fees per order.
+- 77 SMT lines (69 on Rev F), of which 31 are extended (27 on Rev F). The four new extended lines are the TLP172AM, the two pulse-proof thick-film resistors (Vishay CRCW-HP) and the 1 nF C0G, about $12 of feeder fees per order.
 - Catalog SMT cost $49.10 per board, against $45.43.
 
-## 2. Gates (2026-11-09, board `f3976936…cccf`)
+## 2. Gates (2026-11-09, board `b7acaf7e…e3a0`)
 
-The board's analog copper was frozen at `b956ee70…981d`. The only later change is the TLP172AM footprint's 3D model path, which now points at the exact-part model from the LCSC record (`cad/tools/models_3d.py`, fit RMS 0.05 mm) because KiCad 10 ships no SO-4 model at the old path. ERC, DRC, the fab pass, the via audit, the independent check, the pinout ledger and the firmware pins were rerun on the new file; the rest depend only on copper and the netlist.
+The board's analog copper was frozen at `b956ee70…981d`. Two later changes followed. The independent review's MAJOR-1 fix added four GND vias at the TVS returns (section 5); they are GND copper at least 4.7 mm from every extracted net, so the extraction and stability rows stand, and `copper-shift-delta.json` was rerun on the final file. The other change is the TLP172AM footprint's 3D model path, which now points at the exact-part model from the LCSC record (`cad/tools/models_3d.py`, fit RMS 0.05 mm) because KiCad 10 ships no SO-4 model at the old path. ERC, DRC, the fab pass, the via audit, the independent check, the pinout ledger and the firmware pins were rerun on the new file; the rest depend only on copper and the netlist.
 
 | Check | Result | Evidence |
 |---|---|---|
-| Pre-DRC (`rev_g.py --check`, `temper_boardkit.craft` rules) | 0 violations, 0 unconnected | `../build/rev-g-predrc.json` (regenerated) |
+| Pre-DRC (`rev_g.py --check`, `temper_boardkit.craft` rules) | 0 violations, 0 unconnected (464 vias) | `../build/rev-g-predrc.json` (regenerated) |
 | KiCad ERC / DRC / unconnected / schematic parity | 0 / 0 / 0 / 0 | `../validation/rev-g/erc.json`, `drc.json` |
 | JLC fab pass (`jlcpcb-4layer-1oz`) | PASS | `../validation/rev-g/fab-check.json` |
 | DFM via audit | 33 exposed-pad thermal vias only | `../validation/rev-g/via-in-pad-process.json` |
@@ -107,11 +106,16 @@ The board grows 10 mm toward the back, and the front face does not change:
 | 2026-11-09 | **Sense divider split: GND legs and filter capacitors at the band's west end (C121 / R128 / C122 / R131 at x 55.4, y 59–64); 3V3 legs west of J4 next to U1 (R127 / R130 at y 121.6); the senses run on In2 down the west edge (x 51.6 / 53.0) and on 0.15 mm B.Cu lanes past J1 (x 55.2 / 55.75)** | The I2C B.Cu bundle north of U1 left no room for GND vias at the ADC pins. With the 100 nF at the jack end, a transient is filtered before it travels the board. Above about 15 Hz the 100 nF sets the node impedance (1.6 kΩ at 1 kHz, 1.6 Ω at 1 MHz), and In1 GND sits above the run. A 50 Hz pickup would be filtered like the 46 Hz tone (0.30 of it), against a 1 V close threshold |
 | 2026-11-09 | **Footprints: `LCR:D_SOD-323_HJC` (HJC suggested layout, 0.80 × 0.80 pads, gap 1.40; silk bar 0.15 mm off pad 1); `LCR:Toshiba_11-4M1S` (KiCad SO-4 renumbered 1/3/4/6); KiCad D_SOD-523 unchanged** | KiCad's D_SOD-323 pads (0.6 × 0.45) are under HJC's minimums. Toshiba prints no land pattern, but LCSC's own record lands on the renumbered SO-4 within 0.05 mm (`cad/tools/make_rev_g_footprints.py`, pinout ledger) |
 | 2026-11-09 | **BAV99 on KiCad SOT-23, not LCSC's wide land** | Our rows are 1.875 mm apart, against Nexperia's reflow footprint at 2.0 (Fig. 8; pads within 0.062 mm of it). LCSC's record (LS2.8) is wider still, so its pads fall up to 0.40 mm outside ours, symmetric about the centroid JLC places by. Recorded as a NOTE for the placement preview |
+| 2026-11-09 | **Independent review (fresh Fable reviewer, frozen export, no conclusions; `../validation/rev-g/independent-review-2026-11-09.md`): no blocker, 2 MAJOR, 3 MINOR, 5 NOTE. Dispositions below** | The reviewer independently confirmed several things: the netlist (board = design.json = schematic, 0 mismatches); the pin functions against the datasheets; the firmware map and divider constants; the land patterns; the JLC rules; and the Rev F move (all parts exactly +10 or 0, no stale copper) |
+| 2026-11-09 | **Review MAJOR-1 fixed: each jack TVS (D21–D24) returns through 0.5 mm to its own GND via 1.1 mm east of pad 2 into In1, plus the 0.5 mm link to the BNC shell pin** (was a single 0.2 mm track to the shell pin, 8.9–11 mm from any GND via) | The clamp loop's inductance adds L·di/dt over the clamp voltage in an IEC 61000-4-2 contact discharge, and the 60 V TLP172AM sits behind it. One via at y 58.2 is all that fits: In2 runs at y 56.4 and 59.4, and B.Cu at y 56.9. Gates rerun clean |
+| 2026-11-09 | **Review MAJOR-2 accepted (Rev F carry-over): B.Cu GND 1.8 mm from H3 / H4; the box uses insulating standoffs or shoulder washers there** | This is the Rev F decisions of 2026-10-29 (front-panel-only chassis bond) and 2026-11-05 (insulating hardware at H3 / H4, `validation/enclosure-envelope/`). A copper keep-out would also have to move a 5 V track and a GND via 3.3 mm from the holes. Recorded in section 3 |
+| 2026-11-09 | **Review MINOR-1 accepted: the JK_HPOT B.Cu run along y 53.0 (J7 to K4 NO1) passes 1.0–1.5 mm from the J8 / J9 centre pins** | It is a fixed fraction of a picofarad from the driven HPOT jack to the LPOT / LCUR jacks: the same kind of fixed stray as the jack bodies, which open compensation removes. Moving it into the band would need a fourth In2 lane where y 56.4–64.4 is full. The trigger to revisit is a bench open-compensation residual above the Rev F level |
+| 2026-11-09 | **Review MINOR-2 (wording): R122–R125 are Vishay CRCW-HP pulse-proof thick film, as the BOM and the protection study say; "thin film" in the review brief was wrong** | Thick film is the right choice here: it is the pulse-rated family |
+| 2026-11-09 | **Review MINOR-3 and the NOTEs:** the TLP172AM CPL rotation (270°) is checked in JLC's placement preview (open item 2). The schematic title blocks and the Gerber job now carry revision G (`schematic_pages.py` takes revision and date from `design.json`; `build_cad.py` writes a board title block when `board.title_block` is set, so Rev E / F rebuild byte-identical). The `jackguard.h` comment now says where the 100 nF sits. T-junctions at the new stubs are as on Rev F (80 on both boards) | The review's NOTEs are kept as-is in its report |
 | 2026-11-09 | **Evidence in `validation/rev-g/`; `manufacturing/` and `previews/` stay Rev F until the review passes** | As Rev F did before its promotion (`rev-f-plan.md` §5, 2026-10-29): a study branch does not leave an orderable package for an unreviewed board. The BOM / CPL / orientation CSVs are kept there as evidence (no Gerbers) |
 | 2026-11-09 | **Protection screen, accuracy and stability models carry the 1.5 MΩ sense** (`protection_screen.py` `parts_jackside`) | The models describe the board as built |
 
 ## 6. Open items before Rev G is orderable
 
-1. **Independent review** of the frozen export (a fresh reviewer with the files, not these conclusions).
-2. **Placement preview** at JLC: D28 pin 3 toward DUT_LO; U18–U21 pin 1 (anode) orientation; D4 and Y1 as on Rev F.
-3. **Rev F bring-up** findings on the band nodes; confirm the TLP172AM COFF and the TVS capacitances (`rev-g-protection/README.md`, "Open items").
+1. **Placement preview** at JLC: D28 pin 3 toward DUT_LO; U18–U21 pin 1 (anode) orientation; D4 and Y1 as on Rev F.
+2. **Rev F bring-up** findings on the band nodes; confirm the TLP172AM COFF and the TVS capacitances (`rev-g-protection/README.md`, "Open items").

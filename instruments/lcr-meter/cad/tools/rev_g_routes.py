@@ -14,9 +14,13 @@
 # B.Cu x 55.9 / 56.6 south and east along y 137.0-138.06 (between USB_DM and USB_DP) to the GPIO 28 / 29 escapes.
 
 # ============================================================== 1. jacks: TVS, switch, series resistor
-# --- HCUR (J3): jack line straight down x 67 through the TVS to U18; TVS ground to the BNC's own GND leg
+# --- HCUR (J3): jack line straight down x 67 through the TVS to U18. TVS ground: 0.5 mm to the BNC's own GND leg,
+#     and 0.5 mm to a via 1.1 mm east of the pad into the In1 plane (the shortest return; independent review
+#     2026-11-09: a single 0.2 mm track to the shell pin left ~2-3 nH in the clamp loop)
 T('JK_HCUR', 'F.Cu', 'J3.5', 'D21.1', 'U18.4')
-T('GND', 'F.Cu', 'D21.2', (69.2, 56.8), 'J3.2')
+T('GND', 'F.Cu', 'D21.2', (69.2, 56.8), 'J3.2', w=0.5)
+T('GND', 'F.Cu', 'D21.2', (70.3, 58.2), w=0.5)
+V('GND', 70.3, 58.2)                     # TVS return straight into In1 (review MAJOR-1)
 T('ISO_HCUR', 'F.Cu', 'U18.6', 'R122.1')
 T('DUT_HI', 'F.Cu', 'R122.2', 'D25.1')
 T('GND', 'F.Cu', 'D25.2', (59.5, 62.87))
@@ -27,7 +31,9 @@ T('DUT_HI', 'B.Cu', (62.4, 64.4), (63.8, 65.8), (90.2, 65.8))
 V('DUT_HI', 90.2, 65.8)                    # top of the Rev F F.Cu spine (x 90.2) to R40 / R41 / R42
 # --- HPOT (J7)
 T('JK_HPOT', 'F.Cu', 'J7.5', 'D22.1', 'U19.6')
-T('GND', 'F.Cu', 'D22.2', (91.2, 56.8), 'J7.2')
+T('GND', 'F.Cu', 'D22.2', (91.2, 56.8), 'J7.2', w=0.5)
+T('GND', 'F.Cu', 'D22.2', (92.3, 58.2), w=0.5)
+V('GND', 92.3, 58.2)                     # TVS return straight into In1 (review MAJOR-1)
 T('ISO_HPOT', 'F.Cu', 'U19.4', 'R123.1')
 T('HPOT', 'F.Cu', 'R123.2', (92.725, 64.2), (92.025, 64.9), (87.475, 64.9), (87.475, 68.725))   # to the U6 +IN run
 T('HPOT', 'F.Cu', 'C119.1', (87.475, 65.4))
@@ -38,7 +44,9 @@ T('GND', 'F.Cu', 'D26.2', (84.2, 67.2))
 V('GND', 84.2, 67.2)
 # --- LPOT (J8)
 T('JK_LPOT', 'F.Cu', 'J8.5', 'D23.1', 'U20.6')
-T('GND', 'F.Cu', 'D23.2', (113.2, 56.8), 'J8.2')
+T('GND', 'F.Cu', 'D23.2', (113.2, 56.8), 'J8.2', w=0.5)
+T('GND', 'F.Cu', 'D23.2', (114.3, 58.2), w=0.5)
+V('GND', 114.3, 58.2)                     # TVS return straight into In1 (review MAJOR-1)
 T('ISO_LPOT', 'F.Cu', 'U20.4', 'R124.1')
 T('LPOT', 'F.Cu', 'R124.2', (115.6, 62.87), (116.3, 63.57), (116.3, 70.8))                     # to the U7 +IN run
 T('LPOT', 'F.Cu', (116.3, 65.6), 'C120.1')
@@ -49,7 +57,9 @@ T('GND', 'F.Cu', 'D27.2', (118.9, 67.4), (119.5, 66.8))      # clear of the Rev 
 V('GND', 119.5, 66.8)
 # --- LCUR (J9): DUT_LO west to the Rev F run down x 122.6 (TIA input), BAV99 beside it
 T('JK_LCUR', 'F.Cu', 'J9.5', 'D24.1', 'U21.4')
-T('GND', 'F.Cu', 'D24.2', (135.2, 56.8), 'J9.2')
+T('GND', 'F.Cu', 'D24.2', (135.2, 56.8), 'J9.2', w=0.5)
+T('GND', 'F.Cu', 'D24.2', (136.3, 58.2), w=0.5)
+V('GND', 136.3, 58.2)                     # TVS return straight into In1 (review MAJOR-1)
 T('ISO_LCUR', 'F.Cu', 'U21.6', 'R125.1')
 T('DUT_LO', 'F.Cu', 'R125.2', (123.4, 62.87), (122.6, 63.67), (122.6, 70.1))
 T('DUT_LO', 'F.Cu', (122.6, 65.2), 'D28.3')

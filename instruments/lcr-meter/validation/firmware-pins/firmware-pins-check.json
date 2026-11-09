@@ -1,11 +1,11 @@
 {
  "inputs": {
-  "cad/design.json": "9eab5017f911f99b8d94b23d368c29ee32c327cebde79b167ef76b3b10022910",
+  "cad/design.json": "2497311b5b127e69b932136be40daf3d53fee0598e8d53cb45b5b2aca7f7e203",
   "firmware-rev-e/src/pins.h": "27dc8de1c814b3a87129e81d1e40e380025dc886947fb35f32f5b944b1b0a075",
   "firmware-rev-e/src/relay.c": "5bafd6729c0ca3c09b40133e7ec5a189dd51344e2eed1c04e35a00db31922927",
   "firmware-rev-e/src/rails.c": "338c3b0db7923e2e846727ab45590b390f7db8b95f52531b68f5ebe0e6f93491",
   "firmware-rev-e/src/main.c": "aa5ca00ec0f537f0f9976123ff52d10c8625de8341fe079e503c08a368015c70",
-  "firmware-rev-e/src/jackguard.h": "c0838b791996f09d6f0b876c44d1c05f0f420eb72631944b27bf879fa19765d7"
+  "firmware-rev-e/src/jackguard.h": "8d9794c8cf887d985afef111c3400068ee68d65f6f758045f505e240d8601277"
  },
  "findings": [],
  "passes": [

@@ -14,7 +14,8 @@
 #include <stdint.h>
 
 /* Sense divider per CUR jack (drive_budget.py; design.json R126-R131, C121 / C122): R_TOP 1.5 MOhm from the
-   jack, R_BIAS 240 kOhm to 3V3, R_GND 240 kOhm to ground, 100 nF at the pin. pin = (V_jack / R_TOP + 3V3 / R_BIAS) / G,
+   jack, R_BIAS 240 kOhm to 3V3, R_GND 240 kOhm to ground, 100 nF on the node (at the jack end of its run, not at the
+   MCU pin: docs/rev-g-plan.md). pin = (V_jack / R_TOP + 3V3 / R_BIAS) / G,
    so V_jack = pin * R_TOP * G - 3V3 * R_TOP / R_BIAS with R_TOP * G = 1 + 6.25 + 6.25 = 13.5 and R_TOP / R_BIAS = 6.25. */
 #define JG_ADC_REF_MV 3300
 #define JG_ADC_CODES 4096

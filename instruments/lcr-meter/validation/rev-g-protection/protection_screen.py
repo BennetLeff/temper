@@ -303,6 +303,9 @@ def render(out):
         if part.startswith('r_'):
             t = f"{a['v_pk']:.3g} V, {a['p_pk_w']:.3g} W peak, {a['e_j'] * 1e6:.3g} µJ"
             u = f"{w['v_pk']:.3g} V, {w['p_pk_w']:.3g} W peak, {w['e_j'] * 1e3:.3g} mJ"
+        elif part.startswith('iso_'):   # the switch: its off-state voltage is what stresses it
+            t = f"{a['v_pk']:.3g} V off-state"
+            u = f"{w['v_pk']:.3g} V off-state"
         else:
             t = f"{a['i_pk_a']:.3g} A peak, {a['e_j'] * 1e6:.3g} µJ"
             u = f"{w['i_pk_a']:.3g} A peak, {w['e_j'] * 1e3:.3g} mJ"

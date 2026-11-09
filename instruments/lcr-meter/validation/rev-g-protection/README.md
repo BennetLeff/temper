@@ -142,6 +142,10 @@ Candidates (full definitions in `CANDIDATES`):
 | `r_hpot` | 9.97 V, 0.993 W peak, 1.47 µJ | 129 V, 167 W peak, 0.222 mJ |
 | `r_lpot` | 11 V, 1.21 W peak, 1.47 µJ | 129 V, 167 W peak, 0.222 mJ |
 | `r_lcur` | 9.66 V, 9.34 W peak, 31 µJ | 131 V, 1.72e+03 W peak, 2.43 mJ |
+| `iso_hcur` | 10.3 V off-state | 135 V off-state |
+| `iso_hpot` | 10.3 V off-state | 135 V off-state |
+| `iso_lpot` | 10.3 V off-state | 135 V off-state |
+| `iso_lcur` | 10.3 V off-state | 135 V off-state |
 <!-- /generated -->
 
 - Each clamp's energy is its current times its own node voltage: the jack, the second-stage node or tia_sum. Before 2026-11-08 every clamp used the jack voltage, which overstated the second-stage energies.

@@ -75,6 +75,7 @@ design['board'].update(
     testpoints=[[n, net, x, sy(y), d] for n, net, x, y, d in design['board']['testpoints']])
 TESTPOINTS = [(n, net, x, sy(y), d, lx, sy(ly)) for n, net, x, y, d, lx, ly in REV_F_TESTPOINTS]
 design['revision'] = 'G'
+design['board']['title_block'] = True        # board title block (Gerber job revision G)
 design['date'] = '2026-11-09'
 
 

@@ -106,6 +106,8 @@ from schematic_pages import write_pages
 write_pages(ROOT, DATA, symbols, geometry, pinout, local_fp, uid, q)
 # pcbnew provides footprint geometry, rotation and pad placement.
 b=k.BOARD();b.SetCopperLayerCount(4)
+if BOARD.get('title_block'):   # Rev G on; earlier revisions rebuild byte-identical without one
+    tb=b.GetTitleBlock();tb.SetTitle(DATA['title']);tb.SetDate(DATA['date']);tb.SetRevision(DATA['revision']);tb.SetCompany('Temper')
 settings=b.GetDesignSettings();settings.SetAuxOrigin(pos(OUTLINE[0],OUTLINE[3]));settings.m_SolderMaskMargin=mm(0.05)
 settings.m_MinClearance=mm(0.15);settings.m_TrackMinWidth=mm(0.15);settings.m_ViasMinSize=mm(0.45);settings.m_MinThroughDrill=mm(0.2)
 nets={}
