@@ -43,7 +43,9 @@ Rev F's hand routes are therefore kept as coordinate transforms, and no autorout
 - 77 SMT lines (69 on Rev F), of which 31 are extended (27 on Rev F). The four new extended lines are the TLP172AM, the two thin-film resistors and the 1 nF C0G, about $12 of feeder fees per order.
 - Catalog SMT cost $49.10 per board, against $45.43.
 
-## 2. Gates (2026-11-09, board `b956ee70…981d`)
+## 2. Gates (2026-11-09, board `f3976936…cccf`)
+
+The board's analog copper was frozen at `b956ee70…981d`. The only later change is the TLP172AM footprint's 3D model path, which now points at the exact-part model from the LCSC record (`cad/tools/models_3d.py`, fit RMS 0.05 mm) because KiCad 10 ships no SO-4 model at the old path. ERC, DRC, the fab pass, the via audit, the independent check, the pinout ledger and the firmware pins were rerun on the new file; the rest depend only on copper and the netlist.
 
 | Check | Result | Evidence |
 |---|---|---|
@@ -69,7 +71,11 @@ The board grows 10 mm toward the back, and the front face does not change:
 - The BNC holes, the D4 lens and the front plate are unchanged.
 - The USB-C cut-out moves from 77 to **87 mm** behind the front edge, on the same (left) wall. J1 is at y 132.
 - The mounting-hole pattern becomes **92 × 97 mm** (holes at y 54 and 151).
-- `../validation/enclosure-envelope/` has not been rerun for Rev G.
+- `../validation/rev-g/board-envelope.json` (`board_envelope.py` on Rev G):
+  - the board measures 100.05 × 110.05 mm, and the BNCs are still the tallest parts (13.75 mm) and reach 18.48 mm past the front edge;
+  - H1 / H2 (front) are clear of M3 hardware, with H2 3.5 mm from JK_HPOT on B.Cu;
+  - H3 / H4 keep Rev F's 1.8 mm to the B.Cu GND pour, so the insulating standoffs are still needed;
+  - J1 is flush with the left edge at y 127.5–136.5.
 
 ## 4. Firmware
 
@@ -109,4 +115,3 @@ The board grows 10 mm toward the back, and the front face does not change:
 2. **Independent review** of the frozen export (a fresh reviewer with the files, not these conclusions).
 3. **Placement preview** at JLC: D28 pin 3 toward DUT_LO; U18–U21 pin 1 (anode) orientation; D4 and Y1 as on Rev F.
 4. **Rev F bring-up** findings on the band nodes; confirm the TLP172AM COFF and the TVS capacitances (`rev-g-protection/README.md`, "Open items").
-5. **Enclosure envelope** rerun for 100 × 110 (`validation/enclosure-envelope/`).

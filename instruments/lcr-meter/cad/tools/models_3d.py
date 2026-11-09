@@ -28,6 +28,7 @@ PARTS = {
     'BNC_SAMZO_KYWE-295-W4-N_Horizontal': ('C41416668', 'bnc'),
     'USB_C_Receptacle_HRO_TYPE-C-31-M-12': ('C165948', 'legs:SH'),  # EasyEDA's shell sits 1.17 mm off its shield holes
     'LED_LiteOn_LTST-S270KFKT_SideView': ('C160472', 'seat'),
+    'Toshiba_11-4M1S': ('C2152276', 'seat'),  # TLP172AM (Rev G)
 }
 
 manifest = models_3d.build(PARTS, ROOT / 'cad' / 'LCR.pretty', ROOT / 'sources' / 'placement-library',

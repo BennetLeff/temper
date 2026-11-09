@@ -19,6 +19,10 @@ import os
 import sys
 
 CUT, SHIFT = 57.0, 10.0
+# Rev F zoom windows (layout-parasitics/fd3d.py WINDOWS, x0 x1 y0 y1) whose grid ratios Rev G reuses: each must hold
+# no changed analog item and no GND-fill change once moved by the transform (all three lie below the cut).
+REUSED = {'revf_u7': (107.5, 121.0, 63.5, 80.5), 'revf_relay': (91.0, 111.0, 63.0, 82.0),
+          'revf_hiside': (87.0, 97.0, 74.0, 90.0)}
 # the nets the parasitic extraction solves (layout-parasitics/run_reve.sh run_revf N)
 EXTRACTED = {'TIA_SUM', 'DUT_LO', 'TIA_OUT', 'DUT_HI', 'RF100', 'RF5K', 'RF100K', 'LOW_BUF', 'HIGH_BUF', 'SOURCE_BUF',
              'RG100', 'RG5K', 'RG100K', 'SRC_DRV', 'HPOT', 'LPOT', 'REF_A'}
@@ -93,23 +97,32 @@ def compare(d, ref_rev):
     unchanged = unary_union(same)
     unchanged_extracted = unary_union([geom(g[k]) for k in set(g) & set(f) if g[k][1] in EXTRACTED])
     changed = unary_union([geom(i) for i in added] + [geom(i, moved) for i in removed])
-    fill = {}
+    fill, fill_geoms = {}, {}
     for layer in sorted(set(d['ref']['fills']) | set(d['new']['fills'])):
         def union(side):
             return unary_union([Polygon(p['o'], p['h']).buffer(0) for p in d[side]['fills'].get(layer, [])])
         ref = translate(union('ref').intersection(box(0, CUT + 1, 1000, 1000)), 0, SHIFT)
         new = union('new').intersection(box(0, CUT + 1 + SHIFT, 1000, 1000))
         x = ref.symmetric_difference(new).buffer(-0.01).buffer(0.01)
+        fill_geoms[layer] = x
         fill[layer] = {'area_mm2': 0.0} if x.is_empty else {
             'area_mm2': round(x.area, 2), 'nearest_unchanged_analog_mm': round(x.distance(unchanged), 2),
             'nearest_unchanged_extracted_mm': round(x.distance(unchanged_extracted), 2),
             'bbox': [round(v, 2) for v in x.bounds]}
+    reused = {}
+    for name, (x0, x1, y0, y1) in REUSED.items():
+        w = box(x0, y0 + SHIFT, x1, y1 + SHIFT)
+        reused[name] = {'rev_g_window': [x0, x1, y0 + SHIFT, y1 + SHIFT],
+                        'changed_analog_items': sum(1 for i in added if geom(i).intersects(w))
+                        + sum(1 for i in removed if geom(i, moved).intersects(w)),
+                        'gnd_fill_change_mm2': {l: round(x.intersection(w).area, 3) for l, x in fill_geoms.items()}}
     return {
         'reference_rev': ref_rev, 'transform': f'y > {CUT} moved +{SHIFT} mm',
         'analog_items': {'rev_f': len(f), 'rev_g': len(g), 'identical_after_transform': len(set(g) & set(f))},
         'added_in_rev_g': by_net(added), 'removed_from_rev_f': by_net(removed, moved),
         'changed_bbox': [round(v, 2) for v in changed.bounds] if not changed.is_empty else None,
         'gnd_fill_change_below_y68': fill,
+        'reused_rev_f_zoom_windows': reused,
     }
 
 

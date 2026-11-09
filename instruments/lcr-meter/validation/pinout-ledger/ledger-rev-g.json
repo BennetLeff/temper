@@ -2,7 +2,7 @@
  "schema": "temper-lcr-pinout-ledger-v1",
  "revision": "G",
  "written": "2026-11-09",
- "board_sha256": "b956ee70254f9146dc049c4c5bacf0c03a0b66f7b0833157d5d599e2451d981d",
+ "board_sha256": "f39769360f7e2091e2423807c7e06dc249560f6e6dfdf47c45e83e709c42cccf",
  "how": "Each part row holds the manufacturer pin table (datasheet name per pad), the land-pattern numbers and the net each datasheet function must carry on this board. Expected nets were written from the datasheet function and the circuit intent (firmware pins.h for RP2040 GPIOs), then compared with design.json by pinout_check.py. PDFs are not committed; each datasheet is cited by URL and the SHA-256 of the PDF fetched on 2026-11-03. Rev G (2026-11-09): this file is ledger.json with the Rev G changes: J6 removed; the BNC centre pins and K4 pins 3 / 4 / 8 on the jack nets (JK_*); Q7 in the AO3400A row; rows for the TLP172AM, H4V5HD3B, H3V3LD5B and BAV99, whose PDFs were fetched again on 2026-11-09 and match the SHA-256 recorded in rev-g-protection/part-selection/parts.json. Run with --ledger validation/pinout-ledger/ledger-rev-g.json --package validation/rev-g.",
  "datasheets": {
   "rp2040": {

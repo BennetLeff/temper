@@ -140,5 +140,49 @@
     154.05
    ]
   }
+ },
+ "reused_rev_f_zoom_windows": {
+  "revf_u7": {
+   "rev_g_window": [
+    107.5,
+    121.0,
+    73.5,
+    90.5
+   ],
+   "changed_analog_items": 0,
+   "gnd_fill_change_mm2": {
+    "B.Cu": 0.0,
+    "In1.Cu": 0.0,
+    "In2.Cu": 0.0
+   }
+  },
+  "revf_relay": {
+   "rev_g_window": [
+    91.0,
+    111.0,
+    73.0,
+    92.0
+   ],
+   "changed_analog_items": 0,
+   "gnd_fill_change_mm2": {
+    "B.Cu": 0.0,
+    "In1.Cu": 0.0,
+    "In2.Cu": 0.0
+   }
+  },
+  "revf_hiside": {
+   "rev_g_window": [
+    87.0,
+    97.0,
+    84.0,
+    100.0
+   ],
+   "changed_analog_items": 0,
+   "gnd_fill_change_mm2": {
+    "B.Cu": 0.0,
+    "In1.Cu": 0.0,
+    "In2.Cu": 0.0
+   }
+  }
  }
 }

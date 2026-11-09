@@ -69,8 +69,17 @@ WINDOWS['revf_hiside'] = (87.0, 97.0, 74.0, 90.0)    # DUT_HI F.Cu x 90.2 beside
 WINDOWS['revf_band'] = (80.0, 98.0, 50.0, 62.0)      # DUT_HI B.Cu y 56.9, HPOT F.Cu x 87.5-89, R105, DUT_HI F.Cu start
 WINDOWS['revf_corner'] = (114.0, 136.0, 49.0, 67.0)  # DUT_LO/LPOT F.Cu, R106, R107, K4, DUT_HI B.Cu x 131.5
 WINDOWS['revf_vert'] = (113.0, 126.0, 59.0, 79.0)    # LPOT F.Cu x 116.3 and DUT_LO F.Cu x 122.6 verticals
+# Rev G (Rev F below y 57 moved +10 mm, the jack protection in the new band; geometry_revg.json): conductor copper
+# x 61.50-134.69, y 62.17-108.04.  The U7, relay and hiside zooms are Rev F's (assemble_reve.py CFG['revg'] reuse;
+# validation/rev-g/copper-shift-delta.json: no changed analog item and no GND-fill change inside them, moved +10 mm).
+# New zooms on the changed copper (y 62-78): the jack ends behind the series resistors R122-R125.
+WINDOWS['revg'] = (60.0, 136.5, 60.5, 109.5)
+WINDOWS['revg_band'] = (82.0, 96.0, 61.0, 75.0)      # DUT_HI B.Cu y 65.8 to its x 90.2 trunk, HPOT from R123 down x 87.5, C119/D26
+WINDOWS['revg_corner'] = (112.0, 135.5, 61.0, 76.0)  # LPOT from R124 (C120/D27), DUT_LO from R125 (D28), REF_A R107-K4
+WINDOWS['revg_vert'] = (112.0, 126.0, 69.0, 90.0)    # LPOT x 116.3 and DUT_LO x 122.6 verticals
 ZOOM_WINDOWS = {'zoom', 'reve_relay', 'reve_hiside', 'reve_hiside_r104', 'bnc_band', 'bnc_corner', 'bnc_vert',
-                'revf_u7', 'revf_relay', 'revf_hiside', 'revf_band', 'revf_corner', 'revf_vert'}
+                'revf_u7', 'revf_relay', 'revf_hiside', 'revf_band', 'revf_corner', 'revf_vert',
+                'revg_band', 'revg_corner', 'revg_vert'}
 MARGIN_MM = 1.4
 
 

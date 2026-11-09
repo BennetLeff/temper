@@ -1,30 +1,17 @@
 {
  "inputs": {
-  "cad/design.json": "bd1dcf699b780c5881b4442313cabc1992f634a4cbc0a055cc912c9560c14542",
+  "cad/design.json": "9eab5017f911f99b8d94b23d368c29ee32c327cebde79b167ef76b3b10022910",
   "firmware-rev-e/src/pins.h": "27dc8de1c814b3a87129e81d1e40e380025dc886947fb35f32f5b944b1b0a075",
   "firmware-rev-e/src/relay.c": "5bafd6729c0ca3c09b40133e7ec5a189dd51344e2eed1c04e35a00db31922927",
   "firmware-rev-e/src/rails.c": "338c3b0db7923e2e846727ab45590b390f7db8b95f52531b68f5ebe0e6f93491",
   "firmware-rev-e/src/main.c": "aa5ca00ec0f537f0f9976123ff52d10c8625de8341fe079e503c08a368015c70",
   "firmware-rev-e/src/jackguard.h": "c0838b791996f09d6f0b876c44d1c05f0f420eb72631944b27bf879fa19765d7"
  },
- "findings": [
-  {
-   "check": "gpio net",
-   "detail": "PIN_UART_TX = GPIO28 = U1 pad 40: net JACK_HC, expected UART_TX"
-  },
-  {
-   "check": "gpio net",
-   "detail": "PIN_UART_RX = GPIO29 = U1 pad 41: net JACK_LC, expected UART_RX"
-  },
-  {
-   "check": "gpio claimed",
-   "detail": "U1 pad 18 GPIO15 net ISO_DRIVE is not in pins.h"
-  }
- ],
+ "findings": [],
  "passes": [
   {
    "check": "build",
-   "detail": "revision F: Rev G pins absent, UART header pins present"
+   "detail": "revision G: Rev G pins present, UART header pins absent"
   },
   {
    "check": "gpio net",
@@ -95,6 +82,18 @@
    "detail": "PIN_MON_N12 = GPIO27 = U1 pad 39: net MON_N12, expected MON_N12"
   },
   {
+   "check": "gpio net",
+   "detail": "PIN_ISO_DRIVE = GPIO15 = U1 pad 18: net ISO_DRIVE, expected ISO_DRIVE"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_JACK_HC = GPIO28 = U1 pad 40: net JACK_HC, expected JACK_HC"
+  },
+  {
+   "check": "gpio net",
+   "detail": "PIN_JACK_LC = GPIO29 = U1 pad 41: net JACK_LC, expected JACK_LC"
+  },
+  {
    "check": "gpio claimed",
    "detail": "U1 pad 4 GPIO2 net I2S_DIN is in pins.h"
   },
@@ -144,6 +143,10 @@
   },
   {
    "check": "gpio claimed",
+   "detail": "U1 pad 18 GPIO15 net ISO_DRIVE is in pins.h"
+  },
+  {
+   "check": "gpio claimed",
    "detail": "U1 pad 34 GPIO22 net FAULT is in pins.h"
   },
   {
@@ -183,20 +186,20 @@
    "detail": "PIN_I2C_SCL GPIO9 offers I2C0 SCL: yes (datasheet 2.19.2 row: 9       SPI1 CSn     UART1 RX      I2C0 SCL     PWM4 B      SIO   PIO0    PIO1                          USB OVCUR DET)"
   },
   {
-   "check": "function select",
-   "detail": "PIN_UART_TX GPIO28 offers UART0 TX: yes (datasheet 2.19.2 row: 28      SPI1 RX    UART0 TX    I2C0 SDA     PWM6 A      SIO   PIO0    PIO1                        USB VBUS DET)"
-  },
-  {
-   "check": "function select",
-   "detail": "PIN_UART_RX GPIO29 offers UART0 RX: yes (datasheet 2.19.2 row: 29      SPI1 CSn   UART0 RX    I2C0 SCL     PWM6 B      SIO   PIO0    PIO1                        USB VBUS EN)"
-  },
-  {
    "check": "adc channel",
    "detail": "PIN_MON12 GPIO26 is ADC0; main.c reads ADC0"
   },
   {
    "check": "adc channel",
    "detail": "PIN_MON_N12 GPIO27 is ADC1; main.c reads ADC1"
+  },
+  {
+   "check": "adc channel",
+   "detail": "PIN_JACK_HC GPIO28 is ADC2; main.c reads rail_sum(PIN_JACK_HC - 26u)"
+  },
+  {
+   "check": "adc channel",
+   "detail": "PIN_JACK_LC GPIO29 is ADC3; main.c reads rail_sum(PIN_JACK_LC - 26u)"
   },
   {
    "check": "pio side-set",
@@ -309,6 +312,26 @@
   {
    "check": "usb sense",
    "detail": "divider (100000.0, 100000.0, 'GND'): VBUS 4.4 V -> 2.20 V (VIH 2.0 V), 5.5 V -> 2.75 V (IOVDD 3.3 V)"
+  },
+  {
+   "check": "isolation drive",
+   "detail": "PIN_ISO_DRIVE -> ['R134'] -> ISO_G -> ['Q7'] (S GND, D ISO_SINK), gate pull-down ['R135']"
+  },
+  {
+   "check": "isolation drive",
+   "detail": "ISO_SINK sinks the LED strings [(['U18', 'U19'], 'ISO_S1', [('R132', 'VRLY', '300R')]), (['U21', 'U20'], 'ISO_S2', [('R133', 'VRLY', '300R')])]; photoMOS ['U18', 'U19', 'U20', 'U21']"
+  },
+  {
+   "check": "isolation switch",
+   "detail": "jack side of each switch {'U18': ['JK_HCUR'], 'U19': ['JK_HPOT'], 'U20': ['JK_LPOT'], 'U21': ['JK_LCUR']}"
+  },
+  {
+   "check": "jack sense divider",
+   "detail": "PIN_JACK_HC net JACK_HC: {'JK_HCUR': 1500000.0, '3V3': 240000.0, 'GND': 240000.0}, C ['C121']; R_TOP*G, R_TOP/R_BIAS x1e6 = (13500000, 6250000), jackguard.h (13500000, 6250000)"
+  },
+  {
+   "check": "jack sense divider",
+   "detail": "PIN_JACK_LC net JACK_LC: {'JK_LCUR': 1500000.0, '3V3': 240000.0, 'GND': 240000.0}, C ['C122']; R_TOP*G, R_TOP/R_BIAS x1e6 = (13500000, 6250000), jackguard.h (13500000, 6250000)"
   }
  ]
 }

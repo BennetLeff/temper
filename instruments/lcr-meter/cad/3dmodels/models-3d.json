@@ -128,5 +128,35 @@
     0.605
    ]
   }
+ },
+ "Toshiba_11-4M1S": {
+  "lcsc": "C2152276",
+  "easyeda_title": "SOP-6_4P-L3.7-W4.6-P2.54-LS7.0-BL",
+  "model_title": "SOP-6_4P-L3.7-W4.6-H2.1-LS7.0-P1.27",
+  "uuid": "e92cab93241e40038d031a88cdc7cc57",
+  "source_url": "https://modules.easyeda.com/qAxj6KHrDKw4blvCG8QJPs7Y/e92cab93241e40038d031a88cdc7cc57",
+  "raw_sha256": "3bed6a07751b02c6eacce85fc2a8b6fb98e67ebca4ef6bf50bc50239fd145988",
+  "pad_fit": {
+   "turn_deg": 270,
+   "rms_mm": 0.0499,
+   "matched_pads": 4,
+   "next_rms_mm": 4.836
+  },
+  "correction": {
+   "kind": "seat",
+   "lift_mm": 0.1
+  },
+  "bbox_mm": {
+   "min": [
+    -3.5,
+    -1.85,
+    0.0
+   ],
+   "max": [
+    3.5,
+    1.85,
+    2.301
+   ]
+  }
  }
 }

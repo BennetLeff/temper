@@ -34,6 +34,11 @@ def toshiba():
     f.SetLibDescription('Toshiba 4-pin SO6 (11-4M1S), pins 1/3/4/6; TLP172AM. Land pattern of KiCad '
                         'SO-4_4.4x3.9mm_P2.54mm, renumbered')
     f.SetKeywords('Toshiba SO6 4pin photorelay TLP172AM')
+    # KiCad 10 ships no model at the SO-4 path; the exact-part model is the LCSC record's (cad/tools/models_3d.py)
+    f.Models().clear()
+    m = k.FP_3DMODEL()
+    m.m_Filename = '${KIPRJMOD}/3dmodels/Toshiba_11-4M1S.step'
+    f.Add3DModel(m)
     k.FootprintSave(str(LIB), f)
 
 

@@ -7,7 +7,7 @@
 #   reve_bnc   board 80d44838: four-terminal BNC jacks (J3/J7/J8/J9 HCUR/HPOT/LPOT/LCUR), R105/R106
 #              1k CUR-POT, K4 reference relay + R107.  Uncommitted when extracted: taken from the
 #              working tree (or BNC_COMMIT=<sha>) and refused unless its SHA-256 matches BNC_SHA.
-# Usage: sh run_reve.sh [reve|reve_r104|reve_bnc|revf|all]   (default all; revf is not in all).  STAB=1 also reruns the
+# Usage: sh run_reve.sh [reve|reve_r104|reve_bnc|revf|revg|all]   (default all; revf and revg are not in all).  STAB=1 also reruns the
 # stability modes.
 # Writes geometry_<v>.json, inductance_<v>.json, fd_results/*_<v>.json, extracted_<v>.json and
 # ../stability-full-chain/<v>_extracted.rs (board capacitors + loop L for loop_matrix.rs).
@@ -101,13 +101,32 @@ run_revf() {
   LP_VARIANT=revf $PY assemble_reve.py
 }
 
+run_revg() {
+  # Rev G (100 x 110 mm: Rev F below y 57 moved +10 mm, the jack protection in the new band; cad/tools/rev_g.py).
+  # Taken from the working tree, or REVG_COMMIT=<sha>.  The U7 / relay / hiside zooms are Rev F's runs (assemble_reve.py
+  # CFG['revg'] reuse, justified by ../rev-g/copper-shift-delta.json); the whole board and the band zooms are solved here.
+  export_board revg "${REVG_COMMIT:-worktree}"
+  N=$NETS,SRC_DRV,HPOT,LPOT,REF_A
+  jobs=""
+  for w in revg_band revg_corner revg_vert; do
+    for dx in 0.2 0.14 0.1 0.07 0.05; do jobs="$jobs $w:$dx"; done
+  done
+  jobs="$jobs revg:0.2 revg:0.2:JLC04161H-1080"
+  export N PY
+  printf '%s\n' $jobs | xargs -n 1 -P "${J:-2}" sh -c '
+    w=$(echo "$1" | cut -d: -f1); dx=$(echo "$1" | cut -d: -f2); st=$(echo "$1" | cut -d: -f3)
+    LP_GEOMETRY=geometry_revg.json LP_SUM=TIA_SUM LP_CONDUCTORS="$N" $PY fd3d.py "$dx" neumann "${st:-JLC04161H-7628}" "$w" > /dev/null' _
+  LP_VARIANT=revg $PY assemble_reve.py
+}
+
 case "${1:-all}" in
   revf) run_revf ;;
+  revg) run_revg ;;
   reve) run_reve ;;
   reve_r104) run_reve_r104 ;;
   reve_bnc) run_reve_bnc ;;
   all) run_reve; run_reve_r104; run_reve_bnc ;;
-  *) echo 'Usage: sh run_reve.sh [reve|reve_r104|reve_bnc|all]' >&2; exit 2 ;;
+  *) echo 'Usage: sh run_reve.sh [reve|reve_r104|reve_bnc|revf|revg|all]' >&2; exit 2 ;;
 esac
 
 if [ -n "${STAB:-}" ]; then
