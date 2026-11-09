@@ -1,0 +1,91 @@
+{
+ "setup": "Bring-up check of the unpowered ESD knee: meter unpowered, relays left on 100 k, a current-limited bench\n    supply pushes I into the HPOT or LPOT centre pin (shell = GND) and a DMM reads the pin. The model's answer for\n    both ESD-cell IS values; the real cells sit somewhere near or between them.",
+ "rows": [
+  {
+   "jack": "HPOT (J7)",
+   "i_ma": 1.0,
+   "v_is_1e-15": 0.948,
+   "rail_is_1e-15": 0.24,
+   "v_is_1e-12": 0.782,
+   "rail_is_1e-12": 0.251
+  },
+  {
+   "jack": "HPOT (J7)",
+   "i_ma": 5.0,
+   "v_is_1e-15": 2.313,
+   "rail_is_1e-15": 1.55,
+   "v_is_1e-12": 2.135,
+   "rail_is_1e-12": 1.55
+  },
+  {
+   "jack": "HPOT (J7)",
+   "i_ma": -1.0,
+   "v_is_1e-15": -0.925,
+   "rail_is_1e-15": -0.217,
+   "v_is_1e-12": -0.758,
+   "rail_is_1e-12": -0.227
+  },
+  {
+   "jack": "HPOT (J7)",
+   "i_ma": -5.0,
+   "v_is_1e-15": -2.156,
+   "rail_is_1e-15": -1.392,
+   "v_is_1e-12": -1.978,
+   "rail_is_1e-12": -1.392
+  },
+  {
+   "jack": "LPOT (J8)",
+   "i_ma": 1.0,
+   "v_is_1e-15": 0.834,
+   "rail_is_1e-15": 0.141,
+   "v_is_1e-12": 0.674,
+   "rail_is_1e-12": 0.156
+  },
+  {
+   "jack": "LPOT (J8)",
+   "i_ma": 5.0,
+   "v_is_1e-15": 2.213,
+   "rail_is_1e-15": 1.452,
+   "v_is_1e-12": 2.035,
+   "rail_is_1e-12": 1.452
+  },
+  {
+   "jack": "LPOT (J8)",
+   "i_ma": -1.0,
+   "v_is_1e-15": -0.821,
+   "rail_is_1e-15": -0.127,
+   "v_is_1e-12": -0.66,
+   "rail_is_1e-12": -0.142
+  },
+  {
+   "jack": "LPOT (J8)",
+   "i_ma": -5.0,
+   "v_is_1e-15": -2.066,
+   "rail_is_1e-15": -1.304,
+   "v_is_1e-12": -1.887,
+   "rail_is_1e-12": -1.304
+  }
+ ],
+ "v3a_two_terminal_1uF_100k": [
+  {
+   "v_cap": 5.0,
+   "v3a_max": 3.314,
+   "class": "A"
+  },
+  {
+   "v_cap": 7.0,
+   "v3a_max": 3.484,
+   "class": "A"
+  },
+  {
+   "v_cap": 10.0,
+   "v3a_max": 3.827,
+   "class": "A"
+  },
+  {
+   "v_cap": 13.0,
+   "v3a_max": 4.031,
+   "class": "C"
+  }
+ ]
+}

@@ -73,9 +73,9 @@ Severities are the reviewers'. "Bring-up" means a check in `docs/bring-up-rev-e.
 | C-05, C-06 | RISK | Bring-up 3.3: read CLK_DET_STS0 / CLK_ERR_STS. Fallback: PASI_FS_RATE_NO_LIM. 187.5 kHz lies in the auto 192 kHz bucket (174.64–193.92 kHz) |
 | C-07 | MISSING | Fixed: I2S test pads |
 | C-08 | RISK (low) | Assembly: X-ray U14 (EP vias inside the paste apertures) |
-| AFE-01 … AFE-04 | RISK (high consequence) | Deferred to Rev G as a study: the DUT jacks have no protection. The study would cover a residual-voltage sense, series R at the follower inputs, and clamps on the jack side, never on TIA_SUM. Any change to the verified TIA/follower nodes needs re-extraction and the stability matrix. Rev F: the silk says DISCHARGED / DUT ONLY. Quantified 2026-11-05 in `../charged-dut/`: 7 V with Kelvin clips powered, about 1 V unpowered. Bring-up's rule is meter powered first, below 1 V on a DMM |
+| AFE-01 … AFE-04 | RISK (high consequence) | Deferred to Rev G as a study: the DUT jacks have no protection. The study would cover a residual-voltage sense, series R at the follower inputs, and clamps on the jack side, never on TIA_SUM. Any change to the verified TIA/follower nodes needs re-extraction and the stability matrix. Rev F: the silk says DISCHARGED / DUT ONLY. Quantified 2026-11-05, revised 2026-11-08, in `../charged-dut/`: 7 V with Kelvin clips powered, 0.5–1 V unpowered. Bring-up's rule is meter powered first, below 0.5 V on a DMM, wrist strap |
 | AFE-05, AFE-06 | RISK (accuracy) | Bring-up: amplitude sweep at 60 kHz, and ratio drift in a warm box (BAT54S Cj / leakage) |
-| AFE-07 … AFE-09 | RISK | Bring-up: AVDD on a +12 V step; connect no DUT until range = 100 k |
+| AFE-07 … AFE-09 | RISK | Bring-up: AVDD on a +12 V step; connect no DUT until range = 100 k. AFE-07 modelled 2026-11-08 (`../charged-dut/`): the hand calculation reproduces (7.04 vs 6.93 mA); a charged part pumps 3V3A past 3.9 V at 10–13 V with relays reset or two-terminal leads; bring-up 3V3A check at 7 V |
 | RC-01 | RISK | Fixed: R101 1 Ω |
 | RC-02 | OK-NOTE | TQ catalog p.16 asks for pulses of ≥ 10 ms; firmware uses 20 ms |
 | RC-04, RC-07 | RISK (low) | Firmware: relay state "unknown" until the first RANGE command; optional K3 wetting cycle before calibration |

@@ -1,0 +1,109 @@
+{
+ "inputs": {
+  "float_per_axis_mm": [
+   0.085,
+   0.34
+  ],
+  "axis_mm": [
+   6.6000000000000005,
+   7.05
+  ],
+  "process": {
+   "laser_or_machined_metal": {
+    "pos": 0.1,
+    "dia": 0.1,
+    "undersize": 0.0
+   },
+   "resin_or_fdm_print": {
+    "pos": 0.15,
+    "dia": 0.15,
+    "undersize": 0.1
+   }
+  },
+  "design": {
+   "hole_dia": {
+    "laser_or_machined_metal": 12.5,
+    "resin_or_fdm_print": 12.7
+   },
+   "wall": 2.0,
+   "edge_relief_depth": 0.6,
+   "slot_float_y": 1.3,
+   "slot_float_z": 0.6
+  }
+ },
+ "checks": [
+  {
+   "check": "laser_or_machined_metal / jig: hole \u00d8 needed vs \u00d812.5",
+   "value": 12.28,
+   "limit": 12.5,
+   "pass": true,
+   "required": true,
+   "note": "flange ring left on the worst side 0.21 mm"
+  },
+  {
+   "check": "laser_or_machined_metal / soldered_first: hole \u00d8 needed vs \u00d812.5",
+   "value": 13.23,
+   "limit": 12.5,
+   "pass": false,
+   "required": false,
+   "note": "flange ring left on the worst side -0.26 mm"
+  },
+  {
+   "check": "resin_or_fdm_print / jig: hole \u00d8 needed vs \u00d812.7",
+   "value": 12.53,
+   "limit": 12.7,
+   "pass": true,
+   "required": true,
+   "note": "flange ring left on the worst side 0.04 mm"
+  },
+  {
+   "check": "resin_or_fdm_print / soldered_first: hole \u00d8 needed vs \u00d812.7",
+   "value": 13.48,
+   "limit": 12.7,
+   "pass": false,
+   "required": false,
+   "note": "flange ring left on the worst side -0.44 mm"
+  },
+  {
+   "check": "board edge ahead of the flanges, jig",
+   "value": 0.49,
+   "limit": 0.6,
+   "pass": true,
+   "required": true,
+   "note": "worst case; a positive value means the edge reaches the plate first"
+  },
+  {
+   "check": "board edge ahead of the flanges, soldered_first",
+   "value": 0.915,
+   "limit": 0.6,
+   "pass": false,
+   "required": false,
+   "note": "worst case; a positive value means the edge reaches the plate first"
+  },
+  {
+   "check": "plate y travel vs tray (slot float each side)",
+   "value": 1.09,
+   "limit": 1.3,
+   "pass": true,
+   "required": true,
+   "note": ""
+  },
+  {
+   "check": "plate z travel vs tray (slot float each side)",
+   "value": 0.535,
+   "limit": 0.6,
+   "pass": true,
+   "required": true,
+   "note": ""
+  },
+  {
+   "check": "thread left for toothed washer + nut",
+   "value": 4.6,
+   "limit": 0.0,
+   "pass": true,
+   "required": true,
+   "note": "scaled 6.6 mm thread minus the wall; caliper the nut and washer before cutting"
+  }
+ ],
+ "pass": true
+}

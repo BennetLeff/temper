@@ -10,10 +10,11 @@ Applies to the Rev E board (`E-codec`, protocol 3): TAC5112 codec, latching rang
 - The cal kit card, Kelvin clip leads (jaws < 14 mm) and four BNC–clip leads.
 - `firmware-rev-e/bin/temper-lcr-rev-e.uf2` and `host/bin/temper-lcr-macos-arm64` (`temper-lcr` below).
 
-**Safety.** The DUT shares USB ground. Measure only discharged, isolated parts. The jacks have no protection: the model in `validation/charged-dut/` puts the limit at 7 V with Kelvin clips when the meter is powered, and about 1 V when it is not. So:
+**Safety.** The DUT shares USB ground. Measure only discharged, isolated parts. The jacks have no protection: the model in `validation/charged-dut/` puts the limit at 7 V with Kelvin clips when the meter is powered, and 0.5–1 V when it is not. So:
 1. Power the meter and wait for range 100k before connecting anything.
-2. Discharge every capacitor through a resistor and confirm **below 1 V** with a DMM before clipping on. For tank or bus capacitors, use a resistor rated for the voltage, such as 10 kΩ 5 W.
+2. Discharge every capacitor through a resistor and confirm **below 0.5 V** with a DMM before clipping on. For tank or bus capacitors, use a resistor rated for the voltage, such as 10 kΩ 5 W.
 3. Never measure a part that is still in a circuit.
+4. Wear a grounded wrist strap and do not touch the BNC centre pins: they go straight to the OPA2810 inputs (HBM 2.5 kV).
 
 **Record keeping.** Commit every capture, `info`/`codec` printout, scope screenshot and note to `validation/bring-up-rev-e/` with the step number. Then a later agent can redo the analysis without the board.
 
@@ -117,6 +118,7 @@ The TPS65131 enables come from U17 (LM3880). FLAG1 releases ENP and FLAG2 releas
    Record one capture.
 5. Run `temper-lcr selftest PORT`. This is a digital loopback (firmware README, *Self-test*). If it fails with a constant bit offset on a board that passes step 4, the codec echo is retimed: the fix is an expected offset in firmware, not hardware.
 6. If you want the 375 kHz build: steps 2–5 with that UF2. `CODEC` must show bin 5 and every channel powered.
+7. **Reflash without the buttons, before any lid is closed.** Run `temper-lcr boot PORT`, check that RPI-RP2 appears, copy the UF2, and repeat step 2. Unplug USB-C and plug it back in, then repeat step 2 again. The enclosure has no holes for SW1/SW2 (`validation/enclosure-envelope/`, audit R4), so these two paths must work before the lid goes on.
 
 ## 4. Relays
 
@@ -180,6 +182,8 @@ The desk analysis ([power-spurs Rev E](../validation/power-spurs/README-rev-e.md
 ## 10. Remaining first-board checks
 
 - **80–85 kHz.** The DAC interpolation image at fs − f falls in the ADC transition band, and neither attenuation is published. Measure C1 at 80 and 85 kHz against 60.5 kHz. C must agree within 0.1 %, or the top of the range is unusable for reactive parts. The host warns on every tone above 80.4 kHz until this is settled.
+- **Unpowered ESD knee.** Leave the meter unpowered and the relays on 100k (power it once, wait for range 100k, unplug). From a current-limited supply (compliance about 3 V), push +1, +5, −1 and −5 mA into the J7 (HPOT) and J8 (LPOT) centre pins, with the shell as return. Never exceed 5 mA: the cells are rated 10 mA. Read the pin with a DMM, and the +12 / −12 test pad at the same time. Compare with `validation/charged-dut/bench-esd-knee.json`: the pin-minus-pad difference is the real cell's forward voltage, and should lie near or between the two model columns. A clearly lower value means the unpowered limit is below the 0.5 V rule: tell the plan before relying on it.
+- **3V3A under an overload (AFE-07).** Meter powered on the 100k range. Scope C60 (3V3A), DC-coupled, and touch a 1 µF film capacitor charged to 7 V across HCUR and LCUR with two-terminal leads. `bench-esd-knee.json` (`v3a_two_terminal_1uF_100k`) predicts a 3V3A peak of 3.48 V at 7 V; 3.9 V, the TAC5112 limit, is first passed at 13 V. Do not go above 7 V. A peak well above the prediction means the codec path pumps harder than modelled: lower the charged-part limit in the plan.
 - **Long capture.** A 60 s `capture` (`--seconds=59`) with other USB traffic on the host must finish without `acquisition_overrun`.
 - **Temper targets.** On the 100 Ω range at the half-kHz grid, measure the stage53 coil, the 100 nF and 0.5 µF resonant capacitors (35.5–60.5 kHz) and the 9 µF bus capacitor (1.5 kHz, characterized film capacitor), with the session procedure (step 8.4). Record the results against a reference meter where one is available.
 - **Relay capacitances (optional).** Measure a loose TQ2SA's contact-to-coil and pole-to-pole capacitance, and rerun `reverelaycng100_r104` with the values (`validation/stability-full-chain`). That replaces the estimate under the 46.8° margin.

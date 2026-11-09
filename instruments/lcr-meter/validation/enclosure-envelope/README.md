@@ -31,7 +31,7 @@ Bounding boxes are conservative.
 
 | Edge | Part | How far | Height above the board top | Note |
 |---|---|---|---|---|
-| Front | J3, J7, J8, J9 BNCs at x = 67, 89, 111, 133 (22 mm pitch) | Barrels reach 18.4 mm past the flange face; the flange stands 0.1 mm proud of the board edge | Axis at 6.78 mm; flange Ø13.55 | Wall clamped between flange and nut on the M12 thread, about 6.6 mm long. Wall + toothed washer + nut ≤ 6.6 mm. See "Front wall at the jacks" |
+| Front | J3, J7, J8, J9 BNCs at x = 67, 89, 111, 133 (22 mm pitch) | Barrels reach 18.4 mm past the flange face; the flange stands 0.1 mm proud of the board edge | Axis at 6.78 mm; flange Ø13.55 | Wall clamped between flange and nut on the M12 thread, about 6.6 mm long. Jacks soldered with the front plate fitted; plate rules in "Front wall at the jacks" |
 | Front | D4, side-looking status LED, at x ≈ 55 | Lens flush with the edge (0.2 mm inside) | 0–0.6 mm | The wall needs a hole or light pipe right at board-top height |
 | Left | J1 USB-C, centred at y = 122 (77 mm behind the front edge) | Shell flare at the edge, body 0.3 mm inside | Shell 3.26 mm tall; axis about 1.63 mm above the board top | See "J1 3D model" below. The cutout must pass the cable's overmold, unless wall + gap is less than the plug shell's reach. Measure the cable you will use |
 | Back | SW1 BOOTSEL | 0.43 mm inside the edge | 2.0 mm | Pressed from the top (TS-1088); see access below |
@@ -56,15 +56,31 @@ Bounding boxes are conservative.
   - Reflash with the lid on: the Rev E firmware's `BOOT` command (`firmware-rev-e/src/main.c`, host `temper-lcr boot PORT`) calls `reset_usb_boot()`, and the RPI-RP2 drive appears.
   - Reset with the lid on: the board is bus powered (audit PE-3), so unplugging USB-C is a full power cycle.
   - BOOTSEL is needed only when a flashed image never reaches the command loop. Take the lid off for that.
-  - The SDK's 1200-baud reset stays off. It would not cover a hang during a capture, which runs with interrupts disabled. It would also reboot the meter whenever any program opens the port at 1200 baud.
+  - The SDK's 1200-baud reset stays off. `BOOT` already reaches every state the firmware can stay in: each wait before and inside the command loop has a timeout (rail start gate, 5 ms I2C timeouts at `main.c:73–78`, the capture deadline), and interrupts are masked only around two DMA register writes (`main.c:211–214`). The 1200-baud reset would add one thing: a reboot whenever any program opens the port at 1200 baud.
 - **Debug LEDs D15–D20** are 1.1 mm tall and visible with the lid off only. D4 is the one meant to show through the wall.
 
 ## Front wall at the jacks
 
-The SAMZO drawing does not give the nut's thickness or the toothed washer's. It draws them face-on only (13.95 A/F hex, Ø15.5 washer). The 6.6 mm thread length is also scaled off the drawing, not dimensioned. So the box fixes the wall instead:
-- **Make the wall 2.0 mm thick over a Ø17 mm spot face around each jack (the nut is 16.11 mm across corners; neighbouring spot faces stay 5 mm apart).** That leaves about 4.6 mm of thread for the washer and nut. A thicker wall elsewhere is fine.
-- **Use a Ø12.3 mm clearance hole.** The flange (Ø13.55) bears on the inside face.
-- **Before printing the panel,** caliper one jack's thread length, nut and washer from the LCSC order (they are hand-fitted parts that arrive with the board). Confirm that 2.0 mm + washer + nut leaves at least one full thread pitch engaged.
+Checked by `bnc_panel_stack.py`, a linear worst-case tolerance stack. It writes `bnc-panel-stack.json` and exits 1 if a rule below fails. Its inputs:
+- **SAMZO drawing:** M12 thread, flange Ø13.55 × 1.1, 1.0 mm pins, and the drawing's general tolerances.
+- **JLCPCB published tolerances:** ±0.2 mm routed outline, +0.13/−0.08 mm drilled holes, ±0.075 mm hole position, ±10 % thickness.
+- **Stated assumptions:** the panel process tolerance, and how the jacks seat.
+
+The drawing does not give the nut's thickness or the toothed washer's. It draws them face-on only (13.95 A/F hex, Ø15.5 washer). The 6.6 mm thread length is scaled off the drawing, not dimensioned.
+
+**Solder the jacks with the panel fitted.**
+1. Fit the four jacks to the front plate, nuts snug.
+2. Put the legs into the board, and pull each flange against the plate.
+3. Solder, then tighten.
+
+Each jack's 0.09–0.34 mm of travel in its 1.4 mm holes then follows the plate. Soldered first, the four jacks need a Ø13.2 mm hole in metal (Ø13.5 printed). That leaves no flange to bear on the worst side, so a plate fitted to pre-soldered jacks does not work.
+
+**Front plate rules:**
+- **Hole:** Ø12.5 mm in laser-cut or machined metal (Ø12.28 needed), or Ø12.7 mm printed (Ø12.53 needed). The flange still bears on at least 0.21 mm (metal) or 0.04 mm (printed) on the worst side.
+- **Board-edge relief:** 0.6 mm deep on the plate's inside face, across the board edge, from 0.5 mm below the board bottom up to the board top. The routed edge can stand up to 0.49 mm ahead of the flanges, and the flanges must bear first, or tightening the nuts loads the solder joints. The plate needs the relief, so it is machined or printed, not plain sheet.
+- **The jacks locate the plate, never the tray.** Give it at least 1.3 mm of float each way in y and 0.6 mm in z, because it can move 1.09 mm and 0.54 mm against the tray. The lid or a soft pad keeps it from rattling.
+- **Wall:** 2.0 mm at the jacks. That leaves 4.6 mm of the scaled thread for the toothed washer and nut. Caliper a jack's thread, nut and washer from the LCSC order before cutting, and confirm at least one full thread is engaged. A thicker wall elsewhere needs a spot face of Ø17 mm or more: the nut is 16.11 mm across corners, and neighbouring Ø17 spot faces stay 5 mm apart.
+- **Material:** metal at the jacks. Printed plastic creeps under a toothed washer and loosens the jacks. The chassis-grounding decision (rev-f-plan, 2026-10-29) also assumes a metal front wall that bonds to the BNC shells. If the box is printed, use a machined aluminium front plate, unanodised or masked around the holes, so the decision still holds.
 
 ## J1 3D model is 1.2 mm behind the real part
 
