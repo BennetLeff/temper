@@ -1,6 +1,7 @@
 """Rev G jack protection, phase 1: surge screen of candidate networks (parametric clamps, no part numbers yet).
 
 python3 validation/rev-g-protection/protection_screen.py [--jobs N] [--only NAME ...]  ->  protection-screen.json
+python3 validation/rev-g-protection/protection_screen.py --esd [--only NAME ...]   IEC 61000-4-2 contact discharge
 python3 validation/rev-g-protection/protection_screen.py --check-readme   README tables == the JSON
 
 Each candidate is a network between the four BNC jacks (jk_hcur, jk_hpot, jk_lpot, jk_lcur) and the Rev F board
@@ -11,6 +12,10 @@ ratings to cover them.
 
 Target (charged-dut README, "Rev G requirements"): class A, powered and unpowered, for 1 uF at 30 V on every
 connection pattern; the stretch is the E4980A's 1 J.
+
+ESD (--esd): the charged-DUT deck's IEC 61000-4-2 gun (charged_dut_spice.GUN, checked against the standard's
+waveform table by gun_check()) in contact discharge on each centre pin, no leads plugged in, every meter state,
+both polarities, 2 to 30 kV. Judged the same way. IEC 61326-1 (laboratory equipment) asks 4 kV contact.
 
 Clamp model (parametric): a bidirectional TVS as two back-to-back diodes, breakdown BV, dynamic resistance RD,
 junction capacitance CJ (each diode 2 x CJ, so the pair is CJ). Values are stated per candidate, not taken from
@@ -51,6 +56,9 @@ def network(cfg, power):
                                  to ground here (its far end is a 10 ms-filtered pin near 1.65 V)
       ref_jack True              the K4 + R107 reference branch across the CUR jacks (phasor model and the stability
                                  matrix; the surge deck has no K4)
+      esd_is A                   the OPA2810 ESD-cell saturation current (charged_dut_spice.ESD_IS by default)
+      ref_bypass True            the phasor model's reference check with K4's free pole shorting HCUR to HPOT on the
+                                 jack side (normal_operation.py; the surge deck has no K4)
       sch_sum True               antiparallel Schottky pair from the TIA summing node (tia_sum, behind R94 22 ohm)
                                  to GND, instead of at DUT_LO: DUT_LO carries I x 22 ohm in use, tia_sum ~0 V
     jack -> TVS -> relay -> R -> second stage -> board node."""
@@ -161,11 +169,12 @@ CANDIDATES = {
                        'r': {'hcur': 10.0, 'lcur': 10.0, 'hpot': 100.0, 'lpot': 100.0},
                        'tvs2': {'hcur': H3V3LD5B, 'hpot': H3V3LD5B, 'lpot': H3V3LD5B}, 'sch2': {'lcur': BAV99},
                        'cap2': {'hpot': 1e-9, 'lpot': 1e-9}, 'rcp_jack': True, 'ref_jack': True,
-                       'sense': {'hcur': 1e6, 'lcur': 1e6},
+                       'sense': {'hcur': 1e6, 'lcur': 1e6}, 'ref_bypass': True,
                        'note': '`parts` with R105 / R106 and the K4 + R107 reference on the jack side: the reference '
                                'current then takes the LCUR switch and 10 ohm, and the session check tracks them '
-                               '(the surge deck has no K4; open, it is ~1 pF across the jacks); plus the 1 MOhm '
-                               'residual-voltage sense on HCUR and LCUR'},
+                               '(the surge deck has no K4; open, it is ~1 pF across the jacks); K4\'s free pole shorts '
+                               'the HCUR and HPOT jacks during the check, so the HPOT side\'s capacitance drops out of '
+                               'it (no part added); plus the 1 MOhm residual-voltage sense on HCUR and LCUR'},
     'iso_tvs2_lo': {'tvs': {j: TVS5 for j in JACKS}, 'iso': True,
                     'r': {'hcur': 10.0, 'lcur': 10.0, 'hpot': 100.0, 'lpot': 100.0},
                     'tvs2': {j: TVS3 for j in JACKS}, 'cap2': {'hpot': 1e-9, 'lpot': 1e-9},
@@ -174,17 +183,52 @@ CANDIDATES = {
 }
 
 
+def variant(base, note, **change):
+    cfg = {k: v for k, v in CANDIDATES[base].items() if k != 'note'}
+    cfg.update(change)
+    return dict(cfg, note=note)
+
+
+# Sensitivity to what Rev F bring-up was to measure, and the two HPOT reference-check options (README "Open items").
+# The datasheets give COFF and CJ at 0 V only, which is their largest value (both fall with reverse bias); x2 covers
+# the part spread with no max given. ESD_IS_ALT is the charged-DUT study's stronger (lower-knee) ESD cell.
+_JS = CANDIDATES['parts_jackside']
+CANDIDATES.update({
+    'jackside_coff2x': variant('parts_jackside', '`parts_jackside` with the switch COFF at 40 pF (2 x typical)',
+                               iso=dict(TLP172AM, coff=40e-12)),
+    'jackside_tvs_c2x': variant('parts_jackside', '`parts_jackside` with both TVS junction capacitances x2',
+                                tvs={j: (bv, rd, 2 * cj) for j, (bv, rd, cj) in _JS['tvs'].items()},
+                                tvs2={j: (bv, rd, 2 * cj) for j, (bv, rd, cj) in _JS['tvs2'].items()}),
+    'jackside_esd_alt': variant('parts_jackside', '`parts_jackside` with the stronger ESD cell (IS 1e-12)',
+                                esd_is=cd.ESD_IS_ALT),
+    'jackside_ron_max': variant('parts_jackside', '`parts_jackside` with the switch at RON max (2 ohm)',
+                                iso=dict(TLP172AM, ron=2.0)),
+    'jackside_pot470p': variant('parts_jackside', '`parts_jackside` with 470 pF instead of 1 nF on HPOT / LPOT',
+                                cap2={'hpot': 470e-12, 'lpot': 470e-12}),
+    'jackside_no_bypass': variant('parts_jackside', '`parts_jackside` without the K4 bypass: the reference check '
+                                  'reaches HPOT through R105 only', ref_bypass=False),
+})
+ACCURACY_ONLY = ['jackside_ron_max', 'jackside_no_bypass']   # the surge deck does not see these
+SENSITIVITY = ['jackside_coff2x', 'jackside_tvs_c2x', 'jackside_esd_alt', 'jackside_pot470p']
+GUN_KV = [2, 4, 6, 8, 12, 15, 20, 30]
+ESD_NAMES = ['links', 'parts_jackside', 'jackside_coff2x', 'jackside_esd_alt']
+ESD_TARGET_KV = 8   # IEC 61326-1 asks 4 kV contact; 8 kV is the standard's top contact level
+
 # The chosen network (README "Decision") and what each of its parts is rated for, at the pulse lengths
 # the screen produces (~1-3 us): TVS at 8/20 us, the BAV99 at 1 us, the resistors' single-pulse curves at 1 us.
 CHOSEN = 'parts_jackside'
 RATINGS = {'tvs1': ('H4V5HD3B IPP 40 A (8/20 µs)', 40.0), 'tvs2': ('H3V3LD5B IPP 8 A (8/20 µs)', 8.0),
-           'sch2': ('BAV99 IFSM 4 A (1 µs)', 4.0)}   # resistors: by package, in render()
+           'sch2': ('BAV99 IFSM 4 A (1 µs)', 4.0), 'iso': ('TLP172AM VOFF 60 V', 60.0)}   # resistors: in render()
+ESD_RATINGS = {'tvs1': ('H4V5HD3B ±30 kV contact', 30.0), 'tvs2': ('H3V3LD5B ±20 kV contact', 20.0)}
 
 
 def run(case):
+    """scn 'gun_<jack>' is an IEC 61000-4-2 contact discharge of v kV on that jack (c unused)."""
     scn, power, rng, c, v, name = case
-    prot = network(CANDIDATES[name], power)
-    text, t_end = cd.deck(scn, power, rng, c, v, 0.0, cd.ESD_IS, prot)
+    cfg = CANDIDATES[name]
+    prot = network(cfg, power)
+    gun = (scn[4:], v) if scn.startswith('gun_') else None
+    text, t_end = cd.deck(scn, power, rng, c, v, 0.0, cfg.get('esd_is', cd.ESD_IS), prot, gun=gun)
     col, opt = cd.spice(text, t_end)
     if col is None:
         return {'case': case, 'error': opt}
@@ -207,6 +251,8 @@ def run(case):
             dv = [x - y for x, y in zip(col[f'v({a})'], col[f'v({b})'])]
             p = [d * d / rr for d in dv]
             r['prot'][f'r_{j}'] = {'v_pk': max(map(abs, dv)), 'p_pk_w': max(p), 'e_j': cd.integ(t, p)}
+        if CANDIDATES[name].get('iso') and power == 'unpowered':
+            r['prot'][f'iso_{j}'] = {'v_pk': max(abs(x - y) for x, y in zip(col[f'v(jk_{j})'], col[f'v(rl_{j})']))}
     return r
 
 
@@ -270,8 +316,8 @@ def render(out):
                            ('CRCW0603-HP ~250 W at 1 µs', 250.0))
         else:
             what, limit = RATINGS[part.split('_')[0]]
-        value = a['p_pk_w'] if part.startswith('r_') else a['i_pk_a']
-        unit = 'W peak' if part.startswith('r_') else 'A peak'
+        value = a['p_pk_w'] if part.startswith('r_') else a['v_pk'] if part.startswith('iso_') else a['i_pk_a']
+        unit = 'W peak' if part.startswith('r_') else 'V off-state' if part.startswith('iso_') else 'A peak'
         m = limit / value
         lines.append(f"| `{part}` | {value:.3g} {unit} | {what} | ×{m:.2g} |" if m < 10 else
                      f"| `{part}` | {value:.3g} {unit} | {what} | ×{m:.0f} |")
@@ -279,7 +325,106 @@ def render(out):
     lines.append(f"| LCUR switch (TLP172AM, in series with `r_lcur`) | {a['v_pk'] / 10.0:.3g} A peak | "
                  f"IONP 1.5 A (100 ms) | ×{1.5 / (a['v_pk'] / 10.0):.1f} |")
     tables['stress_parts'] = '\n'.join(lines)
+    if 'esd' in out:
+        tables.update(render_esd(out['esd']))
     return tables
+
+
+def esd_thresholds(res, name):
+    """Per jack and power state: the highest kV (both polarities, every range) that is class A, and class A or B."""
+    out = {}
+    for j in JACKS:
+        for power in ('powered', 'unpowered'):
+            row = {}
+            for want, key in (({'A'}, 'kv_class_a'), ({'A', 'B'}, 'kv_hbm_scale')):
+                ok, first = 0, None
+                for kv in GUN_KV:
+                    bad = []
+                    for (p, rg) in STATES:
+                        if p != power:
+                            continue
+                        for sgn in (1, -1):
+                            r = res[(f'gun_{j}', p, rg, 0.0, sgn * kv, name)]
+                            if 'error' in r:
+                                bad.append('simulation error')
+                            else:
+                                cls, lims, _, _ = cd.judge(r)
+                                if cls not in want:
+                                    bad += lims
+                    if bad:
+                        first = {'kv': kv, 'limits': sorted(set(bad))[:4]}
+                        break
+                    ok = kv
+                row[key], row[key + '_ends_at'] = ok, first
+            out[f'{j} {power}'] = row
+    return out
+
+
+def esd_main(names, jobs):
+    cases = [(f'gun_{j}', p, rg, 0.0, sgn * kv, n) for n in names for j in JACKS for p, rg in STATES
+             for kv in GUN_KV for sgn in (1, -1)]
+    with cf.ThreadPoolExecutor(jobs) as ex:
+        res = dict(zip(cases, ex.map(run, cases)))
+    path = HERE / 'protection-screen.json'
+    out = json.loads(path.read_text())
+    esd = out.setdefault('esd', {'candidates': {}})
+    esd['gun_check'] = cd.gun_check()
+    esd['gun'] = cd.GUN
+    for n in names:
+        th = esd_thresholds(res, n)
+        stress = {}
+        for k, r in res.items():
+            if k[-1] != n or 'error' in r:
+                continue
+            for part, x in r['prot'].items():
+                for at in ('target', 'max'):
+                    if at == 'target' and abs(k[4]) != ESD_TARGET_KV:
+                        continue
+                    w = stress.setdefault(part, {}).setdefault(at, {})
+                    for q in ('i_pk_a', 'p_pk_w', 'v_pk'):
+                        if q in x:
+                            w[q] = max(w.get(q, 0.0), x[q])
+        esd['candidates'][n] = {'thresholds': th, 'kv_class_a': min(x['kv_class_a'] for x in th.values()),
+                                'kv_hbm_scale': min(x['kv_hbm_scale'] for x in th.values()), 'part_stress': stress,
+                                'errors': [list(k) for k, r in res.items() if k[-1] == n and 'error' in r]}
+        c = esd['candidates'][n]
+        print(f"{n:22} ESD class A to {c['kv_class_a']} kV, A or B to {c['kv_hbm_scale']} kV, errors {len(c['errors'])}")
+    path.write_text(json.dumps(out, indent=1, default=str) + '\n')
+
+
+def render_esd(esd):
+    g = esd['gun_check']
+    lines = [f"Gun into the standard's 2 Ω target, per kV: first peak {g['peak_a_per_kv']['value']:.2f} A "
+             f"(3.75 ± 15 %), rise {g['rise_ns']['value']:.2f} ns (0.8 ± 25 %), {g['i30_a_per_kv']['value']:.2f} A at "
+             f"30 ns (2 ± 30 %), {g['i60_a_per_kv']['value']:.2f} A at 60 ns (1 ± 30 %): "
+             f"{'all inside' if all(x['ok'] for x in g.values()) else 'OUTSIDE'} the IEC 61000-4-2 table.", '',
+             '| Candidate | Class A, powered | Class A, unpowered | A or B (nothing past the HBM pulse), any state | '
+             'Where class A ends first |', '|---|---|---|---|---|']
+    kv = lambda v: (f'{v} kV' + (' (the sweep top)' if v == GUN_KV[-1] else '')) if v else f'below {GUN_KV[0]} kV'
+    for n, c in esd['candidates'].items():
+        th = c['thresholds']
+        a = {pw: min(v['kv_class_a'] for k, v in th.items() if k.endswith(' ' + pw)) for pw in ('powered', 'unpowered')}
+        k = min(th, key=lambda q: th[q]['kv_class_a'])
+        end = th[k]['kv_class_a_ends_at']
+        why = f"{k} at {end['kv']} kV: {'; '.join(end['limits'][:2])}" if end else f'nothing up to {GUN_KV[-1]} kV'
+        lines.append(f"| `{n}` | {kv(a['powered'])} | {kv(a['unpowered'])} | {kv(c['kv_hbm_scale'])} | {why} |")
+    t = {'esd': '\n'.join(lines)}
+    if CHOSEN in esd['candidates']:
+        lines = [f'| Part | At {ESD_TARGET_KV} kV | At {GUN_KV[-1]} kV | Rating |', '|---|---|---|---|']
+        for part, w in esd['candidates'][CHOSEN]['part_stress'].items():
+            kind = part.split('_')[0]
+            if kind == 'r':
+                q, unit = 'p_pk_w', 'W peak'
+                rating = (('CRCW0805-HP ~450 W at 1 µs' if part in ('r_hcur', 'r_lcur') else 'CRCW0603-HP ~250 W at 1 µs')
+                          + '; a ns pulse is allowed more')
+            elif kind == 'iso':
+                q, unit, rating = 'v_pk', 'V off-state', RATINGS['iso'][0]
+            else:
+                q, unit = 'i_pk_a', 'A peak'
+                rating = ESD_RATINGS[kind][0] if kind in ESD_RATINGS else RATINGS[kind][0]
+            lines.append(f"| `{part}` | {w['target'][q]:.3g} {unit} | {w['max'][q]:.3g} {unit} | {rating} |")
+        t['esd_parts'] = '\n'.join(lines)
+    return t
 
 
 def check_readme(write=False):
@@ -303,12 +448,16 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--jobs', type=int, default=max(1, (os.cpu_count() or 2) - 2))
     ap.add_argument('--only', nargs='*')
+    ap.add_argument('--esd', action='store_true')
     ap.add_argument('--check-readme', action='store_true')
     ap.add_argument('--write-readme', action='store_true')
     a = ap.parse_args()
     if a.check_readme or a.write_readme:
         sys.exit(0 if check_readme(a.write_readme) else 1)
-    names = a.only or list(CANDIDATES)
+    if a.esd:
+        esd_main(a.only or ESD_NAMES, a.jobs)
+        return
+    names = a.only or [n for n in CANDIDATES if n not in ACCURACY_ONLY]
     cases = [(s, p, rg, c, sgn * v, n) for n in names for s in cd.SCENARIOS for p, rg in STATES for c in SCREEN_C
              for v in SCREEN_V for sgn in (1, -1)]
     with cf.ThreadPoolExecutor(a.jobs) as ex:

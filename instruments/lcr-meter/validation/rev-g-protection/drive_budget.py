@@ -3,7 +3,7 @@
 python3 validation/rev-g-protection/drive_budget.py   ->  drive-budget.json; exits 1 if a check fails
 
 Drive: four TLP172AM photoMOS (one per jack), their LEDs in two strings of two from the switched 5 V rail
-(U16 output) through one resistor each, sunk by one AO3400A on GPIO 12 (the Q6 pattern: 100 ohm gate
+(U16 output) through one resistor each, sunk by one AO3400A on GPIO 15 (U1 pin 18; the Q6 pattern: 100 ohm gate
 resistor, 100 kOhm pull-down, so the switches are open from power-up until the firmware closes them, and
 open again within tOFF of losing VBUS). Checked at the rail and LED corners:
   - every LED at or above the TLP172AM's recommended 5 mA minimum (RON is specified at IF 5 mA; IFT max 3 mA)

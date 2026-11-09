@@ -192,6 +192,8 @@ class Patched:
             return d
 
         def measure(f, kelvin, zdut, p, d, rsrc=fe.R_SRC, ref=None, **kw):
+            if me.cfg.get('ref_bypass') and kelvin and zdut is None and ref is not None:
+                kw['bypass'] = True     # K4's free pole shorts the HCUR and HPOT jacks during the check
             n = p['rc'].shape[0]
             dt = d.get('prot_dt', np.zeros(n))
             amp = me.amplitudes(zdut, ref, rsrc, n) if me.level else {k: (np.zeros(n), np.zeros(n)) for k in fe.JACKS}
@@ -337,8 +339,10 @@ def write_rust(name):
             f'// jacks jhc/jhp/jlp/jlc -> board hi/hpot/lpot/low (+ the summing node sum).\n'
             f'// HIGH: junction C x 2, leakage x 10, switch on-resistance x 2 (rust_network()).\n'
             f'// rcp_jack / ref_jack: R105 / R106 and the K4 + R107 reference on the jack nodes.\n'
+            f'// ref_bypass: K4\'s second pole shorts the HCUR and HPOT jacks while K4 is closed.\n'
             f'const REVG_JACKSIDE: bool = {str(bool(cfg.get("rcp_jack")) and bool(cfg.get("ref_jack"))).lower()};\n'
             f'const REVG_CANDIDATE: &str = "{name}";\n'
+            f'const REVG_REF_BYPASS: bool = {str(bool(cfg.get("ref_bypass"))).lower()};\n'
             f'const REVG_PROT_NOM: &str = r"{rust_network(cfg, "nom")}";\n'
             f'const REVG_PROT_HIGH: &str = r"{rust_network(cfg, "high")}";\n')
     path.write_text(text)
@@ -346,8 +350,9 @@ def write_rust(name):
 
 
 # ------------------------------------------------------------------ report
-NAMES = ['iso_two_stage', 'iso_two_stage_sum', 'iso_tvs2_lo', 'parts', 'parts_ron_max', 'parts_rcp_jack', 'parts_jackside']
-GRID = ['parts', 'parts_jackside']
+NAMES = ['iso_two_stage', 'iso_two_stage_sum', 'iso_tvs2_lo', 'parts', 'parts_ron_max', 'parts_rcp_jack', 'parts_jackside',
+         'jackside_no_bypass', 'jackside_ron_max', 'jackside_tvs_c2x', 'jackside_pot470p']
+GRID = ['parts', 'jackside_no_bypass', 'parts_jackside']
 MODES = {'linear': (False, False), 'drift': (True, False), 'level': (True, True)}
 
 

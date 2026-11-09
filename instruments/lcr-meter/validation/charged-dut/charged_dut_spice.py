@@ -47,6 +47,8 @@ Connection scenarios:
   current_only only HCUR and LCUR (two-terminal leads; HPOT/LPOT reach the DUT through R105/R106)
   h_to_gnd     C from the H clip (HCUR + HPOT) to GND/shield (an in-circuit, ground-referenced part)
   l_to_gnd     C from the L clip (LCUR + LPOT) to GND/shield
+  deck(gun=(jack, kV)) instead: an IEC 61000-4-2 contact discharge on one centre pin, no leads (GUN, gun_check();
+               used by ../rev-g-protection/protection_screen.py --esd; this study's own runs never set it)
 
 Datasheet limits (judged at every instant):
   OPA2810 SBOS789C 7.1: input current 10 mA (also 8.3.2: ESD cells "typically 10-mA continuous input and output
@@ -171,15 +173,88 @@ def codec_vecs():
     return vecs
 
 
+def dut_lines(scn, jacks, c, v):
+    """The leads, the cable capacitance and the charged DUT for one connection scenario."""
+    L = []
+    touch = {'kelvin': {'hcur': 'h', 'hpot': 'h', 'lcur': 'l', 'lpot': 'l'},
+             'sense_first': {'hpot': 'h', 'lpot': 'l'},
+             'current_only': {'hcur': 'h', 'lcur': 'l'},
+             'h_to_gnd': {'hcur': 'h', 'hpot': 'h'},
+             'l_to_gnd': {'lcur': 'l', 'lpot': 'l'}}[scn]
+    for j, node in jacks.items():
+        L.append(f'Ccab_{j} {node} 0 {C_CABLE:g}')
+        if j in touch:
+            L += [f'Rld_{j} {node} {j}_m {R_LEAD:g}', f'Lld_{j} {j}_m clip_{touch[j]} {L_LEAD:g}']
+    a, b = ('clip_h', 'clip_l')
+    if scn == 'h_to_gnd':
+        b = '0'
+    if scn == 'l_to_gnd':
+        a, b = 'clip_l', '0'
+    for clip in ('clip_h', 'clip_l'):
+        L.append(f'Rbl_{clip} {clip} 0 1e9')
+    # A capacitor charged to V that touches at T_CLOSE is the same circuit as an uncharged one in series with a
+    # source that steps from 0 to V at T_CLOSE (no switch, so the operating point and the step both converge).
+    L += [f'Ldut {a} dm1 {ESL:g}', f'Resr dm1 dm2 {ESR:g}', f'Cdut dm2 dm3 {c:g}',
+          f'Vdut dm3 {b} PWL(0 0 {T_CLOSE:g} 0 {T_CLOSE + T_RISE:g} {v:g})']
+    return L
+
+
+# IEC 61000-4-2 contact discharge: 150 pF / 330 ohm (the standard's network) plus a fast branch for the first
+# peak. Fitted into the standard's 2 ohm target (gun_check()): 3.75 A/kV first peak, 0.8 ns 10-90 % rise,
+# 1.83 A/kV at 30 ns and 0.94 A/kV at 60 ns, against 3.75 +-15 %, 0.8 +-25 %, 2 +-30 % and 1 +-30 %.
+GUN = dict(c1=150e-12, r1=330.0, l1=150e-9, c2=16e-12, r2=1e3, l2=8.2e-9)
+GUN_T_END, GUN_T_MAX = 1e-6, 0.1e-9    # after the contact at T_CLOSE
+
+
+def gun_lines(node, kv, t0=T_CLOSE):
+    """The gun charged to kV (the same step-source trick as the DUT), discharging into `node`, returning to GND."""
+    g = GUN
+    return [f'Vgun gun 0 PWL(0 0 {t0:g} 0 {t0 + 10e-12:g} {kv * 1e3:g})',
+            f"Cg1 gun g1a {g['c1']:g}", f"Rg1 g1a g1b {g['r1']:g}", f"Lg1 g1b {node} {g['l1']:g}",
+            f"Cg2 gun g2a {g['c2']:g}", f"Rg2 g2a g2b {g['r2']:g}", f"Lg2 g2b {node} {g['l2']:g}"]
+
+
+def gun_check():
+    """The gun into the standard's 2 ohm target, per kV: first peak (A), 10-90 % rise (ns), I at 30 / 60 ns from
+    the 10 % point (A), each against the IEC 61000-4-2 Table 2 tolerance."""
+    text = '\n'.join(['* gun into 2 ohm', *gun_lines('t', 1.0, 0.0), 'Rt t 0 2', '.control', 'set wr_singlescale',
+                      'tran 5p 150n 0 5p', 'wrdata OUT i(Lg1) i(Lg2)', '.endc', '.end']) + '\n'
+    with tempfile.TemporaryDirectory() as td:
+        out, cir = pathlib.Path(td) / 'out.txt', pathlib.Path(td) / 'c.cir'
+        cir.write_text(text.replace('OUT', str(out)))
+        subprocess.run([NGSPICE, '-b', str(cir)], capture_output=True, text=True, timeout=300)
+        rows = [list(map(float, ln.split())) for ln in out.read_text().split('\n') if ln.strip()]
+    t = [r[0] for r in rows]
+    i = [r[1] + r[2] for r in rows]
+    k = max(range(len(i)), key=lambda n: i[n])
+    ip = i[k]
+
+    def cross(level):
+        n = next(n for n in range(1, k + 1) if i[n] >= level)
+        return t[n - 1] + (t[n] - t[n - 1]) * (level - i[n - 1]) / (i[n] - i[n - 1])
+
+    def at(tq):
+        n = next(n for n in range(1, len(t)) if t[n] >= tq)
+        return i[n - 1] + (i[n] - i[n - 1]) * (tq - t[n - 1]) / (t[n] - t[n - 1])
+    t10 = cross(0.1 * ip)
+    got = {'peak_a_per_kv': ip, 'rise_ns': 1e9 * (cross(0.9 * ip) - t10), 'i30_a_per_kv': at(t10 + 30e-9),
+           'i60_a_per_kv': at(t10 + 60e-9)}
+    spec = {'peak_a_per_kv': (3.75, 0.15), 'rise_ns': (0.8, 0.25), 'i30_a_per_kv': (2.0, 0.3), 'i60_a_per_kv': (1.0, 0.3)}
+    return {k: {'value': v, 'nominal': spec[k][0], 'tol': spec[k][1], 'ok': abs(v / spec[k][0] - 1) <= spec[k][1]}
+            for k, v in got.items()}
+
+
 RCP_BOARD = ('dut_hi', 'hpot', 'dut_lo', 'lpot')       # R105 HCUR-HPOT, R106 LCUR-LPOT (Rev F)
 RCP_JACK = ('jk_hcur', 'jk_hpot', 'jk_lcur', 'jk_lpot')
 
 
-def deck(scn, power, rng, c, v, res_ser=0.0, esd_is=ESD_IS, prot=None):
+def deck(scn, power, rng, c, v, res_ser=0.0, esd_is=ESD_IS, prot=None, gun=None):
     """res_ser: an optional series resistor at the HPOT and LPOT follower inputs (protection option A).
     prot: an optional protection network, {'lines': [...], 'vecs': [...]}. The leads and cable capacitance then
     land on jack nodes jk_hcur, jk_hpot, jk_lpot, jk_lcur, and the lines must connect those to the board nodes
-    dut_hi, hpot, lpot and dut_lo (validation/rev-g-protection/). Without it the deck is unchanged."""
+    dut_hi, hpot, lpot and dut_lo (validation/rev-g-protection/). Without it the deck is unchanged.
+    gun: an optional (jack, kV) IEC 61000-4-2 contact discharge (GUN) onto that jack's centre pin, with no leads
+    plugged in; scn, c and v are then ignored. Without it the deck is unchanged."""
     L = ['* charged DUT', f'.model DESD D(IS={esd_is:g} N=1 RS=2 CJO=1p)', '.model DCL D(IS=1e-12 N=1 RS=0.1)',
          'Vxclp xclp 0 16', 'Vxcln xcln 0 -16', 'Vexc excite 0 0']
     if power == 'powered':
@@ -208,27 +283,13 @@ def deck(scn, power, rng, c, v, res_ser=0.0, esd_is=ESD_IS, prot=None):
     if prot:
         jacks = {j: f'jk_{j}' for j in jacks}
         L += prot['lines']
-    touch = {'kelvin': {'hcur': 'h', 'hpot': 'h', 'lcur': 'l', 'lpot': 'l'},
-             'sense_first': {'hpot': 'h', 'lpot': 'l'},
-             'current_only': {'hcur': 'h', 'lcur': 'l'},
-             'h_to_gnd': {'hcur': 'h', 'hpot': 'h'},
-             'l_to_gnd': {'lcur': 'l', 'lpot': 'l'}}[scn]
-    for j, node in jacks.items():
-        L.append(f'Ccab_{j} {node} 0 {C_CABLE:g}')
-        if j in touch:
-            L += [f'Rld_{j} {node} {j}_m {R_LEAD:g}', f'Lld_{j} {j}_m clip_{touch[j]} {L_LEAD:g}']
-    a, b = ('clip_h', 'clip_l')
-    if scn == 'h_to_gnd':
-        b = '0'
-    if scn == 'l_to_gnd':
-        a, b = 'clip_l', '0'
-    for clip in ('clip_h', 'clip_l'):
-        L.append(f'Rbl_{clip} {clip} 0 1e9')
-    # A capacitor charged to V that touches at T_CLOSE is the same circuit as an uncharged one in series with a
-    # source that steps from 0 to V at T_CLOSE (no switch, so the operating point and the step both converge).
-    L += [f'Ldut {a} dm1 {ESL:g}', f'Resr dm1 dm2 {ESR:g}', f'Cdut dm2 dm3 {c:g}',
-          f'Vdut dm3 {b} PWL(0 0 {T_CLOSE:g} 0 {T_CLOSE + T_RISE:g} {v:g})']
-    t_end = T_CLOSE + min(max(5 * c * 1e3, 50e-6), 0.5)
+    if gun:
+        L += gun_lines(jacks[gun[0]], gun[1])
+        t_end, t_max = T_CLOSE + GUN_T_END, GUN_T_MAX
+    else:
+        L += dut_lines(scn, jacks, c, v)
+        t_end = T_CLOSE + min(max(5 * c * 1e3, 50e-6), 0.5)
+        t_max = t_end / 2000
     vecs = ['v(vcc)', 'v(vee)'] + [f'v({nd})' for nd in ('dut_hi', 'dut_lo', 'hpot', 'lpot', 'tia_sum', 'tia_out',
                                                       'src_drv', 'sbuf', 'hbuf', 'lbuf')]
     for n in OPAMPS:
@@ -240,7 +301,7 @@ def deck(scn, power, rng, c, v, res_ser=0.0, esd_is=ESD_IS, prot=None):
         vecs += ['v(hpot_j)', 'v(lpot_j)']
     L += ['OPTIONS_LINE',
           '.control', 'set wr_singlescale', 'set wr_vecnames', 'option numdgt=7',
-          f'tran {t_end / 4000:g} {t_end:g} 0 {t_end / 2000:g}',
+          f'tran {t_end / 4000:g} {t_end:g} 0 {t_max:g}',
           'wrdata OUT ' + ' '.join(vecs), '.endc', '.end']
     return '\n'.join(L) + '\n', t_end
 

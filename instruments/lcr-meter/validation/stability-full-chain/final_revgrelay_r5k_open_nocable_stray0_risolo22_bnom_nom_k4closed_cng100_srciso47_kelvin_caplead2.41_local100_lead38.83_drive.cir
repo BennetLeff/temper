@@ -111,6 +111,9 @@ Cc4h jhc 0 1p
 Cc4r refa 0 1p
 Rk4 jhc k4m 0.075
 Lk4 k4m refa 10n
+Cc4bp jhp 0 1p
+Rk4b jhc k4b 0.075
+Lk4b k4b jhp 10n
 RDUT jhc jlc 1e12
 RF sum rf_end 5000.075
 CF sum rf_end 0.000000000000000000000001

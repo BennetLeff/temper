@@ -110,6 +110,8 @@ R107 refa jlc 1k
 Cc4h jhc 0 1p
 Cc4r refa 0 1p
 Coc4 jhc refa 0.3p
+Cc4bp jhp 0 1p
+Coc4b jhc jhp 0.3p
 RDUT jhc jlc 1e12
 RF sum rf_end 100000.075
 CF sum rf_end 0.000000000000000000000001

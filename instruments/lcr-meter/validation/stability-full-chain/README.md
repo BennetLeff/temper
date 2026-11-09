@@ -124,6 +124,7 @@ The remaining sensitivity is in the relay contact-capacitance stress estimates (
 This is the `revfcng100` grid with the Rev G network from `revg_network.rs`, written by `../rev-g-protection/normal_operation.py --rust parts_jackside`:
 - the leads, the DUT and the fixture strays land on jack nodes, and the network joins them to the board;
 - R105 / R106 and K4 + R107 sit on the jack nodes;
+- K4's pole 1 joins the HCUR and HPOT jacks while K4 is set (`k4_bypass`, from `REVG_REF_BYPASS`; added 2026-11-09, which left every margin below unchanged and raised the K4-closed drive margin from 53.97° to 54.18°);
 - the HIGH element set (C ×2, leakage ×10, RON ×2) runs on the high board.
 
 Worst of 90 cases per loop, against `revfcng100`:

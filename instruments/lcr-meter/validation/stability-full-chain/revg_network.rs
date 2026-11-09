@@ -3,8 +3,10 @@
 // jacks jhc/jhp/jlp/jlc -> board hi/hpot/lpot/low (+ the summing node sum).
 // HIGH: junction C x 2, leakage x 10, switch on-resistance x 2 (rust_network()).
 // rcp_jack / ref_jack: R105 / R106 and the K4 + R107 reference on the jack nodes.
+// ref_bypass: K4's second pole shorts the HCUR and HPOT jacks while K4 is closed.
 const REVG_JACKSIDE: bool = true;
 const REVG_CANDIDATE: &str = "parts_jackside";
+const REVG_REF_BYPASS: bool = true;
 const REVG_PROT_NOM: &str = r"RgpHC jhc hi 11
 Cgp1HC jhc 0 1e-10
 Rgpg1HC jhc 0 999981

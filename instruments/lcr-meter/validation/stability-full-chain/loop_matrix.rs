@@ -1531,13 +1531,26 @@ fn on_jacks(s: &str) -> String {
         .join("\n")
         + "\n"
 }
+/// Rev G with REVG_REF_BYPASS: K4's second pole between the HCUR and HPOT jacks, closed with the reference.
+fn k4_bypass(closed: bool, p: Relay) -> String {
+    if !REVG_REF_BYPASS {
+        return String::new();
+    }
+    let mut s = format!("Cc4bp jhp 0 {}p\n", p.ccc);
+    if closed {
+        s += &format!("Rk4b jhc k4b {}\nLk4b k4b jhp {}n\n", p.rc, p.lrel);
+    } else {
+        s += &format!("Coc4b jhc jhp {}p\n", p.coc);
+    }
+    s
+}
 fn revg(c: &Case) -> bool {
     c.name.contains("revgrelay_")
 }
 fn kelvin_cases_prot(cng: f64, prefix: &str, board_nom: [&str; 3], board_high: [&str; 3], leads: [f64; 3], caplead0: f64, prot: Option<[&str; 2]>) -> Vec<Case> {
     let rt = format!("_cng{cng}_srciso47_kelvin");
     let (jh, jhp, jlp, jl) = if prot.is_some() { ("jhc", "jhp", "jlp", "jlc") } else { ("hi", "hpot", "lpot", "low") };
-    let k4 = |closed: bool, p: Relay| if prot.is_some() && REVG_JACKSIDE { on_jacks(&k4_netlist(closed, p)) } else { k4_netlist(closed, p) };
+    let k4 = |closed: bool, p: Relay| if prot.is_some() && REVG_JACKSIDE { on_jacks(&k4_netlist(closed, p)) + &k4_bypass(closed, p) } else { k4_netlist(closed, p) };
     let mut cases = vec![];
     for (set, p, bc) in [("nom", Relay { dc: 0., ..NOMINAL }, "bnom"), ("str", Relay { dc: 0., ..STRESS }, "bhigh")] {
         let caplead = if set == "nom" { caplead0 } else { 10. };
