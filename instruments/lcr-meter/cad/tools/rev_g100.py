@@ -118,8 +118,9 @@ PLACE_G100 = {
     'U2': (62.1, 141.45, 0), 'C11': (67.48, 139.4, 90), 'C8': (69.2, 139.5, 90),
     # buttons east of U1, where J5 was (J5 goes: the debugger takes VTREF / GND from TP8 / TP9 beside them)
     'SW1': (87.1, 138.9, 0), 'SW2': (87.1, 142.9, 0),
-    # debug LEDs (lid-off): HB / FLT between the power entry and J4, LED north, resistor south
-    'D19': (63.0, 113.5, 270), 'R117': (63.0, 116.5, 270), 'D20': (64.8, 111.75, 270), 'R118': (64.8, 114.75, 270),
+    # debug LEDs (lid-off): FLT between the power entry and J4 (LED north, resistor south); HB in the pocket west of
+    # U1, under its In2 run (resistor north, LED south)
+    'R117': (64.6, 127.6, 0), 'D19': (64.6, 129.3, 180), 'D20': (64.8, 111.75, 270), 'R118': (64.8, 114.75, 270),
     # RAW_P series resistor into the LDO pair: 2.8 mm north, clear of the switcher's new top row
     'R95': (129.6, 116.0, 0),
     # CC1 pull-down upright between the 3V3 LDO's output cap C17 and R127 (the moved C17 lands on its old place)
@@ -223,7 +224,7 @@ def main():
 
 
 VIEWS100 = {'south': (50, 100, 150, 145), 'west': (50, 108, 92, 145), 'mid': (84, 110, 126, 145),
-            'east': (112, 95, 150, 145), 'board': (50, 45, 150, 145), 'u1': (56, 112, 92, 145)}
+            'east': (112, 95, 150, 145), 'board': (50, 45, 150, 145), 'u1': (56, 112, 92, 145), 'nw': (55, 98, 92, 128), 'ldo': (55, 99, 70, 122), 'band': (55, 112, 150, 145)}
 
 if __name__ == '__main__':
     main()
