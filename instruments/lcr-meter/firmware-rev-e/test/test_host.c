@@ -1,16 +1,18 @@
 /* Host test for the SDK-free Rev E modules, built with the system C compiler:
      cc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -Isrc test/test_host.c src/syncavg.c \
-        src/wave.c src/tac5112.c src/relay.c src/rails.c -lm
+        src/wave.c src/tac5112.c src/relay.c src/rails.c src/jackguard.c -lm
    (add -DLCR_FS_375K=1 for the 375 kHz build; build.sh runs both).
    It checks the synchronous averager and raw capture against a direct reference with a
    simulated DMA producer (including ring wrap, odd start words and overrun), the waveform
    limit and tone generator, the CRC, the TAC5112 bring-up sequence against a model of the
    register file (quick-charge settings, the clock fallback, the post-power-up settling), the
-   relay coil sequence against a model of the four drivers, and the analog-rail start gate. */
+   relay coil sequence against a model of the four drivers, the analog-rail start gate, and the Rev G
+   jack guard (isolation-switch sequencing). */
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "jackguard.h"
 #include "pins.h"
 #include "rails.h"
 #include "relay.h"
@@ -461,6 +463,73 @@ static void test_rails(void) {
     CHECK(RAIL_TIMEOUT_MS >= 5u * (60u + 12u + 14u));
 }
 
+/* ------------------------------------------------------------------ Rev G jack guard */
+/* Sense pin codes (sum of SAMPLES conversions) for a jack at v volts, through the divider of
+   drive_budget.py: R_TOP 1 MOhm, R_BIAS 200 kOhm to 3V3, R_GND 249 kOhm. */
+static uint32_t jack_sum(double v) {
+    double g = 1 / 1e6 + 1 / 200e3 + 1 / 249e3;
+    double pin = (v / 1e6 + 3.3 / 200e3) / g;
+    return (uint32_t)lround(pin / 3.3 * 4096.0 * SAMPLES);
+}
+
+/* Poll every JG_POLL_MS from t0 for ms with constant readings; returns the last drive decision. */
+static bool jg_run(jackguard *g, bool rails, double hc, double lc, uint32_t *t, uint32_t ms) {
+    bool on = false;
+    for (uint32_t end = *t + ms; *t < end; *t += JG_POLL_MS)
+        on = jackguard_poll(g, rails, jackguard_mv(jack_sum(hc), SAMPLES), jackguard_mv(jack_sum(lc), SAMPLES), *t);
+    return on;
+}
+
+static void test_jackguard(void) {
+    /* Conversion over the clamp range: within the 12-bit step (~8 mV of jack per code). */
+    const double volts[] = {-10.0, -3.0, -1.0, 0.0, 0.5, 1.7, 3.0, 10.0};
+    for (unsigned i = 0; i < sizeof volts / sizeof volts[0]; ++i)
+        CHECK(abs(jackguard_mv(jack_sum(volts[i]), SAMPLES) - (int32_t)lround(volts[i] * 1000)) < 10);
+    jackguard g;
+    uint32_t t = 0;
+    jackguard_init(&g, t);
+    /* Rails down: never closes, however quiet the jacks. */
+    CHECK(!jg_run(&g, false, 0, 0, &t, 500) && g.state == JG_OPEN);
+    /* Rails up, quiet: closes on the JG_STABLE_POLLS-th poll, ready JG_SETTLE_MS later. */
+    unsigned polls = 0;
+    while (!jackguard_poll(&g, true, 0, 0, t)) {
+        t += JG_POLL_MS;
+        ++polls;
+    }
+    CHECK(polls + 1 == JG_STABLE_POLLS && g.state == JG_CLOSING && !jackguard_ready(&g));
+    t += JG_POLL_MS;
+    CHECK(jackguard_poll(&g, true, 0, 0, t) && jackguard_ready(&g));
+    /* The source's own swing never trips (1.7 V peak on HCUR, either sign). */
+    CHECK(jg_run(&g, true, 1.7, 0.02, &t, 200) && jg_run(&g, true, -1.7, -0.02, &t, 200) && jackguard_ready(&g));
+    /* A charged DUT touched while closed: opens on the first poll above JG_TRIP_MV, either jack, either sign. */
+    CHECK(!jackguard_poll(&g, true, 0, -3500, t) && g.state == JG_TRIPPED);
+    /* Re-arm needs JG_REARM_MS of quiet jacks: a reading above CLOSE restarts it. */
+    t += JG_POLL_MS;
+    CHECK(!jg_run(&g, true, 0, 0, &t, JG_REARM_MS - 50) && g.state == JG_TRIPPED);
+    uint32_t blip = t;
+    CHECK(!jg_run(&g, true, 1.2, 0, &t, JG_POLL_MS) && g.state == JG_TRIPPED);
+    polls = 0;
+    while (g.state == JG_TRIPPED) {
+        CHECK(!jackguard_poll(&g, true, 0, 0, t));
+        t += JG_POLL_MS;
+        ++polls;
+    }
+    CHECK(t - JG_POLL_MS - blip == JG_REARM_MS);    /* re-armed exactly JG_REARM_MS after the blip */
+    /* The re-arming poll is the first of the JG_STABLE_POLLS quiet polls before closing. */
+    CHECK(g.state == JG_OPEN && g.streak == 1);
+    CHECK(!jg_run(&g, true, 0, 0, &t, (JG_STABLE_POLLS - 2) * JG_POLL_MS) && g.state == JG_OPEN);
+    CHECK(jg_run(&g, true, 0, 0, &t, JG_POLL_MS) && g.state == JG_CLOSING);
+    CHECK(jg_run(&g, true, 0, 0, &t, 20) && jackguard_ready(&g));
+    /* A rail fault while closed opens the switches (unpowered op-amps rely on them). */
+    CHECK(!jackguard_poll(&g, false, 0, 0, t) && g.state == JG_TRIPPED);
+    /* A charged jack at power-up: stays open until both jacks have read below CLOSE for JG_STABLE_POLLS. */
+    jackguard_init(&g, t);
+    CHECK(!jg_run(&g, true, 6.0, 0, &t, 2000) && !jg_run(&g, true, 0, -1.5, &t, 2000) && g.state == JG_OPEN);
+    CHECK(!jg_run(&g, true, 0.9, -0.9, &t, (JG_STABLE_POLLS - 1) * JG_POLL_MS) && g.state == JG_OPEN);
+    CHECK(jg_run(&g, true, 0.9, -0.9, &t, JG_POLL_MS) && g.state == JG_CLOSING);
+    CHECK(!strcmp(jackguard_state_name(JG_TRIPPED), "tripped"));
+}
+
 int main(void) {
     test_average(16, 1000, 0, 3);
     test_average(375, 3 * 375, 1, 7);   /* odd start: frames straddle the ring wrap */
@@ -479,6 +548,7 @@ int main(void) {
     test_codec();
     test_relays();
     test_rails();
+    test_jackguard();
     if (failures) {
         fprintf(stderr, "FAIL: %d checks\n", failures);
         return 1;
@@ -486,7 +556,8 @@ int main(void) {
     printf("PASS (fs %u Hz): syncavg averaging/raw/extremes/ring wrap/odd start/overrun; wave CRC, limit "
            "derivation, tone lines at 1/27/60 kHz and bounds; TAC5112 bring-up order, values, status, "
            "VREF/INCAP quick charge, clock fallback, ADC settling; relays RESET-then-SET, one coil at a time, "
-           "K4 only with a range, boot opens K4; analog-rail windows, conversion, gate and timeout\n",
+           "K4 only with a range, boot opens K4; analog-rail windows, conversion, gate and timeout; jack guard "
+           "conversion, close gate, settle, trip, re-arm and rail fault\n",
            FS_HZ);
     return 0;
 }

@@ -9,7 +9,12 @@ pico_sdk_init()
 # 0: 187.5 kHz (default); 1: 375 kHz (README "Sample rate"). Both PIO programs are always
 # assembled so tools/verify_tdm.rs checks both from either build.
 set(LCR_FS_375K 0 CACHE STRING "1 builds the 375 kHz sample-rate variant")
+# 1 builds for Rev G: the jack isolation switches and residual-voltage senses (src/jackguard.h).
+set(LCR_REV_G 0 CACHE STRING "1 builds the Rev G jack-guard image")
 add_executable(temper_lcr src/main.c src/syncavg.c src/wave.c src/tac5112.c src/relay.c src/rails.c src/usb_descriptors.c)
+if(LCR_REV_G)
+  target_sources(temper_lcr PRIVATE src/jackguard.c)
+endif()
 pico_generate_pio_header(temper_lcr ${CMAKE_CURRENT_LIST_DIR}/src/tdm.pio)
 pico_generate_pio_header(temper_lcr ${CMAKE_CURRENT_LIST_DIR}/src/tdm375.pio)
 target_include_directories(temper_lcr PRIVATE src)
@@ -21,6 +26,7 @@ target_compile_options(temper_lcr PRIVATE -Wall -Wextra -Werror)
 target_compile_definitions(temper_lcr PRIVATE
     SYNCAVG_IN_RAM=1
     LCR_FS_375K=${LCR_FS_375K}
+    LCR_REV_G=${LCR_REV_G}
     PICO_DEFAULT_UART_TX_PIN=28
     PICO_DEFAULT_UART_RX_PIN=29
     PICO_STDIO_USB_USE_DEFAULT_DESCRIPTORS=0

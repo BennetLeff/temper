@@ -22,6 +22,17 @@
 #define PIN_UART_TX 28u    /* Optional UART0 header */
 #define PIN_UART_RX 29u
 #define RAIL_SAMPLES 256u
+/* Rev G (LCR_REV_G=1, validation/rev-g-protection/): the four jack isolation switches and the two
+   CUR-jack residual-voltage senses (jackguard.h). The senses take ADC2 / ADC3, so the optional UART
+   header is gone on Rev G. Rev E / F builds define none of these. */
+#ifndef LCR_REV_G
+#define LCR_REV_G 0
+#endif
+#if LCR_REV_G
+#define PIN_ISO_DRIVE 12u  /* AO3400A gate (100 Ohm, 100 kOhm pull-down): the four TLP172AM LEDs; high = jacks on */
+#define PIN_JACK_HC 28u    /* ADC2: HCUR jack sense, 1 MOhm / 200 kOhm to 3V3 / 249 kOhm, 100 nF */
+#define PIN_JACK_LC 29u    /* ADC3: LCUR jack sense, the same divider */
+#endif
 #define CODEC_I2C_ADDRESS 0x50u /* TAC5112 ADDR pin shorted to ground (Table 7-72) */
 
 /* Sample-rate build (README "Sample rate"). The default build comes first: the host's

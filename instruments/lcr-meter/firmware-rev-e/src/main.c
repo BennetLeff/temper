@@ -12,6 +12,7 @@
 #include "hardware/i2c.h"
 #include "hardware/pio.h"
 #include "tusb.h"
+#include "jackguard.h"
 #include "pins.h"
 #include "rails.h"
 #include "relay.h"
@@ -118,6 +119,31 @@ static bool rails_wait(void) {
         sleep_ms(RAIL_POLL_MS);
     }
 }
+
+#if LCR_REV_G
+/* ---------------------------------------------------------------- Rev G jack guard */
+/* The isolation switches stay open until the rails are up and both CUR jacks read near 0 V, and open
+   on a rail fault or a jack driven past the source (jackguard.h). The guard is polled from the idle
+   loop and before every command that uses the jacks. */
+static jackguard guard;
+static uint32_t guard_poll_ms;
+static void guard_poll(void) {
+    guard_poll_ms = to_ms_since_boot(get_absolute_time());
+    int32_t hc = jackguard_mv(rail_sum(PIN_JACK_HC - 26u), RAIL_SAMPLES);
+    int32_t lc = jackguard_mv(rail_sum(PIN_JACK_LC - 26u), RAIL_SAMPLES);
+    gpio_put(PIN_ISO_DRIVE, jackguard_poll(&guard, analog_ok, hc, lc, guard_poll_ms));
+}
+/* Before a command that uses the jacks: poll, waiting out a close that is due or in progress (the
+   stable polls plus the switch settling). NULL when the jacks are connected, else the guard state. */
+static const char *jacks_check(void) {
+    guard_poll();
+    for (unsigned i = 0; !jackguard_ready(&guard) && guard.state != JG_TRIPPED && i < JG_STABLE_POLLS + 2u; ++i) {
+        sleep_ms(JG_POLL_MS);
+        guard_poll();
+    }
+    return jackguard_ready(&guard) ? NULL : jackguard_state_name(guard.state);
+}
+#endif
 
 /* ---------------------------------------------------------------- TDM stream */
 /* The stream never stops: BCLK and FSYNC run from boot so the codec PLL stays locked.
@@ -453,6 +479,23 @@ static void process_command(const char *line) {
         reply("ERR rail_fault");
         return;
     }
+#if LCR_REV_G
+    if (!strcmp(line, "JACKS")) {
+        guard_poll();
+        printf("JACKS %s %" PRId32 " %" PRId32 "\n", jackguard_state_name(guard.state), guard.last_hc_mv,
+               guard.last_lc_mv);
+        return;
+    }
+    if (needs_analog(line)) {
+        const char *state = jacks_check();
+        if (state) {
+            char error[32];
+            snprintf(error, sizeof error, "ERR jacks_%s", state);
+            reply(error);
+            return;
+        }
+    }
+#endif
     if (sscanf(line, "RANGE %" SCNu32 " %c", &a, &trailing) == 1) {
         if (a != 100u && a != 5000u && a != 100000u) reply("ERR range");
         else if (select_range((int)a)) {
@@ -572,6 +615,14 @@ int main(void) {
     adc_init();
     adc_gpio_init(PIN_MON12);
     adc_gpio_init(PIN_MON_N12);
+#if LCR_REV_G
+    gpio_init(PIN_ISO_DRIVE);
+    gpio_put(PIN_ISO_DRIVE, false); /* switches open (the gate pull-down holds them so until here) */
+    gpio_set_dir(PIN_ISO_DRIVE, GPIO_OUT);
+    adc_gpio_init(PIN_JACK_HC);
+    adc_gpio_init(PIN_JACK_LC);
+    jackguard_init(&guard, to_ms_since_boot(get_absolute_time()));
+#endif
     adc_set_temp_sensor_enabled(true);
     pico_get_unique_board_id_string(unit_id, sizeof(unit_id));
     i2c_init(i2c0, 400000);
@@ -605,8 +656,16 @@ int main(void) {
             heartbeat_ms = now_ms;
             gpio_xor_mask(1u << PIN_LED_HEARTBEAT);
         }
+#if LCR_REV_G
+        if (now_ms - guard_poll_ms >= JG_POLL_MS) guard_poll();
+#endif
         if (!gpio_get(PIN_USB_VBUS)) {
             wave_silence();
+#if LCR_REV_G
+            /* The switch LEDs run from VBUS and open by themselves; start the guard over for the return. */
+            gpio_put(PIN_ISO_DRIVE, false);
+            jackguard_init(&guard, now_ms);
+#endif
             tud_disconnect();
             while (!gpio_get(PIN_USB_VBUS)) sleep_ms(10);
             tud_connect();

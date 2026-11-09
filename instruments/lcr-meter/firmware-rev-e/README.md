@@ -69,6 +69,16 @@ Rev F enables the TPS65131 ±14 V converters from the LM3880 sequencer U17, not 
 
 `STATUS` is a new command, additive to protocol 3 (the host does not send it): `STATUS rails PASS|FAIL MON12_MV MON_N12_MV codec PASS|FAIL clock MODE ERR0 ERR1`. `INFO` keeps its twelve fields, because the host parses it strictly.
 
+## Rev G jack guard (`src/jackguard.c`, `LCR_REV_G=1`)
+
+Rev G adds a normally-open TLP172AM isolation switch on each BNC and residual-voltage senses on the HCUR and LCUR jacks (`../validation/rev-g-protection/README.md`, "Phase 6"). `cmake -DLCR_REV_G=1` builds that image. The default build leaves `jackguard.c` out, and its UF2s are byte-identical to a build without it.
+
+- **Pins:** GPIO 12 drives the switch LEDs (through an AO3400A). GPIO 28 / 29 (ADC2 / ADC3) read the senses, so the optional UART header is gone on Rev G.
+- **Close:** only with the rails up and both jacks below 1.0 V for 30 ms. Captures wait out the switch's 2 ms tON.
+- **Trip and re-arm:** a rail fault or a jack above 3.0 V opens the switches; they re-arm after 1 s of quiet jacks.
+- **Commands:** RANGE, TONE, WAVE, RAW, CAPTURE and REFCAPTURE reply `ERR jacks_<open|closing|tripped>` while the jacks are not connected. `JACKS` replies `JACKS <state> <HCUR mV> <LCUR mV>`.
+- **Tests:** `test/test_host.c` checks the conversion and every transition.
+
 ## Relays (`src/relay.c`, `src/main.c`)
 
 K1–K4 are TQ2SA-L2-5V dual-coil latching relays, each coil on its own AO3400A low-side driver, except that the four RESET coils share GPIO 10. One RESET pulse therefore opens all four.
