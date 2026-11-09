@@ -37,15 +37,26 @@ STATES = cd.STATES
 def network(cfg, power):
     """cfg keys (all optional):
       tvs  {jack: (bv, rd, cj)}  bidirectional TVS to GND at the jack
-      iso  True                  a normally-open isolation relay after the jack clamp: open (1 pF across the
-                                 contact) when the meter is unpowered, closed (0.1 ohm) when powered
+      iso  True | {ron, coff, roff}  a normally-open isolation switch after the jack clamp: open (coff || roff)
+                                 when the meter is unpowered, closed (ron) when powered; True = ISO_PARAM
+      sch2 {jack: True | dict}   (below) True = the parametric Schottky DSCH, a dict = a diode model (IS, N, RS,
+                                 CJO, BV, IBV) for a part
       r    {jack: ohms}          series resistor after the relay
       tvs2 {jack: (bv, rd, cj)}  second-stage TVS to GND after the series resistor
       sch2 {jack: True}          second-stage antiparallel Schottky pair to GND after the series resistor
       cap2 {jack: farads}        second-stage capacitor (C0G) to GND after the series resistor
+      rcp_jack True              R105 / R106 (CUR-POT 1k) between the jacks instead of the board nodes: the board
+                                 POT node then never sees the current path's series drop through the 1k
+      sense {jack: ohms}         the residual-voltage sense divider's top resistor from the jack (drive_budget.py),
+                                 to ground here (its far end is a 10 ms-filtered pin near 1.65 V)
+      ref_jack True              the K4 + R107 reference branch across the CUR jacks (phasor model and the stability
+                                 matrix; the surge deck has no K4)
+      sch_sum True               antiparallel Schottky pair from the TIA summing node (tia_sum, behind R94 22 ohm)
+                                 to GND, instead of at DUT_LO: DUT_LO carries I x 22 ohm in use, tia_sum ~0 V
     jack -> TVS -> relay -> R -> second stage -> board node."""
     lines, vecs, parts = [SCH_MODEL], [], []
     models = {}
+    iso = ISO_PARAM if cfg.get('iso') is True else cfg.get('iso')
     for stage in ('tvs', 'tvs2'):
         for j, (bv, rd, cj) in cfg.get(stage, {}).items():
             models[(bv, rd, cj)] = f'DT{len(models)}' if (bv, rd, cj) not in models else models[(bv, rd, cj)]
@@ -54,14 +65,16 @@ def network(cfg, power):
     for j, node in JACKS.items():
         a = f'jk_{j}'
         vecs.append(f'v({a})')
+        if j in cfg.get('sense', {}):
+            lines.append(f"Rsense_{j} {a} 0 {cfg['sense'][j]:g}")
         if j in cfg.get('tvs', {}):
             m = models[cfg['tvs'][j]]
             lines += [f'Vam_t1_{j} {a} t1_{j} 0', f'Dt1a_{j} t1_{j} t1m_{j} {m}', f'Dt1b_{j} 0 t1m_{j} {m}']
             vecs.append(f'i(Vam_t1_{j})')
             parts.append(('tvs1', j))
-        if cfg.get('iso'):
-            lines += ([f'Riso_{j} {a} rl_{j} 0.1'] if power == 'powered' else
-                      [f'Ciso_{j} {a} rl_{j} 1p', f'Riso_{j} {a} rl_{j} 1e12'])
+        if iso:
+            lines += ([f"Riso_{j} {a} rl_{j} {iso['ron']:g}"] if power == 'powered' else
+                      [f"Ciso_{j} {a} rl_{j} {iso['coff']:g}", f"Riso_{j} {a} rl_{j} {iso['roff']:g}"])
             a = f'rl_{j}'
         r = cfg.get('r', {}).get(j, 0.0)
         second = any(j in cfg.get(k, {}) for k in ('tvs2', 'sch2', 'cap2'))
@@ -71,7 +84,11 @@ def network(cfg, power):
         if second and j not in cfg.get('tvs2', {}):
             lines.append(f'Rl_{j} {b} {node} 1e-3')
         if j in cfg.get('sch2', {}):
-            lines += [f'Vam_s2_{j} {b} s2_{j} 0', f'Ds2a_{j} s2_{j} 0 DSCH', f'Ds2b_{j} 0 s2_{j} DSCH']
+            m = cfg['sch2'][j]
+            if m is not True:
+                lines.append(f'.model DS2_{j} D(' + ' '.join(f'{q}={v:g}' for q, v in m.items()) + ')')
+            m = 'DSCH' if m is True else f'DS2_{j}'
+            lines += [f'Vam_s2_{j} {b} s2_{j} 0', f'Ds2a_{j} s2_{j} 0 {m}', f'Ds2b_{j} 0 s2_{j} {m}']
             vecs.append(f'i(Vam_s2_{j})')
             parts.append(('sch2', j))
         if j in cfg.get('cap2', {}):
@@ -82,7 +99,11 @@ def network(cfg, power):
                       f'Rl_{j} {b} {node} 1e-3']
             vecs.append(f'i(Vam_t2_{j})')
             parts.append(('tvs2', j))
-    return {'lines': lines, 'vecs': vecs, 'parts': parts}
+    if cfg.get('sch_sum'):
+        lines += ['Vam_s2_sum tia_sum s2_sum 0', 'Ds2a_sum s2_sum 0 DSCH', 'Ds2b_sum 0 s2_sum DSCH']
+        vecs.append('i(Vam_s2_sum)')
+        parts.append(('sch2', 'sum'))
+    return {'lines': lines, 'vecs': vecs, 'parts': parts, 'rcp_jack': bool(cfg.get('rcp_jack'))}
 
 
 # Parametric clamp sets. TVS5: a 5 V-standoff 400 W-class bidirectional TVS (BV 6.4 V, RD 0.06 ohm, 2 nF).
@@ -90,6 +111,13 @@ TVS5 = (6.4, 0.06, 2e-9)
 TVS3 = (4.0, 0.1, 0.5e-9)   # a 3.3 V-standoff low-capacitance second stage: passes the 1.7 V source with margin
 # A 1-3 A-class Schottky (parametric): 0.31 V at 10 mA, 0.5 V at 1 A.
 SCH_MODEL = '.model DSCH D(IS=1e-6 N=1.3 RS=0.03 CJO=200p)'
+ISO_PARAM = dict(ron=0.1, coff=1e-12, roff=1e12)    # parametric switch (phase 1)
+
+# Parts (part-selection/parts.json, datasheet fits, ngspice DC): TVS tuples as above, the pair C typical.
+H4V5HD3B = (5.433, 0.0436, 100e-12)    # HJC, C20615803, SOD-323, 40 A 8/20; jack
+H3V3LD5B = (4.397, 0.4092, 12.5e-12)   # HJC, C20615817, SOD-523, 8 A 8/20; second stage (25 pF max)
+BAV99 = dict(IS=7.802e-10, N=1.964, RS=1.857, CJO=1.5e-12, BV=100, IBV=1e-7)   # Nexperia, C2500 (basic)
+TLP172AM = dict(ron=1.0, coff=20e-12, roff=60e9)   # Toshiba photoMOS, C2152276: RON 1 typ / 2 max, COFF 20 pF
 CANDIDATES = {
     'links': {'note': 'zero-ohm links only: must reproduce the Rev F baseline (harness check)'},
     'tvs_all': {'tvs': {j: TVS5 for j in JACKS},
@@ -107,7 +135,50 @@ CANDIDATES = {
                       'r': {'hcur': 10.0, 'lcur': 10.0, 'hpot': 100.0, 'lpot': 100.0},
                       'tvs2': {'hcur': TVS3, 'hpot': TVS3, 'lpot': TVS3}, 'sch2': {'lcur': True},
                       'cap2': {'hpot': 1e-9, 'lpot': 1e-9}, 'note': 'two_stage plus the isolation relay'},
+    'iso_two_stage_sum': {'tvs': {j: TVS5 for j in JACKS}, 'iso': True,
+                          'r': {'hcur': 10.0, 'lcur': 10.0, 'hpot': 100.0, 'lpot': 100.0},
+                          'tvs2': {'hcur': TVS3, 'hpot': TVS3, 'lpot': TVS3}, 'sch_sum': True,
+                          'cap2': {'hpot': 1e-9, 'lpot': 1e-9},
+                          'note': 'iso_two_stage with the Schottky pair at the TIA summing node, behind R94, '
+                                  'not at DUT_LO (which sits at I x 22 ohm in use: the pair would conduct)'},
+    'parts': {'tvs': {j: H4V5HD3B for j in JACKS}, 'iso': TLP172AM,
+              'r': {'hcur': 10.0, 'lcur': 10.0, 'hpot': 100.0, 'lpot': 100.0},
+              'tvs2': {'hcur': H3V3LD5B, 'hpot': H3V3LD5B, 'lpot': H3V3LD5B}, 'sch2': {'lcur': BAV99},
+              'cap2': {'hpot': 1e-9, 'lpot': 1e-9},
+              'note': 'iso_two_stage with the chosen parts (part-selection/PARTS.md): H4V5HD3B at the jacks, '
+                      'TLP172AM switches, CRCW-HP 10 / 100 ohm, H3V3LD5B + 1 nF C0G second stage, a BAV99 pair '
+                      'at DUT_LO (silicon: no conduction at the I x 22 ohm DUT_LO carries in use)'},
+    'parts_ron_max': {'tvs': {j: H4V5HD3B for j in JACKS}, 'iso': dict(TLP172AM, ron=2.0),
+                      'r': {'hcur': 10.0, 'lcur': 10.0, 'hpot': 100.0, 'lpot': 100.0},
+                      'tvs2': {'hcur': H3V3LD5B, 'hpot': H3V3LD5B, 'lpot': H3V3LD5B}, 'sch2': {'lcur': BAV99},
+                      'cap2': {'hpot': 1e-9, 'lpot': 1e-9}, 'note': '`parts` with the switch at RON max (2 ohm)'},
+    'parts_rcp_jack': {'tvs': {j: H4V5HD3B for j in JACKS}, 'iso': TLP172AM,
+                       'r': {'hcur': 10.0, 'lcur': 10.0, 'hpot': 100.0, 'lpot': 100.0},
+                       'tvs2': {'hcur': H3V3LD5B, 'hpot': H3V3LD5B, 'lpot': H3V3LD5B}, 'sch2': {'lcur': BAV99},
+                       'cap2': {'hpot': 1e-9, 'lpot': 1e-9}, 'rcp_jack': True,
+                       'note': '`parts` with R105 / R106 moved to the jack side of the network'},
+    'parts_jackside': {'tvs': {j: H4V5HD3B for j in JACKS}, 'iso': TLP172AM,
+                       'r': {'hcur': 10.0, 'lcur': 10.0, 'hpot': 100.0, 'lpot': 100.0},
+                       'tvs2': {'hcur': H3V3LD5B, 'hpot': H3V3LD5B, 'lpot': H3V3LD5B}, 'sch2': {'lcur': BAV99},
+                       'cap2': {'hpot': 1e-9, 'lpot': 1e-9}, 'rcp_jack': True, 'ref_jack': True,
+                       'sense': {'hcur': 1e6, 'lcur': 1e6},
+                       'note': '`parts` with R105 / R106 and the K4 + R107 reference on the jack side: the reference '
+                               'current then takes the LCUR switch and 10 ohm, and the session check tracks them '
+                               '(the surge deck has no K4; open, it is ~1 pF across the jacks); plus the 1 MOhm '
+                               'residual-voltage sense on HCUR and LCUR'},
+    'iso_tvs2_lo': {'tvs': {j: TVS5 for j in JACKS}, 'iso': True,
+                    'r': {'hcur': 10.0, 'lcur': 10.0, 'hpot': 100.0, 'lpot': 100.0},
+                    'tvs2': {j: TVS3 for j in JACKS}, 'cap2': {'hpot': 1e-9, 'lpot': 1e-9},
+                    'note': 'iso_two_stage with a TVS3 at DUT_LO instead of the Schottky pair: no clamp that '
+                            'conducts at the I x 22 ohm DUT_LO carries in use'},
 }
+
+
+# The chosen network (README "Decision") and what each of its parts is rated for, at the pulse lengths
+# the screen produces (~1-3 us): TVS at 8/20 us, the BAV99 at 1 us, the resistors' single-pulse curves at 1 us.
+CHOSEN = 'parts_jackside'
+RATINGS = {'tvs1': ('H4V5HD3B IPP 40 A (8/20 µs)', 40.0), 'tvs2': ('H3V3LD5B IPP 8 A (8/20 µs)', 8.0),
+           'sch2': ('BAV99 IFSM 4 A (1 µs)', 4.0)}   # resistors: by package, in render()
 
 
 def run(case):
@@ -117,12 +188,14 @@ def run(case):
     col, opt = cd.spice(text, t_end)
     if col is None:
         return {'case': case, 'error': opt}
-    r = {'case': case, 'options': opt, **cd.metrics(col, col['time'], rng, 0.0)}
+    r = {'case': case, 'options': opt,
+         **cd.metrics(col, col['time'], rng, 0.0, cd.RCP_JACK if prot['rcp_jack'] else cd.RCP_BOARD)}
     t = col['time']
     r['prot'] = {}
     for stage, j in prot['parts']:
         i = col[f'i(vam_{ {"tvs1": "t1", "tvs2": "t2", "sch2": "s2"}[stage] }_{j})']
-        vj = col[f'v(jk_{j})']
+        # each clamp's energy is its current times its own node voltage (jack, second-stage node or tia_sum)
+        vj = col['v(tia_sum)' if j == 'sum' else f'v(jk_{j})' if stage == 'tvs1' else f'v(mid_{j})']
         r['prot'][f'{stage}_{j}'] = {'i_pk_a': max(map(abs, i)), 'i2t': cd.i2t(t, i),
                                      'e_j': cd.integ(t, [a * b for a, b in zip(i, vj)])}
     for j in JACKS:
@@ -189,6 +262,23 @@ def render(out):
             u = f"{w['i_pk_a']:.3g} A peak, {w['e_j'] * 1e3:.3g} mJ"
         lines.append(f'| `{part}` | {t} | {u} |')
     tables['stress'] = '\n'.join(lines)
+    lines = ['| Part | At 1 µF, 30 V | Rating (part-selection/PARTS.md) | Margin |', '|---|---|---|---|']
+    for part, w in out['candidates'][CHOSEN]['part_stress_worst'].items():
+        a = w['at_30v_1uF']
+        if part.startswith('r_'):   # by package: 10 ohm 0805 on CUR, 100 ohm 0603 on POT
+            what, limit = (('CRCW0805-HP ~450 W at 1 µs', 450.0) if part in ('r_hcur', 'r_lcur') else
+                           ('CRCW0603-HP ~250 W at 1 µs', 250.0))
+        else:
+            what, limit = RATINGS[part.split('_')[0]]
+        value = a['p_pk_w'] if part.startswith('r_') else a['i_pk_a']
+        unit = 'W peak' if part.startswith('r_') else 'A peak'
+        m = limit / value
+        lines.append(f"| `{part}` | {value:.3g} {unit} | {what} | ×{m:.2g} |" if m < 10 else
+                     f"| `{part}` | {value:.3g} {unit} | {what} | ×{m:.0f} |")
+    a = out['candidates'][CHOSEN]['part_stress_worst']['r_lcur']['at_30v_1uF']
+    lines.append(f"| LCUR switch (TLP172AM, in series with `r_lcur`) | {a['v_pk'] / 10.0:.3g} A peak | "
+                 f"IONP 1.5 A (100 ms) | ×{1.5 / (a['v_pk'] / 10.0):.1f} |")
+    tables['stress_parts'] = '\n'.join(lines)
     return tables
 
 

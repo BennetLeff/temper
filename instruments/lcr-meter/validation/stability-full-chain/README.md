@@ -119,6 +119,24 @@ Board `cf379f85…`, commit a04880a87, extracted as `reve_r104` (`../layout-para
 
 The remaining sensitivity is in the relay contact-capacitance stress estimates (Ccc, Cpp, Coc on SOURCE_BUF), which are UNVERIFIED. Bench-measure them before relying on the last 2°.
 
+### Rev G jack protection on the Rev F board (`revgcng100`, 2026-11-08)
+
+This is the `revfcng100` grid with the Rev G network from `revg_network.rs`, written by `../rev-g-protection/normal_operation.py --rust parts_jackside`:
+- the leads, the DUT and the fixture strays land on jack nodes, and the network joins them to the board;
+- R105 / R106 and K4 + R107 sit on the jack nodes;
+- the HIGH element set (C ×2, leakage ×10, RON ×2) runs on the high board.
+
+Worst of 90 cases per loop, against `revfcng100`:
+
+| Loop | Rev F | Rev G |
+|---|---|---|
+| drive | 47.76° | 47.76° |
+| TIA | 57.28° | 69.92° |
+| HIGH | 57.57° | 57.90° |
+| LOW | 56.61° | 57.17° |
+
+There are no upward unity crossings (Rev F has 10). After the change, rerunning `revfcng100` writes every committed Rev F deck byte-identical. Summary: `summary-revgcng100.md`.
+
 ### Four-terminal BNC board with K4 reference relay (`kelvincng100`)
 
 Board SHA-256 `80d44838…`, uncommitted at extraction time, extracted as `reve_bnc` (`../layout-parasitics/README-rev-e.md`). R104 stays fitted.

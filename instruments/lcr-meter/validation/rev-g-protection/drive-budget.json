@@ -1,0 +1,115 @@
+{
+ "drive": {
+  "worst_low": {
+   "v5": 4.32,
+   "vf": 1.4,
+   "i_string_ma": 5.065822362939511,
+   "i_total_ma": 10.131644725879022
+  },
+  "typical": {
+   "v5": 5.0,
+   "vf": 1.27,
+   "i_string_ma": 8.198633561073153,
+   "i_total_ma": 16.397267122146307
+  },
+  "worst_high": {
+   "v5": 5.5,
+   "vf": 1.1,
+   "i_string_ma": 10.998166972171303,
+   "i_total_ma": 21.996333944342606
+  }
+ },
+ "sense": {
+  "gain": 0.09983961507618283,
+  "mid_v": 1.6473536487570166,
+  "pin_v": {
+   "-10 V": 0.6489574979951883,
+   "+0 V": 1.6473536487570166,
+   "+10 V": 2.645749799518845
+  },
+  "full_scale_jack_v": [
+   -16.5,
+   16.553012048192773
+  ],
+  "bias_into_jack_ua": 1.6473536487570166,
+  "tia_dc_offset_v": {
+   "100": 0.00016473536487570165,
+   "5000": 0.008236768243785083,
+   "100000": 0.16473536487570165
+  },
+  "lcur_ac_load": 3.3e-05,
+  "tau_ms": 9.983961507618284,
+  "settle_ms": 29.90927570629285,
+  "tone_ripple_at_46hz_jack_v": 0.5588173634812552
+ },
+ "usb_a": {
+  "base": 0.46,
+  "with_drive_typ": 0.4763972671221463,
+  "with_drive_max": 0.4819963339443426
+ },
+ "timing": {
+  "t_on_max_ms": 2.0,
+  "t_off_max_ms": 0.5
+ },
+ "thresholds_mv": {
+  "close": 1000,
+  "trip": 3000
+ },
+ "checks": [
+  {
+   "check": "firmware thresholds equal these (jackguard.h)",
+   "value": 1.0,
+   "limit": 1.0,
+   "pass_": true
+  },
+  {
+   "check": "firmware divider constants equal these (jackguard.h)",
+   "value": 1.0,
+   "limit": 1.0,
+   "pass_": true
+  },
+  {
+   "check": "LED current at the lowest rail, highest VF >= 5 mA",
+   "value": 5.065822,
+   "limit": 5.0,
+   "pass_": true
+  },
+  {
+   "check": "LED current at the highest rail, lowest VF <= 25 mA",
+   "value": 10.998167,
+   "limit": 25.0,
+   "pass_": true
+  },
+  {
+   "check": "sense pin at -10 V jack >= 0 V",
+   "value": 0.648957,
+   "limit": 0.0,
+   "pass_": true
+  },
+  {
+   "check": "sense pin at +10 V jack <= 3.3 V",
+   "value": 2.64575,
+   "limit": 3.3,
+   "pass_": true
+  },
+  {
+   "check": "TIA DC offset from the sense bias, 100 k range <= 2 % of the swing",
+   "value": 0.164735,
+   "limit": 0.22,
+   "pass_": true
+  },
+  {
+   "check": "46 Hz tone ripple at the sense, as jack volts < the trip threshold",
+   "value": 0.558817,
+   "limit": 3.0,
+   "pass_": true
+  },
+  {
+   "check": "USB load with the drive (typical) <= 0.5 A",
+   "value": 0.476397,
+   "limit": 0.5,
+   "pass_": true
+  }
+ ],
+ "pass_": true
+}

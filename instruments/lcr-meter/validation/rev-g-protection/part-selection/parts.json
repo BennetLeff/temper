@@ -1,0 +1,537 @@
+{
+ "_meta": {
+  "study": "Rev G jack protection, phase 2 part selection (iso_two_stage topology)",
+  "date": "2026-11-08",
+  "catalogue_source": "JLC parts API (POST selectSmtComponentList, exact LCSC code), fetched 2026-11-08; price = JLC unit price at the lowest tier; library_type: \"basic\" (no setup fee), \"preferred\" (extended with the preferred flag, no setup fee in economic assembly), \"extended\" (~$3 setup per line)",
+  "datasheets": "downloaded to the session scratchpad (not in the repo); sha256 = shasum -a 256 of the PDF fetched from datasheet_url; text via pdftotext -layout; curve values marked \"read from figure\" were read off rendered plots (about +-10-20 %)",
+  "fit_method": "ngspice-45 DC operating point with the current forced, Nelder-Mead on relative V error; TVS fits use the phase-1 structure (IS 1e-12, N 1, IBV 1 mA fixed; BV, RS fitted) so they drop into protection_screen.network(); err_pct = (model - datasheet) / datasheet",
+  "stress_targets_30V": {
+   "jack_tvs": "24.1 A peak, 0.207 mJ",
+   "tvs2_hcur": "0.527 A, 20 uJ",
+   "sch2_lcur": "0.97 A, 35 uJ",
+   "r_lcur": "9.66 V, 9.34 W peak, 31 uJ",
+   "r_hpot/lpot": "11 V, 1.21 W peak, 1.47 uJ",
+   "iso_switch": "<= jack clamp, ~8-10 V"
+  }
+ },
+ "jack_tvs": [
+  {
+   "mpn": "H4V5HD3B",
+   "manufacturer": "Zhuhai Hongjiacheng (HJC)",
+   "lcsc": "C20615803",
+   "library_type": "preferred",
+   "stock": 62587,
+   "price_usd": 0.0373,
+   "package": "SOD-323",
+   "recommended": true,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/8cf618ab0929fb7bcb33095267dcf307.pdf?productCode=C20615803",
+   "sha256": "de8693aa285b7eb203b7ee34b739b4dc7799bfb84cd93dc5f3ccd8d7d2ce2c14",
+   "ratings": {
+    "VRWM": "4.5 V max",
+    "VBR": "4.8 V min, 7 V max @ IR = 1 mA, 25 C",
+    "IR": "0.2 uA max @ VR = 4.5 V, 25 C",
+    "VC": "6.5 V max @ IPP = 1 A (8/20 us); 10 V max @ IPP = 40 A (8/20 us)",
+    "IPP": "40 A (8/20 us)",
+    "PPP": "400 W (8/20 us)",
+    "CJ": "100 pF typ @ VR = 0 V, 1 MHz (no max, no C-V curve)",
+    "Tj": "-55 to +125 C"
+   },
+   "spice_model": ".model D_H4V5HD3B D(IS=1e-12 N=1 IBV=0.001 CJO=2e-10 BV=5.433 RS=0.0436)  * one junction; use two in anti-series (protection_screen.network topology); CJO = 2 x pair capacitance",
+   "fit_points": [
+    {
+     "i_a": 0.001,
+     "datasheet_v": 5.9,
+     "model_v": 5.9691,
+     "err_pct": 1.17
+    },
+    {
+     "i_a": 1.0,
+     "datasheet_v": 6.5,
+     "model_v": 6.4135,
+     "err_pct": -1.33
+    },
+    {
+     "i_a": 40.0,
+     "datasheet_v": 10.0,
+     "model_v": 10.0052,
+     "err_pct": 0.05
+    },
+    {
+     "i_a": 24.0,
+     "model_v": 8.5836,
+     "note": "model only (no datasheet point)"
+    }
+   ],
+   "notes": "Bidirectional, 10x lower capacitance than an SMA TVS, which matters most at LCUR/LPOT (TIA virtual-ground side). 40 A 8/20 covers the 24 A, ~1.7 us ring with margin in peak current and far more in energy. Model at 24 A: 8.6 V (the isolation switch sees this). Weak datasheet: C typical only, VBR window 4.8-7 V (fit uses the 5.9 V midpoint). Stretch (1 kA): no."
+  },
+  {
+   "mpn": "SMAJ5.0CA-TR",
+   "manufacturer": "STMicroelectronics",
+   "lcsc": "C123776",
+   "library_type": "extended",
+   "stock": 5750,
+   "price_usd": 0.1791,
+   "package": "SMA (DO-214AC)",
+   "recommended": false,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/79babd81fd28675d4b3f1834f695bbf1.pdf?productCode=C123776",
+   "sha256": "4bb181453198810dd9cfca885a1f19dfae4be57c8821fa0712fde4a0825a984f",
+   "ratings": {
+    "VRM": "5 V",
+    "VBR": "6.4 V min, 6.74 V typ @ IR = 10 mA (Table 3)",
+    "IRM": "20 uA max @ VRM, 25 C; 50 uA max @ 85 C",
+    "VCL_10/1000": "9.2 V max @ IPP = 43.5 A (RD 0.049 ohm)",
+    "VCL_8/20": "13.4 V max @ IPP = 174 A (RD 0.036 ohm)",
+    "PPP": "400 W (10/1000 us), 2.3 kW (8/20 us)",
+    "C": "~1150 pF @ 1 V, ~860 pF @ 6 V typ, 1 MHz (Fig. 7, read from figure); 0 V not given",
+    "leakage_vs_T": "Fig. 11 typ, VRM < 10 V: ~20 nA @ 25 C rising to ~300 nA @ 150 C (read from figure)"
+   },
+   "spice_model": ".model D_SMAJ5_0CA D(IS=1e-12 N=1 IBV=0.001 CJO=2.3e-09 BV=6.222 RS=0.01781)  * one junction; use two in anti-series (protection_screen.network topology); CJO = 2 x pair capacitance",
+   "fit_points": [
+    {
+     "i_a": 0.01,
+     "datasheet_v": 6.74,
+     "model_v": 6.8775,
+     "err_pct": 2.04
+    },
+    {
+     "i_a": 43.5,
+     "datasheet_v": 9.2,
+     "model_v": 8.86,
+     "err_pct": -3.7
+    },
+    {
+     "i_a": 174.0,
+     "datasheet_v": 13.4,
+     "model_v": 13.5801,
+     "err_pct": 1.34
+    },
+    {
+     "i_a": 24.0,
+     "model_v": 8.1347,
+     "note": "model only (no datasheet point)"
+    }
+   ],
+   "notes": "Best-documented jack clamp (8/20 rating, RD, C-V and IR-T curves). ~1.1 nF per jack, 10x the H4V5HD3B: a TIA stability/noise-gain cost at LCUR. Model at 24 A: 8.1 V. Cheap preferred equivalent HJC SMAJ5.0CA (C19077524, $0.038, 627k stock, sha256 3ff5a7b8...) has IR 800 uA max at 5 V, doubled for bidirectional (note 3) and no capacitance number, so not proposed. Stretch (1 kA): not even ST SMCJ5.0CA-TR (C133644, JLC lists 746 A 8/20, datasheet not checked)."
+  }
+ ],
+ "second_stage_tvs": [
+  {
+   "mpn": "H3V3LD5B",
+   "manufacturer": "Zhuhai Hongjiacheng (HJC)",
+   "lcsc": "C20615817",
+   "library_type": "preferred",
+   "stock": 3936764,
+   "price_usd": 0.0192,
+   "package": "SOD-523",
+   "recommended": true,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/48a204db1fd1ee39954f1d7bb7377d32.pdf?productCode=C20615817",
+   "sha256": "c2fa0b85f1e15c42c90ad070bc39e07b5ce9b832923d2477c06659c4d68fc368",
+   "ratings": {
+    "VRWM": "3.3 V max",
+    "VBR": "3.5 V min, 6.5 V max @ IR = 1 mA",
+    "IR": "0.2 uA max @ VR = 3.3 V, 25 C (covers 1.7 V)",
+    "VC": "6 V max @ IPP = 1 A (8/20 us); 12 V max @ IPP = 8 A (8/20 us)",
+    "IPP": "8 A (8/20 us)",
+    "PPP": "100 W (8/20 us)",
+    "CJ": "12.5 pF typ, 25 pF max @ VR = 0 V, 1 MHz (no C-V curve)"
+   },
+   "spice_model": ".model D_H3V3LD5B D(IS=1e-12 N=1 IBV=0.001 CJO=2.5e-11 BV=4.397 RS=0.4092)  * one junction; use two in anti-series (protection_screen.network topology); CJO = 2 x pair capacitance",
+   "fit_points": [
+    {
+     "i_a": 0.001,
+     "datasheet_v": 5.0,
+     "model_v": 4.9338,
+     "err_pct": -1.32
+    },
+    {
+     "i_a": 1.0,
+     "datasheet_v": 6.0,
+     "model_v": 6.1087,
+     "err_pct": 1.81
+    },
+    {
+     "i_a": 8.0,
+     "datasheet_v": 12.0,
+     "model_v": 11.9451,
+     "err_pct": -0.46
+    },
+    {
+     "i_a": 0.53,
+     "model_v": 5.6916,
+     "note": "model only (no datasheet point)"
+    }
+   ],
+   "notes": "Bidirectional. Lowest clamp of the candidates (model 5.7 V at the 0.53 A HCUR stress, vs phase-1 TVS3 BV 4 V). 8 A covers the stretch rows on HPOT/LPOT (1.3 A) but not HCUR (12.5 A). No C(V) data, so the HPOT/LPOT phase drift cannot be bounded from this datasheet."
+  },
+  {
+   "mpn": "PESD3V3L1BSL (PESD3V3L1BSLZ)",
+   "manufacturer": "Nexperia",
+   "lcsc": "C3715319",
+   "library_type": "extended",
+   "stock": 5718,
+   "price_usd": 0.0831,
+   "package": "DFN1006-2 (SOD882-S1)",
+   "recommended": false,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/a16e0a3f173c82a777b29886974f45c5.pdf?productCode=C3715319",
+   "sha256": "6c301f933036be33eefffe7487a30543fae51a74d76d47e1c856619b839a5028",
+   "ratings": {
+    "VRWM": "3.3 V max",
+    "VBR": "5.2 V min @ IR = 1 mA",
+    "IRM": "100 nA max @ VRWM = 3.3 V, 25 C",
+    "VCL": "8.3 V max @ IPP = 1 A (8/20); 11.3 V max @ IPPM = 7.5 A (8/20); 9 V typ @ 16 A TLP 100 ns",
+    "Rdyn": "0.18 ohm typ (TLP)",
+    "IPPM": "7.5 A (8/20 us)",
+    "Cd": "15.5 pF typ, 18 pF max @ 0 V, 1 MHz; Fig. 4 typ: ~13.7 pF @ +-1 V, ~12.6-13.2 pF @ +-2 V (read from figure)"
+   },
+   "spice_model": ".model D_PESD3V3L1BSL D(IS=1e-12 N=1 IBV=0.001 CJO=3.1e-11 BV=6.961 RS=0.2227)  * one junction; use two in anti-series (protection_screen.network topology); CJO = 2 x pair capacitance",
+   "fit_points": [
+    {
+     "i_a": 1.0,
+     "datasheet_v": 8.3,
+     "model_v": 8.2997,
+     "err_pct": -0.0
+    },
+    {
+     "i_a": 7.5,
+     "datasheet_v": 11.3,
+     "model_v": 11.2991,
+     "err_pct": -0.01
+    },
+    {
+     "i_a": 0.001,
+     "model_v": 7.4975,
+     "note": "model only (no datasheet point)"
+    },
+    {
+     "i_a": 0.53,
+     "model_v": 8.0576,
+     "note": "model only (no datasheet point)"
+    }
+   ],
+   "notes": "Use on HPOT/LPOT if phase 3 needs a documented C(V): about 15.6 -> 13 pF over the +-1.7 V swing, ~0.3 % of the 1 nF C0G. Clamps ~2.4 V higher than H3V3LD5B at 0.5 A. Fit uses only the two VC max points (exact); model VBR at 1 mA is 7.5 V, above the 5.2 V min."
+  }
+ ],
+ "dut_lo_pair": [
+  {
+   "mpn": "BAV99,215",
+   "manufacturer": "Nexperia",
+   "lcsc": "C2500",
+   "library_type": "basic",
+   "stock": 1220356,
+   "price_usd": 0.0111,
+   "package": "SOT-23 (series pair)",
+   "recommended": true,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/8b7720fc960f8626e375ebd15030b1eb.pdf?productCode=C2500",
+   "sha256": "826c982f4f2bbefcc047abea7ed2be517c09cf46bf61c10c25e4b7c378369b2f",
+   "connection": "pin 3 (common) to DUT_LO, pins 1 and 2 both to GND: the series pair becomes an antiparallel pair",
+   "ratings": {
+    "type": "silicon switching diode (not a Schottky)",
+    "VF": "715 mV max @ 1 mA; 855 mV @ 10 mA; 1 V @ 50 mA; 1.25 V @ 150 mA (25 C); 1 A not tabulated (Fig. 1 typ ~1.4 V near 0.6 A, read from figure)",
+    "IFSM": "4 A @ tp = 1 us square; 1 A @ 1 ms; 0.5 A @ 1 s (Tj init 25 C)",
+    "IFRM": "500 mA",
+    "Cd": "1.5 pF max @ VR = 0 V, 1 MHz",
+    "IR": "30 nA max @ 25 V, 25 C; 30 uA max @ 25 V, Tj 150 C",
+    "IR_vs_T": "Fig. 2 typ: ~0.01-0.02 uA @ 25 C, ~0.5 uA @ 85 C, flat in VR (read from figure)"
+   },
+   "spice_model": ".model D_BAV99 D(BV=100 IBV=1e-07 CJO=1.5e-12 IS=7.802e-10 N=1.964 RS=1.857)  * one diode; antiparallel pair at DUT_LO",
+   "fit_points": [
+    {
+     "i_a": 0.001,
+     "datasheet_v": 0.715,
+     "model_v": 0.7163,
+     "err_pct": 0.18
+    },
+    {
+     "i_a": 0.01,
+     "datasheet_v": 0.855,
+     "model_v": 0.85,
+     "err_pct": -0.59
+    },
+    {
+     "i_a": 0.05,
+     "datasheet_v": 1.0,
+     "model_v": 1.006,
+     "err_pct": 0.6
+    },
+    {
+     "i_a": 0.15,
+     "datasheet_v": 1.25,
+     "model_v": 1.2475,
+     "err_pct": -0.2
+    },
+    {
+     "i_a": 1.0,
+     "model_v": 2.9223,
+     "note": "model only (extrapolated beyond the datasheet table)"
+    },
+    {
+     "i_a": 0.1,
+     "model_v": 1.1341,
+     "note": "model only (extrapolated beyond the datasheet table)"
+    }
+   ],
+   "notes": "Recommended over a Schottky for the virtual ground: zero-bias conductance is what the TIA sees. Estimated pair shunt (N*Vt/Isat, Isat ~ typ low-V IR): ~1.5-3 Mohm at 25 C, ~60 kohm at 85 C, vs BAT42 ~190 kohm at 25 C and ~3 kohm at 75 C. Clamps higher (model 1.13 V @ 0.1 A, 2.9 V @ 1 A extrapolated from the max-VF fit; typical is lower) - far inside U7A 7 V differential; the phase-2 screen rerun must confirm. 0.97 A for ~1.7 us vs IFSM 4 A @ 1 us / 1 A @ 1 ms. Stretch 13 A: no. Basic part: no line fee. (1N4148WS C2128, already on Rev F, is a two-part fallback.)"
+  },
+  {
+   "mpn": "BAT42WS (x2)",
+   "manufacturer": "Zhuhai Hongjiacheng (HJC); curves from Vishay BAT42W",
+   "lcsc": "C22466360",
+   "library_type": "preferred",
+   "stock": 54857,
+   "price_usd": 0.0179,
+   "package": "SOD-323 (two singles, antiparallel)",
+   "recommended": false,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/bb2a522222af7a26817759082afe689e.pdf?productCode=C22466360",
+   "sha256": "9dc821282a07aabbd7019f5ca3fd993e79edaff64ee45569a49902265da0cffd",
+   "curve_datasheet": {
+    "mpn": "BAT42W-E3-08 (Vishay, LCSC C144923, 120 stock)",
+    "url": "https://datasheet.lcsc.com/datasheet/pdf/eac685bec8104a79a3eeb6af0eb16a87.pdf?productCode=C144923",
+    "sha256": "dbb8f032a541f391439b9daa0e1381fecc052ce5d76582e279668b74dd28555f"
+   },
+   "ratings": {
+    "VF": "0.40 V max @ 10 mA; 0.65 V @ 50 mA; 1.0 V @ 200 mA (HJC and Vishay tables agree); 1 mA and 1 A not tabulated",
+    "IFSM": "4.0 A (HJC: 8.3 ms half sine; Vishay: tp < 10 ms)",
+    "CT": "10 pF max @ VR = 1 V (HJC); Vishay 7 pF typ @ 1 V, ~12 pF @ 0 V (Fig. 4, read from figure)",
+    "IR": "0.5 uA max @ 25 V, 25 C; Vishay 100 uA max @ 25 V, Tj 100 C",
+    "IR_vs_T": "Vishay Fig. 3 typ at low VR: ~0.07 uA @ 25 C, ~0.6 uA @ 50 C, ~5 uA @ 75 C, ~30 uA @ 100 C (read from figure)"
+   },
+   "spice_model": ".model D_BAT42W D(BV=30 IBV=0.0001 CJO=1.2e-11 N=1.05 IS=5.076e-09 RS=2.805)  * one diode; antiparallel pair at DUT_LO",
+   "fit_points": [
+    {
+     "i_a": 0.01,
+     "datasheet_v": 0.4,
+     "model_v": 0.4217,
+     "err_pct": 5.42
+    },
+    {
+     "i_a": 0.05,
+     "datasheet_v": 0.65,
+     "model_v": 0.5776,
+     "err_pct": -11.14
+    },
+    {
+     "i_a": 0.2,
+     "datasheet_v": 1.0,
+     "model_v": 1.036,
+     "err_pct": 3.6
+    },
+    {
+     "i_a": 0.001,
+     "model_v": 0.3339,
+     "note": "model only (extrapolated beyond the datasheet table)"
+    },
+    {
+     "i_a": 0.1,
+     "model_v": 0.7367,
+     "note": "model only (extrapolated beyond the datasheet table)"
+    },
+    {
+     "i_a": 1.0,
+     "model_v": 3.3237,
+     "note": "model only (extrapolated beyond the datasheet table)"
+    }
+   ],
+   "notes": "The Schottky option as specified in phase 1 (0.4 V class, IFSM 4 A covers the 1 A surge). Risk: its zero-bias conductance rises ~8x per 25 C; estimated pair shunt ~3 kohm at 75 C at the TIA virtual ground (100 k range noise gain ~30, and a temperature-dependent current-sharing error). Fit: N fixed 1.05 (a free N runs to 5 on these max points); errors +5 %, -11 %, +4 %."
+  }
+ ],
+ "series_resistor": [
+  {
+   "mpn": "CRCW080510R0FKEAHP",
+   "manufacturer": "Vishay Draloric",
+   "value": "10 ohm 1 % 0805",
+   "lcsc": "C844598",
+   "library_type": "extended",
+   "stock": 219436,
+   "price_usd": 0.0359,
+   "package": "0805",
+   "use": "HCUR, LCUR",
+   "recommended": true,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/b52727c8a24a0894dd7fb2427e3eb3c7.pdf?productCode=C844598",
+   "sha256": "c08f50112c26cef635f2c60194820a368c4c714d7ccd7cccd8c760e512716c80",
+   "ratings": {
+    "P70": "0.5 W",
+    "Umax_operating": "150 V (AC RMS/DC)",
+    "tolerance": "1 %",
+    "TCR": "+-100 ppm/K",
+    "single_pulse_Pmax": "~450 W @ 1 us, ~180 W @ 10 us (CRCW0805-HP single-pulse curve, read from figure; valid for n < 1000 pulses)",
+    "pulse_voltage": "~500 V for t < 1 ms (CRCW0805-HP, read from figure)"
+   },
+   "spice_model": "R 10 (TCR 100 ppm/K)",
+   "fit_points": [],
+   "notes": "Target stress 9.34 W peak, 31 uJ (~3 us) vs ~300 W: ~30x. Stretch 1.72 kW, 2.43 mJ: no; that needs CRCW2512-HP (~5 kW @ 1 us)."
+  },
+  {
+   "mpn": "CRCW0603100RFKEAHP",
+   "manufacturer": "Vishay Draloric",
+   "value": "100 ohm 1 % 0603",
+   "lcsc": "C844725",
+   "library_type": "extended",
+   "stock": 108992,
+   "price_usd": 0.028,
+   "package": "0603",
+   "use": "HPOT, LPOT",
+   "recommended": true,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/b52727c8a24a0894dd7fb2427e3eb3c7.pdf?productCode=C844598",
+   "sha256": "c08f50112c26cef635f2c60194820a368c4c714d7ccd7cccd8c760e512716c80",
+   "ratings": {
+    "P70": "0.33 W",
+    "Umax_operating": "75 V",
+    "tolerance": "1 %",
+    "TCR": "+-100 ppm/K",
+    "single_pulse_Pmax": "~250 W @ 1 us, ~110 W @ 10 us (CRCW0603-HP curve, read from figure)",
+    "pulse_voltage": "~250 V (CRCW0603-HP, read from figure)"
+   },
+   "spice_model": "R 100 (TCR 100 ppm/K)",
+   "fit_points": [],
+   "notes": "Target 1.21 W, 1.5 uJ: ~200x. Covers even the stretch rows (167 W, 0.22 mJ ~1.3 us, 129 V). 0805 variant CRCW0805100RFKEAHP C844813 has only 599 in stock. Same family datasheet as the 10 ohm part."
+  },
+  {
+   "mpn": "ERJ-P06F10R0V / ERJ-P06F1000V",
+   "manufacturer": "Panasonic",
+   "value": "10 ohm / 100 ohm 1 % 0805",
+   "lcsc": "C441969 / C441975",
+   "library_type": "extended",
+   "stock": "6396 / 48424",
+   "price_usd": "0.0194 / 0.0229",
+   "package": "0805",
+   "recommended": false,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/3694598bef8f46f8e50ce38954aee850.pdf?productCode=C441969",
+   "sha256": "441511405b9820335bacd22e1744af202b366ea162611ad8e03f7cdc1dcb6c3c",
+   "ratings": {
+    "rated_power": "0.5 W (70 C)",
+    "limiting_element_voltage": "400 V",
+    "max_overload_voltage": "600 V",
+    "tolerance": "+-1 %",
+    "TCR": "+-100 ppm/K (+-0.5/1 %, 10 ohm-1 Mohm)",
+    "ESD": "150 pF / 0 ohm, +-3 kV (ESD characteristic graph); no single-pulse power curve"
+   },
+   "spice_model": "R",
+   "fit_points": [],
+   "notes": "Anti-surge, cheaper, but the datasheet gives only an ESD (150 pF, 3 kV, ~0.7 mJ) figure, not a pulse-power curve, so a class-A judgement would rest on the energy comparison only."
+  }
+ ],
+ "pot_capacitor_1nF": [
+  {
+   "mpn": "CC0603JRNPO9BN102",
+   "manufacturer": "Yageo",
+   "lcsc": "C106246",
+   "library_type": "extended",
+   "stock": 784506,
+   "price_usd": 0.0066,
+   "package": "0603",
+   "recommended": true,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/4eca2bb4b507f1633db47e922d632b95.pdf?productCode=C106246",
+   "sha256": "495287fc811dc714366f2edd3bc974d98d2d80133266a0a73bb01ac01237e3eb",
+   "ratings": {
+    "C": "1 nF +-5 %",
+    "dielectric": "NP0 (Class 1)",
+    "TC": "+-30 ppm/C",
+    "VR": "50 V"
+   },
+   "spice_model": "C 1n",
+   "fit_points": [],
+   "notes": "Same Yageo NP0 family as Rev F C34/C35 (CC0603JRNPO9BN561, C107054). No basic 1 nF C0G 0603 exists at JLC today (C1588, the basic 1 nF, is X7R). Zero-new-line option: 2 x the existing 560 pF C107054 in parallel (1.12 nF) if the screen accepts it."
+  },
+  {
+   "mpn": "CL10C102JB8NNNC",
+   "manufacturer": "Samsung Electro-Mechanics",
+   "lcsc": "C163508",
+   "library_type": "extended",
+   "stock": 313153,
+   "price_usd": 0.009,
+   "package": "0603",
+   "recommended": false,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/8343b01627cd43398c7c17ca8347519a.pdf?productCode=C163508",
+   "sha256": "35528d3497d64ca76a11af8992c65f544c412b772df32d735469e4adaba41be4",
+   "ratings": {
+    "C": "1 nF +-5 % (J)",
+    "dielectric": "C0G",
+    "TC": "0 +-30 ppm/C",
+    "VR": "50 V (B)"
+   },
+   "spice_model": "C 1n",
+   "fit_points": [],
+   "notes": "Second source."
+  }
+ ],
+ "isolation_switch": [
+  {
+   "mpn": "TLP172AM(TPL,E)",
+   "manufacturer": "Toshiba",
+   "lcsc": "C2152276",
+   "library_type": "extended",
+   "stock": 46709,
+   "price_usd": 0.7934,
+   "package": "SO-4 (2.54 mm, 4-pin SO6)",
+   "quantity": 4,
+   "recommended": true,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/e218c185f9de7d12e9901cb4aacd6b92.pdf?productCode=C2152276",
+   "sha256": "9dd4fb2a34faaa704e703e35b168d1ef68ad7912f35f72b072ca5af2e205b76e",
+   "ratings": {
+    "form": "1 Form A (normally open), photoMOS",
+    "VOFF": "60 V min (abs max 60 V)",
+    "ION": "500 mA; IONP 1.5 A (100 ms, duty 1/10)",
+    "RON": "1 ohm typ, 2 ohm max @ ION 500 mA, IF 5 mA",
+    "COFF": "20 pF typ @ V = 0 V, 1 MHz (no C-V curve)",
+    "IOFF": "0.1 nA typ, 1 uA max @ VOFF 60 V",
+    "IFT": "1 mA typ, 3 mA max (trigger); IFC 0.1 mA min, 0.5 mA typ (return)",
+    "IF_recommended": "5 mA min, 7.5 mA typ, 25 mA max",
+    "VF_LED": "1.1 / 1.27 / 1.4 V min/typ/max @ IF 10 mA",
+    "tON": "0.6 ms typ, 2 ms max; tOFF 0.1 ms typ, 0.5 ms max (IF 5 mA)",
+    "isolation": "3750 Vrms, CS 0.8 pF typ",
+    "Topr": "-40 to 85 C"
+   },
+   "spice_model": "on: R 1 (2 max); off: C 20p || R 60G (IOFF max -> R >= 60 Mohm at 60 V)",
+   "fit_points": [],
+   "notes": "Four singles, one per jack. Drive: two strings of two LEDs from VBUS (2 x 1.4 V max) with ~400 ohm and one AO3400A (already on Rev F) -> ~10-11 mA total (~55 mW) at 5 mA per LED. Opens within 0.5 ms of losing VBUS. Off-state sees only the jack clamp (~8-10 V at the target). On-state surge current ~0.97 A (LCUR) vs IONP 1.5 A (100 ms): covered; stretch 13 A: no. Coff 20 pF replaces the phase-1 1 pF; rerun the unpowered rows."
+  },
+  {
+   "mpn": "AQW212EHAX",
+   "manufacturer": "Panasonic",
+   "lcsc": "C161815",
+   "library_type": "extended",
+   "stock": 6084,
+   "price_usd": 2.2181,
+   "package": "SMD-8 (DIP-8 gull wing)",
+   "quantity": 2,
+   "recommended": false,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/c20fae86066289fd799e0f689d667520.pdf?productCode=C161815",
+   "sha256": "6c46c8ea650a2aeb70df8851e46fef8ced252bc220af98ce102ba9df94194159",
+   "ratings": {
+    "form": "2 Form A, photoMOS GE",
+    "VL": "60 V (peak AC)",
+    "Ipeak": "1.5 A",
+    "Ron": "0.83 ohm typ, 2.5 ohm max (IF 5 mA, within 1 s)",
+    "Coff": "Fig. 12-2: ~80 pF @ 0 V, ~42 pF @ 5 V, ~30 pF @ 10 V, ~20 pF @ 20 V, ~15 pF @ 30 V (read from figure)",
+    "ILeak": "1 uA max (VL max, IF 0); Fig. 9-2 typ ~1e-11 A",
+    "IFon": "1.2 mA typ, 3.0 mA max; IFoff 0.4 mA min",
+    "VF_LED": "1.14 V typ @ 5 mA; 1.25 typ / 1.5 V max @ 50 mA",
+    "Ton": "1 ms typ, 4 ms max; Toff 0.08 ms typ, 1.0 ms max",
+    "isolation": "5000 Vrms, Ciso 0.8 pF typ / 1.5 pF max"
+   },
+   "spice_model": "on: R 0.83 (2.5 max); off: C(V) per Fig. 12-2, e.g. PWL 80p@0V 42p@5V 30p@10V",
+   "fit_points": [],
+   "notes": "Two packages instead of four, but 4x the off capacitance at 0 V and 1.4x the price per pole."
+  },
+  {
+   "mpn": "G6K-2F-Y-TR DC5",
+   "manufacturer": "Omron",
+   "lcsc": "C47190",
+   "library_type": "extended",
+   "stock": 85083,
+   "price_usd": 1.06,
+   "package": "SMD 10 x 6.5 mm, DPDT",
+   "quantity": 2,
+   "recommended": false,
+   "datasheet_url": "https://datasheet.lcsc.com/datasheet/pdf/61fb53c6234ed00aa64248b2c58b602c.pdf?productCode=C47190",
+   "sha256": "bb704de5dfb8cee70efb4f9a5b64230cde15d00a499e973380a1d982f05988f2",
+   "ratings": {
+    "coil_5VDC": "21.1 mA rated, 237 ohm, ~100 mW; must operate 80 % max, release 10 % min",
+    "contacts": "2 A carry, 1 A switch, 125 VAC / 60 VDC max switching"
+   },
+   "spice_model": "on: R 0.1 (contact); off: ~1 pF",
+   "fit_points": [],
+   "notes": "Non-latching relay alternative: 2 x 21 mA = 42 mA from VBUS, i.e. nearly all of the ~40 mA left in the 0.5 A budget, vs ~10 mA for the photoMOS. (Panasonic TQ2SA-5V non-latching, C22686, is 140 mW / 28 mA each: worse.) Not latching, so it opens when unpowered, unlike the Rev F TQ2SA-L2."
+  }
+ ]
+}
