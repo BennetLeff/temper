@@ -4,7 +4,6 @@ Rev G is Rev F with a protection network on the four BNC jacks: one normally ope
 
 **Status (2026-11-09): laid out, hand-routed, every board gate clean. Not orderable.** These steps remain before ordering:
 - an independent review of the frozen export;
-- the parasitic extraction of the jack band and the stability matrix on it (Open items);
 - JLC's placement preview;
 - any Rev F bring-up finding on the nodes Rev G touches.
 
@@ -63,6 +62,8 @@ The board's analog copper was frozen at `b956ee70…981d`. The only later change
 | Layout audit, edge clearance, pours | written; edge copper ≥ 0.50 mm on the V-cut edges (Rev F's) | `../validation/layout-audit-rev-g.json`, `../validation/rev-g/{edge-clearance,pour-report}.json` |
 | CPL rotations (`placement_offsets.py`) | TLP172AM 270° (RMS 0.05 mm, next 4.84 mm); H4V5HD3B 0° (0.02); H3V3LD5B 0° (0.05); BAV99 180° (0.28: LCSC's wide SOT-23 land, below); Q7 as Q6 | `../sources/placement-rev-c.json` |
 | Stability, Rev F board parasitics + Rev G network lumped (`revgcng100`), rerun with the 1.5 MΩ sense | worst drive 47.76°, HIGH 57.90°, LOW 57.17°, TIA 69.92°, the same as with 1 MΩ | `../validation/stability-full-chain/summary-revgcng100.md` |
+| Parasitic extraction of the Rev G board (`run_reve.sh revg`; whole board and band / corner / vert zooms new, Rev F's U7 / relay / hiside zooms reused since `copper-shift-delta.json` finds them unchanged) | board nodes behind the switches lighter than Rev F (nominal DUT_HI 6.13 pF vs 11.86, DUT_LO 4.24 vs 7.95, HPOT 1.90 vs 4.51, LPOT 2.04 vs 5.29); grid uncertainty ±35 % (Rev F ±22 %; set by a 0.004 pF DUT_HI–HPOT mutual) | `../validation/layout-parasitics/extracted_revg.json` |
+| Stability on the extracted Rev G board (`revgxcng100`, 360 cases) | worst drive 47.41°, HIGH 57.81°, LOW 57.04°, TIA 69.71°; no upward crossings (Rev F 47.76 / 57.57 / 56.61 / 57.28°; Rev E drive 46.83°) | `../validation/stability-full-chain/summary-revgxcng100.md` |
 
 ## 3. Enclosure
 
@@ -111,7 +112,6 @@ The board grows 10 mm toward the back, and the front face does not change:
 
 ## 6. Open items before Rev G is orderable
 
-1. **Parasitic extraction of the band, then stability on it.** The windows outside the band are Rev F's copper moved (`copper-shift-delta.json`), so their zoom ratios carry over. The whole board and the band windows (DUT_HI, HPOT, LPOT and DUT_LO up to the series resistors, R107 / K4) are re-solved; the result feeds a stability mode on the Rev G board.
-2. **Independent review** of the frozen export (a fresh reviewer with the files, not these conclusions).
-3. **Placement preview** at JLC: D28 pin 3 toward DUT_LO; U18–U21 pin 1 (anode) orientation; D4 and Y1 as on Rev F.
-4. **Rev F bring-up** findings on the band nodes; confirm the TLP172AM COFF and the TVS capacitances (`rev-g-protection/README.md`, "Open items").
+1. **Independent review** of the frozen export (a fresh reviewer with the files, not these conclusions).
+2. **Placement preview** at JLC: D28 pin 3 toward DUT_LO; U18–U21 pin 1 (anode) orientation; D4 and Y1 as on Rev F.
+3. **Rev F bring-up** findings on the band nodes; confirm the TLP172AM COFF and the TVS capacitances (`rev-g-protection/README.md`, "Open items").

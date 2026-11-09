@@ -138,6 +138,30 @@ Worst of 90 cases per loop, against `revfcng100`:
 
 There are no upward unity crossings (Rev F has 10). After the change, rerunning `revfcng100` writes every committed Rev F deck byte-identical. Summary: `summary-revgcng100.md`.
 
+### Rev G as built: the extracted Rev G board (`revgxcng100`, 2026-11-09)
+
+This is the `revgcng100` grid on the FD-extracted Rev G board (`revg_extracted.rs`, `../layout-parasitics/run_reve.sh revg`) instead of Rev F's. The extraction takes the whole board fresh and re-cuts the zooms on the changed band. It reuses Rev F's U7, relay and hiside zooms, whose windows hold Rev F's copper and GND fill moved +10 mm unchanged (`../rev-g/copper-shift-delta.json`). The jack-side parts (R105 / R106 / R107, the BNC bodies) are not added to the board nodes; `revg_network.rs` carries them on the jack nodes.
+
+The board nodes behind the switches are lighter than on Rev F (r100, low / nom / high, pF):
+
+| Node | Rev F | Rev G |
+|---|---|---|
+| DUT_HI | 8.80 / 11.86 / 19.38 | 4.00 / 6.13 / 12.89 |
+| DUT_LO | 5.76 / 7.95 / 14.42 | 2.77 / 4.24 / 10.19 |
+| HPOT | 3.05 / 4.51 / 7.01 | 1.23 / 1.90 / 4.50 |
+| LPOT | 3.67 / 5.29 / 8.76 | 1.33 / 2.04 / 4.85 |
+
+The grid uncertainty is ±35 % (Rev F ±22 %). Its source is the DUT_HI–HPOT mutual in the band zoom: at 0.004 pF it is too small to get its own factor, and its fine-grid ratio (1.62) enters the global spread. The method is unchanged, so the corners are only wider: SOURCE_BUF's high corner is 13.03 pF against 11.68.
+
+| Loop | Rev F (`revfcng100`) | Rev G on Rev F's board (`revgcng100`) | Rev G as built (`revgxcng100`) |
+|---|---|---|---|
+| drive | 47.76° | 47.76° | 47.41° |
+| TIA | 57.28° | 69.92° | 69.71° |
+| HIGH | 57.57° | 57.90° | 57.81° |
+| LOW | 56.61° | 57.17° | 57.04° |
+
+There are no upward unity crossings. The drive loop's 0.35° comes from the wider high corner on unchanged nets, and stays above Rev E's 46.83°. Rerunning `revgcng100` after the change writes every committed deck and the matrix byte-identical. Summary: `summary-revgxcng100.md`.
+
 ### Four-terminal BNC board with K4 reference relay (`kelvincng100`)
 
 Board SHA-256 `80d44838…`, uncommitted at extraction time, extracted as `reve_bnc` (`../layout-parasitics/README-rev-e.md`). R104 stays fitted.

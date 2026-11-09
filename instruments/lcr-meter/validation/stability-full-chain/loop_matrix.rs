@@ -1107,6 +1107,11 @@ fn main() {
     if let Some(cng) = mode.strip_prefix("revgcng") {
         cases = kelvin_cases_prot(cng.parse().unwrap(), "revgrelay", REVF_BOARD_NOM, REVF_BOARD_HIGH, REVF_LEAD, REVF_CAPLEAD, Some([REVG_PROT_NOM, REVG_PROT_HIGH]));
     }
+    // revgxcng{C}: the revgcng{C} grid on the EXTRACTED Rev G board (revg_extracted.rs, run_reve.sh revg); case
+    // prefix revgxrelay_.
+    if let Some(cng) = mode.strip_prefix("revgxcng") {
+        cases = kelvin_cases_prot(cng.parse().unwrap(), "revgxrelay", REVG_BOARD_NOM, REVG_BOARD_HIGH, REVG_LEAD, REVG_CAPLEAD, Some([REVG_PROT_NOM, REVG_PROT_HIGH]));
+    }
     // kelvinlossycng{C} / revflossycng{C}: the same grids with the 1 m leads as lossy RG-58
     // (coax_lossy.rs, fitted to the Belden 8259 datasheet by coax_model.py) instead of the
     // lossless LC ladder; case prefixes kelvinlossyrelay_ / revflossyrelay_.
@@ -1168,7 +1173,7 @@ fn main() {
         {
             // The heaviest fixture loads also load the source driver and both sense followers.
             vec!["tia", "drive", "high", "low"]
-        } else if mode.starts_with("kelvin") || mode.starts_with("revfest") || mode.starts_with("revfpess") || mode.starts_with("revfcng") || mode.starts_with("revflossy") || mode.starts_with("revgcng") {
+        } else if mode.starts_with("kelvin") || mode.starts_with("revfest") || mode.starts_with("revfpess") || mode.starts_with("revfcng") || mode.starts_with("revflossy") || mode.starts_with("revgcng") || mode.starts_with("revgxcng") {
             vec!["tia", "drive", "high", "low"]
         } else if (mode.starts_with("fixedrelay") || mode.starts_with("reverelay")) && c.name.contains("_loops_") {
             vec!["drive", "high", "low"]
@@ -1352,6 +1357,8 @@ include!("revf_est_extracted.rs");
 include!("revf_extracted.rs");
 // Rev G jack protection network (../rev-g-protection/normal_operation.py --rust).
 include!("revg_network.rs");
+// Rev G hand-routed board, FD-extracted (../layout-parasitics/run_reve.sh revg).
+include!("revg_extracted.rs");
 // Lossy RG-58 per-metre networks (coax_model.py, Belden 8259 datasheet).
 include!("coax_lossy.rs");
 /// `reverelaycng{C}`: `fixedrelaycng{C}` with the Rev E extraction in place of REVD_BOARD and the
@@ -1545,7 +1552,7 @@ fn k4_bypass(closed: bool, p: Relay) -> String {
     s
 }
 fn revg(c: &Case) -> bool {
-    c.name.contains("revgrelay_")
+    c.name.contains("revgrelay_") || c.name.contains("revgxrelay_")
 }
 fn kelvin_cases_prot(cng: f64, prefix: &str, board_nom: [&str; 3], board_high: [&str; 3], leads: [f64; 3], caplead0: f64, prot: Option<[&str; 2]>) -> Vec<Case> {
     let rt = format!("_cng{cng}_srciso47_kelvin");
