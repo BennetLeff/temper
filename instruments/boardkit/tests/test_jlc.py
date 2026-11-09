@@ -169,6 +169,32 @@ def test_models_3d_native_pads():
     assert math.isclose(models_3d.UNIT, 0.254)
 
 
+def test_models_3d_legs_onto_holes():
+    from temper_boardkit.jlc import models_3d
+
+    holes = models_3d.native_pads_named(
+        '(pad "SH" thru_hole oval (at -4.325 -3.1) (size 1 2.1))\n'
+        '(pad "SH" thru_hole oval (at -4.325 1.08) (size 1 1.8))\n'
+        '(pad "A1" smd roundrect (at -3.25 -4.045) (size 0.6 1.45))\n'
+        '(pad "SH" thru_hole oval (at 4.325 -3.1) (size 1 2.1))\n'
+        '(pad "SH" thru_hole oval (at 4.325 1.08) (size 1 1.8))',
+        "SH",
+    )
+    assert holes == [(-4.325, 3.1), (-4.325, -1.08), (4.325, 3.1), (4.325, -1.08)]
+    # Each foot is cut into two edge boxes, as OCP returns the HRO model's feet; clusters joins them.
+    boxes = []
+    for x, y in ((-4.32, 4.271), (-4.32, 0.096), (4.32, 4.271), (4.32, 0.096)):
+        boxes += [(x - 0.15, y - 0.2, x, y + 0.2), (x, y - 0.2, x + 0.15, y + 0.2)]
+    feet = models_3d.clusters(boxes)
+    assert len(feet) == 4
+    dx, dy, worst = models_3d.match_legs(feet, holes)
+    assert abs(dx) < 1e-9 and math.isclose(dy, -1.1735, abs_tol=1e-3) and worst < 0.01
+    with pytest.raises(ValueError, match="does not match"):
+        models_3d.match_legs([(-4.32, 4.0), (-4.32, 0.096), (4.32, 4.271), (4.32, 0.096)], holes)
+    with pytest.raises(ValueError, match="3 legs"):
+        models_3d.match_legs(feet[:3], holes)
+
+
 def _search_reply(*codes):
     return json.dumps(
         {

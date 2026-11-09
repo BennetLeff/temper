@@ -78,18 +78,23 @@
    "next_rms_mm": 1.62
   },
   "correction": {
-   "kind": "seat",
-   "lift_mm": 0.033
+   "kind": "legs:SH",
+   "lift_mm": 0.033,
+   "leg_shift_mm": [
+    -0.0,
+    -1.173
+   ],
+   "worst_leg_after_mm": 0.006
   },
   "bbox_mm": {
    "min": [
     -4.552,
-    -2.504,
+    -3.678,
     0.0
    ],
    "max": [
     4.552,
-    5.396,
+    4.223,
     4.215
    ]
   }

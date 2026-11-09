@@ -83,15 +83,18 @@ Each jack's 0.09–0.34 mm of travel in its 1.4 mm holes then follows the plate.
 - **Wall:** 2.0 mm at the jacks. At the shortest thread (6.6 − 0.35 mm), that leaves 4.25 mm for the toothed washer and nut, against an assumed 3.5 mm. Caliper a jack's thread, nut and washer from the LCSC order before cutting. A thicker wall elsewhere needs a spot face of Ø17 mm or more: the nut is 16.11 mm across corners, and neighbouring Ø17 spot faces stay 5 mm apart.
 - **Material:** metal at the jacks. Printed plastic creeps under a toothed washer and loosens the jacks, and printed holes fail the stack. The chassis-grounding decision (rev-f-plan, 2026-10-29) also assumes a metal front wall that bonds to the BNC shells. If the box is printed, use a machined aluminium front plate, unanodised or masked around the holes, so the decision still holds.
 
-## J1 3D model is 1.2 mm behind the real part
+## J1 3D model: fixed 2026-11-08
 
-J1's STEP model, which `cad/tools/models_3d.py` builds from EasyEDA's library, sits 1.18 mm further back than the footprint:
-- Its shield-leg feet sit 1.18 mm behind the footprint's shield holes. Their 4.2 mm spacing is right.
-- Its front face is at x = 51.5.
+EasyEDA's STEP for the HRO TYPE-C-31-M-12 sat 1.17 mm behind the footprint: its shield-leg feet were 1.17 mm off the footprint's four SH holes, with their spacing right. Its front face was at x = 51.5, so a board STEP export showed the receptacle recessed.
 
-The footprint's F.Fab outline puts the 7.4 mm body at x = 50.3–57.7 with the flare at 50.04, which agrees with HRO's drawing (body 7.35 mm). So the receptacle is flush with the board edge. A board STEP export, or the renders, would show it recessed 1.5 mm.
+`temper_boardkit.jlc.models_3d` now has a measured correction for this, `legs:SH`:
+1. The placed model is cut 0.1 mm above the board.
+2. Its leg feet are found.
+3. The model is moved so the feet land on the SH holes. Every leg must then lie within 0.1 mm of a hole, or the build stops.
 
-**Use this file, not the STEP, for the USB-C cutout.** The fix is a per-part shift in `temper_boardkit.jlc.models_3d` (shared tooling). It is not made here.
+For J1 the shift is 1.173 mm, and the worst leg lands 0.006 mm from its hole (`cad/3dmodels/models-3d.json`). The model's front face is now at x = 50.32, against the fab body front at 50.3 and HRO's 7.35 mm body flush at the edge.
+
+`board_envelope.py` still lists J1 as 0.4 mm off its fab outline's centre. That is the model's SMD lead tails, which run 0.52 mm further back than the fab body; the front is right. A board STEP export can now be used for the USB-C cutout, and it agrees with this file.
 
 The only other model off-centre from its fab outline by more than 0.3 mm is C117, by 0.61 mm. That is the polymer can's asymmetric terminals, which is harmless.
 

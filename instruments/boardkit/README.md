@@ -24,7 +24,7 @@ zapote rule owner.
 | `jlc.placement` | JLC placement-preview simulation from the CPL against the Gerber pads; SVG overlay | stdlib |
 | `jlc.parts` | JLC assembly-library snapshot (price tiers, stock, library class, attrition, minimum) by curl POST, the schema `jlc.order` callers read | curl |
 | `jlc.order` | one assembly fee model (Economic, Standard, hand fit), `tier_price`, `buy_qty`, `is_extended`, X-ray tiers | stdlib |
-| `jlc.models_3d` | exact-part STEP models from EasyEDA placed in the KiCad footprint frame | OCP (CAD env) |
+| `jlc.models_3d` | exact-part STEP models from EasyEDA placed in the KiCad footprint frame; corrections `seat`, `bnc` and `legs:<pad>` (move a model's through-hole legs onto the footprint's holes of that name, checked to 0.1 mm) | OCP (CAD env) |
 | `kicad` | lazily imported pcbnew: `load_board`, `clear_silk_circles`, `pad_table`, `footprint_pads`, `edge_clearance`, `via_in_pad(_audit)`, `joint_counts`, `MODEL_SWAP` / `apply_model_swap` | KiCad's Python |
 | `fab` | fab-house limits as a separate KiCad DRC pass: profile -> `.kicad_dru` rules, board copy without local clearances, a self-test board on which every rule must fire, findings attributed by rule name (`boardkit-fab-check`) | kicad-cli, KiCad's Python for `run` |
 | `jlc/data/fab-profiles` | JLC `jlcpcb-{2,4}layer-{1,2}oz.json` (schema `zapote.fab-profile.v1`): each limit with JLC's own sentence, a verbatim substring of `jlc/data/jlc-capabilities-2026-10-29.txt` (tested) | data |

@@ -26,7 +26,7 @@ OUT = ROOT / 'cad' / '3dmodels'
 PARTS = {
     'Relay_DPDT_Panasonic_TQ2SA_SMD': ('C2684450', 'seat'),
     'BNC_SAMZO_KYWE-295-W4-N_Horizontal': ('C41416668', 'bnc'),
-    'USB_C_Receptacle_HRO_TYPE-C-31-M-12': ('C165948', 'seat'),
+    'USB_C_Receptacle_HRO_TYPE-C-31-M-12': ('C165948', 'legs:SH'),  # EasyEDA's shell sits 1.17 mm off its shield holes
     'LED_LiteOn_LTST-S270KFKT_SideView': ('C160472', 'seat'),
 }
 
