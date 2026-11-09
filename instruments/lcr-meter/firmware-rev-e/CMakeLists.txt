@@ -12,8 +12,14 @@ set(LCR_FS_375K 0 CACHE STRING "1 builds the 375 kHz sample-rate variant")
 # 1 builds for Rev G: the jack isolation switches and residual-voltage senses (src/jackguard.h).
 set(LCR_REV_G 0 CACHE STRING "1 builds the Rev G jack-guard image")
 add_executable(temper_lcr src/main.c src/syncavg.c src/wave.c src/tac5112.c src/relay.c src/rails.c src/usb_descriptors.c)
+# The optional UART header (J6): GPIO 28 / 29 on Rev E / F; Rev G moves it to GPIO 0 / 1, since the jack senses
+# take ADC2 / ADC3 (src/pins.h).
+set(LCR_UART_TX 28)
+set(LCR_UART_RX 29)
 if(LCR_REV_G)
   target_sources(temper_lcr PRIVATE src/jackguard.c)
+  set(LCR_UART_TX 0)
+  set(LCR_UART_RX 1)
 endif()
 pico_generate_pio_header(temper_lcr ${CMAKE_CURRENT_LIST_DIR}/src/tdm.pio)
 pico_generate_pio_header(temper_lcr ${CMAKE_CURRENT_LIST_DIR}/src/tdm375.pio)
@@ -27,8 +33,8 @@ target_compile_definitions(temper_lcr PRIVATE
     SYNCAVG_IN_RAM=1
     LCR_FS_375K=${LCR_FS_375K}
     LCR_REV_G=${LCR_REV_G}
-    PICO_DEFAULT_UART_TX_PIN=28
-    PICO_DEFAULT_UART_RX_PIN=29
+    PICO_DEFAULT_UART_TX_PIN=${LCR_UART_TX}
+    PICO_DEFAULT_UART_RX_PIN=${LCR_UART_RX}
     PICO_STDIO_USB_USE_DEFAULT_DESCRIPTORS=0
     PICO_STDIO_USB_ENABLE_RESET_VIA_VENDOR_INTERFACE=0
     PICO_STDIO_USB_ENABLE_RESET_VIA_BAUD_RATE=0

@@ -528,6 +528,20 @@ static void test_jackguard(void) {
     CHECK(!jg_run(&g, true, 0.9, -0.9, &t, (JG_STABLE_POLLS - 1) * JG_POLL_MS) && g.state == JG_OPEN);
     CHECK(jg_run(&g, true, 0.9, -0.9, &t, JG_POLL_MS) && g.state == JG_CLOSING);
     CHECK(!strcmp(jackguard_state_name(JG_TRIPPED), "tripped"));
+    /* Inside a capture: one conversion per jack against JG_TRIP_MV, either jack, either sign; the source's
+       swing is not over. A trip from the capture loop re-arms like a polled one. */
+    CHECK(!jackguard_over(JG_TRIP_MV, -JG_TRIP_MV) && !jackguard_over(1700, -1700));
+    CHECK(jackguard_over(JG_TRIP_MV + 1, 0) && jackguard_over(0, -JG_TRIP_MV - 1));
+    CHECK(abs(jackguard_mv(jack_sum(-3.5) / SAMPLES, 1u) + 3500) < 20);   /* one code ~ 8 mV of jack */
+    CHECK(jg_run(&g, true, 0, 0, &t, 100) && jackguard_ready(&g));
+    jackguard_trip(&g, t);
+    CHECK(g.state == JG_TRIPPED && !jackguard_ready(&g));
+    uint32_t tripped = t;
+    while (g.state == JG_TRIPPED) {
+        CHECK(!jackguard_poll(&g, true, 0, 0, t));
+        t += JG_POLL_MS;
+    }
+    CHECK(t - JG_POLL_MS - tripped == JG_REARM_MS && g.state == JG_OPEN);
 }
 
 int main(void) {
@@ -557,7 +571,7 @@ int main(void) {
            "derivation, tone lines at 1/27/60 kHz and bounds; TAC5112 bring-up order, values, status, "
            "VREF/INCAP quick charge, clock fallback, ADC settling; relays RESET-then-SET, one coil at a time, "
            "K4 only with a range, boot opens K4; analog-rail windows, conversion, gate and timeout; jack guard "
-           "conversion, close gate, settle, trip, re-arm and rail fault\n",
+           "conversion, close gate, settle, trip, re-arm, rail fault and the in-capture trip\n",
            FS_HZ);
     return 0;
 }

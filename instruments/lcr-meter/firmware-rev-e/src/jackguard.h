@@ -55,4 +55,11 @@ void jackguard_init(jackguard *g, uint32_t now_ms);
 bool jackguard_poll(jackguard *g, bool rails_ok, int32_t hc_mv, int32_t lc_mv, uint32_t now_ms);
 /* A capture may use the jacks. */
 static inline bool jackguard_ready(const jackguard *g) { return g->state == JG_CLOSED; }
+/* Inside a capture the guard is not polled; the capture loop takes one conversion per jack every JG_POLL_MS
+   and opens the switches when this is true (a source or charged part connected mid-capture). */
+static inline bool jackguard_over(int32_t hc_mv, int32_t lc_mv) {
+    return hc_mv > JG_TRIP_MV || hc_mv < -JG_TRIP_MV || lc_mv > JG_TRIP_MV || lc_mv < -JG_TRIP_MV;
+}
+/* A trip seen outside a poll (the capture loop): TRIPPED from now, re-armed as a polled trip is. */
+void jackguard_trip(jackguard *g, uint32_t now_ms);
 const char *jackguard_state_name(jackguard_state s);

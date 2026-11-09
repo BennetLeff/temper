@@ -143,6 +143,22 @@ static const char *jacks_check(void) {
     }
     return jackguard_ready(&guard) ? NULL : jackguard_state_name(guard.state);
 }
+/* Inside a capture, every JG_POLL_MS: one conversion per jack (the 100 nF sense filter has already averaged it).
+   Past the trip threshold the switches open now and the capture ends; a closed guard only, so the boot
+   self-test's loopback captures, with the switches open, never stop here. */
+static bool jacks_over(void) {
+    if (!jackguard_ready(&guard)) return false;
+    adc_select_input(PIN_JACK_HC - 26u);
+    int32_t hc = jackguard_mv(adc_read(), 1u);
+    adc_select_input(PIN_JACK_LC - 26u);
+    int32_t lc = jackguard_mv(adc_read(), 1u);
+    if (!jackguard_over(hc, lc)) return false;
+    gpio_put(PIN_ISO_DRIVE, false);
+    jackguard_trip(&guard, to_ms_since_boot(get_absolute_time()));
+    guard.last_hc_mv = hc;
+    guard.last_lc_mv = lc;
+    return true;
+}
 #endif
 
 /* ---------------------------------------------------------------- TDM stream */
@@ -252,13 +268,21 @@ static bool wave_silence(void) {
 }
 
 /* ---------------------------------------------------------------- capture */
-typedef enum { CAPTURE_OK, CAPTURE_SYNC, CAPTURE_OVERRUN, CAPTURE_STREAM, CAPTURE_CODEC } capture_result;
+typedef enum {
+    CAPTURE_OK, CAPTURE_SYNC, CAPTURE_OVERRUN, CAPTURE_STREAM, CAPTURE_CODEC,
+#if LCR_REV_G
+    CAPTURE_JACKS, /* a jack went past JG_TRIP_MV: the switches were opened mid-capture */
+#endif
+} capture_result;
 static const char *capture_error(capture_result r) {
     switch (r) {
     case CAPTURE_SYNC: return "stream_sync";
     case CAPTURE_OVERRUN: return "acquisition_overrun";
     case CAPTURE_STREAM: return "stream_fault";
     case CAPTURE_CODEC: return "codec_status";
+#if LCR_REV_G
+    case CAPTURE_JACKS: return "jacks_tripped";
+#endif
     default: return "ok";
     }
 }
@@ -278,9 +302,18 @@ static capture_result capture(syncavg_t *s, uint32_t skip, uint8_t power, uint32
     const uint32_t start = issued + 1u + 2u * skip;
     absolute_time_t deadline = make_timeout_time_ms(timeout_ms);
     capture_result result = CAPTURE_OK;
+#if LCR_REV_G
+    absolute_time_t jack_check = make_timeout_time_ms(JG_POLL_MS);
+#endif
     while (result == CAPTURE_OK && s->done < s->frames) {
         if (!syncavg_drain(s, ring, RING_WORDS, start, rx_issued, NULL)) result = CAPTURE_OVERRUN;
         else if (time_reached(deadline)) result = CAPTURE_SYNC;
+#if LCR_REV_G
+        else if (time_reached(jack_check)) {
+            jack_check = make_timeout_time_ms(JG_POLL_MS);
+            if (jacks_over()) result = CAPTURE_JACKS;
+        }
+#endif
     }
     if (result == CAPTURE_OK && (tdm_pio->fdebug & stall)) result = CAPTURE_STREAM;
     if (result == CAPTURE_OK && tac5112_check(&codec, power) != TAC_OK) result = CAPTURE_CODEC;
@@ -587,7 +620,10 @@ static void process_command(const char *line) {
     gpio_put(PIN_LED, false);
     if (ref && !select_relays(restore, false, true) && r == CAPTURE_OK) r = CAPTURE_SYNC;
     if (r != CAPTURE_OK) {
-        codec_ok = false;
+#if LCR_REV_G
+        if (r != CAPTURE_JACKS) /* the codec is fine: the guard re-arms the jacks */
+#endif
+            codec_ok = false;
         printf("ERR %s\n", capture_error(r));
         reply_error = true;
         return;

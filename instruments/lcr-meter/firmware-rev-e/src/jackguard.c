@@ -52,6 +52,8 @@ bool jackguard_poll(jackguard *g, bool rails_ok, int32_t hc_mv, int32_t lc_mv, u
     }
 }
 
+void jackguard_trip(jackguard *g, uint32_t now_ms) { enter(g, JG_TRIPPED, now_ms); }
+
 const char *jackguard_state_name(jackguard_state s) {
     switch (s) {
     case JG_OPEN: return "open";
