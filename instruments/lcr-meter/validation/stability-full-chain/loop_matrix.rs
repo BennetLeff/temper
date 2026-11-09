@@ -188,8 +188,10 @@ fn circuit(c: &Case, lp: &str) -> (String, f64) {
             .replace("CF low tia", "CF sum tia");
         s += &format!("Risolo low sum {r}\n");
     }
+    // Fixture strays sit on the BNC: the board nodes, or the Rev G jack nodes ahead of the protection network.
+    let (shi, slo) = if revg(c) { ("jhc", "jlc") } else { ("hi", "low") };
     s += &format!(
-        "Cstraylo low 0 {}\nCstrayhi hi 0 {}\n",
+        "Cstraylo {slo} 0 {}\nCstrayhi {shi} 0 {}\n",
         c.stray.max(1e-24),
         c.stray.max(1e-24)
     );
@@ -1101,6 +1103,10 @@ fn main() {
     if let Some(cng) = mode.strip_prefix("revfcng") {
         cases = kelvin_cases_on(cng.parse().unwrap(), "revfrelay", REVF_BOARD_NOM, REVF_BOARD_HIGH, REVF_LEAD, REVF_CAPLEAD);
     }
+    // revgcng{C}: the revfcng{C} grid with the Rev G jack protection (revg_network.rs); case prefix revgrelay_.
+    if let Some(cng) = mode.strip_prefix("revgcng") {
+        cases = kelvin_cases_prot(cng.parse().unwrap(), "revgrelay", REVF_BOARD_NOM, REVF_BOARD_HIGH, REVF_LEAD, REVF_CAPLEAD, Some([REVG_PROT_NOM, REVG_PROT_HIGH]));
+    }
     // kelvinlossycng{C} / revflossycng{C}: the same grids with the 1 m leads as lossy RG-58
     // (coax_lossy.rs, fitted to the Belden 8259 datasheet by coax_model.py) instead of the
     // lossless LC ladder; case prefixes kelvinlossyrelay_ / revflossyrelay_.
@@ -1162,7 +1168,7 @@ fn main() {
         {
             // The heaviest fixture loads also load the source driver and both sense followers.
             vec!["tia", "drive", "high", "low"]
-        } else if mode.starts_with("kelvin") || mode.starts_with("revfest") || mode.starts_with("revfpess") || mode.starts_with("revfcng") || mode.starts_with("revflossy") {
+        } else if mode.starts_with("kelvin") || mode.starts_with("revfest") || mode.starts_with("revfpess") || mode.starts_with("revfcng") || mode.starts_with("revflossy") || mode.starts_with("revgcng") {
             vec!["tia", "drive", "high", "low"]
         } else if (mode.starts_with("fixedrelay") || mode.starts_with("reverelay")) && c.name.contains("_loops_") {
             vec!["drive", "high", "low"]
@@ -1344,6 +1350,8 @@ include!("reve_bnc_extracted.rs");
 include!("revf_est_extracted.rs");
 // Rev F hand-routed board, FD-extracted (../layout-parasitics/run_reve.sh revf).
 include!("revf_extracted.rs");
+// Rev G jack protection network (../rev-g-protection/normal_operation.py --rust).
+include!("revg_network.rs");
 // Lossy RG-58 per-metre networks (coax_model.py, Belden 8259 datasheet).
 include!("coax_lossy.rs");
 /// `reverelaycng{C}`: `fixedrelaycng{C}` with the Rev E extraction in place of REVD_BOARD and the
@@ -1510,14 +1518,34 @@ fn kelvin_cases(cng: f64) -> Vec<Case> {
 }
 /// The `kelvincng{C}` grid on any board set; `prefix` names the cases (and so their files).
 fn kelvin_cases_on(cng: f64, prefix: &str, board_nom: [&str; 3], board_high: [&str; 3], leads: [f64; 3], caplead0: f64) -> Vec<Case> {
+    kelvin_cases_prot(cng, prefix, board_nom, board_high, leads, caplead0, None)
+}
+/// Rev G jack protection (revg_network.rs, from validation/rev-g-protection/normal_operation.py --rust):
+/// the leads, the DUT and the fixture strays land on jack nodes jhc / jhp / jlp / jlc, and the network's
+/// small-signal elements (nominal set on the nominal board, HIGH on the high board) join them to hi / hpot /
+/// lpot / low. With REVG_JACKSIDE, R105 / R106 and the K4 + R107 reference sit on the jack nodes too.
+fn on_jacks(s: &str) -> String {
+    s.lines()
+        .map(|l| l.split(' ').map(|t| match t { "hi" => "jhc", "hpot" => "jhp", "lpot" => "jlp", "low" => "jlc", _ => t }).collect::<Vec<_>>().join(" "))
+        .collect::<Vec<_>>()
+        .join("\n")
+        + "\n"
+}
+fn revg(c: &Case) -> bool {
+    c.name.contains("revgrelay_")
+}
+fn kelvin_cases_prot(cng: f64, prefix: &str, board_nom: [&str; 3], board_high: [&str; 3], leads: [f64; 3], caplead0: f64, prot: Option<[&str; 2]>) -> Vec<Case> {
     let rt = format!("_cng{cng}_srciso47_kelvin");
+    let (jh, jhp, jlp, jl) = if prot.is_some() { ("jhc", "jhp", "jlp", "jlc") } else { ("hi", "hpot", "lpot", "low") };
+    let k4 = |closed: bool, p: Relay| if prot.is_some() && REVG_JACKSIDE { on_jacks(&k4_netlist(closed, p)) } else { k4_netlist(closed, p) };
     let mut cases = vec![];
     for (set, p, bc) in [("nom", Relay { dc: 0., ..NOMINAL }, "bnom"), ("str", Relay { dc: 0., ..STRESS }, "bhigh")] {
         let caplead = if set == "nom" { caplead0 } else { 10. };
         for (k, &(range, r, _)) in RANGES.iter().enumerate() {
             let board = format!("Cng low 0 {cng}p\n{}", if bc == "bnom" { board_nom[k] } else { board_high[k] });
             let lead = leads[k] + p.lrel;
-            let common = format!("{board}{}", relay_netlist(r, p, "tia"));
+            let net = prot.map_or("", |n| if bc == "bnom" { n[0] } else { n[1] });
+            let common = format!("{board}{}{net}", relay_netlist(r, p, "tia"));
             let duts = |hi: &str, lo: &str| {
                 let mut v = vec![
                     ("open", format!("RDUT {hi} {lo} 1e12")),
@@ -1531,18 +1559,18 @@ fn kelvin_cases_on(cng: f64, prefix: &str, board_nom: [&str; 3], board_high: [&s
             };
             let strays: Vec<f64> = if range == "r100" { vec![100., 220., 470., 1000.] } else { vec![1000.] };
             LOSSY_COAX.with(|c| c.set(prefix.contains("lossy")));
-            let leads = format!("{}{}{}{}", coax_1m("hc", "hi", "h_dut"), coax_1m("hp", "hpot", "h_dut"), coax_1m("lc", "low", "l_dut"), coax_1m("lp", "lpot", "l_dut"));
-            for ((n, dut), (_, dutc)) in duts("hi", "low").into_iter().zip(duts("h_dut", "l_dut")) {
+            let leads = format!("{}{}{}{}", coax_1m("hc", jh, "h_dut"), coax_1m("hp", jhp, "h_dut"), coax_1m("lc", jl, "l_dut"), coax_1m("lp", jlp, "l_dut"));
+            for ((n, dut), (_, dutc)) in duts(jh, jl).into_iter().zip(duts("h_dut", "l_dut")) {
                 let mut fx: Vec<(String, String, f64)> = vec![("nocable".into(), dut.clone(), 0.), ("coax1m".into(), format!("{leads}{dutc}"), 0.)];
                 for st in &strays {
                     fx.push(("cur".into(), dut.clone(), *st));
                 }
                 for (f, d, st) in fx {
-                    cases.push(relay_case(format!("{prefix}_{range}_{n}_{f}_stray{st}_risolo22_{bc}_{set}_k4open{rt}_caplead{caplead}_local100_lead{lead:.2}"), r + p.rc, format!("{common}{}{d}", k4_netlist(false, p)), st));
+                    cases.push(relay_case(format!("{prefix}_{range}_{n}_{f}_stray{st}_risolo22_{bc}_{set}_k4open{rt}_caplead{caplead}_local100_lead{lead:.2}"), r + p.rc, format!("{common}{}{d}", k4(false, p)), st));
                 }
             }
             // K4 closed, leads unplugged: R107 1k (+ contact) across HCUR-LCUR, DUT open.
-            cases.push(relay_case(format!("{prefix}_{range}_open_nocable_stray0_risolo22_{bc}_{set}_k4closed{rt}_caplead{caplead}_local100_lead{lead:.2}"), r + p.rc, format!("{common}{}RDUT hi low 1e12", k4_netlist(true, p)), 0.));
+            cases.push(relay_case(format!("{prefix}_{range}_open_nocable_stray0_risolo22_{bc}_{set}_k4closed{rt}_caplead{caplead}_local100_lead{lead:.2}"), r + p.rc, format!("{common}{}RDUT {jh} {jl} 1e12", k4(true, p)), 0.));
         }
     }
     cases

@@ -171,6 +171,10 @@ def codec_vecs():
     return vecs
 
 
+RCP_BOARD = ('dut_hi', 'hpot', 'dut_lo', 'lpot')       # R105 HCUR-HPOT, R106 LCUR-LPOT (Rev F)
+RCP_JACK = ('jk_hcur', 'jk_hpot', 'jk_lcur', 'jk_lpot')
+
+
 def deck(scn, power, rng, c, v, res_ser=0.0, esd_is=ESD_IS, prot=None):
     """res_ser: an optional series resistor at the HPOT and LPOT follower inputs (protection option A).
     prot: an optional protection network, {'lines': [...], 'vecs': [...]}. The leads and cable capacitance then
@@ -192,7 +196,9 @@ def deck(scn, power, rng, c, v, res_ser=0.0, esd_is=ESD_IS, prot=None):
               f'Rsh hpot_j hpot {res_ser:g}', f'Rsl lpot_j lpot {res_ser:g}']
         hp, lp = 'hpot_j', 'lpot_j'
     else:
-        L += ['R105 dut_hi hpot 1k', 'R106 dut_lo lpot 1k']
+        # prot['rcp_jack']: R105 / R106 between the BNC centre pins, ahead of the protection network
+        rcp = RCP_JACK if prot and prot.get('rcp_jack') else RCP_BOARD
+        L += [f'R105 {rcp[0]} {rcp[1]} 1k', f'R106 {rcp[2]} {rcp[3]} 1k']
         hp, lp = 'hpot', 'lpot'
     if RG[rng]:
         L += [f'RG sbuf dut_hi {RG[rng]:g}', f'RF tia_out tia_sum {RF[rng]:g}']
@@ -289,7 +295,7 @@ def integ(t, y):
     return sum(0.5 * (abs(y[i]) + abs(y[i - 1])) * (t[i] - t[i - 1]) for i in range(1, len(t)))
 
 
-def metrics(col, t, rng, rs):
+def metrics(col, t, rng, rs, rcp=RCP_BOARD):
     m = {'opamp': {}, 'res': {}, 'codec': {}, 'relay': {}}
     zero = [0.0] * len(t)
     v = lambda nd: zero if nd == '0' else col[f'v({nd})']
@@ -308,6 +314,9 @@ def metrics(col, t, rng, rs):
     if RG[rng]:
         res['RG'] = ('sbuf', 'dut_hi', RG[rng], 75.0)
         res['RF'] = ('tia_out', 'tia_sum', RF[rng], 75.0)
+    if rcp != RCP_BOARD:
+        res['R105'] = (rcp[0], rcp[1], 1e3, 50.0)
+        res['R106'] = (rcp[2], rcp[3], 1e3, 50.0)
     if rs:
         res['R105'] = ('dut_hi', 'hpot_j', 1e3, 50.0)
         res['R106'] = ('dut_lo', 'lpot_j', 1e3, 50.0)

@@ -48,7 +48,51 @@ def nominal_drift(n):
     d.update({k: np.full(n, NOM[k], float) for k in ("RF", "CF", "Riso", "C100")})
     d["phi_cc"] = np.zeros(n)        # codec inter-channel phase drift (rad), sensitivity runs only
     d["rref_scale"] = np.ones(n)     # reference resistor TCR x dT
+    d["prot"] = np.ones((n, 4, 5))   # PROT element scales (jack x [c1, g1, r, c2, g2]), drift runs only
     return d
+
+
+# Rev G jack protection (../rev-g-protection/). None: Rev E / F, the coax lands on the board nodes.
+# Otherwise {jack: dict(c1, g1, r, c2, g2)} for HC, HP, LP, LC: shunt c1 + g1 at the BNC, r in series
+# (switch on-resistance + series resistor), shunt c2 + g2 at the board node; d["prot"] scales each.
+# PROT["rcp_at_jack"]: the CUR->POT 1 kOhm (R105 / R106) between the jacks instead of the board nodes;
+# PROT["ref_at_jack"]: the reference branch (K4 + R107) across the CUR jacks, so its current takes the same
+# switch and series resistor as the DUT's.
+PROT = None
+JACKS = ("HC", "HP", "LP", "LC")
+
+
+def _jack_nodes():
+    return [] if PROT is None else ["J" + k for k in JACKS]
+
+
+def _ref_nodes(j):
+    return j if PROT is not None and PROT.get("ref_at_jack") else {k: k for k in JACKS}
+
+
+def _rcp_nodes(j):
+    return j if PROT is not None and PROT.get("rcp_at_jack") else {k: k for k in JACKS}
+
+
+def _shunt(net, k, j, y_board, y_coax, y_both):
+    """Board shunt + coax end shunt; without PROT they share a node, summed as Rev E wrote them (bit-exact)."""
+    if j[k] == k:
+        net.add(k, None, y_both())
+    else:
+        net.add(k, None, y_board)
+        net.add(j[k], None, y_coax)
+
+
+def _protect(net, w, d):
+    """Insert PROT between each jack and its board node; returns the node each coax lands on."""
+    if PROT is None:
+        return {k: k for k in JACKS}
+    for i, k in enumerate(JACKS):
+        e, sc = PROT[k], d["prot"][:, i]
+        net.add("J" + k, None, 1j * w * e["c1"] * sc[:, 0] + e["g1"] * sc[:, 1])
+        net.add("J" + k, k, 1 / (max(e["r"], 1e-3) * sc[:, 2]))
+        net.add(k, None, 1j * w * e["c2"] * sc[:, 3] + e["g2"] * sc[:, 4])
+    return {k: "J" + k for k in JACKS}
 
 
 class Net:
@@ -114,37 +158,43 @@ def measure(f, kelvin, zdut, p, drift, rsrc=R_SRC, ref=None, rcp=R_CP, bypass=Fa
         if zdut is None:
             # Open jacks (reference check, DUT removed): Kelvin-clip jaws are insulated from each other,
             # so each coax is an open stub hanging on its own board node (lead R negligible).
-            net = Net(n, ["HC", "HP", "LP", "LC"])
-            net.add("HC", gnd, 1 / rsrc + 1j * w * cx[:, 0])
+            net = Net(n, ["HC", "HP", "LP", "LC"] + _jack_nodes())
+            j = _protect(net, w, d)
+            _shunt(net, "HC", j, 1 / rsrc, 1j * w * cx[:, 0], lambda: 1 / rsrc + 1j * w * cx[:, 0])
             net.inject("HC", VS / rsrc)
-            net.add("HC", "HP", 1 / (1e-1 if bypass else rcp))
-            net.add("HP", gnd, 1j * w * cx[:, 1])
-            net.add("LP", gnd, 1j * w * cx[:, 2])
-            net.add("LP", "LC", 1 / rcp)
-            net.add("LC", gnd, 1j * w * (cx[:, 3] + d["C100"]) + 1 / d["Riso"])
+            q = _rcp_nodes(j)
+            net.add(q["HC"], q["HP"], 1 / (1e-1 if bypass else rcp))
+            net.add(j["HP"], gnd, 1j * w * cx[:, 1])
+            net.add(j["LP"], gnd, 1j * w * cx[:, 2])
+            net.add(q["LP"], q["LC"], 1 / rcp)
+            _shunt(net, "LC", j, 1j * w * d["C100"] + 1 / d["Riso"], 1j * w * cx[:, 3],
+                   lambda: 1j * w * (cx[:, 3] + d["C100"]) + 1 / d["Riso"])
             if ref is not None:
-                net.add("HC", "LC", 1 / ref)
+                net.add(_ref_nodes(j)["HC"], _ref_nodes(j)["LC"], 1 / ref)
             v = net.solve()
             vhp, vlp, vlc = v["HP"], v["LP"], v["LC"]
             return _codec(w, vhp, vlp, vlc, d, zf)
-        net = Net(n, ["HC", "HP", "DH", "DL", "LP", "LC"])
-        net.add("HC", gnd, 1 / rsrc + 1j * w * cx[:, 0] / 2)
+        net = Net(n, ["HC", "HP", "DH", "DL", "LP", "LC"] + _jack_nodes())
+        j = _protect(net, w, d)
+        _shunt(net, "HC", j, 1 / rsrc, 1j * w * cx[:, 0] / 2, lambda: 1 / rsrc + 1j * w * cx[:, 0] / 2)
         net.inject("HC", VS / rsrc)
-        net.add("HC", "DH", 1 / (R_LEAD_COAX + rc[:, 0]))
+        net.add(j["HC"], "DH", 1 / (R_LEAD_COAX + rc[:, 0]))
         net.add("DH", gnd, 1j * w * (cx[:, 0] + cx[:, 1]) / 2)
-        net.add("HC", "HP", 1 / (1e-1 if bypass else rcp))
-        net.add("HP", "DH", 1 / (R_LEAD_COAX + rc[:, 1]))
-        net.add("HP", gnd, 1j * w * cx[:, 1] / 2)
-        net.add("DL", "LP", 1 / (R_LEAD_COAX + rc[:, 2]))
-        net.add("LP", gnd, 1j * w * cx[:, 2] / 2)
+        q = _rcp_nodes(j)
+        net.add(q["HC"], q["HP"], 1 / (1e-1 if bypass else rcp))
+        net.add(j["HP"], "DH", 1 / (R_LEAD_COAX + rc[:, 1]))
+        net.add(j["HP"], gnd, 1j * w * cx[:, 1] / 2)
+        net.add("DL", j["LP"], 1 / (R_LEAD_COAX + rc[:, 2]))
+        net.add(j["LP"], gnd, 1j * w * cx[:, 2] / 2)
         net.add("DL", gnd, 1j * w * (cx[:, 2] + cx[:, 3]) / 2)
-        net.add("DL", "LC", 1 / (R_LEAD_COAX + rc[:, 3]))
-        net.add("LC", gnd, 1j * w * (cx[:, 3] / 2 + d["C100"]) + 1 / d["Riso"])
-        net.add("LP", "LC", 1 / rcp)
+        net.add("DL", j["LC"], 1 / (R_LEAD_COAX + rc[:, 3]))
+        _shunt(net, "LC", j, 1j * w * d["C100"] + 1 / d["Riso"], 1j * w * cx[:, 3] / 2,
+               lambda: 1j * w * (cx[:, 3] / 2 + d["C100"]) + 1 / d["Riso"])
+        net.add(q["LP"], q["LC"], 1 / rcp)
         if zdut is not None:
             net.add("DH", "DL", 1 / (zdut + 1j * w * p["lser"]))
         if ref is not None:
-            net.add("HC", "LC", 1 / ref)
+            net.add(_ref_nodes(j)["HC"], _ref_nodes(j)["LC"], 1 / ref)
         v = net.solve()
         vhp, vlp, vlc = v["HP"], v["LP"], v["LC"]
     return _codec(w, vhp, vlp, vlc, d, zf)

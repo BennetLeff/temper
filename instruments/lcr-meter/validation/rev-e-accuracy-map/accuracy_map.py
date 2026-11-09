@@ -129,8 +129,8 @@ def stats(e):
     return float(abs(e.mean()) + 2 * e.std(ddof=1))
 
 
-def main():
-    RES.mkdir(exist_ok=True)
+def run_map(log=True):
+    """Every cell of the map and the best range per (|Z|, f), as main() writes them to map.json."""
     duts = [(zm, ph, zm * complex(math.cos(t), math.sin(t))) for zm in ZMAGS for ph, t in PHASES.items()]
     zs = [d[2] for d in duts]
     cells = {}
@@ -145,7 +145,8 @@ def main():
                     k = "corner" if corner else "typ"
                     c[f"z_{k}"] = max(c.get(f"z_{k}", 0.0), ez)
                     c[f"th_{k}"] = max(c.get(f"th_{k}", 0.0), et)
-            print(f"range {r} {'corner' if corner else 'typ'} done", file=sys.stderr)
+            if log:
+                print(f"range {r} {'corner' if corner else 'typ'} done", file=sys.stderr)
     best = {}
     for c in cells.values():
         key = f"{c['z']:.4g}|{c['f']:g}"
@@ -158,6 +159,12 @@ def main():
     out = dict(config=CFG.label, capture_s=CAPTURE_S, c_hl=C_HL, c_hl_move=C_HL_MOVE, ranges=RANGES,
                freqs=FREQS, zmags=ZMAGS, phases=list(PHASES), seed=SEED,
                cells=list(cells.values()), best=list(best.values()))
+    return out
+
+
+def main():
+    RES.mkdir(exist_ok=True)
+    out = run_map()
     (RES / "map.json").write_text(json.dumps(out, indent=1))
     md = tables(out)
     (RES / "tables.md").write_text(md)
