@@ -1,22 +1,14 @@
 #!/bin/sh
 # Rev G100 board gates, rerunnable.  From instruments/lcr-meter on study/lcr-rev-g100:
 #     sh validation/rev-g100/gates.sh
-# Builds the board from cad/tools/rev_g100.py, runs the KiCad pipeline and every screen, copies each output that
-# lives at a shared path into validation/rev-g100/, then restores those shared paths: manufacturing/, previews/
-# and the top-level validation reports stay Rev F on this branch until the review passes (as Rev G did).
+# Builds the board from cad/tools/rev_g100.py, runs the KiCad pipeline and every screen, and copies each output that
+# lives at a shared path into validation/rev-g100/.  Since the owner chose G100 (2026-11-10), manufacturing/,
+# previews/ and the top-level validation reports on this branch are G100's: they are no longer restored to Rev F.
 set -eu
 cd "$(dirname "$0")/../.."
 : "${KICAD_PYTHON:=/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3}"
 : "${RENDER_PYTHON:=$HOME/.local/share/temper/renderenv/bin/python3}"
 D=validation/rev-g100
-SHARED="manufacturing previews manifest-sha256.json validation/cad-bom-parity.json validation/drc.json validation/erc.json
-  validation/fab-check.json validation/via-in-pad-process.json validation/power-spurs/current_check.json
-  validation/usb-fs/usb-fs-check.json validation/assembly-paste/paste-check.json
-  validation/passive-ratings/passive-ratings-check.json validation/gerber-netlist/gerber-netlist-check.json
-  validation/firmware-pins/firmware-pins-check.json"
-restore() { git checkout -- $SHARED; }
-trap restore EXIT
-
 python3 cad/tools/rev_g100.py --check | tail -1
 RENDER_PYTHON="$RENDER_PYTHON" sh cad/rebuild.sh > build/rev-g100-rebuild.log 2>&1 || { tail -20 build/rev-g100-rebuild.log; exit 1; }
 cp validation/erc.json validation/drc.json validation/fab-check.json validation/via-in-pad-process.json \

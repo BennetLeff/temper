@@ -1,5 +1,5 @@
 {
- "board_sha256": "490892127c7f1713881aaff3e4493406874ff5b9f9b311f81d124b095d4a76ca",
+ "board_sha256": "49ba0a39913cd1ed725b996fd5b46332ebe61ce2b02178523349e9d932ebd716",
  "stencil_foils_mm": [
   0.1,
   0.12,
@@ -62,17 +62,6 @@
    }
   },
   {
-   "ref": "D6",
-   "pad": "1",
-   "w": 0.6,
-   "h": 0.45,
-   "area_ratio": {
-    "0.10": 1.286,
-    "0.12": 1.071,
-    "0.15": 0.857
-   }
-  },
-  {
    "ref": "D8",
    "pad": "1",
    "w": 0.6,
@@ -103,6 +92,50 @@
     "0.10": 1.286,
     "0.12": 1.071,
     "0.15": 0.857
+   }
+  },
+  {
+   "ref": "D6",
+   "pad": "1",
+   "w": 0.6,
+   "h": 0.45,
+   "area_ratio": {
+    "0.10": 1.286,
+    "0.12": 1.071,
+    "0.15": 0.857
+   }
+  },
+  {
+   "ref": "D25",
+   "pad": "1",
+   "w": 0.6,
+   "h": 0.7,
+   "area_ratio": {
+    "0.10": 1.615,
+    "0.12": 1.346,
+    "0.15": 1.077
+   }
+  },
+  {
+   "ref": "D27",
+   "pad": "1",
+   "w": 0.6,
+   "h": 0.7,
+   "area_ratio": {
+    "0.10": 1.615,
+    "0.12": 1.346,
+    "0.15": 1.077
+   }
+  },
+  {
+   "ref": "D26",
+   "pad": "1",
+   "w": 0.6,
+   "h": 0.7,
+   "area_ratio": {
+    "0.10": 1.615,
+    "0.12": 1.346,
+    "0.15": 1.077
    }
   },
   {
@@ -150,51 +183,51 @@
    }
   },
   {
+   "ref": "D23",
+   "pad": "1",
+   "w": 0.8,
+   "h": 0.8,
+   "area_ratio": {
+    "0.10": 2.0,
+    "0.12": 1.667,
+    "0.15": 1.333
+   }
+  },
+  {
+   "ref": "D22",
+   "pad": "1",
+   "w": 0.8,
+   "h": 0.8,
+   "area_ratio": {
+    "0.10": 2.0,
+    "0.12": 1.667,
+    "0.15": 1.333
+   }
+  },
+  {
+   "ref": "D24",
+   "pad": "1",
+   "w": 0.8,
+   "h": 0.8,
+   "area_ratio": {
+    "0.10": 2.0,
+    "0.12": 1.667,
+    "0.15": 1.333
+   }
+  },
+  {
+   "ref": "D21",
+   "pad": "1",
+   "w": 0.8,
+   "h": 0.8,
+   "area_ratio": {
+    "0.10": 2.0,
+    "0.12": 1.667,
+    "0.15": 1.333
+   }
+  },
+  {
    "ref": "U5",
-   "pad": "1",
-   "w": 1.325,
-   "h": 0.6,
-   "area_ratio": {
-    "0.10": 2.065,
-    "0.12": 1.721,
-    "0.15": 1.377
-   }
-  },
-  {
-   "ref": "U17",
-   "pad": "1",
-   "w": 1.325,
-   "h": 0.6,
-   "area_ratio": {
-    "0.10": 2.065,
-    "0.12": 1.721,
-    "0.15": 1.377
-   }
-  },
-  {
-   "ref": "U3",
-   "pad": "1",
-   "w": 1.325,
-   "h": 0.6,
-   "area_ratio": {
-    "0.10": 2.065,
-    "0.12": 1.721,
-    "0.15": 1.377
-   }
-  },
-  {
-   "ref": "U16",
-   "pad": "1",
-   "w": 1.325,
-   "h": 0.6,
-   "area_ratio": {
-    "0.10": 2.065,
-    "0.12": 1.721,
-    "0.15": 1.377
-   }
-  },
-  {
-   "ref": "D1",
    "pad": "1",
    "w": 1.325,
    "h": 0.6,
@@ -216,100 +249,43 @@
    }
   },
   {
-   "ref": "D11",
+   "ref": "U17",
    "pad": "1",
-   "w": 1.475,
+   "w": 1.325,
    "h": 0.6,
    "area_ratio": {
-    "0.10": 2.133,
-    "0.12": 1.777,
-    "0.15": 1.422
+    "0.10": 2.065,
+    "0.12": 1.721,
+    "0.15": 1.377
    }
   },
   {
-   "ref": "Q5",
+   "ref": "D1",
    "pad": "1",
-   "w": 1.475,
+   "w": 1.325,
    "h": 0.6,
    "area_ratio": {
-    "0.10": 2.133,
-    "0.12": 1.777,
-    "0.15": 1.422
+    "0.10": 2.065,
+    "0.12": 1.721,
+    "0.15": 1.377
    }
   },
   {
-   "ref": "Q2",
+   "ref": "U16",
    "pad": "1",
-   "w": 1.475,
+   "w": 1.325,
    "h": 0.6,
    "area_ratio": {
-    "0.10": 2.133,
-    "0.12": 1.777,
-    "0.15": 1.422
-   }
-  },
-  {
-   "ref": "Q6",
-   "pad": "1",
-   "w": 1.475,
-   "h": 0.6,
-   "area_ratio": {
-    "0.10": 2.133,
-    "0.12": 1.777,
-    "0.15": 1.422
-   }
-  },
-  {
-   "ref": "D13",
-   "pad": "1",
-   "w": 1.475,
-   "h": 0.6,
-   "area_ratio": {
-    "0.10": 2.133,
-    "0.12": 1.777,
-    "0.15": 1.422
-   }
-  },
-  {
-   "ref": "Q3",
-   "pad": "1",
-   "w": 1.475,
-   "h": 0.6,
-   "area_ratio": {
-    "0.10": 2.133,
-    "0.12": 1.777,
-    "0.15": 1.422
+    "0.10": 2.065,
+    "0.12": 1.721,
+    "0.15": 1.377
    }
   }
  ],
- "apertures": 667,
+ "apertures": 741,
  "exposed_pads": [
   {
-   "ref": "U1",
-   "footprint": "QFN-56-1EP_7x7mm_P0.4mm_EP3.2x3.2mm",
-   "ep_mm2": 10.24,
-   "paste_mm2": 6.656,
-   "coverage": 0.65,
-   "vias_in_ep": 8
-  },
-  {
-   "ref": "U14",
-   "footprint": "TI_RGE0024R_VQFN-24-1EP_4x4mm_P0.5mm_EP2.1mm_CornerPads",
-   "ep_mm2": 4.41,
-   "paste_mm2": 3.534,
-   "coverage": 0.801,
-   "vias_in_ep": 4
-  },
-  {
    "ref": "U12",
-   "footprint": "HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm",
-   "ep_mm2": 2.967,
-   "paste_mm2": 1.915,
-   "coverage": 0.645,
-   "vias_in_ep": 6
-  },
-  {
-   "ref": "U11",
    "footprint": "HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm",
    "ep_mm2": 2.967,
    "paste_mm2": 1.915,
@@ -323,17 +299,41 @@
    "paste_mm2": 3.92,
    "coverage": 0.653,
    "vias_in_ep": 9
+  },
+  {
+   "ref": "U11",
+   "footprint": "HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm",
+   "ep_mm2": 2.967,
+   "paste_mm2": 1.915,
+   "coverage": 0.645,
+   "vias_in_ep": 6
+  },
+  {
+   "ref": "U14",
+   "footprint": "TI_RGE0024R_VQFN-24-1EP_4x4mm_P0.5mm_EP2.1mm_CornerPads",
+   "ep_mm2": 4.41,
+   "paste_mm2": 3.534,
+   "coverage": 0.801,
+   "vias_in_ep": 4
+  },
+  {
+   "ref": "U1",
+   "footprint": "QFN-56-1EP_7x7mm_P0.4mm_EP3.2x3.2mm",
+   "ep_mm2": 10.24,
+   "paste_mm2": 6.656,
+   "coverage": 0.65,
+   "vias_in_ep": 8
   }
  ],
- "two_pad_parts": 187,
+ "two_pad_parts": 213,
  "tombstone_screen": [
   {
-   "ref": "D20",
+   "ref": "C118",
    "package": "0603",
    "ratio": 6.0,
    "light": {
     "pad": "2",
-    "net": "LED_FLT",
+    "net": "3V3",
     "track_mm": 0.2,
     "vias": 0
    },
@@ -345,37 +345,20 @@
    }
   },
   {
-   "ref": "D4",
-   "package": "LiteOn",
-   "ratio": 6.0,
-   "light": {
-    "pad": "2",
-    "net": "LED_A",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "1",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "R86",
+   "ref": "D17",
    "package": "0603",
-   "ratio": 6.0,
+   "ratio": 11.0,
    "light": {
-    "pad": "1",
-    "net": "REGP_FB",
+    "pad": "2",
+    "net": "LED_P12",
     "track_mm": 0.2,
     "vias": 0
    },
    "heavy": {
-    "pad": "2",
+    "pad": "1",
     "net": "GND",
     "track_mm": 0.2,
-    "vias": 1
+    "vias": 2
    }
   },
   {
@@ -396,176 +379,6 @@
    }
   },
   {
-   "ref": "C102",
-   "package": "0603",
-   "ratio": 7.0,
-   "light": {
-    "pad": "1",
-    "net": "LDOIN_N",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.4,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "C60",
-   "package": "0805",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "3V3A",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "C37",
-   "package": "0603",
-   "ratio": 6.25,
-   "light": {
-    "pad": "1",
-    "net": "12V",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.25,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "C99",
-   "package": "1210",
-   "ratio": 7.0,
-   "light": {
-    "pad": "1",
-    "net": "LDOIN_N",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.4,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "C6",
-   "package": "0603",
-   "ratio": 6.75,
-   "light": {
-    "pad": "1",
-    "net": "3V3",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.35,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "C12",
-   "package": "0603",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "XIN",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "R1",
-   "package": "0603",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "CC1",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "R73",
-   "package": "0603",
-   "ratio": "inf",
-   "light": {
-    "pad": "1",
-    "net": "3V3",
-    "track_mm": 0.0,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "I2C_SCL",
-    "track_mm": 0.4,
-    "vias": 0
-   }
-  },
-  {
-   "ref": "R77",
-   "package": "0603",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "RNG_SET_MED_G",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "C97",
-   "package": "0603",
-   "ratio": 12.0,
-   "light": {
-    "pad": "1",
-    "net": "LDOIN_P",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.4,
-    "vias": 2
-   }
-  },
-  {
    "ref": "C67",
    "package": "0805",
    "ratio": 4.0,
@@ -583,233 +396,12 @@
    }
   },
   {
-   "ref": "R32",
+   "ref": "C12",
    "package": "0603",
    "ratio": 6.0,
    "light": {
     "pad": "1",
-    "net": "SOURCE_AC",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "C50",
-   "package": "0603",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "12V",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "C94",
-   "package": "1210",
-   "ratio": 7.0,
-   "light": {
-    "pad": "1",
-    "net": "LDOIN_P",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.4,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "C61",
-   "package": "0603",
-   "ratio": 7.0,
-   "light": {
-    "pad": "1",
-    "net": "3V3A",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.4,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "R79",
-   "package": "0603",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "RNG_SET_LO_G",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "D18",
-   "package": "0603",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "LED_N12",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "R72",
-   "package": "0603",
-   "ratio": "inf",
-   "light": {
-    "pad": "1",
-    "net": "3V3",
-    "track_mm": 0.0,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "I2C_SDA",
-    "track_mm": 0.6,
-    "vias": 0
-   }
-  },
-  {
-   "ref": "SW2",
-   "package": "SPST",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "RUN",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "R112",
-   "package": "0603",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "REGN_DIV2",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "C14",
-   "package": "0603",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "RUN",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "C45",
-   "package": "0805",
-   "ratio": 11.0,
-   "light": {
-    "pad": "1",
-    "net": "-12V",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 2
-   }
-  },
-  {
-   "ref": "R109",
-   "package": "0603",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "RNG_SET_REF_G",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "R110",
-   "package": "0603",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "VBUS_ILIM",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "2",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "R75",
-   "package": "0603",
-   "ratio": 6.0,
-   "light": {
-    "pad": "1",
-    "net": "RNG_RESET_G",
+    "net": "XIN",
     "track_mm": 0.2,
     "vias": 0
    },
@@ -838,12 +430,46 @@
    }
   },
   {
-   "ref": "D17",
+   "ref": "C61",
    "package": "0603",
-   "ratio": 11.0,
+   "ratio": 7.0,
+   "light": {
+    "pad": "1",
+    "net": "3V3A",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.4,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "C43",
+   "package": "0603",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "-12V",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "D19",
+   "package": "0603",
+   "ratio": 6.0,
    "light": {
     "pad": "2",
-    "net": "LED_P12",
+    "net": "LED_HB",
     "track_mm": 0.2,
     "vias": 0
    },
@@ -851,7 +477,24 @@
     "pad": "1",
     "net": "GND",
     "track_mm": 0.2,
-    "vias": 2
+    "vias": 1
+   }
+  },
+  {
+   "ref": "C8",
+   "package": "0805",
+   "ratio": 7.0,
+   "light": {
+    "pad": "1",
+    "net": "1V1",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.4,
+    "vias": 1
    }
   },
   {
@@ -889,12 +532,46 @@
    }
   },
   {
-   "ref": "C43",
+   "ref": "C116",
+   "package": "0603",
+   "ratio": 6.0,
+   "light": {
+    "pad": "2",
+    "net": "SEQ_EN",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "1",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "C94",
+   "package": "1210",
+   "ratio": 7.0,
+   "light": {
+    "pad": "1",
+    "net": "LDOIN_P",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.4,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "C119",
    "package": "0603",
    "ratio": 6.0,
    "light": {
     "pad": "1",
-    "net": "-12V",
+    "net": "HPOT",
     "track_mm": 0.2,
     "vias": 0
    },
@@ -903,6 +580,363 @@
     "net": "GND",
     "track_mm": 0.2,
     "vias": 1
+   }
+  },
+  {
+   "ref": "C37",
+   "package": "0603",
+   "ratio": 6.25,
+   "light": {
+    "pad": "1",
+    "net": "12V",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.25,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "R131",
+   "package": "0603",
+   "ratio": 7.0,
+   "light": {
+    "pad": "1",
+    "net": "JACK_LC",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.4,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "C103",
+   "package": "1206",
+   "ratio": 4.0,
+   "light": {
+    "pad": "1",
+    "net": "5VA",
+    "track_mm": 0.3,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "C99",
+   "package": "1210",
+   "ratio": 7.0,
+   "light": {
+    "pad": "1",
+    "net": "LDOIN_N",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.4,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "D18",
+   "package": "0603",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "LED_N12",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "C78",
+   "package": "0603",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "DUT_LO",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "D25",
+   "package": "SOD-523",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "DUT_HI",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "C102",
+   "package": "0603",
+   "ratio": 7.0,
+   "light": {
+    "pad": "1",
+    "net": "LDOIN_N",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.4,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "C114",
+   "package": "0603",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "SRC_AC_CMID",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "D27",
+   "package": "SOD-523",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "LPOT",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "C97",
+   "package": "0603",
+   "ratio": 12.0,
+   "light": {
+    "pad": "1",
+    "net": "LDOIN_P",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.4,
+    "vias": 2
+   }
+  },
+  {
+   "ref": "D26",
+   "package": "SOD-523",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "HPOT",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "R32",
+   "package": "0603",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "SOURCE_AC",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "R128",
+   "package": "0603",
+   "ratio": 7.0,
+   "light": {
+    "pad": "1",
+    "net": "JACK_HC",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.4,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "D4",
+   "package": "LiteOn",
+   "ratio": 6.0,
+   "light": {
+    "pad": "2",
+    "net": "LED_A",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "1",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "D29",
+   "package": "SMA",
+   "ratio": 6.0,
+   "light": {
+    "pad": "2",
+    "net": "-12V",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "1",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "D15",
+   "package": "0603",
+   "ratio": 6.0,
+   "light": {
+    "pad": "2",
+    "net": "LED_5V",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "1",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "C50",
+   "package": "0603",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "12V",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "C120",
+   "package": "0603",
+   "ratio": 11.0,
+   "light": {
+    "pad": "1",
+    "net": "LPOT",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 2
+   }
+  },
+  {
+   "ref": "R109",
+   "package": "0603",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "RNG_SET_REF_G",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "SW1",
+   "package": "SPST",
+   "ratio": "inf",
+   "light": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.0,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "1",
+    "net": "BOOTSEL",
+    "track_mm": 0.2,
+    "vias": 0
    }
   },
   {
@@ -923,46 +957,29 @@
    }
   },
   {
-   "ref": "C116",
+   "ref": "R112",
    "package": "0603",
    "ratio": 6.0,
    "light": {
-    "pad": "2",
-    "net": "SEQ_EN",
+    "pad": "1",
+    "net": "REGN_DIV2",
     "track_mm": 0.2,
     "vias": 0
    },
    "heavy": {
-    "pad": "1",
+    "pad": "2",
     "net": "GND",
     "track_mm": 0.2,
     "vias": 1
    }
   },
   {
-   "ref": "D19",
-   "package": "0603",
-   "ratio": 6.0,
-   "light": {
-    "pad": "2",
-    "net": "LED_HB",
-    "track_mm": 0.2,
-    "vias": 0
-   },
-   "heavy": {
-    "pad": "1",
-    "net": "GND",
-    "track_mm": 0.2,
-    "vias": 1
-   }
-  },
-  {
-   "ref": "C78",
+   "ref": "R110",
    "package": "0603",
    "ratio": 6.0,
    "light": {
     "pad": "1",
-    "net": "DUT_LO",
+    "net": "VBUS_ILIM",
     "track_mm": 0.2,
     "vias": 0
    },
@@ -991,13 +1008,64 @@
    }
   },
   {
-   "ref": "C103",
-   "package": "1206",
+   "ref": "R77",
+   "package": "0603",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "RNG_SET_MED_G",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "R81",
+   "package": "0603",
    "ratio": 4.0,
    "light": {
+    "pad": "2",
+    "net": "CONV_FBP",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
     "pad": "1",
-    "net": "5VA",
-    "track_mm": 0.3,
+    "net": "RAW_P",
+    "track_mm": 0.8,
+    "vias": 0
+   }
+  },
+  {
+   "ref": "C45",
+   "package": "0805",
+   "ratio": 11.0,
+   "light": {
+    "pad": "1",
+    "net": "-12V",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 2
+   }
+  },
+  {
+   "ref": "C60",
+   "package": "0805",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "3V3A",
+    "track_mm": 0.2,
     "vias": 0
    },
    "heavy": {
@@ -1008,12 +1076,12 @@
    }
   },
   {
-   "ref": "C114",
+   "ref": "R86",
    "package": "0603",
    "ratio": 6.0,
    "light": {
     "pad": "1",
-    "net": "SRC_AC_CMID",
+    "net": "REGP_FB",
     "track_mm": 0.2,
     "vias": 0
    },
@@ -1025,17 +1093,51 @@
    }
   },
   {
-   "ref": "D15",
+   "ref": "R135",
    "package": "0603",
    "ratio": 6.0,
    "light": {
-    "pad": "2",
-    "net": "LED_5V",
+    "pad": "1",
+    "net": "ISO_G",
     "track_mm": 0.2,
     "vias": 0
    },
    "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "R79",
+   "package": "0603",
+   "ratio": 6.0,
+   "light": {
     "pad": "1",
+    "net": "RNG_SET_LO_G",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
+    "net": "GND",
+    "track_mm": 0.2,
+    "vias": 1
+   }
+  },
+  {
+   "ref": "R75",
+   "package": "0603",
+   "ratio": 6.0,
+   "light": {
+    "pad": "1",
+    "net": "RNG_RESET_G",
+    "track_mm": 0.2,
+    "vias": 0
+   },
+   "heavy": {
+    "pad": "2",
     "net": "GND",
     "track_mm": 0.2,
     "vias": 1
@@ -1062,15 +1164,11 @@
   },
   {
    "check": "tombstone screen",
-   "detail": "D20 0603: pad 1 (GND) 0.2 mm track + 1 vias vs pad 2 (LED_FLT) 0.2 mm + 0 vias"
+   "detail": "C118 0603: pad 1 (GND) 0.2 mm track + 1 vias vs pad 2 (3V3) 0.2 mm + 0 vias"
   },
   {
    "check": "tombstone screen",
-   "detail": "D4 LiteOn: pad 1 (GND) 0.2 mm track + 1 vias vs pad 2 (LED_A) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "R86 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (REGP_FB) 0.2 mm + 0 vias"
+   "detail": "D17 0603: pad 1 (GND) 0.2 mm track + 2 vias vs pad 2 (LED_P12) 0.2 mm + 0 vias"
   },
   {
    "check": "tombstone screen",
@@ -1078,23 +1176,7 @@
   },
   {
    "check": "tombstone screen",
-   "detail": "C102 0603: pad 2 (GND) 0.4 mm track + 1 vias vs pad 1 (LDOIN_N) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "C60 0805: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (3V3A) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "C37 0603: pad 2 (GND) 0.25 mm track + 1 vias vs pad 1 (12V) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "C99 1210: pad 2 (GND) 0.4 mm track + 1 vias vs pad 1 (LDOIN_N) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "C6 0603: pad 2 (GND) 0.35 mm track + 1 vias vs pad 1 (3V3) 0.2 mm + 0 vias"
+   "detail": "C67 0805: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (5VA) 0.3 mm + 0 vias"
   },
   {
    "check": "tombstone screen",
@@ -1102,35 +1184,7 @@
   },
   {
    "check": "tombstone screen",
-   "detail": "R1 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (CC1) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "R73 0603: pad 2 (I2C_SCL) 0.4 mm track + 0 vias vs pad 1 (3V3) 0.0 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "R77 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (RNG_SET_MED_G) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "C97 0603: pad 2 (GND) 0.4 mm track + 2 vias vs pad 1 (LDOIN_P) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "C67 0805: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (5VA) 0.3 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "R32 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (SOURCE_AC) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "C50 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (12V) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "C94 1210: pad 2 (GND) 0.4 mm track + 1 vias vs pad 1 (LDOIN_P) 0.2 mm + 0 vias"
+   "detail": "C9 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (1V1) 0.2 mm + 0 vias"
   },
   {
    "check": "tombstone screen",
@@ -1138,51 +1192,15 @@
   },
   {
    "check": "tombstone screen",
-   "detail": "R79 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (RNG_SET_LO_G) 0.2 mm + 0 vias"
+   "detail": "C43 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (-12V) 0.2 mm + 0 vias"
   },
   {
    "check": "tombstone screen",
-   "detail": "D18 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (LED_N12) 0.2 mm + 0 vias"
+   "detail": "D19 0603: pad 1 (GND) 0.2 mm track + 1 vias vs pad 2 (LED_HB) 0.2 mm + 0 vias"
   },
   {
    "check": "tombstone screen",
-   "detail": "R72 0603: pad 2 (I2C_SDA) 0.6 mm track + 0 vias vs pad 1 (3V3) 0.0 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "SW2 SPST: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (RUN) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "R112 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (REGN_DIV2) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "C14 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (RUN) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "C45 0805: pad 2 (GND) 0.2 mm track + 2 vias vs pad 1 (-12V) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "R109 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (RNG_SET_REF_G) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "R110 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (VBUS_ILIM) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "R75 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (RNG_RESET_G) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "C9 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (1V1) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "D17 0603: pad 1 (GND) 0.2 mm track + 2 vias vs pad 2 (LED_P12) 0.2 mm + 0 vias"
+   "detail": "C8 0805: pad 2 (GND) 0.4 mm track + 1 vias vs pad 1 (1V1) 0.2 mm + 0 vias"
   },
   {
    "check": "tombstone screen",
@@ -1194,27 +1212,23 @@
   },
   {
    "check": "tombstone screen",
-   "detail": "C43 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (-12V) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
-   "detail": "C86 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (CONV_CP) 0.2 mm + 0 vias"
-  },
-  {
-   "check": "tombstone screen",
    "detail": "C116 0603: pad 1 (GND) 0.2 mm track + 1 vias vs pad 2 (SEQ_EN) 0.2 mm + 0 vias"
   },
   {
    "check": "tombstone screen",
-   "detail": "D19 0603: pad 1 (GND) 0.2 mm track + 1 vias vs pad 2 (LED_HB) 0.2 mm + 0 vias"
+   "detail": "C94 1210: pad 2 (GND) 0.4 mm track + 1 vias vs pad 1 (LDOIN_P) 0.2 mm + 0 vias"
   },
   {
    "check": "tombstone screen",
-   "detail": "C78 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (DUT_LO) 0.2 mm + 0 vias"
+   "detail": "C119 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (HPOT) 0.2 mm + 0 vias"
   },
   {
    "check": "tombstone screen",
-   "detail": "R103 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (RNG_SET_HI_G) 0.2 mm + 0 vias"
+   "detail": "C37 0603: pad 2 (GND) 0.25 mm track + 1 vias vs pad 1 (12V) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R131 0603: pad 2 (GND) 0.4 mm track + 1 vias vs pad 1 (JACK_LC) 0.2 mm + 0 vias"
   },
   {
    "check": "tombstone screen",
@@ -1222,11 +1236,123 @@
   },
   {
    "check": "tombstone screen",
+   "detail": "C99 1210: pad 2 (GND) 0.4 mm track + 1 vias vs pad 1 (LDOIN_N) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "D18 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (LED_N12) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "C78 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (DUT_LO) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "D25 SOD-523: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (DUT_HI) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "C102 0603: pad 2 (GND) 0.4 mm track + 1 vias vs pad 1 (LDOIN_N) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
    "detail": "C114 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (SRC_AC_CMID) 0.2 mm + 0 vias"
   },
   {
    "check": "tombstone screen",
+   "detail": "D27 SOD-523: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (LPOT) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "C97 0603: pad 2 (GND) 0.4 mm track + 2 vias vs pad 1 (LDOIN_P) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "D26 SOD-523: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (HPOT) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R32 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (SOURCE_AC) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R128 0603: pad 2 (GND) 0.4 mm track + 1 vias vs pad 1 (JACK_HC) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "D4 LiteOn: pad 1 (GND) 0.2 mm track + 1 vias vs pad 2 (LED_A) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "D29 SMA: pad 1 (GND) 0.2 mm track + 1 vias vs pad 2 (-12V) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
    "detail": "D15 0603: pad 1 (GND) 0.2 mm track + 1 vias vs pad 2 (LED_5V) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "C50 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (12V) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "C120 0603: pad 2 (GND) 0.2 mm track + 2 vias vs pad 1 (LPOT) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R109 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (RNG_SET_REF_G) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "SW1 SPST: pad 1 (BOOTSEL) 0.2 mm track + 0 vias vs pad 2 (GND) 0.0 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "C86 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (CONV_CP) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R112 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (REGN_DIV2) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R110 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (VBUS_ILIM) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R103 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (RNG_SET_HI_G) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R77 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (RNG_SET_MED_G) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R81 0603: pad 1 (RAW_P) 0.8 mm track + 0 vias vs pad 2 (CONV_FBP) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "C45 0805: pad 2 (GND) 0.2 mm track + 2 vias vs pad 1 (-12V) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "C60 0805: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (3V3A) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R86 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (REGP_FB) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R135 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (ISO_G) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R79 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (RNG_SET_LO_G) 0.2 mm + 0 vias"
+  },
+  {
+   "check": "tombstone screen",
+   "detail": "R75 0603: pad 2 (GND) 0.2 mm track + 1 vias vs pad 1 (RNG_RESET_G) 0.2 mm + 0 vias"
   }
  ]
 }

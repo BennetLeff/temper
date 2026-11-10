@@ -25,7 +25,7 @@ export PICO_TOOLCHAIN_PATH=/path/to/arm-gnu-toolchain-14.2.rel1-darwin-arm64-arm
 
 It then runs `tools/verify_tdm.rs` against both assembled PIO programs (`tdm`, `tdm375`; every build assembles both) and writes `verification/`.
 
-Flash `bin/temper-lcr-rev-e.uf2` (or `bin/temper-lcr-rev-e-375k.uf2`) the same way as Rev D: send `BOOT`, or hold BOOTSEL, then copy it to the RPI-RP2 drive.
+Flash `bin/temper-lcr-rev-e.uf2` (or `bin/temper-lcr-rev-e-375k.uf2`; a Rev G or G100 board takes `bin/temper-lcr-rev-g.uf2`, the jack-guard build, since the default image never closes its jack switches) the same way as Rev D: send `BOOT`, or hold BOOTSEL, then copy it to the RPI-RP2 drive.
 
 ## Wiring contract
 

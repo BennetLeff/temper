@@ -47,6 +47,8 @@ def csv_file(name: str, header: list[str], rows: list[list]) -> None:
         w = csv.writer(f)
         w.writerow(header)
         w.writerows(rows)
+# JLC fits the SMT parts by machine and the "Hand fit" parts (the BNCs) by hand, so both are in its BOM and CPL
+JLC_FITTED = ("SMT", "Hand fit")
 groups = defaultdict(list)
 for p in parts:
     groups[(p["mpn"], p["lcsc"], p["assembly"])].append(p)
@@ -58,13 +60,14 @@ for _, group in sorted(groups.items()):
     rows.append([refs, len(group), p["value"], p["manufacturer"], p["mpn"], p["lcsc"],
                  p["footprint"], p["assembly"], p["unit_usd"],
                  round(len(group) * p["unit_usd"], 4)])
-    if p["assembly"] == "SMT":
+    if p["assembly"] in JLC_FITTED:
         bom.append([p["value"] + " " + p["mpn"], refs,
                     p["footprint"].split(":")[1], p["lcsc"]])
 csv_file("bom-complete.csv", ["Designators", "Quantity", "Value", "Manufacturer", "MPN",
          "LCSC", "Footprint", "Assembly", "Catalog unit USD", "Catalog subtotal USD"], rows)
 csv_file("bom-jlcpcb.csv", ["Comment", "Designator", "Footprint", "LCSC Part #"], bom)
 smt = [p for p in parts if p["assembly"] == "SMT"]
+fitted = [p for p in parts if p["assembly"] in JLC_FITTED]
 offsets = json.loads((ROOT / "sources/placement-rev-c.json").read_text())["rotation_offsets_by_ref"]
 def keyed(p: dict) -> bool:
     """Everything but plain R/C lands; a polarized capacitor (KiCad CP_*) is keyed."""
@@ -75,7 +78,7 @@ def assembly_angle(p: dict) -> float:
     return (float(positions[p["ref"]]["Rot"]) + offsets.get(p["ref"], 0)) % 360
 csv_file("cpl-jlcpcb.csv", ["Designator", "Mid X", "Mid Y", "Layer", "Rotation"],
          [[p["ref"], positions[p["ref"]]["PosX"]+"mm", positions[p["ref"]]["PosY"]+"mm",
-           "top", assembly_angle(p)] for p in smt])
+           "top", assembly_angle(p)] for p in fitted])
 csv_file("orientation-audit.csv",
          ["Designator", "MPN", "LCSC", "Native angle deg", "Library offset deg", "CPL angle deg",
           "Pin1 board X mm", "Pin1 board Y mm", "Verification basis"],
@@ -83,8 +86,8 @@ csv_file("orientation-audit.csv",
            offsets.get(p["ref"], 0), assembly_angle(p),
            *board_pins[p["ref"]].get("1", [None, None])[:2],
            "LCSC EasyEDA pad-number audit; final JLC preview required" if p["ref"] in offsets
-           else "Nonpolar R/C; native angle retained"] for p in smt])
-result = {"source_components": len(parts), "smt_placements": len(smt),
+           else "Nonpolar R/C; native angle retained"] for p in fitted])
+result = {"source_components": len(parts), "smt_placements": len(smt), "jlc_hand_fit": len(fitted) - len(smt),
           "smt_unique_lines": len(bom), "source_schematic_board_pin_parity": "PASS",
           "source_native_placement_coordinates_angles": "PASS",
           "catalog_components_usd": round(sum(p["unit_usd"] for p in parts), 4),

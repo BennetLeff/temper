@@ -14,17 +14,18 @@ rustc --edition=2021 -O "$ROOT/tools/hot_loop_bound.rs" -o "$BUILD/hot_loop_boun
 : > "$ROOT/verification/hot-loop.txt"
 : > "$ROOT/verification/size.txt"
 : > "$ROOT/verification/uf2.txt"
-# Two builds (README "Sample rate"): the default 187.5 kHz image and the 375 kHz variant.
-# NAME FS_375K CYCLES_PER_FRAME (SYSTEM_CLOCK_HZ / FS_HZ, the hot-loop budget)
-for build in "temper-lcr-rev-e 0 640" "temper-lcr-rev-e-375k 1 288"; do
+# Three builds (README "Sample rate", "Rev G jack guard"): the default 187.5 kHz image, the 375 kHz variant, and
+# the Rev G / G100 image with the jack guard.
+# NAME FS_375K CYCLES_PER_FRAME (SYSTEM_CLOCK_HZ / FS_HZ, the hot-loop budget) REV_G
+for build in "temper-lcr-rev-e 0 640 0" "temper-lcr-rev-e-375k 1 288 0" "temper-lcr-rev-g 0 640 1"; do
     set -- $build
-    NAME=$1 FS_375K=$2 BUDGET=$3
+    NAME=$1 FS_375K=$2 BUDGET=$3 REV_G=$4
     DIR="$BUILD/$NAME"
     cmake -S "$ROOT" -B "$DIR" -DPICO_BOARD=pico -DPICO_NO_PICOTOOL=1 -DCMAKE_BUILD_TYPE=Release \
-        -DLCR_FS_375K="$FS_375K"
+        -DLCR_FS_375K="$FS_375K" -DLCR_REV_G="$REV_G"
     cmake --build "$DIR" -j 6
     # Averaging, waveform, codec-sequence and relay logic, compiled for and run on the build host.
-    ${CC:-cc} -std=c11 -O2 -Wall -Wextra -Werror -pedantic -DLCR_FS_375K="$FS_375K" -I"$ROOT/src" \
+    ${CC:-cc} -std=c11 -O2 -Wall -Wextra -Werror -pedantic -DLCR_FS_375K="$FS_375K" -DLCR_REV_G="$REV_G" -I"$ROOT/src" \
         "$ROOT/test/test_host.c" "$ROOT/src/syncavg.c" "$ROOT/src/wave.c" "$ROOT/src/tac5112.c" \
         "$ROOT/src/relay.c" "$ROOT/src/rails.c" "$ROOT/src/jackguard.c" -lm -o "$DIR/test_host"
     "$DIR/test_host" >> "$ROOT/verification/host-test.txt"

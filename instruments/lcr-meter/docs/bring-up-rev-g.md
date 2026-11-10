@@ -1,6 +1,6 @@
 # Rev G bring-up, and what Rev F bring-up feeds into Rev G
 
-**Status, 2026-11-09: no Rev F or Rev G board exists.** Rev F has not been ordered (`rev-f-handoff.md`). So open item 2 of [rev-g-plan.md](rev-g-plan.md) §6, "Rev F bring-up findings on the band nodes", cannot be closed yet. This page prepares it in two parts:
+**Status, 2026-11-10: the owner chose G100 (Rev G on 100 × 100 mm) for the first order ([rev-g100-handoff.md](rev-g100-handoff.md)); no board exists yet.** The steps here apply to G100 unchanged. Without a Rev F board first, Part A becomes "what each Rev F step would have told us", and G100 runs both parts itself. Status as of 2026-11-09: no Rev F or Rev G board exists. Rev F has not been ordered (`rev-f-handoff.md`). So open item 2 of [rev-g-plan.md](rev-g-plan.md) §6, "Rev F bring-up findings on the band nodes", cannot be closed yet. This page prepares it in two parts:
 - **Part A** says, step by step, which Rev F bring-up result changes Rev G, and where.
 - **Part B** lists the steps only a Rev G board has.
 
@@ -42,7 +42,7 @@ Order a few loose parts with the Rev F parts if Rev F goes first. LCSC sells all
 
 ## Part B: steps only a Rev G board has
 
-Run these after bring-up-rev-e.md §1–§3 pass, and before §6. Until G3 passes, the firmware keeps the jack switches open, so the front end sees no DUT.
+Run these after bring-up-rev-e.md §1–§3 pass, and before §6. Flash `firmware-rev-e/bin/temper-lcr-rev-g.uf2`, the jack-guard build: the default `temper-lcr-rev-e.uf2` never closes the switches. Until G3 passes, the firmware keeps the jack switches open, so the front end sees no DUT.
 
 | Step | What | Expect | Record |
 |---|---|---|---|

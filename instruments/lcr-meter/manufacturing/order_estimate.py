@@ -48,7 +48,10 @@ FAB_QUOTE = json.loads((ROOT / os.environ.get('LCR_FAB_QUOTE', 'manufacturing/fa
 
 def board_counts():
     board = kicad.load_board(BOARD)
-    placed = {row['Designator'] for row in csv.DictReader(open(PKG / 'cpl-jlcpcb.csv'))}
+    hand = {ref for row in csv.DictReader(open(PKG / 'bom-complete.csv')) if row['Assembly'] == 'Hand fit'
+            for ref in row['Designators'].split(',')}
+    # the CPL also lists the hand-fit parts (JLC solders them by hand): machine placements are the rest
+    placed = {row['Designator'] for row in csv.DictReader(open(PKG / 'cpl-jlcpcb.csv'))} - hand
     return kicad.joint_counts(board, placed, order.LEADLESS)
 
 

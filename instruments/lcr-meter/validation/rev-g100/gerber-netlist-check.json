@@ -4,15 +4,15 @@
  "inputs": {
   "fab_files": {
    "zip": "build/rev-g100-gerbers.zip",
-   "sha256": "7a92c574ee2dbe58cd6cac6b90d3721181550556054fb319b05523a99c842341"
+   "sha256": "3c649f60e59c3d5d2751ef0fb89d8d7ac2e9279f3f2fec60a5b6476eef7ae19d"
   },
   "zip_members_used": {
-   "temper-lcr-B_Cu.gbl": "0b80e4d8bbf220bcb0718d00cd66fa453ce3b3bedbbbe84c4fd31412d6a4c5b4",
-   "temper-lcr-F_Cu.gtl": "6fe901db77f9bc845f04dece3bf640bb7e3d1beaeae908c5a5d4c2563a3a3da8",
-   "temper-lcr-In1_Cu.g1": "59c727b05ac0942aafe4805c7af64bd786930f6d9055cfce3ffc749459034d9e",
-   "temper-lcr-In2_Cu.g2": "1a2ebb768ca3984d821c3897167341657d08fee4c517567aec99b230b67d4882",
-   "temper-lcr-NPTH.drl": "ca998625d6b5d9a951bba24e456b43b981efd4d39753e724bc939f49020e091b",
-   "temper-lcr-PTH.drl": "a1061109336931addb87876b57e8cdddf6578eb2b05107178391da880eaaf7e5"
+   "temper-lcr-B_Cu.gbl": "c35fbf61105f7c9b3baf301a19843a8814bd2f680a09b20db55442304009d8bc",
+   "temper-lcr-F_Cu.gtl": "3919b1526a693816f38231a4cc501b7ffabd86d49c0546620909f270ef22a742",
+   "temper-lcr-In1_Cu.g1": "854a35509bac9cdf628733c6d1e696deeedbde6c2513de3152f8d7ca288eed24",
+   "temper-lcr-In2_Cu.g2": "c356f4d4d1bc874efe0746966875fb859f0de7f664fda3692cea329f37e37b59",
+   "temper-lcr-NPTH.drl": "58e1326432179ffb45b67b3120d9cc071d75659f68a4595f603d3874554d3cbb",
+   "temper-lcr-PTH.drl": "fcb65051a1dbb8839b478e6dbf574c9000a0ef3dc153a122cae49b31421384ed"
   },
   "ipc_d356": {
    "source": "fab set:temper-lcr.d356",
@@ -24,7 +24,7 @@
   },
   "schematic_netlist": {
    "source": "kicad-cli sch export netlist cad/temper-lcr.kicad_sch (exported at run time)",
-   "sha256": "9b18209d973281a2e5a8dee6fecaca952232148127d97ba900a8fd309c0f7c96"
+   "sha256": "768985b2b91d8109a76c65cc92ba052a17a0945f2194db0b5c7060a2510840ec"
   },
   "board_for_reference_only": {
    "path": "cad/temper-lcr.kicad_pcb",
@@ -350,8 +350,8 @@
   }
  },
  "timing_s": {
-  "geometry": 1.0,
-  "total": 1.3
+  "geometry": 1.1,
+  "total": 1.5
  },
  "self_test": {
   "short": {

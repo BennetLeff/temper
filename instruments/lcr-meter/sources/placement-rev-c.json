@@ -99,7 +99,11 @@
     "U19": 270,
     "U20": 270,
     "U21": 270,
-    "D29": 0
+    "D29": 0,
+    "J3": 0,
+    "J7": 0,
+    "J8": 0,
+    "J9": 0
   },
   "parts": [
     {
@@ -6157,6 +6161,43 @@
         {
           "offset": 90,
           "rms": 6.839059029695833
+        }
+      ]
+    },
+    {
+      "lcsc": "C41416668",
+      "mpn": "BNC-KYWE-295-W4-N",
+      "references": [
+        "J3",
+        "J7",
+        "J8",
+        "J9"
+      ],
+      "native_footprint": "LCR:BNC_SAMZO_KYWE-295-W4-N_Horizontal",
+      "source_url": "https://lceda.cn/api/products/C41416668/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C41416668-product.json",
+      "source_sha256": "3ee228ca8c1e02b401d2f87a234150634df60f6491d0b0f2376e1933f77d1364",
+      "library_title": "BNC-TH_BNC-KYWE-295-W4-N",
+      "cpl_offset_ccw_deg": 0,
+      "matched_numbered_pads": 5,
+      "pad_center_fit_rms_mm": 1.0119288486990067e-05,
+      "pad_center_fit_max_mm": 1.1313708470420393e-05,
+      "candidate_rms_mm": [
+        {
+          "offset": 0,
+          "rms": 1.0119288486990067e-05
+        },
+        {
+          "offset": 90,
+          "rms": 7.155410372585395
+        },
+        {
+          "offset": 270,
+          "rms": 7.155410372585395
+        },
+        {
+          "offset": 180,
+          "rms": 10.119278393250328
         }
       ]
     }

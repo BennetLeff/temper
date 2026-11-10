@@ -347,6 +347,17 @@
    "rating_source": "value"
   },
   {
+   "ref": "C119",
+   "value": "1nF C0G",
+   "nets": [
+    "HPOT",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "MPN CC0603JRNPO9BN102"
+  },
+  {
    "ref": "C12",
    "value": "15pF C0G",
    "nets": [
@@ -356,6 +367,39 @@
    "worst_v": 3.37,
    "rating_v": 50.0,
    "rating_source": "MPN CL10C150JB8NNNC"
+  },
+  {
+   "ref": "C120",
+   "value": "1nF C0G",
+   "nets": [
+    "LPOT",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "rating_v": 50.0,
+   "rating_source": "MPN CC0603JRNPO9BN102"
+  },
+  {
+   "ref": "C121",
+   "value": "100nF 50V",
+   "nets": [
+    "JACK_HC",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
+  },
+  {
+   "ref": "C122",
+   "value": "100nF 50V",
+   "nets": [
+    "JACK_LC",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "rating_v": 50.0,
+   "rating_source": "value"
   },
   {
    "ref": "C13",
@@ -491,7 +535,7 @@
   },
   {
    "ref": "C39",
-   "value": "1uF 50V",
+   "value": "2.2uF 50V X7R",
    "nets": [
     "12V",
     "GND"
@@ -513,7 +557,7 @@
   },
   {
    "ref": "C40",
-   "value": "1uF 50V",
+   "value": "2.2uF 50V X7R",
    "nets": [
     "-12V",
     "GND"
@@ -546,7 +590,7 @@
   },
   {
    "ref": "C44",
-   "value": "1uF 50V",
+   "value": "2.2uF 50V X7R",
    "nets": [
     "12V",
     "GND"
@@ -557,7 +601,7 @@
   },
   {
    "ref": "C45",
-   "value": "1uF 50V",
+   "value": "2.2uF 50V X7R",
    "nets": [
     "-12V",
     "GND"
@@ -590,7 +634,7 @@
   },
   {
    "ref": "C48",
-   "value": "1uF 50V",
+   "value": "2.2uF 50V X7R",
    "nets": [
     "12V",
     "GND"
@@ -601,7 +645,7 @@
   },
   {
    "ref": "C49",
-   "value": "1uF 50V",
+   "value": "2.2uF 50V X7R",
    "nets": [
     "-12V",
     "GND"
@@ -953,7 +997,7 @@
   },
   {
    "ref": "C85",
-   "value": "4.7nF 50V",
+   "value": "4.7nF 50V C0G",
    "nets": [
     "CONV_CN",
     "GND"
@@ -1162,13 +1206,13 @@
   },
   {
    "ref": "R101",
-   "value": "1R",
+   "value": "0.33R",
    "nets": [
     "5V",
     "VRLY"
    ],
    "worst_v": 5.5,
-   "power_w": 0.01262,
+   "power_w": 0.00417,
    "basis": "VRLY: four TQ2SA-L2-5V RESET coils at once, 5 V / 178 ohm each (relay.c, TQ datasheet coil table)"
   },
   {
@@ -1208,8 +1252,8 @@
    "ref": "R105",
    "value": "1k",
    "nets": [
-    "DUT_HI",
-    "HPOT"
+    "JK_HCUR",
+    "JK_HPOT"
    ],
    "worst_v": 29.54,
    "power_w": 0.00289,
@@ -1219,8 +1263,8 @@
    "ref": "R106",
    "value": "1k",
    "nets": [
-    "DUT_LO",
-    "LPOT"
+    "JK_LCUR",
+    "JK_LPOT"
    ],
    "worst_v": 29.54,
    "power_w": 0.00289,
@@ -1230,7 +1274,7 @@
    "ref": "R107",
    "value": "1k 0.1%",
    "nets": [
-    "DUT_LO",
+    "JK_LCUR",
     "REF_A"
    ],
    "worst_v": 29.54,
@@ -1403,6 +1447,94 @@
    "basis": "hot-plug pulse, not a continuous load: at most 79 uJ per plug-in (C113 5.2 uF max at 5.5 V), peak current under 3.7 A for microseconds; UNI-ROYAL publishes no 0603WAF pulse curve, so the bench check is bring-up 2a step 3 (repeated USB-A plug-ins, R121 unchanged)"
   },
   {
+   "ref": "R122",
+   "value": "10R",
+   "nets": [
+    "ISO_HCUR",
+    "DUT_HI"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00134,
+   "basis": "HCUR series 10 ohm carries the DUT current: 100 R range, DUT shorted"
+  },
+  {
+   "ref": "R123",
+   "value": "100R",
+   "nets": [
+    "ISO_HPOT",
+    "HPOT"
+   ],
+   "worst_v": 29.54,
+   "power_w": 9e-05,
+   "basis": "POT series 100 ohm: the follower input draws nothing; the 1 nF C0G and the H3V3LD5B (25 pF max) behind it charge at the 85 kHz top tone, 1.7 V peak taken as RMS"
+  },
+  {
+   "ref": "R124",
+   "value": "100R",
+   "nets": [
+    "ISO_LPOT",
+    "LPOT"
+   ],
+   "worst_v": 29.54,
+   "power_w": 9e-05,
+   "basis": "POT series 100 ohm: the follower input draws nothing; the 1 nF C0G and the H3V3LD5B (25 pF max) behind it charge at the 85 kHz top tone, 1.7 V peak taken as RMS"
+  },
+  {
+   "ref": "R125",
+   "value": "10R",
+   "nets": [
+    "ISO_LCUR",
+    "DUT_LO"
+   ],
+   "worst_v": 29.54,
+   "power_w": 0.00134,
+   "basis": "LCUR series 10 ohm carries the DUT current into the TIA: 100 R range, DUT shorted"
+  },
+  {
+   "ref": "R126",
+   "value": "1.5M",
+   "nets": [
+    "JK_HCUR",
+    "JACK_HC"
+   ],
+   "worst_v": 18.17,
+   "power_w": 0.00022,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R127",
+   "value": "240k",
+   "nets": [
+    "JACK_HC",
+    "3V3"
+   ],
+   "worst_v": 3.37,
+   "power_w": 5e-05,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R128",
+   "value": "240k",
+   "nets": [
+    "JACK_HC",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "power_w": 5e-05,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R129",
+   "value": "1.5M",
+   "nets": [
+    "JK_LCUR",
+    "JACK_LC"
+   ],
+   "worst_v": 18.17,
+   "power_w": 0.00022,
+   "basis": "worst voltage across"
+  },
+  {
    "ref": "R13",
    "value": "33R",
    "nets": [
@@ -1412,6 +1544,72 @@
    "worst_v": 3.37,
    "power_w": 0.00475,
    "basis": "RP2040 QSPI pad at its 12 mA maximum drive setting (datasheet 2.19.4 / 5.5.3)"
+  },
+  {
+   "ref": "R130",
+   "value": "240k",
+   "nets": [
+    "JACK_LC",
+    "3V3"
+   ],
+   "worst_v": 3.37,
+   "power_w": 5e-05,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R131",
+   "value": "240k",
+   "nets": [
+    "JACK_LC",
+    "GND"
+   ],
+   "worst_v": 3.37,
+   "power_w": 5e-05,
+   "basis": "worst voltage across"
+  },
+  {
+   "ref": "R132",
+   "value": "270R",
+   "nets": [
+    "VRLY",
+    "ISO_S1"
+   ],
+   "worst_v": 20.31,
+   "power_w": 0.03223,
+   "basis": "TLP172AM LED string at 5.5 V and VF min (rev-g-protection/drive-budget.json worst_high)"
+  },
+  {
+   "ref": "R133",
+   "value": "270R",
+   "nets": [
+    "VRLY",
+    "ISO_S2"
+   ],
+   "worst_v": 20.31,
+   "power_w": 0.03223,
+   "basis": "TLP172AM LED string at 5.5 V and VF min (rev-g-protection/drive-budget.json worst_high)"
+  },
+  {
+   "ref": "R134",
+   "value": "100R",
+   "nets": [
+    "ISO_DRIVE",
+    "ISO_G"
+   ],
+   "worst_v": 18.17,
+   "power_w": 0.0144,
+   "basis": "RP2040 GPIO at its 12 mA maximum drive setting into an AO3400A gate"
+  },
+  {
+   "ref": "R135",
+   "value": "100k",
+   "nets": [
+    "ISO_G",
+    "GND"
+   ],
+   "worst_v": 14.81,
+   "power_w": 0.00219,
+   "basis": "worst voltage across"
   },
   {
    "ref": "R2",
