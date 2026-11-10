@@ -5,7 +5,7 @@ Rev G100 is Rev G (protected jacks, [rev-g-plan.md](rev-g-plan.md)) laid out aga
 The feasibility study (`../validation/rev-g/shrink-100-feasibility.json`) found that the protection band could not be squeezed. The 10 mm therefore comes out of the digital and power south of U1.
 
 **Status (2026-11-09): laid out, hand-routed, datasheet-audited, the audit's fixes applied, every board gate clean.**
-- **Second independent review** (frozen export `build/rev-g100-review2/`, `../validation/rev-g100/independent-review-2-2026-11-09.md`): **orderable, no blockers.** Its two MAJOR findings are dispositioned at the end of that file: M2 fixed (In2 corner widened to 1.6 mm), M1 accepted.
+- **Second independent review** (frozen export `build/rev-g100-review2/`, `../validation/rev-g100/independent-review-2-2026-11-09.md`): **orderable, no blockers.** Its two MAJOR findings are dispositioned at the end of that file: M2 fixed (In2 corner widened to 1.6 mm), M1 accepted. An independent re-check of the M2 fix (`../validation/rev-g100/independent-recheck-2026-11-09.md`) found it clean: only the corner changed, 5 °C rise at 1.17 A, DRC 0 on the board's rules and on JLC's, Gerbers byte-identical to a fresh export. For the next spin: widen the 0.4 mm B.Cu neck at (54.46, 116.4–117.75) and U16.6's 0.5 mm F.Cu exit to 0.6 mm (1.23 / 1.45 A by IPC-2221 external, both above 1.17 A).
 - The datasheet audit and the first review are in `../validation/datasheet-audit-rev-g100/FINDINGS.md`; §6 lists what they changed.
 
 These steps remain before an order:
