@@ -212,7 +212,7 @@ def main():
         'model_off_centre_from_fab_over_0p3mm': model_vs_fab,
         'parts_modelled': len(parts),
     }
-    (HERE / 'board-envelope.json').write_text(json.dumps(out, indent=1) + '\n')
+    pathlib.Path(os.environ.get('LCR_OUT', HERE / 'board-envelope.json')).write_text(json.dumps(out, indent=1) + '\n')
     print('board', out['board']['size_mm'], 'parts with models', len(parts))
     print('tallest:', [(t['ref'], t['height_mm']) for t in out['tallest_top'][:8]])
     print('below bottom face:', [(b['ref'], b['below_bottom_face_mm'], 'DNP' if b['dnp'] else '') for b in out['below_board']])

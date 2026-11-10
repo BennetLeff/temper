@@ -100,12 +100,12 @@ for ref in ('U6', 'U7'):
 # 5. R_iso topology (Rev D on; Rev E adds the range relays, which leave TIA_SUM unchanged; Rev F as Rev E;
 #    Rev G puts the jack protection between each jack and Rev F's node: jack -> TLP172AM -> series R -> node).
 topology = {}
-if REV in ('d', 'e', 'f', 'g'):     # Rev F re-lays Rev E's circuit: same topology
+if REV in ('d', 'e', 'f', 'g', 'g100'):     # Rev F re-lays Rev E's circuit; G100 re-lays Rev G (less J5)
     # Rev E: four-terminal jacks; LCUR (J9.5) feeds R94, the followers sense HPOT/LPOT (J7.5/J8.5)
     lo = {('J3', '2'): 'DUT_LO', ('U7', '5'): 'DUT_LO'} if REV == 'd' else {
         ('J9', '5'): 'DUT_LO', ('J3', '5'): 'DUT_HI', ('J7', '5'): 'HPOT', ('J8', '5'): 'LPOT',
         ('U6', '5'): 'HPOT', ('U7', '5'): 'LPOT'}
-    if REV == 'g':
+    if REV in ('g', 'g100'):
         lo = {('U6', '5'): 'HPOT', ('U7', '5'): 'LPOT'}
         for jack, name, sw, (d_jack, d_iso), r, node in (
                 ('J3', 'HCUR', 'U18', '46', 'R122', 'DUT_HI'), ('J7', 'HPOT', 'U19', '64', 'R123', 'HPOT'),

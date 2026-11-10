@@ -1,0 +1,11 @@
+{
+ "qty": 5,
+ "lines": {
+  "Special Offer": 8.0,
+  "Via Covering": 0.0,
+  "Surface finish (ENIG 1 u\")": 17.7
+ },
+ "total_usd": 25.7,
+ "source": "validation/rev-g/fab-quote.json 'same_page_same_day_100x100': JLC's quote page read 2026-11-09 signed out, nothing uploaded or added to the cart, for Rev F's 100 x 100 outline with Rev G's options; G100 has that outline, layer count and options",
+ "options": "FR-4, 4 layers, 100 x 100 mm, qty 5, 1 design, single PCB, 1.6 mm, green/white, FR4 TG135, ENIG 1 u\", 1 oz outer / 0.5 oz inner, via covering Plugged (page default), 0.3 mm/(0.4/0.45 mm) min via, +-0.2 mm outline, flying-probe test, 3-4 day build (the options of manufacturing/fab-quote.json, height 100)"
+}

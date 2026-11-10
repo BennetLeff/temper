@@ -27,12 +27,15 @@ import pathlib
 import re
 import shutil
 import subprocess
+import os
 import tempfile
 
 HERE = pathlib.Path(__file__).resolve().parent
 ABS_MAX, REC_MAX = 7.0, 6.5
 VBUS = (5.0, 5.25, 5.5)                      # Type-C vSafe5V upper range; USB 2.0 5.25 V
 L_CAB = (0.3e-6, 0.6e-6, 1.0e-6, 1.5e-6)
+# LCR_L_BOARD (H): board copper J1 -> U16 IN in series with the cable (default 0, as Rev F was run); LCR_OUT: output
+L_BOARD = float(os.environ.get('LCR_L_BOARD', '0'))
 R_CAB = (0.05, 0.10, 0.20, 0.30)
 C_RET = (0.6 * 0.9, 1.0 * 1.1)               # retention x tolerance extremes
 
@@ -42,7 +45,7 @@ def deck(v, l, r, c113, d1, edge, snub=None, esr=3e-3):
         '* hot-plug corner',
         f'Vs src 0 PWL(0 0 {edge:g} {v:g} 1 {v:g})',
         f'Rcab src n1 {r:g}',
-        f'Lcab n1 vbus {l:g}',
+        f'Lcab n1 vbus {l + L_BOARD:g}',
         f'C113 vbus c1 {c113:g}',
         f'Resr c1 0 {esr:g}',
         'C15 vbus 0 100n',
@@ -117,7 +120,8 @@ def main():
         for name, gen in sets.items():
             cases = [dict(c, meta=dict(c['meta'], set=name)) for c in gen]
             out[name] = summary(list(ex.map(run, cases)))
-    (HERE / 'hotplug_spice.json').write_text(json.dumps(out, indent=1) + '\n')
+    out['l_board_h'] = L_BOARD
+    pathlib.Path(os.environ.get('LCR_OUT', HERE / 'hotplug_spice.json')).write_text(json.dumps(out, indent=1) + '\n')
     print(json.dumps({k: (v if not isinstance(v, dict) or 'worst' not in v else
                           {kk: v[kk] for kk in ('corners', 'over_abs_max_7v', 'over_recommended_6v5', 'pass', 'worst')})
                       for k, v in out.items()}, indent=1))

@@ -1,0 +1,44 @@
+{
+ "board_sha256": "59ca312c4e51af04d4b80d2b3c830032909926ec73beaf241d5574a08a1d7c42",
+ "short_line_limit_mm": 95.2,
+ "pairs": [
+  {
+   "pair": [
+    "USB_DP",
+    "USB_DM"
+   ],
+   "length_mm": [
+    36.98,
+    43.38
+   ],
+   "vias": [
+    4,
+    2
+   ],
+   "mismatch_mm": 6.4,
+   "skew_ps": 44.8
+  },
+  {
+   "pair": [
+    "USB_DP_MCU",
+    "USB_DM_MCU"
+   ],
+   "length_mm": [
+    7.8,
+    8.28
+   ],
+   "vias": [
+    2,
+    2
+   ],
+   "mismatch_mm": 0.48,
+   "skew_ps": 3.4
+  }
+ ],
+ "connector_to_mcu_mm": [
+  44.78,
+  51.66
+ ],
+ "connector_to_mcu_skew_ps": 48.2,
+ "findings": []
+}

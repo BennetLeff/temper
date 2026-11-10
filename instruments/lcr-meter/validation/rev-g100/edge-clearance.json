@@ -1,0 +1,160 @@
+{
+ "board": "cad/temper-lcr.kicad_pcb",
+ "board_sha256": "59ca312c4e51af04d4b80d2b3c830032909926ec73beaf241d5574a08a1d7c42",
+ "outline_mm": [
+  50.0,
+  45.0,
+  150.0,
+  145.0
+ ],
+ "edges": {
+  "front_y_min": {
+   "nearest_copper": {
+    "mm": 0.4,
+    "item": "smt_land",
+    "who": "D4.1",
+    "layer": "F.Cu"
+   },
+   "nearest_track_or_via": {
+    "mm": 0.85,
+    "item": "track",
+    "who": "GND",
+    "layer": "F.Cu"
+   },
+   "nearest_land": {
+    "mm": 0.4,
+    "item": "smt_land",
+    "who": "D4.1",
+    "layer": "F.Cu"
+   },
+   "smt_parts_within_2mm": [
+    {
+     "ref": "D4",
+     "mm": 0.4
+    },
+    {
+     "ref": "R12",
+     "mm": 1.375
+    }
+   ]
+  },
+  "back_y_max": {
+   "nearest_copper": {
+    "mm": 0.4,
+    "item": "track",
+    "who": "RUN",
+    "layer": "In2.Cu"
+   },
+   "nearest_track_or_via": {
+    "mm": 0.4,
+    "item": "track",
+    "who": "RUN",
+    "layer": "In2.Cu"
+   },
+   "nearest_land": {
+    "mm": 0.45,
+    "item": "smt_land",
+    "who": "C82.1",
+    "layer": "F.Cu"
+   },
+   "smt_parts_within_2mm": [
+    {
+     "ref": "C82",
+     "mm": 0.45
+    },
+    {
+     "ref": "C80",
+     "mm": 0.65
+    },
+    {
+     "ref": "R7",
+     "mm": 0.725
+    },
+    {
+     "ref": "R80",
+     "mm": 0.775
+    },
+    {
+     "ref": "R13",
+     "mm": 1.025
+    },
+    {
+     "ref": "SW2",
+     "mm": 1.1
+    },
+    {
+     "ref": "L1",
+     "mm": 1.25
+    },
+    {
+     "ref": "U2",
+     "mm": 1.32
+    },
+    {
+     "ref": "C10",
+     "mm": 1.775
+    },
+    {
+     "ref": "C117",
+     "mm": 1.85
+    }
+   ]
+  },
+  "left_x_min": {
+   "nearest_copper": {
+    "mm": 0.5,
+    "item": "zone_fill",
+    "who": "GND",
+    "layer": "B.Cu"
+   },
+   "nearest_track_or_via": {
+    "mm": 0.9,
+    "item": "track",
+    "who": "5V",
+    "layer": "B.Cu"
+   },
+   "nearest_land": {
+    "mm": 1.525,
+    "item": "smt_land",
+    "who": "R110.1",
+    "layer": "F.Cu"
+   },
+   "smt_parts_within_2mm": [
+    {
+     "ref": "R110",
+     "mm": 1.525
+    }
+   ]
+  },
+  "right_x_max": {
+   "nearest_copper": {
+    "mm": 0.5,
+    "item": "zone_fill",
+    "who": "GND",
+    "layer": "B.Cu"
+   },
+   "nearest_track_or_via": {
+    "mm": 1.35,
+    "item": "via",
+    "who": "GND",
+    "layer": "B.Cu"
+   },
+   "nearest_land": {
+    "mm": 0.95,
+    "item": "smt_land",
+    "who": "L2.2",
+    "layer": "F.Cu"
+   },
+   "smt_parts_within_2mm": [
+    {
+     "ref": "L2",
+     "mm": 0.95
+    },
+    {
+     "ref": "C99",
+     "mm": 1.95
+    }
+   ]
+  }
+ }
+}

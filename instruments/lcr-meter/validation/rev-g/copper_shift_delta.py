@@ -18,7 +18,7 @@ import json
 import os
 import sys
 
-CUT, SHIFT = 57.0, 10.0
+CUT, SHIFT = 57.0, float(os.environ.get('LCR_SHIFT', '10'))   # G100 vs Rev G: LCR_SHIFT=0
 # Rev F zoom windows (layout-parasitics/fd3d.py WINDOWS, x0 x1 y0 y1) whose grid ratios Rev G reuses: each must hold
 # no changed analog item and no GND-fill change once moved by the transform (all three lie below the cut).
 REUSED = {'revf_u7': (107.5, 121.0, 63.5, 80.5), 'revf_relay': (91.0, 111.0, 63.0, 82.0),

@@ -1,0 +1,104 @@
+[
+ {
+  "board": "instruments/lcr-meter/cad/temper-lcr.kicad_pcb",
+  "copper_mm2": {
+   "F.Cu": 1326.1,
+   "In1.Cu": 9561.1,
+   "In2.Cu": 3713.7,
+   "B.Cu": 3642.1
+  },
+  "board_mm2": 10010.0,
+  "return": {
+   "I2S_BCLK": {
+    "buried_run_mm": 65.11,
+    "over_adjacent_gnd_fill_mm": 38.79,
+    "mean_reference_height_mm": 0.647,
+    "loop_area_mm2": 42.12
+   },
+   "I2S_FSYNC": {
+    "buried_run_mm": 65.48,
+    "over_adjacent_gnd_fill_mm": 41.24,
+    "mean_reference_height_mm": 0.563,
+    "loop_area_mm2": 36.85
+   },
+   "I2S_DIN": {
+    "buried_run_mm": 65.96,
+    "over_adjacent_gnd_fill_mm": 45.04,
+    "mean_reference_height_mm": 0.553,
+    "loop_area_mm2": 36.48
+   },
+   "I2S_DOUT": {
+    "buried_run_mm": 69.42,
+    "over_adjacent_gnd_fill_mm": 42.68,
+    "mean_reference_height_mm": 0.626,
+    "loop_area_mm2": 43.49
+   },
+   "QSPI1": {
+    "buried_run_mm": 24.28,
+    "over_adjacent_gnd_fill_mm": 6.86,
+    "mean_reference_height_mm": 0.823,
+    "loop_area_mm2": 20.0
+   },
+   "QSPI2": {
+    "buried_run_mm": 22.49,
+    "over_adjacent_gnd_fill_mm": 3.59,
+    "mean_reference_height_mm": 0.929,
+    "loop_area_mm2": 20.88
+   },
+   "QSPI3": {
+    "buried_run_mm": 9.56,
+    "over_adjacent_gnd_fill_mm": 0.46,
+    "mean_reference_height_mm": 1.238,
+    "loop_area_mm2": 11.83
+   },
+   "QSPI_CS": {
+    "buried_run_mm": 25.68,
+    "over_adjacent_gnd_fill_mm": 4.52,
+    "mean_reference_height_mm": 1.075,
+    "loop_area_mm2": 27.61
+   },
+   "USB_DP": {
+    "buried_run_mm": 27.17,
+    "over_adjacent_gnd_fill_mm": 11.45,
+    "mean_reference_height_mm": 0.78,
+    "loop_area_mm2": 21.19
+   },
+   "USB_DM": {
+    "buried_run_mm": 15.59,
+    "over_adjacent_gnd_fill_mm": 7.53,
+    "mean_reference_height_mm": 0.769,
+    "loop_area_mm2": 11.99
+   },
+   "USB_DP_MCU": {
+    "buried_run_mm": 4.95,
+    "over_adjacent_gnd_fill_mm": 0.96,
+    "mean_reference_height_mm": 1.081,
+    "loop_area_mm2": 5.35
+   },
+   "USB_DM_MCU": {
+    "buried_run_mm": 4.89,
+    "over_adjacent_gnd_fill_mm": 1.65,
+    "mean_reference_height_mm": 0.926,
+    "loop_area_mm2": 4.53
+   }
+  },
+  "copper_fraction": {
+   "F.Cu": 0.132,
+   "In1.Cu": 0.955,
+   "In2.Cu": 0.371,
+   "B.Cu": 0.364
+  },
+  "teardrops": {
+   "zones": 1157,
+   "via_ends_with_teardrop": [
+    458,
+    491
+   ],
+   "pad_ends_with_teardrop": [
+    516,
+    707
+   ],
+   "violations": []
+  }
+ }
+]

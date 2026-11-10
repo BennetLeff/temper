@@ -85,6 +85,9 @@ T('QSPI3', 'F.Cu', (65.69, 140.815), (64.3, 140.815))
 # VCC: U2.8 -> its 100 nF C11 -> the U1 3V3 run at x 68.017; C11 GND to C8's GND pad
 T('3V3', 'F.Cu', 'U2.8', (66.6, 139.545), (67.21, 140.155), 'C11.1', (68.017, 140.175))
 T('GND', 'F.Cu', 'C11.2', (68.6, 138.625))
+# C8 moved 0.2 mm east: U1's 1V1 run now ends on its pad centre instead of running past it
+DELSEG('1V1', (69.0, 140.45))
+MOVEPT('1V1', (69.2407, 140.45), (69.2, 140.45))
 # CLK: U1.52 -> R13 (33 R, turned) -> F.Cu y 143.5 -> U2.6
 DELSEG('QSPI_CLK', (72.675, 143.5))
 T('QSPI_CLK', 'F.Cu', (74.902, 141.273), (74.902, 142.923), (74.325, 143.5))
@@ -137,13 +140,15 @@ T('USB_DP', 'F.Cu', (79.597, 139.065), (78.525, 140.325), 'R4.1')
 
 # ============================================================== 4. RUN, MON12, MON_N12: around the flash on In2
 # The QSPI runs close U1's south side to U2 on all three signal layers, so the three nets that cross them run west
-# under U2's west pads (x 58.3-59.3, between H3 and the under-body vias) and east along the south edge (y 143.85-144.55).
+# under U2's west pads (x 58.3-59.3, between H3 and the under-body vias) and east along the south edge (y 143.85-144.525; RUN 0.15 mm wide
+# there, 0.4 mm from the edge).
 # Their order is fixed by where they leave: MON_N12 leaves first (B.Cu to R99), then MON12 (In2 to C110 / R98), then
 # RUN (F.Cu to SW2), so RUN is the outer track all the way round.
 T('RUN', 'B.Cu', (70.632, 129.292), (66.4, 129.292))
 V('RUN', 66.4, 129.292)
-T('RUN', 'In2.Cu', (66.4, 129.292), (66.4, 138.1), (66.1, 138.4), (58.6, 138.4), (58.3, 138.7), (58.3, 144.25),
-  (58.6, 144.55), (88.0, 144.55), (88.3, 144.25), (88.3, 143.4))
+T('RUN', 'In2.Cu', (66.4, 129.292), (66.4, 138.1), (66.1, 138.4), (58.6, 138.4), (58.3, 138.7), (58.3, 144.2))
+T('RUN', 'In2.Cu', (58.3, 144.2), (58.625, 144.525), (87.975, 144.525), (88.3, 144.2), w=0.15)   # 0.4 mm to the edge
+T('RUN', 'In2.Cu', (88.3, 144.2), (88.3, 143.4))
 V('RUN', 88.3, 143.4)
 T('RUN', 'F.Cu', (88.3, 143.4), (87.3, 144.4), (85.4, 144.4), (84.875, 143.875))
 T('MON12', 'F.Cu', 'U1.38', (68.3, 134.5))
@@ -185,7 +190,7 @@ T('5V', 'B.Cu', (92.3, 143.95), (128.6, 143.95), (128.6, 143.75), w=1.0)
 V('5V', 118.6, 143.6)
 T('5V', 'F.Cu', (118.6, 143.6), 'C117.1', w=0.6)
 V('5V', 99.0, 143.95)
-T('5V', 'In2.Cu', (99.0, 143.95), (99.0, 127.0), w=0.6)
+T('5V', 'In2.Cu', (99.0, 143.95), (99.0, 127.0), w=0.9)       # IPC-2152: 0.875 mm inner for 1.17 A
 V('5V', 99.0, 127.0, d=0.6)
 T('5V', 'F.Cu', (99.0, 127.0), (98.7, 126.7), (98.7, 117.0), (99.3, 116.4), w=0.4)
 T('5V', 'F.Cu', (98.7, 126.5), (100.5, 126.5), w=0.4)
@@ -193,14 +198,20 @@ V('5V', 99.0, 135.6, d=0.6)
 T('5V', 'F.Cu', (99.0, 135.6), (101.9, 135.6), (102.0, 135.7), 'R113.2')
 
 # ============================================================== 6. USB_VBUS: J1 -> the power entry (U16 IN, C113, TP20)
-# J1's VBUS via (Rev F's sense tap) -> In2 north (x 57.75, between U3's GND via and the old 5 V vias) -> U16's IN node.
+# J1's south VBUS pins keep Rev G's 0.4 mm exit to C15 (x 61.225), which now also drops to B.Cu and runs north 0.5 mm wide to Rev F's
+# sense-tap row (y 126.2), west along it to the tap via, and on north on B.Cu (x 57.75, between U3's GND via and the old
+# 5 V vias) to U16's IN node: outer copper for the 1.17 A fault current (current_check.py; In2 would need 0.875 mm).
 # STATUS no longer doglegs at y 123 (its In2 run goes straight west along y 128.47, under J1).
 DELSEG('STATUS', (51.0, 123.0)); DELSEG('STATUS', (58.4, 123.0))
 DELSEG('STATUS', (58.4, 128.72))
 T('STATUS', 'In2.Cu', (66.9, 128.72), (66.65, 128.47), (51.0, 128.47), (51.0, 49.6))   # between J1's shell pads and pegs
 V('USB_VBUS', 57.75, 117.75)
 T('USB_VBUS', 'F.Cu', (57.75, 116.85), (57.75, 117.75), w=0.4)
-T('USB_VBUS', 'In2.Cu', (57.75, 117.75), (57.75, 125.65), (57.2, 126.2), w=0.5)
+T('USB_VBUS', 'B.Cu', (57.75, 117.75), (57.75, 125.65), (57.2, 126.2), w=0.5)
+V('USB_VBUS', 61.225, 135.9)                              # on the exit to C15.1, 0.3 mm clear of its land
+DELSEG('USB_VBUS', (69.0, 126.2))
+T('USB_VBUS', 'B.Cu', (61.225, 135.9), (61.225, 126.2), (57.2, 126.2), w=0.5)
+T('USB_VBUS', 'B.Cu', (61.225, 126.2), (69.0, 126.2), (69.85, 127.05))
 DELV('GND', (58.8, 113.9))
 T('USB_VBUS', 'F.Cu', (59.25, 112.9), 'C113.1', w=0.4)
 
@@ -234,12 +245,13 @@ T('RAW_P', 'F.Cu', (128.775, 118.768), (128.775, 116.0), w=0.3)
 T('LDOIN_P', 'F.Cu', 'R95.2', (130.425, 118.768))
 DELSEG('RAW_P', (124.3, 132.975))
 T('RAW_P', 'F.Cu', (127.4, 132.6), (129.225, 130.775), 'R81.1', w=0.3)
-# RAW_N: the via that landed in D3.2 moves out of the pad; TP7 east of C92
+# RAW_N: the via that landed in D3.2 moves out of the pad; TP7 east of R96's RAW_N end (a 1.0 mm label does not fit
+# between C92, L2 and the edge)
 DELV('RAW_N', (139.9289, 127.0585)); DELSEG('RAW_N', (139.929, 127.058)); DELSEG('RAW_N', (139.929, 129.401))
 V('RAW_N', 139.037, 127.8)
 T('RAW_N', 'B.Cu', (139.037, 130.293), (138.4, 129.656), (138.4, 128.437), (139.037, 127.8))   # round C84's GND via
 T('RAW_N', 'F.Cu', (139.037, 127.8), (139.037, 127.0))
-T('RAW_N', 'F.Cu', (144.5, 123.475), (146.025, 125.0), w=0.3)
+T('RAW_N', 'F.Cu', 'R96.1', (145.6, 116.825), w=0.3)
 # -12V: the trunk from the LDO pair turned west at y 129.4, through the switcher's new CONV_FBN run; it now turns at
 # y 124.4 and drops to its old row at TP4
 DELSEG('-12V', (135.2, 129.4))

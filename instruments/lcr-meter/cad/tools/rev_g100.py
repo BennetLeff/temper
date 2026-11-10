@@ -102,11 +102,12 @@ for name, b in BODIES.items():
 
 _tp = [list(t) for t in TESTPOINTS]
 _TP_MOVE = {  # (name, old x, old y) -> (x, y, label x, label y)
-    ('VB', 62.225): (59.25, 112.9, 59.25, 111.3),          # USB_VBUS at U16 IN, north of C113
-    ('GND', 64.225): (61.25, 112.9, 61.25, 111.3),
+    ('VB', 62.225): (59.25, 112.9, 58.75, 111.3),          # USB_VBUS at U16 IN, north of C113
+    ('GND', 64.225): (61.25, 112.9, 61.75, 111.3),
     ('GND', 92.0): (94.6, 141.6, 97.2, 141.6),           # the debugger's GND beside TP8 3V3 (old spot is past the edge)
+    ('3V3', 92.0): (92.0, 141.6, 92.0, 143.5),           # TP8 stays; its label goes south (SW2 is west of it now)
     ('RAW+', 128.775): (128.775, 121.5, 128.775, 119.8),  # on RAW_P's run up to R95 (the switcher's top row took its spot)
-    ('RAW-', 142.5): (146.7, 125.4, 146.7, 123.7),        # east of C92, off RAW_N's row
+    ('RAW-', 142.5): (145.6, 116.825, 145.6, 115.0),      # east of R96's RAW_N end, label north
 }
 for t in _tp:
     for (nm, ox), new in _TP_MOVE.items():
@@ -199,6 +200,89 @@ L.src_file = 'rev_g100_routes.py'
 SRC_FILE = CAD / 'tools' / 'rev_g100_routes.py'
 exec(compile(SRC_FILE.read_text(), str(SRC_FILE), 'exec'), globals())
 
+# ------------------------------------------------------------------ craft, pours (as Rev G; the analog core does not move)
+design['board']['craft'] = True
+design['board']['teardrops'] = True
+CRAFT = craft.run(routing, *predrc.craft_inputs({'parts': list(parts.values()), 'board': design['board']}),
+                  rules=predrc.RULES)
+import pour  # noqa: E402
+pour.ANALOG_CORE = [(x, sy(y)) for x, y in pour.ANALOG_CORE]
+POUR = pour.add({'parts': list(parts.values()), 'board': design['board']}, routing)
+
+# ------------------------------------------------------------------ silk and reference text
+design['board']['silk'] = [
+    ['TEMPER LCR REV G100', 116.1, 129.75, 1.0],                     # the old south strip is gone; east of the drivers
+    ['HCUR', 63, 57.6, 1.0], ['HPOT', 85, 57.6, 1.0], ['LPOT', 107, 57.6, 1.0], ['LCUR', 129, 57.6, 1.0],
+    ['DISCHARGED', 100, 46.35, 1.0], ['DUT ONLY', 100, 47.95, 1.0],
+    # rail LEDs D15-D18: two staggered rows between the LEDs and the south edge (JLC's 1.0 mm minimum text)
+    ['5V', 102.0, 142.4, 1.0], ['3V3', 104.6, 143.85, 1.0], ['+12', 107.2, 142.4, 1.0], ['-12', 109.8, 143.85, 1.0],
+    ['HB', 62.0, 129.4, 1.0], ['FLT', 67.6, 110.85, 1.0],
+] + [[name, lx, ly, 1.0] for name, _, _, _, _, lx, ly in TESTPOINTS]
+design['board']['ref_size'] = [1.0, 0.15]
+# U3 / U13 / U16 moved with their blocks: their Rev G hand spots are dropped and the search places them
+design['board']['ref_text'] = {'U7': [118.3, 78.2], 'U14': [64.0, 105.2], 'U6': [82.0, 78.3], 'U15': [56.6, 89.7]}
+_s = _src.index(_SILK_FNS)
+exec(compile(_src[_s:_src.index(_COIL_TP)], str(_REV_F), 'exec'), globals())     # ref_key, silk_obstacles, silk_refs
+
+COIL_TP_MIN = 10.0
+_an = [x['geom'] for x in sum(predrc.dyn_items(routing), []) + predrc.static_items(
+    {'parts': list(parts.values()), 'board': design['board']})[0] if x['net'] in pour.ANALOG]
+COIL_TP = {t[0]: round(min(g.distance(predrc.Point(t[2], t[3])) for g in _an), 2)
+           for t in design['board']['testpoints'] if t[1].startswith('RLY_')}
+assert all(d >= COIL_TP_MIN for d in COIL_TP.values()), COIL_TP
+
+SILK_REFS, SILK_MISSING, _todo, _ink, _obs = silk_refs()  # noqa: F821
+SILK_VIOL = craft.ref_checks(SILK_REFS, _ink, _todo, _obs)
+assert not SILK_VIOL, SILK_VIOL
+design['board']['ref_text'].update(SILK_REFS)
+design['board']['refs_on_silk_only_if_placed'] = True
+
+
+# ------------------------------------------------------------------ fabrication drawing
+def fab_notes():
+    from collections import Counter
+    x0, y0, x1, y1 = design['board']['outline']
+    pads, drills, _ = predrc.static_items({'parts': list(parts.values()), 'board': design['board']})
+    vias = Counter((v.get('drill', 0.3), v.get('diameter', 0.6)) for v in routing['vias'])
+    size = lambda g: tuple(sorted(round(b - a, 2) for a, b in zip(g.bounds[:2], g.bounds[2:])))  # noqa: E731
+    pth = Counter(size(d['geom']) for d in drills if d['net'] is not None)
+    npth = Counter(size(d['geom']) for d in drills if d['net'] is None)
+    fmt = lambda wh: f'{wh[0]:.2f} mm' if abs(wh[0] - wh[1]) < 0.01 else f'{wh[0]:.2f} x {wh[1]:.2f} mm slot'  # noqa: E731
+    drill = [f'  vias      {n:4d} x {d:.2f} mm drill, {pad:.2f} mm pad' for (d, pad), n in sorted(vias.items())]
+    drill += [f'  PTH       {n:4d} x {fmt(wh)}' for wh, n in sorted(pth.items())]
+    drill += [f'  NPTH      {n:4d} x {fmt(wh)}' for wh, n in sorted(npth.items())]
+    total = sum(vias.values()) + sum(pth.values()) + sum(npth.values())
+    lines = [
+        'TEMPER LCR REV G100 - FABRICATION NOTES',
+        f'1. Board {x1 - x0:.2f} x {y1 - y0:.2f} mm, 4 layers, 1.6 mm finished. FR-4, TG 135-140.',
+        '2. Stackup JLC04161H-7628: F.Cu 1 oz | 7628 prepreg | In1.Cu 0.5 oz GND plane | core |',
+        '   In2.Cu 0.5 oz signals + GND pour | 7628 prepreg | B.Cu 1 oz signals + GND pour.',
+        '3. Finish ENIG. Solder mask both sides; silkscreen top only (bottom intentionally empty).',
+        '4. Vias: every drill 0.30 mm. Covering "Plugged" (JLC default); do NOT order POFV.',
+        '   Exposed-pad thermal vias in U1, U11, U12, U13, U14: plugged from the bottom only,',
+        '   top lands left clean and open under paste. No other via touches an SMT land.',
+        f'5. Drill summary ({total} holes; drill files temper-lcr-PTH.drl / -NPTH.drl govern):',
+        *drill,
+        '6. Panel: edge rails added by JLCPCB, V-cut on the LEFT and RIGHT edges only.',
+        '   No rail on the front (BNC, y = top in this view) edge or the back edge.',
+        '7. Overhang: BNC J3, J7, J8, J9 reach 18.5 mm past the front edge (hand-fitted after',
+        '   reflow); J1 USB-C shell 0.2 mm past the left edge, >= 0.9 mm above the board.',
+        '8. Minimum track / space 0.15 / 0.15 mm; minimum via ring 0.075 mm; copper to edge >= 0.4 mm.',
+        '9. Origin (0, 0) at the lower-left board corner for Gerber, drill and placement files.',
+    ]
+    return [[t, x1 + 6.0, y0 + 2.0 + 2.1 * i, 1.2] for i, t in enumerate(lines)]
+
+
+design['board']['fab_notes'] = fab_notes()
+design['board']['fab_dims'] = [[OUTLINE[0], OUTLINE[3], OUTLINE[2], OUTLINE[3], 6.0],
+                               [OUTLINE[0], OUTLINE[3], OUTLINE[0], OUTLINE[1], -6.0]]
+
+
+def pads_of(*refs):
+    for r in refs:
+        print(r, parts[r]['pcb'], '  '.join(f"{p['num']}:{parts[r]['pins'].get(p['num'])}@{P(r + '.' + p['num'])[0]:.3f},"
+                                              f"{P(r + '.' + p['num'])[1]:.3f}" for p in fp(r)['pads'] if p['num']))
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -209,9 +293,14 @@ def main():
     ap.add_argument('--pads', default='')
     a = ap.parse_args()
     if a.pads:
-        pads_of(*a.pads.split(','))  # noqa: F821
+        pads_of(*a.pads.split(','))
     design['parts'] = [parts[p['ref']] for p in design['parts']]
     print('moved:', MOVED)
+    print('craft:', CRAFT)
+    print('pour:', POUR)
+    print('coil test pads, mm to analog copper:', COIL_TP)
+    print(f'silk refs: {len(SILK_REFS)} placed by search, {len(design["board"]["ref_text"]) - len(SILK_REFS)} by hand, '
+          f'{len(SILK_MISSING)} on F.Fab only: {" ".join(SILK_MISSING)}')
     print(f"{len(design['parts'])} parts, {len(routing['tracks'])} tracks, {len(routing['vias'])} vias")
     if a.check or a.render:
         res = predrc.check(design, routing)
@@ -223,6 +312,13 @@ def main():
             out = ROOT / 'build' / f'rev-g100-{n}.png'
             predrc.render(design, routing, res, VIEWS100[n], out, title=f'Rev G100 {n}', layers=lay)
             print('  render', out)
+    if not a.no_write:
+        clean = {'tracks': [{k: v for k, v in t.items() if k != 'src'} for t in routing['tracks']],
+                 'vias': [{k: v for k, v in v.items() if k != 'src'} for v in routing['vias']],
+                 'zones': routing['zones'], 'keepouts': routing['keepouts'],
+                 'craft_exceptions': routing['craft_exceptions']}
+        (CAD / 'design.json').write_text(json.dumps(design, indent=2) + '\n')
+        (CAD / 'routing.json').write_text(json.dumps(clean, indent=2) + '\n')
 
 
 VIEWS100 = {'south': (50, 100, 150, 145), 'west': (50, 108, 92, 145), 'mid': (84, 110, 126, 145),

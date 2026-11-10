@@ -1,0 +1,191 @@
+{
+ "revision": "G100",
+ "board_sha256": "59ca312c4e51af04d4b80d2b3c830032909926ec73beaf241d5574a08a1d7c42",
+ "kicad_version": "10.0.4",
+ "method": "Independent post-build audit of the native board against cad/design.json (read-only).",
+ "source_pins_checked": 742,
+ "native_pads": 763,
+ "netlist_nodes": 742,
+ "plane_relief": [
+  {
+   "pin": "U6.1",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.2",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.3",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.5",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.6",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U6.7",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U7.1",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U7.2",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U7.3",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U7.5",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U7.6",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  },
+  {
+   "pin": "U7.7",
+   "layers": [
+    "B.Cu",
+    "In1.Cu",
+    "In2.Cu"
+   ]
+  }
+ ],
+ "opa_bypass": [
+  {
+   "pin": "U6.8",
+   "net": "12V",
+   "capacitor": "C50",
+   "distance_mm": 1.852
+  },
+  {
+   "pin": "U6.4",
+   "net": "-12V",
+   "capacitor": "C51",
+   "distance_mm": 1.646
+  },
+  {
+   "pin": "U7.8",
+   "net": "12V",
+   "capacitor": "C52",
+   "distance_mm": 1.796
+  },
+  {
+   "pin": "U7.4",
+   "net": "-12V",
+   "capacitor": "C53",
+   "distance_mm": 1.768
+  }
+ ],
+ "r_iso_topology": {
+  "U6.5": "HPOT",
+  "U7.5": "LPOT",
+  "J3.5": "JK_HCUR",
+  "U18.4": "JK_HCUR",
+  "U18.6": "ISO_HCUR",
+  "R122.1": "ISO_HCUR",
+  "R122.2": "DUT_HI",
+  "J7.5": "JK_HPOT",
+  "U19.6": "JK_HPOT",
+  "U19.4": "ISO_HPOT",
+  "R123.1": "ISO_HPOT",
+  "R123.2": "HPOT",
+  "J8.5": "JK_LPOT",
+  "U20.6": "JK_LPOT",
+  "U20.4": "ISO_LPOT",
+  "R124.1": "ISO_LPOT",
+  "R124.2": "LPOT",
+  "J9.5": "JK_LCUR",
+  "U21.4": "JK_LCUR",
+  "U21.6": "ISO_LCUR",
+  "R125.1": "ISO_LCUR",
+  "R125.2": "DUT_LO",
+  "R94.1": "DUT_LO",
+  "R94.2": "TIA_SUM",
+  "U7.2": "TIA_SUM",
+  "C104.1": "TIA_SUM",
+  "C104.2": "TIA_OUT",
+  "R43.1": "TIA_SUM",
+  "R44.1": "TIA_SUM",
+  "R45.1": "TIA_SUM",
+  "TIA_SUM_pads": [
+   "C104.1",
+   "R43.1",
+   "R44.1",
+   "R45.1",
+   "R94.2",
+   "U7.2"
+  ]
+ },
+ "findings": [],
+ "pass": true,
+ "limits": "Pad-centre and net checks on native data; not electromagnetic extraction or physical qualification.",
+ "files_sha256": {
+  "cad/temper-lcr.kicad_pcb": "59ca312c4e51af04d4b80d2b3c830032909926ec73beaf241d5574a08a1d7c42",
+  "cad/temper-lcr.kicad_pro": "37e6f2edfc568fdeb4827dbc01fd4a53ccc55da09f1b9aafe93aa0b818ea94c9",
+  "cad/design.json": "dbcd8cc3b57569f8cd123064d7bd7e2434c27807704b835e53c1eec23c57e8cf",
+  "cad/routing.json": "f23196c9ce7f6fd4800936c831f10256562e429aab71f8e5ab4015b74d9afa18",
+  "cad/temper-lcr.kicad_sch": "3095d566992b0b192738f21da8b68943c30d7c172f81a4d9d207e1f98859bacf",
+  "cad/adc.kicad_sch": "6d6360129cf91d93a9535f7501e108cccc343f8c19bdd4b8a9c4a114016a7aa8",
+  "cad/afe.kicad_sch": "e6260a27cb45f211ddb2ba2a92d19e02f5ce50a555f3e9c60fb550a8fa4c52be",
+  "cad/codec.kicad_sch": "87aaed5b871be90644b085f64e4806527514b09613e333b18133af3f7938bc5b",
+  "cad/digital.kicad_sch": "6ff9e5a3425a8b8532944c9da99aadd76d0a876823b2486aa7fee1cecabc6536",
+  "cad/power.kicad_sch": "0f08e4ce4f642f8bc2905519a2bba434aff92b19941a8073fd1bc02b8fbda9ee",
+  "cad/protect.kicad_sch": "6ead63739cbc5d74c8ee01dac3ddda77c04d1ba62b0e47df418e021741249b11",
+  "cad/range.kicad_sch": "19da49610a7dbf585df49ec379067d4553f43a06910b690aecc7079f9666205d",
+  "cad/source.kicad_sch": "ca56db4cecd55f9c4a3ea8a0fc10a30038b7643478b874e95833f4a354089ad4"
+ }
+}

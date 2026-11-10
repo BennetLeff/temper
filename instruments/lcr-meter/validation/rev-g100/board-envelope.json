@@ -1,0 +1,544 @@
+{
+ "generated_by": "validation/enclosure-envelope/board_envelope.py",
+ "board": {
+  "outline_mm": [
+   49.975,
+   44.975,
+   150.025,
+   145.025
+  ],
+  "size_mm": [
+   100.05,
+   100.05
+  ],
+  "thickness_mm": 1.6,
+  "front_edge": "y min (BNC side)"
+ },
+ "tallest_top": [
+  {
+   "ref": "J9",
+   "value": "BNC LCUR",
+   "height_mm": 13.75,
+   "model": "BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
+  },
+  {
+   "ref": "J8",
+   "value": "BNC LPOT",
+   "height_mm": 13.75,
+   "model": "BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
+  },
+  {
+   "ref": "J7",
+   "value": "BNC HPOT",
+   "height_mm": 13.75,
+   "model": "BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
+  },
+  {
+   "ref": "J3",
+   "value": "BNC HCUR",
+   "height_mm": 13.75,
+   "model": "BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
+  },
+  {
+   "ref": "J4",
+   "value": "SWD CLK / DATA",
+   "height_mm": 8.54,
+   "model": "PinHeader_1x02_P2.54mm_Vertical.step"
+  },
+  {
+   "ref": "C117",
+   "value": "330uF 10V polymer",
+   "height_mm": 6.9,
+   "model": "CP_Elec_8x6.9.step"
+  },
+  {
+   "ref": "K3",
+   "value": "TQ2SA-L2-5V 100k",
+   "height_mm": 5.6,
+   "model": "Relay_DPDT_Panasonic_TQ2SA_SMD.step"
+  },
+  {
+   "ref": "K2",
+   "value": "TQ2SA-L2-5V 5k",
+   "height_mm": 5.6,
+   "model": "Relay_DPDT_Panasonic_TQ2SA_SMD.step"
+  },
+  {
+   "ref": "K4",
+   "value": "TQ2SA-L2-5V REF",
+   "height_mm": 5.6,
+   "model": "Relay_DPDT_Panasonic_TQ2SA_SMD.step"
+  },
+  {
+   "ref": "K1",
+   "value": "TQ2SA-L2-5V 100R",
+   "height_mm": 5.6,
+   "model": "Relay_DPDT_Panasonic_TQ2SA_SMD.step"
+  },
+  {
+   "ref": "J1",
+   "value": "USB-C",
+   "height_mm": 4.22,
+   "model": "USB_C_Receptacle_HRO_TYPE-C-31-M-12.step"
+  },
+  {
+   "ref": "L1",
+   "value": "4.7uH 3.8A shielded",
+   "height_mm": 4.0,
+   "model": "L_Changjiang_FNR5040S.step"
+  }
+ ],
+ "below_board": [
+  {
+   "ref": "J9",
+   "value": "BNC LCUR",
+   "tht": true,
+   "dnp": false,
+   "below_bottom_face_mm": 2.2
+  },
+  {
+   "ref": "J8",
+   "value": "BNC LPOT",
+   "tht": true,
+   "dnp": false,
+   "below_bottom_face_mm": 2.2
+  },
+  {
+   "ref": "J7",
+   "value": "BNC HPOT",
+   "tht": true,
+   "dnp": false,
+   "below_bottom_face_mm": 2.2
+  },
+  {
+   "ref": "J3",
+   "value": "BNC HCUR",
+   "tht": true,
+   "dnp": false,
+   "below_bottom_face_mm": 2.2
+  },
+  {
+   "ref": "J4",
+   "value": "SWD CLK / DATA",
+   "tht": true,
+   "dnp": true,
+   "below_bottom_face_mm": 1.4
+  }
+ ],
+ "past_or_within_0p5_of_edge": [
+  {
+   "ref": "J9",
+   "value": "BNC LCUR",
+   "edge": "front (y min)",
+   "past_edge_mm": 18.48,
+   "span_mm": [
+    126.25,
+    139.75
+   ],
+   "z_mm": [
+    -3.8,
+    13.75
+   ]
+  },
+  {
+   "ref": "J1",
+   "value": "USB-C",
+   "edge": "left (x min)",
+   "past_edge_mm": -0.34,
+   "span_mm": [
+    127.45,
+    136.55
+   ],
+   "z_mm": [
+    0.0,
+    4.22
+   ]
+  },
+  {
+   "ref": "J8",
+   "value": "BNC LPOT",
+   "edge": "front (y min)",
+   "past_edge_mm": 18.48,
+   "span_mm": [
+    104.25,
+    117.75
+   ],
+   "z_mm": [
+    -3.8,
+    13.75
+   ]
+  },
+  {
+   "ref": "J7",
+   "value": "BNC HPOT",
+   "edge": "front (y min)",
+   "past_edge_mm": 18.48,
+   "span_mm": [
+    82.25,
+    95.75
+   ],
+   "z_mm": [
+    -3.8,
+    13.75
+   ]
+  },
+  {
+   "ref": "D4",
+   "value": "ORANGE",
+   "edge": "front (y min)",
+   "past_edge_mm": -0.2,
+   "span_mm": [
+    54.17,
+    55.82
+   ],
+   "z_mm": [
+    -0.0,
+    0.61
+   ]
+  },
+  {
+   "ref": "J3",
+   "value": "BNC HCUR",
+   "edge": "front (y min)",
+   "past_edge_mm": 18.48,
+   "span_mm": [
+    60.25,
+    73.75
+   ],
+   "z_mm": [
+    -3.8,
+    13.75
+   ]
+  }
+ ],
+ "mounting_holes": {
+  "holes": [
+   {
+    "ref": "H3",
+    "x": 54.0,
+    "y": 141.0,
+    "drill": 3.2,
+    "nearest_parts_mm": [
+     [
+      4.2,
+      "U2",
+      2.16
+     ],
+     [
+      4.45,
+      "J1",
+      4.22
+     ],
+     [
+      8.05,
+      "C15",
+      0.8
+     ]
+    ],
+    "parts_clear_of_m3_hardware": true,
+    "nearest_copper_mm": {
+     "F.Cu": [
+      3.86,
+      "pad U2 QSPI1"
+     ],
+     "B.Cu": [
+      1.8,
+      "zone GND"
+     ]
+    },
+    "outer_copper_clear_of_m3_hardware": false
+   },
+   {
+    "ref": "H4",
+    "x": 146.0,
+    "y": 141.0,
+    "drill": 3.2,
+    "nearest_parts_mm": [
+     [
+      4.1,
+      "C81",
+      0.8
+     ],
+     [
+      4.27,
+      "R80",
+      0.45
+     ],
+     [
+      5.33,
+      "R119",
+      0.45
+     ]
+    ],
+    "parts_clear_of_m3_hardware": true,
+    "nearest_copper_mm": {
+     "F.Cu": [
+      3.3,
+      "track/via GND"
+     ],
+     "B.Cu": [
+      1.8,
+      "zone GND"
+     ]
+    },
+    "outer_copper_clear_of_m3_hardware": false
+   },
+   {
+    "ref": "H2",
+    "x": 146.0,
+    "y": 54.0,
+    "drill": 3.2,
+    "nearest_parts_mm": [
+     [
+      4.52,
+      "R129",
+      0.45
+     ],
+     [
+      6.25,
+      "J9",
+      13.75
+     ],
+     [
+      8.57,
+      "U21",
+      2.3
+     ]
+    ],
+    "parts_clear_of_m3_hardware": true,
+    "nearest_copper_mm": {
+     "F.Cu": [
+      3.61,
+      "track/via JACK_LC"
+     ],
+     "B.Cu": [
+      3.5,
+      "track/via JK_HPOT"
+     ]
+    },
+    "outer_copper_clear_of_m3_hardware": true
+   },
+   {
+    "ref": "H1",
+    "x": 54.0,
+    "y": 54.0,
+    "drill": 3.2,
+    "nearest_parts_mm": [
+     [
+      4.8,
+      "R126",
+      0.45
+     ],
+     [
+      4.84,
+      "C121",
+      0.8
+     ],
+     [
+      6.25,
+      "J3",
+      13.75
+     ]
+    ],
+    "parts_clear_of_m3_hardware": true,
+    "nearest_copper_mm": {
+     "F.Cu": [
+      4.76,
+      "zone JACK_HC"
+     ],
+     "B.Cu": [
+      5.0,
+      "track/via JACK_HC"
+     ]
+    },
+    "outer_copper_clear_of_m3_hardware": true
+   }
+  ],
+  "pattern_mm": [
+   92.0,
+   87.0
+  ],
+  "clear_radius_assumed_mm": 3.5
+ },
+ "bnc_panel": {
+  "centres_x_mm": [
+   67.0,
+   89.0,
+   111.0,
+   133.0
+  ],
+  "pitch_mm": [
+   22.0,
+   22.0,
+   22.0
+  ],
+  "axis_above_board_top_mm": 6.775,
+  "nut_across_corners_mm": 16.11,
+  "gap_between_nut_corners_mm": 5.89,
+  "barrel_past_flange_mm": 18.4,
+  "thread_len_mm": 6.6,
+  "drawing": "SAMZO BNCKYWE-P03900 (sources/rev-f/BNC-KYWE-295-W4-N.txt)"
+ },
+ "user_access": {
+  "switches": [
+   {
+    "ref": "SW2",
+    "value": "RESET",
+    "xy": [
+     84.6,
+     141.4,
+     89.6,
+     144.4
+    ],
+    "top_mm": 2.0,
+    "to_back_edge_mm": 0.62
+   },
+   {
+    "ref": "SW1",
+    "value": "BOOTSEL",
+    "xy": [
+     84.6,
+     137.4,
+     89.6,
+     140.4
+    ],
+    "top_mm": 2.0,
+    "to_back_edge_mm": 4.62
+   }
+  ],
+  "leds": [
+   {
+    "ref": "D19",
+    "value": "RED",
+    "xy": [
+     63.8,
+     128.9,
+     65.4,
+     129.7
+    ],
+    "top_mm": 1.1
+   },
+   {
+    "ref": "D18",
+    "value": "RED",
+    "xy": [
+     109.4,
+     139.2,
+     110.2,
+     140.8
+    ],
+    "top_mm": 1.1
+   },
+   {
+    "ref": "D15",
+    "value": "RED",
+    "xy": [
+     101.6,
+     139.2,
+     102.4,
+     140.8
+    ],
+    "top_mm": 1.1
+   },
+   {
+    "ref": "D4",
+    "value": "ORANGE",
+    "xy": [
+     54.17,
+     45.17,
+     55.82,
+     46.32
+    ],
+    "top_mm": 0.61
+   },
+   {
+    "ref": "D17",
+    "value": "RED",
+    "xy": [
+     106.8,
+     139.2,
+     107.6,
+     140.8
+    ],
+    "top_mm": 1.1
+   },
+   {
+    "ref": "D20",
+    "value": "RED",
+    "xy": [
+     64.4,
+     110.95,
+     65.2,
+     112.55
+    ],
+    "top_mm": 1.1
+   },
+   {
+    "ref": "D16",
+    "value": "RED",
+    "xy": [
+     104.2,
+     139.2,
+     105.0,
+     140.8
+    ],
+    "top_mm": 1.1
+   }
+  ]
+ },
+ "model_off_centre_from_fab_over_0p3mm": [
+  {
+   "ref": "J1",
+   "value": "USB-C",
+   "model_xy": [
+    50.32,
+    127.45,
+    58.22,
+    136.55
+   ],
+   "fab_xy": [
+    50.04,
+    127.24,
+    57.7,
+    136.76
+   ],
+   "model_minus_fab": [
+    0.28,
+    0.21,
+    0.52,
+    -0.21
+   ],
+   "centre_shift_xy_mm": [
+    0.4,
+    0.0
+   ]
+  },
+  {
+   "ref": "C117",
+   "value": "330uF 10V polymer",
+   "model_xy": [
+    113.14,
+    131.62,
+    124.06,
+    142.35
+   ],
+   "fab_xy": [
+    114.4,
+    133.4,
+    122.8,
+    141.8
+   ],
+   "model_minus_fab": [
+    -1.26,
+    -1.78,
+    1.26,
+    0.55
+   ],
+   "centre_shift_xy_mm": [
+    0.0,
+    -0.61
+   ]
+  }
+ ],
+ "parts_modelled": 252
+}
