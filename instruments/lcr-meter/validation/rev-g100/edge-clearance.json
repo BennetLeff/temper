@@ -1,6 +1,6 @@
 {
  "board": "cad/temper-lcr.kicad_pcb",
- "board_sha256": "59ca312c4e51af04d4b80d2b3c830032909926ec73beaf241d5574a08a1d7c42",
+ "board_sha256": "342b9bf89eab78d310c50e655803f3426006831990a10c597a20bc4842461820",
  "outline_mm": [
   50.0,
   45.0,
@@ -108,10 +108,10 @@
     "layer": "B.Cu"
    },
    "nearest_track_or_via": {
-    "mm": 0.9,
+    "mm": 0.75,
     "item": "track",
     "who": "5V",
-    "layer": "B.Cu"
+    "layer": "In2.Cu"
    },
    "nearest_land": {
     "mm": 1.525,

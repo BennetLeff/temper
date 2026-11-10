@@ -1,12 +1,12 @@
 {
  "method": "Pinout / land-pattern / JLC-package check of every multi-pin and polarized part (read-only).",
- "board_sha256": "59ca312c4e51af04d4b80d2b3c830032909926ec73beaf241d5574a08a1d7c42",
+ "board_sha256": "342b9bf89eab78d310c50e655803f3426006831990a10c597a20bc4842461820",
  "board_sha256_ledger": "59ca312c4e51af04d4b80d2b3c830032909926ec73beaf241d5574a08a1d7c42",
- "design_sha256": "dbcd8cc3b57569f8cd123064d7bd7e2434c27807704b835e53c1eec23c57e8cf",
- "ledger_sha256": "22e4d246c8151aff6fa455fb7548e32f8d9d4d45781c7fdc35831f40d0d6225e",
+ "design_sha256": "376814d3535d282105050c3844220a00b4f9116811aba9701951ead3c77986b5",
+ "ledger_sha256": "eee56874d8dce656c665dac732f70625c65f1f6aca0b9825a42c2d1c8011f342",
  "kicad_version": "10.0.4",
  "coverage": {
-  "parts_in_ledger": 67,
+  "parts_in_ledger": 68,
   "uncovered": []
  },
  "summary": {
@@ -1261,7 +1261,8 @@
    "id": "SS14 (MDD)",
    "refs": [
     "D2",
-    "D3"
+    "D3",
+    "D29"
    ],
    "mpn": "SS14",
    "lcsc": "C2480",
@@ -1292,6 +1293,11 @@
      "detail": "D3: all 2 pads on the expected nets"
     },
     {
+     "check": "nets",
+     "pass": true,
+     "detail": "D29: all 2 pads on the expected nets"
+    },
+    {
      "check": "pad_count",
      "pass": true,
      "detail": "2 numbered copper pads on the board, datasheet 2"
@@ -1315,13 +1321,19 @@
      "check": "jlc_orientation",
      "pass": true,
      "detail": "D3: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.035 mm (tol 0.4)"
+    },
+    {
+     "check": "jlc_orientation",
+     "pass": true,
+     "detail": "D29: CPL 90 deg (board 90 + 0); 2 EasyEDA pads land on same-function board pads, worst 0.035 mm (tol 0.4)"
     }
    ],
    "findings": [],
    "attention": [],
    "notes": [
     "Boost rectifier: anode SW_P, cathode RAW_P. Inverter: cathode on SW_N (OUTN), anode on RAW_N (VNEG), the TPS65131 topology.",
-    "Board pads 2.5 x 1.8 at 4.0 mm (KiCad D_SMA) extend 0.45 mm further inward than MDD's; outer edge 3.25 vs 2.73 from centre."
+    "Board pads 2.5 x 1.8 at 4.0 mm (KiCad D_SMA) extend 0.45 mm further inward than MDD's; outer edge 3.25 vs 2.73 from centre.",
+    "D29 (G100 audit SL-1): -12V power-up clamp, cathode GND, anode -12V; reverse-biased 12 V in operation (VRRM 40 V)."
    ],
    "result": "PASS"
   },
@@ -2475,5 +2487,6 @@
    "result": "NOTE"
   }
  ],
- "limits": "Checks pad numbering, pad geometry and nets against datasheet text and drawings read by a reviewer; tolerances flag gross land-pattern differences, not IPC fillet compliance. JLC orientation uses the EasyEDA record of the LCSC part, which is what JLC places from; the vendor placement preview remains the final check."
+ "limits": "Checks pad numbering, pad geometry and nets against datasheet text and drawings read by a reviewer; tolerances flag gross land-pattern differences, not IPC fillet compliance. JLC orientation uses the EasyEDA record of the LCSC part, which is what JLC places from; the vendor placement preview remains the final check.",
+ "board_changed": "board differs from the one the ledger was written against; re-review the land rows"
 }

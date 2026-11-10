@@ -10,7 +10,7 @@
    "worst_current_a": 1.17,
    "basis": "TPS2553 ILIM max",
    "source": "J1",
-   "segments": 68,
+   "segments": 56,
    "need_outer_mm": 0.38,
    "need_inner_mm": 0.875,
    "max_segment_current_a": 1.17,
@@ -23,12 +23,12 @@
    "worst_current_a": 1.17,
    "basis": "TPS2553 ILIM max",
    "source": "U16",
-   "segments": 62,
+   "segments": 72,
    "need_outer_mm": 0.38,
    "need_inner_mm": 0.875,
    "max_segment_current_a": 1.17,
    "fail_segments": 0,
-   "vias": 8,
+   "vias": 13,
    "max_via_current_a": 1.17,
    "fail_vias": 0
   },
@@ -75,12 +75,12 @@
    "worst_current_a": 0.5,
    "basis": "TPS7A30 ICL max",
    "source": "U12",
-   "segments": 65,
+   "segments": 67,
    "need_outer_mm": 0.081,
    "need_inner_mm": 0.187,
    "max_segment_current_a": 0.5,
    "fail_segments": 0,
-   "vias": 8,
+   "vias": 9,
    "max_via_current_a": 0.5,
    "fail_vias": 0
   },
@@ -210,8 +210,8 @@
     129.117
    ],
    "width_mm": 0.2,
-   "current_a": 0.6265,
-   "need_mm": 0.122,
+   "current_a": 0.7472,
+   "need_mm": 0.169,
    "status": "PASS"
   },
   {
@@ -226,8 +226,8 @@
     129.117
    ],
    "width_mm": 0.2,
-   "current_a": 0.6265,
-   "need_mm": 0.122,
+   "current_a": 0.7472,
+   "need_mm": 0.169,
    "status": "PASS"
   },
   {
@@ -250,22 +250,6 @@
    "net": "USB_VBUS",
    "layer": "F.Cu",
    "from": [
-    58.29,
-    134.4
-   ],
-   "to": [
-    58.602,
-    134.993
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.1418,
-   "need_mm": 0.008,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
     57.961,
     126.923
    ],
@@ -274,24 +258,8 @@
     127.454
    ],
    "width_mm": 0.2,
-   "current_a": 0.6265,
-   "need_mm": 0.122,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
-    56.239,
-    137.077
-   ],
-   "to": [
-    55.798,
-    136.636
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.1418,
-   "need_mm": 0.008,
+   "current_a": 0.7472,
+   "need_mm": 0.169,
    "status": "PASS"
   },
   {
@@ -306,88 +274,8 @@
     134.4
    ],
    "width_mm": 0.2,
-   "current_a": 0.0005,
+   "current_a": 0.0004,
    "need_mm": 0.0,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
-    58.134,
-    134.525
-   ],
-   "to": [
-    58.072,
-    134.525
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.0,
-   "need_mm": 0.0,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
-    58.046,
-    137.077
-   ],
-   "to": [
-    56.239,
-    137.077
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.1418,
-   "need_mm": 0.008,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
-    58.602,
-    134.993
-   ],
-   "to": [
-    58.602,
-    136.52
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.1418,
-   "need_mm": 0.008,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
-    55.798,
-    136.636
-   ],
-   "to": [
-    55.798,
-    127.364
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.1418,
-   "need_mm": 0.008,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
-    55.798,
-    127.364
-   ],
-   "to": [
-    56.239,
-    126.923
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.1418,
-   "need_mm": 0.008,
    "status": "PASS"
   },
   {
@@ -442,22 +330,6 @@
    "net": "USB_VBUS",
    "layer": "F.Cu",
    "from": [
-    58.602,
-    136.52
-   ],
-   "to": [
-    58.046,
-    137.077
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.1418,
-   "need_mm": 0.008,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
     63.889,
     134.525
    ],
@@ -484,38 +356,6 @@
    "width_mm": 0.2,
    "current_a": 0.0,
    "need_mm": 0.0,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
-    56.239,
-    126.923
-   ],
-   "to": [
-    57.2,
-    126.923
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.1418,
-   "need_mm": 0.008,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
-    57.2,
-    126.923
-   ],
-   "to": [
-    57.961,
-    126.923
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.6265,
-   "need_mm": 0.122,
    "status": "PASS"
   },
   {
@@ -644,22 +484,6 @@
    "width_mm": 0.4,
    "current_a": 0.0,
    "need_mm": 0.0,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
-    57.2,
-    126.923
-   ],
-   "to": [
-    57.2,
-    126.2
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.7682,
-   "need_mm": 0.177,
    "status": "PASS"
   },
   {
@@ -866,8 +690,8 @@
     135.9
    ],
    "width_mm": 0.4,
-   "current_a": 0.4018,
-   "need_mm": 0.055,
+   "current_a": 0.4228,
+   "need_mm": 0.06,
    "status": "PASS"
   },
   {
@@ -946,8 +770,8 @@
     126.2
    ],
    "width_mm": 0.5,
-   "current_a": 0.4018,
-   "need_mm": 0.055,
+   "current_a": 0.4228,
+   "need_mm": 0.06,
    "status": "PASS"
   },
   {
@@ -962,8 +786,8 @@
     126.2
    ],
    "width_mm": 0.5,
-   "current_a": 0.4018,
-   "need_mm": 0.055,
+   "current_a": 0.4228,
+   "need_mm": 0.06,
    "status": "PASS"
   },
   {
@@ -1003,12 +827,12 @@
    "layer": "F.Cu",
    "from": [
     59.2,
+    113.575
+   ],
+   "to": [
+    59.2,
     115.05
    ],
-   "to": [
-    59.2,
-    114.0
-   ],
    "width_mm": 0.4,
    "current_a": 0.0,
    "need_mm": 0.0,
@@ -1018,32 +842,32 @@
    "net": "USB_VBUS",
    "layer": "F.Cu",
    "from": [
-    59.2,
-    114.0
+    57.961,
+    126.923
    ],
    "to": [
-    59.25,
-    113.95
+    57.923,
+    126.923
    ],
-   "width_mm": 0.4,
-   "current_a": 0.0,
-   "need_mm": 0.0,
+   "width_mm": 0.2,
+   "current_a": 0.7472,
+   "need_mm": 0.169,
    "status": "PASS"
   },
   {
    "net": "USB_VBUS",
    "layer": "F.Cu",
    "from": [
-    59.25,
-    113.95
+    57.923,
+    126.923
    ],
    "to": [
-    59.25,
-    112.9
+    57.2,
+    126.2
    ],
-   "width_mm": 0.4,
-   "current_a": 0.0,
-   "need_mm": 0.0,
+   "width_mm": 0.2,
+   "current_a": 0.7472,
+   "need_mm": 0.169,
    "status": "PASS"
   },
   {
@@ -1058,7 +882,7 @@
     129.6
    ],
    "width_mm": 0.2,
-   "current_a": 0.0003,
+   "current_a": 0.0004,
    "need_mm": 0.0,
    "status": "PASS"
   },
@@ -1074,8 +898,24 @@
     129.6
    ],
    "width_mm": 0.2,
-   "current_a": 0.6265,
-   "need_mm": 0.122,
+   "current_a": 0.7472,
+   "need_mm": 0.169,
+   "status": "PASS"
+  },
+  {
+   "net": "USB_VBUS",
+   "layer": "F.Cu",
+   "from": [
+    57.67,
+    134.4
+   ],
+   "to": [
+    57.947,
+    134.4
+   ],
+   "width_mm": 0.2,
+   "current_a": 0.0003,
+   "need_mm": 0.0,
    "status": "PASS"
   },
   {
@@ -1114,38 +954,6 @@
    "net": "USB_VBUS",
    "layer": "F.Cu",
    "from": [
-    57.67,
-    134.4
-   ],
-   "to": [
-    57.947,
-    134.4
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.0003,
-   "need_mm": 0.0,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
-    57.947,
-    134.4
-   ],
-   "to": [
-    58.29,
-    134.4
-   ],
-   "width_mm": 0.2,
-   "current_a": 0.5436,
-   "need_mm": 0.095,
-   "status": "PASS"
-  },
-  {
-   "net": "USB_VBUS",
-   "layer": "F.Cu",
-   "from": [
     61.1,
     134.4
    ],
@@ -1154,8 +962,8 @@
     134.525
    ],
    "width_mm": 0.4,
-   "current_a": 0.4018,
-   "need_mm": 0.055,
+   "current_a": 0.4228,
+   "need_mm": 0.06,
    "status": "PASS"
   },
   {
@@ -1170,8 +978,8 @@
     134.4
    ],
    "width_mm": 0.4,
-   "current_a": 0.4018,
-   "need_mm": 0.055,
+   "current_a": 0.4228,
+   "need_mm": 0.06,
    "status": "PASS"
   },
   {
@@ -1182,12 +990,12 @@
     134.4
    ],
    "to": [
-    58.29,
+    57.947,
     134.4
    ],
    "width_mm": 0.2,
-   "current_a": 0.4018,
-   "need_mm": 0.055,
+   "current_a": 0.4228,
+   "need_mm": 0.06,
    "status": "PASS"
   },
   {
@@ -1442,8 +1250,8 @@
     117.75
    ],
    "width_mm": 0.5,
-   "current_a": 1.17,
-   "need_mm": 0.38,
+   "current_a": 0.8675,
+   "need_mm": 0.221,
    "status": "PASS"
   },
   {
@@ -1458,8 +1266,8 @@
     117.75
    ],
    "width_mm": 0.5,
-   "current_a": 1.17,
-   "need_mm": 0.38,
+   "current_a": 0.8675,
+   "need_mm": 0.221,
    "status": "PASS"
   },
   {
@@ -1775,7 +1583,7 @@
    ],
    "to": [
     51.2,
-    143.55
+    136.8
    ],
    "width_mm": 0.6,
    "current_a": 1.17,
@@ -1787,10 +1595,122 @@
    "layer": "B.Cu",
    "from": [
     51.2,
-    143.55
+    136.8
+   ],
+   "to": [
+    51.2,
+    137.6
+   ],
+   "width_mm": 0.6,
+   "current_a": 0.6597,
+   "need_mm": 0.134,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "layer": "In2.Cu",
+   "from": [
+    51.2,
+    136.8
+   ],
+   "to": [
+    51.2,
+    137.6
+   ],
+   "width_mm": 0.9,
+   "current_a": 0.5103,
+   "need_mm": 0.194,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "layer": "In2.Cu",
+   "from": [
+    51.2,
+    137.6
+   ],
+   "to": [
+    51.2,
+    143.3
+   ],
+   "width_mm": 0.9,
+   "current_a": 1.17,
+   "need_mm": 0.875,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "layer": "In2.Cu",
+   "from": [
+    51.2,
+    143.3
    ],
    "to": [
     51.9,
+    144.0
+   ],
+   "width_mm": 0.9,
+   "current_a": 1.17,
+   "need_mm": 0.875,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "layer": "In2.Cu",
+   "from": [
+    51.9,
+    144.0
+   ],
+   "to": [
+    56.6,
+    144.0
+   ],
+   "width_mm": 0.9,
+   "current_a": 1.17,
+   "need_mm": 0.875,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "layer": "In2.Cu",
+   "from": [
+    56.6,
+    144.0
+   ],
+   "to": [
+    57.4,
+    144.0
+   ],
+   "width_mm": 0.9,
+   "current_a": 0.5103,
+   "need_mm": 0.194,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "layer": "B.Cu",
+   "from": [
+    56.6,
+    144.0
+   ],
+   "to": [
+    57.4,
+    144.0
+   ],
+   "width_mm": 0.6,
+   "current_a": 0.6597,
+   "need_mm": 0.134,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "layer": "B.Cu",
+   "from": [
+    57.4,
+    144.0
+   ],
+   "to": [
+    57.65,
     144.25
    ],
    "width_mm": 0.6,
@@ -1802,7 +1722,7 @@
    "net": "5V",
    "layer": "B.Cu",
    "from": [
-    51.9,
+    57.65,
     144.25
    ],
    "to": [
@@ -1812,6 +1732,54 @@
    "width_mm": 0.6,
    "current_a": 1.17,
    "need_mm": 0.38,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "layer": "F.Cu",
+   "from": [
+    55.95,
+    118.9
+   ],
+   "to": [
+    55.4,
+    118.9
+   ],
+   "width_mm": 0.5,
+   "current_a": 0.3025,
+   "need_mm": 0.033,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "layer": "F.Cu",
+   "from": [
+    55.4,
+    118.9
+   ],
+   "to": [
+    55.062,
+    118.35
+   ],
+   "width_mm": 0.5,
+   "current_a": 0.3025,
+   "need_mm": 0.033,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "layer": "B.Cu",
+   "from": [
+    54.462,
+    117.75
+   ],
+   "to": [
+    55.062,
+    118.35
+   ],
+   "width_mm": 0.5,
+   "current_a": 0.3025,
+   "need_mm": 0.033,
    "status": "PASS"
   },
   {
@@ -2066,7 +2034,7 @@
     118.4
    ],
    "width_mm": 0.5,
-   "current_a": 0.0041,
+   "current_a": 0.003,
    "need_mm": 0.0,
    "status": "PASS"
   },
@@ -2082,8 +2050,8 @@
     118.125
    ],
    "width_mm": 0.5,
-   "current_a": 1.17,
-   "need_mm": 0.38,
+   "current_a": 0.8675,
+   "need_mm": 0.221,
    "status": "PASS"
   },
   {
@@ -4399,6 +4367,22 @@
    ],
    "to": [
     136.2,
+    97.6
+   ],
+   "width_mm": 0.2,
+   "current_a": 0.5,
+   "need_mm": 0.081,
+   "status": "PASS"
+  },
+  {
+   "net": "-12V",
+   "layer": "B.Cu",
+   "from": [
+    136.2,
+    97.6
+   ],
+   "to": [
+    136.2,
     91.6
    ],
    "width_mm": 0.2,
@@ -4756,6 +4740,22 @@
    "width_mm": 0.2,
    "current_a": 0.0001,
    "need_mm": 0.0,
+   "status": "PASS"
+  },
+  {
+   "net": "-12V",
+   "layer": "F.Cu",
+   "from": [
+    137.9,
+    97.6
+   ],
+   "to": [
+    136.2,
+    97.6
+   ],
+   "width_mm": 0.2,
+   "current_a": 0.5,
+   "need_mm": 0.081,
    "status": "PASS"
   },
   {
@@ -7301,7 +7301,7 @@
     126.2
    ],
    "drill_mm": 0.3,
-   "current_a": 0.7682,
+   "current_a": 0.7472,
    "capacity_a": 1.338,
    "status": "PASS"
   },
@@ -7323,7 +7323,7 @@
     135.9
    ],
    "drill_mm": 0.3,
-   "current_a": 0.4018,
+   "current_a": 0.4228,
    "capacity_a": 1.338,
    "status": "PASS"
   },
@@ -7356,7 +7356,7 @@
     117.75
    ],
    "drill_mm": 0.3,
-   "current_a": 1.17,
+   "current_a": 0.902,
    "capacity_a": 1.338,
    "status": "PASS"
   },
@@ -7368,6 +7368,61 @@
    ],
    "drill_mm": 0.3,
    "current_a": 1.17,
+   "capacity_a": 1.338,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "at": [
+    51.2,
+    136.8
+   ],
+   "drill_mm": 0.3,
+   "current_a": 0.5103,
+   "capacity_a": 1.338,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "at": [
+    51.2,
+    137.6
+   ],
+   "drill_mm": 0.3,
+   "current_a": 0.6597,
+   "capacity_a": 1.338,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "at": [
+    56.6,
+    144.0
+   ],
+   "drill_mm": 0.3,
+   "current_a": 0.6597,
+   "capacity_a": 1.338,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "at": [
+    57.4,
+    144.0
+   ],
+   "drill_mm": 0.3,
+   "current_a": 0.5103,
+   "capacity_a": 1.338,
+   "status": "PASS"
+  },
+  {
+   "net": "5V",
+   "at": [
+    55.062,
+    118.35
+   ],
+   "drill_mm": 0.3,
+   "current_a": 0.3025,
    "capacity_a": 1.338,
    "status": "PASS"
   },
@@ -7610,6 +7665,17 @@
    ],
    "drill_mm": 0.3,
    "current_a": 0.0001,
+   "capacity_a": 1.338,
+   "status": "PASS"
+  },
+  {
+   "net": "-12V",
+   "at": [
+    136.2,
+    97.6
+   ],
+   "drill_mm": 0.3,
+   "current_a": 0.5,
    "capacity_a": 1.338,
    "status": "PASS"
   },

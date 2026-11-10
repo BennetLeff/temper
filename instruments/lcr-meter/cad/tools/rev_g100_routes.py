@@ -184,7 +184,18 @@ T('GND', 'F.Cu', (61.25, 112.9), (61.2, 113.9))          # TP21 to the I2S pads'
 # board edge at x 51.2 (west of J1's shell pads and H3), east along the south edge (B.Cu y 144.25, under the In2
 # RUN / MON runs) to C117 and C80; In2 x 99 north from the trunk to R113 and, as on Rev G, to TP1 / R101.
 DELSEG('5V', (58.3, 118.9)); DELV('5V', (57.4, 118.9), (58.3, 118.9))
-T('5V', 'B.Cu', (54.462, 116.4), (51.9, 116.4), (51.2, 117.1), (51.2, 143.55), (51.9, 144.25), (92.0, 144.25), w=0.6)
+# The trunk turns H3's corner on In2 (0.9 mm, two vias each end), so B.Cu keeps 3.5 mm from H3 for a metal standoff
+# (review M1).  A second via where the trunk leaves U16 (audit G-PE-6).
+T('5V', 'B.Cu', (54.462, 116.4), (51.9, 116.4), (51.2, 117.1), (51.2, 137.6), w=0.6)
+V('5V', 51.2, 136.8, d=0.6)
+V('5V', 51.2, 137.6, d=0.6)
+T('5V', 'In2.Cu', (51.2, 136.8), (51.2, 143.3), (51.9, 144.0), (57.4, 144.0), w=0.9)
+V('5V', 56.6, 144.0, d=0.6)
+V('5V', 57.4, 144.0, d=0.6)
+T('5V', 'B.Cu', (56.6, 144.0), (57.4, 144.0), (57.65, 144.25), (92.0, 144.25), w=0.6)
+V('5V', 55.062, 118.35, d=0.6)
+T('5V', 'F.Cu', (55.062, 118.35), (55.95, 118.35), w=0.5)
+T('5V', 'B.Cu', (54.462, 117.75), (55.062, 118.35), w=0.5)
 T('5V', 'B.Cu', (92.0, 144.25), (92.3, 143.95), w=0.6)
 T('5V', 'B.Cu', (92.3, 143.95), (128.6, 143.95), (128.6, 143.75), w=1.0)
 V('5V', 118.6, 143.6)
@@ -213,7 +224,16 @@ DELSEG('USB_VBUS', (69.0, 126.2))
 T('USB_VBUS', 'B.Cu', (61.225, 135.9), (61.225, 126.2), (57.2, 126.2), w=0.5)
 T('USB_VBUS', 'B.Cu', (61.225, 126.2), (69.0, 126.2), (69.85, 127.05))
 DELV('GND', (58.8, 113.9))
-T('USB_VBUS', 'F.Cu', (59.25, 112.9), 'C113.1', w=0.4)
+# C15 (U16's IN bypass) north of C113 on TP20's old spot; its GND to TP21 and that pad's via.  TP20 (VB) takes C15's
+# old land on J1's south exit.  The 0.2 mm VBUS loop under J1's shell goes: both pin pairs have their own exit to the
+# B.Cu feed (audit G-PE-7)
+T('USB_VBUS', 'F.Cu', 'C15.1', 'C113.1', w=0.4)
+T('GND', 'F.Cu', 'C15.2', (60.375, 112.025), (61.25, 112.9))
+DELSEG('GND', (62.775, 137.0))
+DELSEG('USB_VBUS', (56.239, 126.923), (55.798, 127.364), (55.798, 136.636), (56.239, 137.077), (58.046, 137.077),
+       (58.602, 136.52), (58.602, 134.993))
+DELSEG('USB_VBUS', (57.2, 126.923))                             # the north pair's exit now turns 45 deg into the feed via
+T('USB_VBUS', 'F.Cu', (57.961, 126.923), (57.923, 126.923), (57.2, 126.2))
 
 # ============================================================== 7. 3V3: the LDO up to the codec's 3V3 run (which the
 # B.Cu trunk at y 108.9 carries to x 84 and on to U1's east pins, the switcher sequencer and TP8)
@@ -270,3 +290,19 @@ V('3V3', 141.2, 131.75)
 T('3V3', 'F.Cu', (141.2, 131.75), (141.55, 132.1))
 V('3V3', 104.6, 133.9)
 T('3V3', 'F.Cu', (104.6, 133.9), 'R114.2')
+
+# ============================================================== 9. datasheet audit (validation/datasheet-audit-rev-g100/)
+# PROT-04: a second GND via at each jack TVS's ground pad
+for _x in (70.3, 92.3, 114.3, 136.3):
+    V('GND', _x + 0.8, 58.2, d=0.6)
+    T('GND', 'F.Cu', (_x, 58.2), (_x + 0.8, 58.2))
+# SL-7: each LDO's GND pin 4 tied to its PowerPAD on F.Cu ("must be tied directly", TPS7A49 / TPS7A30 11.1)
+T('GND', 'F.Cu', 'U11.4', (129.0, 110.975), (129.5, 110.475), w=0.25)
+T('GND', 'F.Cu', 'U12.4', (142.0, 110.975), (142.5, 110.475), w=0.25)
+# SL-1: D29 (-12V clamp) cathode on C100's GND via, anode onto the -12V B.Cu run
+T('GND', 'F.Cu', 'D29.1', (137.9, 103.6))
+V('-12V', 136.2, 97.6, d=0.6)
+T('-12V', 'F.Cu', 'D29.2', (136.2, 97.6))
+# MD-10: the J4 GND pad's via
+V('GND', 72.1, 116.7, d=0.6)
+T('GND', 'F.Cu', (72.1, 118.0), (72.1, 116.7))

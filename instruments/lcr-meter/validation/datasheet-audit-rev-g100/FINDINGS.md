@@ -13,6 +13,26 @@
 
 "Checked" is my own verification of the auditor's claim before acting on it.
 
+## What was done (2026-11-09)
+
+- **Firmware** (`firmware-rev-e`, commit a45f8da46): PROT-01, G-AFE-01, G-C1 and RCG-05. The host test covers the open-jack float, a charged floating DUT, a grounded source and the LCUR DC trip. Both images rebuild, and the hot-loop bound is unchanged (209 cycles).
+- **Board** (`cad/tools/rev_g100.py`, `rev_g100_routes.py`; gates in `../rev-g100/`):
+  - SL-1: D29 SS14 north of C100;
+  - G-PE-1: C15 beside U16 (TP20 VB to C15's old land);
+  - M1: the 5V corner at H3 on In2;
+  - MD-10: TP22 GND by J4;
+  - G-PE-7: the VBUS loop under J1's shell deleted;
+  - G-PE-6: a second via where 5V leaves U16;
+  - PROT-04: second GND vias on D21–D24;
+  - SL-7: LDO pin-4 bridges to the PowerPAD.
+- **Values on the same lands:**
+  - R101 1 → 0.33 Ω (RCG-01);
+  - R132 / R133 300 → 270 Ω (PROT-05);
+  - C85 to C0G (SL-11);
+  - C39 / C40 / C44 / C45 / C48 / C49 1 → 2.2 µF (G-AFE-05).
+- **Evidence:** `drive_budget.py` now takes its rail from the routed copper (RCG-03). It solves VRLY and RLY_RST as resistor networks and checks the new guard constants, the open-jack float among them. Rev G100's report is `../rev-g100/drive-budget.json`.
+- **Not done; recorded below with a basis:** MD-6, MD-1 / MD-2 and SL-2…4. PROT-02's envelope is corrected in `docs/rev-g-before-after.md` and `../rev-g-protection/README.md`.
+
 ## Must fix before ordering
 
 | ID | Origin | Finding | Checked | Disposition |
@@ -24,7 +44,7 @@
 | M1 (review) | G100 | 5V B.Cu trunk 2.5–2.95 mm from H3's centre, inside the 3.5 mm reserved for an M3 standoff; a metal standoff bridges 5V to its GND pour through solder mask | yes: x 51.2 / y 144.25 against (54, 141) | **Layout:** take the corner on In2 (0.9 mm, two vias each end), so B.Cu stays ≥ 3.5 mm |
 | RCG-01 | G100 (+ G's LEDs on VRLY) | Relay RESET at VBUS 4.40 V leaves about 4.10 V on the coils. Must-operate is 3.75 V at 20 °C and rises about 6–8 % at 40 °C, so the margin is gone at a relay temperature of about 45 °C. G100's trunk (110.5 mΩ against Rev F's 49.8) undid Rev F's R101 fix | yes: the chain adds up from `regulator-check.json` and R101 | **BOM / layout:** recover the drop (R101 value, trunk) and rerun `drive_budget.py` with the routed copper |
 | MD-10 | G100 | J4 (SWD) has no GND reference since J5 went. The nearest GND pad is 9.3 mm away | yes | **Layout:** a GND test pad beside J4 |
-| MD-6 | G100 | RUN runs 74 mm from U1.26 to C14 (Rev F 27 mm), 0.15 mm on In2, 42.8 mm beside MON12, with no filter at the pin | yes | **Layout:** 100 nF / 1 nF within 3 mm of U1.26 |
+| MD-6 | G100 | RUN runs 74 mm from U1.26 to C14 (Rev F 27 mm), 0.15 mm on In2, 42.8 mm beside MON12, with no filter at the pin | yes | **Accepted (not fixable on this board).** No 0603 spot within 6 mm of U1.26 can reach a GND via without crossing In2 RUN, 3V3 or the USB pair; every one was checked. The run is on In2 under the In1 plane. Its neighbours are MON12 / MON_N12 (100 nF-filtered DC dividers) and the 5V trunk. C14 holds the far end, and a reset glitch is visible (USB drops), not a silent error. **Bring-up:** log `watchdog_caused_reboot` / reset reason over 1 h of captures with the switcher at full load. A respin puts C14 at the pin |
 
 ## Fix on this board if the copper allows (cheap, real)
 
@@ -37,8 +57,8 @@
 | G-AFE-05 | F | OPA2810 11.1: "Larger (2.2-µF to 6.8-µF) decoupling capacitors … must also be used". Only 1 µF (about 0.5 µF at 12 V) per rail | 1 µF → 2.2–4.7 µF 50 V X7R, same 0805 land, if a JLC part fits |
 | SL-11 | F | TI specifies the TPS65131 CN cap as C0G; C85 is X7R | Swap to C0G, same land |
 | SL-7 | F | TPS7A49/30 11.1: "The GND pin must be tied directly to the PowerPAD"; pin 4 reaches it only through a via and In1 | Add a top-layer bridge if it fits the copied LDO copper |
-| SL-2…4 | F | The TPS65131 power loops are long: one ground via per cap, no top PGND pour. INP peak margin is 1.7 V static | Add GND vias at C89/C90/C82/C91/C92. Scope SW_P / SW_N at bring-up |
-| MD-1, MD-2 | F | RP2040: VREG_VIN's 1 µF (C5) is about 7–14 mm of track from pin 44 ("must … close"); DVDD pin 50 has no 100 nF of its own | Try a closer 1 µF / 100 nF south of U1. If the QSPI fan-out leaves no room, accept and record as a Rev F carry-over |
+| SL-2…4 | F | The TPS65131 power loops are long: one ground via per cap, no top PGND pour. INP peak margin is 1.7 V static | **Not done:** the only via spots on the cap pads' axes outside the body are 1.8–2.9 mm away, too far to shorten the loop. They stay the auditor's respin item. **Bring-up:** scope SW_P / SW_N with a short ground at VIN 5.5 V, at start-up and at load |
+| MD-1, MD-2 | F | RP2040: VREG_VIN's 1 µF (C5) is about 7–14 mm of track from pin 44 ("must … close"); DVDD pin 50 has no 100 nF of its own | **Accepted as a Rev F carry-over:** U1's south side is closed by the QSPI fan-out and the USB pair on all signal layers (the MD-6 search covered it). Rev F has the same layout |
 | G-C1 | F | Before `codec_start()` the codec sinks 9 µA, so the TIA leg can pump 3V3A to 3.7–4.6 V at power-up through C74/D11 (AVDD abs max 3.9 V) | **Firmware:** wake U14 and power the ADC before `rails_wait()`. Hardware (Schottky 3V3A → 3V3) at a respin; scope C60 at bring-up |
 | RCG-05 | G | REFCAPTURE sets K4 before checking the jacks. A charged DUT then puts about 14 V on R107, the 0.1 % reference | **Firmware:** require `jackguard_ready()` before setting K4 |
 

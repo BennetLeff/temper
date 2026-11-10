@@ -102,7 +102,7 @@ for name, b in BODIES.items():
 
 _tp = [list(t) for t in TESTPOINTS]
 _TP_MOVE = {  # (name, old x, old y) -> (x, y, label x, label y)
-    ('VB', 62.225): (59.25, 112.9, 58.75, 111.3),          # USB_VBUS at U16 IN, north of C113
+    ('VB', 62.225): (61.225, 137.0, 63.25, 137.0),        # USB_VBUS on J1's south pins' exit, where C15 was (C15 went to U16)
     ('GND', 64.225): (61.25, 112.9, 61.75, 111.3),
     ('GND', 92.0): (94.6, 141.6, 97.2, 141.6),           # the debugger's GND beside TP8 3V3 (old spot is past the edge)
     ('3V3', 92.0): (92.0, 141.6, 92.0, 143.5),           # TP8 stays; its label goes south (SW2 is west of it now)
@@ -134,11 +134,40 @@ PLACE_G100 = {
     'R9': (83.25, 140.0, 90), 'C14': (91.0, 138.75, 90),
     # 3V3 bulk next to R130's 3V3 run
     'C18': (64.75, 125.0, 90),
+    # U16's 100 nF IN bypass beside U16, on TP20's old spot north of C113 (audit G-PE-1; it was left at J1)
+    'C15': (59.2, 112.8, 90),
 }
 for r, at in PLACE_G100.items():
     parts[r]['pcb'] = list(at)
 del parts['J5']
 design['parts'] = [p for p in design['parts'] if p['ref'] != 'J5']
+
+# ------------------------------------------------------------------ datasheet audit (validation/datasheet-audit-rev-g100/)
+# Value changes on the same lands, and the -12 V clamp.  JLC records 2026-11-09.
+
+
+def _bom(refs, value, mpn, mfr, lcsc, usd, stock, lib, query):
+    for r in refs.split():
+        parts[r].update(value=value, mpn=mpn, manufacturer=mfr, lcsc=lcsc, unit_usd=usd, stock=stock, library_type=lib,
+                        source_query=query)
+
+
+_bom('R101', '0.33R', '0603WAF330LT5E', 'UNI-ROYAL(Uniroyal Elec)', 'C23410', 0.0055, 33494, 'extended',
+     'VRLY feed: recovers the relay RESET margin G100\'s longer 5V trunk took (audit RCG-01, drive_budget.py)')
+_bom('R132 R133', '270R', '0603WAF2700T5E', 'UNI-ROYAL(Uniroyal Elec)', 'C22966', 0.0017, 644588, 'basic',
+     'TLP172AM LED string: >= 5 mA at VBUS 4.40 V and VF max on the routed rail (audit PROT-05, drive_budget.py)')
+_bom('C85', '4.7nF 50V C0G', 'CC0603JRNPO9BN472', 'YAGEO', 'C576818', 0.0285, 250589, 'extended',
+     'TPS65131 CN: C0G as the datasheet specifies (audit SL-11)')
+_bom('C39 C40 C44 C45 C48 C49', '2.2uF 50V X7R', 'CC0805KKX7R9BB225', 'YAGEO', 'C125847', 0.1143, 85423, 'extended',
+     'OPA2810 supply: 2.2-6.8 uF "must also be used" (SBOS799 11.1; audit G-AFE-05)')
+# The op amps' supply current leaves through V- while +12 V is up before -12 V (U11 starts first): nothing sinks it
+# and -12V rises until an input ESD diode conducts.  A Schottky from -12V to GND at C100 holds it near 0 V (audit SL-1).
+_d29 = like('D2', 'D29', {'1': 'GND', '2': '-12V'}, '-12V power-up clamp, cathode GND (audit SL-1)')
+_d29['sheet'] = 'power'
+parts['D29'] = _d29
+design['parts'].append(_d29)
+PLACE_G100['D29'] = (137.9, 99.6, 90)          # north of C100, cathode on C100's GND via
+parts['D29']['pcb'] = list(PLACE_G100['D29'])
 
 # ------------------------------------------------------------------ board
 design['board'].update(
@@ -150,6 +179,8 @@ routing['zones'] = [dict(z, points=[[x, min(y, 144.5)] for x, y in z['points']])
 for ko in routing['keepouts']:
     if ko.get('name') == 'FID3 clear':
         ko['points'] = [[x, round(y + DY, 4)] for x, y in ko['points']]
+# the debugger's GND beside J4 (SWD), 3.1 mm east of SWCLK, clear of J4's courtyard (audit MD-10)
+_tp.append(['GND', 'GND', 72.1, 118.0, 1.5, 72.1, 120.0])
 TESTPOINTS = [tuple(t) for t in _tp]
 design['board']['testpoints'] = [list(t[:5]) for t in TESTPOINTS]
 design['revision'] = 'G'

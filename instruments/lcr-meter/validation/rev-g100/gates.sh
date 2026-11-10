@@ -49,6 +49,7 @@ LCR_MFG_DIR=$D LCR_FAB_QUOTE=$D/fab-quote.json LCR_PRICES="$PRICES" "$KICAD_PYTH
 # power entry and switcher moved: 5 V trunk / regulators, switcher near-field pickup (vs Rev E, as Rev F's), analog copper
 LCR_CPL=$D/cpl-jlcpcb.csv LCR_OUT=$D/regulator-check.json python3 validation/power-spurs/regulator_check.py | tail -1
 python3 validation/power-spurs/switcher_pickup.py --rev-f . --out $D/switcher-pickup.json | tail -1
+LCR_OUT=$D/drive-budget.json python3 validation/rev-g-protection/drive_budget.py | grep -v '^PASS' || true   # FAIL rows print
 sh validation/rev-g100/copper_delta_vs_g.sh > /dev/null && echo "copper delta -> $D/copper-delta-vs-g.json"
 # hot-plug (about 3 min on 8 jobs): LCR_L_BOARD=30e-9 LCR_OUT=$D/hotplug-spice.json python3 validation/power-spurs/hotplug_spice.py --jobs 8
 echo "gates done: outputs in $D/"

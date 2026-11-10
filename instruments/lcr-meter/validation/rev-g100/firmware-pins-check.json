@@ -1,11 +1,11 @@
 {
  "inputs": {
-  "cad/design.json": "dbcd8cc3b57569f8cd123064d7bd7e2434c27807704b835e53c1eec23c57e8cf",
+  "cad/design.json": "376814d3535d282105050c3844220a00b4f9116811aba9701951ead3c77986b5",
   "firmware-rev-e/src/pins.h": "27dc8de1c814b3a87129e81d1e40e380025dc886947fb35f32f5b944b1b0a075",
   "firmware-rev-e/src/relay.c": "5bafd6729c0ca3c09b40133e7ec5a189dd51344e2eed1c04e35a00db31922927",
   "firmware-rev-e/src/rails.c": "338c3b0db7923e2e846727ab45590b390f7db8b95f52531b68f5ebe0e6f93491",
-  "firmware-rev-e/src/main.c": "aa5ca00ec0f537f0f9976123ff52d10c8625de8341fe079e503c08a368015c70",
-  "firmware-rev-e/src/jackguard.h": "8d9794c8cf887d985afef111c3400068ee68d65f6f758045f505e240d8601277"
+  "firmware-rev-e/src/main.c": "558642d7f9bb3a52d8dd412eb8bb84ec9fce13226c30b8c269cf3657ac892c0d",
+  "firmware-rev-e/src/jackguard.h": "5e55cbd2e838b297a74b76533b5e1b4755474dffc58703ff89b9f6193590f7f1"
  },
  "findings": [],
  "passes": [
@@ -319,7 +319,7 @@
   },
   {
    "check": "isolation drive",
-   "detail": "ISO_SINK sinks the LED strings [(['U18', 'U19'], 'ISO_S1', [('R132', 'VRLY', '300R')]), (['U21', 'U20'], 'ISO_S2', [('R133', 'VRLY', '300R')])]; photoMOS ['U18', 'U19', 'U20', 'U21']"
+   "detail": "ISO_SINK sinks the LED strings [(['U18', 'U19'], 'ISO_S1', [('R132', 'VRLY', '270R')]), (['U21', 'U20'], 'ISO_S2', [('R133', 'VRLY', '270R')])]; photoMOS ['U18', 'U19', 'U20', 'U21']"
   },
   {
    "check": "isolation switch",

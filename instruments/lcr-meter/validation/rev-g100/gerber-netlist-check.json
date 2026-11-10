@@ -4,19 +4,19 @@
  "inputs": {
   "fab_files": {
    "zip": "build/rev-g100-gerbers.zip",
-   "sha256": "d4e30f5857ee80b7bbd1b1bec9a632893dab8a86714d28019c795ac0db2c7ea9"
+   "sha256": "3c20452b0b2a3715ab3bd9bea9e31a93ca4d3b5c2154993fa905a5c5b2d85c9d"
   },
   "zip_members_used": {
-   "temper-lcr-B_Cu.gbl": "9aa607bbc047041c6653b76a520880efb2b4cc8869b5ad9addc5e5ee3249084d",
-   "temper-lcr-F_Cu.gtl": "290485b91c814bfea9b9be6891c271dafbd437753f2c17302749bd9fb6be0658",
-   "temper-lcr-In1_Cu.g1": "4affdb09fcdce60702dd0b20de21fecf90b361af3aa69f96714538860725d770",
-   "temper-lcr-In2_Cu.g2": "3a7ef98c1d3500bc273c787a31156b6fa09afe0b5e7726362ffd3c997d9a5a9e",
-   "temper-lcr-NPTH.drl": "a27c5c1b6225149cc0896435716e50b76448996075a2dbb4c6837e0663431659",
-   "temper-lcr-PTH.drl": "4fac9eca2e35b5bfec169282e121ffd363bf098d95436e3a84542c755fdc8d6a"
+   "temper-lcr-B_Cu.gbl": "19d5993ea8e662b589637be60ed41fcddc36ce70bb6c4e3c1c764b3bd9739b36",
+   "temper-lcr-F_Cu.gtl": "72680a6d8fb1d13cdbc3c516391231ff673c85d20a4cb519999aa59045ff254f",
+   "temper-lcr-In1_Cu.g1": "de94c37afbafd61c875ce4a7b176776a3b76d270e099aabba99c408a66230945",
+   "temper-lcr-In2_Cu.g2": "2c063b1763847ebfd3aecda8202fa1644eef8c43b868b6f84ab4c7593ae79eec",
+   "temper-lcr-NPTH.drl": "998b894c84eafbb17e51a47579053a347f557d171ad2a334bdf1b9ae38c74f9a",
+   "temper-lcr-PTH.drl": "098102419ddbe645e2adad4e48208f7db36c7f32765ca0c68829f39fcc27f7bf"
   },
   "ipc_d356": {
    "source": "fab set:temper-lcr.d356",
-   "sha256": "3858c68f56d340fe87a0c093c786e87d8a1b3a44f0c0f6ac1553154db4e298b9"
+   "sha256": "7802e823313aa8afcfec5ea3e7b3cfa5279366442c34f386b6ce790f780601b4"
   },
   "schematic": {
    "path": "cad/temper-lcr.kicad_sch",
@@ -24,11 +24,11 @@
   },
   "schematic_netlist": {
    "source": "kicad-cli sch export netlist cad/temper-lcr.kicad_sch (exported at run time)",
-   "sha256": "25d2dd1fc623aab5371005f1f68529fa2f87ef8959a084f572c9b7b5cd9bdc77"
+   "sha256": "55b8faf91b841b53acff42efd5896f82207fee064c4ccb25ae4181cd1f7209dc"
   },
   "board_for_reference_only": {
    "path": "cad/temper-lcr.kicad_pcb",
-   "sha256": "59ca312c4e51af04d4b80d2b3c830032909926ec73beaf241d5574a08a1d7c42",
+   "sha256": "342b9bf89eab78d310c50e655803f3426006831990a10c597a20bc4842461820",
    "note": "not read by the checker; IPC-356 positions come from it"
   }
  },
@@ -40,23 +40,23 @@
  "pass": true,
  "counts": {
   "copper_pieces_per_layer": {
-   "F.Cu": 526,
-   "In1.Cu": 196,
-   "In2.Cu": 213,
-   "B.Cu": 215
+   "F.Cu": 531,
+   "In1.Cu": 202,
+   "In2.Cu": 220,
+   "B.Cu": 221
   },
   "copper_components": 183,
-  "pth_holes": 450,
+  "pth_holes": 461,
   "pth_slots": 4,
   "npth_holes": 6,
-  "ipc_records": 1199,
-  "ipc_pads": 769,
-  "ipc_vias": 424,
+  "ipc_records": 1213,
+  "ipc_pads": 772,
+  "ipc_vias": 435,
   "schematic_nets": 180,
   "nets_checked_for_opens": 143,
   "single_pin_nets": 37,
   "components_with_pads": 183,
-  "board_only_pads": 21
+  "board_only_pads": 22
  },
  "shorts": [],
  "opens": [],
@@ -73,11 +73,60 @@
    "net": "RAW_P"
   },
   {
-   "x": 57.2008,
-   "y": 23.401,
-   "ref": "TP10",
+   "x": 6.2001,
+   "y": 32.6009,
+   "ref": "TP19",
    "pin": "1",
-   "net": "RLY_SET_LO"
+   "net": "GND"
+  },
+  {
+   "x": 95.6005,
+   "y": 28.1762,
+   "ref": "TP7",
+   "pin": "1",
+   "net": "RAW_N"
+  },
+  {
+   "x": 97.8992,
+   "y": 59.4004,
+   "ref": "TP13",
+   "pin": "1",
+   "net": "RLY_SET_REF"
+  },
+  {
+   "x": 73.599,
+   "y": 25.4,
+   "ref": "TP5",
+   "pin": "1",
+   "net": "VRLY"
+  },
+  {
+   "x": 6.2001,
+   "y": 40.5994,
+   "ref": "TP15",
+   "pin": "1",
+   "net": "I2S_BCLK"
+  },
+  {
+   "x": 6.2001,
+   "y": 34.5999,
+   "ref": "TP18",
+   "pin": "1",
+   "net": "I2S_DIN"
+  },
+  {
+   "x": 11.2243,
+   "y": 8.001,
+   "ref": "TP20",
+   "pin": "1",
+   "net": "USB_VBUS"
+  },
+  {
+   "x": 44.5999,
+   "y": 3.4011,
+   "ref": "TP9",
+   "pin": "1",
+   "net": "GND"
   },
   {
    "x": 50.5003,
@@ -87,11 +136,60 @@
    "net": "5V"
   },
   {
-   "x": 97.8992,
-   "y": 59.4004,
-   "ref": "TP13",
+   "x": 59.7992,
+   "y": 17.399,
+   "ref": "TP4",
    "pin": "1",
-   "net": "RLY_SET_REF"
+   "net": "-12V"
+  },
+  {
+   "x": 55.9994,
+   "y": 13.7998,
+   "ref": "TP3",
+   "pin": "1",
+   "net": "12V"
+  },
+  {
+   "x": 71.9988,
+   "y": 23.401,
+   "ref": "TP12",
+   "pin": "1",
+   "net": "RLY_SET_HI"
+  },
+  {
+   "x": 6.2001,
+   "y": 38.6004,
+   "ref": "TP16",
+   "pin": "1",
+   "net": "I2S_FSYNC"
+  },
+  {
+   "x": 41.9989,
+   "y": 3.4011,
+   "ref": "TP8",
+   "pin": "1",
+   "net": "3V3"
+  },
+  {
+   "x": 6.2001,
+   "y": 36.5989,
+   "ref": "TP17",
+   "pin": "1",
+   "net": "I2S_DOUT"
+  },
+  {
+   "x": 22.1005,
+   "y": 27.0002,
+   "ref": "TP22",
+   "pin": "1",
+   "net": "GND"
+  },
+  {
+   "x": 11.2497,
+   "y": 32.1005,
+   "ref": "TP21",
+   "pin": "1",
+   "net": "GND"
   },
   {
    "x": 38.9001,
@@ -108,11 +206,11 @@
    "net": "RLY_RST"
   },
   {
-   "x": 73.599,
-   "y": 25.4,
-   "ref": "TP5",
+   "x": 57.2008,
+   "y": 23.401,
+   "ref": "TP10",
    "pin": "1",
-   "net": "VRLY"
+   "net": "RLY_SET_LO"
   },
   {
    "x": 53.1012,
@@ -120,97 +218,6 @@
    "ref": "TP2",
    "pin": "1",
    "net": "GND"
-  },
-  {
-   "x": 95.6005,
-   "y": 28.1762,
-   "ref": "TP7",
-   "pin": "1",
-   "net": "RAW_N"
-  },
-  {
-   "x": 41.9989,
-   "y": 3.4011,
-   "ref": "TP8",
-   "pin": "1",
-   "net": "3V3"
-  },
-  {
-   "x": 59.7992,
-   "y": 17.399,
-   "ref": "TP4",
-   "pin": "1",
-   "net": "-12V"
-  },
-  {
-   "x": 6.2001,
-   "y": 38.6004,
-   "ref": "TP16",
-   "pin": "1",
-   "net": "I2S_FSYNC"
-  },
-  {
-   "x": 6.2001,
-   "y": 40.5994,
-   "ref": "TP15",
-   "pin": "1",
-   "net": "I2S_BCLK"
-  },
-  {
-   "x": 44.5999,
-   "y": 3.4011,
-   "ref": "TP9",
-   "pin": "1",
-   "net": "GND"
-  },
-  {
-   "x": 71.9988,
-   "y": 23.401,
-   "ref": "TP12",
-   "pin": "1",
-   "net": "RLY_SET_HI"
-  },
-  {
-   "x": 11.2497,
-   "y": 32.1005,
-   "ref": "TP21",
-   "pin": "1",
-   "net": "GND"
-  },
-  {
-   "x": 6.2001,
-   "y": 32.6009,
-   "ref": "TP19",
-   "pin": "1",
-   "net": "GND"
-  },
-  {
-   "x": 9.2507,
-   "y": 32.1005,
-   "ref": "TP20",
-   "pin": "1",
-   "net": "USB_VBUS"
-  },
-  {
-   "x": 6.2001,
-   "y": 36.5989,
-   "ref": "TP17",
-   "pin": "1",
-   "net": "I2S_DOUT"
-  },
-  {
-   "x": 6.2001,
-   "y": 34.5999,
-   "ref": "TP18",
-   "pin": "1",
-   "net": "I2S_DIN"
-  },
-  {
-   "x": 55.9994,
-   "y": 13.7998,
-   "ref": "TP3",
-   "pin": "1",
-   "net": "12V"
   }
  ],
  "schematic_pins_without_board_pad": [],
@@ -336,10 +343,10 @@
   "region_area_vs_shoelace_max_rel": 2.0785329026267514e-10,
   "roundrect_flash_hull_minus_area_max_mm2": 2.6645352591003757e-15,
   "primitive_counts": {
-   "ArcPoly": 1871,
-   "Circle": 5096,
-   "Rectangle": 2853,
-   "Line": 1953
+   "ArcPoly": 1898,
+   "Circle": 5160,
+   "Rectangle": 2861,
+   "Line": 1959
   }
  },
  "timing_s": {
@@ -363,7 +370,7 @@
    "caught": true
   },
   "open": {
-   "mutation": "F.Cu: Gerber line 6947 draw (80.425,71.540)->(83.220,71.540) turned into a move; it was the only track joining R107-2 and K4-7",
+   "mutation": "F.Cu: Gerber line 6972 draw (80.425,71.540)->(83.220,71.540) turned into a move; it was the only track joining K4-7 and R107-2",
    "expected_open_on": "REF_A",
    "checker_pass": false,
    "opens_reported": [

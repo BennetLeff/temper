@@ -1636,7 +1636,8 @@
    "id": "SS14 (MDD)",
    "refs": [
     "D2",
-    "D3"
+    "D3",
+    "D29"
    ],
    "mpn": "SS14",
    "lcsc": "C2480",
@@ -1654,6 +1655,10 @@
     "D3": {
      "1": "SW_N",
      "2": "RAW_N"
+    },
+    "D29": {
+     "1": "GND",
+     "2": "-12V"
     }
    },
    "land": {
@@ -1676,7 +1681,8 @@
    "jlc": {},
    "notes": [
     "Boost rectifier: anode SW_P, cathode RAW_P. Inverter: cathode on SW_N (OUTN), anode on RAW_N (VNEG), the TPS65131 topology.",
-    "Board pads 2.5 x 1.8 at 4.0 mm (KiCad D_SMA) extend 0.45 mm further inward than MDD's; outer edge 3.25 vs 2.73 from centre."
+    "Board pads 2.5 x 1.8 at 4.0 mm (KiCad D_SMA) extend 0.45 mm further inward than MDD's; outer edge 3.25 vs 2.73 from centre.",
+    "D29 (G100 audit SL-1): -12V power-up clamp, cathode GND, anode -12V; reverse-biased 12 V in operation (VRRM 40 V)."
    ],
    "datasheet_ref": "ss14"
   },

@@ -1,0 +1,256 @@
+{
+ "design": {
+  "revision": "G",
+  "r101": [
+   "R101",
+   0.33
+  ],
+  "r_led": [
+   [
+    "R132",
+    270.0
+   ],
+   [
+    "R133",
+    270.0
+   ]
+  ],
+  "sense": {
+   "JACK_HC": {
+    "r_top": [
+     "R126",
+     1500000.0
+    ],
+    "r_bias": [
+     "R127",
+     240000.0
+    ],
+    "r_gnd": [
+     "R128",
+     240000.0
+    ],
+    "c_pin": [
+     "C121",
+     1.0000000000000001e-07
+    ]
+   },
+   "JACK_LC": {
+    "r_top": [
+     "R129",
+     1500000.0
+    ],
+    "r_bias": [
+     "R130",
+     240000.0
+    ],
+    "r_gnd": [
+     "R131",
+     240000.0
+    ],
+    "c_pin": [
+     "C122",
+     1.0000000000000001e-07
+    ]
+   }
+  }
+ },
+ "copper_ohm": {
+  "trunk": {
+   "ohm": 0.12024649788713954,
+   "mm": 109.50790839573891
+  },
+  "vrly_drop_v": 0.018331673197348883,
+  "vrly_worst": "K1",
+  "rly_rst_drop_v": 0.015515802924181078,
+  "rly_rst_worst": "K4"
+ },
+ "drive": {
+  "worst_low": {
+   "vbus": 4.4,
+   "v5_at_r101": 4.258651009352489,
+   "vf": 1.4,
+   "i_coil_ma": 0.0,
+   "i_string_ma": 5.388242064764836,
+   "i_total_ma": 10.776484129529672,
+   "vrly": 4.2550947695897445,
+   "coil_v": 4.2550947695897445
+  },
+  "typical": {
+   "vbus": 5.0,
+   "v5_at_r101": 4.856747566656027,
+   "vf": 1.27,
+   "i_coil_ma": 0.0,
+   "i_string_ma": 8.558042062192117,
+   "i_total_ma": 17.116084124384233,
+   "vrly": 4.851099258894981,
+   "coil_v": 4.851099258894981
+  },
+  "worst_high": {
+   "vbus": 5.5,
+   "v5_at_r101": 5.492696091978698,
+   "vf": 1.1,
+   "i_coil_ma": 0.0,
+   "i_string_ma": 12.163186036639571,
+   "i_total_ma": 24.326372073279142,
+   "vrly": 5.484668389194516,
+   "coil_v": 5.484668389194516
+  },
+  "reset_pulse": {
+   "vbus": 4.4,
+   "v5_at_r101": 4.2250600928989215,
+   "vf": 1.4,
+   "i_coil_ma": 112.4,
+   "i_string_ma": 5.12714008680478,
+   "i_total_ma": 10.25428017360956,
+   "vrly": 4.184584180441631,
+   "coil_v": 4.1453415043201005
+  }
+ },
+ "sense": {
+  "gain": 0.07407407407407407,
+  "mid_v": 1.5277777777777777,
+  "pin_v": {
+   "-10 V": 0.787037037037037,
+   "+0 V": 1.5277777777777777,
+   "+10 V": 2.268518518518518
+  },
+  "full_scale_jack_v": [
+   -20.625,
+   23.925
+  ],
+  "open_jack_float_v": 1.5277777777777777,
+  "bias_into_jack_ua": 1.0185185185185186,
+  "tia_dc_offset_v": {
+   "100": 0.00010185185185185186,
+   "5000": 0.005092592592592593,
+   "100000": 0.10185185185185186
+  },
+  "lcur_ac_load": 2.2e-05,
+  "tau_ms": 11.11111111111111,
+  "settle_ms": 27.163995353050986,
+  "lc_trip_settle_ms": 20.530075783978628,
+  "tone_ripple_at_46hz_jack_v": 0.5074368473727937
+ },
+ "usb_a": {
+  "base": 0.46,
+  "with_drive_typ": 0.4771160841243843,
+  "with_drive_max": 0.48432637207327917
+ },
+ "timing": {
+  "t_on_max_ms": 2.0,
+  "t_off_max_ms": 0.5
+ },
+ "thresholds_mv": {
+  "JG_CLOSE_DIFF_MV": 1000,
+  "JG_CLOSE_LO_MV": -1000,
+  "JG_CLOSE_HI_MV": 2650,
+  "JG_TRIP_MV": 3000,
+  "JG_TRIP_LC_MV": 500,
+  "JG_SETTLE_MS": 40
+ },
+ "checks": [
+  {
+   "check": "firmware thresholds equal these (jackguard.h)",
+   "value": 1.0,
+   "limit": 1.0,
+   "pass_": true
+  },
+  {
+   "check": "open-jack float inside the close window (audit PROT-01): CLOSE_HI - float, V",
+   "value": 1.122222,
+   "limit": 0.0,
+   "pass_": true
+  },
+  {
+   "check": "open-jack float inside the close window: float - CLOSE_LO, V",
+   "value": 2.527778,
+   "limit": 0.0,
+   "pass_": true
+  },
+  {
+   "check": "a closable jack does not trip HCUR: TRIP - CLOSE_HI, V",
+   "value": 0.35,
+   "limit": 0.0,
+   "pass_": true
+  },
+  {
+   "check": "settle before the LCUR trip arms (JG_SETTLE_MS) >= tON + sense fall CLOSE_HI -> TRIP_LC, ms",
+   "value": 19.469924,
+   "limit": 0.0,
+   "pass_": true
+  },
+  {
+   "check": "firmware divider constants equal these (jackguard.h)",
+   "value": 1.0,
+   "limit": 1.0,
+   "pass_": true
+  },
+  {
+   "check": "firmware stable window (JG_STABLE_POLLS x JG_POLL_MS) >= sense settling from the clamp, ms",
+   "value": 7.836005,
+   "limit": 0.0,
+   "pass_": true
+  },
+  {
+   "check": "LED current at the lowest rail, highest VF >= 5 mA",
+   "value": 5.388242,
+   "limit": 5.0,
+   "pass_": true
+  },
+  {
+   "check": "LED current at the highest rail, lowest VF <= 25 mA",
+   "value": 12.163186,
+   "limit": 25.0,
+   "pass_": true
+  },
+  {
+   "check": "LED current during the RESET pulse, lowest rail, highest VF > IFT max 3 mA",
+   "value": 5.12714,
+   "limit": 3.0,
+   "pass_": true
+  },
+  {
+   "check": "relay coil voltage during the RESET pulse, VBUS 4.40 V, routed copper >= 3.75 V must-operate (20 C)",
+   "value": 4.145342,
+   "limit": 3.75,
+   "pass_": true
+  },
+  {
+   "check": "relay coil voltage during the RESET pulse >= must-operate at a 45 C relay (coil copper +0.4 %/C, TQ catalog guideline)",
+   "value": 4.145342,
+   "limit": 4.125,
+   "pass_": true
+  },
+  {
+   "check": "sense pin at -10 V jack >= 0 V",
+   "value": 0.787037,
+   "limit": 0.0,
+   "pass_": true
+  },
+  {
+   "check": "sense pin at +10 V jack <= 3.3 V",
+   "value": 2.268519,
+   "limit": 3.3,
+   "pass_": true
+  },
+  {
+   "check": "TIA DC offset from the sense bias, 100 k range <= 2 % of the swing",
+   "value": 0.101852,
+   "limit": 0.22,
+   "pass_": true
+  },
+  {
+   "check": "46 Hz tone ripple at the sense, as jack volts < the HCUR trip threshold",
+   "value": 0.507437,
+   "limit": 3.0,
+   "pass_": true
+  },
+  {
+   "check": "USB load with the drive (typical) <= 0.5 A",
+   "value": 0.477116,
+   "limit": 0.5,
+   "pass_": true
+  }
+ ],
+ "pass_": true
+}

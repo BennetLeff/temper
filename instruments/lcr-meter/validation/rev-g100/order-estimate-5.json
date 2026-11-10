@@ -1,8 +1,8 @@
 {
  "boards": 5,
  "board_counts": {
-  "placements": 247,
-  "smt_joints": 723,
+  "placements": 248,
+  "smt_joints": 725,
   "leadless": [
    "U1",
    "U13",
@@ -16,8 +16,8 @@
    "J9"
   ]
  },
- "extended_lines": 31,
- "basic_or_preferred_lines": 46,
+ "extended_lines": 34,
+ "basic_or_preferred_lines": 45,
  "lines": [
   {
    "lcsc": "C57112",
@@ -30,18 +30,6 @@
    "unit": 0.0103,
    "cost": 0.5665,
    "stock": 5760596
-  },
-  {
-   "lcsc": "C53987",
-   "mpn": "0603B472K500NT",
-   "assembly": "SMT",
-   "library": "base",
-   "preferred": false,
-   "need": 5,
-   "buy": 20,
-   "unit": 0.005,
-   "cost": 0.1,
-   "stock": 857341
   },
   {
    "lcsc": "C1669",
@@ -109,10 +97,10 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 15,
-   "buy": 25,
+   "need": 10,
+   "buy": 20,
    "unit": 0.0031,
-   "cost": 0.0775,
+   "cost": 0.062,
    "stock": 506997
   },
   {
@@ -176,6 +164,18 @@
    "stock": 287262
   },
   {
+   "lcsc": "C22966",
+   "mpn": "0603WAF2700T5E",
+   "assembly": "SMT",
+   "library": "base",
+   "preferred": false,
+   "need": 10,
+   "buy": 20,
+   "unit": 0.0017,
+   "cost": 0.034,
+   "stock": 643983
+  },
+  {
    "lcsc": "C25190",
    "mpn": "0603WAF270JT5E",
    "assembly": "SMT",
@@ -186,18 +186,6 @@
    "unit": 0.0018,
    "cost": 0.036,
    "stock": 510645
-  },
-  {
-   "lcsc": "C23025",
-   "mpn": "0603WAF3000T5E",
-   "assembly": "SMT",
-   "library": "base",
-   "preferred": false,
-   "need": 10,
-   "buy": 20,
-   "unit": 0.0018,
-   "cost": 0.036,
-   "stock": 2847425
   },
   {
    "lcsc": "C4211",
@@ -222,6 +210,18 @@
    "unit": 0.0024,
    "cost": 0.048,
    "stock": 3624626
+  },
+  {
+   "lcsc": "C23410",
+   "mpn": "0603WAF330LT5E",
+   "assembly": "SMT",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 20,
+   "unit": 0.0055,
+   "cost": 0.11,
+   "stock": 33494
   },
   {
    "lcsc": "C23151",
@@ -452,6 +452,18 @@
    "stock": 747005
   },
   {
+   "lcsc": "C576818",
+   "mpn": "CC0603JRNPO9BN472",
+   "assembly": "SMT",
+   "library": "expand",
+   "preferred": false,
+   "need": 5,
+   "buy": 20,
+   "unit": 0.0285,
+   "cost": 0.57,
+   "stock": 250589
+  },
+  {
    "lcsc": "C107054",
    "mpn": "CC0603JRNPO9BN561",
    "assembly": "SMT",
@@ -474,6 +486,18 @@
    "unit": 0.0125,
    "cost": 2.0,
    "stock": 33008166
+  },
+  {
+   "lcsc": "C125847",
+   "mpn": "CC0805KKX7R9BB225",
+   "assembly": "SMT",
+   "library": "expand",
+   "preferred": false,
+   "need": 30,
+   "buy": 36,
+   "unit": 0.1143,
+   "cost": 4.1148,
+   "stock": 85403
   },
   {
    "lcsc": "C15849",
@@ -565,10 +589,10 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 80,
-   "buy": 90,
+   "need": 50,
+   "buy": 60,
    "unit": 0.028,
-   "cost": 2.52,
+   "cost": 1.68,
    "stock": 4082174
   },
   {
@@ -841,10 +865,10 @@
    "assembly": "SMT",
    "library": "base",
    "preferred": false,
-   "need": 10,
-   "buy": 20,
+   "need": 15,
+   "buy": 25,
    "unit": 0.0192,
-   "cost": 0.384,
+   "cost": 0.48,
    "stock": 1627728
   },
   {
@@ -981,24 +1005,24 @@
   "options": "FR-4, 4 layers, 100 x 100 mm, qty 5, 1 design, single PCB, 1.6 mm, green/white, FR4 TG135, ENIG 1 u\", 1 oz outer / 0.5 oz inner, via covering Plugged (page default), 0.3 mm/(0.4/0.45 mm) min via, +-0.2 mm outline, flying-probe test, 3-4 day build (the options of manufacturing/fab-quote.json, height 100)"
  },
  "economic": {
-  "SMT parts": 238.11,
-  "SMT joints": 5.78,
+  "SMT parts": 242.04,
+  "SMT joints": 5.8,
   "X-ray": 12.3,
   "Confirm placement": 0.45,
   "PCB fabrication": 25.7,
   "Setup": 8.18,
   "Stencil": 1.53,
-  "Extended-part fee": 95.17
+  "Extended-part fee": 104.38
  },
  "standard": {
-  "SMT parts": 238.11,
-  "SMT joints": 5.78,
+  "SMT parts": 242.04,
+  "SMT joints": 5.8,
   "X-ray": 12.3,
   "Confirm placement": 0.45,
   "PCB fabrication": 25.7,
   "Setup": 25.56,
   "Stencil": 8.21,
-  "Feeder loading": 165.55,
+  "Feeder loading": 173.23,
   "Fixtures": 16.42
  },
  "jlc_hand_fit": {
@@ -1007,8 +1031,8 @@
   "Hand-soldering labour": 3.58
  },
  "totals": {
-  "economic": 387.22,
-  "standard": 498.08,
+  "economic": 400.38,
+  "standard": 509.71,
   "jlc_hand_fit": 31.07
  },
  "excluded": [

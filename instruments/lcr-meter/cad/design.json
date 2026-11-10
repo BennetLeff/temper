@@ -58,7 +58,7 @@
         0
       ],
       "U2": [
-        64.576,
+        65.576,
         137.919,
         0
       ],
@@ -310,6 +310,11 @@
       "D28": [
         121.782,
         66.245,
+        0
+      ],
+      "D29": [
+        134.962,
+        96.645,
         0
       ],
       "L1": [
@@ -803,8 +808,8 @@
         0
       ],
       "C15": [
-        64.918,
-        136.545,
+        58.7,
+        110.689,
         0
       ],
       "C16": [
@@ -1028,8 +1033,8 @@
         0
       ],
       "C100": [
-        137.9,
-        103.669,
+        141.414,
+        106.645,
         0
       ],
       "C104": [
@@ -1273,14 +1278,20 @@
       ],
       [
         "VB",
-        58.75,
-        111.3,
+        63.25,
+        137.0,
         1.0
       ],
       [
         "GND",
         61.75,
         111.3,
+        1.0
+      ],
+      [
+        "GND",
+        72.1,
+        120.0,
         1.0
       ]
     ],
@@ -1435,8 +1446,8 @@
       [
         "VB",
         "USB_VBUS",
-        59.25,
-        112.9,
+        61.225,
+        137.0,
         1.0
       ],
       [
@@ -1445,6 +1456,13 @@
         61.25,
         112.9,
         1.0
+      ],
+      [
+        "GND",
+        "GND",
+        72.1,
+        118.0,
+        1.5
       ]
     ],
     "title_block": true,
@@ -1505,7 +1523,7 @@
         1.2
       ],
       [
-        "5. Drill summary (456 holes; drill files temper-lcr-PTH.drl / -NPTH.drl govern):",
+        "5. Drill summary (467 holes; drill files temper-lcr-PTH.drl / -NPTH.drl govern):",
         156.0,
         63.8,
         1.2
@@ -1523,7 +1541,7 @@
         1.2
       ],
       [
-        "  vias       356 x 0.30 mm drill, 0.60 mm pad",
+        "  vias       367 x 0.30 mm drill, 0.60 mm pad",
         156.0,
         70.1,
         1.2
@@ -4415,9 +4433,9 @@
         "2": "GND"
       },
       "pcb": [
-        62.0,
-        137.0,
-        0
+        59.2,
+        112.8,
+        90
       ],
       "sheet": "digital",
       "mpn": "CC0603KRX7R9BB104",
@@ -4551,7 +4569,7 @@
     },
     {
       "ref": "C39",
-      "value": "1uF 50V",
+      "value": "2.2uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "pins": {
@@ -4564,18 +4582,18 @@
         90
       ],
       "sheet": "source",
-      "mpn": "CL21B105KBFNNNE",
-      "manufacturer": "Samsung Electro-Mechanics",
-      "lcsc": "C28323",
-      "unit_usd": 0.0344,
-      "stock": 2191637,
-      "library_type": "basic",
+      "mpn": "CC0805KKX7R9BB225",
+      "manufacturer": "YAGEO",
+      "lcsc": "C125847",
+      "unit_usd": 0.1143,
+      "stock": 85423,
+      "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "1uF 50V 0805"
+      "source_query": "OPA2810 supply: 2.2-6.8 uF \"must also be used\" (SBOS799 11.1; audit G-AFE-05)"
     },
     {
       "ref": "C40",
-      "value": "1uF 50V",
+      "value": "2.2uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "pins": {
@@ -4588,14 +4606,14 @@
         0
       ],
       "sheet": "source",
-      "mpn": "CL21B105KBFNNNE",
-      "manufacturer": "Samsung Electro-Mechanics",
-      "lcsc": "C28323",
-      "unit_usd": 0.0344,
-      "stock": 2191637,
-      "library_type": "basic",
+      "mpn": "CC0805KKX7R9BB225",
+      "manufacturer": "YAGEO",
+      "lcsc": "C125847",
+      "unit_usd": 0.1143,
+      "stock": 85423,
+      "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "1uF 50V 0805"
+      "source_query": "OPA2810 supply: 2.2-6.8 uF \"must also be used\" (SBOS799 11.1; audit G-AFE-05)"
     },
     {
       "ref": "C42",
@@ -4647,7 +4665,7 @@
     },
     {
       "ref": "C44",
-      "value": "1uF 50V",
+      "value": "2.2uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "pins": {
@@ -4660,18 +4678,18 @@
         0
       ],
       "sheet": "afe",
-      "mpn": "CL21B105KBFNNNE",
-      "manufacturer": "Samsung Electro-Mechanics",
-      "lcsc": "C28323",
-      "unit_usd": 0.0344,
-      "stock": 2191637,
-      "library_type": "basic",
+      "mpn": "CC0805KKX7R9BB225",
+      "manufacturer": "YAGEO",
+      "lcsc": "C125847",
+      "unit_usd": 0.1143,
+      "stock": 85423,
+      "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "1uF 50V 0805"
+      "source_query": "OPA2810 supply: 2.2-6.8 uF \"must also be used\" (SBOS799 11.1; audit G-AFE-05)"
     },
     {
       "ref": "C45",
-      "value": "1uF 50V",
+      "value": "2.2uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "pins": {
@@ -4684,14 +4702,14 @@
         180
       ],
       "sheet": "afe",
-      "mpn": "CL21B105KBFNNNE",
-      "manufacturer": "Samsung Electro-Mechanics",
-      "lcsc": "C28323",
-      "unit_usd": 0.0344,
-      "stock": 2191637,
-      "library_type": "basic",
+      "mpn": "CC0805KKX7R9BB225",
+      "manufacturer": "YAGEO",
+      "lcsc": "C125847",
+      "unit_usd": 0.1143,
+      "stock": 85423,
+      "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "1uF 50V 0805"
+      "source_query": "OPA2810 supply: 2.2-6.8 uF \"must also be used\" (SBOS799 11.1; audit G-AFE-05)"
     },
     {
       "ref": "C46",
@@ -4743,7 +4761,7 @@
     },
     {
       "ref": "C48",
-      "value": "1uF 50V",
+      "value": "2.2uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "pins": {
@@ -4756,18 +4774,18 @@
         90
       ],
       "sheet": "afe",
-      "mpn": "CL21B105KBFNNNE",
-      "manufacturer": "Samsung Electro-Mechanics",
-      "lcsc": "C28323",
-      "unit_usd": 0.0344,
-      "stock": 2191637,
-      "library_type": "basic",
+      "mpn": "CC0805KKX7R9BB225",
+      "manufacturer": "YAGEO",
+      "lcsc": "C125847",
+      "unit_usd": 0.1143,
+      "stock": 85423,
+      "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "1uF 50V 0805"
+      "source_query": "OPA2810 supply: 2.2-6.8 uF \"must also be used\" (SBOS799 11.1; audit G-AFE-05)"
     },
     {
       "ref": "C49",
-      "value": "1uF 50V",
+      "value": "2.2uF 50V X7R",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0805_2012Metric",
       "pins": {
@@ -4780,14 +4798,14 @@
         270
       ],
       "sheet": "afe",
-      "mpn": "CL21B105KBFNNNE",
-      "manufacturer": "Samsung Electro-Mechanics",
-      "lcsc": "C28323",
-      "unit_usd": 0.0344,
-      "stock": 2191637,
-      "library_type": "basic",
+      "mpn": "CC0805KKX7R9BB225",
+      "manufacturer": "YAGEO",
+      "lcsc": "C125847",
+      "unit_usd": 0.1143,
+      "stock": 85423,
+      "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "1uF 50V 0805"
+      "source_query": "OPA2810 supply: 2.2-6.8 uF \"must also be used\" (SBOS799 11.1; audit G-AFE-05)"
     },
     {
       "ref": "C80",
@@ -4911,7 +4929,7 @@
     },
     {
       "ref": "C85",
-      "value": "4.7nF 50V",
+      "value": "4.7nF 50V C0G",
       "kind": "C",
       "footprint": "Capacitor_SMD:C_0603_1608Metric",
       "pins": {
@@ -4924,14 +4942,14 @@
         90
       ],
       "sheet": "power",
-      "mpn": "0603B472K500NT",
-      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
-      "lcsc": "C53987",
-      "unit_usd": 0.0058,
-      "stock": 987812,
-      "library_type": "basic",
+      "mpn": "CC0603JRNPO9BN472",
+      "manufacturer": "YAGEO",
+      "lcsc": "C576818",
+      "unit_usd": 0.0285,
+      "stock": 250589,
+      "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "4.7nF 50V 0603"
+      "source_query": "TPS65131 CN: C0G as the datasheet specifies (audit SL-11)"
     },
     {
       "ref": "C86",
@@ -7522,7 +7540,7 @@
     },
     {
       "ref": "R101",
-      "value": "1R",
+      "value": "0.33R",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -7535,14 +7553,14 @@
         0
       ],
       "sheet": "range",
-      "mpn": "0603WAF100KT5E",
+      "mpn": "0603WAF330LT5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C22936",
-      "unit_usd": 0.0027,
-      "stock": 172210,
-      "library_type": "basic",
+      "lcsc": "C23410",
+      "unit_usd": 0.0055,
+      "stock": 33494,
+      "library_type": "extended",
       "assembly": "SMT",
-      "source_query": "VRLY feed: 112 mA RESET pulse drops 0.11 V (TQ2SA coil margin)"
+      "source_query": "VRLY feed: recovers the relay RESET margin G100's longer 5V trunk took (audit RCG-01, drive_budget.py)"
     },
     {
       "ref": "C112",
@@ -8735,7 +8753,7 @@
     },
     {
       "ref": "R132",
-      "value": "300R",
+      "value": "270R",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -8748,18 +8766,18 @@
         90
       ],
       "sheet": "protect",
-      "mpn": "0603WAF3000T5E",
+      "mpn": "0603WAF2700T5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C23025",
+      "lcsc": "C22966",
       "unit_usd": 0.0017,
-      "stock": 2847215,
+      "stock": 644588,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "HCUR + HPOT LED string, 5.0 mA at 4.31 V and VF 1.4 V (drive_budget.py)"
+      "source_query": "TLP172AM LED string: >= 5 mA at VBUS 4.40 V and VF max on the routed rail (audit PROT-05, drive_budget.py)"
     },
     {
       "ref": "R133",
-      "value": "300R",
+      "value": "270R",
       "kind": "R",
       "footprint": "Resistor_SMD:R_0603_1608Metric",
       "pins": {
@@ -8772,14 +8790,14 @@
         90
       ],
       "sheet": "protect",
-      "mpn": "0603WAF3000T5E",
+      "mpn": "0603WAF2700T5E",
       "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-      "lcsc": "C23025",
+      "lcsc": "C22966",
       "unit_usd": 0.0017,
-      "stock": 2847215,
+      "stock": 644588,
       "library_type": "basic",
       "assembly": "SMT",
-      "source_query": "LPOT + LCUR LED string, 5.0 mA at 4.31 V and VF 1.4 V (drive_budget.py)"
+      "source_query": "TLP172AM LED string: >= 5 mA at VBUS 4.40 V and VF max on the routed rail (audit PROT-05, drive_budget.py)"
     },
     {
       "ref": "Q7",
@@ -8853,6 +8871,30 @@
       "library_type": "basic",
       "assembly": "SMT",
       "source_query": "Q7 gate pull-down: switches open from power-up"
+    },
+    {
+      "ref": "D29",
+      "value": "SS14",
+      "kind": "DIODE",
+      "footprint": "Diode_SMD:D_SMA",
+      "pins": {
+        "1": "GND",
+        "2": "-12V"
+      },
+      "pcb": [
+        137.9,
+        99.6,
+        90
+      ],
+      "sheet": "power",
+      "mpn": "SS14",
+      "manufacturer": "MDD(Microdiode Semiconductor)",
+      "lcsc": "C2480",
+      "unit_usd": 0.0192,
+      "stock": 1333524,
+      "library_type": "basic",
+      "assembly": "SMT",
+      "source_query": "-12V power-up clamp, cathode GND (audit SL-1)"
     }
   ],
   "power_flags": [

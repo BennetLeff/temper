@@ -535,7 +535,7 @@
   },
   {
    "ref": "C39",
-   "value": "1uF 50V",
+   "value": "2.2uF 50V X7R",
    "nets": [
     "12V",
     "GND"
@@ -557,7 +557,7 @@
   },
   {
    "ref": "C40",
-   "value": "1uF 50V",
+   "value": "2.2uF 50V X7R",
    "nets": [
     "-12V",
     "GND"
@@ -590,7 +590,7 @@
   },
   {
    "ref": "C44",
-   "value": "1uF 50V",
+   "value": "2.2uF 50V X7R",
    "nets": [
     "12V",
     "GND"
@@ -601,7 +601,7 @@
   },
   {
    "ref": "C45",
-   "value": "1uF 50V",
+   "value": "2.2uF 50V X7R",
    "nets": [
     "-12V",
     "GND"
@@ -634,7 +634,7 @@
   },
   {
    "ref": "C48",
-   "value": "1uF 50V",
+   "value": "2.2uF 50V X7R",
    "nets": [
     "12V",
     "GND"
@@ -645,7 +645,7 @@
   },
   {
    "ref": "C49",
-   "value": "1uF 50V",
+   "value": "2.2uF 50V X7R",
    "nets": [
     "-12V",
     "GND"
@@ -997,7 +997,7 @@
   },
   {
    "ref": "C85",
-   "value": "4.7nF 50V",
+   "value": "4.7nF 50V C0G",
    "nets": [
     "CONV_CN",
     "GND"
@@ -1206,13 +1206,13 @@
   },
   {
    "ref": "R101",
-   "value": "1R",
+   "value": "0.33R",
    "nets": [
     "5V",
     "VRLY"
    ],
    "worst_v": 5.5,
-   "power_w": 0.01262,
+   "power_w": 0.00417,
    "basis": "VRLY: four TQ2SA-L2-5V RESET coils at once, 5 V / 178 ohm each (relay.c, TQ datasheet coil table)"
   },
   {
@@ -1569,24 +1569,24 @@
   },
   {
    "ref": "R132",
-   "value": "300R",
+   "value": "270R",
    "nets": [
     "VRLY",
     "ISO_S1"
    ],
    "worst_v": 20.31,
-   "power_w": 0.03581,
+   "power_w": 0.03223,
    "basis": "TLP172AM LED string at 5.5 V and VF min (rev-g-protection/drive-budget.json worst_high)"
   },
   {
    "ref": "R133",
-   "value": "300R",
+   "value": "270R",
    "nets": [
     "VRLY",
     "ISO_S2"
    ],
    "worst_v": 20.31,
-   "power_w": 0.03581,
+   "power_w": 0.03223,
    "basis": "TLP172AM LED string at 5.5 V and VF min (rev-g-protection/drive-budget.json worst_high)"
   },
   {

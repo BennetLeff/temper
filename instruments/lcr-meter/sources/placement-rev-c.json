@@ -98,7 +98,8 @@
     "U18": 270,
     "U19": 270,
     "U20": 270,
-    "U21": 270
+    "U21": 270,
+    "D29": 0
   },
   "parts": [
     {
@@ -4234,7 +4235,8 @@
       "mpn": "SS14",
       "references": [
         "D2",
-        "D3"
+        "D3",
+        "D29"
       ],
       "native_footprint": "Diode_SMD:D_SMA",
       "source_url": "https://easyeda.com/api/products/C2480/components",

@@ -16,14 +16,8 @@
  },
  "tallest_top": [
   {
-   "ref": "J9",
-   "value": "BNC LCUR",
-   "height_mm": 13.75,
-   "model": "BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
-  },
-  {
-   "ref": "J8",
-   "value": "BNC LPOT",
+   "ref": "J3",
+   "value": "BNC HCUR",
    "height_mm": 13.75,
    "model": "BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
   },
@@ -34,8 +28,14 @@
    "model": "BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
   },
   {
-   "ref": "J3",
-   "value": "BNC HCUR",
+   "ref": "J8",
+   "value": "BNC LPOT",
+   "height_mm": 13.75,
+   "model": "BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
+  },
+  {
+   "ref": "J9",
+   "value": "BNC LCUR",
    "height_mm": 13.75,
    "model": "BNC_SAMZO_KYWE-295-W4-N_Horizontal.step"
   },
@@ -52,8 +52,8 @@
    "model": "CP_Elec_8x6.9.step"
   },
   {
-   "ref": "K3",
-   "value": "TQ2SA-L2-5V 100k",
+   "ref": "K1",
+   "value": "TQ2SA-L2-5V 100R",
    "height_mm": 5.6,
    "model": "Relay_DPDT_Panasonic_TQ2SA_SMD.step"
   },
@@ -70,8 +70,8 @@
    "model": "Relay_DPDT_Panasonic_TQ2SA_SMD.step"
   },
   {
-   "ref": "K1",
-   "value": "TQ2SA-L2-5V 100R",
+   "ref": "K3",
+   "value": "TQ2SA-L2-5V 100k",
    "height_mm": 5.6,
    "model": "Relay_DPDT_Panasonic_TQ2SA_SMD.step"
   },
@@ -90,15 +90,8 @@
  ],
  "below_board": [
   {
-   "ref": "J9",
-   "value": "BNC LCUR",
-   "tht": true,
-   "dnp": false,
-   "below_bottom_face_mm": 2.2
-  },
-  {
-   "ref": "J8",
-   "value": "BNC LPOT",
+   "ref": "J3",
+   "value": "BNC HCUR",
    "tht": true,
    "dnp": false,
    "below_bottom_face_mm": 2.2
@@ -111,8 +104,15 @@
    "below_bottom_face_mm": 2.2
   },
   {
-   "ref": "J3",
-   "value": "BNC HCUR",
+   "ref": "J8",
+   "value": "BNC LPOT",
+   "tht": true,
+   "dnp": false,
+   "below_bottom_face_mm": 2.2
+  },
+  {
+   "ref": "J9",
+   "value": "BNC LCUR",
    "tht": true,
    "dnp": false,
    "below_bottom_face_mm": 2.2
@@ -127,13 +127,13 @@
  ],
  "past_or_within_0p5_of_edge": [
   {
-   "ref": "J9",
-   "value": "BNC LCUR",
+   "ref": "J3",
+   "value": "BNC HCUR",
    "edge": "front (y min)",
    "past_edge_mm": 18.48,
    "span_mm": [
-    126.25,
-    139.75
+    60.25,
+    73.75
    ],
    "z_mm": [
     -3.8,
@@ -155,17 +155,17 @@
    ]
   },
   {
-   "ref": "J8",
-   "value": "BNC LPOT",
+   "ref": "D4",
+   "value": "ORANGE",
    "edge": "front (y min)",
-   "past_edge_mm": 18.48,
+   "past_edge_mm": -0.2,
    "span_mm": [
-    104.25,
-    117.75
+    54.17,
+    55.82
    ],
    "z_mm": [
-    -3.8,
-    13.75
+    -0.0,
+    0.61
    ]
   },
   {
@@ -183,27 +183,27 @@
    ]
   },
   {
-   "ref": "D4",
-   "value": "ORANGE",
-   "edge": "front (y min)",
-   "past_edge_mm": -0.2,
-   "span_mm": [
-    54.17,
-    55.82
-   ],
-   "z_mm": [
-    -0.0,
-    0.61
-   ]
-  },
-  {
-   "ref": "J3",
-   "value": "BNC HCUR",
+   "ref": "J8",
+   "value": "BNC LPOT",
    "edge": "front (y min)",
    "past_edge_mm": 18.48,
    "span_mm": [
-    60.25,
-    73.75
+    104.25,
+    117.75
+   ],
+   "z_mm": [
+    -3.8,
+    13.75
+   ]
+  },
+  {
+   "ref": "J9",
+   "value": "BNC LCUR",
+   "edge": "front (y min)",
+   "past_edge_mm": 18.48,
+   "span_mm": [
+    126.25,
+    139.75
    ],
    "z_mm": [
     -3.8,
@@ -213,76 +213,6 @@
  ],
  "mounting_holes": {
   "holes": [
-   {
-    "ref": "H3",
-    "x": 54.0,
-    "y": 141.0,
-    "drill": 3.2,
-    "nearest_parts_mm": [
-     [
-      4.2,
-      "U2",
-      2.16
-     ],
-     [
-      4.45,
-      "J1",
-      4.22
-     ],
-     [
-      8.05,
-      "C15",
-      0.8
-     ]
-    ],
-    "parts_clear_of_m3_hardware": true,
-    "nearest_copper_mm": {
-     "F.Cu": [
-      3.86,
-      "pad U2 QSPI1"
-     ],
-     "B.Cu": [
-      1.8,
-      "zone GND"
-     ]
-    },
-    "outer_copper_clear_of_m3_hardware": false
-   },
-   {
-    "ref": "H4",
-    "x": 146.0,
-    "y": 141.0,
-    "drill": 3.2,
-    "nearest_parts_mm": [
-     [
-      4.1,
-      "C81",
-      0.8
-     ],
-     [
-      4.27,
-      "R80",
-      0.45
-     ],
-     [
-      5.33,
-      "R119",
-      0.45
-     ]
-    ],
-    "parts_clear_of_m3_hardware": true,
-    "nearest_copper_mm": {
-     "F.Cu": [
-      3.3,
-      "track/via GND"
-     ],
-     "B.Cu": [
-      1.8,
-      "zone GND"
-     ]
-    },
-    "outer_copper_clear_of_m3_hardware": false
-   },
    {
     "ref": "H2",
     "x": 146.0,
@@ -352,6 +282,76 @@
      ]
     },
     "outer_copper_clear_of_m3_hardware": true
+   },
+   {
+    "ref": "H3",
+    "x": 54.0,
+    "y": 141.0,
+    "drill": 3.2,
+    "nearest_parts_mm": [
+     [
+      4.2,
+      "U2",
+      2.16
+     ],
+     [
+      4.45,
+      "J1",
+      4.22
+     ],
+     [
+      10.71,
+      "D1",
+      1.55
+     ]
+    ],
+    "parts_clear_of_m3_hardware": true,
+    "nearest_copper_mm": {
+     "F.Cu": [
+      3.67,
+      "track/via 5V"
+     ],
+     "B.Cu": [
+      1.8,
+      "zone GND"
+     ]
+    },
+    "outer_copper_clear_of_m3_hardware": false
+   },
+   {
+    "ref": "H4",
+    "x": 146.0,
+    "y": 141.0,
+    "drill": 3.2,
+    "nearest_parts_mm": [
+     [
+      4.1,
+      "C81",
+      0.8
+     ],
+     [
+      4.27,
+      "R80",
+      0.45
+     ],
+     [
+      5.33,
+      "R119",
+      0.45
+     ]
+    ],
+    "parts_clear_of_m3_hardware": true,
+    "nearest_copper_mm": {
+     "F.Cu": [
+      3.3,
+      "track/via GND"
+     ],
+     "B.Cu": [
+      1.8,
+      "zone GND"
+     ]
+    },
+    "outer_copper_clear_of_m3_hardware": false
    }
   ],
   "pattern_mm": [
@@ -408,50 +408,6 @@
   ],
   "leds": [
    {
-    "ref": "D19",
-    "value": "RED",
-    "xy": [
-     63.8,
-     128.9,
-     65.4,
-     129.7
-    ],
-    "top_mm": 1.1
-   },
-   {
-    "ref": "D18",
-    "value": "RED",
-    "xy": [
-     109.4,
-     139.2,
-     110.2,
-     140.8
-    ],
-    "top_mm": 1.1
-   },
-   {
-    "ref": "D15",
-    "value": "RED",
-    "xy": [
-     101.6,
-     139.2,
-     102.4,
-     140.8
-    ],
-    "top_mm": 1.1
-   },
-   {
-    "ref": "D4",
-    "value": "ORANGE",
-    "xy": [
-     54.17,
-     45.17,
-     55.82,
-     46.32
-    ],
-    "top_mm": 0.61
-   },
-   {
     "ref": "D17",
     "value": "RED",
     "xy": [
@@ -474,12 +430,56 @@
     "top_mm": 1.1
    },
    {
+    "ref": "D19",
+    "value": "RED",
+    "xy": [
+     63.8,
+     128.9,
+     65.4,
+     129.7
+    ],
+    "top_mm": 1.1
+   },
+   {
     "ref": "D16",
     "value": "RED",
     "xy": [
      104.2,
      139.2,
      105.0,
+     140.8
+    ],
+    "top_mm": 1.1
+   },
+   {
+    "ref": "D18",
+    "value": "RED",
+    "xy": [
+     109.4,
+     139.2,
+     110.2,
+     140.8
+    ],
+    "top_mm": 1.1
+   },
+   {
+    "ref": "D4",
+    "value": "ORANGE",
+    "xy": [
+     54.17,
+     45.17,
+     55.82,
+     46.32
+    ],
+    "top_mm": 0.61
+   },
+   {
+    "ref": "D15",
+    "value": "RED",
+    "xy": [
+     101.6,
+     139.2,
+     102.4,
      140.8
     ],
     "top_mm": 1.1
@@ -540,5 +540,5 @@
    ]
   }
  ],
- "parts_modelled": 252
+ "parts_modelled": 253
 }

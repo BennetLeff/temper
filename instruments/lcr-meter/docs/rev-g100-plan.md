@@ -4,8 +4,8 @@ Rev G100 is Rev G (protected jacks, [rev-g-plan.md](rev-g-plan.md)) laid out aga
 
 The feasibility study (`../validation/rev-g/shrink-100-feasibility.json`) found that the protection band could not be squeezed. The 10 mm therefore comes out of the digital and power south of U1.
 
-**Status (2026-11-09): laid out, hand-routed, every board gate clean, independent review pending. Not orderable.** These steps remain:
-- the independent review of the frozen export;
+**Status (2026-11-09): laid out, hand-routed, datasheet-audited, the audit's fixes applied, every board gate clean. Not orderable.** The datasheet audit and the first independent review are in `../validation/datasheet-audit-rev-g100/FINDINGS.md`; §6 lists what they changed. These steps remain:
+- a second independent review of a frozen export of this board;
 - JLC's placement preview;
 - Rev G's own open items, which G100 inherits unchanged (Rev F bring-up on the shared analog nodes; [bring-up-rev-g.md](bring-up-rev-g.md)).
 
@@ -48,23 +48,24 @@ Branch `study/lcr-rev-g100`. Rev G (100 × 110) stays intact on `study/lcr-rev-g
 
 | Check | Result | Evidence (`../validation/rev-g100/`) |
 |---|---|---|
-| Pre-DRC (`rev_g100.py --check`) | 0 violations, 0 unconnected (769 pads, 1933 segments, 424 vias) | `../build/rev-g100-predrc.json` |
+| Pre-DRC (`rev_g100.py --check`) | 0 violations, 0 unconnected (772 pads, 1939 segments, 435 vias) | `../build/rev-g100-predrc.json` |
 | KiCad ERC / DRC / unconnected / parity | 0 / 0 / 0 / 0 (silk warnings included) | `erc.json`, `drc.json` |
 | JLC fab pass (`jlcpcb-4layer-1oz`) | PASS | `fab-check.json` |
 | DFM via audit | 33 exposed-pad thermal vias only | `via-in-pad-process.json` |
 | Gerber netlist (Gerbers + drill + IPC-D-356) | 0 shorts, 0 opens; the self-test catches a planted short, open and floating island | `gerber-netlist-check.json` |
-| Independent audit (`independent_check.py g100`) | 742 pins (Rev G 744, less J5), 12 relief pins, 0 findings; the Rev G jack → switch → series-R topology holds | `../independent-verification-rev-g100.json` |
-| Pinout ledger (`ledger-rev-g100.json`: Rev G's, without J5) | 25 PASS, 6 NOTE, 0 FINDING, nothing uncovered | `../pinout-ledger/ledger-rev-g100.check.json` |
+| Independent audit (`independent_check.py g100`) | 744 pins (Rev G 744, less J5, plus D29), 12 relief pins, 0 findings; the Rev G jack → switch → series-R topology holds | `../independent-verification-rev-g100.json` |
+| Pinout ledger (`ledger-rev-g100.json`: Rev G's, without J5, with D29) | 25 PASS, 6 NOTE, 0 FINDING, nothing uncovered | `../pinout-ledger/ledger-rev-g100.check.json` |
 | Firmware pins | 81 pass, 0 findings | `firmware-pins-check.json` |
 | Supply copper (IPC-2152, 10 °C) | 0 FAIL | `current_check.json` |
 | Passive ratings | 0 findings (R121's hot-plug note as on Rev F / G) | `passive-ratings-check.json` |
 | USB FS, paste | 0 findings each; D+ / D− 36.98 / 43.38 mm, skew 48.2 ps (as Rev G) | `usb-fs-check.json`, `paste-check.json` |
 | Edge copper | front 0.40 (D4, as Rev F), back 0.40 (RUN on In2), left / right 0.50 mm | `edge-clearance.json` |
-| Regulators | 51 PASS / 2 FLAG (the same two information flags as Rev F). The 5V trunk is 110.5 mΩ over 130 mm (Rev F 49.8 mΩ); U13 VIN min is 4.266 V (Rev F 4.294) | `regulator-check.json` |
-| USB hot-plug (`hotplug_spice.py`, ngspice 45.2), with 30 nH of board copper added to the cable | worst as-built corner 6.251 V, 0 of 96 over the 6.5 V recommended maximum. The 0 nH baseline reproduces Rev F's 6.24 V on this ngspice | `hotplug-spice.json`, `hotplug-spice-l0.json` |
+| Regulators | 51 PASS / 2 FLAG (the same two information flags as Rev F). The 5V trunk is 117.3 mΩ (Rev F 49.8 mΩ; the In2 corner at H3 added 7 mΩ); U13 VIN min is 4.263 V (Rev F 4.294) | `regulator-check.json` |
+| Drive budget (`drive_budget.py`, rail from the routed copper) | 17 / 17 PASS. Relay coil in the four-coil RESET at VBUS 4.40 V: 4.145 V, against 3.75 V at 20 °C and 4.125 V at a 45 °C relay. TLP172AM LED 5.39 mA minimum, 12.2 mA maximum. Guard constants: the open-jack float (1.65 V) lies inside the close window | `drive-budget.json` |
+| USB hot-plug (`hotplug_spice.py`, ngspice 45.2), with 30 nH of board copper added to the cable | worst as-built corner 6.251 V, 0 of 96 over the 6.5 V recommended maximum. The 0 nH baseline reproduces Rev F's 6.24 V on this ngspice. Not rerun after the audit: the model already puts C15 at U16 IN behind the board inductance, where C15 now is, and the J1 → U16 feed is unchanged | `hotplug-spice.json`, `hotplug-spice-l0.json` |
 | Switcher near-field pickup vs Rev E (relative, not a bound) | see §3 | `switcher-pickup.json` |
 | Board envelope | 100.05 × 100.05 mm; BNCs 13.75 mm tall, 18.48 mm past the front; J1 at y 127.5–136.5 | `board-envelope.json` |
-| Cost, 5 boards (Rev G's 2026-11-09 price snapshot) | **$387.22 economic**: Rev G $411.22, Rev F $358.17. The board is back under JLC's 100 × 100 special offer ($25.70 vs $49.70) | `order-estimate-5.json`, `fab-quote.json` |
+| Cost, 5 boards (Rev G's 2026-11-09 price snapshot, plus the four audit codes added that day) | **$400.38 economic** (before the audit $387.22; the audit's three new extended parts add $9.21 in feeder fees). Rev G $411.22, Rev F $358.17. The board is back under JLC's 100 × 100 special offer ($25.70 vs $49.70) | `order-estimate-5.json`, `fab-quote.json` |
 
 **Hot-plug allowance:** 30 nH covers the J1 → U16 copper. That is about 25 mm of track at 1.2 nH/mm, above any microstrip over a plane at this width.
 
@@ -106,9 +107,39 @@ The board is Rev F's size again, so the box returns to Rev F's **110 × 110 × 3
 | 2026-11-09 | **RUN 0.15 mm wide along the back edge (In2 y 144.525)** | It holds the fab note's ≥ 0.4 mm copper to edge with the 0.15 mm spacing to MON12. RUN is a slow, low-current reset line |
 | 2026-11-09 | **Rail labels in two staggered rows of 1.0 mm text** | JLC's 1.0 mm minimum (the fab pass rejected 0.8 mm) |
 | 2026-11-09 | **TP7 (RAW−) moved beside R96's RAW_N end** | A 1.0 mm label did not fit between C92, L2 and the edge |
+| 2026-11-09 | **Apply the datasheet audit's must-fix and cheap fixes (§6)**; firmware first, since without the guard fix the meter cannot measure | `FINDINGS.md`; every gate rerun |
+| 2026-11-09 | **R101 0.33 Ω, not 0 Ω** | 4.145 V at the coils (≥ 4.125 V at a 45 °C relay), and the RC filter on VRLY stays (corner about 37 kHz with C112 at bias, 30 dB at 1.25 MHz) |
+| 2026-11-09 | **MD-6 (RUN cap at U1), MD-1 / MD-2 (RP2040 decoupling) and SL-2…4 (switcher GND vias) not done** | No spot reaches a GND via within reach; each is recorded with a bring-up check in `FINDINGS.md` |
 | 2026-11-09 | **Accept the switcher pickup increase (§3)** | The pickup is relative and unbounded, and it matters only on a collision, which the source-off check catches. The alternative is 100 × 110 (Rev G), at $24 more for five boards and 10 mm more box depth |
 
-## 6. Rerun
+## 6. Datasheet audit and first review (2026-11-09)
+
+Seven datasheet audits and an independent layout review: `../validation/datasheet-audit-rev-g100/FINDINGS.md` (every finding, checked, with its disposition).
+
+**Firmware (both Rev G boards):**
+- the jack guard closes on uncharged jacks, not "near 0 V" (it never closed: an open jack floats at +1.65 V);
+- LCUR trips at 0.5 V once closed;
+- the codec's ADC wakes before the rail wait;
+- REFCAPTURE re-checks the jacks before K4.
+
+**Board:**
+
+| Change | Finding |
+|---|---|
+| D29 SS14 north of C100, cathode GND, anode −12V | SL-1: −12 V went positive at every power-up |
+| C15 beside U16 IN (TP20 VB to C15's old land at J1) | G-PE-1 |
+| 5V corner at H3 on In2 (0.9 mm, two vias each end); B.Cu now 3.67 mm from H3 | review M1 |
+| TP22 GND 3.1 mm east of J4 | MD-10 |
+| VBUS loop under J1's shell deleted; the north pair's exit kept | G-PE-7 |
+| Second via where 5V leaves U16 | G-PE-6 |
+| Second GND via at each jack TVS | PROT-04 |
+| LDO pin 4 bridged to the PowerPAD | SL-7 |
+| R101 1 → 0.33 Ω; R132 / R133 300 → 270 Ω | RCG-01, PROT-05 (`drive-budget.json`) |
+| C85 to C0G; op-amp rail caps 1 → 2.2 µF | SL-11, G-AFE-05 |
+
+**Analog copper is still 403 / 403 identical to Rev G** (`copper-delta-vs-g.json`), so the extraction and stability carry over.
+
+## 7. Rerun
 
 ```sh
 python3 cad/tools/rev_g100.py --check          # pre-DRC; also writes cad/design.json, cad/routing.json
