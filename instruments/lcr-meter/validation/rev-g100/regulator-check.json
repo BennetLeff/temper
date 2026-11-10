@@ -70,14 +70,14 @@
  },
  "retention_pass_threshold": 0.3,
  "five_volt_trunk": {
-  "ohm": 0.1172804898116067,
-  "path_mm": 131.0473299416819,
+  "ohm": 0.11056832420052491,
+  "path_mm": 131.10590858544458,
   "routed": true,
   "pads": "/Users/bennet/Desktop/temper/worktrees/lcr-rev-g/instruments/lcr-meter/build/pad-coordinates.json",
   "routing": "/Users/bennet/Desktop/temper/worktrees/lcr-rev-g/instruments/lcr-meter/cad/routing.json"
  },
  "vin_at_u13": [
-  4.262745597853981,
+  4.265844604716618,
   5.0,
   5.5
  ],
@@ -190,7 +190,7 @@
    "item": "TPS65131 duty cycle at all corners (2x estimated load)",
    "value": [
     0.615,
-    0.782
+    0.781
    ],
    "limit": [
     0.125,
@@ -214,7 +214,7 @@
    "note": "inductor cannot saturate even at the 2.2 A switch limit"
   },
   {
-   "item": "Eq. 3/4 inductor current at 2x load, VIN 4.26 V",
+   "item": "Eq. 3/4 inductor current at 2x load, VIN 4.27 V",
    "value": [
     0.387,
     0.558
@@ -478,10 +478,10 @@
   },
   {
    "item": "5V trunk U16.6 -> U13.5/6 copper (routing.json, 60 C)",
-   "value": 117.3,
+   "value": 110.6,
    "limit": "added to R_ENTRY in VIN",
    "status": "PASS",
-   "note": "mOhm over 131.0 mm; least-resistance single path (upper bound on the strip model); 54.1 mV at 0.4617 A; VIN min 4.263 V at U13"
+   "note": "mOhm over 131.1 mm; least-resistance single path (upper bound on the strip model); 51.0 mV at 0.4617 A; VIN min 4.266 V at U13"
   },
   {
    "item": "TPS2553 current limit (R110 24k 1%) min vs 2x input estimate",
@@ -546,33 +546,33 @@
   }
  ],
  "operating_points_2x_load": {
-  "pos vin=4.262745597853981 fsw=1250000 L=3.76u": {
-   "duty": 0.7192957638494895,
-   "ripple_a": 0.6523776278520059,
-   "ipk_a": 0.5815016788016744,
+  "pos vin=4.265844604716618 fsw=1250000 L=3.76u": {
+   "duty": 0.7190916924747774,
+   "ripple_a": 0.6526666843915043,
+   "ipk_a": 0.5814607300103289,
    "mode": "CCM (forced)",
-   "t_on_s": 5.754366110795915e-07
+   "t_on_s": 5.752733539798219e-07
   },
-  "pos vin=4.262745597853981 fsw=1250000 L=5.64u": {
-   "duty": 0.7192957638494895,
-   "ripple_a": 0.43491841856800406,
-   "ipk_a": 0.4727720741596734,
+  "pos vin=4.265844604716618 fsw=1250000 L=5.64u": {
+   "duty": 0.7190916924747774,
+   "ripple_a": 0.4351111229276696,
+   "ipk_a": 0.4726829492784116,
    "mode": "CCM (forced)",
-   "t_on_s": 5.754366110795915e-07
+   "t_on_s": 5.752733539798219e-07
   },
-  "pos vin=4.262745597853981 fsw=1500000 L=3.76u": {
-   "duty": 0.7192957638494895,
-   "ripple_a": 0.5436480232100049,
-   "ipk_a": 0.5271368764806739,
+  "pos vin=4.265844604716618 fsw=1500000 L=3.76u": {
+   "duty": 0.7190916924747774,
+   "ripple_a": 0.543888903659587,
+   "ipk_a": 0.5270718396443703,
    "mode": "CCM (forced)",
-   "t_on_s": 4.79530509232993e-07
+   "t_on_s": 4.793944616498517e-07
   },
-  "pos vin=4.262745597853981 fsw=1500000 L=5.64u": {
-   "duty": 0.7192957638494895,
-   "ripple_a": 0.3624320154733367,
-   "ipk_a": 0.43652887261233975,
+  "pos vin=4.265844604716618 fsw=1500000 L=5.64u": {
+   "duty": 0.7190916924747774,
+   "ripple_a": 0.3625926024397247,
+   "ipk_a": 0.4364236890344391,
    "mode": "CCM (forced)",
-   "t_on_s": 4.79530509232993e-07
+   "t_on_s": 4.793944616498517e-07
   },
   "pos vin=5.0 fsw=1250000 L=3.76u": {
    "duty": 0.6707471397169149,
@@ -630,33 +630,33 @@
    "mode": "CCM (forced)",
    "t_on_s": 4.2521456912573763e-07
   },
-  "neg vin=4.262745597853981 fsw=1250000 L=3.76u": {
-   "duty": 0.7815974780861205,
-   "ripple_a": 0.7088832359585922,
-   "ipk_a": 0.720016919023541,
+  "neg vin=4.265844604716618 fsw=1250000 L=3.76u": {
+   "duty": 0.7814733971758917,
+   "ripple_a": 0.7092859734196476,
+   "ipk_a": 0.7200107115801637,
    "mode": "CCM",
-   "t_on_s": 6.252779824688964e-07
+   "t_on_s": 6.251787177407133e-07
   },
-  "neg vin=4.262745597853981 fsw=1250000 L=5.64u": {
-   "duty": 0.7815974780861205,
-   "ripple_a": 0.4725888239723949,
-   "ipk_a": 0.6018697130304425,
+  "neg vin=4.265844604716618 fsw=1250000 L=5.64u": {
+   "duty": 0.7814733971758917,
+   "ripple_a": 0.4728573156130985,
+   "ipk_a": 0.6017963826768891,
    "mode": "CCM",
-   "t_on_s": 6.252779824688964e-07
+   "t_on_s": 6.251787177407133e-07
   },
-  "neg vin=4.262745597853981 fsw=1500000 L=3.76u": {
-   "duty": 0.7815974780861205,
-   "ripple_a": 0.5907360299654936,
-   "ipk_a": 0.6609433160269917,
+  "neg vin=4.265844604716618 fsw=1500000 L=3.76u": {
+   "duty": 0.7814733971758917,
+   "ripple_a": 0.5910716445163731,
+   "ipk_a": 0.6609035471285264,
    "mode": "CCM",
-   "t_on_s": 5.21064985390747e-07
+   "t_on_s": 5.209822647839278e-07
   },
-  "neg vin=4.262745597853981 fsw=1500000 L=5.64u": {
-   "duty": 0.7815974780861205,
-   "ripple_a": 0.39382401997699573,
-   "ipk_a": 0.5624873110327429,
+  "neg vin=4.265844604716618 fsw=1500000 L=5.64u": {
+   "duty": 0.7814733971758917,
+   "ripple_a": 0.39404776301091543,
+   "ipk_a": 0.5623916063757975,
    "mode": "CCM",
-   "t_on_s": 5.21064985390747e-07
+   "t_on_s": 5.209822647839278e-07
   },
   "neg vin=5.0 fsw=1250000 L=3.76u": {
    "duty": 0.6767349833317235,

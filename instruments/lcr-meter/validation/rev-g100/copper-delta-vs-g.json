@@ -1,5 +1,5 @@
 {
- "reference_rev": "4bdeb9834",
+ "reference_rev": "5c6e5c330",
  "transform": "y > 57.0 moved +0.0 mm",
  "analog_items": {
   "rev_f": 403,
@@ -11,7 +11,7 @@
  "changed_bbox": null,
  "gnd_fill_change_below_y68": {
   "B.Cu": {
-   "area_mm2": 1074.8,
+   "area_mm2": 1075.26,
    "nearest_unchanged_analog_mm": 14.79,
    "nearest_unchanged_extracted_mm": 16.63,
    "bbox": [
@@ -22,7 +22,7 @@
    ]
   },
   "In1.Cu": {
-   "area_mm2": 1028.83,
+   "area_mm2": 1028.25,
    "nearest_unchanged_analog_mm": 14.79,
    "nearest_unchanged_extracted_mm": 16.74,
    "bbox": [
@@ -33,7 +33,7 @@
    ]
   },
   "In2.Cu": {
-   "area_mm2": 1155.31,
+   "area_mm2": 1160.05,
    "nearest_unchanged_analog_mm": 11.59,
    "nearest_unchanged_extracted_mm": 16.74,
    "bbox": [

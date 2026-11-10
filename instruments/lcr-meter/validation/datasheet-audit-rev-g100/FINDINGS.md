@@ -19,7 +19,7 @@
 - **Board** (`cad/tools/rev_g100.py`, `rev_g100_routes.py`; gates in `../rev-g100/`):
   - SL-1: D29 SS14 north of C100;
   - G-PE-1: C15 beside U16 (TP20 VB to C15's old land);
-  - M1: the 5V corner at H3 on In2;
+  - M1: the 5V corner at H3 on In2 (1.6 mm after the second review's M2);
   - MD-10: TP22 GND by J4;
   - G-PE-7: the VBUS loop under J1's shell deleted;
   - G-PE-6: a second via where 5V leaves U16;
@@ -71,7 +71,7 @@
 | MD-3 | RP2040 pin leakage (1 µA max) is ±1.5 V jack-referred | A datasheet maximum, typically nA. Bring-up: read `JACKS` with the jacks shorted and with them open. A firmware offset is the fallback |
 | G-PE-2 | A 5V short with an unlimited source can push U16 IN past 7 V | Fault on fault (a short plus a non-USB source). Host ports ≤ 3 A stay ≤ 6.8 V |
 | G-PE-3 | SRV05-4 VRWM is 5.0 V against VBUS up to 5.5 V | Accepted since Rev E: leakage only |
-| G-PE-8 / review M2 | The north VBUS pad pair has a 0.2 mm exit, 1.17 A only if the plug touched that pair alone | A plug's four VBUS contacts are tied in the plug, so this is a double fault. `current_check.py` models J1's pins as one node; its docstring is corrected |
+| G-PE-8 / review M2 / second review M1 | The north VBUS pad pair has a 0.2 mm exit (4.6 mm long, about 0.74 A at 10 °C), 1.17 A only if the plug touched that pair alone. No room to widen it: the channel to CC1 is 0.52 mm and B.Cu is taken by the feed | A plug's four VBUS contacts are tied in the plug, so this is a double fault. `current_check.py` models J1's pins as one node; its docstring is corrected |
 | review M3 | 12 V through 0.2 mm In2 jogs in the core | `current_check.py` uses the IPC-2152 generic chart, with the same area on every layer, and passes 0.5 A at 0.187 mm. The reviewer's 0.23 A is IPC-2221's internal curve. The 0.5 A is a fault level (normal load about 36 mA) |
 | SL-8, SL-9, SL-12, SL-13, SL-15 | EN–IN tie under the LDOs; exposed-pad vias (ordered "plugged", which the TI note allows); U17 on a 3V3 dip; MON caps far from U1; R95/R96 as fuses | As in the reports. Bring-up: a brown-out test |
 | RCG-02 | A 4.5 V coil type is recommended for 5 V drive | 0 stock at JLC; RCG-01's fix recovers the margin |

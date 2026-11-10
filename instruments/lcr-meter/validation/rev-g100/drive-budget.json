@@ -56,8 +56,8 @@
  },
  "copper_ohm": {
   "trunk": {
-   "ohm": 0.12024649788713954,
-   "mm": 109.50790839573891
+   "ohm": 0.11353433227605775,
+   "mm": 109.56648703950158
   },
   "vrly_drop_v": 0.018331673197348883,
   "vrly_worst": "K1",
@@ -67,43 +67,43 @@
  "drive": {
   "worst_low": {
    "vbus": 4.4,
-   "v5_at_r101": 4.258651009352489,
+   "v5_at_r101": 4.26180410120373,
    "vf": 1.4,
    "i_coil_ma": 0.0,
-   "i_string_ma": 5.388242064764836,
-   "i_total_ma": 10.776484129529672,
-   "vrly": 4.2550947695897445,
-   "coil_v": 4.2550947695897445
+   "i_string_ma": 5.399889554149202,
+   "i_total_ma": 10.799779108298404,
+   "vrly": 4.258240174097992,
+   "coil_v": 4.258240174097992
   },
   "typical": {
    "vbus": 5.0,
-   "v5_at_r101": 4.856747566656027,
+   "v5_at_r101": 4.859943118871706,
    "vf": 1.27,
    "i_coil_ma": 0.0,
-   "i_string_ma": 8.558042062192117,
-   "i_total_ma": 17.116084124384233,
-   "vrly": 4.851099258894981,
-   "coil_v": 4.851099258894981
+   "i_string_ma": 8.569846399732944,
+   "i_total_ma": 17.139692799465887,
+   "vrly": 4.854287020247882,
+   "coil_v": 4.854287020247882
   },
   "worst_high": {
    "vbus": 5.5,
-   "v5_at_r101": 5.492696091978698,
+   "v5_at_r101": 5.492859021284091,
    "vf": 1.1,
    "i_coil_ma": 0.0,
-   "i_string_ma": 12.163186036639571,
-   "i_total_ma": 24.326372073279142,
-   "vrly": 5.484668389194516,
-   "coil_v": 5.484668389194516
+   "i_string_ma": 12.1637878958446,
+   "i_total_ma": 24.3275757916892,
+   "vrly": 5.484830921272834,
+   "coil_v": 5.484830921272834
   },
   "reset_pulse": {
    "vbus": 4.4,
-   "v5_at_r101": 4.2250600928989215,
+   "v5_at_r101": 4.228962502056643,
    "vf": 1.4,
    "i_coil_ma": 112.4,
-   "i_string_ma": 5.12714008680478,
-   "i_total_ma": 10.25428017360956,
-   "vrly": 4.184584180441631,
-   "coil_v": 4.1453415043201005
+   "i_string_ma": 5.141555546735038,
+   "i_total_ma": 10.283111093470076,
+   "vrly": 4.188477075395798,
+   "coil_v": 4.149234399274268
   }
  },
  "sense": {
@@ -133,8 +133,8 @@
  },
  "usb_a": {
   "base": 0.46,
-  "with_drive_typ": 0.4771160841243843,
-  "with_drive_max": 0.48432637207327917
+  "with_drive_typ": 0.4771396927994659,
+  "with_drive_max": 0.4843275757916892
  },
  "timing": {
   "t_on_max_ms": 2.0,
@@ -193,31 +193,31 @@
   },
   {
    "check": "LED current at the lowest rail, highest VF >= 5 mA",
-   "value": 5.388242,
+   "value": 5.39989,
    "limit": 5.0,
    "pass_": true
   },
   {
    "check": "LED current at the highest rail, lowest VF <= 25 mA",
-   "value": 12.163186,
+   "value": 12.163788,
    "limit": 25.0,
    "pass_": true
   },
   {
    "check": "LED current during the RESET pulse, lowest rail, highest VF > IFT max 3 mA",
-   "value": 5.12714,
+   "value": 5.141556,
    "limit": 3.0,
    "pass_": true
   },
   {
    "check": "relay coil voltage during the RESET pulse, VBUS 4.40 V, routed copper >= 3.75 V must-operate (20 C)",
-   "value": 4.145342,
+   "value": 4.149234,
    "limit": 3.75,
    "pass_": true
   },
   {
    "check": "relay coil voltage during the RESET pulse >= must-operate at a 45 C relay (coil copper +0.4 %/C, TQ catalog guideline)",
-   "value": 4.145342,
+   "value": 4.149234,
    "limit": 4.125,
    "pass_": true
   },
@@ -247,7 +247,7 @@
   },
   {
    "check": "USB load with the drive (typical) <= 0.5 A",
-   "value": 0.477116,
+   "value": 0.47714,
    "limit": 0.5,
    "pass_": true
   }
