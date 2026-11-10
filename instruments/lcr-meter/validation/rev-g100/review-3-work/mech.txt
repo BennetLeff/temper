@@ -1,0 +1,2226 @@
+== copper within 3.5 mm of M3 hole centres (standoff keep-out), per layer
+  hole (54, 54): track JACK_LC In2.Cu (52.20,56.40)-(51.60,57.00) w0.2 edge at 2.90 mm
+  hole (54, 54): track JACK_LC In2.Cu (142.70,56.40)-(52.20,56.40) w0.2 edge at 2.30 mm
+  hole (54, 54): track STATUS In2.Cu (51.00,127.87)-(51.00,50.20) w0.2 edge at 2.90 mm
+  hole (146, 54): track JACK_LC In2.Cu (143.50,51.00)-(143.50,55.60) w0.2 edge at 2.40 mm
+  hole (146, 54): track JACK_LC In2.Cu (143.50,55.60)-(142.70,56.40) w0.2 edge at 2.87 mm
+  hole (146, 54): track JK_HPOT B.Cu (142.40,53.40)-(142.40,71.81) w0.2 edge at 3.50 mm
+  hole (54, 141): track 5V In2.Cu (51.20,143.00)-(52.00,143.80) w1.6 edge at 2.59 mm
+  hole (54, 141): track 5V In2.Cu (52.00,143.80)-(57.00,143.80) w1.6 edge at 2.00 mm
+  hole (54, 141): track 5V In2.Cu (51.20,137.60)-(51.20,143.00) w1.6 edge at 2.00 mm
+  hole (146, 141): via GND at (143.0174, 138.9835) edge at 3.30 mm
+  hole (54, 54): F.Cu GND pour edge nearest 5.64 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 89.62 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 80.94 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 120.89 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 114.80 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 80.41 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 82.65 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 11.38 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 26.19 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 65.63 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 86.82 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 105.70 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 42.89 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 94.78 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 44.73 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 95.47 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 49.12 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 77.86 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 51.69 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 79.49 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 37.36 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 100.40 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 49.26 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 105.42 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 26.13 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 65.54 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 86.56 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 105.53 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 86.16 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 104.42 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 27.20 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 64.92 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 6.70 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 91.98 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 93.70 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 131.21 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 101.83 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 67.55 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 79.84 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 24.67 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 49.02 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 86.89 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 44.46 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 84.51 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 100.46 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 96.16 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 50.17 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 40.97 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 50.00 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 69.91 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 58.31 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 76.13 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 78.29 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 87.09 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 41.89 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 56.55 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 107.75 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 53.02 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 99.46 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 33.42 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 119.14 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 86.62 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 82.23 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 9.24 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 15.33 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 76.52 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 84.19 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 112.88 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 89.19 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 96.30 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 38.92 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 53.38 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 99.63 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 97.77 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 47.73 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 43.73 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 97.08 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 49.65 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 91.66 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 38.26 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 46.96 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 100.43 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 39.65 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 97.26 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 41.37 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 73.91 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 59.31 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 85.33 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 82.81 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 101.73 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 27.82 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 65.11 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 17.01 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 75.02 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 84.25 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 111.53 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 47.09 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 95.82 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 40.80 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 93.01 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 74.99 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 91.83 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 35.39 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 63.56 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 38.40 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 97.55 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.39 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 101.91 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 23.78 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 82.31 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 66.60 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 103.26 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 115.21 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 80.77 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 82.84 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 11.37 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 104.08 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 57.73 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 91.30 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 29.35 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 105.76 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 77.76 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 74.49 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 20.72 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 65.71 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 28.82 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 99.21 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 79.67 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 66.21 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 28.65 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 99.61 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 79.60 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 81.45 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 8.93 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 117.52 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 85.03 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 45.97 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 68.83 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 61.58 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 80.21 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 70.83 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 39.90 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 86.11 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 62.96 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 59.68 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 40.52 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 87.20 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 75.34 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 111.10 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 77.93 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 80.56 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 14.95 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 16.19 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 75.81 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 84.03 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 112.00 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 65.21 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 106.76 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 22.61 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 87.42 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 75.68 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 92.36 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 35.04 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 63.41 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 112.01 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 75.26 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 83.89 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 14.08 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 105.62 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 77.89 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 74.42 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 20.80 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 50.97 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 70.31 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 57.98 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 75.56 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 65.55 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 112.84 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 20.85 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 94.04 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 93.22 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 56.87 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 81.72 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 34.89 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 61.70 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 109.14 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 24.94 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 93.37 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 49.36 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 87.18 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 44.13 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 84.29 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 76.36 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 110.39 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 15.63 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 81.20 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 95.37 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 104.71 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 35.38 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 55.65 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 59.46 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 30.77 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 103.43 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 90.36 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 51.87 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 79.60 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.95 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.75 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 61.78 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 109.09 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 25.03 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 93.32 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 67.54 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 42.48 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 83.60 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 64.96 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 104.31 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 55.78 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 92.49 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 30.17 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 77.63 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 108.66 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 17.37 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.70 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 38.61 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 93.44 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.99 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 98.18 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 113.10 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 75.36 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 85.34 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 13.47 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 67.24 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 42.44 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 83.86 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 65.65 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 38.36 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 93.44 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.74 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 98.20 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 59.66 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 85.47 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 41.31 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 73.86 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 38.30 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 97.43 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.29 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 101.77 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 89.33 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 123.96 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 5.91 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 86.13 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 80.91 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 11.08 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 115.90 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 83.50 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 86.37 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 53.90 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 79.79 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 42.38 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 41.79 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 73.25 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 59.73 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 84.83 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 41.99 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 83.20 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 51.55 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 88.43 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 99.18 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 97.30 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 47.57 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 43.57 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 67.68 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 111.99 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 19.02 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 91.17 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 32.35 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 61.80 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 82.03 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 97.55 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 53.30 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 89.48 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 40.33 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 82.35 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 111.39 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 65.31 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 92.76 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 21.14 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 101.21 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 67.42 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 79.66 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 25.47 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 99.39 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 60.29 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 84.31 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 29.82 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 86.24 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 82.88 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 50.67 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 44.78 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 7.22 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 88.96 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 79.99 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 119.48 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 80.37 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 77.86 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 52.75 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 49.03 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 117.58 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 80.25 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 86.29 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 8.48 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 71.15 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 40.14 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 86.04 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 62.96 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 103.60 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 94.52 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 55.53 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 35.94 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 25.93 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 65.96 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 86.92 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 106.13 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 60.64 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 31.18 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 102.47 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 88.16 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 15.77 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 76.10 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 83.86 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 112.21 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 41.75 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 73.38 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 59.65 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 84.92 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 77.09 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 90.19 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 37.97 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 60.21 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 15.58 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 74.74 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 85.87 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 113.20 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 69.38 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 40.99 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 84.92 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 63.66 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 46.69 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 100.08 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 39.99 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 97.22 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 44.85 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 100.24 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 41.66 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 98.68 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 31.74 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 83.44 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 58.80 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 97.12 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 94.10 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 74.67 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 65.91 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 32.81 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 88.83 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 96.59 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 38.37 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 53.75 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 37.02 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 54.56 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 90.77 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 99.29 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 69.06 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 95.18 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 30.84 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 72.46 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 71.32 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 105.28 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 20.82 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 80.00 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 111.18 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 90.40 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 68.37 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 22.90 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 9.58 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 89.97 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 76.84 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 118.14 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 118.13 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 85.25 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 82.32 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 9.29 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 57.99 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 106.23 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 28.24 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 93.27 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 98.95 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 59.74 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 84.39 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 30.03 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 81.31 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 10.75 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 115.89 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 83.09 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 102.84 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 62.70 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 85.67 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 26.44 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 103.58 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 66.90 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 82.59 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 23.96 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 64.93 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 106.63 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 22.70 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 87.44 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 48.87 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 68.60 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 60.49 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.29 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 86.61 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 54.21 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 79.21 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 41.62 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 8.88 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 89.90 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 77.54 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 118.64 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 100.27 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 71.53 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 74.88 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 25.64 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 79.69 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 95.37 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 33.45 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 62.05 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 93.69 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 74.10 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 66.11 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 33.23 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 122.09 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 84.90 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 87.52 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 3.95 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 76.55 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 89.75 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 38.33 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 60.43 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 111.50 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 65.39 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 92.36 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 20.53 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 72.55 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 23.10 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 103.75 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.52 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 39.85 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 91.91 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.33 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 95.78 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 108.29 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 65.59 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 88.47 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 21.20 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 33.29 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 62.22 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 79.75 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 95.56 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 41.90 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 98.24 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 44.78 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 99.60 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 110.11 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 59.11 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 96.70 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 27.32 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 88.09 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 112.14 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 19.56 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 72.00 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 66.33 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 29.43 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 98.37 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 78.45 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 100.90 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 96.63 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 50.33 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 41.13 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 93.41 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 56.82 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 82.18 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 35.63 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 70.32 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 99.21 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 26.48 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 74.53 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 74.98 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 102.38 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 23.91 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 73.56 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 103.18 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 94.04 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 55.37 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 35.77 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 94.66 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 60.76 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 79.82 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 32.98 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 80.60 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 85.66 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 44.64 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 53.21 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 116.74 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 81.48 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 84.19 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 9.61 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 51.69 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 80.10 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.70 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 78.24 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 74.24 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 115.29 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 12.74 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 88.92 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 90.54 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 98.44 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 37.60 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 54.02 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 82.28 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 82.58 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.88 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 49.38 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 73.86 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 99.21 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 27.07 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 71.45 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 37.15 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 99.93 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 49.04 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 104.98 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 69.70 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 41.23 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 84.85 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 63.66 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 37.89 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 81.13 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 55.85 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 91.03 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 93.57 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 58.13 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 80.30 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 33.99 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 57.40 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 41.58 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 86.70 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.04 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 117.49 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 80.38 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 86.13 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 8.96 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 85.85 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 103.88 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 27.44 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 64.79 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 32.95 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 62.59 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 79.53 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 95.80 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 91.34 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 75.29 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 62.86 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 36.03 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 75.18 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 105.81 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 20.13 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 76.93 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 10.42 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 89.28 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 76.59 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 117.24 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 39.94 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 91.27 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.12 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 95.05 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 84.30 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 80.89 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 52.03 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 46.34 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 96.65 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 54.15 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 87.33 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 35.20 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 96.34 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 48.29 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 91.45 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 38.10 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 41.30 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 60.77 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 73.15 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 85.71 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 48.17 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 92.79 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 41.30 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 89.44 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 38.53 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 53.26 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 91.03 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 98.28 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 10.14 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 89.55 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 76.45 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 117.47 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 58.95 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 32.65 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 101.79 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 89.06 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 37.44 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 54.14 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 90.54 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 98.65 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 6.90 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 89.23 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 79.85 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 119.72 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 32.34 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 61.74 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 81.64 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 97.24 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 76.16 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 110.31 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 15.74 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 81.03 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 65.68 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 30.19 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 97.68 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 78.27 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 96.34 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 53.90 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 87.48 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 35.51 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 33.28 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 72.14 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 66.73 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 92.66 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 72.35 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 22.46 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 104.66 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 78.74 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 91.88 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 75.98 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 62.70 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 35.68 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 64.91 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 112.49 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 20.88 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 93.97 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 104.76 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 56.47 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 93.12 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 30.32 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 58.32 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 100.14 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 30.57 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 87.02 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 51.54 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 80.11 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.57 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 78.19 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 10.27 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 86.35 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 78.06 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 116.05 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 73.27 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 98.78 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 27.17 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 71.27 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 39.95 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 91.46 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 47.87 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 95.28 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 75.50 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 106.06 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 20.16 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.05 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 100.93 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 72.37 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 74.30 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 24.77 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 37.48 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 52.75 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 92.48 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 100.05 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 87.76 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 111.90 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 19.38 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 71.81 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 57.53 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 41.67 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 86.84 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.21 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 58.50 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 102.79 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 28.73 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 89.25 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 49.23 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 77.74 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 51.75 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 79.37 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 10.51 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 86.06 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 78.08 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 115.89 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 82.90 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 83.19 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.65 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 49.15 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 41.47 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 73.95 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 59.48 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 85.35 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 51.92 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 79.49 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 49.06 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.63 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 114.27 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 80.28 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 82.21 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 12.28 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 60.44 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 31.37 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 102.28 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 88.36 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 65.26 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 96.78 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 29.77 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.49 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 72.91 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 39.17 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 87.20 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 61.94 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 60.90 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 39.61 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 87.93 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 74.69 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 78.95 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 87.66 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 41.59 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 56.36 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 95.75 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 104.69 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 35.85 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 55.63 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 52.95 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 89.18 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 40.64 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 82.57 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 90.64 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 97.64 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 38.69 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 53.22 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 92.80 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 107.97 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 28.99 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 62.12 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 101.80 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 95.07 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 52.77 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 38.37 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 103.80 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 57.21 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 91.58 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 29.95 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 104.41 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 57.00 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 92.54 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 30.19 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 67.79 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 112.15 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 19.10 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 91.33 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 59.83 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 85.05 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 41.59 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 73.29 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 67.55 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 107.10 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 21.00 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 85.48 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 118.21 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 85.04 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 82.35 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 9.00 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 69.89 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 48.68 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 77.57 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 59.02 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 59.91 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 84.96 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 41.63 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 73.16 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 25.46 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 66.66 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 86.34 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 106.13 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 31.33 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 71.79 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 69.27 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 94.67 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 32.82 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 71.69 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 67.94 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 93.20 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 43.42 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 94.02 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 44.85 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 94.69 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 39.36 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 90.92 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.62 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 95.36 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 91.31 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 35.64 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 98.92 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 52.01 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 84.77 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 81.39 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 51.77 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 46.04 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 59.83 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 31.97 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 101.88 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 88.40 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 86.13 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 104.44 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 26.95 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 64.72 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 103.16 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 62.47 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 86.00 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 26.08 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 72.69 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 22.97 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 103.88 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.47 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 59.79 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 40.76 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 86.74 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 74.83 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 80.09 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 85.19 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 44.95 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 53.46 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 85.38 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 114.23 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 14.32 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 76.85 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 117.51 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 81.46 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 85.16 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 8.94 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 6.32 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 89.66 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 80.24 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 120.38 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 82.41 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 9.99 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 116.63 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 83.08 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 28.22 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 85.17 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 61.32 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 101.03 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 102.23 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 95.54 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 52.93 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 38.54 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 104.39 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 54.64 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 94.43 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 31.98 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 85.34 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 81.80 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 51.69 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 45.86 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 91.71 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 95.22 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 42.59 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 49.47 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 68.71 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 95.31 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 30.52 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 72.55 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 41.33 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 97.75 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 44.83 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 99.23 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 91.58 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 62.86 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 75.09 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 34.79 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 70.67 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 108.72 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 18.27 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 84.39 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 95.31 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 35.46 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 102.17 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 51.21 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 59.49 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 85.46 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 41.21 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 73.82 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 108.17 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 65.53 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 88.87 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 21.77 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 109.68 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 58.54 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 96.74 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 27.59 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 38.23 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 81.35 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 55.51 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 90.80 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 41.66 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 82.96 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 51.89 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 88.65 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 69.50 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 107.45 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 19.83 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 84.20 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 46.93 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 100.39 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 39.13 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 97.00 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 48.74 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 78.30 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 51.37 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 80.00 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 89.35 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 124.19 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 5.76 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 86.38 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 95.18 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 100.23 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 40.33 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 51.13 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 71.40 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 105.52 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 20.74 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 80.30 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 118.11 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 71.44 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 95.29 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 15.15 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 111.15 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 75.65 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 82.52 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 14.82 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 57.60 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 99.21 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 31.08 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 86.45 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 93.12 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 107.96 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 29.34 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 62.12 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 103.51 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 66.82 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 82.56 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 23.88 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 65.23 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 96.84 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 29.15 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 76.88 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 77.89 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 108.65 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 17.58 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.75 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 85.38 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 114.86 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 13.69 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.72 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 57.86 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 103.59 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 29.08 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 90.60 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 101.17 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 66.62 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 80.16 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 25.42 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 41.20 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 60.76 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 73.39 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 85.95 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 16.83 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 75.21 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 84.14 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 111.71 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 73.56 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 21.95 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 104.65 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 77.60 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 92.00 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 63.44 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 74.91 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 34.48 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 107.45 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 52.72 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 99.58 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 33.77 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 97.29 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 50.25 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 91.53 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 37.66 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 33.15 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 71.77 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 67.60 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 92.93 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 93.77 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 59.39 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 80.35 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 34.49 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 89.11 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 115.43 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 16.39 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 74.81 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 59.34 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 102.94 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 28.03 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 88.79 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 38.72 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 53.06 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 91.22 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 98.09 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 116.51 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 80.58 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 83.70 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 8.62 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 95.16 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 100.23 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 39.94 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 50.74 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 33.52 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 86.34 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 55.49 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 97.02 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 60.29 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 111.57 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 26.01 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 97.22 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 97.46 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 50.61 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 90.95 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 36.78 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 82.60 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 9.83 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 116.82 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 83.02 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 42.27 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 98.46 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 44.48 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 99.38 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 44.09 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 90.76 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 45.76 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 91.60 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 23.56 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 82.46 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 67.18 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 103.69 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 67.67 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 111.50 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 19.03 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 90.56 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 119.22 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 73.23 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 94.81 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 13.24 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 73.47 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 21.76 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 105.01 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 78.14 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 32.15 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 83.22 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 59.13 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 96.89 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 94.09 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 58.75 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 80.93 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 34.44 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 81.80 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 10.49 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 116.15 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 83.08 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 37.91 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 53.86 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 90.76 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 98.47 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 44.67 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 67.16 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 64.03 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 81.43 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 90.20 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 97.90 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 38.08 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 53.53 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 103.99 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 54.62 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 93.83 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 31.15 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 58.21 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 106.14 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 28.50 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 93.19 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 91.23 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 100.21 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 36.19 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 55.09 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 59.73 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 103.38 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 28.04 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 88.80 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 70.27 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 49.03 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 77.49 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 58.97 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 6.95 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 91.80 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 93.95 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 131.42 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 43.32 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 90.46 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 46.17 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 91.79 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 110.37 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 79.97 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 77.61 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 16.36 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 82.82 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 101.68 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 28.14 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 65.42 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 48.88 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 78.35 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 51.51 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 79.99 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 70.44 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 99.58 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 26.44 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 75.08 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 115.73 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 80.99 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 83.25 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 10.40 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 93.23 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 59.80 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 79.40 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 34.61 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 72.49 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 22.33 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 104.73 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 78.70 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 115.34 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 80.65 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 82.91 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 10.83 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 74.24 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 115.29 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 12.74 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 88.92 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 112.72 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 75.19 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 84.82 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 13.65 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 88.56 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 114.60 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 16.91 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 74.49 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 39.80 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 92.09 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 48.13 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 96.08 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 59.35 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 32.24 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 101.64 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 88.54 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 79.26 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 104.27 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 23.04 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 71.45 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 72.61 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 38.97 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 87.25 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 61.91 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 78.52 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 114.00 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 12.06 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 83.28 mm from centre (ring void radius)
+  hole (54, 54): F.Cu GND pour edge nearest 84.78 mm from centre (ring void radius)
+  hole (146, 54): F.Cu GND pour edge nearest 113.46 mm from centre (ring void radius)
+  hole (54, 141): F.Cu GND pour edge nearest 15.06 mm from centre (ring void radius)
+  hole (146, 141): F.Cu GND pour edge nearest 76.76 mm from centre (ring void radius)
+  hole (54, 54): B.Cu GND pour edge nearest 54.50 mm from centre (ring void radius)
+  hole (146, 54): B.Cu GND pour edge nearest 39.00 mm from centre (ring void radius)
+  hole (54, 141): B.Cu GND pour edge nearest 1.80 mm from centre (ring void radius)
+  hole (146, 141): B.Cu GND pour edge nearest 1.80 mm from centre (ring void radius)
+  hole (54, 54): In1.Cu GND pour edge nearest 1.80 mm from centre (ring void radius)
+  hole (146, 54): In1.Cu GND pour edge nearest 1.80 mm from centre (ring void radius)
+  hole (54, 141): In1.Cu GND pour edge nearest 1.80 mm from centre (ring void radius)
+  hole (146, 141): In1.Cu GND pour edge nearest 1.80 mm from centre (ring void radius)
+  hole (54, 54): In2.Cu GND pour edge nearest 54.50 mm from centre (ring void radius)
+  hole (146, 54): In2.Cu GND pour edge nearest 39.00 mm from centre (ring void radius)
+  hole (54, 141): In2.Cu GND pour edge nearest 1.80 mm from centre (ring void radius)
+  hole (146, 141): In2.Cu GND pour edge nearest 1.80 mm from centre (ring void radius)
+== footprint courtyard / bbox outside the outline (50..150 x 45..145)
+  J3 bbox 59.98,26.45-74.03,56.77
+  J1 bbox 49.83,126.66-59.30,137.34
+  D4 bbox 53.12,44.98-56.88,46.77
+  J7 bbox 81.97,26.45-96.03,56.77
+  J8 bbox 103.97,26.45-118.03,56.77
+  J9 bbox 125.97,26.45-140.03,56.77
+== silk text height < 1.0 mm or thickness < 0.15 (JLC) on F.Silkscreen
+  C118 silk line width 0.12
+  C118 silk line width 0.12
+  D17 silk line width 0.12
+  D17 silk line width 0.12
+  D17 silk line width 0.12
+  C113 silk line width 0.12
+  C113 silk line width 0.12
+  C14 silk line width 0.12
+  C14 silk line width 0.12
+  C2 silk line width 0.12
+  C2 silk line width 0.12
+  R119 silk line width 0.12
+  R119 silk line width 0.12
+  D23 silk line width 0.12
+  D23 silk line width 0.12
+  D23 silk line width 0.12
+  R100 silk line width 0.12
+  R100 silk line width 0.12
+  TP6 silk line width 0.12
+  R94 silk line width 0.12
+  R94 silk line width 0.12
+  TP19 silk line width 0.12
+  R6 silk line width 0.12
+  R6 silk line width 0.12
+  R71 silk line width 0.12
+  R71 silk line width 0.12
+  R63 silk line width 0.12
+  R63 silk line width 0.12
+  C67 silk line width 0.12
+  C67 silk line width 0.12
+  R127 silk line width 0.12
+  R127 silk line width 0.12
+  C121 silk line width 0.12
+  C121 silk line width 0.12
+  C12 silk line width 0.12
+  C12 silk line width 0.12
+  R101 silk line width 0.12
+  R101 silk line width 0.12
+  C9 silk line width 0.12
+  C9 silk line width 0.12
+  C11 silk line width 0.12
+  C11 silk line width 0.12
+  C62 silk line width 0.12
+  C62 silk line width 0.12
+  J3 silk line width 0.12
+  J3 silk line width 0.12
+  J3 silk line width 0.12
+  J3 silk line width 0.12
+  J3 silk line width 0.12
+  D20 silk line width 0.12
+  D20 silk line width 0.12
+  D20 silk line width 0.12
+  C52 silk line width 0.12
+  C52 silk line width 0.12
+  SW2 silk line width 0.12
+  SW2 silk line width 0.12
+  SW2 silk line width 0.12
+  SW2 silk line width 0.12
+  SW2 silk line width 0.12
+  SW2 silk line width 0.12
+  R115 silk line width 0.12
+  R115 silk line width 0.12
+  U12 silk line width 0.12
+  U12 silk line width 0.12
+  U12 silk line width 0.12
+  U12 silk line width 0.12
+  U12 silk line width 0.12
+  U12 silk line width 0.12
+  U12 silk line width 0.12
+  C61 silk line width 0.12
+  C61 silk line width 0.12
+  C1 silk line width 0.12
+  C1 silk line width 0.12
+  C51 silk line width 0.12
+  C51 silk line width 0.12
+  R80 silk line width 0.12
+  R80 silk line width 0.12
+  C4 silk line width 0.12
+  C4 silk line width 0.12
+  Q4 silk line width 0.12
+  Q4 silk line width 0.12
+  Q4 silk line width 0.12
+  Q4 silk line width 0.12
+  Q4 silk line width 0.12
+  Q4 silk line width 0.12
+  Q4 silk line width 0.12
+  Q4 silk line width 0.12
+  C96 silk line width 0.12
+  C96 silk line width 0.12
+  TP7 silk line width 0.12
+  R10 silk line width 0.12
+  R10 silk line width 0.12
+  R3 silk line width 0.12
+  R3 silk line width 0.12
+  R95 silk line width 0.12
+  R95 silk line width 0.12
+  R67 silk line width 0.12
+  R67 silk line width 0.12
+  C101 silk line width 0.12
+  C101 silk line width 0.12
+  R118 silk line width 0.12
+  R118 silk line width 0.12
+  TP13 silk line width 0.12
+  R130 silk line width 0.12
+  R130 silk line width 0.12
+  C88 silk line width 0.12
+  C88 silk line width 0.12
+  C43 silk line width 0.12
+  C43 silk line width 0.12
+  R133 silk line width 0.12
+  R133 silk line width 0.12
+  D19 silk line width 0.12
+  D19 silk line width 0.12
+  D19 silk line width 0.12
+  C63 silk line width 0.12
+  C63 silk line width 0.12
+  C35 silk line width 0.12
+  C35 silk line width 0.12
+  C8 silk line width 0.12
+  C8 silk line width 0.12
+  C34 silk line width 0.12
+  C34 silk line width 0.12
+  C46 silk line width 0.12
+  C46 silk line width 0.12
+  R84 silk line width 0.12
+  R84 silk line width 0.12
+  C90 silk line width 0.12
+  C90 silk line width 0.12
+  D16 silk line width 0.12
+  D16 silk line width 0.12
+  D16 silk line width 0.12
+  C49 silk line width 0.12
+  C49 silk line width 0.12
+  U13 silk line width 0.12
+  U13 silk line width 0.12
+  U13 silk line width 0.12
+  U13 silk line width 0.12
+  U13 silk line width 0.12
+  U13 silk line width 0.12
+  U13 silk line width 0.12
+  U13 silk line width 0.12
+  U13 silk line width 0.12
+  R62 silk line width 0.12
+  R62 silk line width 0.12
+  C111 silk line width 0.12
+  C111 silk line width 0.12
+  C64 silk line width 0.12
+  C64 silk line width 0.12
+  C65 silk line width 0.12
+  C65 silk line width 0.12
+  C47 silk line width 0.12
+  C47 silk line width 0.12
+  C116 silk line width 0.12
+  C116 silk line width 0.12
+  D11 silk line width 0.12
+  D11 silk line width 0.12
+  D11 silk line width 0.12
+  D11 silk line width 0.12
+  D11 silk line width 0.12
+  D11 silk line width 0.12
+  D11 silk line width 0.12
+  D11 silk line width 0.12
+  R125 silk line width 0.12
+  R125 silk line width 0.12
+  TP5 silk line width 0.12
+  J4 silk line width 0.12
+  J4 silk line width 0.12
+  J4 silk line width 0.12
+  J4 silk line width 0.12
+  J4 silk line width 0.12
+  J4 silk line width 0.12
+  D22 silk line width 0.12
+  D22 silk line width 0.12
+  D22 silk line width 0.12
+  R30 silk line width 0.12
+  R30 silk line width 0.12
+  R66 silk line width 0.12
+  R66 silk line width 0.12
+  U5 silk line width 0.12
+  U5 silk line width 0.12
+  U5 silk line width 0.12
+  U5 silk line width 0.12
+  U5 silk line width 0.12
+  U5 silk line width 0.12
+  U5 silk line width 0.12
+  U5 silk line width 0.12
+  C94 silk line width 0.12
+  C94 silk line width 0.12
+  R69 silk line width 0.12
+  R69 silk line width 0.12
+  TP15 silk line width 0.12
+  C119 silk line width 0.12
+  C119 silk line width 0.12
+  C37 silk line width 0.12
+  C37 silk line width 0.12
+  R131 silk line width 0.12
+  R131 silk line width 0.12
+  D9 silk line width 0.12
+  D9 silk line width 0.12
+  D9 silk line width 0.12
+  TP18 silk line width 0.12
+  R134 silk line width 0.12
+  R134 silk line width 0.12
+  C74 silk line width 0.12
+  C74 silk line width 0.12
+  D2 silk line width 0.12
+  D2 silk line width 0.12
+  D2 silk line width 0.12
+  Q2 silk line width 0.12
+  Q2 silk line width 0.12
+  Q2 silk line width 0.12
+  Q2 silk line width 0.12
+  Q2 silk line width 0.12
+  Q2 silk line width 0.12
+  Q2 silk line width 0.12
+  Q2 silk line width 0.12
+  C103 silk line width 0.12
+  C103 silk line width 0.12
+  C99 silk line width 0.12
+  C99 silk line width 0.12
+  D18 silk line width 0.12
+  D18 silk line width 0.12
+  D18 silk line width 0.12
+  D3 silk line width 0.12
+  D3 silk line width 0.12
+  D3 silk line width 0.12
+  R61 silk line width 0.12
+  R61 silk line width 0.12
+  R44 silk line width 0.12
+  R44 silk line width 0.12
+  C115 silk line width 0.12
+  C115 silk line width 0.12
+  C13 silk line width 0.12
+  C13 silk line width 0.12
+  D8 silk line width 0.12
+  D8 silk line width 0.12
+  D8 silk line width 0.12
+  K1 silk line width 0.12
+  K1 silk line width 0.12
+  K1 silk line width 0.12
+  K1 silk line width 0.12
+  K1 silk line width 0.12
+  U6 silk line width 0.12
+  U6 silk line width 0.12
+  U6 silk line width 0.12
+  U6 silk line width 0.12
+  U6 silk line width 0.12
+  U6 silk line width 0.12
+  U6 silk line width 0.12
+  Q7 silk line width 0.12
+  Q7 silk line width 0.12
+  Q7 silk line width 0.12
+  Q7 silk line width 0.12
+  Q7 silk line width 0.12
+  Q7 silk line width 0.12
+  Q7 silk line width 0.12
+  Q7 silk line width 0.12
+  C78 silk line width 0.12
+  C78 silk line width 0.12
+  D24 silk line width 0.12
+  D24 silk line width 0.12
+  D24 silk line width 0.12
+  R126 silk line width 0.12
+  R126 silk line width 0.12
+  U18 silk line width 0.12
+  U18 silk line width 0.12
+  U18 silk line width 0.12
+  U18 silk line width 0.12
+  U18 silk line width 0.12
+  U18 silk line width 0.12
+  U18 silk line width 0.12
+  TP20 silk line width 0.12
+  C87 silk line width 0.12
+  C87 silk line width 0.12
+  D25 silk line width 0.12
+  D25 silk line width 0.12
+  D25 silk line width 0.12
+  TP9 silk line width 0.12
+  R114 silk line width 0.12
+  R114 silk line width 0.12
+  U11 silk line width 0.12
+  U11 silk line width 0.12
+  U11 silk line width 0.12
+  U11 silk line width 0.12
+  U11 silk line width 0.12
+  U11 silk line width 0.12
+  U11 silk line width 0.12
+  D21 silk line width 0.12
+  D21 silk line width 0.12
+  D21 silk line width 0.12
+  R98 silk line width 0.12
+  R98 silk line width 0.12
+  R72 silk line width 0.12
+  R72 silk line width 0.12
+  C117 silk line width 0.12
+  C117 silk line width 0.12
+  C117 silk line width 0.12
+  C117 silk line width 0.12
+  C117 silk line width 0.12
+  C117 silk line width 0.12
+  C117 silk line width 0.12
+  C117 silk line width 0.12
+  C117 silk line width 0.12
+  C117 silk line width 0.12
+  R76 silk line width 0.12
+  R76 silk line width 0.12
+  TP1 silk line width 0.12
+  C102 silk line width 0.12
+  C102 silk line width 0.12
+  C114 silk line width 0.12
+  C114 silk line width 0.12
+  D27 silk line width 0.12
+  D27 silk line width 0.12
+  D27 silk line width 0.12
+  C7 silk line width 0.12
+  C7 silk line width 0.12
+  C75 silk line width 0.12
+  C75 silk line width 0.12
+  U15 silk line width 0.12
+  U15 silk line width 0.12
+  U15 silk line width 0.12
+  U15 silk line width 0.12
+  U15 silk line width 0.12
+  U15 silk line width 0.12
+  U15 silk line width 0.12
+  U15 silk line width 0.12
+  C97 silk line width 0.12
+  C97 silk line width 0.12
+  TP4 silk line width 0.12
+  C48 silk line width 0.12
+  C48 silk line width 0.12
+  R97 silk line width 0.12
+  R97 silk line width 0.12
+  R113 silk line width 0.12
+  R113 silk line width 0.12
+  R124 silk line width 0.12
+  R124 silk line width 0.12
+  D5 silk line width 0.12
+  D5 silk line width 0.12
+  D5 silk line width 0.12
+  D26 silk line width 0.12
+  D26 silk line width 0.12
+  D26 silk line width 0.12
+  R13 silk line width 0.12
+  R13 silk line width 0.12
+  R32 silk line width 0.12
+  R32 silk line width 0.12
+  R9 silk line width 0.12
+  R9 silk line width 0.12
+  D7 silk line width 0.12
+  D7 silk line width 0.12
+  D7 silk line width 0.12
+  R96 silk line width 0.12
+  R96 silk line width 0.12
+  R78 silk line width 0.12
+  R78 silk line width 0.12
+  R132 silk line width 0.12
+  R132 silk line width 0.12
+  U17 silk line width 0.12
+  U17 silk line width 0.12
+  U17 silk line width 0.12
+  U17 silk line width 0.12
+  U17 silk line width 0.12
+  U17 silk line width 0.12
+  U17 silk line width 0.12
+  C82 silk line width 0.12
+  C82 silk line width 0.12
+  C66 silk line width 0.12
+  C66 silk line width 0.12
+  C38 silk line width 0.12
+  C38 silk line width 0.12
+  C72 silk line width 0.12
+  C72 silk line width 0.12
+  C77 silk line width 0.12
+  C77 silk line width 0.12
+  R82 silk line width 0.12
+  R82 silk line width 0.12
+  R104 silk line width 0.12
+  R104 silk line width 0.12
+  C91 silk line width 0.12
+  C91 silk line width 0.12
+  R128 silk line width 0.12
+  R128 silk line width 0.12
+  R99 silk line width 0.12
+  R99 silk line width 0.12
+  R8 silk line width 0.12
+  R8 silk line width 0.12
+  D4 silk line width 0.12
+  Y1 silk line width 0.12
+  Y1 silk line width 0.12
+  R85 silk line width 0.12
+  R85 silk line width 0.12
+  C3 silk line width 0.12
+  C3 silk line width 0.12
+  D29 silk line width 0.12
+  D29 silk line width 0.12
+  D29 silk line width 0.12
+  D28 silk line width 0.12
+  D28 silk line width 0.12
+  D28 silk line width 0.12
+  D28 silk line width 0.12
+  D28 silk line width 0.12
+  D28 silk line width 0.12
+  D28 silk line width 0.12
+  D28 silk line width 0.12
+  J7 silk line width 0.12
+  J7 silk line width 0.12
+  J7 silk line width 0.12
+  J7 silk line width 0.12
+  J7 silk line width 0.12
+  U14 silk line width 0.12
+  U14 silk line width 0.12
+  U14 silk line width 0.12
+  U14 silk line width 0.12
+  U14 silk line width 0.12
+  U14 silk line width 0.12
+  U14 silk line width 0.12
+  U14 silk line width 0.12
+  R116 silk line width 0.12
+  R116 silk line width 0.12
+  D12 silk line width 0.12
+  D12 silk line width 0.12
+  D12 silk line width 0.12
+  D12 silk line width 0.12
+  D12 silk line width 0.12
+  D12 silk line width 0.12
+  D12 silk line width 0.12
+  D12 silk line width 0.12
+  C16 silk line width 0.12
+  C16 silk line width 0.12
+  R42 silk line width 0.12
+  R42 silk line width 0.12
+  D15 silk line width 0.12
+  D15 silk line width 0.12
+  D15 silk line width 0.12
+  L1 silk line width 0.12
+  L1 silk line width 0.12
+  L1 silk line width 0.12
+  L1 silk line width 0.12
+  L1 silk line width 0.12
+  L1 silk line width 0.12
+  C73 silk line width 0.12
+  C73 silk line width 0.12
+  U19 silk line width 0.12
+  U19 silk line width 0.12
+  U19 silk line width 0.12
+  U19 silk line width 0.12
+  U19 silk line width 0.12
+  U19 silk line width 0.12
+  U19 silk line width 0.12
+  TP3 silk line width 0.12
+  C83 silk line width 0.12
+  C83 silk line width 0.12
+  C42 silk line width 0.12
+  C42 silk line width 0.12
+  R70 silk line width 0.12
+  R70 silk line width 0.12
+  R108 silk line width 0.12
+  R108 silk line width 0.12
+  R102 silk line width 0.12
+  R102 silk line width 0.12
+  C50 silk line width 0.12
+  C50 silk line width 0.12
+  R45 silk line width 0.12
+  R45 silk line width 0.12
+  C6 silk line width 0.12
+  C6 silk line width 0.12
+  C80 silk line width 0.12
+  C80 silk line width 0.12
+  TP12 silk line width 0.12
+  TP16 silk line width 0.12
+  C98 silk line width 0.12
+  C98 silk line width 0.12
+  TP8 silk line width 0.12
+  R121 silk line width 0.12
+  R121 silk line width 0.12
+  R87 silk line width 0.12
+  R87 silk line width 0.12
+  R5 silk line width 0.12
+  R5 silk line width 0.12
+  C5 silk line width 0.12
+  C5 silk line width 0.12
+  R41 silk line width 0.12
+  R41 silk line width 0.12
+  TP17 silk line width 0.12
+  C120 silk line width 0.12
+  C120 silk line width 0.12
+  Q3 silk line width 0.12
+  Q3 silk line width 0.12
+  Q3 silk line width 0.12
+  Q3 silk line width 0.12
+  Q3 silk line width 0.12
+  Q3 silk line width 0.12
+  Q3 silk line width 0.12
+  Q3 silk line width 0.12
+  C10 silk line width 0.12
+  C10 silk line width 0.12
+  R129 silk line width 0.12
+  R129 silk line width 0.12
+  C81 silk line width 0.12
+  C81 silk line width 0.12
+  C93 silk line width 0.12
+  C93 silk line width 0.12
+  R109 silk line width 0.12
+  R109 silk line width 0.12
+  C70 silk line width 0.12
+  C70 silk line width 0.12
+  R68 silk line width 0.12
+  R68 silk line width 0.12
+  SW1 silk line width 0.12
+  SW1 silk line width 0.12
+  SW1 silk line width 0.12
+  SW1 silk line width 0.12
+  SW1 silk line width 0.12
+  SW1 silk line width 0.12
+  L2 silk line width 0.12
+  L2 silk line width 0.12
+  L2 silk line width 0.12
+  L2 silk line width 0.12
+  L2 silk line width 0.12
+  L2 silk line width 0.12
+  C15 silk line width 0.12
+  C15 silk line width 0.12
+  C86 silk line width 0.12
+  C86 silk line width 0.12
+  R64 silk line width 0.12
+  R64 silk line width 0.12
+  C104 silk line width 0.12
+  C104 silk line width 0.12
+  R88 silk line width 0.12
+  R88 silk line width 0.12
+  U21 silk line width 0.12
+  U21 silk line width 0.12
+  U21 silk line width 0.12
+  U21 silk line width 0.12
+  U21 silk line width 0.12
+  U21 silk line width 0.12
+  U21 silk line width 0.12
+  R40 silk line width 0.12
+  R40 silk line width 0.12
+  R111 silk line width 0.12
+  R111 silk line width 0.12
+  R112 silk line width 0.12
+  R112 silk line width 0.12
+  D1 silk line width 0.12
+  D1 silk line width 0.12
+  D1 silk line width 0.12
+  D1 silk line width 0.12
+  D1 silk line width 0.12
+  D1 silk line width 0.12
+  D1 silk line width 0.12
+  TP22 silk line width 0.12
+  D6 silk line width 0.12
+  D6 silk line width 0.12
+  D6 silk line width 0.12
+  R122 silk line width 0.12
+  R122 silk line width 0.12
+  R31 silk line width 0.12
+  R31 silk line width 0.12
+  D13 silk line width 0.12
+  D13 silk line width 0.12
+  D13 silk line width 0.12
+  D13 silk line width 0.12
+  D13 silk line width 0.12
+  D13 silk line width 0.12
+  D13 silk line width 0.12
+  D13 silk line width 0.12
+  R89 silk line width 0.12
+  R89 silk line width 0.12
+  C17 silk line width 0.12
+  C17 silk line width 0.12
+  R110 silk line width 0.12
+  R110 silk line width 0.12
+  C92 silk line width 0.12
+  C92 silk line width 0.12
+  R103 silk line width 0.12
+  R103 silk line width 0.12
+  R77 silk line width 0.12
+  R77 silk line width 0.12
+  C84 silk line width 0.12
+  C84 silk line width 0.12
+  R81 silk line width 0.12
+  R81 silk line width 0.12
+  TP21 silk line width 0.12
+  R12 silk line width 0.12
+  R12 silk line width 0.12
+  C95 silk line width 0.12
+  C95 silk line width 0.12
+  Q5 silk line width 0.12
+  Q5 silk line width 0.12
+  Q5 silk line width 0.12
+  Q5 silk line width 0.12
+  Q5 silk line width 0.12
+  Q5 silk line width 0.12
+  Q5 silk line width 0.12
+  Q5 silk line width 0.12
+  K2 silk line width 0.12
+  K2 silk line width 0.12
+  K2 silk line width 0.12
+  K2 silk line width 0.12
+  K2 silk line width 0.12
+  C122 silk line width 0.12
+  C122 silk line width 0.12
+  R43 silk line width 0.12
+  R43 silk line width 0.12
+  R7 silk line width 0.12
+  R7 silk line width 0.12
+  C69 silk line width 0.12
+  C69 silk line width 0.12
+  C18 silk line width 0.12
+  C18 silk line width 0.12
+  R105 silk line width 0.12
+  R105 silk line width 0.12
+  K4 silk line width 0.12
+  K4 silk line width 0.12
+  K4 silk line width 0.12
+  K4 silk line width 0.12
+  K4 silk line width 0.12
+  R33 silk line width 0.12
+  R33 silk line width 0.12
+  TP11 silk line width 0.12
+  J8 silk line width 0.12
+  J8 silk line width 0.12
+  J8 silk line width 0.12
+  J8 silk line width 0.12
+  J8 silk line width 0.12
+  C100 silk line width 0.12
+  C100 silk line width 0.12
+  C40 silk line width 0.12
+  C40 silk line width 0.12
+  R1 silk line width 0.12
+  R1 silk line width 0.12
+  TP14 silk line width 0.12
+  R123 silk line width 0.12
+  R123 silk line width 0.12
+  TP10 silk line width 0.12
+  R4 silk line width 0.12
+  R4 silk line width 0.12
+  C68 silk line width 0.12
+  C68 silk line width 0.12
+  R73 silk line width 0.12
+  R73 silk line width 0.12
+  C44 silk line width 0.12
+  C44 silk line width 0.12
+  U2 silk line width 0.12
+  U2 silk line width 0.12
+  U2 silk line width 0.12
+  U2 silk line width 0.12
+  U2 silk line width 0.12
+  U2 silk line width 0.12
+  U2 silk line width 0.12
+  R60 silk line width 0.12
+  R60 silk line width 0.12
+  R2 silk line width 0.12
+  R2 silk line width 0.12
+  R106 silk line width 0.12
+  R106 silk line width 0.12
+  R120 silk line width 0.12
+  R120 silk line width 0.12
+  U16 silk line width 0.12
+  U16 silk line width 0.12
+  U16 silk line width 0.12
+  U16 silk line width 0.12
+  U16 silk line width 0.12
+  U16 silk line width 0.12
+  U16 silk line width 0.12
+  C45 silk line width 0.12
+  C45 silk line width 0.12
+  FB1 silk line width 0.12
+  FB1 silk line width 0.12
+  C60 silk line width 0.12
+  C60 silk line width 0.12
+  C85 silk line width 0.12
+  C85 silk line width 0.12
+  C53 silk line width 0.12
+  C53 silk line width 0.12
+  U3 silk line width 0.12
+  U3 silk line width 0.12
+  U3 silk line width 0.12
+  U3 silk line width 0.12
+  U3 silk line width 0.12
+  U3 silk line width 0.12
+  U3 silk line width 0.12
+  U3 silk line width 0.12
+  R83 silk line width 0.12
+  R83 silk line width 0.12
+  Q6 silk line width 0.12
+  Q6 silk line width 0.12
+  Q6 silk line width 0.12
+  Q6 silk line width 0.12
+  Q6 silk line width 0.12
+  Q6 silk line width 0.12
+  Q6 silk line width 0.12
+  Q6 silk line width 0.12
+  R65 silk line width 0.12
+  R65 silk line width 0.12
+  R86 silk line width 0.12
+  R86 silk line width 0.12
+  R135 silk line width 0.12
+  R135 silk line width 0.12
+  R74 silk line width 0.12
+  R74 silk line width 0.12
+  C76 silk line width 0.12
+  C76 silk line width 0.12
+  J9 silk line width 0.12
+  J9 silk line width 0.12
+  J9 silk line width 0.12
+  J9 silk line width 0.12
+  J9 silk line width 0.12
+  C110 silk line width 0.12
+  C110 silk line width 0.12
+  R107 silk line width 0.12
+  R107 silk line width 0.12
+  C89 silk line width 0.12
+  C89 silk line width 0.12
+  K3 silk line width 0.12
+  K3 silk line width 0.12
+  K3 silk line width 0.12
+  K3 silk line width 0.12
+  K3 silk line width 0.12
+  R117 silk line width 0.12
+  R117 silk line width 0.12
+  C39 silk line width 0.12
+  C39 silk line width 0.12
+  U1 silk line width 0.12
+  U1 silk line width 0.12
+  U1 silk line width 0.12
+  U1 silk line width 0.12
+  U1 silk line width 0.12
+  U1 silk line width 0.12
+  U1 silk line width 0.12
+  U1 silk line width 0.12
+  U1 silk line width 0.12
+  C112 silk line width 0.12
+  C112 silk line width 0.12
+  U20 silk line width 0.12
+  U20 silk line width 0.12
+  U20 silk line width 0.12
+  U20 silk line width 0.12
+  U20 silk line width 0.12
+  U20 silk line width 0.12
+  U20 silk line width 0.12
+  R79 silk line width 0.12
+  R79 silk line width 0.12
+  TP2 silk line width 0.12
+  R75 silk line width 0.12
+  R75 silk line width 0.12
+  D14 silk line width 0.12
+  D14 silk line width 0.12
+  D14 silk line width 0.12
+  D14 silk line width 0.12
+  D14 silk line width 0.12
+  D14 silk line width 0.12
+  D14 silk line width 0.12
+  D14 silk line width 0.12
+  U7 silk line width 0.12
+  U7 silk line width 0.12
+  U7 silk line width 0.12
+  U7 silk line width 0.12
+  U7 silk line width 0.12
+  U7 silk line width 0.12
+  U7 silk line width 0.12
+  (762 items)
+== B.Silkscreen items (fab note says bottom silk intentionally empty)
+  0 items
+== reference designators not on F.Silkscreen (visible) / not on F.Fab
+  D17: ref not on silk (fab drawing: yes)
+  FID1: ref not on silk (fab drawing: yes)
+  C113: ref not on silk (fab drawing: yes)
+  TP6: ref not on silk (fab drawing: yes)
+  TP19: ref not on silk (fab drawing: yes)
+  R127: ref not on silk (fab drawing: yes)
+  H2: ref not on silk (fab drawing: yes)
+  C62: ref not on silk (fab drawing: yes)
+  C52: ref not on silk (fab drawing: yes)
+  SW2: ref not on silk (fab drawing: yes)
+  C61: ref not on silk (fab drawing: yes)
+  R80: ref not on silk (fab drawing: yes)
+  TP7: ref not on silk (fab drawing: yes)
+  J1: ref not on silk (fab drawing: yes)
+  C101: ref not on silk (fab drawing: yes)
+  TP13: ref not on silk (fab drawing: yes)
+  R130: ref not on silk (fab drawing: yes)
+  C88: ref not on silk (fab drawing: yes)
+  C63: ref not on silk (fab drawing: yes)
+  D16: ref not on silk (fab drawing: yes)
+  U13: ref not on silk (fab drawing: yes)
+  C64: ref not on silk (fab drawing: yes)
+  C116: ref not on silk (fab drawing: yes)
+  TP5: ref not on silk (fab drawing: yes)
+  TP15: ref not on silk (fab drawing: yes)
+  TP18: ref not on silk (fab drawing: yes)
+  C103: ref not on silk (fab drawing: yes)
+  R44: ref not on silk (fab drawing: yes)
+  H1: ref not on silk (fab drawing: yes)
+  TP20: ref not on silk (fab drawing: yes)
+  TP9: ref not on silk (fab drawing: yes)
+  R114: ref not on silk (fab drawing: yes)
+  TP1: ref not on silk (fab drawing: yes)
+  C102: ref not on silk (fab drawing: yes)
+  TP4: ref not on silk (fab drawing: yes)
+  R13: ref not on silk (fab drawing: yes)
+  R82: ref not on silk (fab drawing: yes)
+  C91: ref not on silk (fab drawing: yes)
+  R128: ref not on silk (fab drawing: yes)
+  FID3: ref not on silk (fab drawing: yes)
+  TP3: ref not on silk (fab drawing: yes)
+  C83: ref not on silk (fab drawing: yes)
+  TP12: ref not on silk (fab drawing: yes)
+  TP16: ref not on silk (fab drawing: yes)
+  TP8: ref not on silk (fab drawing: yes)
+  R121: ref not on silk (fab drawing: yes)
+  R87: ref not on silk (fab drawing: yes)
+  H3: ref not on silk (fab drawing: yes)
+  TP17: ref not on silk (fab drawing: yes)
+  C10: ref not on silk (fab drawing: yes)
+  C81: ref not on silk (fab drawing: yes)
+  FID2: ref not on silk (fab drawing: yes)
+  C86: ref not on silk (fab drawing: yes)
+  R111: ref not on silk (fab drawing: yes)
+  TP22: ref not on silk (fab drawing: yes)
+  R89: ref not on silk (fab drawing: yes)
+  C17: ref not on silk (fab drawing: yes)
+  H4: ref not on silk (fab drawing: yes)
+  C84: ref not on silk (fab drawing: yes)
+  TP21: ref not on silk (fab drawing: yes)
+  C122: ref not on silk (fab drawing: yes)
+  C18: ref not on silk (fab drawing: yes)
+  TP11: ref not on silk (fab drawing: yes)
+  TP14: ref not on silk (fab drawing: yes)
+  TP10: ref not on silk (fab drawing: yes)
+  U16: ref not on silk (fab drawing: yes)
+  C85: ref not on silk (fab drawing: yes)
+  C53: ref not on silk (fab drawing: yes)
+  R83: ref not on silk (fab drawing: yes)
+  C110: ref not on silk (fab drawing: yes)
+  R117: ref not on silk (fab drawing: yes)
+  C112: ref not on silk (fab drawing: yes)
+  TP2: ref not on silk (fab drawing: yes)
+== part-to-part bbox gap < 0.25 mm (SMT, JLC assembly)
+  C118-U17: gap 0.02 mm
+  D17-R115: gap -0.01 mm
+  C113-R121: gap 0.04 mm
+  C113-C15: gap -0.03 mm
+  C14-SW1: gap 0.12 mm
+  R119-C81: gap 0.19 mm
+  D23-U20: gap 0.20 mm
+  R100-R99: gap 0.09 mm
+  R94-C78: gap 0.09 mm
+  R63-C70: gap 0.09 mm
+  C67-U15: gap 0.02 mm
+  R127-R130: gap 0.09 mm
+  R127-C18: gap 0.17 mm
+  C121-R128: gap 0.09 mm
+  C12-R10: gap 0.24 mm
+  R101-C112: gap 0.12 mm
+  C11-C8: gap -0.04 mm
+  C11-U2: gap -0.05 mm
+  C62-C61: gap 0.14 mm
+  C62-U14: gap -0.03 mm
+  C62-C68: gap 0.14 mm
+  C62-C60: gap 0.02 mm
+  J3-R126: gap 0.02 mm
+  D20-R118: gap -0.01 mm
+  C52-C46: gap 0.19 mm
+  C52-R66: gap 0.04 mm
+  C52-U7: gap -0.33 mm
+  SW2-R9: gap 0.07 mm
+  U12-C102: gap 0.09 mm
+  U12-C98: gap 0.09 mm
+  C61-U14: gap -0.03 mm
+  C61-C60: gap 0.02 mm
+  C51-U6: gap 0.07 mm
+  R80-C81: gap -0.01 mm
+  Q4-R78: gap -0.02 mm
+  Q4-R79: gap -0.02 mm
+  C96-R85: gap 0.07 mm
+  C96-R86: gap 0.11 mm
+  C101-R87: gap 0.07 mm
+  C101-C100: gap 0.07 mm
+  R118-J4: gap -0.05 mm
+  R130-C18: gap 0.17 mm
+  C88-R111: gap 0.04 mm
+  D19-D1: gap 0.00 mm
+  D19-R117: gap 0.15 mm
+  C63-C64: gap 0.09 mm
+  C35-C115: gap -0.01 mm
+  C8-U1: gap 0.12 mm
+  C34-R30: gap 0.09 mm
+  C34-C114: gap -0.01 mm
+  C34-R32: gap 0.14 mm
+  C46-C48: gap 0.14 mm
+  R84-C87: gap 0.09 mm
+  R84-R111: gap 0.04 mm
+  R84-R83: gap -0.01 mm
+  D16-R114: gap -0.01 mm
+  C49-C47: gap 0.04 mm
+  U13-C83: gap 0.22 mm
+  U13-C86: gap 0.04 mm
+  R62-C69: gap 0.09 mm
+  C111-R99: gap 0.09 mm
+  C64-U15: gap 0.17 mm
+  C65-C66: gap 0.14 mm
+  C47-C53: gap 0.09 mm
+  C116-U17: gap 0.02 mm
+  D11-C74: gap 0.02 mm
+  R125-U21: gap 0.12 mm
+  D22-U19: gap 0.20 mm
+  R30-C114: gap 0.09 mm
+  R66-R61: gap 0.09 mm
+  U5-C38: gap 0.12 mm
+  C94-C97: gap 0.17 mm
+  R131-C122: gap 0.09 mm
+  R134-Q7: gap -0.03 mm
+  C74-C69: gap 0.02 mm
+  Q2-R74: gap -0.02 mm
+  Q2-R75: gap -0.02 mm
+  C103-FB1: gap 0.15 mm
+  C99-C102: gap 0.17 mm
+  D18-R116: gap -0.05 mm
+  D3-C91: gap 0.15 mm
+  D3-C84: gap -0.03 mm
+  D3-R120: gap 0.22 mm
+  R44-R45: gap 0.19 mm
+  R44-R43: gap 0.11 mm
+  K1-R40: gap 0.07 mm
+  U6-C50: gap -0.03 mm
+  Q7-R135: gap 0.04 mm
+  D24-U21: gap 0.20 mm
+  U18-D21: gap 0.20 mm
+  U18-R122: gap 0.02 mm
+  C87-R82: gap 0.04 mm
+  C87-R81: gap 0.04 mm
+  D25-R122: gap -0.03 mm
+  U11-C97: gap 0.09 mm
+  U11-C93: gap 0.09 mm
+  R98-R97: gap 0.09 mm
+  R98-C110: gap 0.09 mm
+  R72-U14: gap 0.22 mm
+  R72-R73: gap -0.01 mm
+  R76-Q3: gap -0.02 mm
+  R76-R77: gap 0.24 mm
+  C102-C98: gap 0.14 mm
+  C114-R32: gap 0.14 mm
+  C75-D12: gap 0.02 mm
+  C75-C70: gap 0.02 mm
+  U15-C68: gap 0.12 mm
+  C97-C93: gap 0.14 mm
+  R113-D15: gap -0.01 mm
+  R124-U20: gap 0.22 mm
+  R9-C10: gap -0.01 mm
+  R9-SW1: gap 0.07 mm
+  R78-R79: gap 0.24 mm
+  C72-R64: gap 0.09 mm
+  C72-C76: gap 0.02 mm
+  C77-C73: gap 0.02 mm
+  C77-D14: gap 0.02 mm
+  R82-R81: gap 0.04 mm
+  R8-C10: gap 0.17 mm
+  R8-R7: gap 0.09 mm
+  D4-R12: gap 0.07 mm
+  R85-C95: gap 0.07 mm
+  U14-R73: gap 0.22 mm
+  C16-U16: gap 0.09 mm
+  C16-U3: gap 0.09 mm
+  R42-K3: gap 0.07 mm
+  C73-R65: gap 0.09 mm
+  U19-R123: gap 0.22 mm
+  C42-C44: gap 0.24 mm
+  R102-R103: gap 0.24 mm
+  R102-Q5: gap -0.02 mm
+  R87-R89: gap 0.11 mm
+  R41-K2: gap 0.07 mm
+  Q3-R77: gap -0.02 mm
+  C10-R7: gap 0.17 mm
+  R129-J9: gap -0.03 mm
+  SW1-C110: gap 0.17 mm
+  C86-C85: gap 0.14 mm
+  C104-U7: gap -0.01 mm
+  R88-R112: gap 0.11 mm
+  R88-R89: gap 0.11 mm
+  R111-R83: gap 0.04 mm
+  D13-C76: gap 0.02 mm
+  C17-R1: gap 0.14 mm
+  C17-U3: gap 0.07 mm
+  R103-Q5: gap -0.02 mm
+  C18-R2: gap 0.24 mm
+  C18-R117: gap 0.12 mm
+  C53-U7: gap 0.17 mm
+  R74-R75: gap 0.24 mm
+== tallest parts / overhang notes: J1, BNCs, C117 (8 mm dia, 6.9 tall), L1/L2 (5x5x4), relays

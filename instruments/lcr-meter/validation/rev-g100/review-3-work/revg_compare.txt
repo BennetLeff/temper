@@ -1,0 +1,40 @@
+Rev G outline bbox 49.975,44.975 - 150.025,155.025
+== footprints moved / changed (y < 108 in G100) or missing in either
+  C39: G (77.5, 79.5, 90.0, '1uF 50V') -> G100 (77.5, 79.5, 90.0, '2.2uF 50V X7R')
+  C40: G (64.5, 85.5, 0.0, '1uF 50V') -> G100 (64.5, 85.5, 0.0, '2.2uF 50V X7R')
+  C44: G (86.0, 91.6, 0.0, '1uF 50V') -> G100 (86.0, 91.6, 0.0, '2.2uF 50V X7R')
+  C45: G (87.2, 86.8, 180.0, '1uF 50V') -> G100 (87.2, 86.8, 180.0, '2.2uF 50V X7R')
+  C48: G (108.6, 74.6, 90.0, '1uF 50V') -> G100 (108.6, 74.6, 90.0, '2.2uF 50V X7R')
+  C49: G (120.6, 82.6, -90.0, '1uF 50V') -> G100 (120.6, 82.6, -90.0, '2.2uF 50V X7R')
+  D29: only in G100 at (137.9, 99.6, 90.0, 'SS14')
+  J5: only in Rev G at (86.0, 141.0, 180.0, 'SWD GND / VTREF')
+  R132: G (95.22, 65.6, 90.0, '300R') -> G100 (95.22, 65.6, 90.0, '270R')
+  R133: G (101.4, 60.6, 90.0, '300R') -> G100 (101.4, 60.6, 90.0, '270R')
+  TP22: only in G100 at (72.1, 118.0, 0.0, 'GND')
+== value changes anywhere
+  C39: 1uF 50V -> 2.2uF 50V X7R
+  C40: 1uF 50V -> 2.2uF 50V X7R
+  C44: 1uF 50V -> 2.2uF 50V X7R
+  C45: 1uF 50V -> 2.2uF 50V X7R
+  C48: 1uF 50V -> 2.2uF 50V X7R
+  C49: 1uF 50V -> 2.2uF 50V X7R
+  C85: 4.7nF 50V -> 4.7nF 50V C0G
+  R101: 1R -> 0.33R
+  R132: 300R -> 270R
+  R133: 300R -> 270R
+== copper items y<107: Rev G 850, G100 866; only-in-G 7, only-in-G100 23
+  per net (only in Rev G / only in G100):
+    -12V                0 /    2
+    3V3                 3 /    8
+    5V                  1 /    1
+    GND                 0 /    9
+    JACK_HC             1 /    1
+    JACK_LC             1 /    1
+    STATUS              1 /    1
+== detail: signal-net (not GND / supply) differences y<107
+  Rev G only: ('T', 'In2.Cu', 'JACK_HC', 53.0, 58.0, 53.0, 118.15, 0.2)
+  Rev G only: ('T', 'In2.Cu', 'JACK_LC', 51.6, 57.0, 51.6, 119.0, 0.2)
+  Rev G only: ('T', 'In2.Cu', 'STATUS', 51.0, 50.2, 51.0, 121.4, 0.2)
+  G100 only : ('T', 'In2.Cu', 'JACK_HC', 53.0, 58.0, 53.0, 116.0, 0.2)
+  G100 only : ('T', 'In2.Cu', 'JACK_LC', 51.6, 57.0, 51.6, 116.6, 0.2)
+  G100 only : ('T', 'In2.Cu', 'STATUS', 51.0, 50.2, 51.0, 127.87, 0.2)

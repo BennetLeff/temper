@@ -19,12 +19,20 @@ Worst current per net (the most the source can deliver into a fault downstream):
     RAW_N, -12V    0.50 A  TPS7A3001 ICL maximum (sources/ti/TPS7A30.txt, 7.5: 220 / 330 / 500 mA)
     3V3            0.60 A  AP2112K-3.3 rated output (sources/new/AP2112.txt; no ILIM maximum is given, its
                            foldback limit returns the short-circuit current to 50 mA)
+    3V3A           0.60 A  U15, the same AP2112K-3.3
+    5VA            0.60 A  FB1 -> U15's input: what U15 can pass to a fault on 3V3A
+    LDOIN_P        0.50 A  R95 -> U11's input: the TPS7A49 ILIM maximum, as on 12V
+    LDOIN_N        0.50 A  R96 -> U12's input: the TPS7A30 ICL maximum, as on -12V
+VRLY is not checked here: it carries the relay coils and the TLP172AM LEDs only (0.14 A in a four-coil RESET at
+5.5 V), and rev-g-protection/drive_budget.py solves its copper drop.
 Each net is solved as a resistor network (segments rho L / (w t), via barrels, lands as near-zero links
 between the copper they touch) once per fault case: the source part delivers the net's worst current into one
 load part at a time (every pin of a part tied together, as inside the part), a resistor load taking only
 min(worst, V / R) and capacitors, test pads and fiducials none.  A segment or via is charged the largest
 current it carries in any case, so a branch carries the full current only if a load on it could fault.
-For USB_VBUS each receptacle VBUS pin is a separate source case (the plug may make contact on one pin only).
+For USB_VBUS the receptacle's VBUS pins are one node, as the source part's pins always are here (a plug's four
+VBUS contacts are tied inside the plug).  So one VBUS pin pair carrying the whole current alone, a plug that touches
+one pair only, is not a case: it needs two faults at once, and each board's FINDINGS records what that leaves.
 """
 from __future__ import annotations
 
@@ -48,8 +56,11 @@ I_TPS2553 = next(c['value'][2] for c in REG['checks'] if c['item'].startswith('T
 NETS = {'USB_VBUS': (I_TPS2553, 5.5, 'TPS2553 ILIM max'), '5V': (I_TPS2553, 5.5, 'TPS2553 ILIM max'),
         'RAW_P': (0.50, 14.9, 'TPS7A49 ILIM max'), '12V': (0.50, 12.4, 'TPS7A49 ILIM max'),
         'RAW_N': (0.50, 14.8, 'TPS7A30 ICL max'), '-12V': (0.50, 12.2, 'TPS7A30 ICL max'),
-        '3V3': (0.60, 3.35, 'AP2112K rating')}
-SOURCE = {'USB_VBUS': 'J1', '5V': 'U16', 'RAW_P': 'D2', 'RAW_N': 'D3', '12V': 'U11', '-12V': 'U12', '3V3': 'U3'}
+        '3V3': (0.60, 3.35, 'AP2112K rating'), '3V3A': (0.60, 3.35, 'AP2112K rating'),
+        '5VA': (0.60, 5.5, 'U15 AP2112K rating'), 'LDOIN_P': (0.50, 14.9, 'TPS7A49 ILIM max'),
+        'LDOIN_N': (0.50, 14.8, 'TPS7A30 ICL max')}
+SOURCE = {'USB_VBUS': 'J1', '5V': 'U16', 'RAW_P': 'D2', 'RAW_N': 'D3', '12V': 'U11', '-12V': 'U12', '3V3': 'U3',
+          '3V3A': 'U15', '5VA': 'FB1', 'LDOIN_P': 'R95', 'LDOIN_N': 'R96'}
 NO_LOAD = {'D1': 'SRV05-4 ESD array on VBUS: clamp leakage only'}
 RULES = {'rise_c': DT, 'copper_mm': T_MM, 'via_plating_mm': VIA_PLATING_MM, 'board_mm': 1.6,
          'rho': 1.72e-8 * (1 + 0.0039 * 40),   # ohm m at 60 C; only current division depends on it
@@ -84,7 +95,7 @@ def main():
     for net, (inet, vnet, why) in NETS.items():
         refs = list(dict.fromkeys(p['ref'] for p in pads if p['net'] == net))
         src_pads = [(p['ref'], p['pad']) for p in pads if p['net'] == net and p['ref'] == SOURCE[net]]
-        sources = src_pads if net == 'USB_VBUS' else src_pads[:1]   # each VBUS pin is its own case
+        sources = src_pads if net == 'USB_VBUS' else src_pads[:1]   # J1's pins are one node: every case is the same
         loads = []
         for ref in refs:
             part = parts.get(ref)

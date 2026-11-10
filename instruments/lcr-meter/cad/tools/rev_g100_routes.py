@@ -168,7 +168,7 @@ T('MON_N12', 'B.Cu', (86.3, 143.35), (86.3, 141.8), (86.6, 141.5), (97.4, 141.5)
 V('MON_N12', 98.0, 137.3)
 T('MON_N12', 'F.Cu', (98.0, 137.3), (94.72, 137.3), (94.225, 136.805), (94.225, 136.2))
 # R9 (pull-up) west of SW2, C14 (cap) east of SW1, RUN between the buttons
-T('RUN', 'F.Cu', 'R9.1', (84.375, 141.9))
+T('RUN', 'F.Cu', 'R9.1', (83.8, 140.825), (84.875, 141.9), 'SW2.1')   # into SW2.1's centre (it ended on the pad corner)
 T('3V3', 'F.Cu', 'R9.2', (81.0, 139.225))
 T('RUN', 'F.Cu', (84.875, 141.9), (84.875, 141.4), (85.375, 140.9), (90.4, 140.9), (91.0, 140.3), 'C14.1')
 T('GND', 'F.Cu', 'C14.2', (91.0, 137.45), (91.775, 136.675))
@@ -308,3 +308,88 @@ T('-12V', 'F.Cu', 'D29.2', (136.2, 97.6))
 # MD-10: the J4 GND pad's via
 V('GND', 72.1, 116.7, d=0.6)
 T('GND', 'F.Cu', (72.1, 118.0), (72.1, 116.7))
+
+# ============================================================== 10. third review (validation/rev-g100/independent-review-3-2026-11-10.md)
+# m2: the relay RESET leaves 4.149 V on the coils against 4.125 V for a 45 C relay.  Widen VRLY and RLY_RST wherever
+# the copper has room (rev-g-protection/drive_budget.py takes the drop from these tracks).  Left at 0.2 mm: VRLY In2
+# y 113.6 and RLY_RST B.Cu y 113.0 (they pass each other's vias), and RLY_RST in the jack band (x >= 130.3).
+
+
+def _poly(net, layer, pts):
+    key = [(round(x, 3), round(y, 3)) for x, y in pts]
+    hit = [t for t in routing['tracks'] if t['net'] == net and t['layer'] == layer
+           and [(round(x, 3), round(y, 3)) for x, y in t['points']] in (key, key[::-1])]
+    assert len(hit) == 1, (net, layer, pts, len(hit))
+    return hit[0]
+
+
+def WPOLY(net, layer, pts, w):
+    """Set the width of one hand-placed track, named by its points."""
+    _poly(net, layer, pts)['width'] = w
+
+
+def SPLIT(net, layer, pts, *spans):
+    """Replace one straight track by collinear pieces of their own widths: spans are (end point, width)."""
+    routing['tracks'].remove(_poly(net, layer, pts))
+    a = pts[0]
+    for b, w in spans:
+        T(net, layer, a, b, w=w)
+        a = b
+    assert tuple(a) == tuple(pts[-1]), (net, a, pts)
+
+
+for _net, _layer, _pts, _w in [
+        ('VRLY', 'In2.Cu', [(100.0, 71.0), (100.0, 113.6)], 0.6),           # the 42.6 mm trunk north to K1
+        ('VRLY', 'In2.Cu', [(132.0, 113.6), (132.0, 82.0)], 0.6),           # 31 mm to K4
+        ('VRLY', 'In2.Cu', [(132.0, 82.0), (131.2, 81.2)], 0.6),
+        ('VRLY', 'In2.Cu', [(97.2, 84.92), (102.8, 84.92)], 0.6),
+        ('VRLY', 'In2.Cu', [(97.2, 99.92), (102.8, 99.92)], 0.6),
+        ('VRLY', 'B.Cu', [(100.0, 113.6), (100.0, 119.6)], 0.5),
+        ('VRLY', 'B.Cu', [(94.608, 117.6), (94.608, 119.6)], 0.6),
+        ('VRLY', 'B.Cu', [(100.0, 117.4), (101.3, 117.4)], 0.6),
+        ('VRLY', 'F.Cu', [(95.22, 69.92), (104.78, 69.92)], 0.6),
+        ('VRLY', 'F.Cu', [(100.0, 69.92), (100.0, 71.0)], 0.6),
+        ('VRLY', 'F.Cu', [(95.22, 66.425), (95.22, 69.92)], 0.6),
+        ('VRLY', 'F.Cu', [(101.4, 61.425), (101.4, 69.92)], 0.6),
+        ('VRLY', 'F.Cu', [(95.22, 84.92), (97.2, 84.92)], 0.6),
+        ('VRLY', 'F.Cu', [(104.78, 84.92), (102.8, 84.92)], 0.6),
+        ('VRLY', 'F.Cu', [(95.22, 99.92), (97.2, 99.92)], 0.6),
+        ('VRLY', 'F.Cu', [(104.78, 99.92), (102.8, 99.92)], 0.6),
+        ('VRLY', 'F.Cu', [(94.6075, 116.6), (94.608, 117.6)], 0.6),
+        ('VRLY', 'F.Cu', [(101.3, 117.4), (101.325, 116.4)], 0.6),
+        ('VRLY', 'F.Cu', [(101.325, 116.4), (102.2, 116.4)], 0.6),
+        ('VRLY', 'F.Cu', [(102.2, 116.4), (103.3, 115.3)], 0.6),
+        ('VRLY', 'F.Cu', [(103.3, 115.3), (103.3, 115.525)], 0.6),
+        ('VRLY', 'F.Cu', [(91.2575, 118.65), (91.2575, 119.6)], 0.6),
+        ('VRLY', 'F.Cu', [(106.2575, 118.65), (106.2575, 119.6)], 0.6),
+        ('VRLY', 'F.Cu', [(121.0575, 118.65), (121.0575, 119.6)], 0.6),
+        ('VRLY', 'F.Cu', [(131.2, 81.2), (133.22, 81.08)], 0.6),
+        ('VRLY', 'F.Cu', [(133.22, 81.08), (142.78, 81.08)], 0.6),
+        ('VRLY', 'F.Cu', [(142.78, 81.08), (144.6, 81.08)], 0.6),
+        ('VRLY', 'F.Cu', [(144.6, 81.08), (144.6, 83.05)], 0.6),
+        ('VRLY', 'F.Cu', [(144.6, 83.05), (146.5, 83.05)], 0.6),
+        ('RLY_RST', 'F.Cu', [(102.0, 78.5), (102.0, 113.0)], 0.5),
+        ('RLY_RST', 'F.Cu', [(104.78, 80.08), (102.0, 80.08)], 0.6),
+        ('RLY_RST', 'F.Cu', [(104.78, 95.08), (102.0, 95.08)], 0.6),
+        ('RLY_RST', 'F.Cu', [(104.78, 110.08), (102.0, 110.08)], 0.6),
+        ('RLY_RST', 'F.Cu', [(96.7, 115.2), (96.7075, 116.6)], 0.6),
+        ('RLY_RST', 'F.Cu', [(96.7075, 117.7), (96.7075, 116.6)], 0.6),
+        ('RLY_RST', 'F.Cu', [(97.295, 118.3), (96.7075, 117.7)], 0.6),
+        ('RLY_RST', 'F.Cu', [(97.295, 121.6), (97.295, 118.3)], 0.6),
+        ('RLY_RST', 'F.Cu', [(97.295, 121.6), (97.295, 125.0)], 0.6),
+        ('RLY_RST', 'B.Cu', [(102.0, 78.5), (102.0, 67.6)], 0.6),
+        ('RLY_RST', 'B.Cu', [(97.3, 113.0), (96.7, 113.6)], 0.6),
+        ('RLY_RST', 'B.Cu', [(96.7, 113.6), (96.7, 115.2)], 0.6)]:
+    WPOLY(_net, _layer, _pts, _w)
+# pinched runs: 0.2 mm only past the via that pinches them (RLY_RST at (102, 113), GND at (124.2, 114.2)), and the
+# RLY_RST run keeps its 0.2 mm where it enters the jack band (JK_LCUR via at (130.5, 66.8))
+SPLIT('VRLY', 'In2.Cu', [(100.0, 113.6), (132.0, 113.6)], ((103.0, 113.6), 0.2), ((123.4, 113.6), 0.6),
+      ((125.0, 113.6), 0.2), ((132.0, 113.6), 0.5))
+SPLIT('VRLY', 'B.Cu', [(91.257, 119.6), (121.058, 119.6)], ((100.0, 119.6), 0.6), ((121.058, 119.6), 0.3))
+SPLIT('RLY_RST', 'B.Cu', [(102.0, 67.6), (130.9, 67.6)], ((129.5, 67.6), 0.5), ((130.9, 67.6), 0.2))
+# Third review note: 3V3A (U15 -> the BAT54S clamps D11-D14) ran 0.2 mm on In2, under the 0.26 mm 0.6 A needs;
+# current_check.py now covers 3V3A, 5VA and the LDO inputs
+WIDEN('3V3A', 'In2.Cu', 64.0, 89.4, 70.8, 107.0, 0.4)
+# m9: two dangling stubs (USB_VBUS past C113.1, LDOIN_N past U12.5)
+DELSEG('USB_VBUS', (60.075, 115.05))
+DELSEG('LDOIN_N', (145.4291, 111.2541))

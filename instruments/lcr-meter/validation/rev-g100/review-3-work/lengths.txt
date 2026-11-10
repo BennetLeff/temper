@@ -1,0 +1,41 @@
+USB_DP       total   37.0 mm  {'F.Cu': 9.8, 'B.Cu': 14.2, 'In2.Cu': 13.0}  vias 4  min w 0.2
+USB_DM       total   43.4 mm  {'F.Cu': 27.8, 'B.Cu': 15.6}  vias 2  min w 0.15
+USB_DP_MCU   total    7.8 mm  {'F.Cu': 2.8, 'B.Cu': 5.0}  vias 2  min w 0.15
+USB_DM_MCU   total    8.3 mm  {'F.Cu': 3.4, 'B.Cu': 4.9}  vias 2  min w 0.15
+QSPI_CLK     total    7.1 mm  {'F.Cu': 7.1}  vias 0  min w 0.2
+QSPI_CS      total   30.9 mm  {'F.Cu': 5.2, 'B.Cu': 19.0, 'In2.Cu': 6.7}  vias 3  min w 0.2
+QSPI0        total   17.2 mm  {'F.Cu': 17.2}  vias 0  min w 0.2
+QSPI1        total   26.9 mm  {'F.Cu': 2.6, 'In2.Cu': 24.3}  vias 2  min w 0.2
+QSPI2        total   25.0 mm  {'F.Cu': 2.5, 'In2.Cu': 22.5}  vias 2  min w 0.2
+QSPI3        total   16.1 mm  {'F.Cu': 6.6, 'B.Cu': 9.6}  vias 2  min w 0.2
+I2S_BCLK     total   72.0 mm  {'F.Cu': 6.9, 'B.Cu': 65.1}  vias 3  min w 0.2
+I2S_FSYNC    total   71.1 mm  {'F.Cu': 5.6, 'B.Cu': 47.9, 'In2.Cu': 17.6}  vias 4  min w 0.2
+I2S_DIN      total   73.9 mm  {'F.Cu': 8.0, 'B.Cu': 66.0}  vias 3  min w 0.2
+I2S_DOUT     total   76.0 mm  {'F.Cu': 6.6, 'B.Cu': 69.4}  vias 3  min w 0.2
+I2C_SDA      total   54.0 mm  {'F.Cu': 5.3, 'B.Cu': 37.0, 'In2.Cu': 11.7}  vias 3  min w 0.2
+I2C_SCL      total   56.6 mm  {'F.Cu': 5.2, 'B.Cu': 33.8, 'In2.Cu': 17.6}  vias 3  min w 0.2
+XIN          total   11.1 mm  {'F.Cu': 11.1}  vias 0  min w 0.2
+XOUT         total   10.4 mm  {'F.Cu': 2.1, 'In2.Cu': 8.3}  vias 2  min w 0.2
+SW_P         total    8.1 mm  {'F.Cu': 8.1}  vias 0  min w 0.22
+SW_N         total    8.5 mm  {'F.Cu': 8.5}  vias 0  min w 0.22
+RUN          total   74.9 mm  {'F.Cu': 16.7, 'B.Cu': 4.5, 'In2.Cu': 53.7}  vias 3  min w 0.15
+BOOTSEL      total    9.6 mm  {'F.Cu': 2.4, 'In2.Cu': 7.3}  vias 2  min w 0.2
+CONV_FBP     total    9.1 mm  {'F.Cu': 9.1}  vias 0  min w 0.2
+CONV_FBN     total   16.2 mm  {'F.Cu': 4.9, 'B.Cu': 11.3}  vias 3  min w 0.2
+CONV_CP      total    3.1 mm  {'F.Cu': 3.1}  vias 0  min w 0.2
+CONV_CN      total    2.3 mm  {'F.Cu': 2.3}  vias 0  min w 0.2
+CONV_REF     total    9.4 mm  {'F.Cu': 9.4}  vias 0  min w 0.2
+TIA_SUM      total   12.4 mm  {'F.Cu': 12.4}  vias 0  min w 0.2
+TIA_OUT      total   47.8 mm  {'F.Cu': 13.8, 'In2.Cu': 34.0}  vias 4  min w 0.2
+SRC_DRV      total    3.9 mm  {'F.Cu': 3.9}  vias 0  min w 0.2
+RLY_RST      total  104.8 mm  {'F.Cu': 55.2, 'B.Cu': 49.6}  vias 4  min w 0.2
+RLY_SET_LO   total   55.8 mm  {'F.Cu': 55.8}  vias 0  min w 0.2
+RLY_SET_MED  total   41.4 mm  {'F.Cu': 41.4}  vias 0  min w 0.2
+RLY_SET_HI   total   42.3 mm  {'F.Cu': 15.4, 'B.Cu': 26.8}  vias 2  min w 0.2
+RLY_SET_REF  total   24.4 mm  {'F.Cu': 24.4}  vias 0  min w 0.2
+JACK_HC      total  124.7 mm  {'F.Cu': 12.6, 'B.Cu': 34.5, 'In2.Cu': 77.6}  vias 5  min w 0.15
+JACK_LC      total  218.8 mm  {'F.Cu': 9.6, 'B.Cu': 36.0, 'In2.Cu': 173.2}  vias 5  min w 0.15
+STATUS       total  111.4 mm  {'F.Cu': 5.2, 'In2.Cu': 106.3}  vias 2  min w 0.2
+MON12        total   62.4 mm  {'F.Cu': 6.8, 'In2.Cu': 55.7}  vias 2  min w 0.2
+MON_N12      total   71.3 mm  {'F.Cu': 9.4, 'B.Cu': 17.2, 'In2.Cu': 44.7}  vias 3  min w 0.2
+USB_SENSE    total   12.4 mm  {'F.Cu': 12.4}  vias 0  min w 0.2

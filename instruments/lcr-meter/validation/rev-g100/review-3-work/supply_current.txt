@@ -1,0 +1,156 @@
+== USB_VBUS: I_fault 1.17 A; IPC-2152 A=20.6 mil2 -> outer 0.38 mm, inner 0.76 mm; IPC-2221 outer 0.37 mm, inner 1.94 mm
+   B.Cu: 19 segs, 39.4 mm, widths [0.2, 0.5]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+      UNDER 2152: 0.20 mm (73.80,126.85)-(73.65,127.00) len 0.21
+      UNDER 2152: 0.20 mm (73.55,127.05)-(73.60,127.00) len 0.07
+      UNDER 2152: 0.20 mm (73.80,126.85)-(76.35,126.85) len 2.55
+      UNDER 2152: 0.20 mm (69.00,126.20)-(69.85,127.05) len 1.20
+      UNDER 2152: 0.20 mm (76.65,127.10)-(77.10,127.10) len 0.45
+      UNDER 2152: 0.20 mm (76.65,127.10)-(76.45,126.90) len 0.28
+      UNDER 2152: 0.20 mm (73.65,127.00)-(73.60,127.00) len 0.05
+      UNDER 2152: 0.20 mm (76.60,127.10)-(76.65,127.10) len 0.05
+      UNDER 2152: 0.20 mm (61.23,126.20)-(69.00,126.20) len 7.77
+      UNDER 2152: 0.20 mm (69.85,127.05)-(73.55,127.05) len 3.70
+      UNDER 2152: 0.20 mm (76.35,126.85)-(76.40,126.90) len 0.07
+      UNDER 2152: 0.20 mm (76.40,126.90)-(76.60,127.10) len 0.28
+      UNDER 2152: 0.20 mm (73.60,127.00)-(73.75,126.85) len 0.21
+   F.Cu: 35 segs, 35.8 mm, widths [0.2, 0.4]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+      UNDER 2152: 0.20 mm (58.49,127.45)-(58.49,129.12) len 1.66
+      UNDER 2152: 0.20 mm (64.85,132.00)-(65.05,132.58) len 0.61
+      UNDER 2152: 0.20 mm (57.67,134.40)-(57.95,134.40) len 0.28
+      UNDER 2152: 0.20 mm (57.92,126.92)-(57.20,126.20) len 1.02
+      UNDER 2152: 0.20 mm (63.92,134.50)-(65.05,133.36) len 1.61
+      UNDER 2152: 0.20 mm (61.23,134.53)-(63.89,134.53) len 2.66
+      UNDER 2152: 0.20 mm (83.17,126.33)-(83.17,125.50) len 0.83
+      UNDER 2152: 0.20 mm (58.07,134.53)-(57.95,134.40) len 0.18
+      UNDER 2152: 0.20 mm (57.96,126.92)-(58.49,127.45) len 0.75
+      UNDER 2152: 0.20 mm (57.67,129.60)-(58.01,129.60) len 0.34
+      UNDER 2152: 0.20 mm (58.29,129.60)-(58.49,129.12) len 0.52
+      UNDER 2152: 0.20 mm (65.05,133.36)-(65.05,132.58) len 0.79
+      UNDER 2152: 0.20 mm (82.40,127.10)-(83.17,126.33) len 1.10
+      UNDER 2152: 0.20 mm (82.42,127.11)-(83.17,126.35) len 1.07
+      UNDER 2152: 0.20 mm (64.48,132.00)-(64.85,132.00) len 0.37
+      UNDER 2152: 0.20 mm (63.92,134.50)-(65.01,135.60) len 1.55
+      UNDER 2152: 0.20 mm (58.40,134.40)-(57.95,134.40) len 0.45
+      UNDER 2152: 0.20 mm (64.14,132.00)-(64.48,132.00) len 0.34
+      UNDER 2152: 0.20 mm (77.10,127.10)-(82.40,127.10) len 5.30
+      UNDER 2152: 0.20 mm (58.01,129.60)-(58.29,129.60) len 0.28
+   In2.Cu: 1 segs, 0.1 mm, widths [0.2]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.23 A
+      UNDER 2152: 0.20 mm (65.05,135.55)-(65.00,135.60) len 0.07
+   5 vias drill [0.3]: one barrel A=26.3 mil2 -> IPC-2221 int 0.71 A, IPC-2152 need 20.6 mil2 => 1 vias per crossing by 2152, 3 by 2221-internal
+      via cluster x1 at (57.20,126.20)
+      via cluster x1 at (57.75,117.75)
+      via cluster x1 at (65.01,135.60)
+      via cluster x1 at (77.10,127.10)
+      via cluster x1 at (61.23,135.90)
+== 5V: I_fault 1.17 A; IPC-2152 A=20.6 mil2 -> outer 0.38 mm, inner 0.76 mm; IPC-2221 outer 0.37 mm, inner 1.94 mm
+   B.Cu: 14 segs, 117.3 mm, widths [0.4, 0.5, 0.6, 1.0]; narrowest 0.40 mm carries (IPC-2221, 10C) 1.23 A
+   F.Cu: 49 segs, 56.2 mm, widths [0.2, 0.22, 0.25, 0.4, 0.5, 0.6, 1.0]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+      UNDER 2152: 0.20 mm (140.05,143.82)-(139.90,143.97) len 0.21
+      UNDER 2152: 0.20 mm (101.90,135.60)-(102.00,135.70) len 0.14
+      UNDER 2152: 0.20 mm (128.60,142.93)-(128.67,143.00) len 0.10
+      UNDER 2152: 0.20 mm (141.50,143.82)-(140.05,143.82) len 1.45
+      UNDER 2152: 0.22 mm (138.25,136.99)-(138.75,136.99) len 0.50
+      UNDER 2152: 0.25 mm (54.70,121.20)-(54.70,122.60) len 1.40
+      UNDER 2152: 0.25 mm (54.95,120.95)-(54.70,121.20) len 0.35
+      UNDER 2152: 0.25 mm (54.70,122.60)-(54.95,122.85) len 0.35
+      UNDER 2152: 0.20 mm (99.00,135.60)-(101.90,135.60) len 2.90
+      UNDER 2152: 0.20 mm (102.00,135.70)-(102.00,136.18) len 0.48
+      UNDER 2152: 0.20 mm (128.60,142.80)-(128.60,142.93) len 0.13
+      UNDER 2152: 0.25 mm (54.95,122.85)-(55.71,122.85) len 0.76
+      UNDER 2152: 0.25 mm (55.71,120.95)-(54.95,120.95) len 0.76
+   In2.Cu: 6 segs, 29.3 mm, widths [0.6, 0.9, 1.6]; narrowest 0.60 mm carries (IPC-2221, 10C) 0.50 A
+      UNDER 2152: 0.60 mm (57.00,143.40)-(57.00,143.80) len 0.40
+      UNDER 2152: 0.60 mm (57.00,143.80)-(57.00,144.20) len 0.40
+   13 vias drill [0.3]: one barrel A=26.3 mil2 -> IPC-2221 int 0.71 A, IPC-2152 need 20.6 mil2 => 1 vias per crossing by 2152, 3 by 2221-internal
+      via cluster x2 at (55.06,118.35)
+      via cluster x2 at (57.00,144.20)
+      via cluster x1 at (54.46,99.60)
+      via cluster x2 at (128.60,142.80)
+      via cluster x1 at (99.00,135.60)
+      via cluster x1 at (99.00,127.00)
+      via cluster x1 at (118.60,143.60)
+      via cluster x1 at (99.00,143.95)
+      via cluster x2 at (51.20,137.60)
+== RAW_P: I_fault 0.5 A; IPC-2152 A=4.4 mil2 -> outer 0.08 mm, inner 0.16 mm; IPC-2221 outer 0.12 mm, inner 0.60 mm
+   F.Cu: 20 segs, 37.7 mm, widths [0.2, 0.3, 0.6]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+== 12V: I_fault 0.5 A; IPC-2152 A=4.4 mil2 -> outer 0.08 mm, inner 0.16 mm; IPC-2221 outer 0.12 mm, inner 0.60 mm
+   B.Cu: 9 segs, 125.1 mm, widths [0.2]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+   F.Cu: 48 segs, 70.6 mm, widths [0.2]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+   In2.Cu: 2 segs, 4.8 mm, widths [0.2]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.23 A
+   8 vias drill [0.3]: one barrel A=26.3 mil2 -> IPC-2221 int 0.71 A, IPC-2152 need 4.4 mil2 => 1 vias per crossing by 2152, 1 by 2221-internal
+      via cluster x1 at (108.20,76.90)
+      via cluster x1 at (84.40,76.50)
+      via cluster x1 at (108.20,89.90)
+      via cluster x1 at (123.00,108.10)
+      via cluster x1 at (84.40,90.30)
+      via cluster x1 at (91.83,131.95)
+      via cluster x1 at (108.20,92.50)
+      via cluster x1 at (84.40,92.50)
+== RAW_N: I_fault 0.5 A; IPC-2152 A=4.4 mil2 -> outer 0.08 mm, inner 0.16 mm; IPC-2221 outer 0.12 mm, inner 0.60 mm
+   B.Cu: 3 segs, 3.0 mm, widths [0.2]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+   F.Cu: 18 segs, 27.3 mm, widths [0.2, 0.3, 0.6]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+   2 vias drill [0.3]: one barrel A=26.3 mil2 -> IPC-2221 int 0.71 A, IPC-2152 need 4.4 mil2 => 1 vias per crossing by 2152, 1 by 2221-internal
+      via cluster x1 at (139.04,130.29)
+      via cluster x1 at (139.04,127.80)
+== -12V: I_fault 0.5 A; IPC-2152 A=4.4 mil2 -> outer 0.08 mm, inner 0.16 mm; IPC-2221 outer 0.12 mm, inner 0.60 mm
+   B.Cu: 18 segs, 173.6 mm, widths [0.2]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+   F.Cu: 46 segs, 52.8 mm, widths [0.2, 0.3]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+   9 vias drill [0.3]: one barrel A=26.3 mil2 -> IPC-2221 int 0.71 A, IPC-2152 need 4.4 mil2 => 1 vias per crossing by 2152, 1 by 2221-internal
+      via cluster x1 at (136.20,97.60)
+      via cluster x1 at (67.00,87.00)
+      via cluster x1 at (89.10,84.60)
+      via cluster x1 at (89.10,86.80)
+      via cluster x1 at (136.20,108.10)
+      via cluster x1 at (89.10,79.30)
+      via cluster x1 at (121.60,81.00)
+      via cluster x1 at (109.80,129.40)
+      via cluster x1 at (95.83,131.95)
+== 3V3: I_fault 0.6 A; IPC-2152 A=6.1 mil2 -> outer 0.11 mm, inner 0.23 mm; IPC-2221 outer 0.15 mm, inner 0.77 mm
+   B.Cu: 14 segs, 76.7 mm, widths [0.3]; narrowest 0.30 mm carries (IPC-2221, 10C) 1.00 A
+   F.Cu: 120 segs, 125.4 mm, widths [0.2, 0.3]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+   In2.Cu: 13 segs, 71.3 mm, widths [0.27]; narrowest 0.27 mm carries (IPC-2221, 10C) 0.28 A
+   9 vias drill [0.3]: one barrel A=26.3 mil2 -> IPC-2221 int 0.71 A, IPC-2152 need 6.1 mil2 => 1 vias per crossing by 2152, 1 by 2221-internal
+      via cluster x1 at (65.40,104.30)
+      via cluster x1 at (100.00,134.60)
+      via cluster x1 at (104.60,133.90)
+      via cluster x1 at (97.30,134.60)
+      via cluster x1 at (142.60,137.62)
+      via cluster x1 at (81.00,139.40)
+      via cluster x1 at (133.90,118.00)
+      via cluster x1 at (92.00,139.40)
+      via cluster x1 at (141.20,131.75)
+== LDOIN_P: I_fault 0.5 A; IPC-2152 A=4.4 mil2 -> outer 0.08 mm, inner 0.16 mm; IPC-2221 outer 0.12 mm, inner 0.60 mm
+   F.Cu: 17 segs, 20.9 mm, widths [0.2]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+== LDOIN_N: I_fault 0.5 A; IPC-2152 A=4.4 mil2 -> outer 0.08 mm, inner 0.16 mm; IPC-2221 outer 0.12 mm, inner 0.60 mm
+   F.Cu: 17 segs, 15.3 mm, widths [0.2, 0.3]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+== 5VA: I_fault 0.6 A; IPC-2152 A=6.1 mil2 -> outer 0.11 mm, inner 0.23 mm; IPC-2221 outer 0.15 mm, inner 0.77 mm
+   F.Cu: 12 segs, 9.5 mm, widths [0.2, 0.3]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+== 3V3A: I_fault 0.6 A; IPC-2152 A=6.1 mil2 -> outer 0.11 mm, inner 0.23 mm; IPC-2221 outer 0.15 mm, inner 0.77 mm
+   F.Cu: 15 segs, 19.2 mm, widths [0.2]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+   In2.Cu: 3 segs, 23.1 mm, widths [0.2]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.23 A
+      UNDER 2152: 0.20 mm (64.25,89.60)-(70.00,89.60) len 5.75
+      UNDER 2152: 0.20 mm (70.00,89.60)-(70.60,90.20) len 0.85
+      UNDER 2152: 0.20 mm (70.60,90.20)-(70.60,106.75) len 16.55
+   5 vias drill [0.3]: one barrel A=26.3 mil2 -> IPC-2221 int 0.71 A, IPC-2152 need 6.1 mil2 => 1 vias per crossing by 2152, 1 by 2221-internal
+      via cluster x1 at (70.60,106.75)
+      via cluster x1 at (70.60,94.55)
+      via cluster x1 at (70.60,90.35)
+      via cluster x1 at (70.60,102.55)
+      via cluster x1 at (64.25,89.60)
+== VRLY: I_fault 0.3 A; IPC-2152 A=1.7 mil2 -> outer 0.03 mm, inner 0.06 mm; IPC-2221 outer 0.06 mm, inner 0.30 mm
+   B.Cu: 7 segs, 39.1 mm, widths [0.2]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+   F.Cu: 29 segs, 57.6 mm, widths [0.2, 0.3]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.74 A
+   In2.Cu: 7 segs, 118.2 mm, widths [0.2]; narrowest 0.20 mm carries (IPC-2221, 10C) 0.23 A
+   12 vias drill [0.3]: one barrel A=26.3 mil2 -> IPC-2221 int 0.71 A, IPC-2152 need 1.7 mil2 => 1 vias per crossing by 2152, 1 by 2221-internal
+      via cluster x1 at (94.61,117.60)
+      via cluster x1 at (101.30,117.40)
+      via cluster x1 at (91.26,119.60)
+      via cluster x1 at (97.20,99.92)
+      via cluster x1 at (131.20,81.20)
+      via cluster x1 at (102.80,99.92)
+      via cluster x1 at (102.80,84.92)
+      via cluster x1 at (100.00,71.00)
+      via cluster x1 at (97.20,84.92)
+      via cluster x1 at (100.00,113.60)
+      via cluster x1 at (106.26,119.60)
+      via cluster x1 at (121.06,119.60)

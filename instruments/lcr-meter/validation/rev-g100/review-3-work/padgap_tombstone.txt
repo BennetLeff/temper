@@ -1,0 +1,4 @@
+== pad-to-pad copper gap between different parts < 0.30 mm (F.Cu)
+== tombstone: 2-pad parts, copper attached per pad (sum of track widths entering, mm) ratio > 3
+  C113 4.7uF 25V X5R    C_0805_2012Metric      at (59.20,116.00) pad1 1.20 pad2 0.40  nets USB_VBUS/VBUS_DAMP
+  C16 1uF 50V          C_0805_2012Metric      at (55.00,118.90) pad1 1.50 pad2 0.20  nets 5V/GND

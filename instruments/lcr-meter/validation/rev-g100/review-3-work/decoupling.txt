@@ -1,0 +1,73 @@
+U12.  1 -12V       at 140.85,109.03: C100 10uF 50V X7R   pin-to-cap  3.10 mm; cap GND pad (137.90,105.12) to nearest GND via 1.53 mm
+U12.  5 LDOIN_N    at 145.15,110.97: C102 100nF 50V      pin-to-cap  2.45 mm; cap GND pad (147.00,107.83) to nearest GND via 1.32 mm
+U12.  8 LDOIN_N    at 145.15,109.03: C102 100nF 50V      pin-to-cap  1.88 mm; cap GND pad (147.00,107.83) to nearest GND via 1.32 mm
+U13.  1 SW_P       at 136.25,136.99: NO cap to GND on this net
+U13.  4 CONV_VIN   at 137.75,136.99: C81 100nF 50V      pin-to-cap  5.33 mm; cap GND pad (141.50,139.22) to nearest GND via 1.54 mm
+U13.  5 5V         at 138.25,136.99: C83 100nF 50V      pin-to-cap  2.08 mm; cap GND pad (137.22,139.00) to nearest GND via 0.92 mm
+U13.  6 5V         at 138.75,136.99: C83 100nF 50V      pin-to-cap  2.01 mm; cap GND pad (137.22,139.00) to nearest GND via 0.92 mm
+U13.  8 CONV_ENP   at 139.49,135.75: NO cap to GND on this net
+U13. 10 CONV_ENN   at 139.49,134.75: NO cap to GND on this net
+U13. 15 RAW_N      at 137.75,133.01: C91 10uF 50V X7R   pin-to-cap  9.93 mm; cap GND pad (140.50,120.53) to nearest GND via 1.23 mm
+U13. 16 CONV_FBN   at 137.25,133.01: NO cap to GND on this net
+U13. 17 CONV_REF   at 136.75,133.01: C84 220nF 25V      pin-to-cap  2.56 mm; cap GND pad (138.00,129.22) to nearest GND via 1.12 mm
+U13. 18 CONV_CN    at 136.25,133.01: C85 4.7nF 50V C0G  pin-to-cap  2.11 mm; cap GND pad (135.70,129.42) to nearest GND via 2.35 mm
+U13. 21 CONV_CP    at 135.51,134.75: C86 10nF 50V       pin-to-cap  2.67 mm; cap GND pad (132.53,132.50) to nearest GND via 1.40 mm
+U13. 22 CONV_FBP   at 135.51,135.25: NO cap to GND on this net
+U13. 23 RAW_P      at 135.51,135.75: C89 10uF 50V X7R   pin-to-cap  9.62 mm; cap GND pad (126.30,130.03) to nearest GND via 2.00 mm
+U13. 24 SW_P       at 135.51,136.25: NO cap to GND on this net
+U5.  2 -12V       at 69.36,75.50: C38 100nF 50V      pin-to-cap  1.79 mm; cap GND pad (66.03,75.50) to nearest GND via 1.18 mm
+U5.  5 12V        at 71.64,74.55: C37 100nF 50V      pin-to-cap  3.23 mm; cap GND pad (76.28,75.50) to nearest GND via 1.22 mm
+U6.  1 SRC_DRV    at 85.53,78.11: NO cap to GND on this net
+U6.  2 SRC_DRV    at 86.17,78.11: NO cap to GND on this net
+U6.  4 -12V       at 87.47,78.11: C51 10nF 50V       pin-to-cap  1.65 mm; cap GND pad (89.10,76.83) to nearest GND via 0.92 mm
+U6.  8 12V        at 85.53,73.89: C50 10nF 50V       pin-to-cap  1.85 mm; cap GND pad (83.90,73.22) to nearest GND via 0.97 mm
+U18.  3 ISO_SINK   at 73.30,60.33: NO cap to GND on this net
+U11.  1 12V        at 127.85,109.03: C95 10uF 50V X7R   pin-to-cap  3.10 mm; cap GND pad (124.90,105.12) to nearest GND via 1.53 mm
+U11.  5 LDOIN_P    at 132.15,110.97: C97 100nF 50V      pin-to-cap  2.45 mm; cap GND pad (134.00,107.83) to nearest GND via 1.32 mm
+U11.  8 LDOIN_P    at 132.15,109.03: C97 100nF 50V      pin-to-cap  1.88 mm; cap GND pad (134.00,107.83) to nearest GND via 1.32 mm
+U15.  1 5VA        at 55.36,91.55: C67 1uF 50V        pin-to-cap  2.73 mm; cap GND pad (53.40,91.55) to nearest GND via 1.00 mm
+U15.  3 5VA        at 55.36,93.45: C67 1uF 50V        pin-to-cap  1.96 mm; cap GND pad (53.40,91.55) to nearest GND via 1.00 mm
+U15.  5 3V3A       at 57.64,91.55: C68 1uF 50V        pin-to-cap  2.39 mm; cap GND pad (59.70,92.25) to nearest GND via 1.00 mm
+U17.  1 3V3        at 134.86,119.05: C118 100nF 50V      pin-to-cap  1.69 mm; cap GND pad (131.62,119.05) to nearest GND via 1.23 mm
+U17.  5 CONV_ENN   at 137.14,120.00: NO cap to GND on this net
+U17.  6 CONV_ENP   at 137.14,119.05: NO cap to GND on this net
+U14.  4 I2S_DOUT   at 62.10,98.75: NO cap to GND on this net
+U14.  5 I2S_DIN    at 62.10,99.25: NO cap to GND on this net
+U14.  6 3V3        at 62.10,99.75: C65 100nF 50V      pin-to-cap  2.95 mm; cap GND pad (57.62,100.10) to nearest GND via 1.08 mm
+U14. 15 C1P_PIN    at 65.90,98.75: NO cap to GND on this net
+U14. 16 C1M_PIN    at 65.90,98.25: NO cap to GND on this net
+U14. 17 C2P_PIN    at 65.90,97.75: NO cap to GND on this net
+U14. 18 C2M_PIN    at 65.90,97.25: NO cap to GND on this net
+U14. 21 unconnected-(U14-OUT2P-Pad21) at 64.25,96.60: NO cap to GND on this net
+U14. 22 unconnected-(U14-OUT2M-Pad22) at 63.75,96.60: NO cap to GND on this net
+U14. 23 3V3A       at 63.25,96.60: C61 100nF 50V      pin-to-cap  1.27 mm; cap GND pad (63.25,93.78) to nearest GND via 1.13 mm
+U14. 24 CODEC_VREF at 62.75,96.60: C62 2.2uF 16V X5R  pin-to-cap  1.72 mm; cap GND pad (61.60,93.78) to nearest GND via 1.13 mm
+U21.  3 ISO_SINK   at 139.30,60.33: NO cap to GND on this net
+U2.  8 3V3        at 65.69,139.54: C11 100nF 50V      pin-to-cap  1.90 mm; cap GND pad (67.48,138.62) to nearest GND via 1.74 mm
+U16.  1 USB_VBUS   at 56.74,116.85: C15 100nF 50V      pin-to-cap  4.10 mm; cap GND pad (59.20,112.03) to nearest GND via 1.94 mm
+U16.  3 USB_VBUS   at 56.74,114.95: C15 100nF 50V      pin-to-cap  2.82 mm; cap GND pad (59.20,112.03) to nearest GND via 1.94 mm
+U16.  5 VBUS_ILIM  at 54.46,115.90: NO cap to GND on this net
+U16.  6 5V         at 54.46,116.85: C16 1uF 50V        pin-to-cap  2.53 mm; cap GND pad (54.05,118.90) to nearest GND via 1.25 mm
+U3.  1 5V         at 55.71,120.95: C16 1uF 50V        pin-to-cap  2.06 mm; cap GND pad (54.05,118.90) to nearest GND via 1.25 mm
+U3.  3 5V         at 55.71,122.85: C16 1uF 50V        pin-to-cap  3.96 mm; cap GND pad (54.05,118.90) to nearest GND via 1.25 mm
+U3.  5 3V3        at 57.99,120.95: C17 1uF 50V        pin-to-cap  2.03 mm; cap GND pad (60.00,122.60) to nearest GND via 3.14 mm
+U1.  1 3V3        at 77.44,136.10: C6 100nF 50V      pin-to-cap  3.80 mm; cap GND pad (81.00,133.22) to nearest GND via 0.92 mm
+U1.  4 I2S_DIN    at 77.44,134.90: NO cap to GND on this net
+U1.  5 I2S_DOUT   at 77.44,134.50: NO cap to GND on this net
+U1. 10 3V3        at 77.44,132.50: C2 100nF 50V      pin-to-cap  3.77 mm; cap GND pad (81.00,129.72) to nearest GND via 1.05 mm
+U1. 18 ISO_DRIVE  at 75.40,130.06: NO cap to GND on this net
+U1. 20 XIN        at 74.60,130.06: C12 15pF C0G       pin-to-cap  7.70 mm; cap GND pad (67.72,124.50) to nearest GND via 0.92 mm
+U1. 21 XOUT       at 74.20,130.06: NO cap to GND on this net
+U1. 22 3V3        at 73.80,130.06: C3 100nF 50V      pin-to-cap  3.01 mm; cap GND pad (73.78,127.50) to nearest GND via 1.11 mm
+U1. 23 1V1        at 73.40,130.06: C9 100nF 50V      pin-to-cap  5.77 mm; cap GND pad (69.78,127.50) to nearest GND via 0.94 mm
+U1. 33 3V3        at 70.56,132.50: C4 100nF 50V      pin-to-cap  2.57 mm; cap GND pad (68.00,130.72) to nearest GND via 0.93 mm
+U1. 42 3V3        at 70.56,136.10: C5 1uF 50V X5R    pin-to-cap  3.78 mm; cap GND pad (73.78,139.50) to nearest GND via 0.96 mm
+U1. 43 3V3        at 71.40,136.94: C5 1uF 50V X5R    pin-to-cap  2.69 mm; cap GND pad (73.78,139.50) to nearest GND via 0.96 mm
+U1. 44 3V3        at 71.80,136.94: C5 1uF 50V X5R    pin-to-cap  2.60 mm; cap GND pad (73.78,139.50) to nearest GND via 0.96 mm
+U1. 45 1V1        at 72.20,136.94: C8 1uF 50V        pin-to-cap  4.62 mm; cap GND pad (69.20,138.55) to nearest GND via 1.08 mm
+U1. 48 3V3        at 73.40,136.94: C5 1uF 50V X5R    pin-to-cap  2.82 mm; cap GND pad (73.78,139.50) to nearest GND via 0.96 mm
+U1. 49 3V3        at 73.80,136.94: C5 1uF 50V X5R    pin-to-cap  3.01 mm; cap GND pad (73.78,139.50) to nearest GND via 0.96 mm
+U1. 50 1V1        at 74.20,136.94: C8 1uF 50V        pin-to-cap  6.11 mm; cap GND pad (69.20,138.55) to nearest GND via 1.08 mm
+U7.  1 TIA_OUT    at 113.53,82.11: NO cap to GND on this net
+U7.  4 -12V       at 115.47,82.11: C53 10nF 50V       pin-to-cap  1.77 mm; cap GND pad (117.20,83.28) to nearest GND via 0.92 mm
+U7.  8 12V        at 113.53,77.89: C52 10nF 50V       pin-to-cap  1.80 mm; cap GND pad (112.20,75.12) to nearest GND via 1.24 mm

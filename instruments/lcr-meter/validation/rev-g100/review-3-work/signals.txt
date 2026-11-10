@@ -1,0 +1,161 @@
+== crystal: XIN / XOUT tracks and nearby nets (edge gap < 0.6 mm, same layer)
+  XIN F.Cu (73.90,126.30)-(73.90,124.50) w0.2
+  XIN F.Cu (73.90,124.50)-(69.28,124.50) w0.2
+  XIN F.Cu (73.90,124.50)-(73.90,123.85) w0.2
+  XIN F.Cu (74.60,127.00)-(73.90,126.30) w0.2
+  XIN F.Cu (74.60,130.06)-(74.60,127.00) w0.2
+     near XOUT on F.Cu: 0.20 mm at (74.60,130.06)
+     near ISO_DRIVE on F.Cu: 0.40 mm at (74.60,130.06)
+     near 3V3 on F.Cu: 0.60 mm at (74.60,130.06)
+  XOUT F.Cu (71.53,123.33)-(71.90,123.80) w0.2
+  XOUT F.Cu (74.20,130.98)-(74.13,131.05) w0.2
+  XOUT F.Cu (71.00,123.33)-(71.53,123.33) w0.2
+  XOUT F.Cu (74.20,130.06)-(74.20,130.98) w0.2
+  XOUT In2.Cu (74.10,125.70)-(71.90,123.80) w0.2
+  XOUT In2.Cu (74.13,131.05)-(74.10,125.70) w0.2
+  XOUT via (74.13,131.05)
+  XOUT via (71.90,123.80)
+     near XIN on F.Cu: 0.20 mm at (74.20,130.06)
+     near 3V3 on F.Cu: 0.20 mm at (74.20,130.06)
+     near 1V1 on F.Cu: 0.60 mm at (74.20,130.06)
+  Y1.1 XIN (73.90,123.85)
+  Y1.2 GND (76.10,123.85)
+  Y1.3 XTAL_OUT (76.10,122.15)
+  Y1.4 GND (73.90,122.15)
+  C12.1 XIN (69.28,124.50)
+  C12.2 GND (67.72,124.50)
+  C13.1 XTAL_OUT (74.22,119.50)
+  C13.2 GND (75.78,119.50)
+  R5.1 USB_VBUS (83.17,125.50)
+  R5.2 USB_SENSE (84.83,125.50)
+== USB D+/D-: the pair's own gap and nearby nets per layer (edge gap < 0.6)
+  USB_DP near JACK_LC on B.Cu: 0.17 mm at (66.45,138.45)
+  USB_DP near USB_VBUS on F.Cu: 0.28 mm at (64.85,131.05)
+  USB_DP near RUN on In2.Cu: 0.29 mm at (65.90,132.46)
+  USB_DP near USB_DM on F.Cu: 0.30 mm at (57.67,131.75)
+  USB_DP near CC2 on F.Cu: 0.35 mm at (58.75,132.75)
+  USB_DP near USB_DM on B.Cu: 0.37 mm at (66.45,138.45)
+  USB_DP near USB_DM_MCU on B.Cu: 0.38 mm at (66.45,138.45)
+     USB_DP F.Cu (64.85,131.05)-(65.34,131.90) w0.2
+     USB_DP F.Cu (56.83,131.99)-(56.83,132.45) w0.2
+     USB_DP F.Cu (57.67,131.75)-(57.06,131.75) w0.2
+     USB_DP F.Cu (57.13,132.75)-(57.05,132.75) w0.2
+     USB_DP F.Cu (58.75,132.75)-(58.88,132.62) w0.2
+     USB_DP F.Cu (79.60,139.06)-(78.53,140.32) w0.2
+     USB_DP F.Cu (61.86,131.05)-(64.14,131.05) w0.2
+     USB_DP F.Cu (57.06,131.75)-(56.83,131.99) w0.2
+     USB_DP F.Cu (64.49,131.05)-(64.85,131.05) w0.2
+     USB_DP F.Cu (57.67,132.75)-(58.75,132.75) w0.2
+     USB_DP F.Cu (78.53,140.32)-(78.00,140.32) w0.2
+     USB_DP F.Cu (57.67,132.75)-(57.13,132.75) w0.2
+     USB_DP F.Cu (64.14,131.05)-(64.49,131.05) w0.2
+     USB_DP F.Cu (57.05,132.75)-(56.83,132.45) w0.2
+     USB_DP B.Cu (78.98,138.45)-(79.60,139.06) w0.2
+     USB_DP B.Cu (65.90,137.90)-(66.45,138.45) w0.2
+     USB_DP B.Cu (66.45,138.45)-(78.98,138.45) w0.2
+     USB_DP In2.Cu (65.34,131.90)-(65.90,132.46) w0.2
+     USB_DP In2.Cu (59.60,131.90)-(65.34,131.90) w0.2
+     USB_DP In2.Cu (65.90,132.46)-(65.90,137.90) w0.2
+     USB_DP In2.Cu (58.88,132.62)-(59.60,131.90) w0.2
+  USB_DM near CC1 on F.Cu: 0.18 mm at (58.29,131.25)
+  USB_DM near CC2 on F.Cu: 0.21 mm at (58.29,131.25)
+  USB_DM near USB_DP on F.Cu: 0.30 mm at (58.25,132.25)
+  USB_DM near USB_DP on B.Cu: 0.37 mm at (70.60,136.20)
+  USB_DM near USB_VBUS on F.Cu: 0.49 mm at (63.30,133.15)
+  USB_DM near JACK_HC on B.Cu: 0.53 mm at (64.30,133.84)
+  USB_DM near QSPI0 on F.Cu: 0.56 mm at (76.00,140.32)
+     USB_DM F.Cu (58.29,131.25)-(59.38,130.11) w0.2
+     USB_DM F.Cu (58.25,132.25)-(58.52,131.98) w0.2
+     USB_DM F.Cu (59.38,125.61)-(59.38,130.11) w0.2
+     USB_DM F.Cu (64.14,132.95)-(63.94,133.15) w0.2
+     USB_DM F.Cu (62.06,133.15)-(61.86,132.95) w0.2
+     USB_DM F.Cu (58.24,131.25)-(58.29,131.25) w0.2
+     USB_DM F.Cu (63.30,133.15)-(62.06,133.15) w0.2
+     USB_DM F.Cu (57.67,132.25)-(58.25,132.25) w0.2
+     USB_DM F.Cu (61.88,127.26)-(61.88,124.59) w0.2
+     USB_DM F.Cu (61.54,124.24)-(60.75,124.24) w0.2
+     USB_DM F.Cu (60.95,128.20)-(61.88,127.26) w0.2
+     USB_DM F.Cu (58.29,131.25)-(58.52,131.53) w0.2
+     USB_DM F.Cu (76.00,140.32)-(76.53,140.32) w0.15
+     USB_DM F.Cu (63.30,133.15)-(63.30,133.84) w0.2
+     USB_DM F.Cu (77.20,137.90)-(77.20,139.15) w0.15
+     USB_DM F.Cu (63.42,132.95)-(63.30,133.15) w0.2
+     USB_DM F.Cu (77.22,137.88)-(77.20,137.90) w0.15
+     USB_DM F.Cu (61.15,132.95)-(60.95,132.38) w0.2
+     USB_DM F.Cu (64.14,132.95)-(63.42,132.95) w0.2
+     USB_DM F.Cu (57.67,131.25)-(58.24,131.25) w0.2
+     USB_DM F.Cu (61.86,132.95)-(61.52,132.95) w0.2
+     USB_DM F.Cu (60.75,124.24)-(59.38,125.61) w0.2
+     USB_DM F.Cu (61.88,124.59)-(61.54,124.24) w0.2
+     USB_DM F.Cu (58.52,131.98)-(58.52,131.53) w0.2
+     USB_DM F.Cu (60.95,132.38)-(60.95,128.20) w0.2
+     USB_DM F.Cu (76.00,140.35)-(76.00,140.32) w0.15
+     USB_DM F.Cu (61.52,132.95)-(61.15,132.95) w0.2
+     USB_DM F.Cu (76.53,140.32)-(77.20,139.15) w0.15
+     USB_DM B.Cu (70.60,136.20)-(72.28,137.88) w0.2
+     USB_DM B.Cu (64.30,133.84)-(66.66,136.20) w0.2
+     USB_DM B.Cu (66.66,136.20)-(70.60,136.20) w0.2
+     USB_DM B.Cu (63.30,133.84)-(64.30,133.84) w0.2
+     USB_DM B.Cu (72.28,137.88)-(77.22,137.88) w0.2
+  USB_DP_MCU near 3V3 on F.Cu: 0.23 mm at (73.00,136.94)
+  USB_DP_MCU near USB_DM_MCU on F.Cu: 0.25 mm at (73.00,136.94)
+  USB_DP_MCU near 1V1 on F.Cu: 0.36 mm at (73.20,136.10)
+  USB_DP_MCU near QSPI_CS on F.Cu: 0.49 mm at (78.00,136.95)
+     USB_DP_MCU F.Cu (78.00,138.65)-(78.00,138.68) w0.15
+     USB_DP_MCU F.Cu (73.00,136.94)-(73.00,136.40) w0.15
+     USB_DP_MCU F.Cu (73.20,136.20)-(73.20,136.10) w0.15
+     USB_DP_MCU F.Cu (73.20,136.10)-(73.40,136.10) w0.15
+     USB_DP_MCU F.Cu (78.00,136.95)-(78.00,138.65) w0.15
+     USB_DP_MCU F.Cu (73.00,136.40)-(73.20,136.20) w0.15
+     USB_DP_MCU B.Cu (73.40,136.10)-(74.65,136.10) w0.15
+     USB_DP_MCU B.Cu (75.15,136.55)-(77.55,136.55) w0.15
+     USB_DP_MCU B.Cu (75.10,136.50)-(75.15,136.55) w0.15
+     USB_DP_MCU B.Cu (77.55,136.55)-(77.60,136.60) w0.15
+     USB_DP_MCU B.Cu (77.60,136.60)-(77.65,136.60) w0.15
+     USB_DP_MCU B.Cu (75.05,136.50)-(75.10,136.50) w0.15
+     USB_DP_MCU B.Cu (74.65,136.10)-(75.05,136.50) w0.15
+     USB_DP_MCU B.Cu (77.65,136.60)-(78.00,136.95) w0.15
+  USB_DM_MCU near 1V1 on F.Cu: 0.22 mm at (72.60,136.94)
+  USB_DM_MCU near USB_DP_MCU on F.Cu: 0.25 mm at (72.60,136.94)
+  USB_DM_MCU near USB_DP on B.Cu: 0.38 mm at (75.65,139.00)
+  USB_DM_MCU near 3V3 on F.Cu: 0.42 mm at (72.60,137.80)
+  USB_DM_MCU near QSPI0 on F.Cu: 0.56 mm at (76.00,139.50)
+     USB_DM_MCU F.Cu (76.00,139.50)-(76.00,138.68) w0.15
+     USB_DM_MCU F.Cu (72.60,137.80)-(71.40,139.00) w0.15
+     USB_DM_MCU F.Cu (72.60,136.94)-(72.60,137.80) w0.15
+     USB_DM_MCU B.Cu (75.65,139.00)-(76.00,139.35) w0.15
+     USB_DM_MCU B.Cu (76.00,139.35)-(76.00,139.50) w0.15
+     USB_DM_MCU B.Cu (71.40,139.00)-(75.65,139.00) w0.15
+== D1 (SRV05-4) pads
+  D1.1 USB_DP (61.86,131.05)
+  D1.2 GND (61.86,132.00)
+  D1.3 USB_DM (61.86,132.95)
+  D1.4 USB_DM (64.14,132.95)
+  D1.5 USB_VBUS (64.14,132.00)
+  D1.6 USB_DP (64.14,131.05)
+== GND pour islands (B.Cu / In2.Cu): area and whether a GND via or pad lies inside
+  B.Cu island 0.8 mm2 bbox 67.7,137.2-69.2,137.8: GND vias/pads inside 1
+  B.Cu island 2.1 mm2 bbox 79.8,135.5-83.9,136.1: GND vias/pads inside 1
+  B.Cu island 13.0 mm2 bbox 53.5,116.9-55.4,125.7: GND vias/pads inside 1
+  B.Cu island 27.0 mm2 bbox 50.5,108.5-54.1,117.0: GND vias/pads inside 1
+  In2.Cu island 4.6 mm2 bbox 138.8,118.7-143.3,120.4: GND vias/pads inside 2
+  In2.Cu island 13.3 mm2 bbox 72.0,135.9-75.1,142.7: GND vias/pads inside 2
+  In2.Cu island 6.8 mm2 bbox 51.9,108.5-53.1,116.9: GND vias/pads inside 1
+  In2.Cu island 22.2 mm2 bbox 62.1,108.5-67.6,112.9: GND vias/pads inside 1
+== acute junction angles (< 85 deg) between two same-net tracks outside pads (acid-trap / sliver candidates)
+  GND          F.Cu    (76.78,75.50) 55 deg
+  GND          F.Cu    (135.10,107.10) 84 deg
+  GND          F.Cu    (148.10,107.10) 84 deg
+  GND          F.Cu    (62.42,93.00) 68 deg
+  GND          F.Cu    (56.90,100.90) 66 deg
+  3V3          F.Cu    (58.95,103.70) 45 deg
+  3V3          F.Cu    (62.23,103.53) 78 deg
+  USB_VBUS     B.Cu    (57.20,126.20) 45 deg
+  5V           F.Cu    (139.90,143.97) 45 deg
+  12V          F.Cu    (127.85,107.94) 45 deg
+  RLY_SET_LO   F.Cu    (104.94,115.20) 45 deg
+  LDOIN_P      F.Cu    (130.43,118.77) 45 deg
+  SOURCE_FB    F.Cu    (73.80,72.97) 45 deg
+  LOW_BUF      F.Cu    (114.83,76.35) 45 deg
+  EXCITE       F.Cu    (70.88,70.05) 45 deg
+  SOURCE_BUF   In2.Cu  (93.20,82.00) 45 deg

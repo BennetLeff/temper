@@ -1,0 +1,24 @@
+design parts 253, board footprints 282; only design: []; only board: ['FID1', 'FID2', 'FID3', 'H1', 'H2', 'H3', 'H4', 'TP1', 'TP10', 'TP11', 'TP12', 'TP13', 'TP14', 'TP15', 'TP16', 'TP17', 'TP18', 'TP19', 'TP2', 'TP20', 'TP21', 'TP22', 'TP3', 'TP4', 'TP5', 'TP6', 'TP7', 'TP8', 'TP9']
+mismatches 0; board pads with a net but no design pin: 22
+  ('TP1', '1'): 5V
+  ('TP10', '1'): RLY_SET_LO
+  ('TP11', '1'): RLY_SET_MED
+  ('TP12', '1'): RLY_SET_HI
+  ('TP13', '1'): RLY_SET_REF
+  ('TP14', '1'): RLY_RST
+  ('TP15', '1'): I2S_BCLK
+  ('TP16', '1'): I2S_FSYNC
+  ('TP17', '1'): I2S_DOUT
+  ('TP18', '1'): I2S_DIN
+  ('TP19', '1'): GND
+  ('TP2', '1'): GND
+  ('TP20', '1'): USB_VBUS
+  ('TP21', '1'): GND
+  ('TP22', '1'): GND
+  ('TP3', '1'): 12V
+  ('TP4', '1'): -12V
+  ('TP5', '1'): VRLY
+  ('TP6', '1'): RAW_P
+  ('TP7', '1'): RAW_N
+  ('TP8', '1'): 3V3
+  ('TP9', '1'): GND

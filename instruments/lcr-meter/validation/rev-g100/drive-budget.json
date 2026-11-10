@@ -59,9 +59,9 @@
    "ohm": 0.11353433227605775,
    "mm": 109.56648703950158
   },
-  "vrly_drop_v": 0.018331673197348883,
+  "vrly_drop_v": 0.006390381316451871,
   "vrly_worst": "K1",
-  "rly_rst_drop_v": 0.015515802924181078,
+  "rly_rst_drop_v": 0.007460956964943183,
   "rly_rst_worst": "K4"
  },
  "drive": {
@@ -103,7 +103,7 @@
    "i_string_ma": 5.141555546735038,
    "i_total_ma": 10.283111093470076,
    "vrly": 4.188477075395798,
-   "coil_v": 4.149234399274268
+   "coil_v": 4.169230537114403
   }
  },
  "sense": {
@@ -211,13 +211,13 @@
   },
   {
    "check": "relay coil voltage during the RESET pulse, VBUS 4.40 V, routed copper >= 3.75 V must-operate (20 C)",
-   "value": 4.149234,
+   "value": 4.169231,
    "limit": 3.75,
    "pass_": true
   },
   {
    "check": "relay coil voltage during the RESET pulse >= must-operate at a 45 C relay (coil copper +0.4 %/C, TQ catalog guideline)",
-   "value": 4.149234,
+   "value": 4.169231,
    "limit": 4.125,
    "pass_": true
   },

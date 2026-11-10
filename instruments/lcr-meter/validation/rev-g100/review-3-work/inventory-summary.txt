@@ -1,0 +1,309 @@
+BIG ZONES / KEEPOUTS
+SW_P ['F.Cu'] '' prio 31059 filled True minw 0.0254 bbox [132.5, 135.3, 134.7, 136.9] keepout False
+ ['F.Cu'] 'FID2 clear' prio 0 filled False minw 0.25 bbox [145.0, 46.0, 149.0, 50.0] keepout True
+ ['F.Cu'] 'FID3 clear' prio 0 filled False minw 0.25 bbox [145.0, 134.0, 149.0, 138.0] keepout True
+ ['F.Cu'] 'FID1 clear' prio 0 filled False minw 0.25 bbox [51.0, 67.0, 55.0, 71.0] keepout True
+GND ['B.Cu'] '' prio 0 filled True minw 0.25 bbox [50.5, 45.5, 149.5, 144.5] keepout False
+ ['B.Cu'] 'TIA summing node' prio 0 filled False minw 0.25 bbox [109.9, 83.2, 114.8, 88.4] keepout True
+ ['B.Cu'] 'OPA2810 TIA and low sense signal pins' prio 0 filled False minw 0.25 bbox [113.0, 77.0, 116.2, 83.2] keepout True
+ ['B.Cu'] 'OPA810 input and feedback plane void' prio 0 filled False minw 0.25 bbox [67.0, 70.5, 77.0, 77.5] keepout True
+ ['B.Cu'] 'OPA2810 high sense signal pins' prio 0 filled False minw 0.25 bbox [85.8, 72.8, 88.0, 79.0] keepout True
+ ['B.Cu'] 'pour keep-out 1 (analog core / band)' prio 0 filled False minw 0.25 bbox [50.0, 45.0, 150.0, 114.0] keepout True
+ ['B.Cu'] 'U6 source follower output relief' prio 0 filled False minw 0.25 bbox [84.8, 76.7, 85.8, 79.1] keepout True
+ ['In1.Cu'] 'OPA2810 TIA and low sense signal pins' prio 0 filled False minw 0.25 bbox [113.0, 77.0, 116.2, 83.2] keepout True
+GND ['In1.Cu'] '' prio 0 filled True minw 0.25 bbox [50.5, 45.5, 149.5, 144.5] keepout False
+ ['In1.Cu'] 'TIA summing node' prio 0 filled False minw 0.25 bbox [109.9, 83.2, 114.8, 88.4] keepout True
+ ['In1.Cu'] 'OPA2810 high sense signal pins' prio 0 filled False minw 0.25 bbox [85.8, 72.8, 88.0, 79.0] keepout True
+ ['In1.Cu'] 'OPA810 input and feedback plane void' prio 0 filled False minw 0.25 bbox [67.0, 70.5, 77.0, 77.5] keepout True
+ ['In1.Cu'] 'U6 source follower output relief' prio 0 filled False minw 0.25 bbox [84.8, 76.7, 85.8, 79.1] keepout True
+ ['In2.Cu'] 'TIA summing node' prio 0 filled False minw 0.25 bbox [109.9, 83.2, 114.8, 88.4] keepout True
+GND ['In2.Cu'] '' prio 0 filled True minw 0.25 bbox [50.5, 45.5, 149.5, 144.5] keepout False
+ ['In2.Cu'] 'OPA2810 TIA and low sense signal pins' prio 0 filled False minw 0.25 bbox [113.0, 77.0, 116.2, 83.2] keepout True
+ ['In2.Cu'] 'OPA810 input and feedback plane void' prio 0 filled False minw 0.25 bbox [67.0, 70.5, 77.0, 77.5] keepout True
+ ['In2.Cu'] 'OPA2810 high sense signal pins' prio 0 filled False minw 0.25 bbox [85.8, 72.8, 88.0, 79.0] keepout True
+ ['In2.Cu'] 'pour keep-out 1 (analog core / band)' prio 0 filled False minw 0.25 bbox [50.0, 45.0, 150.0, 114.0] keepout True
+ ['In2.Cu'] 'U6 source follower output relief' prio 0 filled False minw 0.25 bbox [84.8, 76.7, 85.8, 79.1] keepout True
+
+FOOTPRINTS
+C1     100nF 50V                    C_0603_1608Metric                          81.00  137.50 r  90.0 F.Cu
+C10    1uF 50V                      C_0805_2012Metric                          82.00  142.50 r   0.0 F.Cu
+C100   10uF 50V X7R                 C_1210_3225Metric                         137.90  106.60 r  90.0 F.Cu
+C101   10nF 50V                     C_0603_1608Metric                         138.00  109.75 r   0.0 F.Cu
+C102   100nF 50V                    C_0603_1608Metric                         147.00  108.60 r  90.0 F.Cu
+C103   22uF 25V X5R                 C_1206_3216Metric                          55.20   97.00 r -90.0 F.Cu
+C104   100pF C0G 5%                 C_0603_1608Metric                         113.30   83.95 r 180.0 F.Cu
+C11    100nF 50V                    C_0603_1608Metric                          67.48  139.40 r  90.0 F.Cu
+C110   100nF 50V                    C_0603_1608Metric                          91.00  136.20 r 180.0 F.Cu
+C111   100nF 50V                    C_0603_1608Metric                          95.00  136.20 r 180.0 F.Cu
+C112   22uF 25V X5R                 C_1206_3216Metric                         103.30  117.00 r -90.0 F.Cu
+C113   4.7uF 25V X5R                C_0805_2012Metric                          59.20  116.00 r -90.0 F.Cu
+C114   560pF C0G 5%                 C_0603_1608Metric                          66.90   82.50 r -90.0 F.Cu
+C115   560pF C0G 5%                 C_0603_1608Metric                          68.50   68.70 r   0.0 F.Cu
+C116   100nF 50V                    C_0603_1608Metric                         132.40  120.95 r   0.0 F.Cu
+C117   330uF 10V polymer            CP_Elec_8x6.9                             118.60  137.60 r  90.0 F.Cu
+C118   100nF 50V                    C_0603_1608Metric                         132.40  119.05 r   0.0 F.Cu
+C119   1nF C0G                      C_0603_1608Metric                          85.60   65.40 r 180.0 F.Cu
+C12    15pF C0G                     C_0603_1608Metric                          68.50  124.50 r 180.0 F.Cu
+C120   1nF C0G                      C_0603_1608Metric                         117.90   65.60 r   0.0 F.Cu
+C121   100nF 50V                    C_0603_1608Metric                          55.40   59.20 r   0.0 F.Cu
+C122   100nF 50V                    C_0603_1608Metric                          55.40   62.60 r   0.0 F.Cu
+C13    15pF C0G                     C_0603_1608Metric                          75.00  119.50 r   0.0 F.Cu
+C14    100nF 50V                    C_0603_1608Metric                          91.00  138.75 r  90.0 F.Cu
+C15    100nF 50V                    C_0603_1608Metric                          59.20  112.80 r  90.0 F.Cu
+C16    1uF 50V                      C_0805_2012Metric                          55.00  118.90 r 180.0 F.Cu
+C17    1uF 50V                      C_0805_2012Metric                          60.00  121.65 r -90.0 F.Cu
+C18    10uF 25V X5R                 C_0805_2012Metric                          64.75  125.00 r  90.0 F.Cu
+C2     100nF 50V                    C_0603_1608Metric                          81.00  130.50 r  90.0 F.Cu
+C3     100nF 50V                    C_0603_1608Metric                          73.00  127.50 r   0.0 F.Cu
+C34    560pF C0G 5%                 C_0603_1608Metric                          66.90   79.50 r -90.0 F.Cu
+C35    560pF C0G 5%                 C_0603_1608Metric                          71.50   68.70 r   0.0 F.Cu
+C37    100nF 50V                    C_0603_1608Metric                          75.50   75.50 r   0.0 F.Cu
+C38    100nF 50V                    C_0603_1608Metric                          66.80   75.50 r 180.0 F.Cu
+C39    2.2uF 50V X7R                C_0805_2012Metric                          77.50   79.50 r  90.0 F.Cu
+C4     100nF 50V                    C_0603_1608Metric                          68.00  131.50 r  90.0 F.Cu
+C40    2.2uF 50V X7R                C_0805_2012Metric                          64.50   85.50 r   0.0 F.Cu
+C42    100nF 50V                    C_0603_1608Metric                          85.90   89.60 r   0.0 F.Cu
+C43    100nF 50V                    C_0603_1608Metric                          87.40   84.60 r 180.0 F.Cu
+C44    2.2uF 50V X7R                C_0805_2012Metric                          86.00   91.60 r   0.0 F.Cu
+C45    2.2uF 50V X7R                C_0805_2012Metric                          87.20   86.80 r 180.0 F.Cu
+C46    100nF 50V                    C_0603_1608Metric                         110.50   75.90 r  90.0 F.Cu
+C47    100nF 50V                    C_0603_1608Metric                         118.80   82.50 r -90.0 F.Cu
+C48    2.2uF 50V X7R                C_0805_2012Metric                         108.60   74.60 r  90.0 F.Cu
+C49    2.2uF 50V X7R                C_0805_2012Metric                         120.60   82.60 r -90.0 F.Cu
+C5     1uF 50V X5R                  C_0603_1608Metric                          73.00  139.50 r   0.0 F.Cu
+C50    10nF 50V                     C_0603_1608Metric                          83.90   74.00 r  90.0 F.Cu
+C51    10nF 50V                     C_0603_1608Metric                          89.10   77.60 r  90.0 F.Cu
+C52    10nF 50V                     C_0603_1608Metric                         112.20   75.90 r  90.0 F.Cu
+C53    10nF 50V                     C_0603_1608Metric                         117.20   82.50 r -90.0 F.Cu
+C6     100nF 50V                    C_0603_1608Metric                          81.00  134.00 r  90.0 F.Cu
+C60    10uF 25V X5R                 C_0805_2012Metric                          63.25   91.30 r -90.0 F.Cu
+C61    100nF 50V                    C_0603_1608Metric                          63.25   94.55 r  90.0 F.Cu
+C62    2.2uF 16V X5R                C_0603_1608Metric                          61.60   94.55 r  90.0 F.Cu
+C63    100nF 50V                    C_0603_1608Metric                          58.80   97.25 r 180.0 F.Cu
+C64    10uF 25V X5R                 C_0805_2012Metric                          58.40   95.40 r 180.0 F.Cu
+C65    100nF 50V                    C_0603_1608Metric                          58.40  100.10 r 180.0 F.Cu
+C66    10uF 25V X5R                 C_0805_2012Metric                          58.00  102.00 r 180.0 F.Cu
+C67    1uF 50V                      C_0805_2012Metric                          53.40   92.50 r  90.0 F.Cu
+C68    1uF 50V                      C_0805_2012Metric                          59.70   91.30 r -90.0 F.Cu
+C69    560pF C0G 5%                 C_0603_1608Metric                          79.00   87.80 r  90.0 F.Cu
+C7     100nF 50V                    C_0603_1608Metric                          70.00  142.50 r   0.0 F.Cu
+C70    560pF C0G 5%                 C_0603_1608Metric                          79.00   95.20 r -90.0 F.Cu
+C72    560pF C0G 5%                 C_0603_1608Metric                          79.00  100.00 r  90.0 F.Cu
+C73    560pF C0G 5%                 C_0603_1608Metric                          79.00  107.40 r -90.0 F.Cu
+C74    1uF 50V                      C_0805_2012Metric                          76.50   89.40 r   0.0 F.Cu
+C75    1uF 50V                      C_0805_2012Metric                          76.50   93.60 r   0.0 F.Cu
+C76    1uF 50V                      C_0805_2012Metric                          76.50  101.60 r   0.0 F.Cu
+C77    1uF 50V                      C_0805_2012Metric                          76.50  105.80 r   0.0 F.Cu
+C78    100pF C0G 5%                 C_0603_1608Metric                         113.80   89.80 r -90.0 F.Cu
+C8     1uF 50V                      C_0805_2012Metric                          69.20  139.50 r  90.0 F.Cu
+C80    10uF 50V X7R                 C_1210_3225Metric                         125.60  143.00 r 180.0 F.Cu
+C81    100nF 50V                    C_0603_1608Metric                         141.50  140.00 r  90.0 F.Cu
+C82    10uF 50V X7R                 C_1210_3225Metric                         138.00  142.50 r  90.0 F.Cu
+C83    100nF 50V                    C_0603_1608Metric                         138.00  139.00 r 180.0 F.Cu
+C84    220nF 25V                    C_0603_1608Metric                         138.00  130.00 r  90.0 F.Cu
+C85    4.7nF 50V C0G                C_0603_1608Metric                         135.70  130.20 r  90.0 F.Cu
+C86    10nF 50V                     C_0603_1608Metric                         133.30  132.50 r 180.0 F.Cu
+C87    15pF C0G                     C_0603_1608Metric                         131.05  128.95 r   0.0 F.Cu
+C88    4.7pF C0G                    C_0603_1608Metric                         136.50  126.60 r  90.0 F.Cu
+C89    10uF 50V X7R                 C_1210_3225Metric                         126.30  131.50 r  90.0 F.Cu
+C9     100nF 50V                    C_0603_1608Metric                          69.00  127.50 r   0.0 F.Cu
+C90    10uF 50V X7R                 C_1210_3225Metric                         127.00  126.50 r  90.0 F.Cu
+C91    10uF 50V X7R                 C_1210_3225Metric                         140.50  122.00 r  90.0 F.Cu
+C92    10uF 50V X7R                 C_1210_3225Metric                         144.50  122.00 r  90.0 F.Cu
+C93    10nF 50V                     C_0603_1608Metric                         134.00  111.75 r -90.0 F.Cu
+C94    10uF 50V X7R                 C_1210_3225Metric                         133.00  105.30 r   0.0 F.Cu
+C95    10uF 50V X7R                 C_1210_3225Metric                         124.90  106.60 r  90.0 F.Cu
+C96    10nF 50V                     C_0603_1608Metric                         125.00  111.33 r   0.0 F.Cu
+C97    100nF 50V                    C_0603_1608Metric                         134.00  108.60 r  90.0 F.Cu
+C98    10nF 50V                     C_0603_1608Metric                         147.00  111.75 r -90.0 F.Cu
+C99    10uF 50V X7R                 C_1210_3225Metric                         146.00  105.30 r   0.0 F.Cu
+D1     SRV05-4                      SOT-23-6                                   63.00  132.00 r   0.0 F.Cu
+D11    BAT54S                       SOT-23                                     72.80   89.40 r   0.0 F.Cu
+D12    BAT54S                       SOT-23                                     72.80   93.60 r   0.0 F.Cu
+D13    BAT54S                       SOT-23                                     72.80  101.60 r   0.0 F.Cu
+D14    BAT54S                       SOT-23                                     72.80  105.80 r   0.0 F.Cu
+D15    RED                          LED_0603_1608Metric                       102.00  140.00 r  90.0 F.Cu
+D16    RED                          LED_0603_1608Metric                       104.60  140.00 r  90.0 F.Cu
+D17    RED                          LED_0603_1608Metric                       107.20  140.00 r  90.0 F.Cu
+D18    RED                          LED_0603_1608Metric                       109.80  140.00 r -90.0 F.Cu
+D19    RED                          LED_0603_1608Metric                        64.60  129.30 r 180.0 F.Cu
+D2     SS14                         D_SMA                                     130.50  136.00 r   0.0 F.Cu
+D20    RED                          LED_0603_1608Metric                        64.80  111.75 r -90.0 F.Cu
+D21    H4V5HD3B                     D_SOD-323_HJC                              68.10   58.20 r   0.0 F.Cu
+D22    H4V5HD3B                     D_SOD-323_HJC                              90.10   58.20 r   0.0 F.Cu
+D23    H4V5HD3B                     D_SOD-323_HJC                             112.10   58.20 r   0.0 F.Cu
+D24    H4V5HD3B                     D_SOD-323_HJC                             134.10   58.20 r   0.0 F.Cu
+D25    H3V3LD5B                     D_SOD-523                                  61.10   62.87 r 180.0 F.Cu
+D26    H3V3LD5B                     D_SOD-523                                  85.90   67.20 r 180.0 F.Cu
+D27    H3V3LD5B                     D_SOD-523                                 117.60   67.40 r   0.0 F.Cu
+D28    BAV99                        SOT-23                                    124.90   65.20 r 180.0 F.Cu
+D29    SS14                         D_SMA                                     137.90   99.60 r  90.0 F.Cu
+D3     SS14                         D_SMA                                     140.50  128.00 r  90.0 F.Cu
+D4     ORANGE                       LED_LiteOn_LTST-S270KFKT_SideView          55.00   45.95 r   0.0 F.Cu
+D5     1N4148WS                     D_SOD-323                                  95.66  116.60 r   0.0 F.Cu
+D6     1N4148WS                     D_SOD-323                                  91.26  117.60 r  90.0 F.Cu
+D7     1N4148WS                     D_SOD-323                                 106.26  117.60 r  90.0 F.Cu
+D8     1N4148WS                     D_SOD-323                                 121.06  117.60 r  90.0 F.Cu
+D9     1N4148WS                     D_SOD-323                                 146.50   82.00 r  90.0 F.Cu
+FB1    100R@100MHz 800mA            L_0805_2012Metric                          53.00   97.00 r  90.0 F.Cu
+FID1   Fiducial_1mm_Mask2mm         Fiducial_1mm_Mask2mm                       53.00   69.00 r   0.0 F.Cu
+FID2   Fiducial_1mm_Mask2mm         Fiducial_1mm_Mask2mm                      147.00   48.00 r   0.0 F.Cu
+FID3   Fiducial_1mm_Mask2mm         Fiducial_1mm_Mask2mm                      147.00  136.00 r   0.0 F.Cu
+H1     MountingHole_3.2mm_M3        MountingHole_3.2mm_M3                      54.00   54.00 r   0.0 F.Cu
+H2     MountingHole_3.2mm_M3        MountingHole_3.2mm_M3                     146.00   54.00 r   0.0 F.Cu
+H3     MountingHole_3.2mm_M3        MountingHole_3.2mm_M3                      54.00  141.00 r   0.0 F.Cu
+H4     MountingHole_3.2mm_M3        MountingHole_3.2mm_M3                     146.00  141.00 r   0.0 F.Cu
+J1     USB-C                        USB_C_Receptacle_HRO_TYPE-C-31-M-12        54.00  132.00 r -90.0 F.Cu
+J3     BNC HCUR                     BNC_SAMZO_KYWE-295-W4-N_Horizontal         67.00   51.00 r   0.0 F.Cu
+J4     SWD CLK / DATA               PinHeader_1x02_P2.54mm_Vertical            69.00  118.00 r -90.0 F.Cu
+J7     BNC HPOT                     BNC_SAMZO_KYWE-295-W4-N_Horizontal         89.00   51.00 r   0.0 F.Cu
+J8     BNC LPOT                     BNC_SAMZO_KYWE-295-W4-N_Horizontal        111.00   51.00 r   0.0 F.Cu
+J9     BNC LCUR                     BNC_SAMZO_KYWE-295-W4-N_Horizontal        133.00   51.00 r   0.0 F.Cu
+K1     TQ2SA-L2-5V 100R             Relay_DPDT_Panasonic_TQ2SA_SMD            100.00   75.00 r -90.0 F.Cu
+K2     TQ2SA-L2-5V 5k               Relay_DPDT_Panasonic_TQ2SA_SMD            100.00   90.00 r -90.0 F.Cu
+K3     TQ2SA-L2-5V 100k             Relay_DPDT_Panasonic_TQ2SA_SMD            100.00  105.00 r -90.0 F.Cu
+K4     TQ2SA-L2-5V REF              Relay_DPDT_Panasonic_TQ2SA_SMD            138.00   76.00 r  90.0 F.Cu
+L1     4.7uH 3.8A shielded          L_Changjiang_FNR5040S                     131.50  141.20 r  90.0 F.Cu
+L2     4.7uH 3.8A shielded          L_Changjiang_FNR5040S                     146.50  130.00 r   0.0 F.Cu
+Q2     AO3400A                      SOT-23                                     96.36  121.60 r   0.0 F.Cu
+Q3     AO3400A                      SOT-23                                     89.00  121.60 r   0.0 F.Cu
+Q4     AO3400A                      SOT-23                                    104.00  121.60 r   0.0 F.Cu
+Q5     AO3400A                      SOT-23                                    118.80  121.60 r   0.0 F.Cu
+Q6     AO3400A                      SOT-23                                    144.50   88.00 r   0.0 F.Cu
+Q7     AO3400A                      SOT-23                                     77.45   59.20 r 180.0 F.Cu
+R1     5.1k                         R_0603_1608Metric                          61.90  122.20 r  90.0 F.Cu
+R10    1k                           R_0603_1608Metric                          71.00  122.50 r  90.0 F.Cu
+R100   150k                         R_0603_1608Metric                          95.00  133.00 r   0.0 F.Cu
+R101   0.33R                        R_0603_1608Metric                         100.50  116.40 r   0.0 F.Cu
+R102   100R                         R_0603_1608Metric                         115.36  120.65 r   0.0 F.Cu
+R103   100k                         R_0603_1608Metric                         115.36  122.40 r 180.0 F.Cu
+R104   47R                          R_0603_1608Metric                          85.10   81.20 r -90.0 F.Cu
+R105   1k                           R_0603_1608Metric                          78.00   51.00 r   0.0 F.Cu
+R106   1k                           R_0603_1608Metric                         122.00   51.00 r 180.0 F.Cu
+R107   1k 0.1%                      R_0603_1608Metric                         129.60   73.46 r   0.0 F.Cu
+R108   100R                         R_0603_1608Metric                         140.20   87.00 r   0.0 F.Cu
+R109   100k                         R_0603_1608Metric                         140.20   88.80 r 180.0 F.Cu
+R110   24k 1%                       R_0603_1608Metric                          52.00  115.90 r  90.0 F.Cu
+R111   1.5M                         R_0603_1608Metric                         135.10  124.30 r 180.0 F.Cu
+R112   5k 0.1%                      R_0603_1608Metric                         138.00  116.19 r 180.0 F.Cu
+R113   5.1k                         R_0603_1608Metric                         102.00  137.00 r  90.0 F.Cu
+R114   3k                           R_0603_1608Metric                         104.60  137.00 r  90.0 F.Cu
+R115   24k 1%                       R_0603_1608Metric                         107.20  137.00 r  90.0 F.Cu
+R116   24k 1%                       R_0603_1608Metric                         109.80  137.00 r  90.0 F.Cu
+R117   3k                           R_0603_1608Metric                          64.60  127.60 r   0.0 F.Cu
+R118   3k                           R_0603_1608Metric                          64.80  114.75 r -90.0 F.Cu
+R119   100k                         R_0603_1608Metric                         141.50  136.80 r -90.0 F.Cu
+R12    390                          R_0603_1608Metric                          57.70   47.60 r  90.0 F.Cu
+R120   100k                         R_0603_1608Metric                         141.55  133.30 r  90.0 F.Cu
+R121   1.5R                         R_0603_1608Metric                          61.00  117.72 r -90.0 F.Cu
+R122   10R                          R_0805_2012Metric                          64.10   62.87 r 180.0 F.Cu
+R123   100R                         R_0603_1608Metric                          91.90   62.87 r   0.0 F.Cu
+R124   100R                         R_0603_1608Metric                         113.90   62.87 r   0.0 F.Cu
+R125   10R                          R_0805_2012Metric                         130.00   62.87 r 180.0 F.Cu
+R126   1.5M                         R_0603_1608Metric                          59.20   53.00 r -90.0 F.Cu
+R127   240k                         R_0603_1608Metric                          64.60  121.60 r -90.0 F.Cu
+R128   240k                         R_0603_1608Metric                          55.40   60.80 r   0.0 F.Cu
+R129   1.5M                         R_0603_1608Metric                         141.50   51.00 r   0.0 F.Cu
+R13    33R                          R_0603_1608Metric                          73.50  143.50 r 180.0 F.Cu
+R130   240k                         R_0603_1608Metric                          66.20  121.60 r -90.0 F.Cu
+R131   240k                         R_0603_1608Metric                          55.40   64.20 r   0.0 F.Cu
+R132   270R                         R_0603_1608Metric                          95.22   65.60 r  90.0 F.Cu
+R133   270R                         R_0603_1608Metric                         101.40   60.60 r  90.0 F.Cu
+R134   100R                         R_0603_1608Metric                          78.39   62.40 r  90.0 F.Cu
+R135   100k                         R_0603_1608Metric                          80.20   59.33 r  90.0 F.Cu
+R2     5.1k                         R_0603_1608Metric                          62.00  125.00 r   0.0 F.Cu
+R3     27R                          R_0603_1608Metric                          76.00  139.50 r  90.0 F.Cu
+R30    2.2k 0.1%                    R_0603_1608Metric                          68.50   80.50 r  90.0 F.Cu
+R31    2.2k 0.1%                    R_0603_1608Metric                          75.50   72.50 r  90.0 F.Cu
+R32    2k 0.1%                      R_0603_1608Metric                          64.50   81.50 r   0.0 F.Cu
+R33    2k 0.1%                      R_0603_1608Metric                          71.50   71.50 r   0.0 F.Cu
+R4     27R                          R_0603_1608Metric                          78.00  139.50 r  90.0 F.Cu
+R40    100R 0.1%                    R_0603_1608Metric                          91.90   77.54 r 180.0 F.Cu
+R41    5k 0.1%                      R_0603_1608Metric                          91.90   92.54 r 180.0 F.Cu
+R42    100k 0.1%                    R_0603_1608Metric                          91.90  107.54 r 180.0 F.Cu
+R43    100R 0.1%                    R_0603_1608Metric                         109.60   84.58 r 180.0 F.Cu
+R44    5k 0.1%                      R_0603_1608Metric                         109.60   86.20 r 180.0 F.Cu
+R45    100k 0.1%                    R_0603_1608Metric                         109.60   87.90 r 180.0 F.Cu
+R5     100k                         R_0603_1608Metric                          84.00  125.50 r   0.0 F.Cu
+R6     100k                         R_0603_1608Metric                          84.00  128.50 r   0.0 F.Cu
+R60    1k 0.1%                      R_0603_1608Metric                          85.60   69.90 r  90.0 F.Cu
+R61    1k 0.1%                      R_0603_1608Metric                         114.00   72.00 r 180.0 F.Cu
+R62    1k 0.1%                      R_0603_1608Metric                          80.60   87.80 r  90.0 F.Cu
+R63    1k 0.1%                      R_0603_1608Metric                          80.60   95.20 r -90.0 F.Cu
+R64    1k 0.1%                      R_0603_1608Metric                          80.60  100.00 r  90.0 F.Cu
+R65    1k 0.1%                      R_0603_1608Metric                          80.60  107.40 r -90.0 F.Cu
+R66    1k 0.1%                      R_0603_1608Metric                         114.00   73.60 r 180.0 F.Cu
+R67    1k 0.1%                      R_0603_1608Metric                         110.90   79.40 r  90.0 F.Cu
+R68    470R                         R_0603_1608Metric                          68.90   89.40 r   0.0 F.Cu
+R69    470R                         R_0603_1608Metric                          68.90   93.60 r   0.0 F.Cu
+R7     10k                          R_0603_1608Metric                          78.60  143.80 r   0.0 F.Cu
+R70    470R                         R_0603_1608Metric                          68.90  101.60 r   0.0 F.Cu
+R71    470R                         R_0603_1608Metric                          68.90  105.80 r   0.0 F.Cu
+R72    4.7k                         R_0603_1608Metric                          64.25  102.70 r  90.0 F.Cu
+R73    4.7k                         R_0603_1608Metric                          62.75  102.70 r  90.0 F.Cu
+R74    100R                         R_0603_1608Metric                          92.92  120.65 r   0.0 F.Cu
+R75    100k                         R_0603_1608Metric                          92.92  122.40 r 180.0 F.Cu
+R76    100R                         R_0603_1608Metric                          85.56  120.65 r   0.0 F.Cu
+R77    100k                         R_0603_1608Metric                          85.56  122.40 r 180.0 F.Cu
+R78    100R                         R_0603_1608Metric                         100.56  120.65 r   0.0 F.Cu
+R79    100k                         R_0603_1608Metric                         100.56  122.40 r 180.0 F.Cu
+R8     1k                           R_0603_1608Metric                          78.60  142.20 r   0.0 F.Cu
+R80    100R                         R_0603_1608Metric                         141.50  143.00 r  90.0 F.Cu
+R81    430k                         R_0603_1608Metric                         130.05  130.50 r   0.0 F.Cu
+R82    40.2k                        R_0603_1608Metric                         133.10  130.50 r   0.0 F.Cu
+R83    240k                         R_0603_1608Metric                         134.50  126.60 r  90.0 F.Cu
+R84    150k                         R_0603_1608Metric                         133.00  126.60 r -90.0 F.Cu
+R85    82k                          R_0603_1608Metric                         125.00  109.75 r   0.0 F.Cu
+R86    9.1k                         R_0603_1608Metric                         125.00  112.95 r 180.0 F.Cu
+R87    100k 0.1%                    R_0603_1608Metric                         138.00  111.33 r   0.0 F.Cu
+R88    1k 0.1%                      R_0603_1608Metric                         138.00  114.57 r   0.0 F.Cu
+R89    5k 0.1%                      R_0603_1608Metric                         138.00  112.95 r 180.0 F.Cu
+R9     10k                          R_0603_1608Metric                          83.25  140.00 r  90.0 F.Cu
+R94    22R 0.1%                     R_0603_1608Metric                         113.80   86.70 r  90.0 F.Cu
+R95    1R                           R_0603_1608Metric                         129.60  116.00 r   0.0 F.Cu
+R96    1R                           R_0603_1608Metric                         142.50  116.00 r  90.0 F.Cu
+R97    100k                         R_0603_1608Metric                          91.00  133.00 r   0.0 F.Cu
+R98    10k                          R_0603_1608Metric                          91.00  134.60 r 180.0 F.Cu
+R99    10k                          R_0603_1608Metric                          95.00  134.60 r 180.0 F.Cu
+SW1    BOOTSEL                      SW_SPST_TS-1088-xR020                      87.10  138.90 r   0.0 F.Cu
+SW2    RESET                        SW_SPST_TS-1088-xR020                      87.10  142.90 r   0.0 F.Cu
+TP1    5V                           TestPoint_Pad_D1.5mm                      100.50  126.50 r   0.0 F.Cu
+TP10   K1                           TestPoint_Pad_D1.5mm                      107.20  121.60 r   0.0 F.Cu
+TP11   K2                           TestPoint_Pad_D1.5mm                       88.90  118.50 r   0.0 F.Cu
+TP12   K3                           TestPoint_Pad_D1.5mm                      122.00  121.60 r   0.0 F.Cu
+TP13   K4                           TestPoint_Pad_D1.5mm                      147.90   85.60 r   0.0 F.Cu
+TP14   RST                          TestPoint_Pad_D1.5mm                       97.30  125.00 r   0.0 F.Cu
+TP15   BCLK                         TestPoint_Pad_D1.0mm                       56.20  104.40 r   0.0 F.Cu
+TP16   FSYNC                        TestPoint_Pad_D1.0mm                       56.20  106.40 r   0.0 F.Cu
+TP17   DOUT                         TestPoint_Pad_D1.0mm                       56.20  108.40 r   0.0 F.Cu
+TP18   DIN                          TestPoint_Pad_D1.0mm                       56.20  110.40 r   0.0 F.Cu
+TP19   GND                          TestPoint_Pad_D1.0mm                       56.20  112.40 r   0.0 F.Cu
+TP2    GND                          TestPoint_Pad_D1.5mm                      103.10  126.50 r   0.0 F.Cu
+TP20   VB                           TestPoint_Pad_D1.0mm                       61.23  137.00 r   0.0 F.Cu
+TP21   GND                          TestPoint_Pad_D1.0mm                       61.25  112.90 r   0.0 F.Cu
+TP22   GND                          TestPoint_Pad_D1.5mm                       72.10  118.00 r   0.0 F.Cu
+TP3    +12                          TestPoint_Pad_D1.5mm                      106.00  131.20 r   0.0 F.Cu
+TP4    -12                          TestPoint_Pad_D1.5mm                      109.80  127.60 r   0.0 F.Cu
+TP5    VRLY                         TestPoint_Pad_D1.5mm                      123.60  119.60 r   0.0 F.Cu
+TP6    RAW+                         TestPoint_Pad_D1.5mm                      128.78  121.50 r   0.0 F.Cu
+TP7    RAW-                         TestPoint_Pad_D1.5mm                      145.60  116.83 r   0.0 F.Cu
+TP8    3V3                          TestPoint_Pad_D1.5mm                       92.00  141.60 r   0.0 F.Cu
+TP9    GND                          TestPoint_Pad_D1.5mm                       94.60  141.60 r   0.0 F.Cu
+U1     RP2040                       QFN-56-1EP_7x7mm_P0.4mm_EP3.2x3.2mm        74.00  133.50 r 180.0 F.Cu
+U11    TPS7A4901DGNR                HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm  130.00  110.00 r   0.0 F.Cu
+U12    TPS7A3001DGNR                HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm  143.00  110.00 r   0.0 F.Cu
+U13    TPS65131RGER                 VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm    137.50  135.00 r  90.0 F.Cu
+U14    TAC5112                      TI_RGE0024R_VQFN-24-1EP_4x4mm_P0.5mm_EP2   64.00   98.50 r   0.0 F.Cu
+U15    3.3V AP2112K                 SOT-23-5                                   56.50   92.50 r   0.0 F.Cu
+U16    TPS2553                      SOT-23-6                                   55.60  115.90 r 180.0 F.Cu
+U17    LM3880-1AA                   SOT-23-6                                  136.00  120.00 r   0.0 F.Cu
+U18    TLP172AM                     Toshiba_11-4M1S                            70.15   61.60 r 180.0 F.Cu
+U19    TLP172AM                     Toshiba_11-4M1S                            85.85   61.60 r   0.0 F.Cu
+U2     GD25Q16ESIGR                 SOIC-8_5.3x5.3mm_P1.27mm                   62.10  141.45 r   0.0 F.Cu
+U20    TLP172AM                     Toshiba_11-4M1S                           107.85   61.60 r   0.0 F.Cu
+U21    TLP172AM                     Toshiba_11-4M1S                           136.15   61.60 r 180.0 F.Cu
+U3     3.3V AP2112K                 SOT-23-5                                   56.85  121.90 r   0.0 F.Cu
+U5     OPA197IDBVR                  SOT-23-5                                   70.50   75.50 r   0.0 F.Cu
+U6     OPA2810IDGKR                 VSSOP-8_3x3mm_P0.65mm                      86.50   76.00 r  90.0 F.Cu
+U7     OPA2810IDGKR                 VSSOP-8_3x3mm_P0.65mm                     114.50   80.00 r  90.0 F.Cu
+Y1     12MHz CL10pF                 Crystal_SMD_3225-4Pin_3.2x2.5mm            75.00  123.00 r   0.0 F.Cu

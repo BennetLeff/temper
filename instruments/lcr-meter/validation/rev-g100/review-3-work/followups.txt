@@ -1,0 +1,29 @@
+== F.Fab reference text present in the board for the parts the earlier reviews named
+  J3: F.Fab ref items 0; silk ref visible True
+  J1: F.Fab ref items 2; silk ref visible False
+  U13: F.Fab ref items 2; silk ref visible False
+  K1: F.Fab ref items 0; silk ref visible True
+  D4: F.Fab ref items 0; silk ref visible True
+  J7: F.Fab ref items 0; silk ref visible True
+  U14: F.Fab ref items 0; silk ref visible True
+  K2: F.Fab ref items 0; silk ref visible True
+  K4: F.Fab ref items 0; silk ref visible True
+  J8: F.Fab ref items 0; silk ref visible True
+  J9: F.Fab ref items 0; silk ref visible True
+  K3: F.Fab ref items 0; silk ref visible True
+== dangling track ends (end touches no pad, via, same-net track or filled zone)
+  USB_VBUS F.Cu end (60.075,115.050) of (60.08,115.05)-(59.20,115.05) w0.4
+  RUN F.Cu end (84.375,141.900) of (83.78,140.82)-(84.38,141.90) w0.2
+  LDOIN_N F.Cu end (145.429,111.254) of (145.43,111.25)-(145.15,110.97) w0.2
+  3 dangling ends
+== m0 corridor: J1 GND pad boxes (J1 is rotated -90) and the CC1 track beside the A4/B9 exit
+  J1.A1 GND bbox x 57.10-58.24 y 128.50-129.10
+  J1.A12 GND bbox x 57.10-58.24 y 134.90-135.50
+  J1.B1 GND bbox x 57.10-58.24 y 134.90-135.50
+  J1.B12 GND bbox x 57.10-58.24 y 128.50-129.10
+  J1.SH GND bbox x 56.05-58.15 y 127.17-128.18
+  J1.SH GND bbox x 52.02-53.82 y 127.17-128.18
+  J1.SH GND bbox x 56.05-58.15 y 135.82-136.82
+  J1.SH GND bbox x 52.02-53.82 y 135.82-136.82
+  CC1 F.Cu (58.86,124.32)-(58.86,130.11) w0.2
+  CC1 F.Cu (58.86,130.11)-(58.21,130.75) w0.2

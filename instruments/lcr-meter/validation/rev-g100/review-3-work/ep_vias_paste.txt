@@ -1,0 +1,36 @@
+U12.  size (0.63, 0.76): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U12.  size (0.63, 0.76): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U12.  size (0.63, 0.76): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U12.  size (0.63, 0.76): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U12.9 GND size (1.57, 1.89): 6 vias; drill 0.3 dia 0.55; front tented True back tented True
+U13.  size (0.66, 0.66): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U13.  size (0.66, 0.66): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U13.  size (0.66, 0.66): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U13.  size (0.66, 0.66): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U13.  size (0.66, 0.66): 1 vias; drill 0.3 dia 0.6; front tented True back tented True
+U13.  size (0.66, 0.66): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U13.  size (0.66, 0.66): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U13.  size (0.66, 0.66): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U13.  size (0.66, 0.66): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U13.25 GND size (2.45, 2.45): 9 vias; drill 0.3 dia 0.6; front tented True back tented True
+U11.  size (0.63, 0.76): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U11.  size (0.63, 0.76): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U11.  size (0.63, 0.76): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U11.  size (0.63, 0.76): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U11.9 GND size (1.57, 1.89): 6 vias; drill 0.3 dia 0.55; front tented True back tented True
+U14.  size (0.94, 0.94): 1 vias; drill 0.3 dia 0.45; front tented True back tented True
+U14.  size (0.94, 0.94): 1 vias; drill 0.3 dia 0.45; front tented True back tented True
+U14.  size (0.94, 0.94): 1 vias; drill 0.3 dia 0.45; front tented True back tented True
+U14.  size (0.94, 0.94): 1 vias; drill 0.3 dia 0.45; front tented True back tented True
+U14.25 GND size (2.1, 2.1): 4 vias; drill 0.3 dia 0.45; front tented True back tented True
+U1.  size (1.29, 1.29): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U1.  size (1.29, 1.29): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U1.  size (1.29, 1.29): 1 vias; drill 0.3 dia 0.55; front tented True back tented True
+U1.57 GND size (3.2, 3.2): 8 vias; drill 0.3 dia 0.55; front tented True back tented True
+== paste on exposed pads (pad has F.Paste layer? plus separate paste-only pads / graphics inside it)
+  U12.9 (1.57, 1.89) F.Paste on pad: False; paste ratio None; sub-pads inside 4; F.Paste graphics in fp 0
+  U13.25 (2.45, 2.45) F.Paste on pad: False; paste ratio None; sub-pads inside 9; F.Paste graphics in fp 0
+  U11.9 (1.57, 1.89) F.Paste on pad: False; paste ratio None; sub-pads inside 4; F.Paste graphics in fp 0
+  U14.25 (2.1, 2.1) F.Paste on pad: False; paste ratio None; sub-pads inside 4; F.Paste graphics in fp 0
+  U1.57 (3.2, 3.2) F.Paste on pad: False; paste ratio None; sub-pads inside 4; F.Paste graphics in fp 0
+== vias touching SMT lands (not EP)

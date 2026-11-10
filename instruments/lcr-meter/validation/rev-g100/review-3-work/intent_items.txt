@@ -1,0 +1,87 @@
+== TVS D21-D24 GND return: GND vias within 2.5 mm of the GND pad, and the connecting F.Cu GND tracks
+  D21.2 GND pad (69.20,58.20): 2 GND vias within 2.5 mm: (70.30,58.20), (71.10,58.20)
+  D22.2 GND pad (91.20,58.20): 2 GND vias within 2.5 mm: (92.30,58.20), (93.10,58.20)
+  D23.2 GND pad (113.20,58.20): 2 GND vias within 2.5 mm: (115.10,58.20), (114.30,58.20)
+  D24.2 GND pad (135.20,58.20): 2 GND vias within 2.5 mm: (137.10,58.20), (136.30,58.20)
+  D25.2 GND pad (60.40,62.87): 1 GND vias within 2.5 mm: (59.50,62.87)
+  D26.2 GND pad (85.20,67.20): 1 GND vias within 2.5 mm: (84.20,67.20)
+  D27.2 GND pad (118.30,67.40): 2 GND vias within 2.5 mm: (119.80,65.60), (119.50,66.80)
+  D28.1 GND pad (125.84,66.15): 1 GND vias within 2.5 mm: (127.00,65.20)
+  D28.2 GND pad (125.84,64.25): 1 GND vias within 2.5 mm: (127.00,65.20)
+== LDO pin 4 (GND) to EP bridge on F.Cu
+  U11: pin4 (127.85,110.97) EP (130.00,110.00); F.Cu GND tracks touching both: [(127.85, 110.97, 129.0, 110.97, 0.25)]
+  U12: pin4 (140.85,110.97) EP (143.00,110.00); F.Cu GND tracks touching both: [(140.85, 110.97, 142.0, 110.97, 0.25)]
+== D29 (SS14) at C100: pads, vias on its nets within 3 mm
+  D29.1 GND (137.90,101.60)
+  D29.2 -12V (137.90,97.60)
+  C100.1 -12V (137.90,108.08)
+  C100.2 GND (137.90,105.12)
+  D29.1 GND: vias within 3.5 mm: [(137.9, 103.6), (135.25, 102.75), (140.75, 102.75)]
+  D29.2 -12V: vias within 3.5 mm: [(136.2, 97.6)]
+== 5V leaving U16.6: 5V vias within 3 mm of U16.6
+  U16.6 (54.46,116.85): [(55.06, 118.35), (54.46, 117.75)]
+== USB_VBUS copper under J1 shell region (x 49.8-59.3, y 126.7-137.3), per layer
+  F.Cu (58.49,127.45)-(58.49,129.12) w0.2
+  F.Cu (57.67,134.40)-(57.95,134.40) w0.2
+  F.Cu (57.92,126.92)-(57.20,126.20) w0.2
+  F.Cu (58.07,134.53)-(57.95,134.40) w0.2
+  F.Cu (57.96,126.92)-(57.92,126.92) w0.2
+  F.Cu (57.96,126.92)-(58.49,127.45) w0.2
+  F.Cu (57.67,129.60)-(58.01,129.60) w0.2
+  F.Cu (61.10,134.40)-(58.40,134.40) w0.4
+  F.Cu (58.29,129.60)-(58.49,129.12) w0.2
+  F.Cu (58.40,134.40)-(57.95,134.40) w0.2
+  F.Cu (58.01,129.60)-(58.29,129.60) w0.2
+== C15 / C113 / R121 / U16 geometry
+  C15.1 USB_VBUS   (59.20,113.58)
+  C15.2 GND        (59.20,112.03)
+  C113.1 USB_VBUS   (59.20,115.05)
+  C113.2 VBUS_DAMP  (59.20,116.95)
+  R121.1 VBUS_DAMP  (61.00,116.90)
+  R121.2 GND        (61.00,118.55)
+  U16.1 USB_VBUS   (56.74,116.85)
+  U16.2 GND        (56.74,115.90)
+  U16.3 USB_VBUS   (56.74,114.95)
+  U16.4 unconnected-(U16-~{FAULT}-Pad4) (54.46,114.95)
+  U16.5 VBUS_ILIM  (54.46,115.90)
+  U16.6 5V         (54.46,116.85)
+  R110.1 VBUS_ILIM  (52.00,116.72)
+  R110.2 GND        (52.00,115.08)
+  C16.1 5V         (55.95,118.90)
+  C16.2 GND        (54.05,118.90)
+  U3.1 5V         (55.71,120.95)
+  U3.2 GND        (55.71,121.90)
+  U3.3 5V         (55.71,122.85)
+  U3.4 unconnected-(U3-NC-Pad4) (57.99,122.85)
+  U3.5 3V3        (57.99,120.95)
+  C17.1 3V3        (60.00,120.70)
+  C17.2 GND        (60.00,122.60)
+== L2.2 GND return path tracks (F.Cu GND tracks touching L2.2)
+  F.Cu (148.35,130.00)-(148.35,125.40) w0.5
+== feedback nets vs switch nodes: min distance of CONV_FBP/CONV_FBN/CONV_REF/CONV_CP/CONV_CN tracks to SW_P/SW_N tracks + L1/L2 pads (same or any layer, centreline)
+  CONV_FBP     : 1.00 mm (F.Cu at (135.51,135.25) to SW_P F.Cu)
+  CONV_FBN     : 1.00 mm (F.Cu at (137.25,133.01) to SW_N F.Cu)
+  CONV_FBN_MID : 6.09 mm (F.Cu at (134.50,125.78) to D3.1 pad)
+  CONV_REF     : 1.37 mm (F.Cu at (138.00,130.78) to D3.1 pad)
+  CONV_CP      : 1.50 mm (F.Cu at (135.51,134.75) to SW_P F.Cu)
+  CONV_CN      : 2.00 mm (F.Cu at (136.25,133.01) to SW_N F.Cu)
+== QSPI: R13 placement and net lengths
+  QSPI_CLK: 7.1 mm
+  QSPI_CLK_FLASH: 7.7 mm
+  R13.1 QSPI_CLK (74.33,143.50)
+  R13.2 QSPI_CLK_FLASH (72.67,143.50)
+  R3.1 USB_DM (76.00,140.32)
+  R3.2 USB_DM_MCU (76.00,138.68)
+  R4.1 USB_DP (78.00,140.32)
+  R4.2 USB_DP_MCU (78.00,138.68)
+  U2.1 QSPI_CS (58.51,139.54)
+  U2.2 QSPI1 (58.51,140.81)
+  U2.6 QSPI_CLK_FLASH (65.69,142.09)
+  U2.8 3V3 (65.69,139.54)
+== U1 pins 56 (QSPI_CS?) and 51-55 nets
+  U1.51 QSPI3 (74.60,136.94)
+  U1.52 QSPI_CLK (75.00,136.94)
+  U1.53 QSPI0 (75.40,136.94)
+  U1.54 QSPI2 (75.80,136.94)
+  U1.55 QSPI1 (76.20,136.94)
+  U1.56 QSPI_CS (76.60,136.94)
