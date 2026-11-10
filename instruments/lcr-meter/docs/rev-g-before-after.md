@@ -6,7 +6,7 @@ Rev G is Rev F with protected jacks. Each jack gets a TVS, a normally-open photo
 
 **Verdict.** Rev G keeps everything Rev F measures and adds protection, at +$53 per five boards and 10 mm more box depth.
 - **Unchanged:** accuracy (the same LCR-6100 verdicts over the map) and stability (every loop within 0.35° of Rev F or better).
-- **Added protection:** Rev F's jacks survive a charged 1 µF part only below 0.5 V. Rev G's survive 50 V unpowered and 200 V powered.
+- **Added protection:** Rev F's jacks survive a charged 1 µF part only below 0.5 V. Rev G's survive 50 V unpowered and 200 V powered. **Correction (G100 datasheet audit PROT-02, 2026-11-09):** that study did not judge the jack TVS (H4V5HD3B) against its own pulse rating. At 50 V and 1 µF it takes 47.7 A against a 40 A IPP, within its power curve; above about 3 µF at 50 V it is outside the curve. The protected envelope is **about 1 µF at 50 V and about 10 µF at 30 V**. Discharge larger capacitors before connecting them.
 - **The cost of +$53:** almost half of it ($24) is JLC's bare-board price. 100 × 110 mm is past the 100 × 100 mm special offer.
 
 ![Rev F and Rev G at the same scale](../validation/rev-g/before-after.png)
@@ -96,7 +96,7 @@ The last column therefore puts Rev G's high corner at Rev F's U. Every element o
 
 | | Rev F | Rev G |
 |---|---|---|
-| Charged 1 µF part, lowest voltage at which every part stays within its rating | **0.5 V** (the HPOT follower's input current, unpowered) | **50 V** unpowered, 200 V powered; the 30 V target is met in every pattern and state |
+| Charged 1 µF part, lowest voltage at which every part stays within its rating | **0.5 V** (the HPOT follower's input current, unpowered) | **50 V** unpowered, 200 V powered; the 30 V target is met in every pattern and state. The jack TVS limits this to about 1 µF at 50 V, 10 µF at 30 V (G100 audit PROT-02) |
 | Bench rule for DUTs | discharge to below 0.5 V, verified with a DMM | the same rule stays for accuracy; a mistake up to 30 V no longer damages the meter |
 | IEC 61000-4-2 contact on the centre pins | no clamp; the OPA2810 inputs take it | the jack TVS; MAJOR-1 fixed its return (0.5 mm and a via into In1) |
 | Thinnest part margin at 30 V | — | the jack TVS (25.8 A vs 40 A) and the LCUR switch (0.61 A vs 1.5 A) |

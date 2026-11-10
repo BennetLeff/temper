@@ -1,18 +1,20 @@
 """Rev G isolation-switch drive, jack residual-voltage sense, and the USB power budget (README, "Drive and sense").
 
 python3 validation/rev-g-protection/drive_budget.py   ->  drive-budget.json; exits 1 if a check fails
+LCR_OUT=path writes the report elsewhere (Rev G100: validation/rev-g100/drive-budget.json).
 
 Drive: four TLP172AM photoMOS (one per jack), their LEDs in two strings of two from VRLY (the relay-coil supply:
 the switched 5 V rail, U16 output, through R101) through one resistor each, sunk by one AO3400A on GPIO 15 (U1 pin
 18; the Q6 pattern: 100 ohm gate resistor, 100 kOhm pull-down, so the switches are open from power-up until the
 firmware closes them, and open again within tOFF of losing VBUS). The resistors and R101 are read from
-cad/design.json. Both strings share R101, so i = (V5 - R101 I_COIL - 2 VF) / (R_LED + RDS_ON + 2 R101). Checked at
+cad/design.json. Both strings share R101 and the source resistance (see Rail below). Checked at
 the rail and LED corners:
   - every LED at or above the TLP172AM's recommended 5 mA minimum (RON is specified at IF 5 mA; IFT max 3 mA)
     at the lowest rail and the highest VF, and at or below 25 mA at the highest rail and the lowest VF;
-  - during the worst relay pulse (RESET, four coils, 112 mA through R101, the rail at its 4.30 V pulse minimum),
+  - during the worst relay pulse (RESET, four coils, 112 mA through R101, VBUS at its 4.40 V minimum),
     every LED still above IFT max, so the switches stay closed through a range change;
-  - the coils still see their 3.75 V must-operate voltage with the LED current added to R101's drop.
+  - the coils still see their 3.75 V must-operate voltage with the LED current added to R101's drop, at 20 C and
+    at a warm relay (T_RELAY).
 Sense: each CUR jack (R105 / R106 on the jack side tie each POT jack to it through 1 kOhm) to an RP2040 ADC
 pin (GPIO 28 / 29, ADC2 / ADC3, Rev E / F's optional UART header, which Rev G drops) through R_TOP from the jack,
 biased to mid-scale by R_BIAS to 3V3 and R_GND to ground, C_PIN to ground, all read from cad/design.json. Checked:
@@ -23,6 +25,11 @@ biased to mid-scale by R_BIAS to 3V3 and R_GND to ground, C_PIN to ground, all r
   - the filter: settling to the close threshold (against the firmware's stable window), and the 46 Hz source
     tone's ripple at the pin.
 Power: Rev F's 0.46 A estimate (rev-f-handoff.md) plus the drive, against USB 2.0's 500 mA.
+Rail (G100 audit RCG-03): the coil and LED rail at R101 is computed from the routed copper, not taken as Rev F's
+4.32 V. From VBUS 4.40 V at J1: the J1 -> U16 entry, U16's rDS(on) max and the 5V copper U16.6 -> R101.1
+(routing.json, 60 C board), all carrying the board's 0.46 A plus the drive. Past R101, a nodal solve of the VRLY
+and RLY_RST copper with every relay's RESET coil drawing I_COIL gives the worst coil's copper drop; Q2 (the shared
+RESET sink) drops its rDS(on) at the four-coil current.
 
 Sources: part-selection/parts.json (TLP172AM: IF 5-25 mA recommended, VF 1.1 / 1.27 / 1.4 V, IFT 3 mA max,
 tON 2 ms max, tOFF 0.5 ms max; H4V5HD3B VC 10 V at 40 A); rev-e-plan 2026-10-21 (switched 5 V 4.32 V minimum
@@ -32,16 +39,26 @@ after U16 at VBUS 4.40 V; 5.5 V maximum); rev-f-handoff.md (0.46 A at attach); f
 
 import json
 import math
+import os
 import pathlib
 import re
 import sys
 
-HERE = pathlib.Path(__file__).resolve().parent
+import numpy as np
 
-V5 = (4.32, 5.0, 5.5)              # switched 5 V: min (VBUS 4.40 V less U16), nominal, max
-V5_PULSE_MIN = 4.30                # the same during the RESET pulse (firmware-rev-e/README.md "Relays")
+HERE = pathlib.Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
+sys.path.insert(0, str(ROOT / 'validation' / 'power-spurs'))
+import copper as cu  # noqa: E402
+
+VBUS = (4.40, 5.0, 5.5)            # at J1: USB 2.0 device minimum, nominal, Type-C vSafe5V maximum
+U16_RDS = 0.135                    # TPS2553 rDS(on) max (power-spurs/regulator_check.py, SLVS841F 7.5)
+R_ENTRY = 0.045                    # J1 -> U16 copper (power-spurs/regulator_check.py)
+Q_RDS = 0.048                      # AO3400A rDS(on) max at VGS 2.5 V (Q2, the shared RESET sink)
+DT_BOARD = 35.0                    # K above 25 C: a 60 C board, as regulator_check.py
 I_COIL, N_RESET = 28.1e-3, 4       # TQ2SA-L2-5V per coil at 5 V (overstates it at 4.3 V); RESET drives all four
-V_MUST_OPERATE = 3.75
+V_MUST_OPERATE = 3.75             # at 20 C
+T_RELAY = 45.0                     # C: a 30-35 C bench plus about 10 C inside the box (G100 audit RCG-01)
 VF = (1.1, 1.27, 1.4)              # TLP172AM LED VF min / typ / max at 10 mA
 IF_MIN, IF_MAX, IFT_MAX = 5e-3, 25e-3, 3e-3
 LEDS_PER_STRING, STRINGS = 2, 2
@@ -50,7 +67,10 @@ T_ON_MAX, T_OFF_MAX = 2e-3, 0.5e-3
 
 V33 = 3.3
 V_CLAMP = 10.0                     # H4V5HD3B VC max at 40 A (8/20): the jack never sits beyond it
-CLOSE_MV, TRIP_MV = 1000, 3000     # firmware-rev-e/src/jackguard.h; main() checks they are equal
+# firmware-rev-e/src/jackguard.h; main() checks they are equal. Close: the jacks within CLOSE_DIFF of each other and
+# each inside CLOSE_LO..CLOSE_HI. Trip: HCUR beyond TRIP, LCUR beyond TRIP_LC once closed (audit PROT-01, G-AFE-01).
+CLOSE_DIFF_MV, CLOSE_LO_MV, CLOSE_HI_MV, TRIP_MV, TRIP_LC_MV = 1000, -1000, 2650, 3000, 500
+SETTLE_MS = 40                     # jackguard.h JG_SETTLE_MS: closed to ready
 POLL_MS = 5                        # jackguard.h JG_POLL_MS
 RF = {100: 100.0, 5000: 5e3, 100000: 100e3}
 TIA_SWING = 11.0                   # OPA2810 output on +-12 V, order of
@@ -88,17 +108,108 @@ def from_design():
 
 DESIGN = from_design()
 R101 = DESIGN['r101'][1]
+
+
+def split_crossings(routing, nets):
+    """routing with same-net, same-layer tracks that cross mid-segment split at the crossing, so the copper graph
+    (which joins segments only at end points and vias) sees the junction KiCad connects."""
+    tracks = [t for t in routing['tracks'] if t['net'] not in nets]
+    segs = [[t['net'], t['layer'], t['width'], tuple(a), tuple(b)] for t in routing['tracks'] if t['net'] in nets
+            for a, b in zip(t['points'], t['points'][1:])]
+    cuts = {i: [] for i in range(len(segs))}
+    for i, (n1, l1, _, a, b) in enumerate(segs):
+        for j in range(i + 1, len(segs)):
+            n2, l2, _, c, d = segs[j]
+            if (n1, l1) != (n2, l2):
+                continue
+            den = (b[0] - a[0]) * (d[1] - c[1]) - (b[1] - a[1]) * (d[0] - c[0])
+            if abs(den) < 1e-12:
+                continue
+            t = ((c[0] - a[0]) * (d[1] - c[1]) - (c[1] - a[1]) * (d[0] - c[0])) / den
+            u = ((c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0])) / den
+            if 1e-6 < t < 1 - 1e-6 and 1e-6 < u < 1 - 1e-6:
+                x = (a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1]))
+                cuts[i].append(x)
+                cuts[j].append(x)
+    for i, (net, layer, w, a, b) in enumerate(segs):
+        pts = [a] + sorted(cuts[i], key=lambda x: math.dist(a, x)) + [b]
+        tracks += [dict(net=net, layer=layer, width=w, points=[list(p), list(q)]) for p, q in zip(pts, pts[1:])]
+    return dict(routing, tracks=tracks)
+
+
+def network_drop(cop, net, source, sinks, amps):
+    """Nodal solve of a net's copper: source pad held at 0 V, amps drawn at each sink pad. Returns the largest drop
+    (V) and the sink that sees it."""
+    adj = cop.graph(net)
+    root = ('pad',) + source
+    seen, todo = {root}, [root]
+    while todo:     # the source's connected copper only
+        for b, _, _ in adj[todo.pop()]:
+            if b not in seen:
+                seen.add(b)
+                todo.append(b)
+    missing = [sk for sk in sinks if ('pad',) + sk not in seen]
+    assert not missing, f'{net}: no copper from {source} to {missing}'
+    nodes = sorted(seen, key=str)
+    index = {n: i for i, n in enumerate(nodes)}
+    g = np.zeros((len(nodes), len(nodes)))
+    for a in nodes:
+        for b, ohm, _ in adj[a]:
+            y = 1e6 if ohm == 0 else 1 / ohm
+            g[index[a], index[a]] += y
+            g[index[a], index[b]] -= y
+    i = np.zeros(len(nodes))
+    for sink in sinks:
+        i[index[('pad',) + sink]] -= amps
+    keep = [k for k in range(len(nodes)) if k != index[('pad',) + source]]
+    v = np.zeros(len(nodes))
+    v[keep] = np.linalg.solve(g[np.ix_(keep, keep)], i[keep])
+    worst = min(sinks, key=lambda sk: v[index[('pad',) + sk]])
+    return -float(v[index[('pad',) + worst]]), worst
+
+
+def copper():
+    """Routed copper (60 C) for the rail: the 5V resistance U16.6 -> R101.1 (charged with every current), and the
+    largest drop to a relay coil during the four-coil RESET from a nodal solve of VRLY (R101.2 -> each relay's RESET
+    coil + pin, 10) and RLY_RST (each relay's pin 6 -> Q2's drain), I_COIL per relay."""
+    pads, half, _ = cu.load_pads(ROOT)
+    routing, _ = cu.load_routing(ROOT)
+    cop = cu.Copper(split_crossings(routing, {'VRLY', 'RLY_RST'}), pads, half, dt_from_20c=25 + DT_BOARD - 20)
+    parts = {p['ref']: p for p in json.loads((ROOT / 'cad' / 'design.json').read_text())['parts']}
+    r101 = DESIGN['r101'][0]
+    relays = sorted(r for r in parts if r.startswith('K'))
+    assert all(parts[k]['pins']['10'] == 'VRLY' and parts[k]['pins']['6'] == 'RLY_RST' for k in relays)
+    (q,) = [(r, n) for r, p in parts.items() if r.startswith('Q') for n, x in p['pins'].items() if x == 'RLY_RST']
+    trunk = cop.path('5V', [('U16', '6')], [(r101, '1')])
+    assert trunk['routed'], 'no routed 5V path U16.6 -> R101.1'
+    vrly, at_v = network_drop(cop, 'VRLY', (r101, '2'), [(k, '10') for k in relays], I_COIL)
+    rst, at_r = network_drop(cop, 'RLY_RST', q, [(k, '6') for k in relays], I_COIL)
+    return dict(trunk=dict(ohm=trunk['ohm'], mm=trunk['mm']), vrly_drop_v=vrly, vrly_worst=at_v[0],
+                rly_rst_drop_v=rst, rly_rst_worst=at_r[0])
+
+
+COPPER = copper()
 R_LED = DESIGN['r_led'][0][1]
 R_TOP, R_BIAS, R_GND, C_PIN = (DESIGN['sense']['JACK_HC'][k][1] for k in ('r_top', 'r_bias', 'r_gnd', 'c_pin'))
 
 
 def drive():
+    """Each corner solved for the LED current with the shared drops: the source resistance up to R101.1 (entry, U16,
+    trunk) carries the board's base current, the coils and both strings; R101 carries the coils and both strings."""
+    r_src = R_ENTRY + U16_RDS + COPPER['trunk']['ohm']
     out = {}
-    for name, v5, vf, i_coil in (('worst_low', V5[0], VF[2], 0.0), ('typical', V5[1], VF[1], 0.0),
-                                 ('worst_high', V5[2], VF[0], 0.0), ('reset_pulse', V5_PULSE_MIN, VF[2], N_RESET * I_COIL)):
-        i = (v5 - R101 * i_coil - LEDS_PER_STRING * vf) / (R_LED + RDS_ON + STRINGS * R101)
-        out[name] = dict(v5=v5, vf=vf, i_coil_ma=i_coil * 1e3, i_string_ma=i * 1e3, i_total_ma=STRINGS * i * 1e3,
-                         vrly=v5 - R101 * (i_coil + STRINGS * i))
+    for name, vbus, vf, i_coil, base in (('worst_low', VBUS[0], VF[2], 0.0, USB_BASE_A),
+                                         ('typical', VBUS[1], VF[1], 0.0, USB_BASE_A),
+                                         ('worst_high', VBUS[2], VF[0], 0.0, 0.0),
+                                         ('reset_pulse', VBUS[0], VF[2], N_RESET * I_COIL, USB_BASE_A)):
+        v0 = vbus - r_src * (base + i_coil) - R101 * i_coil
+        i = (v0 - LEDS_PER_STRING * vf) / (R_LED + RDS_ON + STRINGS * (R101 + r_src))
+        v5 = vbus - r_src * (base + i_coil + STRINGS * i)
+        vrly = v5 - R101 * (i_coil + STRINGS * i)
+        copper_v = (COPPER['vrly_drop_v'] + COPPER['rly_rst_drop_v']) if i_coil else 0.0
+        coil = vrly - copper_v - Q_RDS * i_coil
+        out[name] = dict(vbus=vbus, v5_at_r101=v5, vf=vf, i_coil_ma=i_coil * 1e3, i_string_ma=i * 1e3,
+                         i_total_ma=STRINGS * i * 1e3, vrly=vrly, coil_v=coil)
     return out
 
 
@@ -108,11 +219,17 @@ def sense():
     pin = {f'{v:+g} V': mid + gain * v for v in (-V_CLAMP, 0.0, V_CLAMP)}
     i_bias = mid / R_TOP                       # into a jack held at 0 V
     tau = C_PIN / g
-    settle = tau * math.log(V_CLAMP / (CLOSE_MV / 1e3 / 2))   # from the clamp to half the close threshold
+    # An open jack (or a passive DUT) floats at the pin's own bias: no current in R_TOP, so jack = pin = mid.
+    # Open: from a jack clamped at -10 V back to the float, against the other jack at the float, to the close difference.
+    settle = tau * math.log((V_CLAMP + mid) / (CLOSE_DIFF_MV / 1e3))
+    # Closed: the front end pulls both jacks to 0 V; the sense falls from the highest closable reading to TRIP_LC
+    lc_settle = tau * math.log((CLOSE_HI_MV / 1e3) / (TRIP_LC_MV / 1e3)) + T_ON_MAX
     ripple = VS / math.sqrt(1 + (2 * math.pi * F_LOW * tau) ** 2)
     return dict(gain=gain, mid_v=mid, pin_v=pin, full_scale_jack_v=[-mid / gain, (V33 - mid) / gain],
-                bias_into_jack_ua=i_bias * 1e6, tia_dc_offset_v={str(r): i_bias * rf for r, rf in RF.items()},
+                open_jack_float_v=mid, bias_into_jack_ua=i_bias * 1e6,
+                tia_dc_offset_v={str(r): i_bias * rf for r, rf in RF.items()},
                 lcur_ac_load=R_LC_PATH / R_TOP, tau_ms=tau * 1e3, settle_ms=settle * 1e3,
+                lc_trip_settle_ms=lc_settle * 1e3,
                 tone_ripple_at_46hz_jack_v=ripple)
 
 
@@ -120,11 +237,20 @@ def main():
     d, s = drive(), sense()
     p = USB_BASE_A + d['typical']['i_total_ma'] / 1e3
     h = (HERE.parents[1] / 'firmware-rev-e' / 'src' / 'jackguard.h').read_text()
-    fw = {k: int(re.search(rf'#define {k} (\d+)', h).group(1))
-          for k in ('JG_CLOSE_MV', 'JG_TRIP_MV', 'JG_RTOP_G_PPM', 'JG_RTOP_RBIAS_PPM', 'JG_POLL_MS', 'JG_STABLE_POLLS')}
+    fw = {k: int(re.search(rf'#define {k} \(?(-?\d+)', h).group(1))
+          for k in ('JG_CLOSE_DIFF_MV', 'JG_CLOSE_LO_MV', 'JG_CLOSE_HI_MV', 'JG_TRIP_MV', 'JG_TRIP_LC_MV', 'JG_SETTLE_MS',
+                    'JG_RTOP_G_PPM', 'JG_RTOP_RBIAS_PPM', 'JG_POLL_MS', 'JG_STABLE_POLLS')}
+    mine = dict(JG_CLOSE_DIFF_MV=CLOSE_DIFF_MV, JG_CLOSE_LO_MV=CLOSE_LO_MV, JG_CLOSE_HI_MV=CLOSE_HI_MV,
+                JG_TRIP_MV=TRIP_MV, JG_TRIP_LC_MV=TRIP_LC_MV, JG_SETTLE_MS=SETTLE_MS)
     checks = [
-        ('firmware thresholds equal these (jackguard.h)', float(fw['JG_CLOSE_MV'] == CLOSE_MV and fw['JG_TRIP_MV'] == TRIP_MV),
-         '>=', 1.0),
+        ('firmware thresholds equal these (jackguard.h)', float(all(fw[k] == v for k, v in mine.items())), '>=', 1.0),
+        ('open-jack float inside the close window (audit PROT-01): CLOSE_HI - float, V',
+         CLOSE_HI_MV / 1e3 - s['open_jack_float_v'], '>=', 0.0),
+        ('open-jack float inside the close window: float - CLOSE_LO, V', s['open_jack_float_v'] - CLOSE_LO_MV / 1e3,
+         '>=', 0.0),
+        ('a closable jack does not trip HCUR: TRIP - CLOSE_HI, V', (TRIP_MV - CLOSE_HI_MV) / 1e3, '>', 0.0),
+        ('settle before the LCUR trip arms (JG_SETTLE_MS) >= tON + sense fall CLOSE_HI -> TRIP_LC, ms',
+         SETTLE_MS - s['lc_trip_settle_ms'], '>=', 0.0),
         ('firmware divider constants equal these (jackguard.h)',
          float(fw['JG_RTOP_RBIAS_PPM'] == round(R_TOP / R_BIAS * 1e6) and
                fw['JG_RTOP_G_PPM'] == round(R_TOP * (1 / R_TOP + 1 / R_BIAS + 1 / R_GND) * 1e6)), '>=', 1.0),
@@ -134,28 +260,31 @@ def main():
         ('LED current at the highest rail, lowest VF <= 25 mA', d['worst_high']['i_string_ma'], '<=', IF_MAX * 1e3),
         ('LED current during the RESET pulse, lowest rail, highest VF > IFT max 3 mA', d['reset_pulse']['i_string_ma'],
          '>=', IFT_MAX * 1e3),
-        ('relay coil voltage during the RESET pulse with the LED current on R101 >= 3.75 V',
-         d['reset_pulse']['vrly'] - RDS_ON * N_RESET * I_COIL, '>=', V_MUST_OPERATE),
+        ('relay coil voltage during the RESET pulse, VBUS 4.40 V, routed copper >= 3.75 V must-operate (20 C)',
+         d['reset_pulse']['coil_v'], '>=', V_MUST_OPERATE),
+        (f'relay coil voltage during the RESET pulse >= must-operate at a {T_RELAY:g} C relay (coil copper +0.4 %/C, '
+         'TQ catalog guideline)', d['reset_pulse']['coil_v'], '>=', V_MUST_OPERATE * (1 + 0.004 * (T_RELAY - 20))),
         ('sense pin at -10 V jack >= 0 V', s['pin_v']['-10 V'], '>=', 0.0),
         ('sense pin at +10 V jack <= 3.3 V', s['pin_v']['+10 V'], '<=', V33),
         ('TIA DC offset from the sense bias, 100 k range <= 2 % of the swing',
          s['tia_dc_offset_v']['100000'], '<=', 0.02 * TIA_SWING),
-        ('46 Hz tone ripple at the sense, as jack volts < the trip threshold',
+        ('46 Hz tone ripple at the sense, as jack volts < the HCUR trip threshold',
          s['tone_ripple_at_46hz_jack_v'], '<', TRIP_MV / 1e3),
         ('USB load with the drive (typical) <= 0.5 A', p, '<=', USB_LIMIT_A),
     ]
     rows = []
     ok = True
     for name, v, op, lim in checks:
-        good = {'>=': v >= lim, '<=': v <= lim, '<': v < lim}[op]
+        good = {'>=': v >= lim, '<=': v <= lim, '<': v < lim, '>': v > lim}[op]
         ok &= good
         rows.append(dict(check=name, value=round(v, 6), limit=lim, pass_=good))
         print(('PASS' if good else 'FAIL'), f'{name}: {v:.4g} ({op} {lim:g})')
-    out = dict(design={k: v for k, v in DESIGN.items()}, drive=d, sense=s, usb_a=dict(base=USB_BASE_A, with_drive_typ=p,
-                                           with_drive_max=USB_BASE_A + d['worst_high']['i_total_ma'] / 1e3),
+    out = dict(design={k: v for k, v in DESIGN.items()}, copper_ohm=COPPER, drive=d, sense=s,
+               usb_a=dict(base=USB_BASE_A, with_drive_typ=p,
+                          with_drive_max=USB_BASE_A + d['worst_high']['i_total_ma'] / 1e3),
                timing=dict(t_on_max_ms=T_ON_MAX * 1e3, t_off_max_ms=T_OFF_MAX * 1e3),
-               thresholds_mv=dict(close=CLOSE_MV, trip=TRIP_MV), checks=rows, pass_=ok)
-    (HERE / 'drive-budget.json').write_text(json.dumps(out, indent=1) + '\n')
+               thresholds_mv={k: v for k, v in mine.items()}, checks=rows, pass_=ok)
+    pathlib.Path(os.environ.get('LCR_OUT', HERE / 'drive-budget.json')).write_text(json.dumps(out, indent=1) + '\n')
     sys.exit(0 if ok else 1)
 
 

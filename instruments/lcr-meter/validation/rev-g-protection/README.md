@@ -28,7 +28,7 @@ What it achieves, each from the section below:
 
 | Requirement | Result |
 |---|---|
-| Surge, 1 µF at 30 V, every pattern and meter state | class A; class A up to 50 V (unpowered) and 200 V (powered) |
+| Surge, 1 µF at 30 V, every pattern and meter state | class A; class A up to 50 V (unpowered) and 200 V (powered). The screen judges the downstream parts, not the jack TVS's own pulse rating: that rating limits the envelope to about 1 µF at 50 V, 10 µF at 30 V (G100 audit PROT-02, `../datasheet-audit-rev-g100/protection.md`) |
 | Part ratings at 30 V | all covered; thinnest are the jack TVS (25.8 A vs 40 A) and the LCUR switch (0.61 A vs 1.5 A) |
 | Accuracy (LCR-6100 verdicts over the map) | 144 / 22 / 43, the same as Rev F, with drift; 144 / 23 / 42 with amplitude dependence too |
 | Stability (360-case full-chain matrix) | no margin lost: drive 47.76° (Rev F 47.76°), TIA 69.92° (57.28°), HIGH 57.90° (57.57°), LOW 57.17° (56.61°) |
