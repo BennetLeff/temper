@@ -168,9 +168,9 @@ T('MON_N12', 'B.Cu', (86.3, 143.35), (86.3, 141.8), (86.6, 141.5), (97.4, 141.5)
 V('MON_N12', 98.0, 137.3)
 T('MON_N12', 'F.Cu', (98.0, 137.3), (94.72, 137.3), (94.225, 136.805), (94.225, 136.2))
 # R9 (pull-up) west of SW2, C14 (cap) east of SW1, RUN between the buttons
-T('RUN', 'F.Cu', 'R9.1', (83.8, 140.825), (84.875, 141.9), 'SW2.1')   # into SW2.1's centre (it ended on the pad corner)
+T('RUN', 'F.Cu', 'R9.1', (83.85, 140.825), (84.875, 141.85), 'SW2.1')   # 45 deg into SW2.1's centre (it ended on the pad corner)
 T('3V3', 'F.Cu', 'R9.2', (81.0, 139.225))
-T('RUN', 'F.Cu', (84.875, 141.9), (84.875, 141.4), (85.375, 140.9), (90.4, 140.9), (91.0, 140.3), 'C14.1')
+T('RUN', 'F.Cu', (84.875, 141.85), (84.875, 141.4), (85.375, 140.9), (90.4, 140.9), (91.0, 140.3), 'C14.1')
 T('GND', 'F.Cu', 'C14.2', (91.0, 137.45), (91.775, 136.675))
 T('GND', 'F.Cu', (89.85, 138.0), 'C14.2')
 V('GND', 90.4, 142.9)
@@ -310,7 +310,7 @@ V('GND', 72.1, 116.7, d=0.6)
 T('GND', 'F.Cu', (72.1, 118.0), (72.1, 116.7))
 
 # ============================================================== 10. third review (validation/rev-g100/independent-review-3-2026-11-10.md)
-# m2: the relay RESET leaves 4.149 V on the coils against 4.125 V for a 45 C relay.  Widen VRLY and RLY_RST wherever
+# m2 (flyback-diode entries D6-D9 stay 0.2 mm: their SOD-323 lands are 0.45 mm across; re-check F1): the relay RESET leaves 4.149 V on the coils against 4.125 V for a 45 C relay.  Widen VRLY and RLY_RST wherever
 # the copper has room (rev-g-protection/drive_budget.py takes the drop from these tracks).  Left at 0.2 mm: VRLY In2
 # y 113.6 and RLY_RST B.Cu y 113.0 (they pass each other's vias), and RLY_RST in the jack band (x >= 130.3).
 
@@ -360,14 +360,10 @@ for _net, _layer, _pts, _w in [
         ('VRLY', 'F.Cu', [(101.325, 116.4), (102.2, 116.4)], 0.6),
         ('VRLY', 'F.Cu', [(102.2, 116.4), (103.3, 115.3)], 0.6),
         ('VRLY', 'F.Cu', [(103.3, 115.3), (103.3, 115.525)], 0.6),
-        ('VRLY', 'F.Cu', [(91.2575, 118.65), (91.2575, 119.6)], 0.6),
-        ('VRLY', 'F.Cu', [(106.2575, 118.65), (106.2575, 119.6)], 0.6),
-        ('VRLY', 'F.Cu', [(121.0575, 118.65), (121.0575, 119.6)], 0.6),
         ('VRLY', 'F.Cu', [(131.2, 81.2), (133.22, 81.08)], 0.6),
         ('VRLY', 'F.Cu', [(133.22, 81.08), (142.78, 81.08)], 0.6),
         ('VRLY', 'F.Cu', [(142.78, 81.08), (144.6, 81.08)], 0.6),
         ('VRLY', 'F.Cu', [(144.6, 81.08), (144.6, 83.05)], 0.6),
-        ('VRLY', 'F.Cu', [(144.6, 83.05), (146.5, 83.05)], 0.6),
         ('RLY_RST', 'F.Cu', [(102.0, 78.5), (102.0, 113.0)], 0.5),
         ('RLY_RST', 'F.Cu', [(104.78, 80.08), (102.0, 80.08)], 0.6),
         ('RLY_RST', 'F.Cu', [(104.78, 95.08), (102.0, 95.08)], 0.6),

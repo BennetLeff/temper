@@ -4,19 +4,19 @@
  "inputs": {
   "fab_files": {
    "zip": "build/rev-g100-gerbers.zip",
-   "sha256": "87a435d8bcd3a2a402e37ed0df6af4929a6bc04e7b119bead9217295883092a9"
+   "sha256": "7a92c574ee2dbe58cd6cac6b90d3721181550556054fb319b05523a99c842341"
   },
   "zip_members_used": {
-   "temper-lcr-B_Cu.gbl": "bf8b7dab35e253e68e0195c123d6e048d291582fc1221d743c78926930989557",
-   "temper-lcr-F_Cu.gtl": "7faa1ba6ceec576c2770b321561bcfaddbc36c9f884ea5ce04eccc279d90bba8",
-   "temper-lcr-In1_Cu.g1": "732bc8981b7cffc9ddf4415153317f2caa5a6e97be6bc87569a78b82125453d4",
-   "temper-lcr-In2_Cu.g2": "2c2418fb8c04525db1ec69835fd81f6d18632437ec838d807fe93e541a308c2e",
-   "temper-lcr-NPTH.drl": "2da16f95ea1a760e7ed559c69dea9b4e76158350b3a1067aad11d2e2e5800b17",
-   "temper-lcr-PTH.drl": "813d5bcdf2e495da43b83b70bc4645dbef4f491bbfb2c08605a8187d8683f166"
+   "temper-lcr-B_Cu.gbl": "0b80e4d8bbf220bcb0718d00cd66fa453ce3b3bedbbbe84c4fd31412d6a4c5b4",
+   "temper-lcr-F_Cu.gtl": "6fe901db77f9bc845f04dece3bf640bb7e3d1beaeae908c5a5d4c2563a3a3da8",
+   "temper-lcr-In1_Cu.g1": "59c727b05ac0942aafe4805c7af64bd786930f6d9055cfce3ffc749459034d9e",
+   "temper-lcr-In2_Cu.g2": "1a2ebb768ca3984d821c3897167341657d08fee4c517567aec99b230b67d4882",
+   "temper-lcr-NPTH.drl": "ca998625d6b5d9a951bba24e456b43b981efd4d39753e724bc939f49020e091b",
+   "temper-lcr-PTH.drl": "a1061109336931addb87876b57e8cdddf6578eb2b05107178391da880eaaf7e5"
   },
   "ipc_d356": {
    "source": "fab set:temper-lcr.d356",
-   "sha256": "3b8458a5d337652c1d03e9d6a348571c2c97fbae46a70fadb6863c9be3e05ff3"
+   "sha256": "eeb1efcb93401b295eb4583514dc1cd14df0a46743e0edae45a8ea8ef89f658b"
   },
   "schematic": {
    "path": "cad/temper-lcr.kicad_sch",
@@ -24,11 +24,11 @@
   },
   "schematic_netlist": {
    "source": "kicad-cli sch export netlist cad/temper-lcr.kicad_sch (exported at run time)",
-   "sha256": "efff1157966d619b59cc977c8ba0119c7d16fcac1359f94e95e0caef8795ba31"
+   "sha256": "9b18209d973281a2e5a8dee6fecaca952232148127d97ba900a8fd309c0f7c96"
   },
   "board_for_reference_only": {
    "path": "cad/temper-lcr.kicad_pcb",
-   "sha256": "2328c9a8ec309c44d89bea2a7d6a9cd1f0649de4a8d145452d09b698abda658e",
+   "sha256": "49ba0a39913cd1ed725b996fd5b46332ebe61ce2b02178523349e9d932ebd716",
    "note": "not read by the checker; IPC-356 positions come from it"
   }
  },
@@ -343,10 +343,10 @@
   "region_area_vs_shoelace_max_rel": 2.0785329026267514e-10,
   "roundrect_flash_hull_minus_area_max_mm2": 2.6645352591003757e-15,
   "primitive_counts": {
-   "ArcPoly": 1858,
+   "ArcPoly": 1865,
    "Circle": 5160,
    "Rectangle": 2861,
-   "Line": 1965
+   "Line": 1964
   }
  },
  "timing_s": {
@@ -370,7 +370,7 @@
    "caught": true
   },
   "open": {
-   "mutation": "F.Cu: Gerber line 6983 draw (80.425,71.540)->(83.220,71.540) turned into a move; it was the only track joining K4-7 and R107-2",
+   "mutation": "F.Cu: Gerber line 7003 draw (80.425,71.540)->(83.220,71.540) turned into a move; it was the only track joining K4-7 and R107-2",
    "expected_open_on": "REF_A",
    "checker_pass": false,
    "opens_reported": [
