@@ -127,6 +127,7 @@ The TPS65131 enables come from U17 (LM3880). FLAG1 releases ENP and FLAG2 releas
 2. **K4 stays open.**
    - Run `refcheck PORT 5000 1500 ref.json` with the jacks open, then a normal `capture` of the open jacks on the 5 kΩ range. The capture must read far above 1 kΩ: if it reads about 1 kΩ, K4 is still closed.
    - Repeat after cutting power in the middle of a `refcheck` (boot must reset K4).
+3. **Relay state check.** `temper-lcr relaycheck PORT 1000` with the jacks open. It shows each range relay and K4 releasing on RESET, from every held range ([host README](../host/README.md)). Expect PASS. On Rev G and G100, repeat it at low VBUS and warm (bring-up-rev-g G6a).
 
 ## 5. Quiet board (source off)
 

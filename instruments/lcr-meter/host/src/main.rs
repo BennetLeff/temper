@@ -18,6 +18,7 @@ const USAGE: &str = "Usage (the board, Rev D protocol 2 or Rev E protocol 3, is 
   temper-lcr capture PORT RANGE_OHM FIXTURE FREQ_HZ[,FREQ_HZ...] OUT.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S] [--no-source-off] [--short-standard]   (Rev E; sets the range relay, FREQ_HZ must be exact; each point is followed by a zero-waveform source-off capture)
   temper-lcr capture-wave PORT RANGE_OHM FIXTURE WAVE.txt BIN[,BIN...] OUT.json [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E multitone)
   temper-lcr refcheck PORT RANGE_OHM FREQ_HZ[,FREQ_HZ...] OUT.json [--mv=MV] [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E; internal 1 kOhm reference via K4, DUT terminals open)
+  temper-lcr relaycheck PORT FREQ_HZ [--tol=PERCENT] [--abs=PERCENT] [--skip=PERIODS] [--periods=N | --seconds=S]   (Rev E; relay state check: every range relay and K4 released by RESET, DUT terminals open)
   temper-lcr range PORT 100|5000|100000   (Rev E)
   temper-lcr off PORT   (Rev E)
   temper-lcr codec PORT   (Rev E)
@@ -272,6 +273,97 @@ fn refcheck_e(d: &mut DeviceE, range: u32, freqs: &[f64], out: &str, o: &EOption
         },
     )
 }
+/// `relaycheck` steps: (range held, range of the reference capture). `REFCAPTURE` RESETs the
+/// held range's relay before it closes the measured one, so a relay that misses that RESET
+/// stays in parallel with the measured range's R_F, and the reference reads (R_iso + R_F) /
+/// (R_iso + R_F || R_stuck) high: 100 held under 5k 42x, 5k under 100k 21x, 100k under 5k
+/// +5.0 %, 5k under 100 +1.6 %. Only 100k stuck under 100 (+0.08 %) is not covered, and it
+/// moves a DUT reading as little. A step with held = measured is that range's baseline: the
+/// other steps are judged against it, so the board's own uncalibrated error cancels. The open
+/// capture after each step, back on the held range, reads the 1 kOhm if K4 missed the RESET
+/// that ends the reference capture.
+const RELAY_STEPS: [(u32, u32); 7] = [
+    (100, 100),
+    (100, 5000),
+    (5000, 5000),
+    (5000, 100_000),
+    (100_000, 100_000),
+    (100_000, 5000),
+    (5000, 100),
+];
+/// Step against its range's baseline, in percent: below the smallest covered fault (+1.6 %).
+const RELAY_TOLERANCE_PERCENT: f64 = 1.0;
+/// Baseline against 1 kOhm, in percent. A relay that misses every RESET is in its baselines
+/// too, so only this bound sees it: every such relay puts one baseline at +5 % or more.
+const RELAY_ABSOLUTE_PERCENT: f64 = 3.0;
+/// An open-terminal reading below this many reference ohms means K4 is still closed.
+const RELAY_OPEN_FACTOR: f64 = 20.0;
+fn relaycheck_e(
+    d: &mut DeviceE,
+    hz: f64,
+    (tolerance, absolute): (f64, f64),
+    o: &EOptions,
+) -> Result<()> {
+    let (_, period) = rev_e::tone_for_hz(hz)?;
+    let periods = o.periods_for(period)?;
+    warn_image(hz);
+    d.selftest()?;
+    d.rails()?;
+    let mut readings = Vec::new();
+    let mut failures = Vec::new();
+    for (held, measured) in RELAY_STEPS {
+        d.range(held)?;
+        let mv = rev_e::reference_default_mv(measured)?;
+        let reference = d.reference_tone(measured, hz, mv, o.skip, periods)?;
+        let z = rev_e::analyze_e(&reference, measured)?[0].magnitude_ohm;
+        let mv = rev_e::reference_default_mv(held)?;
+        let open = d.capture_tone(hz, mv, o.skip, periods)?;
+        // capture_tone validated the record, so analyze_e can only refuse it for having no
+        // current signal (or a non-finite ratio): open terminals, as NaN would be.
+        let z_open = rev_e::analyze_e(&open, held).map_or(f64::INFINITY, |m| m[0].magnitude_ohm);
+        println!(
+            "held {held} ohm: reference on {measured} ohm |Z| {z:.2} ohm ({:+.2} % from 1 kOhm), open terminals on {held} ohm |Z| {z_open:.3e} ohm",
+            (z / rev_e::REFERENCE_OHM - 1.0) * 100.0
+        );
+        if z_open < RELAY_OPEN_FACTOR * rev_e::REFERENCE_OHM {
+            failures.push(format!(
+                "open terminals on the {held} ohm range read {z_open:.1} ohm: K4 did not release on RESET (the 1 kOhm reference is across the DUT)"
+            ));
+        }
+        readings.push((held, measured, z));
+    }
+    d.off()?;
+    for &(held, measured, z) in &readings {
+        if held == measured {
+            let error = (z / rev_e::REFERENCE_OHM - 1.0) * 100.0;
+            if error.abs() > absolute {
+                failures.push(format!(
+                    "baseline on the {measured} ohm range reads {error:+.2} % from 1 kOhm (limit {absolute} %): a range relay stays closed through every RESET, or this board's reference reading is off (compare with bring-up G6)"
+                ));
+            }
+            continue;
+        }
+        let baseline = readings
+            .iter()
+            .find(|&&(h, m, _)| h == measured && m == measured)
+            .map(|&(_, _, z)| z)
+            .ok_or("relaycheck: a measured range has no baseline step")?;
+        let error = (z / baseline - 1.0) * 100.0;
+        if error.abs() > tolerance {
+            failures.push(format!(
+                "reference on the {measured} ohm range after {held} ohm reads {error:+.2} % from its baseline (limit {tolerance} %): the {held} ohm relay did not release on RESET"
+            ));
+        }
+    }
+    if failures.is_empty() {
+        println!("relay state check: PASS");
+        return Ok(());
+    }
+    Err(format!(
+        "relay state check: FAIL\n{}\nmeasurements in this state are wrong; repeat at a higher VBUS and check the relay coil supply",
+        failures.join("\n")
+    ))
+}
 fn capture_wave_e(
     d: &mut DeviceE,
     words_file: &str,
@@ -446,6 +538,7 @@ fn run(args: &[String]) -> Result<()> {
         "capture" => &E_VALUE_FLAGS,
         "capture-wave" => &["--skip", "--periods", "--seconds"],
         "refcheck" => &E_VALUE_FLAGS,
+        "relaycheck" => &["--tol", "--abs", "--skip", "--periods", "--seconds"],
         _ => &[],
     };
     if let Some(bad) = flags.iter().find(|f| {
@@ -491,6 +584,23 @@ fn run(args: &[String]) -> Result<()> {
             let freqs = frequencies(a[3])?;
             let mut d = rev_e_only(Board::open(a[1], range, rev_e::REFERENCE_FIXTURE)?, command)?;
             refcheck_e(&mut d, range, &freqs, a[4], &e_options(&flags)?)?;
+        }
+        ("relaycheck", 3) => {
+            let hz: f64 = number(a[2])?;
+            let percent = |name: &str, default: f64| -> Result<f64> {
+                let p = flag_value(&flags, name).map_or(Ok(default), number)?;
+                if p > 0.0 {
+                    Ok(p)
+                } else {
+                    Err(format!("{name} must be a positive percentage"))
+                }
+            };
+            let limits = (
+                percent("--tol", RELAY_TOLERANCE_PERCENT)?,
+                percent("--abs", RELAY_ABSOLUTE_PERCENT)?,
+            );
+            let mut d = rev_e_only(Board::open(a[1], 100, "diagnostic")?, command)?;
+            relaycheck_e(&mut d, hz, limits, &e_options(&flags)?)?;
         }
         ("range", 3) => {
             let mut d = rev_e_only(Board::open(a[1], number(a[2])?, "diagnostic")?, command)?;

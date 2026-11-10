@@ -74,7 +74,7 @@
 | G-PE-8 / review M2 / second review M1 | The north VBUS pad pair has a 0.2 mm exit (4.6 mm long, about 0.74 A at 10 °C), 1.17 A only if the plug touched that pair alone. No room to widen it: the channel to CC1 is 0.52 mm and B.Cu is taken by the feed | A plug's four VBUS contacts are tied in the plug, so this is a double fault. `current_check.py` models J1's pins as one node; its docstring is corrected |
 | review M3 | 12 V through 0.2 mm In2 jogs in the core | `current_check.py` uses the IPC-2152 generic chart, with the same area on every layer, and passes 0.5 A at 0.187 mm. The reviewer's 0.23 A is IPC-2221's internal curve. The 0.5 A is a fault level (normal load about 36 mA) |
 | SL-8, SL-9, SL-12, SL-13, SL-15 | EN–IN tie under the LDOs; exposed-pad vias (ordered "plugged", which the TI note allows); U17 on a 3V3 dip; MON caps far from U1; R95/R96 as fuses | As in the reports. Bring-up: a brown-out test |
-| RCG-02 | A 4.5 V coil type is recommended for 5 V drive | 0 stock at JLC; RCG-01's fix recovers the margin |
+| RCG-02 | A 4.5 V coil type is recommended for 5 V drive | 0 stock at JLC; RCG-01's fix recovers the margin. Planned for a later revision (`docs/rev-g100-plan.md` §5). Until then, `temper-lcr relaycheck` makes a missed RESET visible (bring-up G6a) |
 | RCG-12, RCG-15 | BNC centre hole 1.2 mm at stacked tolerance; TQ2SA stock at JLC falling (1,272) | Drawing note; buy relays early |
 | review m2–m7 | Craft deviations (inherited counts identical to Rev G), R13 mid-route (lumped at 60 MHz), crystal, silk line width, references | Inherited or cosmetic |
 | review B1 | The Gerbers in the review export were stale | An export error: I copied a pre-fix folder (17:39) instead of the gate run's current zip. The board was right |

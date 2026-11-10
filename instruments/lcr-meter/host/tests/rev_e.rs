@@ -79,6 +79,14 @@ struct Virtual {
     noise_codes: f64,
     /// Extra coherent tone on channel B: (bin, peak codes).
     interferer: Option<(usize, f64)>,
+    /// A range relay that misses every RESET: its RG and R_F stay in parallel with the
+    /// selected range's.
+    stuck: Option<u32>,
+    /// A range relay that misses the RESET inside `REFCAPTURE` when it is the held range: in
+    /// parallel for that reference capture only.
+    miss_reset: Option<u32>,
+    /// K4 missed its RESET: the 1 kOhm reference stays across the DUT terminals.
+    k4: bool,
 }
 impl Virtual {
     fn new(range: u32, dut: ZFn) -> Self {
@@ -87,6 +95,9 @@ impl Virtual {
             dut,
             noise_codes: 0.0,
             interferer: None,
+            stuck: None,
+            miss_reset: None,
+            k4: false,
         }
     }
     /// Channel A and B phasors per volt at SOURCE_BUF, solved from the circuit, not from the
@@ -95,9 +106,15 @@ impl Virtual {
     /// TIA out = -I_riso Z_f.
     fn responses(&self, hz: f64) -> (Complex, Complex) {
         let w = TAU * hz;
-        let z = (self.dut)(hz);
+        let mut z = (self.dut)(hz);
+        if self.k4 {
+            z = inv(inv(z) + cx(1.0 / REFERENCE_OHM, 0.0));
+        }
         let cap_factor = cx(1.0, w * 100e-12 * 22.0);
-        let rf = f64::from(self.range);
+        let rf = match self.stuck {
+            Some(s) if s != self.range => 1.0 / (1.0 / f64::from(self.range) + 1.0 / f64::from(s)),
+            _ => f64::from(self.range),
+        };
         let i_dut = inv(cx(rf + SOURCE_SERIES_OHM, 0.0) + z + cx(22.0, 0.0) / cap_factor);
         let i_riso = i_dut / cap_factor;
         let zf = cx(rf, 0.0) / cx(1.0, w * rf * 100e-12);
@@ -1563,6 +1580,10 @@ fn spawn_fake_e(state: Shared) -> Fake {
                 let mut reference = st.model.clone();
                 reference.range = range;
                 reference.dut = resistor(REFERENCE_OHM);
+                reference.k4 = false;
+                if st.model.miss_reset == Some(st.model.range) && range != st.model.range {
+                    reference.stuck = Some(st.model.range);
+                }
                 let payload = reference.data_payload(&st.words, skip, periods);
                 framed("DATA", st.words.len(), periods as usize, payload, &st)
             }
@@ -1689,6 +1710,120 @@ fn reference_capture_measures_the_internal_1k_and_keeps_the_range() {
     state.lock().unwrap().capture_error = Some("stream_sync");
     let err = d.reference_capture(100, 1, 1).unwrap_err();
     assert!(err.contains("stream_sync"), "{err}");
+}
+#[test]
+fn stuck_range_relay_reads_the_reference_high_by_the_feedback_ratio() {
+    // The fault sizes relaycheck relies on (host/README.md): the host divides channel B by
+    // R_iso + R_F of the selected range, the TIA has R_iso + R_F parallel to the stuck one.
+    let state = fake_e_state(Virtual::new(100, resistor(1e9)));
+    let fake = spawn_fake_e(state.clone());
+    let Board::E(mut d) = Board::open(&fake.path, 100, "diagnostic").unwrap() else {
+        panic!("Rev E expected");
+    };
+    for (selected, stuck) in [
+        (5000, 100),
+        (100_000, 5000),
+        (100_000, 100),
+        (5000, 100_000),
+        (100, 5000),
+        (100, 100_000),
+    ] {
+        state.lock().unwrap().model.stuck = Some(stuck);
+        let record = d
+            .reference_tone(selected, 1000.0, 1700, Some(2), Some(40))
+            .unwrap();
+        let ratio = analyze_e(&record, selected).unwrap()[0].magnitude_ohm / REFERENCE_OHM;
+        let (r, s) = (f64::from(selected), f64::from(stuck));
+        let expected = (22.0 + r) / (22.0 + r * s / (r + s));
+        assert!(
+            (ratio / expected - 1.0).abs() < 2e-3,
+            "{selected} with {stuck} stuck: {ratio} against {expected}"
+        );
+    }
+}
+#[test]
+fn cli_relaycheck_passes_a_healthy_board_and_names_each_stuck_relay() {
+    let run = |fault: &dyn Fn(&mut Virtual), flags: &[&str]| {
+        let mut model = Virtual::new(100, resistor(1e9));
+        fault(&mut model);
+        let state = fake_e_state(model);
+        let fake = spawn_fake_e(state.clone());
+        let mut args = vec!["relaycheck", &fake.path, "1000", "--skip=2", "--periods=40"];
+        args.extend(flags);
+        let out = run_cli(&args);
+        (out, commands(&state))
+    };
+    let (out, sent) = run(&|_| {}, &[]);
+    assert!(out.status.success(), "{}", stderr(&out));
+    assert!(String::from_utf8_lossy(&out.stdout).contains("relay state check: PASS"));
+    // Each range has a baseline; every other reference capture follows a different held range,
+    // so its RESET has a closed relay to open.
+    let order: Vec<&str> = sent
+        .iter()
+        .map(String::as_str)
+        .filter(|c| c.starts_with("RANGE") || c.starts_with("REFCAPTURE") || *c == "OFF")
+        .collect();
+    assert_eq!(
+        order,
+        [
+            "RANGE 100",
+            "REFCAPTURE 100 2 40",
+            "RANGE 100",
+            "REFCAPTURE 5000 2 40",
+            "RANGE 5000",
+            "REFCAPTURE 5000 2 40",
+            "RANGE 5000",
+            "REFCAPTURE 100000 2 40",
+            "RANGE 100000",
+            "REFCAPTURE 100000 2 40",
+            "RANGE 100000",
+            "REFCAPTURE 5000 2 40",
+            "RANGE 5000",
+            "REFCAPTURE 100 2 40",
+            "OFF",
+            "OFF" // on exit
+        ]
+    );
+    assert_eq!(
+        sent.iter()
+            .filter(|c| c.starts_with("CAPTURE 2 40"))
+            .count(),
+        7
+    );
+    // A relay that misses one RESET is caught against the baseline, and named.
+    for relay in [100, 5000, 100_000] {
+        let (out, _) = run(&|m| m.miss_reset = Some(relay), &[]);
+        let err = stderr(&out);
+        assert!(!out.status.success(), "{relay} missing a RESET passed");
+        let named = format!("the {relay} ohm relay did not release");
+        assert!(
+            err.contains("relay state check: FAIL") && err.contains(&named),
+            "{err}"
+        );
+        assert!(!err.contains("baseline on") && !err.contains("K4"), "{err}");
+    }
+    // A relay that misses every RESET is in the baselines too: the absolute bound sees it.
+    for relay in [100, 5000, 100_000] {
+        let (out, _) = run(&|m| m.stuck = Some(relay), &[]);
+        let err = stderr(&out);
+        assert!(!out.status.success(), "{relay} stuck passed");
+        assert!(err.contains("stays closed through every RESET"), "{err}");
+    }
+    let (out, _) = run(&|m| m.k4 = true, &[]);
+    let err = stderr(&out);
+    assert!(!out.status.success());
+    assert_eq!(err.matches("K4 did not release").count(), 7, "{err}");
+    assert!(
+        !err.contains("range relay") && !err.contains("relay did not"),
+        "{err}"
+    );
+    // Limits wider than the 100k-under-5k fault (+5.0 %) let that one through.
+    let (out, _) = run(&|m| m.miss_reset = Some(100_000), &["--tol=6"]);
+    assert!(out.status.success(), "{}", stderr(&out));
+    let (out, _) = run(&|m| m.stuck = Some(100_000), &["--abs=6"]);
+    assert!(out.status.success(), "{}", stderr(&out));
+    let (out, _) = run(&|_| {}, &["--abs=0"]);
+    assert!(stderr(&out).contains("--abs must be"), "{}", stderr(&out));
 }
 #[test]
 fn cli_refcheck_reports_and_saves_the_reference() {
@@ -2724,10 +2859,22 @@ fn firmware_host_contract_rev_e() {
     );
     // The firmware's start gate (rails.h) uses the host's rail windows, in millivolts.
     let mv = |v: f64| (v * 1000.0).round() as i64;
-    assert_eq!(constant(rails, "RAIL_P12_MIN_MV"), mv(temper_lcr::RAIL_P12_WINDOW_V.0));
-    assert_eq!(constant(rails, "RAIL_P12_MAX_MV"), mv(temper_lcr::RAIL_P12_WINDOW_V.1));
-    assert_eq!(constant(rails, "RAIL_N12_MIN_MV"), mv(temper_lcr::RAIL_N12_WINDOW_V.0));
-    assert_eq!(constant(rails, "RAIL_N12_MAX_MV"), mv(temper_lcr::RAIL_N12_WINDOW_V.1));
+    assert_eq!(
+        constant(rails, "RAIL_P12_MIN_MV"),
+        mv(temper_lcr::RAIL_P12_WINDOW_V.0)
+    );
+    assert_eq!(
+        constant(rails, "RAIL_P12_MAX_MV"),
+        mv(temper_lcr::RAIL_P12_WINDOW_V.1)
+    );
+    assert_eq!(
+        constant(rails, "RAIL_N12_MIN_MV"),
+        mv(temper_lcr::RAIL_N12_WINDOW_V.0)
+    );
+    assert_eq!(
+        constant(rails, "RAIL_N12_MAX_MV"),
+        mv(temper_lcr::RAIL_N12_WINDOW_V.1)
+    );
     assert_eq!(
         constant(rails, "RAIL_ADC_REF_MV"),
         mv(temper_lcr::RAIL_ADC_REFERENCE_V)
