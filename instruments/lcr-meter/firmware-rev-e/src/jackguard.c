@@ -24,12 +24,13 @@ void jackguard_init(jackguard *g, uint32_t now_ms) {
 bool jackguard_poll(jackguard *g, bool rails_ok, int32_t hc_mv, int32_t lc_mv, uint32_t now_ms) {
     g->last_hc_mv = hc_mv;
     g->last_lc_mv = lc_mv;
-    int32_t worst = magnitude(hc_mv) > magnitude(lc_mv) ? magnitude(hc_mv) : magnitude(lc_mv);
-    bool quiet = worst < JG_CLOSE_MV;
+    bool quiet = jackguard_quiet(hc_mv, lc_mv);
     switch (g->state) {
     case JG_CLOSING:
     case JG_CLOSED:
-        if (!rails_ok || worst > JG_TRIP_MV) {
+        /* LCUR's own trip waits for CLOSED: its sense still falls from the open-jack float while CLOSING */
+        if (!rails_ok || magnitude(hc_mv) > JG_TRIP_MV || magnitude(lc_mv) > JG_TRIP_MV ||
+            (g->state == JG_CLOSED && magnitude(lc_mv) > JG_TRIP_LC_MV)) {
             enter(g, JG_TRIPPED, now_ms);
             return false;
         }

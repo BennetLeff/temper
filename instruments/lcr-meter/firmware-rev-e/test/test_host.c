@@ -465,7 +465,7 @@ static void test_rails(void) {
 
 /* ------------------------------------------------------------------ Rev G jack guard */
 /* Sense pin codes (sum of SAMPLES conversions) for a jack at v volts, through the divider of
-   drive_budget.py: R_TOP 1 MOhm, R_BIAS 200 kOhm to 3V3, R_GND 249 kOhm. */
+   drive_budget.py: R_TOP 1.5 MOhm, R_BIAS 240 kOhm to 3V3, R_GND 240 kOhm. */
 static uint32_t jack_sum(double v) {
     double g = 1 / 1.5e6 + 1 / 240e3 + 1 / 240e3;
     double pin = (v / 1.5e6 + 3.3 / 240e3) / g;
@@ -497,8 +497,10 @@ static void test_jackguard(void) {
         ++polls;
     }
     CHECK(polls + 1 == JG_STABLE_POLLS && g.state == JG_CLOSING && !jackguard_ready(&g));
+    uint32_t closed_at = t;
     t += JG_POLL_MS;
-    CHECK(jackguard_poll(&g, true, 0, 0, t) && jackguard_ready(&g));
+    CHECK(jg_run(&g, true, 0, 0, &t, JG_SETTLE_MS - JG_POLL_MS) && g.state == JG_CLOSING);
+    CHECK(jg_run(&g, true, 0, 0, &t, JG_POLL_MS) && jackguard_ready(&g) && t - JG_POLL_MS - closed_at == JG_SETTLE_MS);
     /* The source's own swing never trips (1.7 V peak on HCUR, either sign). */
     CHECK(jg_run(&g, true, 1.7, 0.02, &t, 200) && jg_run(&g, true, -1.7, -0.02, &t, 200) && jackguard_ready(&g));
     /* A charged DUT touched while closed: opens on the first poll above JG_TRIP_MV, either jack, either sign. */
@@ -519,21 +521,42 @@ static void test_jackguard(void) {
     CHECK(g.state == JG_OPEN && g.streak == 1);
     CHECK(!jg_run(&g, true, 0, 0, &t, (JG_STABLE_POLLS - 2) * JG_POLL_MS) && g.state == JG_OPEN);
     CHECK(jg_run(&g, true, 0, 0, &t, JG_POLL_MS) && g.state == JG_CLOSING);
-    CHECK(jg_run(&g, true, 0, 0, &t, 20) && jackguard_ready(&g));
+    CHECK(jg_run(&g, true, 0, 0, &t, JG_SETTLE_MS + JG_POLL_MS) && jackguard_ready(&g));
     /* A rail fault while closed opens the switches (unpowered op-amps rely on them). */
     CHECK(!jackguard_poll(&g, false, 0, 0, t) && g.state == JG_TRIPPED);
-    /* A charged jack at power-up: stays open until both jacks have read below CLOSE for JG_STABLE_POLLS. */
+    /* A charged jack at power-up: stays open until the jacks have passed the close test for JG_STABLE_POLLS. */
     jackguard_init(&g, t);
     CHECK(!jg_run(&g, true, 6.0, 0, &t, 2000) && !jg_run(&g, true, 0, -1.5, &t, 2000) && g.state == JG_OPEN);
-    CHECK(!jg_run(&g, true, 0.9, -0.9, &t, (JG_STABLE_POLLS - 1) * JG_POLL_MS) && g.state == JG_OPEN);
-    CHECK(jg_run(&g, true, 0.9, -0.9, &t, JG_POLL_MS) && g.state == JG_CLOSING);
+    /* A charged DUT floating across the jacks: centred on the 1.65 V bias, 1.2 V apart. Stays open. */
+    CHECK(!jg_run(&g, true, 2.25, 1.05, &t, 2000) && g.state == JG_OPEN);
+    /* Both jacks above CLOSE_HI (a source referenced to ground): stays open. */
+    CHECK(!jg_run(&g, true, 2.8, 2.8, &t, 2000) && g.state == JG_OPEN);
+    CHECK(!jg_run(&g, true, 0.4, -0.4, &t, (JG_STABLE_POLLS - 1) * JG_POLL_MS) && g.state == JG_OPEN);
+    CHECK(jg_run(&g, true, 0.4, -0.4, &t, JG_POLL_MS) && g.state == JG_CLOSING);
+    /* Open jacks, or an uncharged floating DUT, sit at the divider's 1.65 V float (audit PROT-01): closes. */
+    jackguard_init(&g, t);
+    CHECK(!jg_run(&g, true, 1.65, 1.65, &t, (JG_STABLE_POLLS - 1) * JG_POLL_MS) && g.state == JG_OPEN);
+    CHECK(jg_run(&g, true, 1.65, 1.65, &t, JG_POLL_MS) && g.state == JG_CLOSING);
+    /* Once closed the front end pulls both jacks to 0 V; the sense filter (11.1 ms, +20 % here) falls from the
+       float. LCUR reads above TRIP_LC for about 13 ms of it: no trip while CLOSING, ready at JG_SETTLE_MS. */
+    uint32_t t_close = t - JG_POLL_MS;
+    bool ok = true;
+    for (; t < t_close + JG_SETTLE_MS + 4 * JG_POLL_MS; t += JG_POLL_MS) {
+        double v = 2.65 * exp(-(double)(t - t_close) / 13.3);
+        ok = ok && jackguard_poll(&g, true, jackguard_mv(jack_sum(v), SAMPLES), jackguard_mv(jack_sum(v), SAMPLES), t);
+    }
+    CHECK(ok && jackguard_ready(&g));
+    /* A DC source on LCUR while closed (audit G-AFE-01): 1.0 V trips, the 0.3 V sense bias offset does not. */
+    CHECK(jg_run(&g, true, 0, 0.3, &t, 200) && jackguard_ready(&g));
+    CHECK(!jg_run(&g, true, 0, 1.0, &t, JG_POLL_MS) && g.state == JG_TRIPPED);
     CHECK(!strcmp(jackguard_state_name(JG_TRIPPED), "tripped"));
     /* Inside a capture: one conversion per jack against JG_TRIP_MV, either jack, either sign; the source's
        swing is not over. A trip from the capture loop re-arms like a polled one. */
-    CHECK(!jackguard_over(JG_TRIP_MV, -JG_TRIP_MV) && !jackguard_over(1700, -1700));
-    CHECK(jackguard_over(JG_TRIP_MV + 1, 0) && jackguard_over(0, -JG_TRIP_MV - 1));
+    CHECK(!jackguard_over(JG_TRIP_MV, -JG_TRIP_LC_MV) && !jackguard_over(-1700, 20) && !jackguard_over(1700, 300));
+    CHECK(jackguard_over(JG_TRIP_MV + 1, 0) && jackguard_over(0, -JG_TRIP_LC_MV - 1) && jackguard_over(0, 1000));
     CHECK(abs(jackguard_mv(jack_sum(-3.5) / SAMPLES, 1u) + 3500) < 20);   /* one code ~ 11 mV of jack */
-    CHECK(jg_run(&g, true, 0, 0, &t, 100) && jackguard_ready(&g));
+    jackguard_init(&g, t);
+    CHECK(jg_run(&g, true, 0, 0, &t, JG_STABLE_POLLS * JG_POLL_MS + JG_SETTLE_MS + JG_POLL_MS) && jackguard_ready(&g));
     jackguard_trip(&g, t);
     CHECK(g.state == JG_TRIPPED && !jackguard_ready(&g));
     uint32_t tripped = t;

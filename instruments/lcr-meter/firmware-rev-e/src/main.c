@@ -122,7 +122,7 @@ static bool rails_wait(void) {
 
 #if LCR_REV_G
 /* ---------------------------------------------------------------- Rev G jack guard */
-/* The isolation switches stay open until the rails are up and both CUR jacks read near 0 V, and open
+/* The isolation switches stay open until the rails are up and both CUR jacks read uncharged, and open
    on a rail fault or a jack driven past the source (jackguard.h). The guard is polled from the idle
    loop and before every command that uses the jacks. */
 static jackguard guard;
@@ -603,6 +603,17 @@ static void process_command(const char *line) {
         return;
     }
     adc_settle_wait(); /* >= TAC_ADC_SETTLE_MS after the last ADC power-up (audit C-04) */
+#if LCR_REV_G
+    /* K4 puts the 0.1 % reference across the jacks: check them again after the settle wait, just before
+       the SET, so a DUT connected meanwhile cannot charge R107 (audit RCG-05). */
+    const char *jacks = ref ? jacks_check() : NULL;
+    if (jacks) {
+        char error[32];
+        snprintf(error, sizeof error, "ERR jacks_%s", jacks);
+        reply(error);
+        return;
+    }
+#endif
     /* The reference relay is closed only here, together with one range relay, and opened
        again (RESET, then the range that was selected before) before the reply. */
     int restore = range_ohm ? range_ohm : (int)c;
@@ -673,6 +684,11 @@ int main(void) {
     ch_rxd = dma_claim_unused_channel(true);
     stream_start(); /* silent waveform, clocks running before the codec is configured */
     sleep_ms(5);    /* codec POR: 2 ms after the supplies */
+    /* Wake the codec with only its ADC powered before waiting for the rails: asleep, AVDD draws 9 uA,
+       and a railing TIA pumps 3V3A past its 3.9 V maximum through C74 and its clamp diode (audit G-C1).
+       The ADC's few mA sink that charge. The DAC is on only during the start-up's clock check, at mid-rail
+       and silent. analog_bring_up() starts the codec again once the rails are up. */
+    if (codec_start() == TAC_OK) (void)tac5112_power(&codec, TAC_POWER_ADC);
     /* The analog rails come up 20-100 ms after power-up (U17): the DAC stays off and the relays
        at rest until both monitors read inside their windows; on a timeout the codec is not
        started, INFO says FAIL, STATUS shows the readings and FAULT lights. SELFTEST retries. */
