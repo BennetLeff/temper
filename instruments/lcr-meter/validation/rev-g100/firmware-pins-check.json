@@ -4,8 +4,8 @@
   "firmware-rev-e/src/pins.h": "27dc8de1c814b3a87129e81d1e40e380025dc886947fb35f32f5b944b1b0a075",
   "firmware-rev-e/src/relay.c": "5bafd6729c0ca3c09b40133e7ec5a189dd51344e2eed1c04e35a00db31922927",
   "firmware-rev-e/src/rails.c": "338c3b0db7923e2e846727ab45590b390f7db8b95f52531b68f5ebe0e6f93491",
-  "firmware-rev-e/src/main.c": "62036caa7e9823afc6b6055ed73c4ce97b9923d80f55938715feb4ae5b6f0e56",
-  "firmware-rev-e/src/jackguard.h": "b41fef4b22420d26dffe0ef3ced78ce39861f4143f6ae92782d3b7dbafbac122"
+  "firmware-rev-e/src/main.c": "9e4bc839beaaa9597a2be4124a0d1304d0e13cb75efa970521cd36aa6a550eaa",
+  "firmware-rev-e/src/jackguard.h": "6da44aba6e173b19ec54157666cf704689ddc557e33c32e2e92e6703e400f473"
  },
  "findings": [],
  "passes": [
@@ -315,11 +315,35 @@
   },
   {
    "check": "usb sense",
-   "detail": "divider (100000.0, 100000.0, 'GND'), pulls disabled: VBUS 4.4 V -> 2.20 V (VIH 2.0 V; with the pull-down 1.10 V), 5.5 V -> 2.75 V (IOVDD 3.3 V)"
+   "detail": "divider (100000.0, 100000.0, 'GND'), pulls disabled in main() before USB starts: VBUS 4.4 V -> 2.20 V (VIH 2.0 V; with the pull-down 1.10 V), 5.5 V -> 2.75 V (IOVDD 3.3 V)"
   },
   {
    "check": "input pulls",
-   "detail": "PIN_USB_VBUS is read with gpio_get(); pulls set by gpio_disable_pulls(PIN_USB_VBUS)"
+   "detail": "every GPIO read names a pins.h pin: yes"
+  },
+  {
+   "check": "input pulls",
+   "detail": "PIN_USB_VBUS is read with gpio_get(); pulls set in main() before USB starts by gpio_disable_pulls(PIN_USB_VBUS)"
+  },
+  {
+   "check": "input pulls",
+   "detail": "objdump /Users/bennet/.local/share/temper/arm-gnu-toolchain-14.2.rel1/bin/arm-none-eabi-objdump and 4 images in bin/"
+  },
+  {
+   "check": "input pulls",
+   "detail": "temper-lcr-rev-e-375k.elf: main() calls gpio_set_pulls(r0 = 13) for PIN_USB_VBUS: yes"
+  },
+  {
+   "check": "input pulls",
+   "detail": "temper-lcr-rev-e.elf: main() calls gpio_set_pulls(r0 = 13) for PIN_USB_VBUS: yes"
+  },
+  {
+   "check": "input pulls",
+   "detail": "temper-lcr-rev-g-375k.elf: main() calls gpio_set_pulls(r0 = 13) for PIN_USB_VBUS: yes"
+  },
+  {
+   "check": "input pulls",
+   "detail": "temper-lcr-rev-g.elf: main() calls gpio_set_pulls(r0 = 13) for PIN_USB_VBUS: yes"
   },
   {
    "check": "isolation drive",

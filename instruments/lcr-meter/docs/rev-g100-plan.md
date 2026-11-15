@@ -125,7 +125,8 @@ The board is Rev F's size again, so the box returns to Rev F's **110 × 110 × 3
 | 2026-11-10 | **Firmware: a third image, `temper-lcr-rev-g.uf2` (`LCR_REV_G=1`)** | The default image never closes the jack switches, so a G100 board could not measure without it |
 | 2026-11-10 | **Third review: widen the relay copper, 3V3A and the RUN entry; accept the rest** | m2: VRLY / RLY_RST to 0.5–0.6 mm wherever there is room. The relay copper drop goes from 34 to 14 mV, and the coil from 4.149 to 4.169 V (`drive-budget.json`). 3V3A was 0.2 mm on In2 against 0.26 mm at 0.6 A, a gap in `current_check.py`, which now covers it. m1 (paste on EP vias): the order selects Plugged, and fab note 4 now says exactly that. m3: only GND near H3 / H4, so metal standoffs are fine. m4–m8, m10: accepted, as listed in the review's dispositions |
 | 2026-11-15 | **Pre-mortem: every fix in firmware and bring-up, no copper** | Its Pareto copper list was empty. The two likely bodges (USB_SENSE, jack-sense offset) are firmware, and every copper candidate is a trade that costs a fresh review while relay stock falls. The trades go on the respin list: the Schottky 3V3A → 3V3 (G-C1), UART and trigger pads on GPIO 16 / 17 / 24, and DNP snubber lands at SW_P / SW_N. R5 / R6 → 10 k was rejected: it leaves 2.0 V at VBUS 4.40 V with RPD 50 k, so no margin |
-| 2026-11-15 | **LCUR zero per close, clamped ±400 mV, not a stored per-board zero** | Closed, LCUR is the TIA's virtual ground, so the reading is the sense's own error. It needs no flash writes and no host step. The clamp keeps a fault present at the close at 0.9 V or less, under R43's 1.05 V (G-AFE-01) |
+| 2026-11-15 | **LCUR zero per close, clamped ±300 mV, with the LCUR trip lowered to 0.4 V; not a stored per-board zero** | Closed, LCUR is the TIA's virtual ground, so the reading is the sense's own error E. The zero needs no flash writes and no host step. A fault present at the close stays connected up to 0.7 V + \|E\| true: 0.92 V with the divider error alone, under R43's 1.05 V (G-AFE-01). The firmware review (2026-11-15) showed that the first cut (±400 / 0.5 V) bounded the reading, not the true volts |
+| 2026-11-15 | **Firmware review fixes: USB is never dropped, the rails are watched at run time, FORCE is bounded** | Independent Fable review of a12077019 (`../validation/rev-g100/premortem-2026-11-15/firmware-review.md`). On a bus-powered board a low USB_SENSE can only be a misread, so it is a fault (`STATUS ... vbus LOW`), not a disconnect. The Rev G image re-reads MON12 / MON_N12 every 100 ms, so "opens on a rail fault" now holds after boot. FORCE lights FAULT, expires after 2 minutes, and refuses captures. The pins gate strips comments, checks order in `main()`, and checks every image's disassembly |
 | 2026-11-15 | **No watchdog yet** | A first run on an untested board risks reboot loops (5 s stdout timeout, 60 s captures). Revisit after first light |
 | 2026-11-09 | **Accept the switcher pickup increase (§3)** | The pickup is relative and unbounded, and it matters only on a collision, which the source-off check catches. The alternative is 100 × 110 (Rev G), at $24 more for five boards and 10 mm more box depth |
 
@@ -135,7 +136,7 @@ Seven datasheet audits and an independent layout review: `../validation/datashee
 
 **Firmware (both Rev G boards):**
 - the jack guard closes on uncharged jacks, not "near 0 V" (it never closed: an open jack floats at +1.65 V);
-- LCUR trips at 0.5 V once closed;
+- LCUR trips at 0.5 V once closed (0.4 V after the per-close zero since 2026-11-15);
 - the codec's ADC wakes before the rail wait;
 - REFCAPTURE re-checks the jacks before K4.
 

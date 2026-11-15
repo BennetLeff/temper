@@ -36,7 +36,7 @@
 static uint32_t ring[RING_WORDS] __attribute__((aligned(RING_WORDS * 4u)));
 /* Capture output: int64 bin sums (CAPTURE) or int32 frames (RAW) share one buffer. */
 #define RAW_MAX_FRAMES 8192u
-#define VBUS_LOSS_MS 100u /* USB_SENSE low this long is a VBUS loss, not a dip */
+#define VBUS_LOSS_MS 100u /* USB_SENSE low this long (from the first low sample) is a VBUS loss, not a dip */
 static union {
     int64_t sum[2u * WAVE_MAX_PERIOD];
     int32_t raw[2u * RAW_MAX_FRAMES];
@@ -65,6 +65,11 @@ static tac5112_clock codec_clock;        /* which CLK_CFG0 setting the codec run
 static uint32_t adc_powered_ms;          /* to_ms_since_boot at the last ADC power-up */
 static bool range_commanded = false;     /* a RANGE command has completed since boot */
 static bool reply_error = false; /* the current command printed an ERR reply (FAULT LED) */
+static bool command_fault = false; /* FAULT as the last command left it: an ERR reply or a failed self-test */
+/* USB_SENSE read low for VBUS_LOSS_MS. The board is bus powered, so a running RP2040 has VBUS and this is a
+   sagging port or a misread divider: the source is silenced, captures are refused, Rev G's guard holds the jacks
+   open and FAULT lights, but USB stays up so the console can say why (STATUS ... vbus LOW). */
+static bool vbus_lost = false;
 static int range_ohm = 0;
 static char unit_id[PICO_UNIQUE_BOARD_ID_SIZE_BYTES * 2 + 1];
 
@@ -132,12 +137,39 @@ static uint32_t guard_poll_ms;
    so a guard-logic fault can be told from a switch or LED fault. Needs the rails up; cleared by JACKS FORCE 0,
    a VBUS loss and every reset. The guard keeps polling, and captures still wait for it. */
 static bool jacks_forced;
+static uint32_t jacks_forced_ms;
+static bool wave_silence(void); /* the TDM stream section below */
+#define JACKS_FORCE_MS 120000u /* FORCE expires after 2 minutes */
+/* Rails at run time: the guard reads MON12 / MON_N12 every JG_RAIL_EVERY polls (100 ms), and JG_RAIL_BAD polls
+   in a row outside the windows are a rail fault, as at boot: analog_ok and codec_ok drop, the source goes silent,
+   the guard opens the switches (unpowered op-amps rely on them), INFO says FAIL and SELFTEST recovers. */
+#define JG_RAIL_EVERY 20u
+#define JG_RAIL_BAD 3u
+static unsigned rail_poll_count, rail_bad_count;
+static void rails_watch(void) {
+    if (!analog_ok || ++rail_poll_count < JG_RAIL_EVERY) return;
+    rail_poll_count = 0;
+    mon12_mv = rails_p12_mv(rail_sum(0), RAIL_SAMPLES);
+    mon_n12_mv = rails_n12_mv(rail_sum(1), RAIL_SAMPLES);
+    if (rails_in_window(mon12_mv, mon_n12_mv)) rail_bad_count = 0;
+    else if (++rail_bad_count >= JG_RAIL_BAD) {
+        rail_bad_count = 0;
+        analog_ok = false;
+        codec_ok = false;
+        command_fault = true;
+        wave_silence();
+    }
+}
 static void guard_poll(void) {
     guard_poll_ms = to_ms_since_boot(get_absolute_time());
+    rails_watch();
+    if (jacks_forced && guard_poll_ms - jacks_forced_ms >= JACKS_FORCE_MS) jacks_forced = false;
+    bool usable = analog_ok && !vbus_lost;
+    if (!usable) jacks_forced = false;
     int32_t hc = jackguard_mv(rail_sum(PIN_JACK_HC - 26u), RAIL_SAMPLES);
     int32_t lc = jackguard_mv(rail_sum(PIN_JACK_LC - 26u), RAIL_SAMPLES);
-    bool on = jackguard_poll(&guard, analog_ok, hc, lc, guard_poll_ms);
-    gpio_put(PIN_ISO_DRIVE, on || (jacks_forced && analog_ok));
+    bool on = jackguard_poll(&guard, usable, hc, lc, guard_poll_ms);
+    gpio_put(PIN_ISO_DRIVE, on || jacks_forced);
 }
 /* Before a command that uses the jacks: poll, waiting out a close that is due or in progress (the
    stable polls plus the switch settling). NULL when the jacks are connected, else the guard state. */
@@ -504,9 +536,9 @@ static void process_command(const char *line) {
         return;
     }
     if (!strcmp(line, "STATUS")) {
-        printf("STATUS rails %s %" PRId32 " %" PRId32 " codec %s clock %s %u %u\n", analog_ok ? "PASS" : "FAIL",
+        printf("STATUS rails %s %" PRId32 " %" PRId32 " codec %s clock %s %u %u vbus %s\n", analog_ok ? "PASS" : "FAIL",
                mon12_mv, mon_n12_mv, codec_ok ? "PASS" : "FAIL", tac5112_clock_name(codec_clock.mode),
-               codec_clock.err0, codec_clock.err1);
+               codec_clock.err0, codec_clock.err1, vbus_lost ? "LOW" : "OK");
         return;
     }
     if (!strcmp(line, "SELFTEST")) {
@@ -537,13 +569,18 @@ static void process_command(const char *line) {
         return;
     }
     if (sscanf(line, "JACKS FORCE %" SCNu32 " %c", &a, &trailing) == 1 && a <= 1u) {
-        if (a && !analog_ok) {
+        if (a && (!analog_ok || vbus_lost)) {
             reply("ERR rail_fault");
             return;
         }
         jacks_forced = a != 0u;
+        jacks_forced_ms = to_ms_since_boot(get_absolute_time());
         guard_poll();
         reply("OK");
+        return;
+    }
+    if (needs_analog(line) && jacks_forced) { /* FORCE is for a DMM on the jacks, not for measurements */
+        reply("ERR jacks_forced");
         return;
     }
     if (needs_analog(line)) {
@@ -624,7 +661,7 @@ static void process_command(const char *line) {
        then sum PERIODS periods into one bin per waveform index. At most 60 s of frames. */
     uint64_t frames = raw ? a : (uint64_t)b * wave_period;
     uint64_t skip = raw ? 0u : (uint64_t)a * wave_period;
-    if (!codec_ok || !gpio_get(PIN_USB_VBUS) || frames == 0u ||
+    if (!codec_ok || vbus_lost || frames == 0u ||
         (raw && frames > RAW_MAX_FRAMES) || skip + frames > 60u * (uint64_t)FS_HZ) {
         reply("ERR limits_or_selftest");
         return;
@@ -729,17 +766,19 @@ int main(void) {
     /* Relays keep their state through power-off and K4 (with R107) sits on the jack side of the switches, so
        RESET them on a rail fault too: VRLY comes from 5 V, not from +-12 V (pre-mortem 2026-11-15 item 9). */
     if (!analog_ok) (void)select_relays(100000, false, true);
-    gpio_put(PIN_LED_FAULT, !codec_ok);
-    /* USB starts unconditionally: the board is bus powered, so a running RP2040 has VBUS. Waiting on USB_SENSE
-       here once hid the console behind a misread pin (the pad pull-down, pre-mortem item 1); the loop below
-       handles a real VBUS loss. */
+    command_fault = !codec_ok;
+    gpio_put(PIN_LED_FAULT, command_fault);
+    /* USB starts unconditionally and is never dropped: the board is bus powered, so a running RP2040 has VBUS.
+       Waiting on USB_SENSE here once hid the console behind a misread pin (the pad pull-down, pre-mortem item 1);
+       the loop below treats a low USB_SENSE as a fault, not as a reason to disconnect. */
     stdio_init_all();
     stdio_set_translate_crlf(&stdio_usb, false);
     char line[96];
     uint length = 0;
     bool overflow = false;
     uint32_t heartbeat_ms = to_ms_since_boot(get_absolute_time());
-    uint32_t vbus_high_ms = heartbeat_ms;
+    bool vbus_low_seen = false;
+    uint32_t vbus_low_since_ms = 0;
     while (true) {
         uint32_t now_ms = to_ms_since_boot(get_absolute_time());
         if (now_ms - heartbeat_ms >= 500u) { /* idle: toggle every 500 ms (1 Hz blink) */
@@ -749,23 +788,27 @@ int main(void) {
 #if LCR_REV_G
         if (now_ms - guard_poll_ms >= JG_POLL_MS) guard_poll();
 #endif
-        /* VBUS lost: USB_SENSE low for VBUS_LOSS_MS, so a dip (a relay pulse on a weak port) never drops the host. */
-        if (gpio_get(PIN_USB_VBUS)) vbus_high_ms = now_ms;
-        else if (now_ms - vbus_high_ms >= VBUS_LOSS_MS) {
+        /* USB_SENSE low for VBUS_LOSS_MS from the first low sample (so a long command cannot shorten it): a fault,
+           held until the pin reads high again. A dip (a relay pulse on a weak port) never reaches it. */
+        if (gpio_get(PIN_USB_VBUS)) vbus_low_seen = vbus_lost = false;
+        else if (!vbus_low_seen) {
+            vbus_low_seen = true;
+            vbus_low_since_ms = now_ms;
+        } else if (!vbus_lost && now_ms - vbus_low_since_ms >= VBUS_LOSS_MS) {
+            vbus_lost = true;
             wave_silence();
 #if LCR_REV_G
-            /* The switch LEDs run from VBUS and open by themselves; start the guard over for the return. */
+            /* The switch LEDs run from VBUS; open them now and start the guard over (it stays open while vbus_lost). */
             gpio_put(PIN_ISO_DRIVE, false);
             jacks_forced = false;
             jackguard_init(&guard, now_ms);
 #endif
-            tud_disconnect();
-            while (!gpio_get(PIN_USB_VBUS)) sleep_ms(10);
-            tud_connect();
-            vbus_high_ms = to_ms_since_boot(get_absolute_time());
-            length = 0;
-            overflow = false;
         }
+        bool hold = vbus_lost;
+#if LCR_REV_G
+        hold = hold || jacks_forced;
+#endif
+        gpio_put(PIN_LED_FAULT, command_fault || hold);
         int ch = getchar_timeout_us(10000);
         if (ch == PICO_ERROR_TIMEOUT || ch == '\r') continue;
         if (ch == '\n') {
@@ -773,7 +816,8 @@ int main(void) {
             reply_error = false;
             if (overflow) reply("ERR line_too_long");
             else process_command(line);
-            gpio_put(PIN_LED_FAULT, reply_error || !codec_ok); /* a successful command clears it */
+            command_fault = reply_error || !codec_ok; /* a successful command clears it */
+            gpio_put(PIN_LED_FAULT, command_fault);
             length = 0;
             overflow = false;
         } else if (length + 1u < sizeof(line)) {
