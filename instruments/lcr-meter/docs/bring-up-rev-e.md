@@ -44,7 +44,7 @@ Rev F adds an orange front-panel light and six red debug LEDs, visible with the 
 
 With a blank flash (no firmware) HB, FLT and STATUS stay dark: the RP2040 pads reset as inputs with pull-downs. HB blinks with the bench supply alone, because the firmware's main loop runs once it sees VBUS, computer or not. The rail LEDs draw about 2 mA in all (about 0.4–0.6 mA each; 5 V input share of all LEDs about 12 mA, `regulator_check.py`), so record the idle current in §2.1 with them lit.
 
-Rev F also has fourteen bare 1.5 mm test pads (board-only, not on the BOM), labelled on silk: nine on the supplies and five on the relay coil lines. Each GND pad is 2.6 mm from a rail pad, so a scope ground spring reaches both: probe 5V, +12, −12 against the power-area GND (TP2) and 3V3 against the digital GND (TP9). Positions are KiCad board coordinates (mm; the board spans x 50–150, y 45–145, the BNC edge at y 45). Expected values are the §2 rail checks at 5.0 V in.
+**On a G100 board, use the test-pad table in [bring-up-rev-g.md](bring-up-rev-g.md) "G100 first power": the positions below are Rev F's.** Rev F also has fourteen bare 1.5 mm test pads (board-only, not on the BOM), labelled on silk: nine on the supplies and five on the relay coil lines. Each GND pad is 2.6 mm from a rail pad, so a scope ground spring reaches both: probe 5V, +12, −12 against the power-area GND (TP2) and 3V3 against the digital GND (TP9). Positions are KiCad board coordinates (mm; the board spans x 50–150, y 45–145, the BNC edge at y 45). Expected values are the §2 rail checks at 5.0 V in.
 
 | TP | Silk | Net | Position (x, y) | Where | Expect |
 |---|---|---|---|---|---|

@@ -45,7 +45,8 @@ A USB-powered, four-terminal LCR meter for Temper's own parts: the coil, the pan
   | JLC hand fit of the BNCs (parts, joints, labour) | 31.07 |
   | **Total** | **429.03** |
 
-- **Firmware:** `firmware-rev-e/bin/temper-lcr-rev-g.uf2`, the jack-guard build (`LCR_REV_G=1`). The default `temper-lcr-rev-e.uf2` never closes the jack switches, so a G100 board measures nothing with it. It has never run on a board.
+- **Firmware:** `firmware-rev-e/bin/temper-lcr-rev-g.uf2`, the jack-guard build (`LCR_REV_G=1`), or `temper-lcr-rev-g-375k.uf2` at 375 kHz. The default `temper-lcr-rev-e.uf2` never closes the jack switches, so a G100 board measures nothing with it. It has never run on a board.
+- **Pre-mortem (2026-11-15,** `../validation/rev-g100/premortem-2026-11-15/`): order now, copper unchanged. It found a firmware bug that would have made every board look dead: the RP2040's reset pull-down held USB_SENSE low, and the firmware waited on it before starting USB. That bug and the jack-sense margin are fixed in firmware, and the bring-up steps it asked for are in [bring-up-rev-g.md](bring-up-rev-g.md), "G100 first power".
 - **Host:** `host/bin/temper-lcr-macos-arm64`.
 
 ## Stock (JLC, live check 2026-11-15, `../validation/rev-g100/package-review-2026-11-15/live-stock.txt`)
@@ -123,10 +124,12 @@ Only the owner signs in, adds to the cart or pays.
 
 ## When boards arrive
 
-1. **Flash `firmware-rev-e/bin/temper-lcr-rev-g.uf2` first.** Use it wherever the bring-up pages say `temper-lcr-rev-e.uf2`. The Rev E image never closes the jack switches, so `refcheck` / `relaycheck` cannot pass with it. Both images answer `INFO 3 E-codec`, so nothing on the board says which one is running.
+1. **Start with [bring-up-rev-g.md](bring-up-rev-g.md), "G100 first power", on board 1:** fit J4 and have a probe ready, scope C60 on the first blank power-up, and put nothing on the jacks until `INFO` says PASS. It also has the G100 test-pad table and the spares to buy now.
+   - **Flash `firmware-rev-e/bin/temper-lcr-rev-g.uf2`.** Use it wherever the bring-up pages say `temper-lcr-rev-e.uf2`. The Rev E image never closes the jack switches, so `refcheck` / `relaycheck` cannot pass with it. Type `BUILD` to see which image is running: `INFO` says `E-codec` in all of them.
 2. Follow [bring-up-rev-e.md](bring-up-rev-e.md), with the Rev F notes in [rev-f-handoff.md](rev-f-handoff.md) "When boards arrive". They all apply: start-up, hot-plug, relay coil identity, codec clock.
 3. Then [bring-up-rev-g.md](bring-up-rev-g.md) Part B, G1–G9, including:
-   - **G5:** read the jack senses with `JACKS` in a serial terminal.
+   - **G2 / G4:** `JACKS FORCE 1` turns the switches on for the measurement, and `JACKS FORCE 0` turns them off.
+   - **G5:** read the jack senses with `JACKS` in a serial terminal, including LCUR's zero.
    - **G6a**, the relay state check at VBUS 4.40 V on a warm board. A FAIL means swapping R101 for a 0 Ω jumper first.
    - **The quiet-board step (§5):** the first measurement of the switcher pickup that G100's shrink increased by about 4 dB (relative).
 4. Respin items are recorded in the plan and the third review's dispositions:
@@ -134,4 +137,5 @@ Only the owner signs in, adds to the cart or pays.
    - EP paste windows off the vias;
    - the 0.4 mm 5V neck at U16;
    - 4.5 V-coil relays;
-   - a `G-codec` identity for the Rev G image, and a host `jacks` command.
+   - a host `jacks` command (the firmware's `BUILD` now names the image);
+   - the pre-mortem's trades: the Schottky 3V3A → 3V3, UART and trigger pads, and snubber lands.

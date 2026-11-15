@@ -1,0 +1,86 @@
+## nets with NO easy pad (only fine-pitch / small pads)
+ISO_S1M ['U18.1@73.3,62.87', 'U19.3@82.7,62.87']
+ISO_S2M ['U21.1@139.3,62.87', 'U20.3@104.7,62.87']
+unconnected-(J1-SBU1-PadA8) ['J1.A8@57.67,133.25']
+unconnected-(J1-SBU2-PadB8) ['J1.B8@57.67,130.25']
+unconnected-(U1-GPIO0-Pad2) ['U1.2@77.438,135.7']
+unconnected-(U1-GPIO1-Pad3) ['U1.3@77.438,135.3']
+unconnected-(U1-GPIO12-Pad15) ['U1.15@76.6,130.062']
+unconnected-(U1-GPIO16-Pad27) ['U1.27@71.8,130.062']
+unconnected-(U1-GPIO17-Pad28) ['U1.28@71.4,130.062']
+unconnected-(U1-GPIO18-Pad29) ['U1.29@70.562,130.9']
+unconnected-(U1-GPIO19-Pad30) ['U1.30@70.562,131.3']
+unconnected-(U1-GPIO20-Pad31) ['U1.31@70.562,131.7']
+unconnected-(U1-GPIO21-Pad32) ['U1.32@70.562,132.1']
+unconnected-(U1-GPIO24-Pad36) ['U1.36@70.562,133.7']
+unconnected-(U11-DNC-Pad7) ['U11.7@132.15,109.675']
+unconnected-(U11-NC-Pad3) ['U11.3@127.85,110.325']
+unconnected-(U12-DNC-Pad7) ['U12.7@145.15,109.675']
+unconnected-(U12-NC-Pad3) ['U12.3@140.85,110.325']
+unconnected-(U13-BSW-Pad7) ['U13.7@139.488,136.25']
+unconnected-(U13-NC-Pad12) ['U13.12@139.488,133.75']
+unconnected-(U13-NC-Pad20) ['U13.20@135.512,134.25']
+unconnected-(U14-GPIO1-Pad9) ['U14.9@63.75,100.4']
+unconnected-(U14-GPIO2-Pad10) ['U14.10@64.25,100.4']
+unconnected-(U14-GPO1-Pad11) ['U14.11@64.75,100.4']
+unconnected-(U14-MICBIAS-Pad14) ['U14.14@65.9,99.25']
+unconnected-(U14-OUT2M-Pad22) ['U14.22@63.75,96.6']
+unconnected-(U14-OUT2P-Pad21) ['U14.21@64.25,96.6']
+unconnected-(U15-NC-Pad4) ['U15.4@57.638,93.45']
+unconnected-(U16-~{FAULT}-Pad4) ['U16.4@54.462,114.95']
+unconnected-(U17-FLAG3-Pad4) ['U17.4@137.137,120.95']
+unconnected-(U3-NC-Pad4) ['U3.4@57.987,122.85']
+## unconnected pads on ICs (no net)
+U12 HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm ['', '', '', '']
+U13 VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm ['', '', '', '', '', '', '', '', '']
+U11 HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm ['', '', '', '']
+U14 TI_RGE0024R_VQFN-24-1EP_4x4mm_P0.5mm_EP2.1mm_CornerPads ['', '', '', '']
+U1 QFN-56-1EP_7x7mm_P0.4mm_EP3.2x3.2mm ['', '', '', '']
+## test pads: nearest other footprints (centre distance, mm)
+TP6 RAW+ 128.775 121.5 [(3.7, 'C116', 'C_0603_1608Metric'), (4.4, 'C118', 'C_0603_1608Metric'), (5.3, 'C90', 'C_1210_3225Metric')]
+TP19 GND 56.2 112.4 [(2.0, 'TP18', 'TestPoint_Pad_D1.0mm'), (3.0, 'C15', 'C_0603_1608Metric'), (3.6, 'U16', 'SOT-23-6')]
+TP7 RAW- 145.6 116.825 [(3.2, 'R96', 'R_0603_1608Metric'), (5.3, 'C98', 'C_0603_1608Metric'), (5.3, 'C92', 'C_1210_3225Metric')]
+TP13 K4 147.9 85.6 [(3.9, 'D9', 'D_SOD-323'), (4.2, 'Q6', 'SOT-23'), (7.8, 'R108', 'R_0603_1608Metric')]
+TP5 VRLY 123.6 119.6 [(2.6, 'TP12', 'TestPoint_Pad_D1.5mm'), (3.2, 'D8', 'D_SOD-323'), (5.2, 'Q5', 'SOT-23')]
+TP15 BCLK 56.2 104.4 [(2.0, 'TP16', 'TestPoint_Pad_D1.0mm'), (3.0, 'C66', 'C_0805_2012Metric'), (4.0, 'TP17', 'TestPoint_Pad_D1.0mm')]
+TP18 DIN 56.2 110.4 [(2.0, 'TP17', 'TestPoint_Pad_D1.0mm'), (2.0, 'TP19', 'TestPoint_Pad_D1.0mm'), (3.8, 'C15', 'C_0603_1608Metric')]
+TP20 VB 61.225 137.0 [(4.5, 'U2', 'SOIC-8_5.3x5.3mm_P1.27mm'), (5.3, 'D1', 'SOT-23-6'), (6.7, 'C11', 'C_0603_1608Metric')]
+TP9 GND 94.6 141.6 [(2.6, 'TP8', 'TestPoint_Pad_D1.5mm'), (4.6, 'C14', 'C_0603_1608Metric'), (5.4, 'C111', 'C_0603_1608Metric')]
+TP1 5V 100.5 126.5 [(2.6, 'TP2', 'TestPoint_Pad_D1.5mm'), (3.5, 'TP14', 'TestPoint_Pad_D1.5mm'), (4.1, 'R79', 'R_0603_1608Metric')]
+TP4 -12 109.8 127.6 [(5.2, 'TP3', 'TestPoint_Pad_D1.5mm'), (6.5, 'TP10', 'TestPoint_Pad_D1.5mm'), (6.8, 'TP2', 'TestPoint_Pad_D1.5mm')]
+TP3 +12 106.0 131.2 [(5.2, 'TP4', 'TestPoint_Pad_D1.5mm'), (5.5, 'TP2', 'TestPoint_Pad_D1.5mm'), (5.9, 'R115', 'R_0603_1608Metric')]
+TP12 K3 122.0 121.6 [(2.6, 'TP5', 'TestPoint_Pad_D1.5mm'), (3.2, 'Q5', 'SOT-23'), (4.1, 'D8', 'D_SOD-323')]
+TP16 FSYNC 56.2 106.4 [(2.0, 'TP15', 'TestPoint_Pad_D1.0mm'), (2.0, 'TP17', 'TestPoint_Pad_D1.0mm'), (4.0, 'TP18', 'TestPoint_Pad_D1.0mm')]
+TP8 3V3 92.0 141.6 [(2.6, 'TP9', 'TestPoint_Pad_D1.5mm'), (3.0, 'C14', 'C_0603_1608Metric'), (5.1, 'SW2', 'SW_SPST_TS-1088-xR020')]
+TP17 DOUT 56.2 108.4 [(2.0, 'TP16', 'TestPoint_Pad_D1.0mm'), (2.0, 'TP18', 'TestPoint_Pad_D1.0mm'), (4.0, 'TP15', 'TestPoint_Pad_D1.0mm')]
+TP22 GND 72.1 118.0 [(3.1, 'J4', 'PinHeader_1x02_P2.54mm_Verti'), (3.3, 'C13', 'C_0603_1608Metric'), (4.6, 'R10', 'R_0603_1608Metric')]
+TP21 GND 61.25 112.9 [(2.1, 'C15', 'C_0603_1608Metric'), (3.7, 'C113', 'C_0805_2012Metric'), (3.7, 'D20', 'LED_0603_1608Metric')]
+TP11 K2 88.9 118.5 [(2.5, 'D6', 'D_SOD-323'), (3.1, 'Q3', 'SOT-23'), (4.0, 'R76', 'R_0603_1608Metric')]
+TP14 RST 97.295 125.0 [(3.5, 'Q2', 'SOT-23'), (3.5, 'TP1', 'TestPoint_Pad_D1.5mm'), (4.2, 'R79', 'R_0603_1608Metric')]
+TP10 K1 107.2 121.6 [(3.2, 'Q4', 'SOT-23'), (4.1, 'D7', 'D_SOD-323'), (6.0, 'C112', 'C_1206_3216Metric')]
+TP2 GND 103.1 126.5 [(2.6, 'TP1', 'TestPoint_Pad_D1.5mm'), (4.8, 'R79', 'R_0603_1608Metric'), (5.0, 'Q4', 'SOT-23')]
+J4 PinHeader_1x02_P2.54mm_Vertical 69.0 118.0 -90.0
+SW1 SW_SPST_TS-1088-xR020 87.1 138.9 0.0
+SW2 SW_SPST_TS-1088-xR020 87.1 142.9 0.0
+C117 CP_Elec_8x6.9 118.6 137.6 90.0
+U1 QFN-56-1EP_7x7mm_P0.4mm_EP3.2x3.2mm 74.0 133.5 180.0
+U14 TI_RGE0024R_VQFN-24-1EP_4x4mm_P0.5mm_EP2 64.0 98.5 0.0
+U13 VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm 137.5 135.0 90.0
+L1 L_Changjiang_FNR5040S 131.5 141.2 90.0
+L2 L_Changjiang_FNR5040S 146.5 130.0 0.0
+K1 Relay_DPDT_Panasonic_TQ2SA_SMD 100.0 75.0 -90.0
+K2 Relay_DPDT_Panasonic_TQ2SA_SMD 100.0 90.0 -90.0
+K3 Relay_DPDT_Panasonic_TQ2SA_SMD 100.0 105.0 -90.0
+K4 Relay_DPDT_Panasonic_TQ2SA_SMD 138.0 76.0 90.0
+J1 USB_C_Receptacle_HRO_TYPE-C-31-M-12 54.0 132.0 -90.0
+Y1 Crystal_SMD_3225-4Pin_3.2x2.5mm 75.0 123.0 0.0
+U2 SOIC-8_5.3x5.3mm_P1.27mm 62.1 141.45 0.0
+C14 C_0603_1608Metric 91.0 138.75 90.0
+R9 R_0603_1608Metric 83.25 140.0 90.0
+R119 R_0603_1608Metric 141.5 136.8 -90.0
+R120 R_0603_1608Metric 141.55 133.3 90.0
+R134 R_0603_1608Metric 78.388 62.4 90.0
+R101 R_0603_1608Metric 100.5 116.4 0.0
+C60 C_0805_2012Metric 63.25 91.3 -90.0
+C62 C_0603_1608Metric 61.6 94.55 90.0
+C8 C_0805_2012Metric 69.2 139.5 90.0

@@ -1,0 +1,15 @@
+(1) USB_SENSE at U1.16 (GPIO13), R5 = R6 = 100k; VIH(min) 2.0 V, VIL(max) 0.8 V
+  VBUS 4.40: no pull 2.20 V, RPD 50k 1.10 V, RPD 65k 1.24 V, RPD 80k 1.35 V
+  VBUS 4.75: no pull 2.38 V, RPD 50k 1.19 V, RPD 65k 1.34 V, RPD 80k 1.46 V
+  VBUS 5.00: no pull 2.50 V, RPD 50k 1.25 V, RPD 65k 1.41 V, RPD 80k 1.54 V
+  VBUS 5.25: no pull 2.62 V, RPD 50k 1.31 V, RPD 65k 1.48 V, RPD 80k 1.62 V
+  VBUS 5.50: no pull 2.75 V, RPD 50k 1.38 V, RPD 65k 1.55 V, RPD 80k 1.69 V
+(2) jack sense, V_jack = pin * 13.5 - 3.3 * 6.25 (jackguard.h); thresholds TRIP_LC 0.5 V, CLOSE_DIFF 1.0 V
+  pin at 0 V jack 1.5278 V; 1 LSB = 10.9 mV jack-referred
+  1 % resistors (R126-R131), worst corner: 16.4 mV at the pin = 222 mV at the jack
+  source resistance at the pin 111 kOhm: 1 uA leakage (datasheet max) = 1.50 V at the jack
+  an ADC offset of 5 mV at the pin = 68 mV at the jack
+  an ADC offset of 10 mV at the pin = 135 mV at the jack
+  an ADC offset of 20 mV at the pin = 270 mV at the jack
+  an ADC offset of 30 mV at the pin = 405 mV at the jack
+  256 conversions per 5 ms poll, 1 pF sample cap from 0 V (upper bound): 391 pC per poll = 78 nA average = 8.7 mV at the pin = 117 mV at the jack

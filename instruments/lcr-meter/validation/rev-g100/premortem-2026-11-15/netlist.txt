@@ -1,0 +1,399 @@
+## PARTS
+U1 | RP2040 | RP2040 | QFN-56-1EP_7x7mm_P0.4mm_EP3.2x3.2mm | [74.0, 133.5, 180] | digital | {'assembly': 'SMT'} | 1=3V3 2=None 3=None 4=I2S_DIN 5=I2S_DOUT 6=I2S_BCLK 7=I2S_FSYNC 8=RNG_SET_HI 9=RNG_SET_LO 10=3V3 11=I2C_SDA 12=I2C_SCL 13=RNG_RESET 14=RNG_SET_MED 15=None 16=USB_SENSE 17=RNG_SET_REF 18=ISO_DRIVE 19=GND 20=XIN 21=XOUT 22=3V3 23=1V1 24=SWCLK 25=SWDIO 26=RUN 27=None 28=None 29=None 30=None 31=None 32=None 33=3V3 34=FAULT 35=HEARTBEAT 36=None 37=STATUS 38=MON12 39=MON_N12 40=JACK_HC 41=JACK_LC 42=3V3 43=3V3 44=3V3 45=1V1 46=USB_DM_MCU 47=USB_DP_MCU 48=3V3 49=3V3 50=1V1 51=QSPI3 52=QSPI_CLK 53=QSPI0 54=QSPI2 55=QSPI1 56=QSPI_CS 57=GND
+U2 | GD25Q16ESIGR | FLASH | SOIC-8_5.3x5.3mm_P1.27mm | [62.1, 141.45, 0] | digital | {'assembly': 'SMT'} | 1=QSPI_CS 2=QSPI1 3=QSPI2 4=GND 5=QSPI0 6=QSPI_CLK_FLASH 7=QSPI3 8=3V3
+U3 | 3.3V AP2112K | LDO | SOT-23-5 | [56.85, 121.9, 0] | power | {'assembly': 'SMT'} | 1=5V 2=GND 3=5V 4=None 5=3V3
+U5 | OPA197IDBVR | OPA810 | SOT-23-5 | [70.5, 75.5, 0] | source | {'assembly': 'SMT'} | 1=EXCITE 2=-12V 3=SOURCE_AC 4=SOURCE_FB 5=12V
+U6 | OPA2810IDGKR | OPA2810 | VSSOP-8_3x3mm_P0.65mm | [86.5, 76.0, 90] | afe | {'assembly': 'SMT'} | 1=SRC_DRV 2=SRC_DRV 3=EXCITE 4=-12V 5=HPOT 6=HIGH_BUF 7=HIGH_BUF 8=12V
+U7 | OPA2810IDGKR | OPA2810 | VSSOP-8_3x3mm_P0.65mm | [114.5, 80.0, 90] | afe | {'assembly': 'SMT'} | 1=TIA_OUT 2=TIA_SUM 3=GND 4=-12V 5=LPOT 6=LOW_BUF 7=LOW_BUF 8=12V
+U11 | TPS7A4901DGNR | TPS7A | HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm | [130.0, 110.0, 0] | power | {'assembly': 'SMT'} | 1=12V 2=REGP_FB 3=None 4=GND 5=LDOIN_P 6=REGP_NR 7=None 8=LDOIN_P 9=GND
+U12 | TPS7A3001DGNR | TPS7A | HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm | [143.0, 110.0, 0] | power | {'assembly': 'SMT'} | 1=-12V 2=REGN_FB 3=None 4=GND 5=LDOIN_N 6=REGN_NR 7=None 8=LDOIN_N 9=GND
+U13 | TPS65131RGER | TPS65131 | VQFN-24-1EP_4x4mm_P0.5mm_EP2.45x2.45mm | [137.5, 135.0, 90] | power | {'assembly': 'SMT'} | 1=SW_P 2=GND 3=GND 4=CONV_VIN 5=5V 6=5V 7=None 8=CONV_ENP 9=GND 10=CONV_ENN 11=GND 12=None 13=SW_N 14=SW_N 15=RAW_N 16=CONV_FBN 17=CONV_REF 18=CONV_CN 19=GND 20=None 21=CONV_CP 22=CONV_FBP 23=RAW_P 24=SW_P 25=GND
+D2 | SS14 | DIODE | D_SMA | [130.5, 136.0, 0] | power | {'assembly': 'SMT'} | 1=RAW_P 2=SW_P
+D3 | SS14 | DIODE | D_SMA | [140.5, 128.0, 90] | power | {'assembly': 'SMT'} | 1=SW_N 2=RAW_N
+L1 | 4.7uH 3.8A shielded | L | L_Changjiang_FNR5040S | [131.5, 141.2, 90] | power | {'assembly': 'SMT'} | 1=5V 2=SW_P
+L2 | 4.7uH 3.8A shielded | L | L_Changjiang_FNR5040S | [146.5, 130.0, 0] | power | {'assembly': 'SMT'} | 1=SW_N 2=GND
+FB1 | 100R@100MHz 800mA | L | L_0805_2012Metric | [53.0, 97.0, 90] | power | {'assembly': 'SMT'} | 1=5V 2=5VA
+Y1 | 12MHz CL10pF | CRYSTAL | Crystal_SMD_3225-4Pin_3.2x2.5mm | [75.0, 123.0, 0] | digital | {'assembly': 'SMT'} | 1=XIN 2=GND 3=XTAL_OUT 4=GND
+SW1 | BOOTSEL | SW | SW_SPST_TS-1088-xR020 | [87.1, 138.9, 0] | digital | {'assembly': 'SMT'} | 1=BOOTSEL 2=GND
+SW2 | RESET | SW | SW_SPST_TS-1088-xR020 | [87.1, 142.9, 0] | digital | {'assembly': 'SMT'} | 1=RUN 2=GND
+D4 | ORANGE | LED | LED_LiteOn_LTST-S270KFKT_SideView | [55.0, 45.95, 0] | digital | {'assembly': 'SMT'} | 1=GND 2=LED_A
+J1 | USB-C | USB | USB_C_Receptacle_HRO_TYPE-C-31-M-12 | [54.0, 132.0, -90] | digital | {'assembly': 'SMT'} | A1=GND A4=USB_VBUS A5=CC1 A6=USB_DP A7=USB_DM A8=None A9=USB_VBUS A12=GND B1=GND B4=USB_VBUS B5=CC2 B6=USB_DP B7=USB_DM B8=None B9=USB_VBUS B12=GND SH=GND
+D1 | SRV05-4 | USBESD | SOT-23-6 | [63.0, 132.0, 0] | digital | {'assembly': 'SMT'} | 1=USB_DP 2=GND 3=USB_DM 4=USB_DM 5=USB_VBUS 6=USB_DP
+J4 | SWD CLK / DATA | H | PinHeader_1x02_P2.54mm_Vertical | [69.0, 118.0, -90] | digital | {'assembly': 'DNP'} | 1=SWCLK 2=SWDIO
+R1 | 5.1k | R | R_0603_1608Metric | [61.9, 122.2, 90] | digital | {'assembly': 'SMT'} | 1=CC1 2=GND
+R2 | 5.1k | R | R_0603_1608Metric | [62.0, 125.0, 0] | digital | {'assembly': 'SMT'} | 1=CC2 2=GND
+R3 | 27R | R | R_0603_1608Metric | [76.0, 139.5, 90] | digital | {'assembly': 'SMT'} | 1=USB_DM 2=USB_DM_MCU
+R4 | 27R | R | R_0603_1608Metric | [78.0, 139.5, 90] | digital | {'assembly': 'SMT'} | 1=USB_DP 2=USB_DP_MCU
+R5 | 100k | R | R_0603_1608Metric | [84.0, 125.5, 0] | digital | {'assembly': 'SMT'} | 1=USB_VBUS 2=USB_SENSE
+R6 | 100k | R | R_0603_1608Metric | [84.0, 128.5, 0] | digital | {'assembly': 'SMT'} | 1=USB_SENSE 2=GND
+R7 | 10k | R | R_0603_1608Metric | [78.6, 143.8, 0] | digital | {'assembly': 'SMT'} | 1=QSPI_CS 2=3V3
+R8 | 1k | R | R_0603_1608Metric | [78.6, 142.2, 0] | digital | {'assembly': 'SMT'} | 1=QSPI_CS 2=BOOTSEL
+R9 | 10k | R | R_0603_1608Metric | [83.25, 140.0, 90] | digital | {'assembly': 'SMT'} | 1=RUN 2=3V3
+R10 | 1k | R | R_0603_1608Metric | [71.0, 122.5, 90] | digital | {'assembly': 'SMT'} | 1=XOUT 2=XTAL_OUT
+R12 | 390 | R | R_0603_1608Metric | [57.7, 47.6, 90] | digital | {'assembly': 'SMT'} | 1=STATUS 2=LED_A
+R13 | 33R | R | R_0603_1608Metric | [73.5, 143.5, 180] | digital | {'assembly': 'SMT'} | 1=QSPI_CLK 2=QSPI_CLK_FLASH
+R33 | 2k 0.1% | R | R_0603_1608Metric | [71.5, 71.5, 0] | source | {'assembly': 'SMT'} | 1=EXCITE 2=SOURCE_FB
+R40 | 100R 0.1% | R | R_0603_1608Metric | [91.9, 77.54, 180] | afe | {'assembly': 'SMT'} | 1=RG100 2=DUT_HI
+R41 | 5k 0.1% | R | R_0603_1608Metric | [91.9, 92.54, 180] | afe | {'assembly': 'SMT'} | 1=RG5K 2=DUT_HI
+R42 | 100k 0.1% | R | R_0603_1608Metric | [91.9, 107.54, 180] | afe | {'assembly': 'SMT'} | 1=RG100K 2=DUT_HI
+R43 | 100R 0.1% | R | R_0603_1608Metric | [109.6, 84.575, 180] | afe | {'assembly': 'SMT'} | 1=TIA_SUM 2=RF100
+R44 | 5k 0.1% | R | R_0603_1608Metric | [109.6, 86.2, 180] | afe | {'assembly': 'SMT'} | 1=TIA_SUM 2=RF5K
+R45 | 100k 0.1% | R | R_0603_1608Metric | [109.6, 87.9, 180] | afe | {'assembly': 'SMT'} | 1=TIA_SUM 2=RF100K
+R94 | 22R 0.1% | R | R_0603_1608Metric | [113.8, 86.7, 90] | afe | {'assembly': 'SMT'} | 1=DUT_LO 2=TIA_SUM
+R95 | 1R | R | R_0603_1608Metric | [129.6, 116.0, 0] | power | {'assembly': 'SMT'} | 1=RAW_P 2=LDOIN_P
+R96 | 1R | R | R_0603_1608Metric | [142.5, 116.0, 90] | power | {'assembly': 'SMT'} | 1=RAW_N 2=LDOIN_N
+R80 | 100R | R | R_0603_1608Metric | [141.5, 143.0, 90] | power | {'assembly': 'SMT'} | 1=5V 2=CONV_VIN
+R81 | 430k | R | R_0603_1608Metric | [130.05, 130.5, 0] | power | {'assembly': 'SMT'} | 1=RAW_P 2=CONV_FBP
+R82 | 40.2k | R | R_0603_1608Metric | [133.1, 130.5, 0] | power | {'assembly': 'SMT'} | 1=CONV_FBP 2=GND
+R83 | 240k | R | R_0603_1608Metric | [134.5, 126.6, 90] | power | {'assembly': 'SMT'} | 1=RAW_N 2=CONV_FBN_MID
+R84 | 150k | R | R_0603_1608Metric | [133.0, 126.6, -90] | power | {'assembly': 'SMT'} | 1=CONV_FBN 2=CONV_REF
+R85 | 82k | R | R_0603_1608Metric | [125.0, 109.75, 0] | power | {'assembly': 'SMT'} | 1=12V 2=REGP_FB
+R86 | 9.1k | R | R_0603_1608Metric | [125.0, 112.95, 180] | power | {'assembly': 'SMT'} | 1=REGP_FB 2=GND
+R87 | 100k 0.1% | R | R_0603_1608Metric | [138.0, 111.33, 0] | power | {'assembly': 'SMT'} | 1=-12V 2=REGN_FB
+R88 | 1k 0.1% | R | R_0603_1608Metric | [138.0, 114.57, 0] | power | {'assembly': 'SMT'} | 1=REGN_DIV 2=REGN_DIV2
+R89 | 5k 0.1% | R | R_0603_1608Metric | [138.0, 112.95, 180] | power | {'assembly': 'SMT'} | 1=REGN_FB 2=REGN_DIV
+R60 | 1k 0.1% | R | R_0603_1608Metric | [85.6, 69.9, 90] | codec | {'assembly': 'SMT'} | 1=HIGH_BUF 2=C1P_DIV
+R61 | 1k 0.1% | R | R_0603_1608Metric | [114.0, 72.0, 180] | codec | {'assembly': 'SMT'} | 1=LOW_BUF 2=C1M_DIV
+R66 | 1k 0.1% | R | R_0603_1608Metric | [114.0, 73.6, 180] | codec | {'assembly': 'SMT'} | 1=LOW_BUF 2=C2P_DIV
+R67 | 1k 0.1% | R | R_0603_1608Metric | [110.9, 79.4, 90] | codec | {'assembly': 'SMT'} | 1=TIA_OUT 2=C2M_DIV
+C1 | 100nF 50V | C | C_0603_1608Metric | [81.0, 137.5, 90] | digital | {'assembly': 'SMT'} | 1=3V3 2=GND
+C2 | 100nF 50V | C | C_0603_1608Metric | [81.0, 130.5, 90] | digital | {'assembly': 'SMT'} | 1=3V3 2=GND
+C3 | 100nF 50V | C | C_0603_1608Metric | [73.0, 127.5, 0] | digital | {'assembly': 'SMT'} | 1=3V3 2=GND
+C4 | 100nF 50V | C | C_0603_1608Metric | [68.0, 131.5, 90] | digital | {'assembly': 'SMT'} | 1=3V3 2=GND
+C5 | 1uF 50V X5R | C | C_0603_1608Metric | [73.0, 139.5, 0] | digital | {'assembly': 'SMT'} | 1=3V3 2=GND
+C6 | 100nF 50V | C | C_0603_1608Metric | [81.0, 134.0, 90] | digital | {'assembly': 'SMT'} | 1=3V3 2=GND
+C7 | 100nF 50V | C | C_0603_1608Metric | [70.0, 142.5, 0] | digital | {'assembly': 'SMT'} | 1=3V3 2=GND
+C8 | 1uF 50V | C | C_0805_2012Metric | [69.2, 139.5, 90] | digital | {'assembly': 'SMT'} | 1=1V1 2=GND
+C9 | 100nF 50V | C | C_0603_1608Metric | [69.0, 127.5, 0] | digital | {'assembly': 'SMT'} | 1=1V1 2=GND
+C10 | 1uF 50V | C | C_0805_2012Metric | [82.0, 142.5, 0] | digital | {'assembly': 'SMT'} | 1=3V3 2=GND
+C11 | 100nF 50V | C | C_0603_1608Metric | [67.48, 139.4, 90] | digital | {'assembly': 'SMT'} | 1=3V3 2=GND
+C12 | 15pF C0G | C | C_0603_1608Metric | [68.5, 124.5, 180] | digital | {'assembly': 'SMT'} | 1=XIN 2=GND
+C13 | 15pF C0G | C | C_0603_1608Metric | [75.0, 119.5, 0] | digital | {'assembly': 'SMT'} | 1=XTAL_OUT 2=GND
+C14 | 100nF 50V | C | C_0603_1608Metric | [91.0, 138.75, 90] | digital | {'assembly': 'SMT'} | 1=RUN 2=GND
+C15 | 100nF 50V | C | C_0603_1608Metric | [59.2, 112.8, 90] | digital | {'assembly': 'SMT'} | 1=USB_VBUS 2=GND
+C16 | 1uF 50V | C | C_0805_2012Metric | [55.0, 118.9, 180] | power | {'assembly': 'SMT'} | 1=5V 2=GND
+C17 | 1uF 50V | C | C_0805_2012Metric | [60.0, 121.65, -90] | power | {'assembly': 'SMT'} | 1=3V3 2=GND
+C18 | 10uF 25V X5R | C | C_0805_2012Metric | [64.75, 125.0, 90] | power | {'assembly': 'SMT'} | 1=3V3 2=GND
+C37 | 100nF 50V | C | C_0603_1608Metric | [75.5, 75.5, 0] | source | {'assembly': 'SMT'} | 1=12V 2=GND
+C38 | 100nF 50V | C | C_0603_1608Metric | [66.8, 75.5, 180] | source | {'assembly': 'SMT'} | 1=-12V 2=GND
+C39 | 2.2uF 50V X7R | C | C_0805_2012Metric | [77.5, 79.5, 90] | source | {'assembly': 'SMT'} | 1=12V 2=GND
+C40 | 2.2uF 50V X7R | C | C_0805_2012Metric | [64.5, 85.5, 0] | source | {'assembly': 'SMT'} | 1=-12V 2=GND
+C42 | 100nF 50V | C | C_0603_1608Metric | [85.9, 89.6, 0] | afe | {'assembly': 'SMT'} | 1=12V 2=GND
+C43 | 100nF 50V | C | C_0603_1608Metric | [87.4, 84.6, 180] | afe | {'assembly': 'SMT'} | 1=-12V 2=GND
+C44 | 2.2uF 50V X7R | C | C_0805_2012Metric | [86.0, 91.6, 0] | afe | {'assembly': 'SMT'} | 1=12V 2=GND
+C45 | 2.2uF 50V X7R | C | C_0805_2012Metric | [87.2, 86.8, 180] | afe | {'assembly': 'SMT'} | 1=-12V 2=GND
+C46 | 100nF 50V | C | C_0603_1608Metric | [110.5, 75.9, 90] | afe | {'assembly': 'SMT'} | 1=12V 2=GND
+C47 | 100nF 50V | C | C_0603_1608Metric | [118.8, 82.5, 270] | afe | {'assembly': 'SMT'} | 1=-12V 2=GND
+C48 | 2.2uF 50V X7R | C | C_0805_2012Metric | [108.6, 74.6, 90] | afe | {'assembly': 'SMT'} | 1=12V 2=GND
+C49 | 2.2uF 50V X7R | C | C_0805_2012Metric | [120.6, 82.6, 270] | afe | {'assembly': 'SMT'} | 1=-12V 2=GND
+C80 | 10uF 50V X7R | C | C_1210_3225Metric | [125.6, 143.0, 180] | power | {'assembly': 'SMT'} | 1=5V 2=GND
+C81 | 100nF 50V | C | C_0603_1608Metric | [141.5, 140.0, 90] | power | {'assembly': 'SMT'} | 1=CONV_VIN 2=GND
+C82 | 10uF 50V X7R | C | C_1210_3225Metric | [138.0, 142.5, 90] | power | {'assembly': 'SMT'} | 1=5V 2=GND
+C83 | 100nF 50V | C | C_0603_1608Metric | [138.0, 139.0, 180] | power | {'assembly': 'SMT'} | 1=5V 2=GND
+C84 | 220nF 25V | C | C_0603_1608Metric | [138.0, 130.0, 90] | power | {'assembly': 'SMT'} | 1=CONV_REF 2=GND
+C85 | 4.7nF 50V C0G | C | C_0603_1608Metric | [135.7, 130.2, 90] | power | {'assembly': 'SMT'} | 1=CONV_CN 2=GND
+C86 | 10nF 50V | C | C_0603_1608Metric | [133.3, 132.5, 180] | power | {'assembly': 'SMT'} | 1=CONV_CP 2=GND
+C87 | 15pF C0G | C | C_0603_1608Metric | [131.05, 128.95, 0] | power | {'assembly': 'SMT'} | 1=RAW_P 2=CONV_FBP
+C88 | 4.7pF C0G | C | C_0603_1608Metric | [136.5, 126.6, 90] | power | {'assembly': 'SMT'} | 1=RAW_N 2=CONV_FBN
+C89 | 10uF 50V X7R | C | C_1210_3225Metric | [126.3, 131.5, 90] | power | {'assembly': 'SMT'} | 1=RAW_P 2=GND
+C90 | 10uF 50V X7R | C | C_1210_3225Metric | [127.0, 126.5, 90] | power | {'assembly': 'SMT'} | 1=RAW_P 2=GND
+C91 | 10uF 50V X7R | C | C_1210_3225Metric | [140.5, 122.0, 90] | power | {'assembly': 'SMT'} | 1=RAW_N 2=GND
+C92 | 10uF 50V X7R | C | C_1210_3225Metric | [144.5, 122.0, 90] | power | {'assembly': 'SMT'} | 1=RAW_N 2=GND
+C93 | 10nF 50V | C | C_0603_1608Metric | [134.0, 111.75, -90] | power | {'assembly': 'SMT'} | 1=REGP_NR 2=GND
+C94 | 10uF 50V X7R | C | C_1210_3225Metric | [133.0, 105.3, 0] | power | {'assembly': 'SMT'} | 1=LDOIN_P 2=GND
+C95 | 10uF 50V X7R | C | C_1210_3225Metric | [124.9, 106.6, 90] | power | {'assembly': 'SMT'} | 1=12V 2=GND
+C96 | 10nF 50V | C | C_0603_1608Metric | [125.0, 111.33, 0] | power | {'assembly': 'SMT'} | 1=12V 2=REGP_FB
+C97 | 100nF 50V | C | C_0603_1608Metric | [134.0, 108.6, 90] | power | {'assembly': 'SMT'} | 1=LDOIN_P 2=GND
+C98 | 10nF 50V | C | C_0603_1608Metric | [147.0, 111.75, -90] | power | {'assembly': 'SMT'} | 1=REGN_NR 2=GND
+C99 | 10uF 50V X7R | C | C_1210_3225Metric | [146.0, 105.3, 0] | power | {'assembly': 'SMT'} | 1=LDOIN_N 2=GND
+C100 | 10uF 50V X7R | C | C_1210_3225Metric | [137.9, 106.6, 90] | power | {'assembly': 'SMT'} | 1=-12V 2=GND
+C101 | 10nF 50V | C | C_0603_1608Metric | [138.0, 109.75, 0] | power | {'assembly': 'SMT'} | 1=-12V 2=REGN_FB
+C102 | 100nF 50V | C | C_0603_1608Metric | [147.0, 108.6, 90] | power | {'assembly': 'SMT'} | 1=LDOIN_N 2=GND
+C103 | 22uF 25V X5R | C | C_1206_3216Metric | [55.2, 97.0, -90] | power | {'assembly': 'SMT'} | 1=5VA 2=GND
+C50 | 10nF 50V | C | C_0603_1608Metric | [83.9, 74.0, 90] | afe | {'assembly': 'SMT'} | 1=12V 2=GND
+C51 | 10nF 50V | C | C_0603_1608Metric | [89.1, 77.6, 90] | afe | {'assembly': 'SMT'} | 1=-12V 2=GND
+C52 | 10nF 50V | C | C_0603_1608Metric | [112.2, 75.9, 90] | afe | {'assembly': 'SMT'} | 1=12V 2=GND
+C53 | 10nF 50V | C | C_0603_1608Metric | [117.2, 82.5, 270] | afe | {'assembly': 'SMT'} | 1=-12V 2=GND
+C104 | 100pF C0G 5% | C | C_0603_1608Metric | [113.3, 83.95, 180] | afe | {'assembly': 'SMT'} | 1=TIA_SUM 2=TIA_OUT
+R97 | 100k | R | R_0603_1608Metric | [91.0, 133.0, 0] | power | {'assembly': 'SMT'} | 1=MON12 2=12V
+R98 | 10k | R | R_0603_1608Metric | [91.0, 134.6, 180] | digital | {'assembly': 'SMT'} | 1=GND 2=MON12
+R99 | 10k | R | R_0603_1608Metric | [95.0, 134.6, 180] | digital | {'assembly': 'SMT'} | 1=3V3 2=MON_N12
+R100 | 150k | R | R_0603_1608Metric | [95.0, 133.0, 0] | power | {'assembly': 'SMT'} | 1=MON_N12 2=-12V
+C110 | 100nF 50V | C | C_0603_1608Metric | [91.0, 136.2, 180] | digital | {'assembly': 'SMT'} | 1=GND 2=MON12
+C111 | 100nF 50V | C | C_0603_1608Metric | [95.0, 136.2, 180] | digital | {'assembly': 'SMT'} | 1=GND 2=MON_N12
+R31 | 2.2k 0.1% | R | R_0603_1608Metric | [75.5, 72.5, 90] | source | {'assembly': 'SMT'} | 1=SOURCE_FB 2=DAC_M
+R30 | 2.2k 0.1% | R | R_0603_1608Metric | [68.5, 80.5, 90] | source | {'assembly': 'SMT'} | 1=DAC_P 2=SOURCE_AC
+R32 | 2k 0.1% | R | R_0603_1608Metric | [64.5, 81.5, 0] | source | {'assembly': 'SMT'} | 1=SOURCE_AC 2=GND
+C34 | 560pF C0G 5% | C | C_0603_1608Metric | [66.9, 79.5, -90] | source | {'assembly': 'SMT'} | 1=SOURCE_AC 2=SRC_AC_CMID
+C114 | 560pF C0G 5% | C | C_0603_1608Metric | [66.9, 82.5, -90] | source | {'assembly': 'SMT'} | 1=SRC_AC_CMID 2=GND
+C35 | 560pF C0G 5% | C | C_0603_1608Metric | [71.5, 68.7, 0] | source | {'assembly': 'SMT'} | 1=SRC_FB_CMID 2=SOURCE_FB
+C115 | 560pF C0G 5% | C | C_0603_1608Metric | [68.5, 68.7, 0] | source | {'assembly': 'SMT'} | 1=EXCITE 2=SRC_FB_CMID
+U14 | TAC5112 | TAC5112 | TI_RGE0024R_VQFN-24-1EP_4x4mm_P0.5mm_EP2.1mm_CornerPads | [64.0, 98.5, 0] | codec | {'assembly': 'SMT'} | 1=CODEC_DREG 2=I2S_BCLK 3=I2S_FSYNC 4=I2S_DOUT 5=I2S_DIN 6=3V3 7=I2C_SCL 8=I2C_SDA 9=None 10=None 11=None 12=GND 13=GND 14=None 15=C1P_PIN 16=C1M_PIN 17=C2P_PIN 18=C2M_PIN 19=DAC_M 20=DAC_P 21=None 22=None 23=3V3A 24=CODEC_VREF 25=GND A1=GND A2=GND A3=GND A4=GND
+U15 | 3.3V AP2112K | LDO | SOT-23-5 | [56.5, 92.5, 0] | codec | {'assembly': 'SMT'} | 1=5VA 2=GND 3=5VA 4=None 5=3V3A
+C67 | 1uF 50V | C | C_0805_2012Metric | [53.4, 92.5, 90] | codec | {'assembly': 'SMT'} | 1=5VA 2=GND
+C68 | 1uF 50V | C | C_0805_2012Metric | [59.7, 91.3, -90] | codec | {'assembly': 'SMT'} | 1=3V3A 2=GND
+C60 | 10uF 25V X5R | C | C_0805_2012Metric | [63.25, 91.3, -90] | codec | {'assembly': 'SMT'} | 1=3V3A 2=GND
+C61 | 100nF 50V | C | C_0603_1608Metric | [63.25, 94.55, 90] | codec | {'assembly': 'SMT'} | 1=3V3A 2=GND
+C62 | 2.2uF 16V X5R | C | C_0603_1608Metric | [61.6, 94.55, 90] | codec | {'assembly': 'SMT'} | 1=CODEC_VREF 2=GND
+C63 | 100nF 50V | C | C_0603_1608Metric | [58.8, 97.25, 180] | codec | {'assembly': 'SMT'} | 1=CODEC_DREG 2=GND
+C64 | 10uF 25V X5R | C | C_0805_2012Metric | [58.4, 95.4, 180] | codec | {'assembly': 'SMT'} | 1=CODEC_DREG 2=GND
+C65 | 100nF 50V | C | C_0603_1608Metric | [58.4, 100.1, 180] | codec | {'assembly': 'SMT'} | 1=3V3 2=GND
+C66 | 10uF 25V X5R | C | C_0805_2012Metric | [58.0, 102.0, 180] | codec | {'assembly': 'SMT'} | 1=3V3 2=GND
+R72 | 4.7k | R | R_0603_1608Metric | [64.25, 102.7, 90] | codec | {'assembly': 'SMT'} | 1=3V3 2=I2C_SDA
+R73 | 4.7k | R | R_0603_1608Metric | [62.75, 102.7, 90] | codec | {'assembly': 'SMT'} | 1=3V3 2=I2C_SCL
+U16 | TPS2553 | USBSW | SOT-23-6 | [55.6, 115.9, 180] | power | {'assembly': 'SMT'} | 1=USB_VBUS 2=GND 3=USB_VBUS 4=None 5=VBUS_ILIM 6=5V
+R110 | 24k 1% | R | R_0603_1608Metric | [52.0, 115.9, 90] | power | {'assembly': 'SMT'} | 1=VBUS_ILIM 2=GND
+C113 | 4.7uF 25V X5R | C | C_0805_2012Metric | [59.2, 116.0, -90] | power | {'assembly': 'SMT'} | 1=USB_VBUS 2=VBUS_DAMP
+R62 | 1k 0.1% | R | R_0603_1608Metric | [80.6, 87.8, 90] | codec | {'assembly': 'SMT'} | 1=C2M_DIV 2=GND
+C69 | 560pF C0G 5% | C | C_0603_1608Metric | [79.0, 87.8, 90] | codec | {'assembly': 'SMT'} | 1=C2M_DIV 2=GND
+C74 | 1uF 50V | C | C_0805_2012Metric | [76.5, 89.4, 0] | codec | {'assembly': 'SMT'} | 1=C2M_CLP 2=C2M_DIV
+D11 | BAT54S | BAT54S | SOT-23 | [72.8, 89.4, 0] | codec | {'assembly': 'SMT'} | 1=GND 2=3V3A 3=C2M_CLP
+R68 | 470R | R | R_0603_1608Metric | [68.9, 89.4, 0] | codec | {'assembly': 'SMT'} | 1=C2M_PIN 2=C2M_CLP
+R63 | 1k 0.1% | R | R_0603_1608Metric | [80.6, 95.2, -90] | codec | {'assembly': 'SMT'} | 1=C2P_DIV 2=GND
+C70 | 560pF C0G 5% | C | C_0603_1608Metric | [79.0, 95.2, -90] | codec | {'assembly': 'SMT'} | 1=C2P_DIV 2=GND
+C75 | 1uF 50V | C | C_0805_2012Metric | [76.5, 93.6, 0] | codec | {'assembly': 'SMT'} | 1=C2P_CLP 2=C2P_DIV
+D12 | BAT54S | BAT54S | SOT-23 | [72.8, 93.6, 0] | codec | {'assembly': 'SMT'} | 1=GND 2=3V3A 3=C2P_CLP
+R69 | 470R | R | R_0603_1608Metric | [68.9, 93.6, 0] | codec | {'assembly': 'SMT'} | 1=C2P_PIN 2=C2P_CLP
+R64 | 1k 0.1% | R | R_0603_1608Metric | [80.6, 100.0, 90] | codec | {'assembly': 'SMT'} | 1=C1M_DIV 2=GND
+C72 | 560pF C0G 5% | C | C_0603_1608Metric | [79.0, 100.0, 90] | codec | {'assembly': 'SMT'} | 1=C1M_DIV 2=GND
+C76 | 1uF 50V | C | C_0805_2012Metric | [76.5, 101.6, 0] | codec | {'assembly': 'SMT'} | 1=C1M_CLP 2=C1M_DIV
+D13 | BAT54S | BAT54S | SOT-23 | [72.8, 101.6, 0] | codec | {'assembly': 'SMT'} | 1=GND 2=3V3A 3=C1M_CLP
+R70 | 470R | R | R_0603_1608Metric | [68.9, 101.6, 0] | codec | {'assembly': 'SMT'} | 1=C1M_PIN 2=C1M_CLP
+R65 | 1k 0.1% | R | R_0603_1608Metric | [80.6, 107.4, -90] | codec | {'assembly': 'SMT'} | 1=C1P_DIV 2=GND
+C73 | 560pF C0G 5% | C | C_0603_1608Metric | [79.0, 107.4, -90] | codec | {'assembly': 'SMT'} | 1=C1P_DIV 2=GND
+C77 | 1uF 50V | C | C_0805_2012Metric | [76.5, 105.8, 0] | codec | {'assembly': 'SMT'} | 1=C1P_CLP 2=C1P_DIV
+D14 | BAT54S | BAT54S | SOT-23 | [72.8, 105.8, 0] | codec | {'assembly': 'SMT'} | 1=GND 2=3V3A 3=C1P_CLP
+R71 | 470R | R | R_0603_1608Metric | [68.9, 105.8, 0] | codec | {'assembly': 'SMT'} | 1=C1P_PIN 2=C1P_CLP
+C78 | 100pF C0G 5% | C | C_0603_1608Metric | [113.8, 89.8, 270] | afe | {'assembly': 'SMT'} | 1=DUT_LO 2=GND
+J3 | BNC HCUR | BNC | BNC_SAMZO_KYWE-295-W4-N_Horizontal | [67.0, 51.0, 0] | afe | {'assembly': 'Hand fit'} | 1=GND 2=GND 3=GND 4=GND 5=JK_HCUR
+J7 | BNC HPOT | BNC | BNC_SAMZO_KYWE-295-W4-N_Horizontal | [89.0, 51.0, 0] | afe | {'assembly': 'Hand fit'} | 1=GND 2=GND 3=GND 4=GND 5=JK_HPOT
+J8 | BNC LPOT | BNC | BNC_SAMZO_KYWE-295-W4-N_Horizontal | [111.0, 51.0, 0] | afe | {'assembly': 'Hand fit'} | 1=GND 2=GND 3=GND 4=GND 5=JK_LPOT
+J9 | BNC LCUR | BNC | BNC_SAMZO_KYWE-295-W4-N_Horizontal | [133.0, 51.0, 0] | afe | {'assembly': 'Hand fit'} | 1=GND 2=GND 3=GND 4=GND 5=JK_LCUR
+R105 | 1k | R | R_0603_1608Metric | [78.0, 51.0, 0] | protect | {'assembly': 'SMT'} | 1=JK_HCUR 2=JK_HPOT
+R106 | 1k | R | R_0603_1608Metric | [122.0, 51.0, 180] | protect | {'assembly': 'SMT'} | 1=JK_LCUR 2=JK_LPOT
+K2 | TQ2SA-L2-5V 5k | RELAY2L | Relay_DPDT_Panasonic_TQ2SA_SMD | [100.0, 90.0, 270] | range | {'assembly': 'SMT'} | 1=VRLY 2=None 3=SOURCE_BUF 4=RG5K 5=RLY_SET_MED 6=RLY_RST 7=RF5K 8=TIA_OUT 9=None 10=VRLY
+K1 | TQ2SA-L2-5V 100R | RELAY2L | Relay_DPDT_Panasonic_TQ2SA_SMD | [100.0, 75.0, 270] | range | {'assembly': 'SMT'} | 1=VRLY 2=None 3=SOURCE_BUF 4=RG100 5=RLY_SET_LO 6=RLY_RST 7=RF100 8=TIA_OUT 9=None 10=VRLY
+K3 | TQ2SA-L2-5V 100k | RELAY2L | Relay_DPDT_Panasonic_TQ2SA_SMD | [100.0, 105.0, 270] | range | {'assembly': 'SMT'} | 1=VRLY 2=None 3=SOURCE_BUF 4=RG100K 5=RLY_SET_HI 6=RLY_RST 7=RF100K 8=TIA_OUT 9=None 10=VRLY
+Q3 | AO3400A | NMOS | SOT-23 | [89.0, 121.6, 0] | range | {'assembly': 'SMT'} | 1=RNG_SET_MED_G 2=GND 3=RLY_SET_MED
+D6 | 1N4148WS | DIODE | D_SOD-323 | [91.2575, 117.6, 90] | range | {'assembly': 'SMT'} | 1=VRLY 2=RLY_SET_MED
+R76 | 100R | R | R_0603_1608Metric | [85.5575, 120.65, 0] | range | {'assembly': 'SMT'} | 1=RNG_SET_MED 2=RNG_SET_MED_G
+R77 | 100k | R | R_0603_1608Metric | [85.5575, 122.4, 180] | range | {'assembly': 'SMT'} | 1=RNG_SET_MED_G 2=GND
+Q4 | AO3400A | NMOS | SOT-23 | [104.0, 121.6, 0] | range | {'assembly': 'SMT'} | 1=RNG_SET_LO_G 2=GND 3=RLY_SET_LO
+D7 | 1N4148WS | DIODE | D_SOD-323 | [106.2575, 117.6, 90] | range | {'assembly': 'SMT'} | 1=VRLY 2=RLY_SET_LO
+R78 | 100R | R | R_0603_1608Metric | [100.5575, 120.65, 0] | range | {'assembly': 'SMT'} | 1=RNG_SET_LO 2=RNG_SET_LO_G
+R79 | 100k | R | R_0603_1608Metric | [100.5575, 122.4, 180] | range | {'assembly': 'SMT'} | 1=RNG_SET_LO_G 2=GND
+Q5 | AO3400A | NMOS | SOT-23 | [118.8, 121.6, 0] | range | {'assembly': 'SMT'} | 1=RNG_SET_HI_G 2=GND 3=RLY_SET_HI
+D8 | 1N4148WS | DIODE | D_SOD-323 | [121.0575, 117.6, 90] | range | {'assembly': 'SMT'} | 1=VRLY 2=RLY_SET_HI
+R102 | 100R | R | R_0603_1608Metric | [115.3575, 120.65, 0] | range | {'assembly': 'SMT'} | 1=RNG_SET_HI 2=RNG_SET_HI_G
+R103 | 100k | R | R_0603_1608Metric | [115.3575, 122.4, 180] | range | {'assembly': 'SMT'} | 1=RNG_SET_HI_G 2=GND
+Q2 | AO3400A | NMOS | SOT-23 | [96.3575, 121.6, 0] | range | {'assembly': 'SMT'} | 1=RNG_RESET_G 2=GND 3=RLY_RST
+D5 | 1N4148WS | DIODE | D_SOD-323 | [95.6575, 116.6, 0] | range | {'assembly': 'SMT'} | 1=VRLY 2=RLY_RST
+R74 | 100R | R | R_0603_1608Metric | [92.915, 120.65, 0] | range | {'assembly': 'SMT'} | 1=RNG_RESET 2=RNG_RESET_G
+R75 | 100k | R | R_0603_1608Metric | [92.915, 122.4, 180] | range | {'assembly': 'SMT'} | 1=RNG_RESET_G 2=GND
+K4 | TQ2SA-L2-5V REF | RELAY2L | Relay_DPDT_Panasonic_TQ2SA_SMD | [138.0, 76.0, 90] | range | {'assembly': 'SMT'} | 1=VRLY 2=None 3=JK_HCUR 4=JK_HPOT 5=RLY_SET_REF 6=RLY_RST 7=REF_A 8=JK_HCUR 9=None 10=VRLY
+R107 | 1k 0.1% | R | R_0603_1608Metric | [129.6, 73.46, 0] | range | {'assembly': 'SMT'} | 1=JK_LCUR 2=REF_A
+Q6 | AO3400A | NMOS | SOT-23 | [144.5, 88.0, 0] | range | {'assembly': 'SMT'} | 1=RNG_SET_REF_G 2=GND 3=RLY_SET_REF
+D9 | 1N4148WS | DIODE | D_SOD-323 | [146.5, 82.0, 90] | range | {'assembly': 'SMT'} | 1=VRLY 2=RLY_SET_REF
+R108 | 100R | R | R_0603_1608Metric | [140.2, 87.0, 0] | range | {'assembly': 'SMT'} | 1=RNG_SET_REF 2=RNG_SET_REF_G
+R109 | 100k | R | R_0603_1608Metric | [140.2, 88.8, 180] | range | {'assembly': 'SMT'} | 1=RNG_SET_REF_G 2=GND
+R101 | 0.33R | R | R_0603_1608Metric | [100.5, 116.4, 0] | range | {'assembly': 'SMT'} | 1=5V 2=VRLY
+C112 | 22uF 25V X5R | C | C_1206_3216Metric | [103.3, 117.0, 270] | range | {'assembly': 'SMT'} | 1=VRLY 2=GND
+R112 | 5k 0.1% | R | R_0603_1608Metric | [138.0, 116.19, 180] | power | {'assembly': 'SMT'} | 1=REGN_DIV2 2=GND
+R111 | 1.5M | R | R_0603_1608Metric | [135.1, 124.3, 180] | power | {'assembly': 'SMT'} | 1=CONV_FBN 2=CONV_FBN_MID
+R104 | 47R | R | R_0603_1608Metric | [85.1, 81.2, 270] | afe | {'assembly': 'SMT'} | 1=SRC_DRV 2=SOURCE_BUF
+R113 | 5.1k | R | R_0603_1608Metric | [102.0, 137.0, 90] | digital | {'assembly': 'SMT'} | 1=LED_5V 2=5V
+D15 | RED | LED | LED_0603_1608Metric | [102.0, 140.0, 90] | digital | {'assembly': 'SMT'} | 1=GND 2=LED_5V
+R114 | 3k | R | R_0603_1608Metric | [104.6, 137.0, 90] | digital | {'assembly': 'SMT'} | 1=LED_3V3 2=3V3
+D16 | RED | LED | LED_0603_1608Metric | [104.6, 140.0, 90] | digital | {'assembly': 'SMT'} | 1=GND 2=LED_3V3
+R115 | 24k 1% | R | R_0603_1608Metric | [107.2, 137.0, 90] | digital | {'assembly': 'SMT'} | 1=LED_P12 2=12V
+D17 | RED | LED | LED_0603_1608Metric | [107.2, 140.0, 90] | digital | {'assembly': 'SMT'} | 1=GND 2=LED_P12
+R116 | 24k 1% | R | R_0603_1608Metric | [109.8, 137.0, 90] | digital | {'assembly': 'SMT'} | 1=LED_N12 2=-12V
+D18 | RED | LED | LED_0603_1608Metric | [109.8, 140.0, 270] | digital | {'assembly': 'SMT'} | 1=LED_N12 2=GND
+R117 | 3k | R | R_0603_1608Metric | [64.6, 127.6, 0] | digital | {'assembly': 'SMT'} | 1=LED_HB 2=HEARTBEAT
+D19 | RED | LED | LED_0603_1608Metric | [64.6, 129.3, 180] | digital | {'assembly': 'SMT'} | 1=GND 2=LED_HB
+R118 | 3k | R | R_0603_1608Metric | [64.8, 114.75, 270] | digital | {'assembly': 'SMT'} | 1=LED_FLT 2=FAULT
+D20 | RED | LED | LED_0603_1608Metric | [64.8, 111.75, 270] | digital | {'assembly': 'SMT'} | 1=GND 2=LED_FLT
+R119 | 100k | R | R_0603_1608Metric | [141.5, 136.8, 270] | power | {'assembly': 'SMT'} | 1=CONV_ENP 2=3V3
+R120 | 100k | R | R_0603_1608Metric | [141.55, 133.3, 90] | power | {'assembly': 'SMT'} | 1=CONV_ENN 2=3V3
+C116 | 100nF 50V | C | C_0603_1608Metric | [132.4, 120.95, 0] | power | {'assembly': 'SMT'} | 1=GND 2=SEQ_EN
+C118 | 100nF 50V | C | C_0603_1608Metric | [132.4, 119.05, 0] | power | {'assembly': 'SMT'} | 1=GND 2=3V3
+R121 | 1.5R | R | R_0603_1608Metric | [61.0, 117.725, 270] | power | {'assembly': 'SMT'} | 1=VBUS_DAMP 2=GND
+U17 | LM3880-1AA | SEQ | SOT-23-6 | [136.0, 120.0, 0] | power | {'assembly': 'SMT'} | 1=3V3 2=GND 3=SEQ_EN 4=None 5=CONV_ENN 6=CONV_ENP
+C117 | 330uF 10V polymer | C | CP_Elec_8x6.9 | [118.6, 137.6, 90] | power | {'assembly': 'SMT'} | 1=5V 2=GND
+D21 | H4V5HD3B | TVS | D_SOD-323_HJC | [68.1, 58.2, 0] | protect | {'assembly': 'SMT'} | 1=JK_HCUR 2=GND
+U18 | TLP172AM | PHOTOMOS | Toshiba_11-4M1S | [70.15, 61.6, 180] | protect | {'assembly': 'SMT'} | 1=ISO_S1M 3=ISO_SINK 4=JK_HCUR 6=ISO_HCUR
+R122 | 10R | R | R_0805_2012Metric | [64.1, 62.87, 180] | protect | {'assembly': 'SMT'} | 1=ISO_HCUR 2=DUT_HI
+D22 | H4V5HD3B | TVS | D_SOD-323_HJC | [90.1, 58.2, 0] | protect | {'assembly': 'SMT'} | 1=JK_HPOT 2=GND
+U19 | TLP172AM | PHOTOMOS | Toshiba_11-4M1S | [85.85, 61.6, 0] | protect | {'assembly': 'SMT'} | 1=ISO_S1 3=ISO_S1M 6=JK_HPOT 4=ISO_HPOT
+R123 | 100R | R | R_0603_1608Metric | [91.9, 62.87, 0] | protect | {'assembly': 'SMT'} | 1=ISO_HPOT 2=HPOT
+D23 | H4V5HD3B | TVS | D_SOD-323_HJC | [112.1, 58.2, 0] | protect | {'assembly': 'SMT'} | 1=JK_LPOT 2=GND
+U20 | TLP172AM | PHOTOMOS | Toshiba_11-4M1S | [107.85, 61.6, 0] | protect | {'assembly': 'SMT'} | 1=ISO_S2 3=ISO_S2M 6=JK_LPOT 4=ISO_LPOT
+R124 | 100R | R | R_0603_1608Metric | [113.9, 62.87, 0] | protect | {'assembly': 'SMT'} | 1=ISO_LPOT 2=LPOT
+D24 | H4V5HD3B | TVS | D_SOD-323_HJC | [134.1, 58.2, 0] | protect | {'assembly': 'SMT'} | 1=JK_LCUR 2=GND
+U21 | TLP172AM | PHOTOMOS | Toshiba_11-4M1S | [136.15, 61.6, 180] | protect | {'assembly': 'SMT'} | 1=ISO_S2M 3=ISO_SINK 4=JK_LCUR 6=ISO_LCUR
+R125 | 10R | R | R_0805_2012Metric | [130.0, 62.87, 180] | protect | {'assembly': 'SMT'} | 1=ISO_LCUR 2=DUT_LO
+D25 | H3V3LD5B | TVS | D_SOD-523 | [61.1, 62.87, 180] | protect | {'assembly': 'SMT'} | 1=DUT_HI 2=GND
+D26 | H3V3LD5B | TVS | D_SOD-523 | [85.9, 67.2, 180] | protect | {'assembly': 'SMT'} | 1=HPOT 2=GND
+D27 | H3V3LD5B | TVS | D_SOD-523 | [117.6, 67.4, 0] | protect | {'assembly': 'SMT'} | 1=LPOT 2=GND
+C119 | 1nF C0G | C | C_0603_1608Metric | [85.6, 65.4, 180] | protect | {'assembly': 'SMT'} | 1=HPOT 2=GND
+C120 | 1nF C0G | C | C_0603_1608Metric | [117.9, 65.6, 0] | protect | {'assembly': 'SMT'} | 1=LPOT 2=GND
+D28 | BAV99 | BAV99 | SOT-23 | [124.9, 65.2, 180] | protect | {'assembly': 'SMT'} | 1=GND 2=GND 3=DUT_LO
+R126 | 1.5M | R | R_0603_1608Metric | [59.2, 53.0, 270] | protect | {'assembly': 'SMT'} | 1=JK_HCUR 2=JACK_HC
+R127 | 240k | R | R_0603_1608Metric | [64.6, 121.6, 270] | protect | {'assembly': 'SMT'} | 1=JACK_HC 2=3V3
+R128 | 240k | R | R_0603_1608Metric | [55.4, 60.8, 0] | protect | {'assembly': 'SMT'} | 1=JACK_HC 2=GND
+C121 | 100nF 50V | C | C_0603_1608Metric | [55.4, 59.2, 0] | protect | {'assembly': 'SMT'} | 1=JACK_HC 2=GND
+R129 | 1.5M | R | R_0603_1608Metric | [141.5, 51.0, 0] | protect | {'assembly': 'SMT'} | 1=JK_LCUR 2=JACK_LC
+R130 | 240k | R | R_0603_1608Metric | [66.2, 121.6, 270] | protect | {'assembly': 'SMT'} | 1=JACK_LC 2=3V3
+R131 | 240k | R | R_0603_1608Metric | [55.4, 64.2, 0] | protect | {'assembly': 'SMT'} | 1=JACK_LC 2=GND
+C122 | 100nF 50V | C | C_0603_1608Metric | [55.4, 62.6, 0] | protect | {'assembly': 'SMT'} | 1=JACK_LC 2=GND
+R132 | 270R | R | R_0603_1608Metric | [95.22, 65.6, 90] | protect | {'assembly': 'SMT'} | 1=VRLY 2=ISO_S1
+R133 | 270R | R | R_0603_1608Metric | [101.4, 60.6, 90] | protect | {'assembly': 'SMT'} | 1=VRLY 2=ISO_S2
+Q7 | AO3400A | NMOS | SOT-23 | [77.45, 59.2, 180] | protect | {'assembly': 'SMT'} | 1=ISO_G 2=GND 3=ISO_SINK
+R134 | 100R | R | R_0603_1608Metric | [78.3875, 62.4, 90] | protect | {'assembly': 'SMT'} | 1=ISO_DRIVE 2=ISO_G
+R135 | 100k | R | R_0603_1608Metric | [80.2, 59.325, 90] | protect | {'assembly': 'SMT'} | 1=ISO_G 2=GND
+D29 | SS14 | DIODE | D_SMA | [137.9, 99.6, 90] | power | {'assembly': 'SMT'} | 1=GND 2=-12V
+## NETS
+-12V : U5.2 U6.4 U7.4 U12.1 R87.1 C38.1 C40.1 C43.1 C45.1 C47.1 C49.1 C100.1 C101.1 C51.1 C53.1 R100.2 R116.2 D29.2
+12V : U5.5 U6.8 U7.8 U11.1 R85.1 C37.1 C39.1 C42.1 C44.1 C46.1 C48.1 C95.1 C96.1 C50.1 C52.1 R97.2 R115.2
+1V1 : U1.23 U1.45 U1.50 C8.1 C9.1
+3V3 : U1.1 U1.10 U1.22 U1.33 U1.42 U1.43 U1.44 U1.48 U1.49 U2.8 U3.5 R7.2 R9.2 C1.1 C2.1 C3.1 C4.1 C5.1 C6.1 C7.1 C10.1 C11.1 C17.1 C18.1 R99.1 U14.6 C65.1 C66.1 R72.1 R73.1 R114.2 R119.2 R120.2 C118.2 U17.1 R127.2 R130.2
+3V3A : U14.23 U15.5 C68.1 C60.1 C61.1 D11.2 D12.2 D13.2 D14.2
+5V : U3.1 U3.3 U13.5 U13.6 L1.1 FB1.1 R80.1 C16.1 C80.1 C82.1 C83.1 U16.6 R101.1 R113.2 C117.1
+5VA : FB1.2 C103.1 U15.1 U15.3 C67.1
+BOOTSEL : SW1.1 R8.2
+C1M_CLP : C76.1 D13.3 R70.2
+C1M_DIV : R61.2 R64.1 C72.1 C76.2
+C1M_PIN : U14.16 R70.1
+C1P_CLP : C77.1 D14.3 R71.2
+C1P_DIV : R60.2 R65.1 C73.1 C77.2
+C1P_PIN : U14.15 R71.1
+C2M_CLP : C74.1 D11.3 R68.2
+C2M_DIV : R67.2 R62.1 C69.1 C74.2
+C2M_PIN : U14.18 R68.1
+C2P_CLP : C75.1 D12.3 R69.2
+C2P_DIV : R66.2 R63.1 C70.1 C75.2
+C2P_PIN : U14.17 R69.1
+CC1 : J1.A5 R1.1
+CC2 : J1.B5 R2.1
+CODEC_DREG : U14.1 C63.1 C64.1
+CODEC_VREF : U14.24 C62.1
+CONV_CN : U13.18 C85.1
+CONV_CP : U13.21 C86.1
+CONV_ENN : U13.10 R120.1 U17.5
+CONV_ENP : U13.8 R119.1 U17.6
+CONV_FBN : U13.16 R84.1 C88.2 R111.1
+CONV_FBN_MID : R83.2 R111.2
+CONV_FBP : U13.22 R81.2 R82.1 C87.2
+CONV_REF : U13.17 R84.2 C84.1
+CONV_VIN : U13.4 R80.2 C81.1
+DAC_M : R31.2 U14.19
+DAC_P : R30.1 U14.20
+DUT_HI : R40.2 R41.2 R42.2 R122.2 D25.1
+DUT_LO : R94.1 C78.1 R125.2 D28.3
+EXCITE : U5.1 U6.3 R33.1 C115.1
+FAULT : U1.34 R118.2
+GND : U1.19 U1.57 U2.4 U3.2 U7.3 U11.4 U11.9 U12.4 U12.9 U13.2 U13.3 U13.9 U13.11 U13.19 U13.25 L2.2 Y1.2 Y1.4 SW1.2 SW2.2 D4.1 J1.A1 J1.A12 J1.B1 J1.B12 J1.SH D1.2 R1.2 R2.2 R6.2 R82.2 R86.2 C1.2 C2.2 C3.2 C4.2 C5.2 C6.2 C7.2 C8.2 C9.2 C10.2 C11.2 C12.2 C13.2 C14.2 C15.2 C16.2 C17.2 C18.2 C37.2 C38.2 C39.2 C40.2 C42.2 C43.2 C44.2 C45.2 C46.2 C47.2 C48.2 C49.2 C80.2 C81.2 C82.2 C83.2 C84.2 C85.2 C86.2 C89.2 C90.2 C91.2 C92.2 C93.2 C94.2 C95.2 C97.2 C98.2 C99.2 C100.2 C102.2 C103.2 C50.2 C51.2 C52.2 C53.2 R98.1 C110.1 C111.1 R32.2 C114.2 U14.12 U14.13 U14.25 U14.A1 U14.A2 U14.A3 U14.A4 U15.2 C67.2 C68.2 C60.2 C61.2 C62.2 C63.2 C64.2 C65.2 C66.2 U16.2 R110.2 R62.2 C69.2 D11.1 R63.2 C70.2 D12.1 R64.2 C72.2 D13.1 R65.2 C73.2 D14.1 C78.2 J3.1 J3.2 J3.3 J3.4 J7.1 J7.2 J7.3 J7.4 J8.1 J8.2 J8.3 J8.4 J9.1 J9.2 J9.3 J9.4 Q3.2 R77.2 Q4.2 R79.2 Q5.2 R103.2 Q2.2 R75.2 Q6.2 R109.2 C112.2 R112.2 D15.1 D16.1 D17.1 D18.2 D19.1 D20.1 C116.1 C118.1 R121.2 U17.2 C117.2 D21.2 D22.2 D23.2 D24.2 D25.2 D26.2 D27.2 C119.2 C120.2 D28.1 D28.2 R128.2 C121.2 R131.2 C122.2 Q7.2 R135.2 D29.1
+HEARTBEAT : U1.35 R117.2
+HIGH_BUF : U6.6 U6.7 R60.1
+HPOT : U6.5 R123.2 D26.1 C119.1
+I2C_SCL : U1.12 U14.7 R73.2
+I2C_SDA : U1.11 U14.8 R72.2
+I2S_BCLK : U1.6 U14.2
+I2S_DIN : U1.4 U14.5
+I2S_DOUT : U1.5 U14.4
+I2S_FSYNC : U1.7 U14.3
+ISO_DRIVE : U1.18 R134.1
+ISO_G : Q7.1 R134.2 R135.1
+ISO_HCUR : U18.6 R122.1
+ISO_HPOT : U19.4 R123.1
+ISO_LCUR : U21.6 R125.1
+ISO_LPOT : U20.4 R124.1
+ISO_S1 : U19.1 R132.2
+ISO_S1M : U18.1 U19.3
+ISO_S2 : U20.1 R133.2
+ISO_S2M : U20.3 U21.1
+ISO_SINK : U18.3 U21.3 Q7.3
+JACK_HC : U1.40 R126.2 R127.1 R128.1 C121.1
+JACK_LC : U1.41 R129.2 R130.1 R131.1 C122.1
+JK_HCUR : J3.5 R105.1 K4.3 K4.8 D21.1 U18.4 R126.1
+JK_HPOT : J7.5 R105.2 K4.4 D22.1 U19.6
+JK_LCUR : J9.5 R106.1 R107.1 D24.1 U21.4 R129.1
+JK_LPOT : J8.5 R106.2 D23.1 U20.6
+LDOIN_N : U12.5 U12.8 R96.2 C99.1 C102.1
+LDOIN_P : U11.5 U11.8 R95.2 C94.1 C97.1
+LED_3V3 : R114.1 D16.2
+LED_5V : R113.1 D15.2
+LED_A : D4.2 R12.2
+LED_FLT : R118.1 D20.2
+LED_HB : R117.1 D19.2
+LED_N12 : R116.1 D18.1
+LED_P12 : R115.1 D17.2
+LOW_BUF : U7.6 U7.7 R61.1 R66.1
+LPOT : U7.5 R124.2 D27.1 C120.1
+MON12 : U1.38 R97.1 R98.2 C110.2
+MON_N12 : U1.39 R99.2 R100.1 C111.2
+None : U1.2 U1.3 U1.15 U1.27 U1.28 U1.29 U1.30 U1.31 U1.32 U1.36 U3.4 U11.3 U11.7 U12.3 U12.7 U13.7 U13.12 U13.20 J1.A8 J1.B8 U14.9 U14.10 U14.11 U14.14 U14.21 U14.22 U15.4 U16.4 K2.2 K2.9 K1.2 K1.9 K3.2 K3.9 K4.2 K4.9 U17.4
+QSPI0 : U1.53 U2.5
+QSPI1 : U1.55 U2.2
+QSPI2 : U1.54 U2.3
+QSPI3 : U1.51 U2.7
+QSPI_CLK : U1.52 R13.1
+QSPI_CLK_FLASH : U2.6 R13.2
+QSPI_CS : U1.56 U2.1 R7.1 R8.1
+RAW_N : U13.15 D3.2 R96.1 R83.1 C88.1 C91.1 C92.1
+RAW_P : U13.23 D2.1 R95.1 R81.1 C87.1 C89.1 C90.1
+REF_A : K4.7 R107.2
+REGN_DIV : R88.1 R89.2
+REGN_DIV2 : R88.2 R112.1
+REGN_FB : U12.2 R87.2 R89.1 C101.2
+REGN_NR : U12.6 C98.1
+REGP_FB : U11.2 R85.2 R86.1 C96.2
+REGP_NR : U11.6 C93.1
+RF100 : R43.2 K1.7
+RF100K : R45.2 K3.7
+RF5K : R44.2 K2.7
+RG100 : R40.1 K1.4
+RG100K : R42.1 K3.4
+RG5K : R41.1 K2.4
+RLY_RST : K2.6 K1.6 K3.6 Q2.3 D5.2 K4.6
+RLY_SET_HI : K3.5 Q5.3 D8.2
+RLY_SET_LO : K1.5 Q4.3 D7.2
+RLY_SET_MED : K2.5 Q3.3 D6.2
+RLY_SET_REF : K4.5 Q6.3 D9.2
+RNG_RESET : U1.13 R74.1
+RNG_RESET_G : Q2.1 R74.2 R75.1
+RNG_SET_HI : U1.8 R102.1
+RNG_SET_HI_G : Q5.1 R102.2 R103.1
+RNG_SET_LO : U1.9 R78.1
+RNG_SET_LO_G : Q4.1 R78.2 R79.1
+RNG_SET_MED : U1.14 R76.1
+RNG_SET_MED_G : Q3.1 R76.2 R77.1
+RNG_SET_REF : U1.17 R108.1
+RNG_SET_REF_G : Q6.1 R108.2 R109.1
+RUN : U1.26 SW2.1 R9.1 C14.1
+SEQ_EN : C116.2 U17.3
+SOURCE_AC : U5.3 R30.2 R32.1 C34.1
+SOURCE_BUF : K2.3 K1.3 K3.3 R104.2
+SOURCE_FB : U5.4 R33.2 R31.1 C35.2
+SRC_AC_CMID : C34.2 C114.1
+SRC_DRV : U6.1 U6.2 R104.1
+SRC_FB_CMID : C35.1 C115.2
+STATUS : U1.37 R12.1
+SWCLK : U1.24 J4.1
+SWDIO : U1.25 J4.2
+SW_N : U13.13 U13.14 D3.1 L2.1
+SW_P : U13.1 U13.24 D2.2 L1.2
+TIA_OUT : U7.1 R67.1 C104.2 K2.8 K1.8 K3.8
+TIA_SUM : U7.2 R43.1 R44.1 R45.1 R94.2 C104.1
+USB_DM : J1.A7 J1.B7 D1.3 D1.4 R3.1
+USB_DM_MCU : U1.46 R3.2
+USB_DP : J1.A6 J1.B6 D1.1 D1.6 R4.1
+USB_DP_MCU : U1.47 R4.2
+USB_SENSE : U1.16 R5.2 R6.1
+USB_VBUS : J1.A4 J1.A9 J1.B4 J1.B9 D1.5 R5.1 C15.1 U16.1 U16.3 C113.1
+VBUS_DAMP : C113.2 R121.1
+VBUS_ILIM : U16.5 R110.1
+VRLY : K2.1 K2.10 K1.1 K1.10 K3.1 K3.10 D6.1 D7.1 D8.1 D5.1 K4.1 K4.10 D9.1 R101.2 C112.1 R132.1 R133.1
+XIN : U1.20 Y1.1 C12.1
+XOUT : U1.21 R10.1
+XTAL_OUT : Y1.3 R10.2 C13.1

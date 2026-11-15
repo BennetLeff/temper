@@ -17,7 +17,8 @@ Checks:
   - LEDs: GPIO -> series R -> LED anode, cathode on GND (active high);
   - codec: I2S and I2C nets land on the TAC5112 pins of the same name; ADDR on GND = 0x50;
   - rail monitors: the divider resistors on MON12 / MON_N12 equal the constants in rails.c;
-  - USB_SENSE: the VBUS divider puts 4.0 V VBUS at VIH and 5.5 V under IOVDD.
+  - USB_SENSE: the VBUS divider puts 4.0 V VBUS at VIH and 5.5 V under IOVDD, with the pad pull-down disabled;
+    every gpio_get() input sets its pulls explicitly (the pads reset with a 50-80 kOhm pull-down).
 """
 import hashlib
 import json
@@ -219,8 +220,25 @@ check(d == (150e3, 10e3, '3V3') and '* 160' in rails_c and '* 150' in rails_c, '
 d = divider('USB_SENSE', 'USB_VBUS')
 ratio = d[1] / (d[0] + d[1]) if d else 0
 # RP2040 datasheet 5.5.3: VIH min 2 V at IOVDD 3.3 V; abs max IOVDD + 0.5 V. USB VBUS 4.4-5.5 V (5.25 V nominal max).
-check(d is not None and d[2] == 'GND' and 4.4 * ratio >= 2.0 and 5.5 * ratio <= 3.3, 'usb sense',
-      f'divider {d}: VBUS 4.4 V -> {4.4 * ratio:.2f} V (VIH 2.0 V), 5.5 V -> {5.5 * ratio:.2f} V (IOVDD 3.3 V)')
+# Pads reset with the pull-down on (PADS_BANK0 GPIOx bit 2 PDE, reset 0x1; RPD 50-80 kOhm, datasheet 5.5.3) and
+# pico-sdk gpio_init() does not touch the pulls, so a divider input sees the pull-down unless main.c disables it.
+pde = [l for l in ds if re.match(r'\s+2\s+PDE: Pull down enable\s+RW\s+0x1', l)]
+rpd = [l for l in ds if re.match(r'\s+Pull-Down\s+RPD\s+50\s+80\s+k', l)]
+check(bool(pde) and bool(rpd), 'pad pull-down', f'datasheet: PDE reset 0x1 ({len(pde)} rows), RPD 50-80 kOhm ({len(rpd)} rows)')
+pulls_off = 'gpio_disable_pulls(PIN_USB_VBUS)' in main_c
+low = d[1] * 50e3 / (d[1] + 50e3) if d else 0            # R6 in parallel with the strongest pull-down
+low_ratio = low / (d[0] + low) if d else 0
+eff = ratio if pulls_off else low_ratio
+check(d is not None and d[2] == 'GND' and 4.4 * eff >= 2.0 and 5.5 * ratio <= 3.3, 'usb sense',
+      f'divider {d}, pulls {"disabled" if pulls_off else "LEFT AT RESET (pull-down on)"}: VBUS 4.4 V -> {4.4 * eff:.2f} V '
+      f'(VIH 2.0 V; with the pull-down {4.4 * low_ratio:.2f} V), 5.5 V -> {5.5 * ratio:.2f} V (IOVDD 3.3 V)')
+
+# Every pin read with gpio_get() must set its pulls explicitly: the reset pull-down is a 50 kOhm load on whatever
+# drives it (the USB_SENSE bug of 2026-11-15). ADC pins are exempt: adc_gpio_init() disables the pulls.
+fw_all = '\n'.join(f.read_text() for f in sorted(FW.glob('*.[ch]')))
+for name in sorted(set(re.findall(r'gpio_get\((PIN_\w+)\)', fw_all))):
+    setp = re.search(rf'gpio_(disable_pulls|pull_up|pull_down|set_pulls)\({name}\b', fw_all)
+    check(bool(setp), 'input pulls', f'{name} is read with gpio_get(); pulls set by {setp.group(0) + ")" if setp else "NOTHING (reset pull-down on)"}')
 
 # ---------------------------------------------------------------- Rev G jack guard (jackguard.h)
 if REV_G:
