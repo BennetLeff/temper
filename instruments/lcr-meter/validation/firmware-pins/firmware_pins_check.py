@@ -17,7 +17,8 @@ Checks:
   - LEDs: GPIO -> series R -> LED anode, cathode on GND (active high);
   - codec: I2S and I2C nets land on the TAC5112 pins of the same name; ADDR on GND = 0x50;
   - rail monitors: the divider resistors on MON12 / MON_N12 equal the constants in rails.c;
-  - USB_SENSE: the VBUS divider puts 4.0 V VBUS at VIH and 5.5 V under IOVDD.
+  - USB_SENSE: the VBUS divider puts 4.0 V VBUS at VIH and 5.5 V under IOVDD, with the pad pull-down disabled;
+    every gpio_get() input sets its pulls explicitly (the pads reset with a 50-80 kOhm pull-down).
 """
 import hashlib
 import json
@@ -219,8 +220,73 @@ check(d == (150e3, 10e3, '3V3') and '* 160' in rails_c and '* 150' in rails_c, '
 d = divider('USB_SENSE', 'USB_VBUS')
 ratio = d[1] / (d[0] + d[1]) if d else 0
 # RP2040 datasheet 5.5.3: VIH min 2 V at IOVDD 3.3 V; abs max IOVDD + 0.5 V. USB VBUS 4.4-5.5 V (5.25 V nominal max).
-check(d is not None and d[2] == 'GND' and 4.4 * ratio >= 2.0 and 5.5 * ratio <= 3.3, 'usb sense',
-      f'divider {d}: VBUS 4.4 V -> {4.4 * ratio:.2f} V (VIH 2.0 V), 5.5 V -> {5.5 * ratio:.2f} V (IOVDD 3.3 V)')
+# Pads reset with the pull-down on (PADS_BANK0 GPIOx bit 2 PDE, reset 0x1; RPD 50-80 kOhm, datasheet 5.5.3) and
+# pico-sdk gpio_init() does not touch the pulls, so a divider input sees the pull-down unless main.c disables it.
+pde = [l for l in ds if re.match(r'\s+2\s+PDE: Pull down enable\s+RW\s+0x1', l)]
+rpd = [l for l in ds if re.match(r'\s+Pull-Down\s+RPD\s+50\s+80\s+k', l)]
+check(bool(pde) and bool(rpd), 'pad pull-down', f'datasheet: PDE reset 0x1 ({len(pde)} rows), RPD 50-80 kOhm ({len(rpd)} rows)')
+# The firmware as compiled: comments and '#if 0' blocks removed, so a commented-out call does not count.
+def code_only(text):
+    text = re.sub(r'/\*.*?\*/', ' ', text, flags=re.S)
+    text = re.sub(r'//[^\n]*', '', text)
+    return re.sub(r'^\s*#\s*if\s+0\b.*?^\s*#\s*endif\b[^\n]*', '', text, flags=re.S | re.M)
+main_code = code_only(main_c)
+main_body = main_code[main_code.index('int main(void)'):]
+usb_start = main_body.find('stdio_init_all()')
+
+
+def pulls_set_in_main(name):
+    """The call that sets NAME's pulls inside main(), before USB starts and before main() first reads the pin."""
+    m = re.search(rf'gpio_(disable_pulls|pull_up|pull_down|set_pulls)\(\s*{name}\b', main_body)
+    first_read = main_body.find(f'gpio_get({name})')
+    ok = bool(m) and 0 <= m.start() < usb_start and (first_read < 0 or m.start() < first_read)
+    return ok, (m.group(0) + ')' if m else None)
+
+
+pulls_off, _ = pulls_set_in_main('PIN_USB_VBUS')
+pulls_off = pulls_off and 'gpio_disable_pulls(PIN_USB_VBUS' in main_body
+low = d[1] * 50e3 / (d[1] + 50e3) if d else 0            # R6 in parallel with the strongest pull-down
+low_ratio = low / (d[0] + low) if d else 0
+eff = ratio if pulls_off else low_ratio
+check(d is not None and d[2] == 'GND' and 4.4 * eff >= 2.0 and 5.5 * ratio <= 3.3, 'usb sense',
+      f'divider {d}, pulls {"disabled in main() before USB starts" if pulls_off else "LEFT AT RESET (pull-down on)"}: '
+      f'VBUS 4.4 V -> {4.4 * eff:.2f} V (VIH 2.0 V; with the pull-down {4.4 * low_ratio:.2f} V), '
+      f'5.5 V -> {5.5 * ratio:.2f} V (IOVDD 3.3 V)')
+
+# Every pin read with gpio_get() must have its pulls set explicitly in main(), before USB starts: the reset pull-down
+# is a 50 kOhm load on whatever drives it (the USB_SENSE bug of 2026-11-15). ADC pins are exempt: adc_gpio_init()
+# disables the pulls. A read this check cannot attribute to a pins.h name is itself a finding.
+fw_code = '\n'.join(code_only(f.read_text()) for f in sorted(FW.glob('*.[ch]')))
+reads = re.findall(r'gpio_get(_all)?\(\s*([^)]*)\)', fw_code)
+inputs = sorted({arg.strip() for all_, arg in reads if not all_ and re.fullmatch(r'PIN_\w+', arg.strip())})
+odd = sorted({('gpio_get_all' if all_ else 'gpio_get') + f'({arg})' for all_, arg in reads
+              if all_ or not re.fullmatch(r'PIN_\w+', arg.strip())})
+check(not odd, 'input pulls', f'every GPIO read names a pins.h pin: {odd or "yes"}')
+for name in inputs:
+    ok, call = pulls_set_in_main(name)
+    check(ok, 'input pulls', f'{name} is read with gpio_get(); pulls set in main() before USB starts by '
+                             f'{call if ok else "NOTHING (reset pull-down on)"}')
+
+# The shipped images: main() calls gpio_set_pulls with r0 = the pin number (gpio_disable_pulls compiles to it).
+# Uses the pinned toolchain's objdump (PICO_TOOLCHAIN_PATH or ~/.local/share/temper/arm-gnu-toolchain-14.2.rel1).
+import os
+import subprocess
+objdump = Path(os.environ.get('PICO_TOOLCHAIN_PATH', Path.home() / '.local/share/temper/arm-gnu-toolchain-14.2.rel1')) \
+    / 'bin/arm-none-eabi-objdump'
+elfs = sorted((FW.parent / 'bin').glob('*.elf'))
+check(objdump.exists() and bool(elfs), 'input pulls', f'objdump {objdump} and {len(elfs)} images in bin/')
+for elf in elfs if objdump.exists() else []:
+    dis = subprocess.run([str(objdump), '-d', '--no-show-raw-insn', str(elf)], capture_output=True, text=True).stdout
+    body = dis[dis.index('<main>:'):]
+    body = body[:body.find('\n\n')]
+    lines = body.splitlines()
+    for name in inputs:
+        pin = defines[name]
+        found = any('<gpio_set_pulls>' in line and 'bl' in line and
+                    any(re.search(rf'movs\s+r0, #{pin}\b', prev) for prev in lines[max(0, i - 4):i])
+                    for i, line in enumerate(lines))
+        check(found, 'input pulls', f'{elf.name}: main() calls gpio_set_pulls(r0 = {pin}) for {name}: '
+                                    f'{"yes" if found else "NO"}')
 
 # ---------------------------------------------------------------- Rev G jack guard (jackguard.h)
 if REV_G:

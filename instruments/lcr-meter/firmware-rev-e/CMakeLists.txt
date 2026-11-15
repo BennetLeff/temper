@@ -11,6 +11,8 @@ pico_sdk_init()
 set(LCR_FS_375K 0 CACHE STRING "1 builds the 375 kHz sample-rate variant")
 # 1 builds for Rev G: the jack isolation switches and residual-voltage senses (src/jackguard.h).
 set(LCR_REV_G 0 CACHE STRING "1 builds the Rev G jack-guard image")
+# The image name the BUILD command reports (build.sh passes the .uf2 name).
+set(LCR_IMAGE "temper-lcr-custom" CACHE STRING "image name reported by BUILD")
 add_executable(temper_lcr src/main.c src/syncavg.c src/wave.c src/tac5112.c src/relay.c src/rails.c src/usb_descriptors.c)
 # The optional UART header (J6): GPIO 28 / 29 on Rev E / F. Rev G has no UART header, since the jack senses
 # take ADC2 / ADC3 (src/pins.h); UART stdio is disabled below, so the SDK's default pins 0 / 1 stay unused.
@@ -33,6 +35,7 @@ target_compile_definitions(temper_lcr PRIVATE
     SYNCAVG_IN_RAM=1
     LCR_FS_375K=${LCR_FS_375K}
     LCR_REV_G=${LCR_REV_G}
+    LCR_IMAGE="${LCR_IMAGE}"
     PICO_DEFAULT_UART_TX_PIN=${LCR_UART_TX}
     PICO_DEFAULT_UART_RX_PIN=${LCR_UART_RX}
     PICO_STDIO_USB_USE_DEFAULT_DESCRIPTORS=0

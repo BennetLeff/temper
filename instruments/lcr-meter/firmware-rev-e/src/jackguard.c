@@ -19,6 +19,15 @@ static void enter(jackguard *g, jackguard_state s, uint32_t now_ms) {
 void jackguard_init(jackguard *g, uint32_t now_ms) {
     enter(g, JG_OPEN, now_ms);
     g->last_hc_mv = g->last_lc_mv = 0;
+    g->lc_zero_mv = 0;
+    g->zero_sum = 0;
+    g->zero_n = 0;
+}
+
+static int32_t zero_of(const jackguard *g) {
+    if (g->zero_n == 0u) return 0;
+    int64_t mean = g->zero_sum / (int64_t)g->zero_n;
+    return mean > JG_ZERO_MAX_MV ? JG_ZERO_MAX_MV : mean < -JG_ZERO_MAX_MV ? -JG_ZERO_MAX_MV : (int32_t)mean;
 }
 
 bool jackguard_poll(jackguard *g, bool rails_ok, int32_t hc_mv, int32_t lc_mv, uint32_t now_ms) {
@@ -30,11 +39,21 @@ bool jackguard_poll(jackguard *g, bool rails_ok, int32_t hc_mv, int32_t lc_mv, u
     case JG_CLOSED:
         /* LCUR's own trip waits for CLOSED: its sense still falls from the open-jack float while CLOSING */
         if (!rails_ok || magnitude(hc_mv) > JG_TRIP_MV || magnitude(lc_mv) > JG_TRIP_MV ||
-            (g->state == JG_CLOSED && magnitude(lc_mv) > JG_TRIP_LC_MV)) {
+            (g->state == JG_CLOSED && magnitude(lc_mv - g->lc_zero_mv) > JG_TRIP_LC_MV)) {
             enter(g, JG_TRIPPED, now_ms);
             return false;
         }
-        if (g->state == JG_CLOSING && now_ms - g->since_ms >= JG_SETTLE_MS) g->state = JG_CLOSED;
+        if (g->state == JG_CLOSING) {
+            uint32_t closed_for = now_ms - g->since_ms;
+            if (closed_for >= JG_ZERO_FROM_MS) {
+                g->zero_sum += lc_mv;
+                ++g->zero_n;
+            }
+            if (closed_for >= JG_SETTLE_MS) {
+                g->lc_zero_mv = zero_of(g);
+                g->state = JG_CLOSED;
+            }
+        }
         return true;
     case JG_TRIPPED:
         if (!quiet || !rails_ok) g->quiet_ms = now_ms;
@@ -47,6 +66,8 @@ bool jackguard_poll(jackguard *g, bool rails_ok, int32_t hc_mv, int32_t lc_mv, u
         g->streak = (quiet && rails_ok) ? g->streak + 1u : 0u;
         if (g->streak >= JG_STABLE_POLLS) {
             enter(g, JG_CLOSING, now_ms);
+            g->zero_sum = 0;      /* each close measures its own zero */
+            g->zero_n = 0;
             return true;
         }
         return false;

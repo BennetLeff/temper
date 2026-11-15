@@ -552,9 +552,16 @@ static void test_jackguard(void) {
     CHECK(!strcmp(jackguard_state_name(JG_TRIPPED), "tripped"));
     /* Inside a capture: one conversion per jack against JG_TRIP_MV, either jack, either sign; the source's
        swing is not over. A trip from the capture loop re-arms like a polled one. */
-    CHECK(!jackguard_over(JG_TRIP_MV, -JG_TRIP_LC_MV) && !jackguard_over(-1700, 20) && !jackguard_over(1700, 300));
-    CHECK(jackguard_over(JG_TRIP_MV + 1, 0) && jackguard_over(0, -JG_TRIP_LC_MV - 1) && jackguard_over(0, 1000));
+    jackguard z;
+    jackguard_init(&z, 0);
+    CHECK(!jackguard_over(&z, JG_TRIP_MV, -JG_TRIP_LC_MV) && !jackguard_over(&z, -1700, 20) && !jackguard_over(&z, 1700, 300));
+    CHECK(jackguard_over(&z, JG_TRIP_MV + 1, 0) && jackguard_over(&z, 0, -JG_TRIP_LC_MV - 1) && jackguard_over(&z, 0, 1000));
     CHECK(abs(jackguard_mv(jack_sum(-3.5) / SAMPLES, 1u) + 3500) < 20);   /* one code ~ 11 mV of jack */
+    CHECK(abs(jackguard_mv(jack_sum(-3.5) / SAMPLES * JG_CAPTURE_SAMPLES, JG_CAPTURE_SAMPLES) + 3500) < 20);
+    /* The capture test uses the close's LCUR zero: a board reading +350 mV at a true 0 V is not over. */
+    z.lc_zero_mv = 350;
+    CHECK(!jackguard_over(&z, 0, 350 + JG_TRIP_LC_MV) && jackguard_over(&z, 0, 350 + JG_TRIP_LC_MV + 1) &&
+          jackguard_over(&z, 0, 350 - JG_TRIP_LC_MV - 1));
     jackguard_init(&g, t);
     CHECK(jg_run(&g, true, 0, 0, &t, JG_STABLE_POLLS * JG_POLL_MS + JG_SETTLE_MS + JG_POLL_MS) && jackguard_ready(&g));
     jackguard_trip(&g, t);
@@ -565,6 +572,46 @@ static void test_jackguard(void) {
         t += JG_POLL_MS;
     }
     CHECK(t - JG_POLL_MS - tripped == JG_REARM_MS && g.state == JG_OPEN);
+
+    /* LCUR zero (pre-mortem 2026-11-15 item 2). The DC a fault present at the close can hold untripped, read as
+       F + E, is ZERO_MAX + TRIP_LC + |E| in true volts: under R43's 0.1 W point (audit G-AFE-01) with the divider
+       error; and a board needs |E| > ZERO_MAX + TRIP_LC - 90 mV of filtered tone to trip with nothing connected. */
+    CHECK(JG_ZERO_MAX_MV + JG_TRIP_LC_MV + JG_SENSE_ERR_MV < JG_FAULT_LIMIT_MV);
+    CHECK(JG_ZERO_MAX_MV + JG_TRIP_LC_MV - 90 > JG_SENSE_ERR_MV + 270);   /* divider error plus 20 mV ADC offset */
+    CHECK(JG_ZERO_FROM_MS + 4u * JG_POLL_MS <= JG_SETTLE_MS);
+    /* A board whose LCUR sense reads +450 mV high (1 % divider plus ADC offset), nothing connected: the open
+       float reads 2.10 V, it closes, the zero takes 300 mV (clamped) and it stays closed. A 1.0 V DC source
+       then reads 1.45 V and trips. */
+    const double off = 0.45;
+    jackguard_init(&g, t);
+    CHECK(jg_run(&g, true, 1.65, 1.65 + off, &t, JG_STABLE_POLLS * JG_POLL_MS) && g.state == JG_CLOSING);
+    CHECK(jg_run(&g, true, 0, off, &t, JG_SETTLE_MS + JG_POLL_MS) && jackguard_ready(&g));
+    CHECK(g.lc_zero_mv == JG_ZERO_MAX_MV);
+    CHECK(jg_run(&g, true, 0, off, &t, 500) && jackguard_ready(&g));
+    CHECK(!jg_run(&g, true, 0, 1.0 + off, &t, JG_POLL_MS) && g.state == JG_TRIPPED);
+    /* Without the zero the same board would trip with nothing connected. */
+    CHECK(jackguard_mv(jack_sum(off), SAMPLES) < JG_TRIP_LC_MV + JG_ZERO_MAX_MV &&
+          jackguard_mv(jack_sum(off), SAMPLES) > JG_TRIP_LC_MV);
+    /* A -250 mV board: zero within one code of -250, a -0.2 V reading (true +50 mV) stays closed. */
+    jackguard_init(&g, t);
+    CHECK(jg_run(&g, true, 1.4, 1.4, &t, JG_STABLE_POLLS * JG_POLL_MS) && g.state == JG_CLOSING);
+    CHECK(jg_run(&g, true, 0, -0.25, &t, JG_SETTLE_MS + JG_POLL_MS) && jackguard_ready(&g));
+    CHECK(abs(g.lc_zero_mv + 250) < 12);
+    CHECK(jg_run(&g, true, 0, -0.2, &t, 200) && jackguard_ready(&g));
+    CHECK(!jg_run(&g, true, 0, -0.8, &t, JG_POLL_MS) && g.state == JG_TRIPPED);
+    /* A DC fault already on LCUR when the switches close (exact board): the zero clamps at 300 mV, so 0.65 V stays
+       connected (bounded: ZERO_MAX + TRIP_LC = 0.7 V read); 0.8 V trips once CLOSED. */
+    jackguard_init(&g, t);
+    CHECK(jg_run(&g, true, 1.65, 1.65, &t, JG_STABLE_POLLS * JG_POLL_MS) && g.state == JG_CLOSING);
+    CHECK(jg_run(&g, true, 0, 0.65, &t, JG_SETTLE_MS + JG_POLL_MS) && jackguard_ready(&g) && g.lc_zero_mv == JG_ZERO_MAX_MV);
+    jackguard_init(&g, t);
+    CHECK(jg_run(&g, true, 1.65, 1.65, &t, JG_STABLE_POLLS * JG_POLL_MS) && g.state == JG_CLOSING);
+    CHECK(!jg_run(&g, true, 0, 0.8, &t, JG_SETTLE_MS + JG_POLL_MS) && g.state == JG_TRIPPED);
+    /* Each close measures its own zero. */
+    jackguard_init(&g, t);
+    CHECK(jg_run(&g, true, 1.65, 1.65, &t, JG_STABLE_POLLS * JG_POLL_MS) && g.state == JG_CLOSING);
+    CHECK(jg_run(&g, true, 0, 0, &t, JG_SETTLE_MS + JG_POLL_MS) && jackguard_ready(&g));
+    CHECK(abs(g.lc_zero_mv) < 12);
 }
 
 int main(void) {
@@ -594,7 +641,7 @@ int main(void) {
            "derivation, tone lines at 1/27/60 kHz and bounds; TAC5112 bring-up order, values, status, "
            "VREF/INCAP quick charge, clock fallback, ADC settling; relays RESET-then-SET, one coil at a time, "
            "K4 only with a range, boot opens K4; analog-rail windows, conversion, gate and timeout; jack guard "
-           "conversion, close gate, settle, trip, re-arm, rail fault and the in-capture trip\n",
+           "conversion, close gate, settle, trip, re-arm, rail fault, the in-capture trip and the LCUR zero\n",
            FS_HZ);
     return 0;
 }

@@ -35,12 +35,33 @@
 #define JG_CLOSE_LO_MV (-1000)
 #define JG_CLOSE_HI_MV 2650
 #define JG_TRIP_MV 3000
-#define JG_TRIP_LC_MV 500
+#define JG_TRIP_LC_MV 400
 #define JG_POLL_MS 5u
 #define JG_STABLE_POLLS 7u        /* 35 ms inside the close test: the 11.1 ms sense filter settles from a clamped jack in 33 ms */
-#define JG_SETTLE_MS 40u          /* TLP172AM tON 2 ms max, and the sense filter falling from the 2.65 V close limit to below
-                                     TRIP_LC (19 ms at 11.1 ms), before a capture or the LCUR trip may use the jacks */
+#define JG_SETTLE_MS 100u         /* TLP172AM tON 2 ms max, the sense filter falling from the 2.65 V close limit to below
+                                     TRIP_LC (19 ms at 11.1 ms), and the LCUR zero (below), before a capture or the LCUR
+                                     trip may use the jacks */
 #define JG_REARM_MS 1000u         /* after a trip, continuous time inside the close test before closing again */
+
+/* LCUR zero (pre-mortem 2026-11-15 item 2). Closed, LCUR is the TIA virtual ground, so its true DC is about 0 V
+   (audit G-AFE-01: about 1 uA x 33 Ohm) whatever the DUT. What the sense reads there is its own error E: 1 % divider
+   tolerance gives +/-222 mV at the jack (JG_SENSE_ERR_MV), and every mV of ADC offset at the pin is 13.5 mV at the
+   jack, so without a zero a board can read near the trip with nothing connected. Each close measures it: the mean
+   LCUR reading from JG_ZERO_FROM_MS after closing until CLOSED (the sense filter has fallen from the 2.65 V close
+   limit to 29 mV by then, at 11.1 ms + 20 %), clamped to +/-JG_ZERO_MAX_MV, is subtracted from LCUR before the
+   TRIP_LC test.
+   What this can hide: a DC fault F already on LCUR when the switches close is read as F + E, and stays connected
+   while |F + E| <= ZERO_MAX + TRIP_LC = 0.7 V, so |F| <= 0.7 V + |E|: 0.92 V with the divider error alone, under
+   the 1.05 V where R43 reaches its 0.1 W rating (G-AFE-01); an extra 10 mV of ADC offset adds 135 mV. A fault that
+   arrives after the close is caught at TRIP_LC as before. TRIP_LC 0.4 V still clears normal use: at most 0.29 V
+   peak AC on the jack, about 0.09 V after the sense filter at 46 Hz. A board needs |E| above
+   ZERO_MAX + TRIP_LC - 0.09 V = 0.61 V to trip with nothing connected (G5 records the zero). */
+#define JG_ZERO_FROM_MS 60u
+#define JG_ZERO_MAX_MV 300
+#define JG_SENSE_ERR_MV 222       /* 1 % divider parts, at the jack (pre-mortem pin_levels.txt) */
+#define JG_FAULT_LIMIT_MV 1050      /* G-AFE-01: R43 at 0.1 W */
+/* Conversions per jack in the capture loop's test (one conversion is about 11 mV of jack, plus ADC noise). */
+#define JG_CAPTURE_SAMPLES 16u
 
 /* Jack volts (mV) from the sum of `samples` 12-bit conversions of its sense pin. */
 int32_t jackguard_mv(uint32_t sum, uint32_t samples);
@@ -58,6 +79,9 @@ typedef struct {
     uint32_t since_ms;    /* when the state was entered */
     uint32_t quiet_ms;    /* since when the jacks have been inside the close test (TRIPPED) */
     int32_t last_hc_mv, last_lc_mv;
+    int32_t lc_zero_mv;   /* the LCUR zero of the current (or last) close */
+    int64_t zero_sum;     /* LCUR readings inside the zero window */
+    uint32_t zero_n;
 } jackguard;
 
 void jackguard_init(jackguard *g, uint32_t now_ms);
@@ -66,10 +90,12 @@ void jackguard_init(jackguard *g, uint32_t now_ms);
 bool jackguard_poll(jackguard *g, bool rails_ok, int32_t hc_mv, int32_t lc_mv, uint32_t now_ms);
 /* A capture may use the jacks. */
 static inline bool jackguard_ready(const jackguard *g) { return g->state == JG_CLOSED; }
-/* Inside a capture the guard is not polled; the capture loop takes one conversion per jack every JG_POLL_MS
-   and opens the switches when this is true (a source or charged part connected mid-capture). */
-static inline bool jackguard_over(int32_t hc_mv, int32_t lc_mv) {
-    return hc_mv > JG_TRIP_MV || hc_mv < -JG_TRIP_MV || lc_mv > JG_TRIP_LC_MV || lc_mv < -JG_TRIP_LC_MV;
+/* Inside a capture the guard is not polled; the capture loop takes JG_CAPTURE_SAMPLES conversions per jack every
+   JG_POLL_MS and opens the switches when this is true (a source or charged part connected mid-capture). LCUR is
+   tested after the close's zero. */
+static inline bool jackguard_over(const jackguard *g, int32_t hc_mv, int32_t lc_mv) {
+    int32_t lc = lc_mv - g->lc_zero_mv;
+    return hc_mv > JG_TRIP_MV || hc_mv < -JG_TRIP_MV || lc > JG_TRIP_LC_MV || lc < -JG_TRIP_LC_MV;
 }
 /* The close test: no charged part on the jacks (CLOSE_DIFF) and neither jack beyond CLOSE_LO..CLOSE_HI. */
 static inline bool jackguard_quiet(int32_t hc_mv, int32_t lc_mv) {
