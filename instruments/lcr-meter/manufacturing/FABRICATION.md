@@ -88,12 +88,14 @@ The table shows how close SMT copper comes to each edge.
 ### What JLC fits
 
 - **SMT:** **248 top-side placements**, including the four TQ2SA relays, the TAC5112, the four TLP172AM photoMOS switches and the U16 TPS2553 USB switch.
-- **Hand-fitted by JLC:** the four SAMZO BNC-KYWE-295-W4-N right-angle BNCs (J3, J7, J8, J9; C41416668), through-hole.
-  - They are in `bom-jlcpcb.csv` and `cpl-jlcpcb.csv` with rotation 0. The EasyEDA record matches the footprint exactly on all five pads; the next-best orientation is 7.16 mm off.
+- **Hand-fitted by JLC:**
+  - the four SAMZO BNC-KYWE-295-W4-N right-angle BNCs (J3, J7, J8, J9; C41416668), through-hole;
+  - J4, the 2-pin 2.54 mm SWD header (Samtec TSW-102-07-G-S, C7402729), so a debug probe reaches every board. It has no polarity (CPL 180°, an exact EasyEDA fit on both pads).
+- **The BNCs:**
+  - They are in `bom-jlcpcb.csv` and `cpl-jlcpcb.csv` with rotation 0, as J4 is with 180. The EasyEDA record matches the footprint exactly on all five pads; the next-best orientation is 7.16 mm off.
   - Each barrel must face the front edge. The square pad pattern does not key the part, so check the preview and the silk opening mark.
-- **JLC BOM:** 80 lines.
-- **Complete BOM:** 253 components, 252 fitted.
-- **Not fitted:** J4 (SWD header) is DNP. Firmware loads over USB, and the header can be soldered by hand if SWD is ever needed.
+- **JLC BOM:** 81 lines.
+- **Complete BOM:** 253 components, all fitted. J4 was DNP until 2026-11-15; firmware still loads over USB, and J4 is for a debug probe.
 - **Power:** there is no DC jack; the board is powered from USB-C VBUS.
 
 ### Placement-preview checks

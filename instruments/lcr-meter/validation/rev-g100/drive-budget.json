@@ -128,7 +128,9 @@
   "lcur_ac_load": 2.2e-05,
   "tau_ms": 11.11111111111111,
   "settle_ms": 27.163995353050986,
-  "lc_trip_settle_ms": 20.530075783978628,
+  "lc_trip_settle_ms": 23.009448576358732,
+  "lc_zero_settle_ms": 51.790194859090136,
+  "lc_divider_error_v": 0.22169199406967977,
   "tone_ripple_at_46hz_jack_v": 0.5074368473727937
  },
  "usb_a": {
@@ -145,8 +147,11 @@
   "JG_CLOSE_LO_MV": -1000,
   "JG_CLOSE_HI_MV": 2650,
   "JG_TRIP_MV": 3000,
-  "JG_TRIP_LC_MV": 500,
-  "JG_SETTLE_MS": 40
+  "JG_TRIP_LC_MV": 400,
+  "JG_SETTLE_MS": 100,
+  "JG_ZERO_FROM_MS": 60,
+  "JG_ZERO_MAX_MV": 300,
+  "JG_FAULT_LIMIT_MV": 1050
  },
  "checks": [
   {
@@ -175,8 +180,26 @@
   },
   {
    "check": "settle before the LCUR trip arms (JG_SETTLE_MS) >= tON + sense fall CLOSE_HI -> TRIP_LC, ms",
-   "value": 19.469924,
+   "value": 76.990551,
    "limit": 0.0,
+   "pass_": true
+  },
+  {
+   "check": "LCUR zero window opens after tON + sense fall CLOSE_HI -> 30 mV (JG_ZERO_FROM_MS), ms",
+   "value": 8.209805,
+   "limit": 0.0,
+   "pass_": true
+  },
+  {
+   "check": "LCUR zero clamp covers the 1 % divider error at a 0 V jack (ZERO_MAX - error), V",
+   "value": 0.078308,
+   "limit": 0.0,
+   "pass_": true
+  },
+  {
+   "check": "DC fault present at the close, held untripped (ZERO_MAX + TRIP_LC + divider error) < R43 0.1 W point, V",
+   "value": 0.921692,
+   "limit": 1.05,
    "pass_": true
   },
   {

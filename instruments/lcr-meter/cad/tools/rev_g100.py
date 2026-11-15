@@ -168,6 +168,10 @@ parts['D29'] = _d29
 design['parts'].append(_d29)
 PLACE_G100['D29'] = (137.9, 99.6, 90)          # north of C100, cathode on C100's GND via
 parts['D29']['pcb'] = list(PLACE_G100['D29'])
+# J4 (SWD header, 2.54 mm through-hole) fitted by JLC by hand, as the BNCs are (owner, 2026-11-15): a debug probe
+# then reaches every board without soldering (pre-mortem 2026-11-15 item 8). About $1.66 for five boards: the parts
+# and 10 joints; the per-order hand-solder labour is already paid for the BNCs.  GND for the probe is TP22.
+parts['J4']['assembly'] = 'Hand fit'
 
 # ------------------------------------------------------------------ board
 design['board'].update(

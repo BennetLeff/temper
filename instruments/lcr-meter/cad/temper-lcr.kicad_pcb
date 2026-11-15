@@ -18193,7 +18193,7 @@
 				)
 			)
 		)
-		(property "Assembly" "DNP"
+		(property "Assembly" "Hand fit"
 			(at 0 0 0)
 			(layer "F.SilkS")
 			(hide yes)
@@ -18206,7 +18206,7 @@
 			)
 		)
 		(path "/2553708c-b166-56c2-b33d-43e66b884c5c/6c19dbd0-14e2-5172-818e-7fd07c6c21fb/d85af0da-c5d3-53cc-a737-f90cf548ead9")
-		(attr through_hole dnp)
+		(attr through_hole)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
 			(start -1.38 3.92)

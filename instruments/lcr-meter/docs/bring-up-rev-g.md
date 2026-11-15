@@ -45,7 +45,7 @@ Order a few loose parts with the Rev F parts if Rev F goes first. LCSC sells all
 These come from the G100 pre-mortem ([`premortem-2026-11-15/PREMORTEM.md`](../validation/rev-g100/premortem-2026-11-15/PREMORTEM.md)). Do them on board 1 before the others are powered.
 
 **Before first power:**
-- **Fit J4** (the 2-pin SWD header, DNP) on board 1, and have a CMSIS-DAP probe (a Raspberry Pi Debug Probe) on the bench. If the firmware stops anywhere before USB, SWD is the only way to see where. TP22 (GND) is 3.1 mm from J4; TP8 is 3V3.
+- **Have a CMSIS-DAP probe** (a Raspberry Pi Debug Probe) on the bench. JLC fits J4, the 2-pin SWD header (since 2026-11-15). If the firmware stops anywhere before USB, SWD is the only way to see where. TP22 (GND) is 3.1 mm from J4; TP8 is 3V3.
 - **Nothing on the jacks until `INFO` says PASS.** The relays ship in either state, and K4 with the 1 kΩ reference sits on the jack side of the switches. The boot RESET opens it, but a blank flash never runs it.
 
 **First power-up, blank flash:**
@@ -88,7 +88,7 @@ These come from the G100 pre-mortem ([`premortem-2026-11-15/PREMORTEM.md`](../va
 | 4.7 Ω 0603 (10) | R95 / R96 1 Ω → 4.7 Ω if switcher pickup is conducted |
 | TQ2SA-L2-5V-Z (2) | a relay that fails G6a or is damaged |
 | W25Q16JV SOIC-8 208 mil (1) | if the GD25Q16E will not boot with `boot2_w25q080` |
-| 1 × 2 2.54 mm header (2), CMSIS-DAP probe | J4 and SWD |
+| CMSIS-DAP probe (Raspberry Pi Debug Probe, or a Pico with `debugprobe`); 1 × 2 2.54 mm header (2) | SWD on J4 (JLC fits it); spare headers in case |
 
 ## Part B: steps only a Rev G board has
 

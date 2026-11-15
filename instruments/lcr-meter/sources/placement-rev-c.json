@@ -103,7 +103,8 @@
     "J3": 0,
     "J7": 0,
     "J8": 0,
-    "J9": 0
+    "J9": 0,
+    "J4": 270
   },
   "parts": [
     {
@@ -6198,6 +6199,40 @@
         {
           "offset": 180,
           "rms": 10.119278393250328
+        }
+      ]
+    },
+    {
+      "lcsc": "C7402729",
+      "mpn": "TSW-102-07-G-S",
+      "references": [
+        "J4"
+      ],
+      "native_footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "source_url": "https://lceda.cn/api/products/C7402729/components?version=6.4.19.5",
+      "source_file": "sources/placement-library/C7402729-product.json",
+      "source_sha256": "c88fa3f9c2ada9bcefc99f475486f719ce7a8cdd87a12565020a9d6d72e9fbaa",
+      "library_title": "HDR-TH_2P-P2.54-V-M",
+      "cpl_offset_ccw_deg": 270,
+      "matched_numbered_pads": 2,
+      "pad_center_fit_rms_mm": 4.0194366942304644e-14,
+      "pad_center_fit_max_mm": 5.684341886080802e-14,
+      "candidate_rms_mm": [
+        {
+          "offset": 270,
+          "rms": 4.0194366942304644e-14
+        },
+        {
+          "offset": 0,
+          "rms": 1.796051224213815
+        },
+        {
+          "offset": 180,
+          "rms": 1.796051224213815
+        },
+        {
+          "offset": 90,
+          "rms": 2.539999999999992
         }
       ]
     }

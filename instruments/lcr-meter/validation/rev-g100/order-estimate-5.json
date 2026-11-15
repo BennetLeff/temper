@@ -8,9 +8,10 @@
    "U13",
    "U14"
   ],
-  "tht_joints": 20,
+  "tht_joints": 22,
   "tht_refs": [
    "J3",
+   "J4",
    "J7",
    "J8",
    "J9"
@@ -970,7 +971,7 @@
   {
    "lcsc": "C7402729",
    "mpn": "TSW-102-07-G-S",
-   "assembly": "DNP",
+   "assembly": "Hand fit",
    "library": "expand",
    "preferred": false,
    "need": 5,
@@ -1026,14 +1027,14 @@
   "Fixtures": 16.42
  },
  "jlc_hand_fit": {
-  "Hand-fit parts via JLC": 25.85,
-  "Manual joints": 1.64,
+  "Hand-fit parts via JLC": 27.36,
+  "Manual joints": 1.8,
   "Hand-soldering labour": 3.58
  },
  "totals": {
   "economic": 397.96,
   "standard": 507.29,
-  "jlc_hand_fit": 31.07
+  "jlc_hand_fit": 32.74
  },
  "excluded": [
   "shipping",

@@ -106,7 +106,7 @@ The TPS65131 enables come from U17 (LM3880). FLAG1 releases ENP and FLAG2 releas
 
 **Rev G / G100:** flash `temper-lcr-rev-g.uf2`, not `temper-lcr-rev-e.uf2`, in step 1 and in every reflash below.
 
-1. Hold BOOTSEL, connect USB and copy `temper-lcr-rev-e.uf2` to RPI-RP2. A blank board needs no BOOTSEL press: with no valid boot2 in flash the ROM drops to USB mass storage after 0.5 s. J4–J6 are not fitted; solder a 2-pin header at J4/J5 if SWD recovery is ever needed. The flash is a GD25Q16E (2 MB), not the Pico's Winbond part: the firmware booting from flash after the copy confirms that `boot2_w25q080` sets its QE bit and runs quad reads. If it does not boot, rebuild with `PICO_BOOT_STAGE2_CHOOSE_GENERIC_03H=1` (slower, command-set independent) and report it.
+1. Hold BOOTSEL, connect USB and copy `temper-lcr-rev-e.uf2` to RPI-RP2. A blank board needs no BOOTSEL press: with no valid boot2 in flash the ROM drops to USB mass storage after 0.5 s. J4–J6 are not fitted (on G100, JLC fits J4 since 2026-11-15); solder a 2-pin header at J4/J5 if SWD recovery is ever needed. The flash is a GD25Q16E (2 MB), not the Pico's Winbond part: the firmware booting from flash after the copy confirms that `boot2_w25q080` sets its QE bit and runs quad reads. If it does not boot, rebuild with `PICO_BOOT_STAGE2_CHOOSE_GENERIC_03H=1` (slower, command-set independent) and report it.
 2. Run `temper-lcr info PORT`. It must show `INFO 3 E-codec … 120000000 187500 4096 100000 …` and `PASS`: boot runs the codec bring-up and the self-test, and selects the 100 kΩ range. Compare its rail readings with the DMM (within about 3 %).
 3. Run `temper-lcr codec PORT` and record it:
    - DEV_STS0: both ADC channels and DAC channel 1 powered;

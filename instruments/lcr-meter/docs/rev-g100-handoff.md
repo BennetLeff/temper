@@ -19,7 +19,7 @@ A USB-powered, four-terminal LCR meter for Temper's own parts: the coil, the pan
 ## State
 
 - **Branch:** `study/lcr-rev-g100`, worktree `worktrees/lcr-rev-g/instruments/lcr-meter`. Pushed.
-- **Board:** `cad/temper-lcr.kicad_pcb`, SHA-256 `49ba0a39913cd1ed725b996fd5b46332ebe61ce2b02178523349e9d932ebd716`. 100 × 100 mm, 4 layers, hand-routed.
+- **Board:** `cad/temper-lcr.kicad_pcb`, SHA-256 `e8f7c973138fdca1514bfd8110d0430c480ad56fd1d0623039f4933dc1ff7b00`. 100 × 100 mm, 4 layers, hand-routed. Since `49ba0a39…` (2026-11-10) only J4's DNP flag changed. The copper is unchanged, and so is every Gerber, except for its creation-date line.
 - **Gerber zip:** `manufacturing/temper-lcr-gerbers.zip`, SHA-256 `3c649f60e59c3d5d2751ef0fb89d8d7ac2e9279f3f2fec60a5b6476eef7ae19d`. It is gitignored; `sh validation/rev-g100/gates.sh` regenerates it, and the board above produces it. It carries the IPC-D-356 netlist `temper-lcr.d356`.
 - **Gates** (`sh validation/rev-g100/gates.sh`):
   - pre-DRC 0 and KiCad DRC 0, 0 unconnected, ERC and schematic parity 0;
@@ -34,16 +34,16 @@ A USB-powered, four-terminal LCR meter for Temper's own parts: the coil, the pan
 
   The last review found the board orderable, and its fixes were re-checked clean. A review of this order package (`../validation/rev-g100/package-review-2026-11-15/REVIEW.md`) found the files right and the instructions needing small fixes, now applied.
 - **Parts:**
-  - 253 components, 252 fitted (J4 DNP);
-  - 248 SMT placements plus the four BNCs, which JLC fits by hand;
-  - 80 JLC BOM lines.
+  - 253 components, all fitted;
+  - 248 SMT placements plus the four BNCs and J4 (the SWD header, since 2026-11-15), which JLC fits by hand;
+  - 81 JLC BOM lines.
 - **Estimate for five boards** (`validation/rev-g100/order-estimate-5.json`, JLC prices of 2026-11-10), excluding shipping and tax:
 
   | Item | USD |
   |---|---|
   | Economic PCBA, including the $25.70 bare boards | 397.96 |
-  | JLC hand fit of the BNCs (parts, joints, labour) | 31.07 |
-  | **Total** | **429.03** |
+  | JLC hand fit of the BNCs and J4 (parts, joints, labour) | 32.74 |
+  | **Total** | **430.70** |
 
 - **Firmware:** `firmware-rev-e/bin/temper-lcr-rev-g.uf2`, the jack-guard build (`LCR_REV_G=1`), or `temper-lcr-rev-g-375k.uf2` at 375 kHz. The default `temper-lcr-rev-e.uf2` never closes the jack switches, so a G100 board measures nothing with it. It has never run on a board.
 - **Pre-mortem (2026-11-15,** `../validation/rev-g100/premortem-2026-11-15/`): order now, copper unchanged. It found a firmware bug that would have made every board look dead: the RP2040's reset pull-down held USB_SENSE low, and the firmware waited on it before starting USB. That bug and the jack-sense margin are fixed in firmware, and the bring-up steps it asked for are in [bring-up-rev-g.md](bring-up-rev-g.md), "G100 first power".
@@ -71,8 +71,8 @@ If the order shows a shortfall, pre-order the part from LCSC into the JLC parts 
 
 | Option | Cost (2026-11-10 prices) | Relays needed |
 |---|---|---|
-| Five boards made, five assembled | $397.96 + $31.07 BNC fit = **$429.03** | 20 |
-| Five boards made, **two** assembled | $265.56 + $16.70 BNC fit = **$282.26** | 8 |
+| Five boards made, five assembled | $397.96 + $32.74 hand fit = **$430.70** | 20 |
+| Five boards made, **two** assembled | $265.56 + $17.36 hand fit = **$282.92** | 8 |
 
 The package review recommends two (`../validation/rev-g100/package-review-2026-11-15/REVIEW.md` §9):
 - no board of this line has been built;
@@ -105,7 +105,7 @@ Only the owner signs in, adds to the cart or pays.
    - PCB Assembly: Economic, top side, **Confirm Parts Placement: Yes**.
    - Quantity: 5, or 2 (see above).
    - Upload `manufacturing/bom-jlcpcb.csv` and `manufacturing/cpl-jlcpcb.csv`.
-   - Expect 80 lines. The BNC line (C41416668) is through-hole, so let JLC solder it by hand. If the Economic flow refuses through-hole parts, deselect that line and solder the four BNCs yourself: 20 joints per board.
+   - Expect 81 lines. The BNC line (C41416668) and J4's header (C7402729) are through-hole, so let JLC solder them by hand. If the Economic flow refuses through-hole parts, deselect those lines and solder them yourself: 22 joints per board (J4 can wait until a board needs SWD).
 4. **Remarks.** Any remark sends the order to a manual review (about a day).
    - **PCB remark:**
      - *"Tooling holes: please place them only through GND copper pour, away from all tracks; suggested positions X 1.5 Y 98.5 mm, X 98.5 Y 95.0 mm and X 94.0 Y 8.0 mm from the lower-left corner. If you prefer edge rails instead, add them on the left and right edges only (the edges perpendicular to the BNC edge), never on the BNC edge or the opposite edge."*
@@ -124,7 +124,7 @@ Only the owner signs in, adds to the cart or pays.
 
 ## When boards arrive
 
-1. **Start with [bring-up-rev-g.md](bring-up-rev-g.md), "G100 first power", on board 1:** fit J4 and have a probe ready, scope C60 on the first blank power-up, and put nothing on the jacks until `INFO` says PASS. It also has the G100 test-pad table and the spares to buy now.
+1. **Start with [bring-up-rev-g.md](bring-up-rev-g.md), "G100 first power", on board 1:** have a debug probe ready on J4 (JLC fits the header), scope C60 on the first blank power-up, and put nothing on the jacks until `INFO` says PASS. It also has the G100 test-pad table and the spares to buy now.
    - **Flash `firmware-rev-e/bin/temper-lcr-rev-g.uf2`.** Use it wherever the bring-up pages say `temper-lcr-rev-e.uf2`. The Rev E image never closes the jack switches, so `refcheck` / `relaycheck` cannot pass with it. Type `BUILD` to see which image is running: `INFO` says `E-codec` in all of them.
 2. Follow [bring-up-rev-e.md](bring-up-rev-e.md), with the Rev F notes in [rev-f-handoff.md](rev-f-handoff.md) "When boards arrive". They all apply: start-up, hot-plug, relay coil identity, codec clock.
 3. Then [bring-up-rev-g.md](bring-up-rev-g.md) Part B, G1–G9, including:
