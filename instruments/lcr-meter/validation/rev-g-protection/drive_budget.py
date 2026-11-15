@@ -69,8 +69,15 @@ V33 = 3.3
 V_CLAMP = 10.0                     # H4V5HD3B VC max at 40 A (8/20): the jack never sits beyond it
 # firmware-rev-e/src/jackguard.h; main() checks they are equal. Close: the jacks within CLOSE_DIFF of each other and
 # each inside CLOSE_LO..CLOSE_HI. Trip: HCUR beyond TRIP, LCUR beyond TRIP_LC once closed (audit PROT-01, G-AFE-01).
-CLOSE_DIFF_MV, CLOSE_LO_MV, CLOSE_HI_MV, TRIP_MV, TRIP_LC_MV = 1000, -1000, 2650, 3000, 500
-SETTLE_MS = 40                     # jackguard.h JG_SETTLE_MS: closed to ready
+CLOSE_DIFF_MV, CLOSE_LO_MV, CLOSE_HI_MV, TRIP_MV, TRIP_LC_MV = 1000, -1000, 2650, 3000, 400
+SETTLE_MS = 100                    # jackguard.h JG_SETTLE_MS: closed to ready (the LCUR zero ends here)
+# LCUR zero (G100 pre-mortem 2026-11-15 item 2, jackguard.h): the mean LCUR reading from ZERO_FROM_MS after closing
+# until ready, clamped to +-ZERO_MAX, is subtracted before the TRIP_LC test. A fault present at the close then stays
+# connected up to ZERO_MAX + TRIP_LC + |sense error| true volts, which must stay under R43's 0.1 W point (G-AFE-01).
+ZERO_FROM_MS, ZERO_MAX_MV = 60, 300
+R43_LIMIT_V = 1.05                 # LCUR jack volts at which R43 (100 Ohm 0603, 0.1 W) reaches its rating (G-AFE-01)
+ZERO_RESIDUAL_V = 0.03             # the sense must have fallen from CLOSE_HI to this before the zero window opens
+SENSE_TOL = 0.01                   # R_TOP / R_BIAS / R_GND tolerance (1 %)
 POLL_MS = 5                        # jackguard.h JG_POLL_MS
 RF = {100: 100.0, 5000: 5e3, 100000: 100e3}
 TIA_SWING = 11.0                   # OPA2810 output on +-12 V, order of
@@ -225,11 +232,22 @@ def sense():
     # Closed: the front end pulls both jacks to 0 V; the sense falls from the highest closable reading to TRIP_LC
     lc_settle = tau * math.log((CLOSE_HI_MV / 1e3) / (TRIP_LC_MV / 1e3)) + T_ON_MAX
     ripple = VS / math.sqrt(1 + (2 * math.pi * F_LOW * tau) ** 2)
+    zero_settle = tau * math.log((CLOSE_HI_MV / 1e3) / ZERO_RESIDUAL_V) + T_ON_MAX
+    # Reading error at a 0 V jack from the divider tolerance: the firmware converts with the nominal constants.
+    nominal_rtop_g, nominal_ratio = R_TOP * g, R_TOP / R_BIAS
+    err = 0.0
+    for a in (1 - SENSE_TOL, 1 + SENSE_TOL):
+        for b in (1 - SENSE_TOL, 1 + SENSE_TOL):
+            for c in (1 - SENSE_TOL, 1 + SENSE_TOL):
+                rt, rb, rg = R_TOP * a, R_BIAS * b, R_GND * c
+                pin0 = (V33 / rb) / (1 / rt + 1 / rb + 1 / rg)
+                err = max(err, abs(pin0 * nominal_rtop_g - V33 * nominal_ratio))
     return dict(gain=gain, mid_v=mid, pin_v=pin, full_scale_jack_v=[-mid / gain, (V33 - mid) / gain],
                 open_jack_float_v=mid, bias_into_jack_ua=i_bias * 1e6,
                 tia_dc_offset_v={str(r): i_bias * rf for r, rf in RF.items()},
                 lcur_ac_load=R_LC_PATH / R_TOP, tau_ms=tau * 1e3, settle_ms=settle * 1e3,
-                lc_trip_settle_ms=lc_settle * 1e3,
+                lc_trip_settle_ms=lc_settle * 1e3, lc_zero_settle_ms=zero_settle * 1e3,
+                lc_divider_error_v=err,
                 tone_ripple_at_46hz_jack_v=ripple)
 
 
@@ -239,9 +257,11 @@ def main():
     h = (HERE.parents[1] / 'firmware-rev-e' / 'src' / 'jackguard.h').read_text()
     fw = {k: int(re.search(rf'#define {k} \(?(-?\d+)', h).group(1))
           for k in ('JG_CLOSE_DIFF_MV', 'JG_CLOSE_LO_MV', 'JG_CLOSE_HI_MV', 'JG_TRIP_MV', 'JG_TRIP_LC_MV', 'JG_SETTLE_MS',
-                    'JG_RTOP_G_PPM', 'JG_RTOP_RBIAS_PPM', 'JG_POLL_MS', 'JG_STABLE_POLLS')}
+                    'JG_RTOP_G_PPM', 'JG_RTOP_RBIAS_PPM', 'JG_POLL_MS', 'JG_STABLE_POLLS', 'JG_ZERO_FROM_MS',
+                    'JG_ZERO_MAX_MV', 'JG_FAULT_LIMIT_MV')}
     mine = dict(JG_CLOSE_DIFF_MV=CLOSE_DIFF_MV, JG_CLOSE_LO_MV=CLOSE_LO_MV, JG_CLOSE_HI_MV=CLOSE_HI_MV,
-                JG_TRIP_MV=TRIP_MV, JG_TRIP_LC_MV=TRIP_LC_MV, JG_SETTLE_MS=SETTLE_MS)
+                JG_TRIP_MV=TRIP_MV, JG_TRIP_LC_MV=TRIP_LC_MV, JG_SETTLE_MS=SETTLE_MS, JG_ZERO_FROM_MS=ZERO_FROM_MS,
+                JG_ZERO_MAX_MV=ZERO_MAX_MV, JG_FAULT_LIMIT_MV=round(R43_LIMIT_V * 1e3))
     checks = [
         ('firmware thresholds equal these (jackguard.h)', float(all(fw[k] == v for k, v in mine.items())), '>=', 1.0),
         ('open-jack float inside the close window (audit PROT-01): CLOSE_HI - float, V',
@@ -251,6 +271,12 @@ def main():
         ('a closable jack does not trip HCUR: TRIP - CLOSE_HI, V', (TRIP_MV - CLOSE_HI_MV) / 1e3, '>', 0.0),
         ('settle before the LCUR trip arms (JG_SETTLE_MS) >= tON + sense fall CLOSE_HI -> TRIP_LC, ms',
          SETTLE_MS - s['lc_trip_settle_ms'], '>=', 0.0),
+        ('LCUR zero window opens after tON + sense fall CLOSE_HI -> 30 mV (JG_ZERO_FROM_MS), ms',
+         ZERO_FROM_MS - s['lc_zero_settle_ms'], '>=', 0.0),
+        ('LCUR zero clamp covers the 1 % divider error at a 0 V jack (ZERO_MAX - error), V',
+         ZERO_MAX_MV / 1e3 - s['lc_divider_error_v'], '>=', 0.0),
+        ('DC fault present at the close, held untripped (ZERO_MAX + TRIP_LC + divider error) < R43 0.1 W point, V',
+         (ZERO_MAX_MV + TRIP_LC_MV) / 1e3 + s['lc_divider_error_v'], '<', R43_LIMIT_V),
         ('firmware divider constants equal these (jackguard.h)',
          float(fw['JG_RTOP_RBIAS_PPM'] == round(R_TOP / R_BIAS * 1e6) and
                fw['JG_RTOP_G_PPM'] == round(R_TOP * (1 / R_TOP + 1 / R_BIAS + 1 / R_GND) * 1e6)), '>=', 1.0),
