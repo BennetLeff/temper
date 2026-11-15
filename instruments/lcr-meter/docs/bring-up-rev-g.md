@@ -46,11 +46,11 @@ Run these after bring-up-rev-e.md §1–§3 pass, and before §6. Flash `firmwar
 
 | Step | What | Expect | Record |
 |---|---|---|---|
-| G1 | Inspection: U18–U21 pin 1 (anode) as on the silk; D28 pin 3 toward DUT_LO; D21–D24 cathode on the jack centre pin | as on the assembly drawing | photos |
+| G1 | Inspection: U18–U21 pin 1 (anode) as on the silk; D28 pin 3 toward DUT_LO; D21–D24 are bidirectional TVS (no polarity; C20615803) | as on the assembly drawing | photos |
 | G2 | Switch drive. Command the switches on, then measure the voltage across R132 and R133 (the LED-string resistors) | ≥ 5.03 mA per string at 5 V; at least the 3 mA IFT while a relay pulse runs (`drive-budget.json`) | V and computed I |
 | G3 | Isolation. Power off: jack centre pin to DUT_HI, HPOT, LPOT and DUT_LO with a DMM | > 10 MΩ (switch open) | four readings |
 | G4 | Continuity. Switches on, power on: jack centre to node | 10 Ω + RON (HCUR / LCUR) and 100 Ω + RON (HPOT / LPOT); RON ≤ 2 Ω | four readings |
-| G5 | Residual-voltage sense. Jacks open: `JACK_HC` / `JACK_LC` read at mid-scale. Apply +5 V and −5 V from a current-limited supply (≤ 1 mA) to HCUR, then LCUR | about 11 mV per code (1.5 MΩ / 240 kΩ / 240 kΩ); the guard opens the switches above 1 V and closes them after 7 calm polls (35 ms) | readings and trip times |
+| G5 | Residual-voltage sense. Read the senses in a serial terminal on the board's port: type `JACKS` (reply `JACKS <state> <HCUR mV> <LCUR mV>`; the host CLI has no jack command). Jacks open: `JACK_HC` / `JACK_LC` read at mid-scale. Apply +5 V and −5 V from a current-limited supply (≤ 1 mA) to HCUR, then LCUR | about 11 mV per code (1.5 MΩ / 240 kΩ / 240 kΩ); the guard opens the switches above 1 V and closes them after 7 calm polls (35 ms) | readings and trip times |
 | G6 | Internal reference (bring-up-rev-e §7) through the jack side: K4 set also shorts the HCUR and HPOT jacks | the model puts the worst 85 kHz cell at 0.014 % (5k range) and 0.024 % (100k) (`rev-g-protection/README.md`, "The HPOT reference residual") | readings |
 | G7 | Accuracy against Rev F (if built) on the same cal-kit parts | the same verdict cells, since the map gives 144 / 22 / 43 for both | captures |
 | G8 | Charged-part check, last and optional. With the meter powered, touch HCUR–LCUR with a 1 µF film capacitor at 10 V, then 30 V, through two-terminal leads. Scope 3V3A | the guard trips. 3V3A stays under the TAC5112's 3.9 V (the model never ends class A on 3V3A). The meter measures normally afterwards | scope shots |

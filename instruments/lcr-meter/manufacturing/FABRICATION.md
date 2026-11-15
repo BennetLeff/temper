@@ -36,7 +36,7 @@ No manufacturer upload, placement-preview approval or order has been performed. 
   - This is JLC's standard "0.3mm/(0.4/0.45mm)" option. Do not select the 0.2 or 0.25 mm option.
 - **Via covering: "Plugged"** (JLC's free 4-layer default; Tented is greyed out). Do not order POFV.
   - The only vias in SMT lands are the 33 exposed-pad thermal vias: U1 (8), U11 (6), U12 (6), U13 (9) and U14 (4).
-  - They sit under paste windows, and JLC's plugging fills them. The TI package notes allow vias under paste that are "filled, plugged or tented".
+  - They sit under paste windows and are left as the Gerber shows them. If JLC asks, the answer is "follow the Gerber, proceed"; do not pay for filling. The TI package notes allow vias under paste that are "filled, plugged or tented". (Fab note 4 on the drawing layer says JLC's plugging fills them. JLC has not confirmed that, and the note is not an instruction to fill.)
   - X-ray the exposed-pad parts on the first build.
   - `validation/via-in-pad-process.json` records the check with the board hash.
 - **Teardrops:** every via and pad carries a KiCad teardrop (1147 teardrop zones). Do not remove them in CAM.
@@ -57,12 +57,20 @@ No manufacturer upload, placement-preview approval or order has been performed. 
   - the IPC-D-356 netlist (`temper-lcr.d356`).
 - **Fiducials:** three global fiducials (FID1–FID3) sit near three corners, so no rail fiducials are needed.
 
-### Edge rails
+### Tooling holes and edge rails
 
-**Order option "Edge rails added by JLCPCB", with V-cut rails on the LEFT and RIGHT edges only.**
-- Every edge has SMT copper within 2 mm (table below), so JLC's line needs rails.
-- No rail on the front edge: the BNC barrels overhang it.
-- No rail on the back edge: SMT lands are 0.45 mm from it.
+**Economic PCBA: tooling holes added by JLCPCB, placed through GND pour only.** JLC's help pages say edge rails are for Standard assembly, while Economic needs two or three 1.152 mm tooling holes. No corner of this board is free of copper. Three corners have a spot where the hole passes through GND fill only, given here from the lower-left corner, as the CPL measures:
+- X 1.5, Y 98.5 mm;
+- X 98.5, Y 95.0 mm;
+- X 94.0, Y 8.0 mm.
+
+The back-left (USB-C) corner has none (`../validation/rev-g100/package-review-2026-11-15/tooling-spots.txt`). The PCB remark asks for these spots.
+
+If edge rails are used instead (Standard), V-cut rails go on the LEFT and RIGHT edges only:
+- no rail on the front edge: the BNC barrels overhang it;
+- no rail on the back edge: SMT lands are 0.45 mm from it.
+
+The table shows how close SMT copper comes to each edge.
 
 | Edge | Nearest SMT land (to edge) | Other edge parts | Rail |
 |---|---|---|---|
@@ -90,12 +98,14 @@ No manufacturer upload, placement-preview approval or order has been performed. 
 
 ### Placement-preview checks
 
-Do not use the viewer's arrow buttons: they move the selected part.
+**The full list is `preview-checklist.csv`:** 62 keyed parts, 40 marked "dead board if wrong", each with where pad 1 sits in the preview (BNC edge up, USB-C left). An independent check found every CPL rotation correct against JLC's library (`../validation/rev-g100/package-review-2026-11-15/rot-check.txt`). J1 is expected to show about 1.2 mm off its pads (footprint anchor against library origin); the order remark asks JLC to align it.
+
+Do not use the viewer's arrow buttons: they move the selected part. The notes below add context for some parts.
 
 - **From Rev F (its preview of 2026-10-30 passed C117, U17, U1, K1–K4 and the +/− marks of D5–D8 and D15–D20):**
   - **C117:** the + terminal (pad 1, the chamfered corner) is on the south land, toward the back edge.
   - **U17** (LM3880): pin 1 at the north-west land; CPL offset 180°, as for U16.
-  - **Y1:** orient by pad geometry, because the chamfer mark is unreliable. Pins 1 / 3 are the crystal, 2 / 4 the lid; 90° off means no USB.
+  - **Y1:** 0° and 180° are both correct (pins 1 / 3 are the crystal, 2 / 4 the lid). A 90° error misses the pads by 2 mm, so it cannot pass silently.
   - **K1–K4:** rotation and stripe against pad 1.
   - **D4** (side-looking LED): lens toward the front edge, pad 1 (cathode) toward the left mounting hole.
   - **D18:** rotated 180° from D15–D17 on purpose; its anode is on GND.

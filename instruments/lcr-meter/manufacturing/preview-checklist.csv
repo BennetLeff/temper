@@ -1,0 +1,63 @@
+Ref,Value,CPL rotation,"Pad 1 is at (BNC edge up, USB-C left)",Pad 1 net,Pad 1 function,Severity
+C117,330uF 10V polymer,90.0,down,5V,,dead board if wrong
+D1,SRV05-4,270.0,up-left,USB_DP,,dead board if wrong
+D2,SS14,0.0,left,RAW_P,,dead board if wrong
+D3,SS14,90.0,down,SW_N,,dead board if wrong
+D5,1N4148WS,0.0,left,VRLY,,dead board if wrong
+D6,1N4148WS,90.0,down,VRLY,,dead board if wrong
+D7,1N4148WS,90.0,down,VRLY,,dead board if wrong
+D8,1N4148WS,90.0,down,VRLY,,dead board if wrong
+D9,1N4148WS,90.0,down,VRLY,,dead board if wrong
+D28,BAV99,0.0,down-right,GND,,dead board if wrong
+D29,SS14,90.0,down,GND,,dead board if wrong
+J1,USB-C,270.0,up-right,GND,,dead board if wrong
+K1,TQ2SA-L2-5V 100R,270.0,up-left,VRLY,,dead board if wrong
+K2,TQ2SA-L2-5V 5k,270.0,up-left,VRLY,,dead board if wrong
+K3,TQ2SA-L2-5V 100k,270.0,up-left,VRLY,,dead board if wrong
+K4,TQ2SA-L2-5V REF,90.0,down-right,VRLY,,dead board if wrong
+Q2,AO3400A,180.0,up-left,RNG_RESET_G,,dead board if wrong
+Q3,AO3400A,180.0,up-left,RNG_SET_MED_G,,dead board if wrong
+Q4,AO3400A,180.0,up-left,RNG_SET_LO_G,,dead board if wrong
+Q5,AO3400A,180.0,up-left,RNG_SET_HI_G,,dead board if wrong
+Q6,AO3400A,180.0,up-left,RNG_SET_REF_G,,dead board if wrong
+Q7,AO3400A,0.0,down-right,ISO_G,,dead board if wrong
+U1,RP2040,180.0,down-right,3V3,,dead board if wrong
+U2,GD25Q16ESIGR,270.0,up-left,QSPI_CS,,dead board if wrong
+U3,3.3V AP2112K,270.0,up-left,5V,,dead board if wrong
+U5,OPA197IDBVR,180.0,up-left,EXCITE,,dead board if wrong
+U6,OPA2810IDGKR,0.0,down-left,SRC_DRV,,dead board if wrong
+U7,OPA2810IDGKR,0.0,down-left,TIA_OUT,,dead board if wrong
+U11,TPS7A4901DGNR,270.0,up-left,12V,,dead board if wrong
+U12,TPS7A3001DGNR,270.0,up-left,-12V,,dead board if wrong
+U13,TPS65131RGER,90.0,down-left,SW_P,,dead board if wrong
+U14,TAC5112,0.0,up-left,CODEC_DREG,,dead board if wrong
+U15,3.3V AP2112K,270.0,up-left,5VA,,dead board if wrong
+U16,TPS2553,0.0,down-right,USB_VBUS,,dead board if wrong
+U17,LM3880-1AA,180.0,up-left,3V3,,dead board if wrong
+U18,TLP172AM,90.0,down-right,ISO_S1M,,dead board if wrong
+U19,TLP172AM,270.0,up-left,ISO_S1,,dead board if wrong
+U20,TLP172AM,270.0,up-left,ISO_S2,,dead board if wrong
+U21,TLP172AM,90.0,down-right,ISO_S2M,,dead board if wrong
+Y1,12MHz CL10pF,0.0,down-left,XIN,,dead board if wrong
+D4,ORANGE,0.0,left,GND,,
+D11,BAT54S,180.0,up-left,GND,,
+D12,BAT54S,180.0,up-left,GND,,
+D13,BAT54S,180.0,up-left,GND,,
+D14,BAT54S,180.0,up-left,GND,,
+D15,RED,90.0,down,GND,,
+D16,RED,90.0,down,GND,,
+D17,RED,90.0,down,GND,,
+D18,RED,270.0,up,LED_N12,,
+D19,RED,180.0,right,GND,,
+D20,RED,270.0,up,GND,,
+D21,H4V5HD3B,0.0,left,JK_HCUR,,
+D22,H4V5HD3B,0.0,left,JK_HPOT,,
+D23,H4V5HD3B,0.0,left,JK_LPOT,,
+D24,H4V5HD3B,0.0,left,JK_LCUR,,
+D25,H3V3LD5B,180.0,right,DUT_HI,,
+D26,H3V3LD5B,180.0,right,HPOT,,
+D27,H3V3LD5B,0.0,left,LPOT,,
+J3,BNC HCUR,0.0,up-right,GND,,
+J7,BNC HPOT,0.0,up-right,GND,,
+J8,BNC LPOT,0.0,up-right,GND,,
+J9,BNC LCUR,0.0,up-right,GND,,

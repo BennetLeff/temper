@@ -1,0 +1,65 @@
+C117 C433208 OK cpl 90 best 90 err 0.21 next 4.77 anchor-to-padcentre 0.00 mm [CAP-SMD_BD8.0-L8.3-W8.3-FD] | board 1:-/5V 2:-/GND | easyeda 1:1 2:2
+D1 C7420376 OK cpl 270 best 270 err 0.06 next 2.16 anchor-to-padcentre 0.00 mm [SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BL-1]
+D11 C7420333 OK cpl 180 best 180 err 0.06 next 1.95 anchor-to-padcentre 0.00 mm [SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR] | board 1:-/GND 2:-/3V3A 3:-/C2M_CLP | easyeda 1:K1 2:K2 3:A
+D12 C7420333 OK cpl 180 best 180 err 0.06 next 1.95 anchor-to-padcentre 0.00 mm [SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR] | board 1:-/GND 2:-/3V3A 3:-/C2P_CLP | easyeda 1:K1 2:K2 3:A
+D13 C7420333 OK cpl 180 best 180 err 0.06 next 1.95 anchor-to-padcentre 0.00 mm [SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR] | board 1:-/GND 2:-/3V3A 3:-/C1M_CLP | easyeda 1:K1 2:K2 3:A
+D14 C7420333 OK cpl 180 best 180 err 0.06 next 1.95 anchor-to-padcentre 0.00 mm [SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR] | board 1:-/GND 2:-/3V3A 3:-/C1P_CLP | easyeda 1:K1 2:K2 3:A
+D15 C2286 MISMATCH cpl 90 best 270 err 0.04 next 1.09 anchor-to-padcentre 0.00 mm [LED-SMD_L1.6-W0.8-R-RD] | board 1:-/GND 2:-/LED_5V | easyeda 1:A 2:K
+D16 C2286 MISMATCH cpl 90 best 270 err 0.04 next 1.09 anchor-to-padcentre 0.00 mm [LED-SMD_L1.6-W0.8-R-RD] | board 1:-/GND 2:-/LED_3V3 | easyeda 1:A 2:K
+D17 C2286 MISMATCH cpl 90 best 270 err 0.04 next 1.09 anchor-to-padcentre 0.00 mm [LED-SMD_L1.6-W0.8-R-RD] | board 1:-/GND 2:-/LED_P12 | easyeda 1:A 2:K
+D18 C2286 MISMATCH cpl 270 best 90 err 0.04 next 1.09 anchor-to-padcentre 0.00 mm [LED-SMD_L1.6-W0.8-R-RD] | board 1:-/LED_N12 2:-/GND | easyeda 1:A 2:K
+D19 C2286 MISMATCH cpl 180 best 0 err 0.04 next 1.09 anchor-to-padcentre 0.00 mm [LED-SMD_L1.6-W0.8-R-RD] | board 1:-/GND 2:-/LED_HB | easyeda 1:A 2:K
+D2 C2480 OK cpl 0 best 0 err 0.04 next 2.80 anchor-to-padcentre 0.00 mm [SMA_L4.2-W2.6-LS5.0-RD_1] | board 1:-/RAW_P 2:-/SW_P | easyeda 1:K 2:A
+D20 C2286 MISMATCH cpl 270 best 90 err 0.04 next 1.09 anchor-to-padcentre 0.00 mm [LED-SMD_L1.6-W0.8-R-RD] | board 1:-/GND 2:-/LED_FLT | easyeda 1:A 2:K
+D21 C20615803 OK cpl 0 best 0 err 0.02 next 1.57 anchor-to-padcentre 0.00 mm [SOD-323_L1.8-W1.3-LS2.5-BI] | board 1:-/JK_HCUR 2:-/GND | easyeda 1:1 2:2
+D22 C20615803 OK cpl 0 best 0 err 0.02 next 1.57 anchor-to-padcentre 0.00 mm [SOD-323_L1.8-W1.3-LS2.5-BI] | board 1:-/JK_HPOT 2:-/GND | easyeda 1:1 2:2
+D23 C20615803 OK cpl 0 best 0 err 0.02 next 1.57 anchor-to-padcentre 0.00 mm [SOD-323_L1.8-W1.3-LS2.5-BI] | board 1:-/JK_LPOT 2:-/GND | easyeda 1:1 2:2
+D24 C20615803 OK cpl 0 best 0 err 0.02 next 1.57 anchor-to-padcentre 0.00 mm [SOD-323_L1.8-W1.3-LS2.5-BI] | board 1:-/JK_LCUR 2:-/GND | easyeda 1:1 2:2
+D25 C20615817 OK cpl 180 best 180 err 0.05 next 1.03 anchor-to-padcentre 0.00 mm [SOD-523_L1.2-W0.8-LS1.6-BI] | board 1:-/DUT_HI 2:-/GND | easyeda 1:1 2:2
+D26 C20615817 OK cpl 180 best 180 err 0.05 next 1.03 anchor-to-padcentre 0.00 mm [SOD-523_L1.2-W0.8-LS1.6-BI] | board 1:-/HPOT 2:-/GND | easyeda 1:1 2:2
+D27 C20615817 OK cpl 0 best 0 err 0.05 next 1.03 anchor-to-padcentre 0.00 mm [SOD-523_L1.2-W0.8-LS1.6-BI] | board 1:-/LPOT 2:-/GND | easyeda 1:1 2:2
+D28 C2500 OK cpl 0 best 0 err 0.30 next 2.19 anchor-to-padcentre 0.00 mm [SOT-23-3_L2.9-W1.6-P1.90-LS2.8-BR] | board 1:-/GND 2:-/GND 3:-/DUT_LO | easyeda 1:1 2:2 3:3
+D29 C2480 OK cpl 90 best 90 err 0.04 next 2.80 anchor-to-padcentre 0.00 mm [SMA_L4.2-W2.6-LS5.0-RD_1] | board 1:-/GND 2:-/-12V | easyeda 1:K 2:A
+D3 C2480 OK cpl 90 best 90 err 0.04 next 2.80 anchor-to-padcentre 0.00 mm [SMA_L4.2-W2.6-LS5.0-RD_1] | board 1:-/SW_N 2:-/RAW_N | easyeda 1:K 2:A
+D4 C160472 OK cpl 0 best 0 err 0.10 next 1.35 anchor-to-padcentre 0.00 mm [LED-SMD_L1.7-W0.6-RD] | board 1:-/GND 2:-/LED_A | easyeda 1:C 2:A
+D5 C2128 OK cpl 0 best 0 err 0.12 next 1.57 anchor-to-padcentre 0.00 mm [SOD-323_L1.8-W1.3-LS2.5-RD] | board 1:-/VRLY 2:-/RLY_RST | easyeda 1:K 2:A
+D6 C2128 OK cpl 90 best 90 err 0.12 next 1.57 anchor-to-padcentre 0.00 mm [SOD-323_L1.8-W1.3-LS2.5-RD] | board 1:-/VRLY 2:-/RLY_SET_MED | easyeda 1:K 2:A
+D7 C2128 OK cpl 90 best 90 err 0.12 next 1.57 anchor-to-padcentre 0.00 mm [SOD-323_L1.8-W1.3-LS2.5-RD] | board 1:-/VRLY 2:-/RLY_SET_LO | easyeda 1:K 2:A
+D8 C2128 OK cpl 90 best 90 err 0.12 next 1.57 anchor-to-padcentre 0.00 mm [SOD-323_L1.8-W1.3-LS2.5-RD] | board 1:-/VRLY 2:-/RLY_SET_HI | easyeda 1:K 2:A
+D9 C2128 OK cpl 90 best 90 err 0.12 next 1.57 anchor-to-padcentre 0.00 mm [SOD-323_L1.8-W1.3-LS2.5-RD] | board 1:-/VRLY 2:-/RLY_SET_REF | easyeda 1:K 2:A
+J1 C165948 OK cpl 270 best 270 err 0.10 next 4.27 anchor-to-padcentre 1.30 mm [USB-C_SMD-TYPE-C-31-M-12_1]
+J3 C41416668 OK cpl 0 best 0 err 0.00 next 8.00 anchor-to-padcentre 0.00 mm [BNC-TH_BNC-KYWE-295-W4-N]
+J7 C41416668 OK cpl 0 best 0 err 0.00 next 8.00 anchor-to-padcentre 0.00 mm [BNC-TH_BNC-KYWE-295-W4-N]
+J8 C41416668 OK cpl 0 best 0 err 0.00 next 8.00 anchor-to-padcentre 0.00 mm [BNC-TH_BNC-KYWE-295-W4-N]
+J9 C41416668 OK cpl 0 best 0 err 0.00 next 8.00 anchor-to-padcentre 0.00 mm [BNC-TH_BNC-KYWE-295-W4-N]
+K1 C2684450 OK cpl 270 best 270 err 0.30 next 10.16 anchor-to-padcentre 0.00 mm [RELAY-SMD_TQ2SA-3V]
+K2 C2684450 OK cpl 270 best 270 err 0.30 next 10.16 anchor-to-padcentre 0.00 mm [RELAY-SMD_TQ2SA-3V]
+K3 C2684450 OK cpl 270 best 270 err 0.30 next 10.16 anchor-to-padcentre 0.00 mm [RELAY-SMD_TQ2SA-3V]
+K4 C2684450 OK cpl 90 best 90 err 0.30 next 10.16 anchor-to-padcentre 0.00 mm [RELAY-SMD_TQ2SA-3V]
+Q2 C20917 OK cpl 180 best 180 err 0.06 next 1.95 anchor-to-padcentre 0.00 mm [SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR] | board 1:-/RNG_RESET_G 2:-/GND 3:-/RLY_RST | easyeda 1:G 2:S 3:D
+Q3 C20917 OK cpl 180 best 180 err 0.06 next 1.95 anchor-to-padcentre 0.00 mm [SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR] | board 1:-/RNG_SET_MED_G 2:-/GND 3:-/RLY_SET_MED | easyeda 1:G 2:S 3:D
+Q4 C20917 OK cpl 180 best 180 err 0.06 next 1.95 anchor-to-padcentre 0.00 mm [SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR] | board 1:-/RNG_SET_LO_G 2:-/GND 3:-/RLY_SET_LO | easyeda 1:G 2:S 3:D
+Q5 C20917 OK cpl 180 best 180 err 0.06 next 1.95 anchor-to-padcentre 0.00 mm [SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR] | board 1:-/RNG_SET_HI_G 2:-/GND 3:-/RLY_SET_HI | easyeda 1:G 2:S 3:D
+Q6 C20917 OK cpl 180 best 180 err 0.06 next 1.95 anchor-to-padcentre 0.00 mm [SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR] | board 1:-/RNG_SET_REF_G 2:-/GND 3:-/RLY_SET_REF | easyeda 1:G 2:S 3:D
+Q7 C20917 OK cpl 0 best 0 err 0.06 next 1.95 anchor-to-padcentre 0.00 mm [SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR] | board 1:-/ISO_G 2:-/GND 3:-/ISO_SINK | easyeda 1:G 2:S 3:D
+SW1 C720477 OK cpl 0 best 0 err 0.04 next 3.12 anchor-to-padcentre 0.00 mm [SW-SMD_L3.9-W3.0-P4.45] | board 1:-/BOOTSEL 2:-/GND | easyeda 1:1 2:2
+SW2 C720477 OK cpl 0 best 0 err 0.04 next 3.12 anchor-to-padcentre 0.00 mm [SW-SMD_L3.9-W3.0-P4.45] | board 1:-/RUN 2:-/GND | easyeda 1:1 2:2
+U1 C2040 OK cpl 180 best 180 err 0.01 next 6.09 anchor-to-padcentre 0.00 mm [LQFN-56_L7.0-W7.0-P0.4-EP]
+U11 C16430 OK cpl 270 best 270 err 0.05 next 3.39 anchor-to-padcentre 0.00 mm [HVSSOP-8_L3.0-W3.0-P0.65-LS4.9-BL-EP_DGN0008D]
+U12 C33835 OK cpl 270 best 270 err 0.05 next 3.39 anchor-to-padcentre 0.00 mm [HVSSOP-8_L3.0-W3.0-P0.65-LS4.9-BL-EP_DGN0008D]
+U13 C87663 OK cpl 90 best 90 err 0.01 next 3.33 anchor-to-padcentre 0.00 mm [QFN-24_L4.0-W4.0-P0.50-TL-EP2.6]
+U14 C44853692 OK cpl 0 best 0 err 0.00 next 3.45 anchor-to-padcentre 0.00 mm [VQFN-24_L4.0-W4.0-P0.50-BL-EP2.1_1]
+U15 C51118 OK cpl 270 best 270 err 0.16 next 2.26 anchor-to-padcentre 0.00 mm [SOT-25-5_L2.9-W1.6-P0.95-LS2.8-BL]
+U16 C55266 OK cpl 0 best 0 err 0.21 next 2.31 anchor-to-padcentre 0.00 mm [SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BR]
+U17 C486059 OK cpl 180 best 180 err 0.21 next 2.31 anchor-to-padcentre 0.00 mm [SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BR]
+U18 C2152276 OK cpl 90 best 90 err 0.05 next 4.85 anchor-to-padcentre 0.00 mm [SOP-6_4P-L3.7-W4.6-P2.54-LS7.0-BL]
+U19 C2152276 OK cpl 270 best 270 err 0.05 next 4.85 anchor-to-padcentre 0.00 mm [SOP-6_4P-L3.7-W4.6-P2.54-LS7.0-BL]
+U2 C2922792 OK cpl 270 best 270 err 0.05 next 5.73 anchor-to-padcentre 0.00 mm [SOP-8_L5.3-W5.3-P1.27-LS8.0-BL]
+U20 C2152276 OK cpl 270 best 270 err 0.05 next 4.85 anchor-to-padcentre 0.00 mm [SOP-6_4P-L3.7-W4.6-P2.54-LS7.0-BL]
+U21 C2152276 OK cpl 90 best 90 err 0.05 next 4.85 anchor-to-padcentre 0.00 mm [SOP-6_4P-L3.7-W4.6-P2.54-LS7.0-BL]
+U3 C51118 OK cpl 270 best 270 err 0.16 next 2.26 anchor-to-padcentre 0.00 mm [SOT-25-5_L2.9-W1.6-P0.95-LS2.8-BL]
+U5 C221351 OK cpl 180 best 180 err 0.16 next 2.26 anchor-to-padcentre 0.00 mm [SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR]
+U6 C2864204 OK cpl 0 best 0 err 0.09 next 3.37 anchor-to-padcentre 0.00 mm [VSSOP-8_L3.0-W3.0-P0.65-LS4.9-BL]
+U7 C2864204 OK cpl 0 best 0 err 0.09 next 3.37 anchor-to-padcentre 0.00 mm [VSSOP-8_L3.0-W3.0-P0.65-LS4.9-BL]
+Y1 C20625731 OK cpl 0 best 0 err 0.00 next 1.97 anchor-to-padcentre 0.00 mm [CRYSTAL-SMD_4P-L3.2-W2.5-BL]
+Counter({'OK': 58, 'MISMATCH': 6})

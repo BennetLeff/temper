@@ -8,7 +8,7 @@ Applies to the Rev E board (`E-codec`, protocol 3): TAC5112 codec, latching rang
 - 6½-digit DMM (also used to characterize the cal kit, [CHARACTERIZE.md](../calkit/CHARACTERIZE.md)).
 - Oscilloscope, ≥ 100 MHz, short ground springs; a logic analyser (≥ 100 MS/s) for the TDM bus.
 - The cal kit card, Kelvin clip leads (jaws < 14 mm) and four BNC–clip leads.
-- `firmware-rev-e/bin/temper-lcr-rev-e.uf2` and `host/bin/temper-lcr-macos-arm64` (`temper-lcr` below).
+- `firmware-rev-e/bin/temper-lcr-rev-e.uf2` and `host/bin/temper-lcr-macos-arm64` (`temper-lcr` below). **On a Rev G or G100 board, use `temper-lcr-rev-g.uf2` everywhere this page says `temper-lcr-rev-e.uf2`.** The Rev E image never closes the jack switches, so `refcheck` / `relaycheck` (§4) cannot pass with it, and both images answer `INFO 3 E-codec`.
 
 **Safety.** The DUT shares USB ground. Measure only discharged, isolated parts. The jacks have no protection: the model in `validation/charged-dut/` puts the limit at 7 V with Kelvin clips when the meter is powered, and 0.5–1 V when it is not. So:
 1. Power the meter and wait for range 100k before connecting anything.
@@ -103,6 +103,8 @@ The TPS65131 enables come from U17 (LM3880). FLAG1 releases ENP and FLAG2 releas
 3. Hot-plug at the VB pad (TP20, USB_VBUS at U16 IN, with the GND pad beside it), using 1 m and 2 m cables, and at least once with a **USB-A to C cable** from an always-on port: that is the hard-step case. The peak must stay under 7 V (TPS2553 IN abs max), and under 6 V wherever it reaches U13 VIN. `validation/power-spurs/hotplug_spice.py` predicts at most 6.24 V with R121; a higher reading means the cable is outside its assumed 0.3–1.5 µH / 0.05–0.30 Ω, so record the cable and rerun the script with it. Then do ten USB-A plug-ins and, unpowered, measure R121 in place (VBUS_DAMP to GND): it must still read about 1.5 Ω. Each plug-in puts at most 79 µJ into it (`validation/passive-ratings/`), and UNI-ROYAL publishes no 0603WAF pulse curve.
 
 ## 3. Firmware and digital
+
+**Rev G / G100:** flash `temper-lcr-rev-g.uf2`, not `temper-lcr-rev-e.uf2`, in step 1 and in every reflash below.
 
 1. Hold BOOTSEL, connect USB and copy `temper-lcr-rev-e.uf2` to RPI-RP2. A blank board needs no BOOTSEL press: with no valid boot2 in flash the ROM drops to USB mass storage after 0.5 s. J4–J6 are not fitted; solder a 2-pin header at J4/J5 if SWD recovery is ever needed. The flash is a GD25Q16E (2 MB), not the Pico's Winbond part: the firmware booting from flash after the copy confirms that `boot2_w25q080` sets its QE bit and runs quad reads. If it does not boot, rebuild with `PICO_BOOT_STAGE2_CHOOSE_GENERIC_03H=1` (slower, command-set independent) and report it.
 2. Run `temper-lcr info PORT`. It must show `INFO 3 E-codec … 120000000 187500 4096 100000 …` and `PASS`: boot runs the codec bring-up and the self-test, and selects the 100 kΩ range. Compare its rail readings with the DMM (within about 3 %).

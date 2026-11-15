@@ -1,0 +1,86 @@
+--- 156.0 47.0
+TEMPER LCR REV G100 - FABRICATION NOTES
+--- 156.0 49.1
+1. Board 100.00 x 100.00 mm, 4 layers, 1.6 mm finished. FR-4, TG 135-140.
+--- 156.0 51.2
+2. Stackup JLC04161H-7628: F.Cu 1 oz | 7628 prepreg | In1.Cu 0.5 oz GND plane | core |
+--- 156.0 53.3
+   In2.Cu 0.5 oz signals + GND pour | 7628 prepreg | B.Cu 1 oz signals + GND pour.
+--- 156.0 55.4
+3. Finish ENIG. Solder mask both sides; silkscreen top only (bottom intentionally empty).
+--- 156.0 57.5
+4. Vias: every drill 0.30 mm. Covering "Plugged" (JLC default); do NOT order POFV.
+--- 156.0 59.6
+   Exposed-pad thermal vias in U1, U11, U12, U13, U14 sit under paste windows; JLC's
+--- 156.0 61.7
+   plugging fills them (TI: "filled, plugged or tented"). No other via touches an SMT land.
+--- 156.0 63.8
+5. Drill summary (467 holes; drill files temper-lcr-PTH.drl / -NPTH.drl govern):
+--- 156.0 65.9
+  vias        41 x 0.30 mm drill, 0.45 mm pad
+--- 156.0 68.0
+  vias        27 x 0.30 mm drill, 0.55 mm pad
+--- 156.0 70.1
+  vias       367 x 0.30 mm drill, 0.60 mm pad
+--- 156.0 72.2
+  PTH          2 x 0.60 x 1.40 mm slot
+--- 156.0 74.3
+  PTH          2 x 0.60 x 1.70 mm slot
+--- 156.0 76.4
+  PTH          2 x 1.00 mm
+--- 156.0 78.5
+  PTH          4 x 1.20 mm
+--- 156.0 80.6
+  PTH         16 x 1.40 mm
+--- 156.0 82.7
+  NPTH         2 x 0.60 mm
+--- 156.0 84.8
+  NPTH         4 x 3.20 mm
+--- 156.0 86.9
+6. Panel: edge rails added by JLCPCB, V-cut on the LEFT and RIGHT edges only.
+--- 156.0 89.0
+   No rail on the front (BNC, y = top in this view) edge or the back edge.
+--- 156.0 91.1
+7. Overhang: BNC J3, J7, J8, J9 reach 18.5 mm past the front edge (hand-fitted after
+--- 156.0 93.2
+   reflow); J1 USB-C shell 0.2 mm past the left edge, >= 0.9 mm above the board.
+--- 156.0 95.3
+8. Minimum track / space 0.15 / 0.15 mm; minimum via ring 0.075 mm; copper to edge >= 0.4 mm.
+--- 156.0 97.4
+9. Origin (0, 0) at the lower-left board corner for Gerber, drill and placement files.
+Counter({'PCB_TEXT': 25, 'PCB_DIM_ALIGNED': 2}) extent mm [35.681251, 251.924288, 44.925, 151.661422]
+SILK F.Silkscreen 52.8 106.4 'FSYNC'
+SILK F.Silkscreen 53.2 104.4 'BCLK'
+SILK F.Silkscreen 53.2 108.4 'DOUT'
+SILK F.Silkscreen 53.5 110.4 'DIN'
+SILK F.Silkscreen 53.5 112.4 'GND'
+SILK F.Silkscreen 61.8 111.3 'GND'
+SILK F.Silkscreen 62.0 129.4 'HB'
+SILK F.Silkscreen 63.0 57.6 'HCUR'
+SILK F.Silkscreen 63.2 137.0 'VB'
+SILK F.Silkscreen 67.6 110.8 'FLT'
+SILK F.Silkscreen 72.1 120.0 'GND'
+SILK F.Silkscreen 85.0 57.6 'HPOT'
+SILK F.Silkscreen 86.7 118.5 'K2'
+SILK F.Silkscreen 92.0 143.5 '3V3'
+SILK F.Silkscreen 94.8 125.0 'RST'
+SILK F.Silkscreen 97.2 141.6 'GND'
+SILK F.Silkscreen 97.9 127.4 '5V'
+SILK F.Silkscreen 100.0 46.4 'DISCHARGED'
+SILK F.Silkscreen 100.0 48.0 'DUT ONLY'
+SILK F.Silkscreen 102.0 142.4 '5V'
+SILK F.Silkscreen 103.1 128.4 'GND'
+SILK F.Silkscreen 104.6 143.8 '3V3'
+SILK F.Silkscreen 107.0 57.6 'LPOT'
+SILK F.Silkscreen 107.2 142.4 '+12'
+SILK F.Silkscreen 108.6 131.2 '+12'
+SILK F.Silkscreen 109.4 121.6 'K1'
+SILK F.Silkscreen 109.8 125.7 '-12'
+SILK F.Silkscreen 109.8 143.8 '-12'
+SILK F.Silkscreen 116.1 129.8 'TEMPER LCR REV G100'
+SILK F.Silkscreen 123.9 117.7 'VRLY'
+SILK F.Silkscreen 124.2 121.6 'K3'
+SILK F.Silkscreen 128.8 119.8 'RAW+'
+SILK F.Silkscreen 129.0 57.6 'LCUR'
+SILK F.Silkscreen 145.6 115.0 'RAW-'
+SILK F.Silkscreen 145.8 85.6 'K4'

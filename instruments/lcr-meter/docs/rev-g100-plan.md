@@ -71,7 +71,7 @@ Branch `study/lcr-rev-g100`. Rev G (100 × 110) stays intact on `study/lcr-rev-g
 | USB hot-plug (`hotplug_spice.py`, ngspice 45.2), with 30 nH of board copper added to the cable | worst as-built corner 6.251 V, 0 of 96 over the 6.5 V recommended maximum. The 0 nH baseline reproduces Rev F's 6.24 V on this ngspice. Not rerun after the audit: the model already puts C15 at U16 IN behind the board inductance, where C15 now is, and the J1 → U16 feed is unchanged | `hotplug-spice.json`, `hotplug-spice-l0.json` |
 | Switcher near-field pickup vs Rev E (relative, not a bound) | see §3 | `switcher-pickup.json` |
 | Board envelope | 100.05 × 100.05 mm; BNCs 13.75 mm tall, 18.48 mm past the front; J1 at y 127.5–136.5 | `board-envelope.json` |
-| Cost, 5 boards (Rev G's 2026-11-09 price snapshot, plus the four audit codes added that day) | **$400.38 economic** (before the audit $387.22; the audit's three new extended parts add $9.21 in feeder fees). Rev G $411.22, Rev F $358.17. The board is back under JLC's 100 × 100 special offer ($25.70 vs $49.70) | `order-estimate-5.json`, `fab-quote.json` |
+| Cost, 5 boards (Rev G's 2026-11-09 price snapshot, plus the four audit codes added that day) | **$400.38 economic on that snapshot; $397.96 + $31.07 JLC BNC hand fit on the 2026-11-10 snapshot (`order-estimate-5.json`, the handoff)** (before the audit $387.22; the audit's three new extended parts add $9.21 in feeder fees). Rev G $411.22, Rev F $358.17. The board is back under JLC's 100 × 100 special offer ($25.70 vs $49.70) | `order-estimate-5.json`, `fab-quote.json` |
 
 **Hot-plug allowance:** 30 nH covers the J1 → U16 copper. That is about 25 mm of track at 1.2 nH/mm, above any microstrip over a plane at this width.
 

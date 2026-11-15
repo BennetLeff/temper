@@ -1,0 +1,16 @@
+./src/common/stdpbase.cpp(59): assert ""traits"" failed in Get(): create wxApp before calling this
+aux origin mm 50.0 145.0
+edge bbox mm 49.975 44.975 100.05 100.05
+footprints 282 sides Counter({'top': 282})
+(dnp,exbom,expos,smd,tht): {(False, False, False, True, False): 248, (False, True, True, True, False): 25, (False, True, True, False, False): 4, (False, False, False, False, True): 4, (True, False, False, False, True): 1}
+field names seen: Counter({'Reference': 282, 'Value': 282, 'Datasheet': 282, 'Description': 282, 'MPN': 253, 'Manufacturer': 253, 'LCSC': 253, 'Unit_USD': 253, 'Assembly': 253, 'KiLib_Generator': 232})
+CPL rows 252 BOM designators 252 BOM lines 80
+BOM-CPL [] CPL-BOM []
+board(not exbom) - BOM: ['J4']
+BOM - board: []
+non-BOM footprints: ['FID1', 'FID2', 'FID3', 'H1', 'H2', 'H3', 'H4', 'TP1', 'TP10', 'TP11', 'TP12', 'TP13', 'TP14', 'TP15', 'TP16', 'TP17', 'TP18', 'TP19', 'TP2', 'TP20', 'TP21', 'TP22', 'TP3', 'TP4', 'TP5', 'TP6', 'TP7', 'TP8', 'TP9']
+DNP: ['J4']
+CPL position mismatches (footprint anchor): 0
+lcsc field keys ['LCSC']
+LCSC/footprint mismatches: 0
+orientation-audit rows 252 rotation mismatches 0
