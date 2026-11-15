@@ -4,15 +4,15 @@
  "inputs": {
   "fab_files": {
    "zip": "build/rev-g100-gerbers.zip",
-   "sha256": "3c649f60e59c3d5d2751ef0fb89d8d7ac2e9279f3f2fec60a5b6476eef7ae19d"
+   "sha256": "ac6f45a6a8af1b21a5cd7a72e03637d6f95ca536834a5cd39923aa9f26498504"
   },
   "zip_members_used": {
-   "temper-lcr-B_Cu.gbl": "c35fbf61105f7c9b3baf301a19843a8814bd2f680a09b20db55442304009d8bc",
-   "temper-lcr-F_Cu.gtl": "3919b1526a693816f38231a4cc501b7ffabd86d49c0546620909f270ef22a742",
-   "temper-lcr-In1_Cu.g1": "854a35509bac9cdf628733c6d1e696deeedbde6c2513de3152f8d7ca288eed24",
-   "temper-lcr-In2_Cu.g2": "c356f4d4d1bc874efe0746966875fb859f0de7f664fda3692cea329f37e37b59",
-   "temper-lcr-NPTH.drl": "58e1326432179ffb45b67b3120d9cc071d75659f68a4595f603d3874554d3cbb",
-   "temper-lcr-PTH.drl": "fcb65051a1dbb8839b478e6dbf574c9000a0ef3dc153a122cae49b31421384ed"
+   "temper-lcr-B_Cu.gbl": "77fb1cac258606b9e1c6a10a43699a8a304028d5bf25ce642cc6a068e3ebe343",
+   "temper-lcr-F_Cu.gtl": "3c7e15845d25b9fa88c425fbf533173dd7d2c107b7a857e01d3ef991dc9b5f2a",
+   "temper-lcr-In1_Cu.g1": "1edc9dab21950f3c5ee972eab339d7e54fbd4a2eb8caafd7f74e72055567ee64",
+   "temper-lcr-In2_Cu.g2": "85328266d1d5335f6203bebe0bd34f627e7958f5020ec3e087e7881bf5612281",
+   "temper-lcr-NPTH.drl": "8066f00edf87d4c72347c482810ed4631ae0d0d1214311256dfbf71668f67ecc",
+   "temper-lcr-PTH.drl": "4ceb76fe4775097e5e31ad0222513fd09b11f3cb0c7be60c53491616b41974bb"
   },
   "ipc_d356": {
    "source": "fab set:temper-lcr.d356",
@@ -24,11 +24,11 @@
   },
   "schematic_netlist": {
    "source": "kicad-cli sch export netlist cad/temper-lcr.kicad_sch (exported at run time)",
-   "sha256": "3d24c79ade4ce8011739a918604b0d77cd5b4520cc13c43b988e5ad799c896be"
+   "sha256": "cf2eff61757a6d65d46c7e3d32771c7c934185573d8e58644a0c370ae1972c00"
   },
   "board_for_reference_only": {
    "path": "cad/temper-lcr.kicad_pcb",
-   "sha256": "e8f7c973138fdca1514bfd8110d0430c480ad56fd1d0623039f4933dc1ff7b00",
+   "sha256": "0822e8e24ff3728290f0c9bdde0be265a797a50410383ae9804c167c9cc1a4cd",
    "note": "not read by the checker; IPC-356 positions come from it"
   }
  },
@@ -350,8 +350,8 @@
   }
  },
  "timing_s": {
-  "geometry": 1.0,
-  "total": 1.3
+  "geometry": 1.1,
+  "total": 1.4
  },
  "self_test": {
   "short": {

@@ -1589,13 +1589,13 @@
         1.2
       ],
       [
-        "6. Panel: edge rails added by JLCPCB, V-cut on the LEFT and RIGHT edges only.",
+        "6. Panel: none (Economic PCBA). JLCPCB adds tooling holes through GND pour only, e.g.",
         156.0,
         86.9,
         1.2
       ],
       [
-        "   No rail on the front (BNC, y = top in this view) edge or the back edge.",
+        "   X 1.5 Y 98.5, X 98.5 Y 95.0, X 94.0 Y 8.0 mm from lower-left. Rails only if asked: L/R V-cut.",
         156.0,
         89.0,
         1.2

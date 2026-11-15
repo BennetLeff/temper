@@ -76516,7 +76516,7 @@
 			(justify left)
 		)
 	)
-	(gr_text "6. Panel: edge rails added by JLCPCB, V-cut on the LEFT and RIGHT edges only."
+	(gr_text "6. Panel: none (Economic PCBA). JLCPCB adds tooling holes through GND pour only, e.g."
 		(at 156 86.9 0)
 		(layer "Dwgs.User")
 		(uuid "e9fe00c2-707b-5fb2-9654-4c954b44441d")
@@ -76528,7 +76528,7 @@
 			(justify left)
 		)
 	)
-	(gr_text "   No rail on the front (BNC, y = top in this view) edge or the back edge."
+	(gr_text "   X 1.5 Y 98.5, X 98.5 Y 95.0, X 94.0 Y 8.0 mm from lower-left. Rails only if asked: L/R V-cut."
 		(at 156 89 0)
 		(layer "Dwgs.User")
 		(uuid "2791770f-54c1-5384-a4e5-23f5081d4d43")

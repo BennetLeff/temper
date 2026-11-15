@@ -19,8 +19,8 @@ A USB-powered, four-terminal LCR meter for Temper's own parts: the coil, the pan
 ## State
 
 - **Branch:** `study/lcr-rev-g100`, worktree `worktrees/lcr-rev-g/instruments/lcr-meter`. Pushed.
-- **Board:** `cad/temper-lcr.kicad_pcb`, SHA-256 `e8f7c973138fdca1514bfd8110d0430c480ad56fd1d0623039f4933dc1ff7b00`. 100 × 100 mm, 4 layers, hand-routed. Since `49ba0a39…` (2026-11-10) only J4's DNP flag changed. The copper is unchanged, and so is every Gerber, except for its creation-date line.
-- **Gerber zip:** `manufacturing/temper-lcr-gerbers.zip`, SHA-256 `3c649f60e59c3d5d2751ef0fb89d8d7ac2e9279f3f2fec60a5b6476eef7ae19d`. It is gitignored; `sh validation/rev-g100/gates.sh` regenerates it, and the board above produces it. It carries the IPC-D-356 netlist `temper-lcr.d356`.
+- **Board:** `cad/temper-lcr.kicad_pcb`, SHA-256 `0822e8e24ff3728290f0c9bdde0be265a797a50410383ae9804c167c9cc1a4cd`. 100 × 100 mm, 4 layers, hand-routed. Since `49ba0a39…` (2026-11-10), two things changed and the copper did not: J4's DNP flag, and fab note 6 on the drawing layer, which now gives tooling holes instead of edge rails.
+- **Gerber zip:** `manufacturing/temper-lcr-gerbers.zip`, SHA-256 `ac6f45a6a8af1b21a5cd7a72e03637d6f95ca536834a5cd39923aa9f26498504`. It is gitignored; `sh validation/rev-g100/gates.sh` regenerates it from the board above. A rerun changes only the creation-date lines, and so the hash: compare the files in `manufacturing/gerbers/`, not the zip hash. It carries the IPC-D-356 netlist `temper-lcr.d356`.
 - **Gates** (`sh validation/rev-g100/gates.sh`):
   - pre-DRC 0 and KiCad DRC 0, 0 unconnected, ERC and schematic parity 0;
   - Gerber netlist 0 shorts / 0 opens;
@@ -51,7 +51,12 @@ A USB-powered, four-terminal LCR meter for Temper's own parts: the coil, the pan
 
 ## Stock (JLC, live check 2026-11-15, `../validation/rev-g100/package-review-2026-11-15/live-stock.txt`)
 
-Every line is still in stock for five boards, but several have been falling fast. **Order soon.** If the order slips more than a day or two, buy 22 relays (C2684450) into the JLC parts inventory first, about $45.
+Every line is still in stock for five boards, but several have been falling fast. **Order soon.** If the order slips more than a day or two, buy these into the JLC parts inventory first:
+- 22 relays (C2684450), about $45;
+- five Y1 crystals (C20625731), about $2. Y1 went from 675 to 0 within one day on 2026-10-30 (the Rev F quote record), and it was at 328 at 14:13 on 11-15;
+- five TPS65131RGER (C87663), about $17. JLC stocks no alternate: the Q1 variants have 3 and 5.
+
+The optimization review (`../validation/rev-g100/optimization-review-2026-11-15/`) has the live stock at 14:13 on 11-15, with drop-in alternates for the LM3880, OPA2810 and R123 / R124.
 
 | Part | Need (5 boards) | 11-10 | **11-15** |
 |---|---|---|---|
@@ -79,13 +84,13 @@ The package review recommends two (`../validation/rev-g100/package-review-2026-1
 - the Rev G firmware has never run;
 - four respin items are already listed.
 
-The cost of two is paying the setup and extended-part fees (about $115) again if three more are wanted later. **The owner decides.** The estimate's $12.30 X-ray line was not charged on Rev F's real quote, so expect slightly less. Shipping and tax are extra.
+The cost of two is paying the setup and extended-part fees (about $115) again if three more are wanted later. **The owner decides.** The estimate's $12.30 X-ray line was not charged on Rev F's real quote, so expect slightly less. Against that, the estimate charges no extended-part fee on the two hand-fit lines (BNC, J4). If JLC does charge it, add about $6. Shipping and tax are extra.
 
 ## To order
 
 Only the owner signs in, adds to the cart or pays.
 
-1. **PCB.** At cart.jlcpcb.com/quote, upload `manufacturing/temper-lcr-gerbers.zip` (SHA-256 `3c649f60e59c3d5d2751ef0fb89d8d7ac2e9279f3f2fec60a5b6476eef7ae19d`). It should detect "4 layer board of 100x100mm".
+1. **PCB.** At cart.jlcpcb.com/quote, upload `manufacturing/temper-lcr-gerbers.zip` (SHA-256 `ac6f45a6a8af1b21a5cd7a72e03637d6f95ca536834a5cd39923aa9f26498504`). It should detect "4 layer board of 100x100mm".
    - If it does not, delete `temper-lcr.d356` and `temper-lcr-User_Drawings.gbr` from a copy of the zip and upload that. JLC's uploader has not seen the netlist file, and the drawing layer extends past the board.
    - Settings:
      - FR-4, qty 5, 1.6 mm, green / white, TG135, ENIG 1 µ";
@@ -138,4 +143,5 @@ Only the owner signs in, adds to the cart or pays.
    - the 0.4 mm 5V neck at U16;
    - 4.5 V-coil relays;
    - a host `jacks` command (the firmware's `BUILD` now names the image);
-   - the pre-mortem's trades: the Schottky 3V3A → 3V3, UART and trigger pads, and snubber lands.
+   - the pre-mortem's trades: the Schottky 3V3A → 3V3, UART and trigger pads, and snubber lands;
+   - the optimization review's parts savings: C39 / C40 / C44 / C45 / C48 / C49 to the basic X5R (C377773) after a DC-bias check; R94 to 1 %; the ten 10 µF 1210 capacitors to a 1206 land with C13585. Together they save about $16 per five boards.

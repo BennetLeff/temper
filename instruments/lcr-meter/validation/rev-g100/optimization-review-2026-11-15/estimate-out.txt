@@ -1,0 +1,22 @@
+== committed 2026-11-10 snapshot
+N=5 baseline: lines 81 ext 34 SMT parts 239.62 ext fee 104.38 economic 397.96 hand 32.74 total 430.7
+   A1 C39/40/44/45/48/49 2.2uF 50V X7R C125847 -> basic 2.2uF 50V X5R C377773: ext 33 total 424.86  saving +5.84
+   A1b same six -> 4.7uF 25V X5R C1779 (already on BOM as C113): ext 33 total 424.37  saving +6.33
+   X1 U2 GD25Q16E C2922792 -> basic W25Q128JVSIQ C97521: ext 33 total 435.91  saving -5.21
+   C1 (respin) 10uF 1210 C138687 -> basic 1206 10uF 50V X5R C13585: ext 33 total 422.91  saving +7.79
+N=2 baseline: lines 81 ext 34 SMT parts 113.16 ext fee 104.38 economic 265.56 hand 17.36 total 282.93
+   A1 C39/40/44/45/48/49 2.2uF 50V X7R C125847 -> basic 2.2uF 50V X5R C377773: ext 33 total 278.28  saving +4.65
+   A1b same six -> 4.7uF 25V X5R C1779 (already on BOM as C113): ext 33 total 277.71  saving +5.22
+   X1 U2 GD25Q16E C2922792 -> basic W25Q128JVSIQ C97521: ext 33 total 283.17  saving -0.24
+   C1 (respin) 10uF 1210 C138687 -> basic 1206 10uF 50V X5R C13585: ext 33 total 277.6  saving +5.33
+== live snapshot
+N=5 baseline: lines 81 ext 34 SMT parts 245.38 ext fee 104.38 economic 403.72 hand 32.57 total 436.29
+   A1 C39/40/44/45/48/49 2.2uF 50V X7R C125847 -> basic 2.2uF 50V X5R C377773: ext 33 total 431.08  saving +5.21
+   A1b same six -> 4.7uF 25V X5R C1779 (already on BOM as C113): ext 33 total 430.59  saving +5.70
+   X1 U2 GD25Q16E C2922792 -> basic W25Q128JVSIQ C97521: ext 33 total 441.41  saving -5.12
+   C1 (respin) 10uF 1210 C138687 -> basic 1206 10uF 50V X5R C13585: ext 33 total 428.98  saving +7.31
+N=2 baseline: lines 81 ext 34 SMT parts 115.34 ext fee 104.38 economic 267.74 hand 17.3 total 285.04
+   A1 C39/40/44/45/48/49 2.2uF 50V X7R C125847 -> basic 2.2uF 50V X5R C377773: ext 33 total 280.74  saving +4.30
+   A1b same six -> 4.7uF 25V X5R C1779 (already on BOM as C113): ext 33 total 280.17  saving +4.87
+   X1 U2 GD25Q16E C2922792 -> basic W25Q128JVSIQ C97521: ext 33 total 285.25  saving -0.21
+   C1 (respin) 10uF 1210 C138687 -> basic 1206 10uF 50V X5R C13585: ext 33 total 279.9  saving +5.14
