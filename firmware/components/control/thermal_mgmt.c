@@ -33,7 +33,7 @@ const ntc_table_t NTC_TABLE_SEMITEC_104GT2 = {
  * buffer; HS / COIL also have the thermal-sense block's 100 nF (C20 / C22) at the node. */
 const ntc_channel_t THERMAL_NTC_RIM = {
     .r_pullup_ohm = RIM_NTC_R_PULLUP_OHM, .r25_ohm = RIM_NTC_R25_OHM, .beta_k = RIM_NTC_BETA_K,
-    .curve = NULL,
+    .curve = NULL, .adc_gain = 1.0f,
 #if RIM_NTC_USE_GT2_TABLE
     .table = &NTC_TABLE_SEMITEC_104GT2,
 #else
@@ -48,7 +48,7 @@ const ntc_channel_t THERMAL_NTC_RIM = {
  * over-temperature is never classed as a short first). */
 const ntc_channel_t THERMAL_NTC_COIL = {
     .r_pullup_ohm = 10000.0f, .r25_ohm = 100000.0f, .beta_k = 4267.0f,
-    .curve = NULL, .table = &NTC_TABLE_SEMITEC_104GT2, .v_ref_mv = 3304.0f, .t_open_c = -20.0f,
+    .curve = NULL, .table = &NTC_TABLE_SEMITEC_104GT2, .adc_gain = 1.0f, .v_ref_mv = 3304.0f, .t_open_c = -20.0f,
     .t_short_c = 200.0f, .v_meas_max_mv = THERMAL_ADC_MEAS_MAX_MV, .r25_tol = 0.03f,
     .beta_tol = 0.02f, .dissipation_mw_per_k = 0.6f, .filt_r_ohm = 10000.0f, .filt_c_f = 100e-9f,
     .node_c_f = 100e-9f,
@@ -57,8 +57,9 @@ const ntc_channel_t THERMAL_NTC_COIL = {
  * constant ~1.5 mW/K is not used for a correction (0.1 mW at most on a 10 k pull-up). */
 const ntc_channel_t THERMAL_NTC_SINK = {
     .r_pullup_ohm = 10000.0f, .r25_ohm = 100000.0f, .beta_k = 4190.0f,
-    .curve = &NTC_CURVE_VISHAY_MAT_D_4190, .table = NULL, .v_ref_mv = 3304.0f, .t_open_c = -20.0f,
-    .t_short_c = 200.0f, .v_meas_max_mv = THERMAL_ADC_MEAS_MAX_MV, .r25_tol = 0.02f,
+    .curve = &NTC_CURVE_VISHAY_MAT_D_4190, .table = NULL, .adc_gain = HS_ADC_GAIN,
+    .v_ref_mv = 3304.0f, .t_open_c = -20.0f,
+    .t_short_c = 200.0f, .v_meas_max_mv = HS_ADC_OPEN_PIN_MV, .r25_tol = 0.02f,
     .beta_tol = 0.015f, .dissipation_mw_per_k = 1.5f, .filt_r_ohm = 10000.0f, .filt_c_f = 100e-9f,
     .node_c_f = 100e-9f,
 };
@@ -128,17 +129,18 @@ static float temp_from_r(const ntc_channel_t *ch, float r)
 float ntc_channel_mv_at(const ntc_channel_t *ch, float temp_c)
 {
     float r = ntc_channel_r_at(ch, temp_c);
-    return ch->v_ref_mv * r / (r + ch->r_pullup_ohm);
+    return ch->adc_gain * ch->v_ref_mv * r / (r + ch->r_pullup_ohm);
 }
 
 static float temp_at_mv(const ntc_channel_t *ch, float mv)
 {
-    return temp_from_r(ch, ch->r_pullup_ohm * mv / (ch->v_ref_mv - mv));
+    float node_mv = mv / ch->adc_gain;
+    return temp_from_r(ch, ch->r_pullup_ohm * node_mv / (ch->v_ref_mv - node_mv));
 }
 
 float ntc_channel_range_min_c(const ntc_channel_t *ch)
 {
-    if (!(ch->v_meas_max_mv > 0.0f) || ch->v_meas_max_mv >= ch->v_ref_mv) return ch->t_open_c;
+    if (!(ch->v_meas_max_mv > 0.0f) || ch->v_meas_max_mv >= ch->adc_gain * ch->v_ref_mv) return ch->t_open_c;
     return temp_at_mv(ch, ch->v_meas_max_mv);
 }
 
@@ -146,7 +148,7 @@ ntc_status_t ntc_channel_temp_c(const ntc_channel_t *ch, float mv, float *temp_c
 {
     if (!ch || !temp_c || !isfinite(mv)) return NTC_BAD_ARG;
     /* Thresholds follow the model, so new R / B values need no re-derivation. */
-    if (mv >= ntc_channel_mv_at(ch, ch->t_open_c) || mv >= ch->v_ref_mv) return NTC_OPEN;
+    if (mv >= ntc_channel_mv_at(ch, ch->t_open_c) || mv >= ch->adc_gain * ch->v_ref_mv) return NTC_OPEN;
     if (mv <= ntc_channel_mv_at(ch, ch->t_short_c) || mv <= 0.0f) return NTC_SHORT;
     if (ch->v_meas_max_mv > 0.0f && mv >= ch->v_meas_max_mv) {
         *temp_c = ntc_channel_range_min_c(ch);

@@ -56,7 +56,7 @@ static const char *TAG = "thermal_io";
 static uint32_t ms_since_boot(void) { return (uint32_t)(esp_timer_get_time() / 1000); }
 
 /* NTC_OK and (for HS / COIL) NTC_BELOW_RANGE give a temperature; the latter is the ADC range
- * floor (~15 C), an upper bound for a healthy sensor, so the over-temperature interlocks stay
+ * floor (sink ~18 C, coil ~15 C), an upper bound for a healthy sensor, so the over-temperature interlocks stay
  * correct in a cold kitchen. An open HS / COIL NTC reads the same; the thermal-sense OPEN_REF
  * comparator latches it in hardware, and the blower tick runs full speed on it. */
 static bool read_ntc(unsigned idx, const ntc_channel_t *ch, bool below_range_ok, float *temp_c,
@@ -160,8 +160,8 @@ void thermal_blower_tick(void)
     bool sink_low = false, coil_low = false;
     float sink_c = read_sink(&sink_low), coil_c = read_coil(&coil_low);
     /* Any hardware thermal trip, the interlock latch, a stale expander snapshot, or a sink / coil
-     * node above the ADC's range (colder than ~15 C, or an open NTC: indistinguishable): full
-     * speed. In a cold kitchen that is a short burst of noise until the sink warms past ~15 C. */
+     * node above the ADC's range (sink colder than ~18 C, coil ~15 C, or an open NTC: indistinguishable): full
+     * speed. In a cold kitchen that is a short burst of noise until the sink warms past ~18 C. */
     ctrl_exp_cache_t c;
     bool exp_ok = ctrl_board_expander(&c) && ctrl_exp_fresh(&c, (uint64_t)esp_timer_get_time(),
                                                             CTRL_EXP_MAX_AGE_US);

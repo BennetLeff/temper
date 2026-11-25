@@ -63,6 +63,17 @@ extern const ntc_table_t NTC_TABLE_SEMITEC_104GT2;
  * "ADC_ATTEN_DB_12 ... 0 mV ~ 3100 mV"). A node above this reads as the top of the range. */
 #define THERMAL_ADC_MEAS_MAX_MV 3100.0f
 
+/* Heatsink channel only (controller C45, CR-8): after the follower the node reaches GPIO6 through
+ * 1.00 k / 5.90 k (0.1 %), so the pin is 0.855072 x node (0.854421-0.855722 over tolerance and
+ * temperature). The coil and rim channels have no divider. */
+#define HS_ADC_GAIN        0.855072f
+#define HS_ADC_GAIN_LOW    0.854421f
+/* "Cold or open" limit at the HS pin. The divider brings an open NTC (node = v3v3) inside the ADC
+ * range, so the ADC top no longer separates it from a cool sink: the limit is the lowest pin an open
+ * sensor can give (TPS3703 low limit 3146 mV, low gain, -50 mV ADC error). ~18 C; below it the
+ * reading is the floor and the fan law runs full speed, as before CR-8 (~15 C). */
+#define HS_ADC_OPEN_PIN_MV (3146.0f * HS_ADC_GAIN_LOW - 50.0f)
+
 typedef struct ntc_channel {
     float r_pullup_ohm;         /* to v_ref */
     float r25_ohm;              /* NTC at 25 C */
@@ -70,6 +81,7 @@ typedef struct ntc_channel {
                                  * tolerance basis */
     const ntc_curve_t *curve;   /* Vishay R-T model, or NULL */
     const ntc_table_t *table;   /* manufacturer table, or NULL */
+    float adc_gain;             /* ADC pin / node: 1, or the divider after the buffer (HS: CR-8) */
     float v_ref_mv;             /* divider supply (v3v3, C8: 3.304 V nominal) */
     float t_open_c;             /* a node implying colder than this = open NTC / unplugged */
     float t_short_c;            /* a node implying hotter than this = shorted NTC */

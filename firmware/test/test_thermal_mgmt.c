@@ -8,6 +8,9 @@
 #include <math.h>
 #include <stdio.h>
 
+/* CR-8 divider 5.90 k / 6.90 k (controller C45). */
+#define HS_PIN_GAIN (5900.0 / 6900.0)
+
 static unsigned tests;
 #define TEST(fn) do { fn(); tests++; printf("PASS %s\n", #fn); } while (0)
 #define NEAR(a, b, tol) (fabs((double)(a) - (double)(b)) <= (tol))
@@ -41,8 +44,8 @@ static void test_vishay_curve_against_rt_table(void)
         float r = ntc_channel_r_at(&THERMAL_NTC_SINK, tab[i].t_c) / 1000.0f;
         assert(fabs(r / tab[i].r_kohm - 1.0) < 0.002); /* table is printed to 4 digits */
         float t = -999.0f;
-        float mv = 3304.0f * tab[i].r_kohm / (tab[i].r_kohm + 10.0f);
-        if (mv < THERMAL_ADC_MEAS_MAX_MV) {
+        float mv = HS_PIN_GAIN * 3304.0f * tab[i].r_kohm / (tab[i].r_kohm + 10.0f);
+        if (mv < THERMAL_NTC_SINK.v_meas_max_mv) {
             assert(ntc_channel_temp_c(&THERMAL_NTC_SINK, mv, &t) == NTC_OK);
             assert(NEAR(t, tab[i].t_c, 0.1));
         }
@@ -55,8 +58,8 @@ static void test_vishay_curve_against_rt_table(void)
         printf("  sink node %6.1f C = %7.1f mV (tolerance +/- %.2f K)\n", pts[i], mv,
                ntc_channel_tol_k(&THERMAL_NTC_SINK, pts[i]));
     }
-    /* Pinned conversion points: 25 C = 3004 mV, 95 C = 2 sig. figures of the R-T table. */
-    assert(NEAR(ntc_channel_mv_at(&THERMAL_NTC_SINK, 25.0f), 3304.0 * 100.0 / 110.0, 0.5));
+    /* Pinned conversion points: 25 C = 3004 mV at the node, 2568 mV at the pin (CR-8 divider). */
+    assert(NEAR(ntc_channel_mv_at(&THERMAL_NTC_SINK, 25.0f), HS_PIN_GAIN * 3304.0 * 100.0 / 110.0, 0.5));
     /* Tolerance at the 95 C trip ~2 K (C32 check: 98.3 C >= 95 C + 2 K). */
     float tol95 = ntc_channel_tol_k(&THERMAL_NTC_SINK, 95.0f);
     assert(tol95 > 1.6f && tol95 <= 2.0f);
@@ -125,6 +128,31 @@ static void test_semitec_104gt2_conversion(void)
         if (k > peak) peak = k;
     }
     assert(peak * 0.6f <= 3.0f); /* <= the 3 mW rating */
+}
+
+/* CR-8 (controller C45): HS_ADC is the HS_SENSE node through 1.00 k / 5.90 k. The pin voltages here
+ * are computed from the resistors, not through the code under test. */
+static void test_sink_cr8_divider(void)
+{
+    /* 95 C, 6.84 k on the R-T curve: without the gain the same pin reads ~9 K hot (a false trip). */
+    double r95 = ntc_channel_r_at(&THERMAL_NTC_SINK, 95.0f);
+    float pin95 = (float)(3304.0 * r95 / (r95 + 10000.0) * 5900.0 / 6900.0), t = 0.0f;
+    assert(ntc_channel_temp_c(&THERMAL_NTC_SINK, pin95, &t) == NTC_OK && NEAR(t, 95.0, 0.05));
+    ntc_channel_t no_gain = THERMAL_NTC_SINK;
+    no_gain.adc_gain = 1.0f;
+    assert(ntc_channel_temp_c(&no_gain, pin95, &t) == NTC_OK && t > 102.0f && t < 106.0f);
+    /* An open NTC puts the node at v3v3. At the supervisor's low limit, the divider's low corner and
+     * the ADC's -50 mV error it must still not read as a cool sink (the fan law would stop the
+     * blower); nor anywhere above that. */
+    for (float v3v3 = 3146.0f; v3v3 <= 3460.0f; v3v3 += 2.0f)
+        for (float g = 0.854421f; g < 0.8558f; g += 0.0013f)
+            for (float err = -50.0f; err <= 50.0f; err += 50.0f) {
+                ntc_status_t st = ntc_channel_temp_c(&THERMAL_NTC_SINK, v3v3 * g + err, &t);
+                assert(st == NTC_OPEN || st == NTC_BELOW_RANGE);
+            }
+    /* A warm kitchen still resolves; coil and rim have no divider. */
+    assert(ntc_channel_temp_c(&THERMAL_NTC_SINK, ntc_channel_mv_at(&THERMAL_NTC_SINK, 25.0f), &t) == NTC_OK);
+    assert(THERMAL_NTC_COIL.adc_gain == 1.0f && THERMAL_NTC_RIM.adc_gain == 1.0f);
 }
 
 static void test_coil_sink_open_short_fail_safe(void)
@@ -201,7 +229,8 @@ static float hw_trip_c(const ntc_channel_t *ch, double rfix, double top, double 
     double r = rfix * k / (1.0 - k);
     ntc_channel_t c = *ch;
     c.r_pullup_ohm = (float)rfix;
-    c.v_meas_max_mv = 0.0f; /* the comparator has no ADC range */
+    c.v_meas_max_mv = 0.0f; /* the comparator has no ADC range and sits upstream of the divider */
+    c.adc_gain = 1.0f;
     float t = NAN;
     assert(ntc_channel_temp_c(&c, (float)(c.v_ref_mv * r / (r + rfix)), &t) == NTC_OK);
     return t;
@@ -778,6 +807,7 @@ int main(void)
     TEST(test_ntc_round_trip);
     TEST(test_vishay_curve_against_rt_table);
     TEST(test_semitec_104gt2_conversion);
+    TEST(test_sink_cr8_divider);
     TEST(test_coil_sink_open_short_fail_safe);
     TEST(test_rim_parameterised);
     TEST(test_rim_open_short_and_hot_end);

@@ -6,8 +6,13 @@
 
 /* Ratiometric 12-bit counts for the fitted part (100 k NTCALUG01A104GA on 10.0 k): the node is
  * R/(R + 10 k) of v3v3. R from Vishay doc 29049 p. 12 (NTCLE100E3104, the 4190 K +/- 1.5 % curve). */
-static uint16_t counts_for_r(float r_ohm) {
-    return (uint16_t)lroundf(4095.0f * r_ohm / (r_ohm + 10000.0f));
+/* Pin counts for the channel: the heatsink pin is behind the CR-8 divider (5.90 k / 6.90 k). */
+static uint16_t counts_for_r_g(float r_ohm, float gain) {
+    return (uint16_t)lroundf(4095.0f * gain * r_ohm / (r_ohm + 10000.0f));
+}
+static uint16_t counts_for_r(float r_ohm) { return counts_for_r_g(r_ohm, 5900.0f / 6900.0f); }
+static uint16_t counts_for_part(const ntc_channel_t *part, float r_ohm) {
+    return part == &THERMAL_NTC_SINK ? counts_for_r(r_ohm) : counts_for_r_g(r_ohm, 1.0f);
 }
 #define RAW_25C  counts_for_r(100000.0f)
 #define RAW_85C  counts_for_r(9496.0f)
@@ -68,8 +73,8 @@ void test_valid_reading(void) {
     TEST_ASSERT_EQUAL(NTC_GUARD_OK, ntc_guard_read_safe(&ctx, &temp));
     // 100 k at 25 C on the 10 k pull-up (count rounding is ~0.06 K here)
     TEST_ASSERT_FLOAT_WITHIN(0.2f, 25.0f, temp);
-    // The legacy 10 k / B3950 assumption read 2048 counts as 25 C; on this part it is ~85 C.
-    mock_adc_val = 2048;
+    // Half-rail at the node (10.0 k), which the legacy 10 k / B3950 assumption read as 25 C.
+    mock_adc_val = counts_for_r(10000.0f);
     mock_tick_ms += 100000;
     TEST_ASSERT_EQUAL(NTC_GUARD_OK, ntc_guard_read_safe(&ctx, &temp));
     TEST_ASSERT_FLOAT_WITHIN(0.5f, 83.4f, temp); // 10.0 k: between 80 C (11.26 k) and 85 C (9.496 k)
@@ -126,12 +131,12 @@ void test_conversion_points_fitted_part(void) {
         ntc_guard_t g;
         ntc_guard_init_part(&g, 0, pts[i].part);
         float t = -999.0f;
-        TEST_ASSERT_EQUAL(NTC_GUARD_OK, ntc_guard_convert(&g, counts_for_r(pts[i].r_ohm), &t));
+        TEST_ASSERT_EQUAL(NTC_GUARD_OK, ntc_guard_convert(&g, counts_for_part(pts[i].part, pts[i].r_ohm), &t));
         TEST_ASSERT_FLOAT_WITHIN(pts[i].tol_k, pts[i].t_c, t);
         /* Same answer as the fan law's converter: one model for every consumer. */
         float t2 = -999.0f;
         TEST_ASSERT_EQUAL(NTC_OK, ntc_channel_temp_c(pts[i].part,
-            (float)counts_for_r(pts[i].r_ohm) * 3304.0f / 4095.0f, &t2));
+            (float)counts_for_part(pts[i].part, pts[i].r_ohm) * 3304.0f / 4095.0f, &t2));
         TEST_ASSERT_FLOAT_WITHIN(1e-4f, t2, t);
     }
 }
@@ -144,7 +149,7 @@ void test_open_and_short_fail_safe(void) {
     float t = 0.0f;
     /* Open: node at the rail, and anything colder than -20 C. Above the ADC's 3.1 V range
      * (colder than ~15 C, or open) is ERR_RANGE: never a plausible "cool" reading. */
-    for (uint16_t raw = counts_for_r(1200000.0f) + 1u; raw <= 4095u; raw++)  /* < -20 C */
+    for (uint16_t raw = counts_for_part(&THERMAL_NTC_COIL, 1200000.0f) + 1u; raw <= 4095u; raw++)  /* < -20 C */
         TEST_ASSERT_EQUAL(NTC_GUARD_ERR_OPEN, ntc_guard_convert(&ctx, raw, &t));
     for (uint16_t raw = (uint16_t)ceilf(THERMAL_ADC_MEAS_MAX_MV * 4095.0f / 3304.0f); raw <= 4095u; raw++) {
         ntc_guard_status_t st = ntc_guard_convert(&ctx, raw, &t);
@@ -155,7 +160,7 @@ void test_open_and_short_fail_safe(void) {
         TEST_ASSERT_EQUAL(NTC_GUARD_ERR_SHORT, ntc_guard_convert(&ctx, raw, &t));
     /* A real coil over-temperature (165 C trip, 180 C) still converts: it is not mistaken for a
      * short, so the coil guard sees it. */
-    TEST_ASSERT_EQUAL(NTC_GUARD_OK, ntc_guard_convert(&ctx, counts_for_r(ntc_channel_r_at(&THERMAL_NTC_COIL, 180.0f)), &t));
+    TEST_ASSERT_EQUAL(NTC_GUARD_OK, ntc_guard_convert(&ctx, counts_for_part(&THERMAL_NTC_COIL, ntc_channel_r_at(&THERMAL_NTC_COIL, 180.0f)), &t));
     TEST_ASSERT_FLOAT_WITHIN(0.5f, 180.0f, t);
     /* read_safe reports them and does not update the history. */
     mock_adc_val = 4095;
