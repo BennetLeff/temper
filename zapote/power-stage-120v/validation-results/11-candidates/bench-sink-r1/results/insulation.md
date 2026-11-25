@@ -26,10 +26,10 @@ Tab -> PE capacitance through the SIL PAD 2000 0.254 mm strip: 21.1-33.5 pF per 
 | sink lower edge -> round strip bottom -> lead | clearance | 4.209 | 1.3 | True | z_sink 4.2, strip bottom 2.0 | worst of z_sink x overhang corners |
 | sink lower edge -> FET lead pad copper (sink face anywhere in its range) | clearance | 4.13 | 1.3 | True | z_sink 4.2, strip bottom 1.4, face y 2.63 | worst of z_sink x overhang corners |
 | tab-metal bottom edge -> strip bottom -> shim lower edge (shimmed device) | creepage | 6.104 | 4.0 | True | z_sink 4.8, strip bottom 2.6 | worst of z_sink x overhang corners |
-| Q5 tab-metal left edge -> strip left end -> sink face | creepage | 5.479 | 4.0 | True | strip 0.5 mm short | E1 max, device -0.15 |
+| Q5 tab-metal left edge -> strip left end -> sink face | creepage | 5.164 | 4.0 | True | strip 0.5 mm short | E1 max, device -0.465 |
 | tab-metal top edge -> strip top -> sink face | creepage | 5.264 | 4.0 | True | strip 0.5 mm low, body floated 1.0 mm | L1, D max, D2 min |
 | tab-metal top edge -> strip top -> down the strip back -> shim top edge | creepage | 9.264 | 4.0 | True | shim top z 27.5 | shim inside the strip outline |
-| Q2 tab-metal right edge -> strip right end (beyond BR1) | creepage | 35.979 | 4.0 | True | strip 0.5 mm short | E1 max |
+| Q2 tab-metal right edge -> strip right end (beyond BR1) | creepage | 35.664 | 4.0 | True | strip 0.5 mm short | E1 max |
 | clamp bar underside -> tallest HOT SMD part under it (SOD-128) | clearance | 4.9 | 1.3 | True | bar z 6.0 | EST part height 1.1 mm |
 | spring end -> tab-metal side edge (through air, round the package side), FR-4 1.6 | clearance | 4.419 | 1.3 | True | A min, A2 max, E1 max |  |
 | spring -> pad / package front and side -> tab-metal edge, FR-4 1.6 | creepage | 7.495 | 4.0 | True | A min, A2 max, E min, E1 max |  |

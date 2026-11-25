@@ -121,7 +121,7 @@ def creepage_clearance():
     # strip ends and top (hand placement tolerance)
     q5_metal_left = P.FET_X["Q5"] - T["E1"][1] / 2 - P.FET_POS_TOL
     add("Q5 tab-metal left edge -> strip left end -> sink face", "creepage",
-        q5_metal_left - (P.STRIP_X[0] + P.STRIP_PLACE_TOL) + t, P.CREEPAGE_BASIC, "strip 0.5 mm short", "E1 max, device -0.15")
+        q5_metal_left - (P.STRIP_X[0] + P.STRIP_PLACE_TOL) + t, P.CREEPAGE_BASIC, "strip 0.5 mm short", f"E1 max, device -{P.FET_POS_TOL}")
     add("tab-metal top edge -> strip top -> sink face", "creepage",
         (P.STRIP_TOP_Z - P.STRIP_PLACE_TOL) - (z_metal_top_max + P.FET_FLOAT_MAX) + t, P.CREEPAGE_BASIC,
         f"strip 0.5 mm low, body floated {P.FET_FLOAT_MAX} mm", "L1, D max, D2 min")

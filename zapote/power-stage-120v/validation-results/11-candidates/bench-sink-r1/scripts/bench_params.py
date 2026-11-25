@@ -1,6 +1,6 @@
 """Bench heatsink r1: every geometric and material input, with its source.
 
-Frame (board of record native-21 s53, the M11 frame): x right along the board's rear edge, y into the board from that
+Frame (written for native-21 s53; the FET land is s57's, the M11 frame is unchanged): x right along the board's rear edge, y into the board from that
 edge (y = 0 is the edge, y < 0 is off-board), z up from the board's top copper. mm unless stated.
 
 Source tags (full citations, URLs and SHA-256 in ../sources/SOURCES.md):
@@ -41,13 +41,13 @@ X_BOARD_MIN = 0.0
 TO247 = dict(A=(4.70, 5.30), A1=(2.20, 2.60), A2=(1.50, 2.50), b=(1.00, 1.40), b1=(1.60, 2.41), b2=(2.57, 3.43),
              c=(0.38, 0.89), D=(20.70, 21.50), D1=(13.08, 17.65), D2=(0.51, 1.35), E=(15.50, 16.30), E1=(12.38, 14.15),
              L=(19.80, 20.40), L1=(3.85, 4.50))
-# b = lead width in the hole, b1 / b2 = outer / centre lead width above the shoulder (both wider than the 1.42-1.63 mm
-# finished hole even on the diagonal with c), so the body seats on its shoulders at L1 when pushed fully down.
+# b = lead width in the hole, b1 / b2 = outer / centre lead width above the shoulder (stage 57: the 1.72-1.93 mm
+# finished hole admits a small outer shoulder, b1 >= 1.60; only b2 is always wider), so the body seats on pin 2 at L1.
 TAB_AREA = (151.2, 240.1)           # exposed drain metal, [T03]
 RTH_JC_FET = 0.28                   # max, [IPW] p.3
 TJ_MAX_FET = 150.0                  # [IPW] p.3
 TJ_TARGET_FET = 125.0               # power-stage design target (docs/evidence/2026-10-12-thermal-trip-ladder-l3.md)
-LEAD_X_PLAY = None                  # not used: x is set by the 5.44 pitch in 1.5 mm holes
+LEAD_X_PLAY = None                  # not used: x is set by the 5.44 pitch in 1.8 mm holes
 
 # GBJ2510, [GBJ]
 GBJ = dict(A=(29.70, 30.30), B=(19.70, 20.30), L=(4.40, 4.80), lead_t=(0.60, 0.80), lead_w=(0.90, 1.10),
@@ -99,7 +99,7 @@ STRIP_OVERHANG = 2.5                # strip bottom hangs this far below the sink
 STRIP_OVERHANG_TOL = 0.3
 STRIP_PLACE_TOL = 0.5               # hand placement of the strip ends and top (EST)
 X_GROOVE_PD3 = 1.5                  # IEC 60335-1 cl. 29.2 / IEC 60664-1 'X': gaps narrower than this are bridged (PD3; PD2 1.0)
-FET_POS_TOL = 0.15                  # device x play in its holes: (1.5 drill - 1.2 lead b mid) / 2 (EST)
+FET_POS_TOL = 0.465                 # device x play in its holes: (1.93 largest finished hole - 1.00 lead b min) / 2 (stage 57)
 H_SMD_MAX = 1.1                     # tallest part under the clamp bar: SOD-128 D6-D9 (EST from the package class)
 
 # BR1 stack: grease + aluminium shim on the sink, then the strip, then BR1 (BR1 sits 0.465 mm behind the tab plane)

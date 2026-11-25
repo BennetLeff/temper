@@ -1,0 +1,195 @@
+{
+ "board_sha256": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263",
+ "F1_clearing_I2t": 1710.0,
+ "segments": [
+  {
+   "net": "bus_p",
+   "from": "BR1.1",
+   "to": "Q2.2",
+   "per_layer": {
+    "B.Cu": null,
+    "F.Cu": null,
+    "In1.Cu": null,
+    "In2.Cu": {
+     "neck_mm": 2.052,
+     "I2t": 1089.9,
+     "ratio": 0.637,
+     "ratio_0p061": 0.637
+    }
+   },
+   "best_single_layer": {
+    "neck_mm": 2.052,
+    "I2t": 1089.9,
+    "ratio": 0.637,
+    "ratio_0p061": 0.637
+   },
+   "needs_via_field": false
+  },
+  {
+   "net": "bus_p",
+   "from": "BR1.1",
+   "to": "Q5.2",
+   "per_layer": {
+    "B.Cu": null,
+    "F.Cu": null,
+    "In1.Cu": null,
+    "In2.Cu": {
+     "neck_mm": 2.052,
+     "I2t": 1089.9,
+     "ratio": 0.637,
+     "ratio_0p061": 0.637
+    }
+   },
+   "best_single_layer": {
+    "neck_mm": 2.052,
+    "I2t": 1089.9,
+    "ratio": 0.637,
+    "ratio_0p061": 0.637
+   },
+   "needs_via_field": false
+  },
+  {
+   "net": "sw_a",
+   "from": "Q2.3",
+   "to": "Q3.2",
+   "per_layer": {
+    "B.Cu": {
+     "neck_mm": 2.052,
+     "I2t": 1435.2,
+     "ratio": 0.839,
+     "ratio_0p061": 0.637
+    },
+    "F.Cu": null,
+    "In1.Cu": null,
+    "In2.Cu": null
+   },
+   "best_single_layer": {
+    "neck_mm": 2.052,
+    "I2t": 1435.2,
+    "ratio": 0.839,
+    "ratio_0p061": 0.637
+   },
+   "needs_via_field": false
+  },
+  {
+   "net": "sw_b",
+   "from": "Q5.3",
+   "to": "Q6.2",
+   "per_layer": {
+    "B.Cu": {
+     "neck_mm": 2.052,
+     "I2t": 1435.2,
+     "ratio": 0.839,
+     "ratio_0p061": 0.637
+    },
+    "F.Cu": null,
+    "In1.Cu": null,
+    "In2.Cu": null
+   },
+   "best_single_layer": {
+    "neck_mm": 2.052,
+    "I2t": 1435.2,
+    "ratio": 0.839,
+    "ratio_0p061": 0.637
+   },
+   "needs_via_field": false
+  },
+  {
+   "net": "leg_ret",
+   "from": "Q3.3",
+   "to": "R5.1",
+   "per_layer": {
+    "B.Cu": null,
+    "F.Cu": null,
+    "In1.Cu": null,
+    "In2.Cu": null
+   },
+   "best_single_layer": null,
+   "needs_via_field": true
+  },
+  {
+   "net": "leg_ret",
+   "from": "Q6.3",
+   "to": "R5.1",
+   "per_layer": {
+    "B.Cu": null,
+    "F.Cu": {
+     "neck_mm": 3.999,
+     "I2t": 5451.0,
+     "ratio": 3.188,
+     "ratio_0p061": 2.421
+    },
+    "In1.Cu": null,
+    "In2.Cu": null
+   },
+   "best_single_layer": {
+    "neck_mm": 3.999,
+    "I2t": 5451.0,
+    "ratio": 3.188,
+    "ratio_0p061": 2.421
+   },
+   "needs_via_field": false
+  },
+  {
+   "net": "hv_ret",
+   "from": "R5.4",
+   "to": "BR1.4",
+   "per_layer": {
+    "B.Cu": null,
+    "F.Cu": null,
+    "In1.Cu": null,
+    "In2.Cu": null
+   },
+   "best_single_layer": null,
+   "needs_via_field": true
+  },
+  {
+   "net": "l_filt",
+   "from": "L1.4",
+   "to": "BR1.2",
+   "per_layer": {
+    "B.Cu": {
+     "neck_mm": 2.599,
+     "I2t": 2302.2,
+     "ratio": 1.346,
+     "ratio_0p061": 1.022
+    },
+    "F.Cu": null,
+    "In1.Cu": null,
+    "In2.Cu": null
+   },
+   "best_single_layer": {
+    "neck_mm": 2.599,
+    "I2t": 2302.2,
+    "ratio": 1.346,
+    "ratio_0p061": 1.022
+   },
+   "needs_via_field": false
+  },
+  {
+   "net": "n_filt",
+   "from": "L1.3",
+   "to": "BR1.3",
+   "per_layer": {
+    "B.Cu": null,
+    "F.Cu": {
+     "neck_mm": 4.598,
+     "I2t": 7207.4,
+     "ratio": 4.215,
+     "ratio_0p061": 3.201
+    },
+    "In1.Cu": null,
+    "In2.Cu": null
+   },
+   "best_single_layer": {
+    "neck_mm": 4.598,
+    "I2t": 7207.4,
+    "ratio": 4.215,
+    "ratio_0p061": 3.201
+   },
+   "needs_via_field": false
+  }
+ ],
+ "min_ratio_single_layer": 0.637,
+ "min_ratio_single_layer_0p061": 0.637
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """s56 lands against the maker's drawing, for lines with no JLC geometry (compare_lands.py) and the hand-fitted parts.
 
-    python3 -I drawing_lands.py [BOARD.kicad_pcb]   -> drawing-results.json (board of record s56 when no board is given),
+    python3 -I drawing_lands.py [BOARD.kicad_pcb]   -> drawing-results.json (board of record s57 when no board is given),
                                                        exit 1 on any FAIL
 
 Pads are read from the committed board of record (board-of-record-s57/section.kicad_pcb). DRAWING holds what was read off
@@ -12,6 +12,7 @@ import json, math, re, sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
 PCB = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 and __name__ == "__main__" else HERE.parents[1] / "08-manufacturing-package/native-21/board-of-record-s57/section.kicad_pcb"
 TOL = 0.10
+PTH_MIN = 0.08   # JLC plated hole, nominal minus this (bench-sink-r1 PTH_TOL)
 # ref: (source, {pad: (x, y)}, {"size": (w, h) | "drill": (lead_min_hole, max)} )
 row = lambda x, n, p, y0: {str(i + 1): (x, y0 + i * p) for i in range(n)}
 U41 = {str(i + 1): (-4.975, -5.525 + 0.65 * i) for i in range(18)} | {str(36 - i): (4.975, -5.525 + 0.65 * i) for i in range(18)}
@@ -34,7 +35,7 @@ DRAWING = {
     "L1": ("TDK B82726S22*3A020 data sheet as transcribed in elec/src/parts.ato (sheet not on disk): 10 mm in a row, 25 mm between, "
            "2 mm pins", {"1": (-5, -12.5), "2": (5, -12.5), "3": (5, 12.5), "4": (-5, 12.5)}, {"drill": (2.2, 2.8)}),
 }
-_fet = ("Infineon IPW65R018CFD7 Rev. 2.0 PG-TO247-3 (sha c364050a04a4): e 5.44, b 1.00-1.40, c 0.38-0.89, so the lead diagonal is up to "
+_fet = ("Infineon IPW65R018CFD7 Rev. 2.0 PG-TO247-3 (sha c364050a04a4): e 5.44 (the land's 5.45 pitch is KiCad's; the 0.01 mm is inside ±0.25 lead position), b 1.00-1.40, c 0.38-0.89, so the lead diagonal is up to "
         "1.66 mm; a round hole must clear it")
 for _q in ("Q2", "Q3", "Q5", "Q6"):
     DRAWING[_q] = (_fet, {"1": (-5.45, 0), "2": (0, 0), "3": (5.45, 0)}, {"lead_diag": 1.659})
@@ -94,8 +95,8 @@ def check():
             sz = sz[p[0]] if isinstance(sz, dict) else sz
             if sz and sorted(p[3]) != sorted(sz):
                 why.append("pad %s size %s, drawing %s" % (p[0], p[3], sz))
-            if "lead_diag" in ex and float(p[4].split()[0]) < ex["lead_diag"]:
-                why.append("pad %s hole %s, maximum lead diagonal %s" % (p[0], p[4], ex["lead_diag"]))
+            if "lead_diag" in ex and float(p[4].split()[0]) - PTH_MIN < ex["lead_diag"]:
+                why.append("pad %s hole %s (finishes %.2f), maximum lead diagonal %s" % (p[0], p[4], float(p[4].split()[0]) - PTH_MIN, ex["lead_diag"]))
             if "drill" in ex:
                 d = float(p[4].split()[0])
                 if not ex["drill"][0] - 1e-9 <= d <= ex["drill"][1] + 1e-9:

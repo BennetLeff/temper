@@ -79,6 +79,7 @@ PERF = {
     "leakage_touch_mA": ("lower", 0.0),
     "cmti_gate_ratio_min": ("higher", 0.0),
     "fuse_copper_fusing_ratio": ("higher", 0.0),
+    "fuse_copper_hole_ratio": ("higher", 0.0),   # necks_hole_terminal.py (DECISIONS 88); skipped against a card without it
     "bank_ratio_tdk_28A_40k": ("lower", 0.0),     # added 2026-10-13 (stage 20): DECISIONS item 21 / 23 thermal margin
     "bank_ratio_tdk_28A_35k": ("lower", 0.0),     # added 2026-10-14: DECISIONS 37, worst legal frequency (c34-bank-margin)
     # PROPOSED (bank28): the bank's 28 A metric becomes a physical self-heating check in the 0.5 mm-gap column under the
@@ -291,6 +292,10 @@ def performance(b, tag):
         v = f1["verdict"]
         m["fuse_copper_fusing_ratio"] = round(v["min_copper_I2t_conservative"] / v["F1_clearing_I2t"], 3)
         src["fuse_copper"] = "02-protection-timing/shoot-through-f1/result.json (min copper fusing I2t / F1 clearing I2t)"
+    hole = jload(VR / f"02-protection-timing/shoot-through-f1/{tag.replace('native21s', 's')}_necks_hole.json")
+    if hole:            # terminal at the hole, not the land buffered 1 mm; sw_a / sw_b included (best single layer)
+        m["fuse_copper_hole_ratio"] = hole["min_ratio_single_layer"]
+        src["fuse_copper_hole"] = f"02-protection-timing/shoot-through-f1/{tag.replace('native21s', 's')}_necks_hole.json (min_ratio_single_layer)"
     cm = VR / "06-controller-interface/cmti/cmti.csv"
     if cm.exists():
         rows = [r for r in csv.DictReader(open(cm)) if r.get("cls") == "GATE" and r.get("ratio_hard") and r["ref"] != "CTRL"]

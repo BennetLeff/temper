@@ -977,26 +977,63 @@ fn stage56_checks(m: &Model, e: &mut Vec<String>) {
 const S57_FET_FP: &str = "temper:TO-247-3_Vertical_D1.8";
 const S57_FET_MOD: &str = include_str!("libraries/temper.pretty/TO-247-3_Vertical_D1.8.kicad_mod");
 
-fn s57_drills(module: &str) -> Vec<f64> {
-    module.split("(drill ").skip(1).filter_map(|s| s.split(')').next().and_then(|n| n.trim().parse().ok())).collect()
+#[derive(Debug)]
+struct S57Pad {
+    num: String,
+    kind: String,
+    layers: String,
+    x: f64,
+    w: f64,
+    h: f64,
+    drill: Option<f64>, // None: no round drill (missing, or a slot)
+}
+
+fn s57_after<'a>(block: &'a str, key: &str) -> Option<&'a str> {
+    block.split_once(key).and_then(|(_, r)| r.split(')').next())
+}
+
+fn s57_pads(module: &str) -> Vec<S57Pad> {
+    module.split("(pad \"").skip(1).map(|b| {
+        let b = b.split("(embedded_fonts").next().unwrap_or(b);
+        let mut head = b.split('"');
+        let num = head.next().unwrap_or("").to_string();
+        let kind = head.next().unwrap_or("").split_whitespace().next().unwrap_or("").to_string();
+        let nums = |k: &str| -> Vec<f64> { s57_after(b, k).unwrap_or("").split_whitespace().filter_map(|v| v.parse().ok()).collect() };
+        let (at, size, d) = (nums("(at "), nums("(size "), nums("(drill "));
+        S57Pad { num, kind, layers: s57_after(b, "(layers ").unwrap_or("").to_string(), x: at.first().copied().unwrap_or(f64::NAN),
+            w: size.first().copied().unwrap_or(0.0), h: size.get(1).copied().unwrap_or(0.0),
+            drill: if d.len() == 1 { d.first().copied() } else { None } }
+    }).collect()
 }
 
 fn s57_hole_errors(module: &str) -> Vec<String> {
-    let drills = s57_drills(module);
+    let (diag, pads) = (1.40_f64.hypot(0.89), s57_pads(module));
     let mut e = Vec::new();
-    if drills.len() != 3 {
-        e.push(format!("stage57: {} round holes in the FET land, expected 3", drills.len()));
+    if pads.len() != 3 || pads.iter().any(|p| p.drill.is_none()) {
+        e.push(format!("stage57: FET land has {} pads, round holes in all of 3 expected", pads.len()));
     }
-    let diag = 1.40_f64.hypot(0.89);
-    for d in drills {
+    for (i, p) in pads.iter().enumerate() {
+        if p.kind != "thru_hole" {
+            e.push(format!("stage57: pad {} is {}, not a plated thru_hole", p.num, p.kind));
+        }
+        if p.layers != "\"*.Cu\" \"*.Mask\"" {
+            e.push(format!("stage57: pad {} layers {} are not *.Cu *.Mask", p.num, p.layers));
+        }
+        if (p.x - 5.45 * i as f64).abs() > 0.02 {
+            e.push(format!("stage57: pad {} at x {} breaks the 5.45 mm pitch (drawing e 5.44)", p.num, p.x));
+        }
+        if (p.w, p.h) != (2.5, 4.5) {
+            e.push(format!("stage57: pad {} pad size {} x {} is not 2.5 x 4.5", p.num, p.w, p.h));
+        }
+        let Some(d) = p.drill else { continue };
         if d - 0.08 < diag {
             e.push(format!("stage57: FET hole {d} finishes at {:.2}, under the {diag:.3} mm lead diagonal", d - 0.08));
         }
         if d + 0.13 >= 2.57 {
             e.push(format!("stage57: FET hole {d} finishes at {:.2}, the 2.57 mm drain shoulder would not seat", d + 0.13));
         }
-        if (2.5 - (d + 0.13)) / 2.0 < 0.25 {
-            e.push(format!("stage57: FET hole {d} leaves under 0.25 mm of the 2.5 mm pad"));
+        if (p.w.min(p.h) - (d + 0.13)) / 2.0 < 0.25 {
+            e.push(format!("stage57: FET hole {d} leaves under 0.25 mm of the {} mm pad", p.w.min(p.h)));
         }
     }
     e
@@ -2466,16 +2503,30 @@ mod tests {
         }
     }
 
+    fn s57_with_drills(module: &str, d: &str) -> String {
+        let cur = s57_pads(module).iter().filter_map(|p| p.drill).next().unwrap();
+        module.replace(&format!("(drill {cur})"), &format!("(drill {d})"))
+    }
+
     #[test]
     fn stage57_fet_holes_take_the_worst_lead_and_seat_the_drain_shoulder() {
         assert!(audit(&built()).is_empty(), "{:#?}", audit(&built()));
         assert!(s57_hole_errors(S57_FET_MOD).is_empty());
-        let at = |d: &str| s57_hole_errors(&S57_FET_MOD.replace("(drill 1.8)", &format!("(drill {d})")));
+        // one pad's drill may vary freely (the checks read the numbers, not the literal "1.8")
+        let at = |d: &str| s57_hole_errors(&s57_with_drills(S57_FET_MOD, d));
+        assert!(at("1.75").is_empty() && at("1.85").is_empty(), "{:?} {:?}", at("1.75"), at("1.85"));
         assert!(at("1.5").iter().any(|e| e.contains("finishes at 1.42")), "the stage 56 hole must fail: {:?}", at("1.5"));
         assert!(at("1.7").iter().any(|e| e.contains("lead diagonal")));
         assert!(at("2.5").iter().any(|e| e.contains("would not seat")));
         assert!(at("2.0").iter().any(|e| e.contains("0.25 mm")));
         assert!(!s57_hole_errors(&S57_FET_MOD.replacen("(drill 1.8)", "", 1)).is_empty());
+        // land regressions an independent reviewer showed the first version missed (2026-11-25)
+        let land = |a: &str, b: &str| s57_hole_errors(&S57_FET_MOD.replacen(a, b, 1));
+        assert!(land("(size 2.5 4.5)", "(size 2.0 4.5)").iter().any(|e| e.contains("pad size")), "pad shrink");
+        assert!(land("(at 10.9 0)", "(at 10.0 0)").iter().any(|e| e.contains("pitch")), "pin 3 moved: {:?}", land("(at 10.9 0)", "(at 10.0 0)"));
+        assert!(land("thru_hole", "np_thru_hole").iter().any(|e| e.contains("thru_hole")), "NPTH");
+        assert!(land("*.Cu", "F.Cu").iter().any(|e| e.contains("layers")), "single-layer pad");
+        assert!(land("(drill 1.8)", "(drill oval 1.8 3)").iter().any(|e| e.contains("holes")), "slot");
         let mut m = built();
         let r = m.reff("leg_a.q_high").unwrap().to_string();
         m.comps.get_mut(&r).unwrap().footprint = "Package_TO_SOT_THT:TO-247-3_Vertical".into();

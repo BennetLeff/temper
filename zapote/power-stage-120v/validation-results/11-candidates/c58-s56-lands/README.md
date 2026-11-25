@@ -12,8 +12,8 @@ re-runnable check, and Q2/Q3/Q5/Q6, D3/D17 and the bank caps had none.
 
 **One FAIL on s56: the FET holes (fixed in s57, DECISIONS 87; `scripts/fet_hole_current.py` answers the fuse-neck question).** Infineon's outline allows a lead up to 1.40 x 0.89 mm (1.66 mm diagonal); the TO-247 holes are 1.5 mm.
 The drawing does not bound the typical lead, so leads may or may not fit; whether they do is known only from a fitted part or a larger hole.
-1.8 mm in the 2.5 mm wide pad would leave 0.35 mm of copper each side. Nothing was changed: s56 is the board of record and the change needs
-its own stage (copper, B3 and scorecard). The FETs are DNP at JLC and fitted later, so it is a bench item unless a stage is opened.
+1.8 mm in the 2.5 mm wide pad would leave 0.35 mm of copper each side. Stage 57 (DECISIONS 87) makes the change: s57 is the
+board of record. The FETs are DNP at JLC and fitted later. The pad neck it feeds is a separate, older deficit: DECISIONS 88.
 
 **Measure:** pad centres only (RMS at the best 90 degree rotation, limit 0.30 mm), as `check_land_patterns.py`. Not pad size, height or pin 1.
 

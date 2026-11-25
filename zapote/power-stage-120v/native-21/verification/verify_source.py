@@ -123,6 +123,10 @@ def main() -> None:
         assert parts[ldo]['mpn'] == 'TPS70950QDBVRQ1' and parts[ldo]['footprint'] == 'Package_TO_SOT_SMD:SOT-23-5'
         assert (parts[top]['mpn'], parts[top]['value']) == ('0603WAF1003T5E', '100kohm'), top
         assert (parts[bot]['mpn'], parts[bot]['value']) == ('0603WAF2702T5E', '27kohm'), bot
+    # stage 57 (DECISIONS 87): the 1.8 mm TO-247 land, in both exports
+    for fet in ('leg_a.q_high', 'leg_a.q_low', 'leg_b.q_high', 'leg_b.q_low'):
+        assert parts[fet]['footprint'] == 'temper:TO-247-3_Vertical_D1.8', fet
+    assert 'temper:TO-247-3_Vertical_D1.8' in (Path(__file__).parents[1] / 'frozen/default.csv').read_text()
     # stage 56 (OPEN-ITEMS S22; c56-s56-scope): the R24C2T25 CTRL dividers 100 k / 16 k (was 27 k)
     for side in ('bias_ha', 'bias_hb'):
         assert (parts[f'{side}.ren_bot']['mpn'], parts[f'{side}.ren_bot']['value']) == ('RT0603BRD0716KL', '16kohm'), side

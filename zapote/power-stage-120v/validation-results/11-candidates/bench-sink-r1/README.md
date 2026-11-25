@@ -65,14 +65,14 @@ Source: `results/tolerance.md`.
 
 | ceiling | sink | Tj FET (bound) | Tj BR1 |
 |---|---|---|---|
-| **17.5 A** (ships) | **72.8 °C** | **87.1 °C** | 97.3 °C |
-| 17.5 A at 40 °C ambient | 83.8 °C, so **fan** | 99.1 °C | 108.4 °C |
+| **17.5 A** (ships) | **72.8 °C** | **87.1 °C** | 97.4 °C |
+| 17.5 A at 40 °C ambient | 83.8 °C, so **fan** | 99.2 °C | 108.5 °C |
 | **22 A** (headroom) | 85.7 °C, so **fan** | 111.6 °C | 110.3 °C |
-| 28 A | 125.5 °C without a fan | 182.8 °C: **not allowed without the fan and a measured interface** | 150.1 °C |
+| 28 A | 125.7 °C without a fan | 183.3 °C: **not allowed without the fan and a measured interface** | 150.3 °C |
 
 - **Fan rule.** To hold the sink ≤ 80 °C (6 K under the TCO's 86 °C hold), R_SA must be ≤ 1.073 / 0.825 / 0.564 °C/W at 17.5 / 22 / 28 A. The 511-3M is 0.90 °C/W without a fan, so the fan is needed above 17.5 A.
-- **28 A** needs the fan, and needs §7's measured Rcs to beat the bound. With the sink held at 86 °C the bound gives 132.5 °C; at the 95 °C firmware trip it gives 144.0 °C.
-- **Lost ZVS.** The sink-sensed trips do not protect the junction: the bound Tj is 178.6 °C at the 95 °C firmware trip, 17.5 A. Step 4's ZVS check and the lag latch protect that case.
+- **28 A** needs the fan, and needs §7's measured Rcs to beat the bound. With the sink held at 86 °C the bound gives 132.8 °C; at the 95 °C firmware trip it gives 144.3 °C.
+- **Lost ZVS.** The sink-sensed trips do not protect the junction: the bound Tj is 179.0 °C at the 95 °C firmware trip, 17.5 A. Step 4's ZVS check and the lag latch protect that case.
 
 **Insulation (`results/insulation.md`).** Everything passes:
 - with the sink face anywhere in **0.531–2.631 mm**;
@@ -259,27 +259,27 @@ Its hand work is bounded and scripted: 8 feeler readings, `shim_select.py`, then
 
 ## 4. Thermal results
 
-Bound case: every FET carries the 2.0 mm design shim (brass, three faces greased at the conservative 0.413 °C·cm²/W) at the worst pressure corner. Full tables are in `results/thermal.md`. The most-proud FET has no shim and does better; §7 measures each device.
+Bound case: every FET carries the 2.2 mm design shim (brass, three faces greased at the conservative 0.413 °C·cm²/W) at the worst pressure corner. Full tables are in `results/thermal.md`. The most-proud FET has no shim and does better; §7 measures each device.
 
 | strip | ceiling | basis | ambient | sink | P_FET | P_sink | Tj FET | Tj BR1 |
 |---|---|---|---|---|---|---|---|---|
-| SP2000 | 17.5 | D | 30 | 72.8 | 5.04 | 45.7 | 87.1 | 97.3 |
-| SP2000 | 17.5 | D | 40 | 83.8 | 5.39 | 47.1 | 99.1 | 108.4 |
-| SP2000 | 22 | D | 30 | 85.6 | 9.08 | 61.8 | 111.4 | 110.2 |
-| SP2000 | 22 | D | 40 | 98.1 | 9.75 | 64.5 | 125.7 | 122.6 |
-| SP2000 | 28 | D | 30 | 125.5 | 20.19 | 106.2 | 182.8 | 150.1 |
+| SP2000 | 17.5 | D | 30 | 72.8 | 5.04 | 45.7 | 87.1 | 97.4 |
+| SP2000 | 17.5 | D | 40 | 83.8 | 5.40 | 47.1 | 99.2 | 108.5 |
+| SP2000 | 22 | D | 30 | 85.7 | 9.09 | 61.8 | 111.6 | 110.3 |
+| SP2000 | 22 | D | 40 | 98.1 | 9.76 | 64.5 | 125.9 | 122.8 |
+| SP2000 | 28 | D | 30 | 125.7 | 20.22 | 106.3 | 183.3 | 150.3 |
 
 **Tj with the sink held at each trip** (bound):
 
 | ceiling | basis | sink 86 | 95 | 104.6 | 110 |
 |---|---|---|---|---|---|
-| 17.5 | D | 101.5 | 111.3 | 121.8 | 127.7 |
-| 17.5 | A (lost ZVS) | 168.8 | 178.6 | 189.0 | 194.9 |
-| 22 | D | 111.8 | 122.2 | 133.3 | 139.5 |
-| 28 | D | 132.5 | 144.0 | 156.3 | 163.1 |
+| 17.5 | D | 101.6 | 111.4 | 121.9 | 127.8 |
+| 17.5 | A (lost ZVS) | 169.2 | 179.0 | 189.4 | 195.3 |
+| 22 | D | 112.0 | 122.4 | 133.4 | 139.7 |
+| 28 | D | 132.8 | 144.3 | 156.6 | 163.4 |
 
 **Reading the tables.**
-- **17.5 A and 22 A:** with the fan holding the sink ≤ 86 °C, Tj stays ≤ 111.8 °C under the bound.
+- **17.5 A and 22 A:** with the fan holding the sink ≤ 86 °C, Tj stays ≤ 112.0 °C under the bound.
 - **28 A:** stays under 150 °C only while the sink is held ≤ 95 °C, and above the 125 °C target in the bound. Go to 28 A only after §7 has measured the real stack.
 
 **BR1 stack:** 0.663 °C/W in total (strip 0.364, shim 0.0385, grease 0.260).

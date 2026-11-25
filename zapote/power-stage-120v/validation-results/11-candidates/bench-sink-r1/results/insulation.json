@@ -132,11 +132,11 @@
   {
    "path": "Q5 tab-metal left edge -> strip left end -> sink face",
    "kind": "creepage",
-   "mm": 5.479,
+   "mm": 5.164,
    "floor": 4.0,
    "ok": true,
    "corner": "strip 0.5 mm short",
-   "how": "E1 max, device -0.15"
+   "how": "E1 max, device -0.465"
   },
   {
    "path": "tab-metal top edge -> strip top -> sink face",
@@ -159,7 +159,7 @@
   {
    "path": "Q2 tab-metal right edge -> strip right end (beyond BR1)",
    "kind": "creepage",
-   "mm": 35.979,
+   "mm": 35.664,
    "floor": 4.0,
    "ok": true,
    "corner": "strip 0.5 mm short",
