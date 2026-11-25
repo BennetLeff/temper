@@ -6,9 +6,9 @@
   "export_command": "uv tool run --offline --from atopile==0.2.69 python tools/circuit_export.py /Users/bennet/Desktop/temper/worktrees/ctrl-c51/zapote/controller /Users/bennet/Desktop/temper/worktrees/ctrl-c51/zapote/controller/build/resolved-components.json --entry-file elec/src/controller.ato --entry SelvController",
   "exporter_sha256": "9068441892e2df3424a383c3682bdf5971527f9d4afa1812ce5171ddf8e36159",
   "frozen_sha256": {
-    "default.csv": "29163aa757bed585c97d530a3a8e712c3932b69a92a6bf8502b628ed42676823",
-    "default.net": "2c8f7b018f2cd8dd320e8b78bedda4e9dc8b24cefee48c14c288592a0389eefa",
-    "resolved-components.json": "de4a974832fe1bc68a38d99a8338ab0793dd78e67b8f893bcb7d30fc4988cae5"
+    "default.csv": "4205af03322ad67b5b6e798d4aad1b44fb82d18aeee9415b9914845defd04d6c",
+    "default.net": "4217185d2cb30ebbb4beb4403a1acfa722397719af7c98da4453c9ea8f446da7",
+    "resolved-components.json": "fbd5f4a51b60361f9696fa710f81f9ed7aa5fe1b58ca6b80d8a9f4855946089a"
   },
   "normalization": "absolute unit path replaced by 'UNIT'",
   "returncode": 0,
@@ -18,7 +18,7 @@
     "elec/src/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
     "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
     "elec/src/controller.ato": "e77168bc3b6367b42c0b0d022706d62029190f03b0bd9974bd15d75c4dec2aad",
-    "elec/src/controller_parts.ato": "4ce8b30dab436b6002b3f00ce1abdaa2fe31ec0d23b3c8adf7694fb0fa139ee6",
+    "elec/src/controller_parts.ato": "bc002e2d41dca1ac0eaa7768a75baf2754b43c70533b9ab4556c80444e51bc91",
     "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
     "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
     "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",
@@ -26,7 +26,7 @@
     "elec/src/interlock_block.ato": "b55ff14f0d64af3492ed05e03d35c6ec031eb9c9fd1301105009bc76ccad1c9f",
     "elec/src/modules.ato": "1f9acff6493bad71bdb145ca6a42f7567d70f3c0b30f6bc6c22d082aec01ba0d",
     "elec/src/rtd_c1_block.ato": "22645a5dcb4cf08b11e781e38967bce372f48e21623582dceef9b40a28a1dc9a",
-    "elec/src/rtd_food_block.ato": "e1b1c37f580264aa5a6cd598595e63df0e4eea3bdbd00a715610036f5d6d4747",
+    "elec/src/rtd_food_block.ato": "024217e2b04e153747e1a68502fbd82b2b645685f4691e3a0aaebc0c5ea37699",
     "elec/src/thermal_block.ato": "2bcf180030b413ceab566771603d640311cb6762ce7d9466b8c2e351adbf81ef"
   },
   "warning_kinds": [

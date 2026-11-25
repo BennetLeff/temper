@@ -457,6 +457,17 @@ component Bat54s:
     signal K ~ pin 2
     signal COM ~ pin 3
 
+component Bav199:
+    """Diodes Inc. BAV199-7-F low-leakage series pair, SOT-23 (LCSC C155248). DS30232 Rev. 12-2: IR <= 5 nA at 75 V 25 C,
+    <= 80 nA at 75 V 150 C; IFSM 4 A 1 us. Pin 1 = anode of D1, 3 = common, 2 = cathode of D2 (BAT54S's order)."""
+    designator_prefix = "D"
+    mpn = "BAV199-7-F"
+    manufacturer = "Diodes Incorporated"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal A ~ pin 1
+    signal K ~ pin 2
+    signal COM ~ pin 3
+
 component Schottky1A40V:
     """MDD SS14 Schottky, 40 V 1 A, SMA(DO-214AC) (LCSC C2480, basic library). VF <= 0.55 V at 1 A. Cathode = pin 1 (band)."""
     designator_prefix = "D"

@@ -95,6 +95,32 @@
   "updateTime": 1700794522,
   "url": "https://easyeda.com/api/products/C148036/components"
  },
+ "C155248": {
+  "package": "SOT-23_L2.9-W1.3-P1.90-LS2.4-BR",
+  "pads": [
+   {
+    "layer": "1",
+    "n": "2",
+    "x": 101.55,
+    "y": 76.0857
+   },
+   {
+    "layer": "1",
+    "n": "3",
+    "x": 99.25,
+    "y": 77.0357
+   },
+   {
+    "layer": "1",
+    "n": "1",
+    "x": 101.55,
+    "y": 77.9856
+   }
+  ],
+  "title": "BAV199-7-F",
+  "updateTime": 1722013608,
+  "url": "https://easyeda.com/api/products/C155248/components"
+ },
  "C157991": {
   "package": "CONN-TH_B5B-XH-A-LF-SN",
   "pads": [

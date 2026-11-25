@@ -157,6 +157,8 @@ MODELS: dict[str, Model] = {
     "MCP3202-CI/SN": _ic([8], [4], ins=[1, 2, 3, 5, 7], outs=[6], ma=0.55,
                          basis="DS21034F: IDD 550 uA max (5 V, worst case used at 3.3 V)"),
     "TLV76050DBZR": Model({"1": "out", "2": "other", "3": "gnd"}, 0.0, "TLV760: on v15_selv, not v3v3"),
+    "BAV199-7-F": Model({"1": "other", "2": "other", "3": "other"}, 0.0001,
+                        "Diodes DS30232 Rev. 12-2: IR 80 nA max at 75 V 150 C"),
     "BAT54S-7-F": Model({"1": "other", "2": "other", "3": "other"}, 0.002,
                         "DS11005: IR 2 uA max (25 V); conducts into v3v3 only on a fault"),
     # native-21 parts on its v3v3 net (pins used: supply only; others conservative)
@@ -1295,8 +1297,11 @@ def check_c51(rep: Report, nl: Netlist) -> None:
     rep.check(S, "j9_pin_map", j9 == want9 and nl.mpn.get("J9") == "B4B-XH-A(LF)(SN)", j9)
     for p, net in want9.items():
         caps = [r for r in between(net, GND, "C") if abs(parse_value(nl.value[r])[0] - 100e-9) < 1e-12]
-        tvs = [r for r in nl.refs if nl.mpn.get(r) == "ESD5Z3.3T1G" and nl.net_of(r, "1") == net and nl.net_of(r, "2") == GND]
-        rep.check(S, f"j9_{p}_cap_and_tvs", len(caps) == 1 and len(tvs) == 1, {"caps": caps, "tvs": tvs})
+        cl = [r for r in nl.refs if nl.mpn.get(r) == "BAV199-7-F" and nl.net_of(r, "3") == net
+              and nl.net_of(r, "1") == GND and nl.net_of(r, "2") == "RTD2_AVDD"]
+        rep.check(S, f"j9_{p}_cap_and_clamp", len(caps) == 1 and len(cl) == 1, {"caps": caps, "clamps": cl})
+    bulk = [r for r in between("RTD2_AVDD", GND, "C") if parse_value(nl.value[r])[0] >= 9e-6]
+    rep.check(S, "food_avdd_esd_bulk", len(bulk) == 1, bulk)
     # bay NTC: J14 -> 47 k / buffer -> GPIO8
     node = nl.net_of("J14", "1")
     pu14 = between(V3, node)

@@ -5,13 +5,14 @@
 #   * 1 k in series with every SPI line (pan: 33 ohm). If the plug-in channel's converter is damaged, or its CS is stuck
 #     low (it is an I2C expander pin), the pan converter still drives MISO and SCLK / MOSI still reach it.
 #   * open-lead pull-ups 1 M (pan: 499 k, whose 0.85 % loading would dominate at Pt1000 currents).
+#   * BAV199 clamps, not TVS: at about 0.37 mA a hot ESD5Z (no hot limit published) reads kelvins low; 80 nA max reads 0.3 K.
 #   * no window comparators, no runaway, no fault net.
 #pragma experiment("MODULE_TEMPLATING")
 #pragma experiment("TRAITS")
 import Resistor from "components.ato"
 import Capacitor from "components.ato"
 import MAX31865 from "components.ato"
-from "controller_parts.ato" import EsdTvs3v3, XhHeader4
+from "controller_parts.ato" import Bav199, XhHeader4
 
 module RtdFood:
     signal v3v3
@@ -74,6 +75,14 @@ module RtdFood:
     c_vdd.mpn = "CC0603KRX7R9BB104"
     c_vdd.p1 ~ avdd
     c_vdd.p2 ~ gnd
+    # takes the ESD charge the clamps put on AVDD (1.2 uC for 8 kV / 150 pF: 0.24 V on 5 uF, VDD abs max 4.0 V)
+    c_avdd_bulk = new Capacitor
+    c_avdd_bulk.designator = "C143"
+    c_avdd_bulk.value = 10uF +/- 10%
+    c_avdd_bulk.mpn = "CL31A106KAHNNNE"
+    c_avdd_bulk.footprint = "Capacitor_SMD:C_1206_3216Metric"
+    c_avdd_bulk.p1 ~ avdd
+    c_avdd_bulk.p2 ~ gnd
     c_dvdd = new Capacitor
     c_dvdd.designator = "C111"
     c_dvdd.value = 100nF +/- 10%
@@ -121,22 +130,26 @@ module RtdFood:
     j.p2 ~ sense_p_ext
     j.p3 ~ sense_n_ext
     j.p4 ~ force_n
-    d_fp = new EsdTvs3v3
+    d_fp = new Bav199
     d_fp.designator = "D10"
-    d_fp.K ~ force_p
+    d_fp.COM ~ force_p
     d_fp.A ~ gnd
-    d_sp = new EsdTvs3v3
+    d_fp.K ~ avdd
+    d_sp = new Bav199
     d_sp.designator = "D11"
-    d_sp.K ~ sense_p_ext
+    d_sp.COM ~ sense_p_ext
     d_sp.A ~ gnd
-    d_sn = new EsdTvs3v3
+    d_sp.K ~ avdd
+    d_sn = new Bav199
     d_sn.designator = "D12"
-    d_sn.K ~ sense_n_ext
+    d_sn.COM ~ sense_n_ext
     d_sn.A ~ gnd
-    d_fn = new EsdTvs3v3
+    d_sn.K ~ avdd
+    d_fn = new Bav199
     d_fn.designator = "D13"
-    d_fn.K ~ force_n
+    d_fn.COM ~ force_n
     d_fn.A ~ gnd
+    d_fn.K ~ avdd
     c_fp = new Capacitor
     c_fp.designator = "C112"
     c_fp.value = 100nF +/- 10%

@@ -1138,7 +1138,8 @@
       "code_in_range_at_300C": true,
       "corrected_loading_le_0p05K": true,
       "five_tau_le_5p5ms": true,
-      "open_sense_detected_within_2s": true
+      "open_sense_detected_within_2s": true,
+      "pin_leakage_le_0p35K": true
     },
     "open_sense_tau_s": 0.3232,
     "rows": {
@@ -1146,6 +1147,7 @@
         "code_ratio": 0.23355813953488372,
         "loading_K_after_nominal_correction_1pct_pullup": 0.011002226031778575,
         "loading_K_uncorrected": 1.1002226031778575,
+        "pin_leakage_K": 0.10857508379602551,
         "r_ohm": 1000.0,
         "rref_0p1pct_K": 0.2558657216692719,
         "rref_25ppm_60K_K": 0.3837985825039078,
@@ -1155,6 +1157,7 @@
         "code_ratio": 0.32349086895348833,
         "loading_K_after_nominal_correction_1pct_pullup": 0.01570274335583155,
         "loading_K_uncorrected": 1.570274335583155,
+        "pin_leakage_K": 0.16625949959170327,
         "r_ohm": 1385.0549999999998,
         "rref_0p1pct_K": 0.3651800780425906,
         "rref_25ppm_60K_K": 0.547770117063886,
@@ -1164,6 +1167,7 @@
         "code_ratio": 0.4107260018604652,
         "loading_K_after_nominal_correction_1pct_pullup": 0.020563478639219084,
         "loading_K_uncorrected": 2.0563478639219084,
+        "pin_leakage_K": 0.2320754720403842,
         "r_ohm": 1758.5600000000002,
         "rref_0p1pct_K": 0.47822043347020143,
         "rref_25ppm_60K_K": 0.7173306502053022,
@@ -1173,6 +1177,7 @@
         "code_ratio": 0.49526353825581404,
         "loading_K_after_nominal_correction_1pct_pullup": 0.025600018249202192,
         "loading_K_uncorrected": 2.560001824920219,
+        "pin_leakage_K": 0.3062301909337002,
         "r_ohm": 2120.515,
         "rref_0p1pct_K": 0.5953492616093072,
         "rref_25ppm_60K_K": 0.8930238924139611,
@@ -1182,6 +1187,7 @@
         "code_ratio": 0.28784148876744187,
         "loading_K_after_nominal_correction_1pct_pullup": 0.013804120083354665,
         "loading_K_uncorrected": 1.3804120083354665,
+        "pin_leakage_K": 0.14222014847417372,
         "r_ohm": 1232.4189999999999,
         "rref_0p1pct_K": 0.3210260484501031,
         "rref_25ppm_60K_K": 0.48153907267515456,
@@ -1194,6 +1200,45 @@
       "Yageo RT0805BRD 0.1 % 25 ppm"
     ],
     "tau_s": 0.0009470671160257393
+  },
+  "rtd_food_unplug": {
+    "cases": {
+      "open_sense_n": {
+        "final_ratio": -0.9998539692178442,
+        "ref_V_at_500ms": 1.3371815183315918,
+        "refin_high_ms": null,
+        "window_trip_ms": 72.0
+      },
+      "open_sense_p": {
+        "final_ratio": 1.232461035769096,
+        "ref_V_at_500ms": 1.6226415094339623,
+        "refin_high_ms": null,
+        "window_trip_ms": 124.05
+      },
+      "plugged": {
+        "final_ratio": 0.32347715525906007,
+        "ref_V_at_500ms": 1.5111707758374773,
+        "refin_high_ms": null,
+        "window_trip_ms": null
+      },
+      "unplug": {
+        "final_ratio": Infinity,
+        "ref_V_at_500ms": 8.881784197001252e-16,
+        "refin_high_ms": 0.9000000000000001,
+        "window_trip_ms": 0.30000000000000004
+      }
+    },
+    "checks": {
+      "clamp_leak_below_hiding_level": true,
+      "open_sense_window_trip_within_2s": true,
+      "unplug_refin_high_before_5p5ms": true
+    },
+    "leak_bound_used_uA": 0.08,
+    "leak_hides_open_uA": 1.0965813562488325,
+    "window_ratio": [
+      0.2,
+      0.55
+    ]
   },
   "runaway": {
     "checks": {

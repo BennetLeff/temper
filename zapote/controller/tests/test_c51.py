@@ -54,7 +54,18 @@ class C51(unittest.TestCase):
         self.mutate("food_shares_only_listed_nets", move_node(self.base, "U50", "11", "rtd_sense_n"))
 
     def test_j9_pin_without_tvs(self):
-        self.mutate("j9_2_cap_and_tvs", drop_node(self.base, self.ref("rtd_food.d_sp"), "1"))
+        self.mutate("j9_2_cap_and_clamp", drop_node(self.base, self.ref("rtd_food.d_sp"), "3"))
+
+    def test_j9_clamp_reversed(self):
+        ref = self.ref("rtd_food.d_sp")
+        self.mutate("j9_2_cap_and_clamp", move_node(self.base, ref, "1", "RTD2_AVDD"))
+
+    def test_food_avdd_without_bulk(self):
+        self.mutate("food_avdd_esd_bulk", drop_node(self.base, self.ref("rtd_food.c_avdd_bulk"), "1"))
+
+    def test_food_tvs_leakage_would_fail(self):
+        self.assertTrue(cc.rtd_food()["checks"]["pin_leakage_le_0p35K"])
+        self.assertFalse(cc.rtd_food(leak_a=0.5e-6)["checks"]["pin_leakage_le_0p35K"])
 
     def test_bay_ntc_off_gpio8(self):
         self.mutate("bay_ntc_on_gpio8", move_node(self.base, "U4", "12", "COIL_ADC"))
@@ -86,6 +97,35 @@ class C51(unittest.TestCase):
     def test_food_rtd_settles_inside_the_firmware_cycle(self):
         self.assertTrue(all(cc.rtd_food()["checks"].values()), cc.rtd_food()["checks"])
         self.assertFalse(cc.rtd_food(c_entry=220e-9)["checks"]["five_tau_le_5p5ms"])
+
+
+class FoodUnplug(unittest.TestCase):
+    """Unplug and single-open-lead transients of the J9 network (review 2026-11-25, catch 2)."""
+    @classmethod
+    def setUpClass(cls):
+        cls.d = cc.rtd_food_unplug()
+
+    def test_steady_state_plugged_matches_the_ratio_model(self):
+        want = cc.rtd_food()["rows"]["100"]["code_ratio"]
+        self.assertAlmostEqual(self.d["cases"]["plugged"]["final_ratio"], want, delta=2e-3)
+
+    def test_full_unplug_trips_refin_high_fast(self):
+        self.assertLess(self.d["cases"]["unplug"]["refin_high_ms"], 5.5)
+
+    def test_full_unplug_conversion_is_not_a_reading(self):
+        c = self.d["cases"]["unplug"]
+        self.assertLess(c["ref_V_at_500ms"], 0.01)          # no reference current: the code carries no temperature
+
+    def test_single_open_sense_leads_trip_the_window(self):
+        for k in ("open_sense_p", "open_sense_n"):
+            self.assertIsNotNone(self.d["cases"][k]["window_trip_ms"], k)
+            self.assertGreater(self.d["cases"][k]["window_trip_ms"], 5.5, k)   # slower than the fault cycle's step
+
+    def test_leaky_clamp_can_hide_an_open_sense_lead(self):
+        self.assertLess(self.d["leak_hides_open_uA"], 2.0)
+        self.assertTrue(self.d["checks"]["clamp_leak_below_hiding_level"])
+        self.assertFalse(cc.rtd_food_unplug(leak_a=5e-6)["checks"]["clamp_leak_below_hiding_level"])
+
 
 
 if __name__ == "__main__":

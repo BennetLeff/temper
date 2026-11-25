@@ -1094,7 +1094,7 @@ def pt1000(t: float) -> float:
     return 1000.0 * (1 + 3.9083e-3 * t - 5.775e-7 * t * t)
 
 
-def rtd_food(c_entry: float = 100e-9) -> dict:
+def rtd_food(c_entry: float = 100e-9, leak_a: float = 80e-9) -> dict:
     """Food-probe channel (DECISIONS C51): Pt1000, Rref 4.30 k 0.1 % 25 ppm, MAX31865 bias 2.0 V, 1 M open-lead pull-ups
     on the connector side, the CR-1 filter (2 x 1 k / 100 nF C0G / 2 x 1 k / 100 nF C0G).
 
@@ -1115,7 +1115,9 @@ def rtd_food(c_entry: float = 100e-9) -> dict:
         rows[f"{t:g}"] = {"r_ohm": r, "code_ratio": ratio, "loading_K_uncorrected": over / s,
                           "loading_K_after_nominal_correction_1pct_pullup": over * 0.01 / s,
                           "rref_0p1pct_K": r * 0.001 / s, "rref_25ppm_60K_K": r * 25e-6 * 60 / s,
-                          "self_heat_mW": i_ref * i_ref * r * 1e3}
+                          "self_heat_mW": i_ref * i_ref * r * 1e3,
+                          # FORCE+ and SENSE+ pin leakage passes Rref but not the RTD
+                          "pin_leakage_K": 2 * leak_a / i_ref * r / s}
     # Elmore sum at the hottest probe (300 C): connector node then the two filter sections
     rt = pt1000(300.0)
     rs = 1 / (1 / rref + 1 / rt)
@@ -1125,9 +1127,91 @@ def rtd_food(c_entry: float = 100e-9) -> dict:
             "open_sense_tau_s": rpu * 1.01 * (c_entry * 1.10 + 2 * 100e-9 * 1.05),
             "checks": {"five_tau_le_5p5ms": 5 * tau <= 5.5e-3,
                        "code_in_range_at_300C": rows["300"]["code_ratio"] < 0.95,
+                       "pin_leakage_le_0p35K": all(x["pin_leakage_K"] <= 0.35 for x in rows.values()),
                        "corrected_loading_le_0p05K": all(x["loading_K_after_nominal_correction_1pct_pullup"] <= 0.05
                                                          for x in rows.values()),
                        "open_sense_detected_within_2s": 5 * rpu * 1.01 * (c_entry * 1.10 + 2 * 100e-9 * 1.05) <= 2.0}}
+
+
+def rtd_food_unplug(leak_a: float = 80e-9, win=(0.20, 0.55)) -> dict:
+    """J9 network after a lead opens, bias on and converting (FORCE- closed). Implicit Euler on the as-drawn nodes, every
+    capacitor at its upper tolerance. `win` = proposed window thresholds as code ratios (about -36 C and 380 C).
+
+    Leakage: an open sense lead is only seen if its 1 M beats the leakage at that pin. `leak_a` is BAV199-7-F's maximum
+    (DS30232 Rev. 12-2 p. 2: 80 nA at 75 V, 150 C; one diode, used as a bound though the two partly cancel)."""
+    import numpy as np
+    vb, rref, rpu = 2.0, 4300.0, 1e6
+    nodes = ["fp", "spx", "snx", "spm", "snm", "sp", "sn"]
+    ix = {n: i for i, n in enumerate(nodes)}
+
+    def run(rt, opened, t_end):
+        G, C, b = np.zeros((7, 7)), np.zeros((7, 7)), np.zeros(7)
+
+        def stamp(M, a, c, g):
+            i, j = ix.get(a), ix.get(c)
+            if i is not None:
+                M[i, i] += g
+            if j is not None:
+                M[j, j] += g
+            if i is not None and j is not None:
+                M[i, j] -= g
+                M[j, i] -= g
+
+        def to_bias(a, g):
+            G[ix[a], ix[a]] += g
+            b[ix[a]] += g * vb
+        to_bias("fp", 1 / rref)
+        to_bias("spx", 1 / (rpu * 1.01))
+        to_bias("snx", 1 / (rpu * 1.01))
+        for a, c in (("spx", "spm"), ("snx", "snm"), ("spm", "sp"), ("snm", "sn")):
+            stamp(G, a, c, 1 / 1001.0)
+        for a in ("fp", "spx", "snx"):
+            stamp(C, a, "gnd", 110e-9)
+        for a, c in (("spm", "snm"), ("sp", "sn")):
+            stamp(C, a, c, 105e-9)
+        for a in ("sp", "sn"):
+            stamp(C, a, "gnd", 1.05e-9)
+        leads = {"p": ("fp", "spx", 1e-3), "n": ("gnd", "snx", 1e-3), "rt": ("fp", "gnd", rt)}
+        G0, b0 = G.copy(), b.copy()
+        for k, (a, c, r) in leads.items():
+            stamp(G, a, c, 1 / r)
+        v = np.linalg.solve(G, b)
+        G = G0.copy()
+        b = b0
+        for k, (a, c, r) in leads.items():
+            if k not in opened:
+                stamp(G, a, c, 1 / r)
+        dt = t_end / 20000
+        A = np.linalg.inv(C / dt + G)
+        tr, refin, at500 = None, None, None
+        for n in range(20000):
+            v = A @ (C @ v / dt + b)
+            t = (n + 1) * dt
+            ref = vb - v[ix["fp"]]
+            ratio = (v[ix["sp"]] - v[ix["sn"]]) / ref if ref > 1e-12 else float("inf")
+            if refin is None and v[ix["fp"]] > 0.85 * vb:
+                refin = t * 1e3
+            if tr is None and not win[0] < ratio < win[1]:
+                tr = t * 1e3
+            if at500 is None and t >= 0.5:
+                at500 = ref
+        return {"refin_high_ms": refin, "window_trip_ms": tr, "ref_V_at_500ms": at500, "final_ratio": float(ratio)}
+    r100 = pt1000(100.0)
+    cases = {"plugged": run(r100, (), 1.0), "unplug": run(r100, ("p", "n", "rt"), 2.0),
+             "open_sense_p": run(pt1000(0.0), ("p",), 3.0), "open_sense_n": run(pt1000(300.0), ("n",), 3.0)}
+    # SENSE+ open, leak to ground at the node: v = VBIAS - I x 1 M, seen only if v > win_hi x Vref. Worst over 0..300 C.
+    hides = []
+    for t in (0.0, 25.0, 100.0, 200.0, 300.0):
+        r = pt1000(t)
+        vref = vb * rref / (rref + r)
+        hides.append((vb - win[1] * vref) / (rpu * 1.01))
+        hides.append((vb - 0.0 - max(vb - vref - win[0] * vref, 0.0) * 1.0) / (rpu * 1.01))
+    hide = min(hides)
+    return {"window_ratio": win, "cases": cases, "leak_hides_open_uA": hide * 1e6, "leak_bound_used_uA": leak_a * 1e6,
+            "checks": {"unplug_refin_high_before_5p5ms": cases["unplug"]["refin_high_ms"] < 5.5,
+                       "open_sense_window_trip_within_2s": all(cases[k]["window_trip_ms"] and cases[k]["window_trip_ms"] < 2000
+                                                               for k in ("open_sense_p", "open_sense_n")),
+                       "clamp_leak_below_hiding_level": leak_a < hide}}
 
 
 def bay_ntc(rpu: float = 47e3) -> dict:
@@ -1242,6 +1326,7 @@ def main() -> int:
         "capmode": capmode(),
         "harness_sensitivity": harness_sensitivity(),
         "rtd_food": rtd_food(),
+        "rtd_food_unplug": rtd_food_unplug(),
         "bay_ntc": bay_ntc(),
         "fan2_buck": fan2_buck(),
         "ps3_face_fan": ps3_face_fan(),

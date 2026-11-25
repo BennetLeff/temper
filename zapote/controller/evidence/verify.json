@@ -3,7 +3,7 @@
   "inputs": {
     "native21_commit": "f0c669a86b70ac270d36fa416fd75870c078974a",
     "netlist": "frozen/default.net",
-    "netlist_sha256": "2c8f7b018f2cd8dd320e8b78bedda4e9dc8b24cefee48c14c288592a0389eefa"
+    "netlist_sha256": "4217185d2cb30ebbb4beb4403a1acfa722397719af7c98da4453c9ea8f446da7"
   },
   "schema": "temper.controller.verify.v1",
   "sections": {
@@ -671,8 +671,8 @@
       },
       "data": {
         "count": {
-          "components": 342,
-          "distinct_mpns": 96
+          "components": 343,
+          "distinct_mpns": 97
         },
         "unverified": [
           "0430451600"
@@ -735,6 +735,12 @@
         "fan2_tach_path": {
           "detail": [
             "R158"
+          ],
+          "ok": true
+        },
+        "food_avdd_esd_bulk": {
+          "detail": [
+            "C143"
           ],
           "ok": true
         },
@@ -813,45 +819,45 @@
           },
           "ok": true
         },
-        "j9_1_cap_and_tvs": {
+        "j9_1_cap_and_clamp": {
           "detail": {
             "caps": [
               "C112"
             ],
-            "tvs": [
+            "clamps": [
               "D10"
             ]
           },
           "ok": true
         },
-        "j9_2_cap_and_tvs": {
+        "j9_2_cap_and_clamp": {
           "detail": {
             "caps": [
               "C113"
             ],
-            "tvs": [
+            "clamps": [
               "D11"
             ]
           },
           "ok": true
         },
-        "j9_3_cap_and_tvs": {
+        "j9_3_cap_and_clamp": {
           "detail": {
             "caps": [
               "C114"
             ],
-            "tvs": [
+            "clamps": [
               "D12"
             ]
           },
           "ok": true
         },
-        "j9_4_cap_and_tvs": {
+        "j9_4_cap_and_clamp": {
           "detail": {
             "caps": [
               "C115"
             ],
-            "tvs": [
+            "clamps": [
               "D13"
             ]
           },
@@ -2753,30 +2759,30 @@
         "native21_rail_inside_3135_3465": {
           "detail": [
             3.2392990419789065,
-            3.374891469997356
+            3.3748914730966115
           ],
           "ok": true
         },
         "ps1_within_21W_at_full_blower": {
-          "detail": 4.7921772640561695,
+          "detail": 4.792178894644405,
           "ok": true
         },
         "within_inductor_irms_2p45A": {
-          "detail": 1041.1676098694788,
+          "detail": 1041.1680098694787,
           "ok": true
         },
         "within_tps62933_3A": {
-          "detail": 1041.1676098694788,
+          "detail": 1041.1680098694787,
           "ok": true
         }
       },
       "data": {
-        "controller_mA": 553.4329537189119,
+        "controller_mA": 553.4333537189118,
         "native21_on_J4_3_mA": 27.73465615056683,
         "native21_rail_V": {
           "harness": {
             "allocation": "J4 harness <= 1.0 m, AWG22, Micro-Fit 43030 terminals (DEFAULT; harness not yet specified)",
-            "ground_shift_max_V": 0.008337521386451502,
+            "ground_shift_max_V": 0.008337524485707123,
             "ground_shift_min_V": -0.0007709598361743192,
             "length_m": 1.0,
             "r_conductor_ohm": 0.08339312,
@@ -2787,14 +2793,14 @@
             ],
             "v3v3_drop_V": 0.0023128795085229576
           },
-          "max": 3.374891469997356,
+          "max": 3.3748914730966115,
           "min": 3.2392990419789065
         },
         "oled_off_board_mA": {
           "basis": "Newhaven NHD-3.12-25664UCW2 rev: IDD 340 mA max, 3.3 V, 100 % on, factory jumper (via J7.2, R33)",
           "mA": 340.0
         },
-        "peak_mA": 1041.1676098694788,
+        "peak_mA": 1041.1680098694787,
         "ps1": {
           "basis": "efficiency 85 % (3.3 V) is an allocation from the TPS62933 typical curves; IRM-20-15 21 W rated; blower on PS3 (check_blwin)",
           "blower_input_W_now_on_ps3": {
@@ -2802,8 +2808,8 @@
             "full_typ": 18.933333333333334,
             "r32_cap": 10.0
           },
-          "p_3v3_rail_W": 4.2442891390561694,
-          "p_total_W": 4.7921772640561695,
+          "p_3v3_rail_W": 4.2442907696444045,
+          "p_total_W": 4.792178894644405,
           "p_v15_direct_W": 0.547888125,
           "rating_W": 21.0
         },
@@ -2819,15 +2825,15 @@
             "basis": "MAX31865AAP+T: MAX31865 DS: IDD 3.5 mA + 0.4 mA (input > ref) + BIAS IOUT 5.75 mA max",
             "board": "controller",
             "mA": 9.65,
-            "path": "rtd_pan.adc",
-            "ref": "U30"
+            "path": "rtd_food.adc",
+            "ref": "U50"
           },
           {
             "basis": "MAX31865AAP+T: MAX31865 DS: IDD 3.5 mA + 0.4 mA (input > ref) + BIAS IOUT 5.75 mA max",
             "board": "controller",
             "mA": 9.65,
-            "path": "rtd_food.adc",
-            "ref": "U50"
+            "path": "rtd_pan.adc",
+            "ref": "U30"
           },
           {
             "basis": "AMC1311BDWVR: SBAS786C 6.x: IDD2 7.2 mA max (3.0-3.6 V)",
@@ -3628,6 +3634,34 @@
             "ref": "U39"
           },
           {
+            "basis": "BAV199-7-F: Diodes DS30232 Rev. 12-2: IR 80 nA max at 75 V 150 C",
+            "board": "controller",
+            "mA": 0.0001,
+            "path": "rtd_food.d_fp",
+            "ref": "D10"
+          },
+          {
+            "basis": "BAV199-7-F: Diodes DS30232 Rev. 12-2: IR 80 nA max at 75 V 150 C",
+            "board": "controller",
+            "mA": 0.0001,
+            "path": "rtd_food.d_sp",
+            "ref": "D11"
+          },
+          {
+            "basis": "BAV199-7-F: Diodes DS30232 Rev. 12-2: IR 80 nA max at 75 V 150 C",
+            "board": "controller",
+            "mA": 0.0001,
+            "path": "rtd_food.d_sn",
+            "ref": "D12"
+          },
+          {
+            "basis": "BAV199-7-F: Diodes DS30232 Rev. 12-2: IR 80 nA max at 75 V 150 C",
+            "board": "controller",
+            "mA": 0.0001,
+            "path": "rtd_food.d_fn",
+            "ref": "D13"
+          },
+          {
             "basis": "1kohm +/- 1% no DC return",
             "board": "controller",
             "mA": 0.0,
@@ -3656,7 +3690,7 @@
             "ref": "R135"
           }
         ],
-        "total_mA": 581.1676098694787,
+        "total_mA": 581.1680098694786,
         "ui_board_allocation_mA": {
           "basis": "[UNVERIFIED] J7.2 allocation for the R33 UI board: 30 mA logic + 3.3 V encoder option (MCP23S08, TMP122) and 90 mA for the self-oscillating buzzer; parts not yet chosen",
           "mA": 120.0
