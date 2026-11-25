@@ -616,3 +616,43 @@ target_include_directories(test_rms_shadow PRIVATE ../components/power/include .
 target_link_libraries(test_rms_shadow m)
 target_compile_options(test_rms_shadow PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 add_test(NAME rms_shadow_tests COMMAND test_rms_shadow)
+
+# ============================================================================
+# sensor-r3 C1 pan-temperature loop, ported byte for byte from origin/main
+# (components/control/pan_*.c and friends; output/temper-sensor-r3/firmware).
+# ============================================================================
+set(PAN_TEMP_LOOP_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_temp_estimator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/contact_shift.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/plant_gain.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rate_pid.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/contact_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_sensor_guard.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_temp_loop.c
+)
+set(C1_CHECK_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_supervisor.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/current_sense_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_leak_check.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_rim_limit.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_cold_soak.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_soak_store.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
+)
+add_executable(test_pan_temp_estimator_only ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/pan_temp_estimator.c
+    test_pan_temp_estimator.c test_main_pan_temp_estimator.c)
+add_executable(test_contact_check_only ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/contact_check.c
+    test_contact_check.c test_main_contact_check.c)
+add_executable(test_pan_temp_loop_only ${UNITY_SOURCES} ${PAN_TEMP_LOOP_SOURCES}
+    test_pan_temp_loop.c test_main_pan_temp_loop.c)
+add_executable(test_c1_units_only ${UNITY_SOURCES} ${C1_CHECK_SOURCES}
+    test_c1_units.c test_main_c1_units.c)
+foreach(t pan_temp_estimator contact_check pan_temp_loop c1_units)
+    target_include_directories(test_${t}_only PRIVATE ${INCLUDE_DIRS}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+    target_compile_options(test_${t}_only PRIVATE -ffp-contract=off)
+    target_link_libraries(test_${t}_only m)
+    add_test(NAME ${t}_tests COMMAND test_${t}_only)
+endforeach()
