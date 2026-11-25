@@ -264,11 +264,12 @@ component Shunt1m:
 # ---------------------------------------------------------------- full bridge
 
 component MosfetCfd7:
-    """Infineon IPW65R018CFD7, 650 V 18 mOhm CoolMOS CFD7, TO-247-3."""
+    """Infineon IPW65R018CFD7, 650 V 18 mOhm CoolMOS CFD7, TO-247-3. Stage 57 (DECISIONS 87): 1.8 mm holes (KiCad's stock land
+    has 1.5), for the drawing's largest lead, 1.40 x 0.89 mm (1.659 mm diagonal, Rev. 2.0 p.12)."""
     designator_prefix = "Q"
     mpn = "IPW65R018CFD7"
     manufacturer = "Infineon"
-    footprint = "Package_TO_SOT_THT:TO-247-3_Vertical"
+    footprint = "temper:TO-247-3_Vertical_D1.8"
     signal G ~ pin 1
     signal D ~ pin 2
     signal S ~ pin 3

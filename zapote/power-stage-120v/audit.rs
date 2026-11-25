@@ -971,6 +971,47 @@ fn stage56_checks(m: &Model, e: &mut Vec<String>) {
     }
 }
 
+// Stage 57 (DECISIONS 87; 11-candidates/c58-s56-lands): the TO-247 holes. Infineon IPW65R018CFD7 Rev. 2.0 p.12 (Z8B00003327
+// rev 06): lead b <= 1.40, c <= 0.89, so a 1.659 mm diagonal; the drain shoulder b2 >= 2.57 sets the seat. JLC finishes a
+// PTH at nominal -0.08 / +0.13 (bench-sink-r1's 1.42-1.63 for 1.5).
+const S57_FET_FP: &str = "temper:TO-247-3_Vertical_D1.8";
+const S57_FET_MOD: &str = include_str!("libraries/temper.pretty/TO-247-3_Vertical_D1.8.kicad_mod");
+
+fn s57_drills(module: &str) -> Vec<f64> {
+    module.split("(drill ").skip(1).filter_map(|s| s.split(')').next().and_then(|n| n.trim().parse().ok())).collect()
+}
+
+fn s57_hole_errors(module: &str) -> Vec<String> {
+    let drills = s57_drills(module);
+    let mut e = Vec::new();
+    if drills.len() != 3 {
+        e.push(format!("stage57: {} round holes in the FET land, expected 3", drills.len()));
+    }
+    let diag = 1.40_f64.hypot(0.89);
+    for d in drills {
+        if d - 0.08 < diag {
+            e.push(format!("stage57: FET hole {d} finishes at {:.2}, under the {diag:.3} mm lead diagonal", d - 0.08));
+        }
+        if d + 0.13 >= 2.57 {
+            e.push(format!("stage57: FET hole {d} finishes at {:.2}, the 2.57 mm drain shoulder would not seat", d + 0.13));
+        }
+        if (2.5 - (d + 0.13)) / 2.0 < 0.25 {
+            e.push(format!("stage57: FET hole {d} leaves under 0.25 mm of the 2.5 mm pad"));
+        }
+    }
+    e
+}
+
+fn stage57_checks(m: &Model, e: &mut Vec<String>) {
+    e.extend(s57_hole_errors(S57_FET_MOD));
+    for q in ["leg_a.q_high", "leg_a.q_low", "leg_b.q_high", "leg_b.q_low"] {
+        match m.reff(q).and_then(|r| m.comps.get(r)) {
+            Some(c) if c.footprint == S57_FET_FP => {}
+            c => e.push(format!("stage57: {q} footprint {:?} is not {S57_FET_FP}", c.map(|c| c.footprint.as_str()))),
+        }
+    }
+}
+
 fn stage48_checks(m: &Model, e: &mut Vec<String>) {
     // S19: every TPS70950(Q)'s EN on its own divider tap, inside VEN(HI) .. 6.5 V across its IN range
     for (ldo, base, vin_min, vin_max, vin_corner) in S48_LDO_IN {
@@ -1547,6 +1588,7 @@ fn audit(m: &Model) -> Vec<String> {
     stage52_checks(m, &mut e);
     stage54_checks(m, &mut e);
     stage56_checks(m, &mut e);
+    stage57_checks(m, &mut e);
 
     // 11. Tank CT: the secondary is terminated on this board, at the CT, and
     //     never reaches the connector (an open secondary spikes to hundreds of
@@ -2422,6 +2464,22 @@ mod tests {
             m.set_part(&format!("{side}.ren_top"), "RC1206FR-07220KL");
             fails(&m, &format!("stage56: {side}.ren_top (RC1206FR-07220KL) has no resistor data"));
         }
+    }
+
+    #[test]
+    fn stage57_fet_holes_take_the_worst_lead_and_seat_the_drain_shoulder() {
+        assert!(audit(&built()).is_empty(), "{:#?}", audit(&built()));
+        assert!(s57_hole_errors(S57_FET_MOD).is_empty());
+        let at = |d: &str| s57_hole_errors(&S57_FET_MOD.replace("(drill 1.8)", &format!("(drill {d})")));
+        assert!(at("1.5").iter().any(|e| e.contains("finishes at 1.42")), "the stage 56 hole must fail: {:?}", at("1.5"));
+        assert!(at("1.7").iter().any(|e| e.contains("lead diagonal")));
+        assert!(at("2.5").iter().any(|e| e.contains("would not seat")));
+        assert!(at("2.0").iter().any(|e| e.contains("0.25 mm")));
+        assert!(!s57_hole_errors(&S57_FET_MOD.replacen("(drill 1.8)", "", 1)).is_empty());
+        let mut m = built();
+        let r = m.reff("leg_a.q_high").unwrap().to_string();
+        m.comps.get_mut(&r).unwrap().footprint = "Package_TO_SOT_THT:TO-247-3_Vertical".into();
+        fails(&m, "stage57: leg_a.q_high footprint");
     }
 
     #[test]
