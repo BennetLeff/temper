@@ -9,6 +9,17 @@
 
 #include "n21_binding.h"
 
+/* ---------------------------------------------------------------- native-21 stage power */
+bool platform_stage_power(bool have_half, uint32_t halves_ok, uint32_t *halves_seen, float tank_rms_a,
+                          float p_inv_w, float *p_w)
+{
+    bool fresh = have_half && halves_ok != *halves_seen;
+    *halves_seen = halves_ok;
+    if (!fresh || !isfinite(tank_rms_a) || !isfinite(p_inv_w)) return false;
+    *p_w = tank_rms_a < PLATFORM_STAGE_MIN_TANK_A ? 0.0f : p_inv_w;
+    return true;
+}
+
 /* ---------------------------------------------------------------- native-21 over-current sources */
 bool platform_power_bus_trip(bool status_known, bool bus_fault, bool permit, bool bridge_running)
 {

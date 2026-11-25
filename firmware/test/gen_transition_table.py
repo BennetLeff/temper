@@ -47,6 +47,8 @@ TRANSITIONS = [
     ("STATE_PREHEAT", "BIAS_GOOD_STUCK", "STATE_FAULT", "FAULT_BIAS_GOOD_STUCK", False),
     ("STATE_PREHEAT", "BIAS_GOOD_LOW_AT_START", "STATE_COOLDOWN", None, False),
     ("STATE_PREHEAT", "PAN_REMOVED", "STATE_NO_PAN", None, False),
+    ("STATE_PREHEAT", "CONTACT_LOST", "STATE_PREHEAT", None, False),
+    ("STATE_PREHEAT", "PAN_REFUSED", "STATE_COOLDOWN", None, False),
     ("STATE_PREHEAT", "STOP_BUTTON", "STATE_COOLDOWN", None, False),
 
     # HEATING transitions
@@ -61,6 +63,8 @@ TRANSITIONS = [
     ("STATE_HEATING", "BIAS_GOOD_STUCK", "STATE_FAULT", "FAULT_BIAS_GOOD_STUCK", False),
     ("STATE_HEATING", "BIAS_GOOD_LOW_AT_START", "STATE_COOLDOWN", None, False),
     ("STATE_HEATING", "PAN_REMOVED", "STATE_NO_PAN", None, False),
+    ("STATE_HEATING", "CONTACT_LOST", "STATE_HEATING", None, False),
+    ("STATE_HEATING", "PAN_REFUSED", "STATE_COOLDOWN", None, False),
     ("STATE_HEATING", "STOP_BUTTON", "STATE_COOLDOWN", None, False),
     ("STATE_HEATING", "TIMER_EXPIRED", "STATE_COOLDOWN", None, False),
 
@@ -147,6 +151,13 @@ EVENT_STUBS = {
     "BIAS_GOOD_STUCK": "mock_sm_set_bias_stuck(true);",
     "BIAS_GOOD_LOW_AT_START": "mock_sm_set_bias_start_refused(true);",
     "BIAS_GOOD_LOST": "mock_sm_set_bias_good(false);",
+    "PAN_REFUSED": "mock_sm_set_pan_refused(true);",
+    # The C1 loop reports it; the state must not change.
+    "CONTACT_LOST": (
+        "mock_sm_set_pan_temperature(60.0f);\n"
+        "    state_machine_reset_temp_baseline();\n"
+        "    state_machine_report_pan_contact_lost();"
+    ),
     "RUNAWAY_RISE_RATE": (
         "mock_sm_set_pan_temperature(30.0f);\n"
         "    state_machine_update();\n"
@@ -572,6 +583,7 @@ def generate_c_output(transitions, output_path):
         "extern void mock_sm_set_bias_good(bool high);",
         "extern void mock_sm_set_bias_stuck(bool stuck);",
         "extern void mock_sm_set_bias_start_refused(bool refused);",
+        "extern void mock_sm_set_pan_refused(bool refused);",
         "extern void power_set_level(uint8_t level);",
         "extern void mock_sm_set_rtd_resistance(float ohms);",
         "extern void mock_sm_set_pan_status(int status);",

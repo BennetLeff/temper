@@ -19,6 +19,8 @@
  * probe (rtd_service_fault_status_clean()). Terminal until a power cycle: a flagged power-up cycle, a
  * cycle that does not finish, no conversion for RTD_DRDY_TIMEOUT_CONTROL_TICKS, a frozen code, a
  * flagged word with no readable status, an SPI failure in a cycle.
+ * `rtd_service_control_tick()` is called by the control task and is the sole owner of MAX31865
+ * SPI transfers and state-machine fault delivery.
  */
 
 #ifndef RTD_SERVICE_H

@@ -656,3 +656,18 @@ foreach(t pan_temp_estimator contact_check pan_temp_loop c1_units)
     target_link_libraries(test_${t}_only m)
     add_test(NAME ${t}_tests COMMAND test_${t}_only)
 endforeach()
+
+# The C1 runtime (TEMPER_PAN_CONTROL_C1): the state machine driving the loop through
+# main/pan_control.c with the native-21 stage power. The other targets build without it.
+add_executable(test_c1_runtime_only ${UNITY_SOURCES} ${PAN_TEMP_LOOP_SOURCES} ${C1_CHECK_SOURCES}
+    ../components/sensors/rim_ntc.c ../main/pan_control.c ../main/state_machine.c ../main/state_handlers.c
+    ../components/control/thermal_mgmt.c ../components/control/low_temp_control.c
+    ../components/control/pid_control.c ../components/control/thermal_mass.c ../components/control/profiles.c
+    state_machine_stubs.c test_c1_runtime.c test_main_c1_runtime.c)
+target_compile_definitions(test_c1_runtime_only PRIVATE TEMPER_PAN_CONTROL_C1=1)
+target_compile_options(test_c1_runtime_only PRIVATE -ffp-contract=off)
+target_include_directories(test_c1_runtime_only PRIVATE ${INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/include)
+target_link_libraries(test_c1_runtime_only m)
+add_dependencies(test_c1_runtime_only gen_config gen_fault_list gen_transition_table)
+add_test(NAME c1_runtime_tests COMMAND test_c1_runtime_only)

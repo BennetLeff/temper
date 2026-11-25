@@ -52,6 +52,7 @@ static struct {
      * Defaults = a healthy board (or no J4.1 input fitted). */
     bool bias_good;              /* bias_ok: the LS / HS-A / HS-B monitors good, heartbeat running */
     bool bias_stuck;             /* check 1 verdict (U40 stuck high etc.) */
+    bool pan_refused;            /* binding pan refusal; cleared when the request goes to zero */
     bool bias_refused;           /* check 2: the current request was refused (power 0 clears) */
     uint32_t bias_step_calls;    /* power_bias_step() calls: once per state_machine_update() */
     uint32_t bias_gate_rises;    /* modelled start sequences (requests rising from zero) */
@@ -157,7 +158,16 @@ static struct {
  * Mock Control Functions (called from tests)
  * ============================================================================ */
 
+#ifdef TEMPER_PAN_CONTROL_C1
+void mock_sm_set_heatsink_ntc_state(int state);
+void mock_soak_nvs_erase(void);
+#endif
+
 void mock_sm_reset(void) {
+#ifdef TEMPER_PAN_CONTROL_C1
+    mock_sm_set_heatsink_ntc_state(-1);
+    mock_soak_nvs_erase();   /* a fresh unit; a power cycle is state_machine_init() alone */
+#endif
     memset(&mock_sm_state, 0, sizeof(mock_sm_state));
     mock_sm_state.pan_temperature = 25.0f;
     mock_sm_state.pan_sensor_failure = RTD_SENSOR_OK;
@@ -185,6 +195,7 @@ void mock_sm_reset(void) {
 
 void mock_sm_set_bias_good(bool high) { mock_sm_state.bias_good = high; }
 void mock_sm_set_bias_stuck(bool stuck) { mock_sm_state.bias_stuck = stuck; }
+void mock_sm_set_pan_refused(bool refused) { mock_sm_state.pan_refused = refused; }
 void mock_sm_set_bias_start_refused(bool refused) { mock_sm_state.bias_refused = refused; }
 bool mock_sm_get_bias_start_refused(void) { return mock_sm_state.bias_refused; }
 uint32_t mock_sm_get_bias_step_count(void) { return mock_sm_state.bias_step_calls; }
@@ -431,6 +442,7 @@ void pwm_disable_all(void) {
 void power_set_level(uint8_t level) {
     mock_sm_state.power_set_level_calls++;
     if (level == 0) {
+        mock_sm_state.pan_refused = false;
         mock_sm_state.bias_refused = false;  /* request withdrawn (binding set_request(false)) */
     } else if (mock_sm_state.power_level == 0) {
         /* Gate rise: the binding's start sequence (B13 H2 check 2). */
@@ -478,6 +490,90 @@ float read_heatsink_temperature(void) {
     return mock_sm_state.heatsink_temperature;
 }
 
+#ifdef TEMPER_PAN_CONTROL_C1
+/* C1 builds: the heatsink NTC driver's reading for the cold-soak check
+ * (main/pan_control.c, DECISIONS D-SOAK; main/board_peripherals.c on the
+ * target). VALID at the mock heatsink temperature unless a test forces the
+ * driver state (mock_sm_set_heatsink_ntc_state). */
+#include <math.h>
+#include "hs_ntc.h"
+static int s_mock_hs_state = -1;
+
+void mock_sm_set_heatsink_ntc_state(int state) {
+    s_mock_hs_state = state;
+}
+
+/* NVS for the coil-off token (main/soak_store_nvs.c on the target; D-SOAKNV):
+ * one u32 that survives mock_sm_reset() and state_machine_init(), as flash
+ * survives a power cycle; tests clear it and inject failures. */
+#include "pan_soak_store.h"
+static struct {
+    bool present;
+    uint32_t value;
+    bool fail_load, fail_save, fail_clear;
+    uint32_t loads, saves, clears;
+} s_mock_nvs;
+
+static bool mock_nvs_load(void *ctx, uint32_t *v) {
+    (void)ctx;
+    s_mock_nvs.loads++;
+    if (s_mock_nvs.fail_load || !s_mock_nvs.present) {
+        return false;
+    }
+    *v = s_mock_nvs.value;
+    return true;
+}
+static bool mock_nvs_save(void *ctx, uint32_t v) {
+    (void)ctx;
+    s_mock_nvs.saves++;
+    if (s_mock_nvs.fail_save) {
+        return false;
+    }
+    s_mock_nvs.present = true;
+    s_mock_nvs.value = v;
+    return true;
+}
+static bool mock_nvs_clear(void *ctx) {
+    (void)ctx;
+    s_mock_nvs.clears++;
+    if (s_mock_nvs.fail_clear) {
+        return false;
+    }
+    s_mock_nvs.present = false;
+    return true;
+}
+static const pss_hal_t s_mock_pss_hal = {.load = mock_nvs_load, .save = mock_nvs_save,
+                                         .clear = mock_nvs_clear, .ctx = NULL};
+const pss_hal_t *pan_soak_store_hal(void) { return &s_mock_pss_hal; }
+
+void mock_soak_nvs_erase(void) { memset(&s_mock_nvs, 0, sizeof(s_mock_nvs)); }
+void mock_soak_nvs_put(uint32_t v) { s_mock_nvs.present = true; s_mock_nvs.value = v; }
+bool mock_soak_nvs_get(uint32_t *v) { if (v != NULL) { *v = s_mock_nvs.value; } return s_mock_nvs.present; }
+void mock_soak_nvs_fail(bool load, bool save, bool clear) {
+    s_mock_nvs.fail_load = load;
+    s_mock_nvs.fail_save = save;
+    s_mock_nvs.fail_clear = clear;
+}
+uint32_t mock_soak_nvs_saves(void) { return s_mock_nvs.saves; }
+uint32_t mock_soak_nvs_clears(void) { return s_mock_nvs.clears; }
+
+bool read_heatsink_ntc(hs_ntc_reading_t *out) {
+    hs_ntc_reading_t rd;
+    memset(&rd, 0, sizeof(rd));
+    rd.state = s_mock_hs_state >= 0 ? (hs_ntc_state_t)s_mock_hs_state : HS_NTC_VALID;
+    rd.t_c = (rd.state == HS_NTC_VALID || rd.state == HS_NTC_SATURATED) ? mock_sm_state.heatsink_temperature
+                                                                          : NAN;
+    rd.t_raw_c = rd.t_c;
+    rd.rail_nominal = true;
+    rd.v3v3_mv = 3300.0f;
+    if (out != NULL) {
+        *out = rd;
+    }
+    return rd.state == HS_NTC_VALID;
+}
+#endif
+
+
 float read_dc_bus_current(void) {
     return mock_sm_state.dc_bus_current;
 }
@@ -496,6 +592,10 @@ void power_bias_step(bool *stuck, bool *lost) {
     mock_sm_state.bias_step_calls++;
     *stuck = mock_sm_state.bias_stuck;
     *lost = mock_sm_get_permit() && !mock_sm_state.bias_good;
+}
+
+bool power_pan_refused(void) {
+    return mock_sm_state.pan_refused;
 }
 
 bool power_bias_start_refused(void) {

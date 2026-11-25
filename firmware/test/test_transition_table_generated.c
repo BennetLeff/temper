@@ -21,6 +21,7 @@ extern void mock_sm_set_power_tank_trip(bool tripped);
 extern void mock_sm_set_bias_good(bool high);
 extern void mock_sm_set_bias_stuck(bool stuck);
 extern void mock_sm_set_bias_start_refused(bool refused);
+extern void mock_sm_set_pan_refused(bool refused);
 extern void power_set_level(uint8_t level);
 extern void mock_sm_set_rtd_resistance(float ohms);
 extern void mock_sm_set_pan_status(int status);
@@ -64,6 +65,8 @@ static const transition_row_t transition_table[] = {
     { STATE_PREHEAT, "BIAS_GOOD_STUCK", STATE_FAULT, FAULT_BIAS_GOOD_STUCK, true },
     { STATE_PREHEAT, "BIAS_GOOD_LOW_AT_START", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_PREHEAT, "PAN_REMOVED", STATE_NO_PAN, FAULT_NONE, false },
+    { STATE_PREHEAT, "CONTACT_LOST", STATE_PREHEAT, FAULT_NONE, false },
+    { STATE_PREHEAT, "PAN_REFUSED", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_PREHEAT, "STOP_BUTTON", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_HEATING, "NEAR_TARGET", STATE_HEATING, FAULT_NONE, false },  /* self-loop (PID control continues) */
     { STATE_HEATING, "OVER_TEMP", STATE_FAULT, FAULT_OVER_TEMP, true },
@@ -76,6 +79,8 @@ static const transition_row_t transition_table[] = {
     { STATE_HEATING, "BIAS_GOOD_STUCK", STATE_FAULT, FAULT_BIAS_GOOD_STUCK, true },
     { STATE_HEATING, "BIAS_GOOD_LOW_AT_START", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_HEATING, "PAN_REMOVED", STATE_NO_PAN, FAULT_NONE, false },
+    { STATE_HEATING, "CONTACT_LOST", STATE_HEATING, FAULT_NONE, false },
+    { STATE_HEATING, "PAN_REFUSED", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_HEATING, "STOP_BUTTON", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_HEATING, "TIMER_EXPIRED", STATE_COOLDOWN, FAULT_NONE, false },
     { STATE_NO_PAN, "PAN_REPLACED_SAME", STATE_PREHEAT, FAULT_NONE, false },  /* same impedance -> resumes PREHEAT */
@@ -161,6 +166,16 @@ static void apply_event_stubs(const char *event) {
     if (strcmp(event, "PAN_REMOVED") == 0) {
         mock_sm_set_pan_status(MOCK_PAN_ABSENT);
         mock_sm_set_pan_temperature(25.0f);
+        return;
+    }
+    if (strcmp(event, "CONTACT_LOST") == 0) {
+        mock_sm_set_pan_temperature(60.0f);
+        state_machine_reset_temp_baseline();
+        state_machine_report_pan_contact_lost();
+        return;
+    }
+    if (strcmp(event, "PAN_REFUSED") == 0) {
+        mock_sm_set_pan_refused(true);
         return;
     }
     if (strcmp(event, "STOP_BUTTON") == 0) {

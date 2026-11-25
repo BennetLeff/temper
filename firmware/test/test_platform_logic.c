@@ -107,6 +107,25 @@ static void test_sensor_failure_classes(void)
         assert(rtd_convert_classify_failure(8192u, (uint8_t)(1u << bit)) == RTD_SENSOR_FAIL_OPEN);
 }
 
+static void test_stage_power(void)
+{
+    uint32_t seen = 0;
+    float p = -1.0f;
+    assert(!platform_stage_power(false, 0u, &seen, 10.0f, 300.0f, &p));  /* no half yet */
+    assert(platform_stage_power(true, 12u, &seen, 10.0f, 300.0f, &p) && p == 300.0f && seen == 12u);
+    assert(!platform_stage_power(true, 12u, &seen, 10.0f, 300.0f, &p));  /* no new half: stale */
+    assert(platform_stage_power(true, 13u, &seen, 10.0f, 310.0f, &p) && p == 310.0f);
+    assert(platform_stage_power(true, 2u, &seen, 10.0f, 5.0f, &p));      /* the counter restarted */
+    /* Gate off: 0.4 A of RMS offset x 153 V x cos 1 is 61 W of nothing. */
+    assert(platform_stage_power(true, 3u, &seen, 0.4f, 61.0f, &p) && p == 0.0f);
+    assert(platform_stage_power(true, 4u, &seen, 2.0f, 61.0f, &p) && p == 61.0f);
+    /* Not a number is not a reading. */
+    assert(!platform_stage_power(true, 5u, &seen, NAN, 61.0f, &p));
+    assert(!platform_stage_power(true, 6u, &seen, 10.0f, NAN, &p));
+    /* The lowest running stage (73 W into 1.4 ohm) is far above the floor. */
+    assert(sqrtf(73.0f / 1.4f) > 3.0f * PLATFORM_STAGE_MIN_TANK_A);
+}
+
 /* ---------------------------------------------------------------- native-21 over-current sources */
 static void test_power_bus_trip(void)
 {
@@ -696,6 +715,7 @@ int main(void)
     TEST(test_fault_bit_and_bad_rref_are_infinite);
     TEST(test_rref_matches_threshold_words);
     TEST(test_cr7_corrections);
+    TEST(test_stage_power);
     TEST(test_rtd_sentinel_semantics);
     TEST(test_iec60751_table);
     TEST(test_sensor_failure_classes);

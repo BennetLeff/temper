@@ -43,6 +43,12 @@ extern void power_enable(void);
 extern void fan_set_speed(fan_speed_t speed);
 extern void fan_set_auto_mode(bool enabled);
 extern float read_pan_temperature(void);
+#ifdef TEMPER_PAN_CONTROL_C1
+/* C1 builds: the sensor-r3 loop (main/pan_control.c) controls PREHEAT / HEATING, and every pan
+ * temperature is its latest conversion. */
+#include "pan_control.h"
+#define read_pan_temperature() pan_control_reading_c()
+#endif
 extern float read_heatsink_temperature(void);
 extern float read_rtd_resistance(void);
 extern bool is_fan_running(void);
@@ -69,6 +75,9 @@ extern bool thermal_blower_start_permitted(void);
  * state_machine_update() (check_bias_good). */
 extern bool power_bias_start_refused(void);
 #define MSG_NO_POWER_BIAS "NO POWER BIAS"
+/* The native-21 binding holds the request refused: no pan, or lifted (n21_binding.h). */
+extern bool power_pan_refused(void);
+#define MSG_PAN_REMOVED "PAN REMOVED"
 
 
 /* Pan temperature cap and glass protection (250 C, R32 / R36): every tank power request in
@@ -86,16 +95,27 @@ void state_handlers_thermal_plaus_reset(void)
 bool state_handlers_rim_sensor_fault(void) { return s_plaus.rim_fault; }
 bool state_handlers_coil_sensor_fault(void) { return s_plaus.coil_fault; }
 
-static uint8_t apply_thermal_caps(uint8_t requested, float pan_temp_c)
+static uint8_t thermal_limit(float pan_temp_c, bool *rim_cold_or_open)
 {
     float rim_c = NAN;
-    bool rim_cold_or_open = false;
-    bool rim_ok = read_rim_temperature_status(&rim_c, &rim_cold_or_open);
+    bool rim_ok = read_rim_temperature_status(&rim_c, rim_cold_or_open);
     /* A latched rim-sensor fault drops the rim: the pan RTD alone caps at 250 C. */
     pan_cap_t cap = pan_cap_evaluate(pan_temp_c, isfinite(pan_temp_c), rim_c, rim_ok && !s_plaus.rim_fault);
     uint8_t limit = cap.cap_pct;
     uint8_t thermal = thermal_power_cap_pct();
-    if (thermal < limit) limit = thermal;
+    return thermal < limit ? thermal : limit;
+}
+
+uint8_t state_handlers_thermal_limit_pct(float pan_temp_c)
+{
+    bool ignored;
+    return thermal_limit(pan_temp_c, &ignored);
+}
+
+uint8_t state_handlers_apply_thermal_caps(uint8_t requested, float pan_temp_c)
+{
+    bool rim_cold_or_open = false;
+    uint8_t limit = thermal_limit(pan_temp_c, &rim_cold_or_open);
     uint8_t out = requested < limit ? requested : limit;
 
     /* Plausibility of the rim and coil NTCs (cold and open read alike at the ADC's top). */
@@ -148,6 +168,38 @@ static bool bias_start_refused_exit(system_state_t next) {
     watchdog_feed();
     return true;
 }
+
+/* EVENT_PAN_REFUSED (native-21 no-pan stop): the binding holds the request refused. Withdraw it and
+ * leave; the user starts again (UL 858 47.8 manual reset), so a returning pan never resumes heating.
+ * Checked before the loop runs: a refused stage draws nothing, which is not a dead current sense. */
+static bool pan_refused_exit(void) {
+    if (!power_pan_refused()) return false;
+#ifdef TEMPER_PAN_CONTROL_C1
+    pan_control_stop();
+#else
+    power_set_level(0);
+#endif
+    show_message_then_transition(MSG_PAN_REMOVED, STATE_COOLDOWN);
+    watchdog_feed();
+    return true;
+}
+
+#ifdef TEMPER_PAN_CONTROL_C1
+/* PREHEAT / HEATING: leave the handler unless the loop is holding or ran. */
+static bool pan_control_exit(pan_control_status_t pc) {
+    switch (pc) {
+    case PAN_CONTROL_RUNAWAY: /* supervisor 2a / 2b: the power stage is not obeying */
+        watchdog_feed();
+        enter_hardware_latched_fault(FAULT_THERMAL_RUNAWAY);
+        return true;
+    case PAN_CONTROL_SENSOR_FAULT: /* already reported */
+        watchdog_feed();
+        return true;
+    default:
+        return false;
+    }
+}
+#endif
 
 /* ============================================================================
  * STATE_INIT Implementation
@@ -350,8 +402,14 @@ void state_preheat_entry(void) {
     /* Enable full power */
     power_enable();
 
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* The C1 loop restarts from the latest reading at every PREHEAT entry
+     * and runs on through HEATING. */
+    pan_control_begin();
+#else
     /* Initialize PID with aggressive tuning */
     pid_set_tuning(2.0f, 0.1f, 0.5f);
+#endif
 
     /* Enable ZVS tracking */
     pll_enable();
@@ -370,6 +428,7 @@ void state_preheat_entry(void) {
 void state_preheat_update(void) {
     /* B13 H2 check 2: a (re)start refused by the binding -> COOLDOWN (the coil may be hot). */
     if (bias_start_refused_exit(STATE_COOLDOWN)) return;
+    if (pan_refused_exit()) return;
 
     /* Read current temperature */
     float current_temp = read_pan_temperature();
@@ -381,6 +440,21 @@ void state_preheat_update(void) {
         return;
     }
     
+#ifdef TEMPER_PAN_CONTROL_C1
+    {
+        const pan_control_status_t pc = pan_control_step(sm_get_context()->target_temperature,
+                                                         sm_get_context()->intensity_level);
+        if (pan_control_exit(pc)) return;
+        /* Hand over to HEATING on the pan-temperature estimate; the loop
+         * keeps running there (same threshold as the legacy temp_error). */
+        const float t_hat = pan_control_t_hat();
+        if (isfinite(t_hat) && t_hat >= sm_get_context()->target_temperature - 10.0f) {
+            transition_to(STATE_HEATING);
+            return;
+        }
+        (void)temp_error;
+    }
+#else
     /* Aggressive power control with intensity limiting */
     uint8_t requested_power = 0;
     if (temp_error > 50.0f) {
@@ -395,7 +469,8 @@ void state_preheat_update(void) {
 
     float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
     uint8_t clamped_power = (uint8_t)fminf((float)requested_power, intensity_max[sm_get_context()->intensity_level - 1] * 100.0f);
-    power_set_level(apply_thermal_caps(clamped_power, current_temp));
+    power_set_level(state_handlers_apply_thermal_caps(clamped_power, current_temp));
+#endif
 
     /* Safety checks */
     if (check_safety_interlocks()) {
@@ -426,6 +501,12 @@ void state_preheat_update(void) {
  * ============================================================================ */
 
 void state_heating_entry(void) {
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* PREHEAT started the loop; it continues here. Any other way in starts it. */
+    if (sm_get_context()->previous_state != STATE_PREHEAT || !pan_control_is_running()) {
+        pan_control_begin();
+    }
+#else
     if (sm_get_context()->target_temperature < 50.0f) {
         /* low_temp_start(sm_get_context()->target_temperature); */
         /* Switch to precision PID tuning for low temp */
@@ -436,6 +517,7 @@ void state_heating_entry(void) {
         pid_set_tuning(1.0f, 0.05f, 0.2f);
         pid_reset_integral();
     }
+#endif
 
     /* Visual feedback */
     display_show_message("HEATING");
@@ -455,6 +537,7 @@ void state_heating_update(void) {
     /* B13 H2 check 2: a restart refused by the binding (the request went to zero, e.g. the PID at
      * target, and RUN_EN rose again into a low BIAS_GOOD) -> COOLDOWN. */
     if (bias_start_refused_exit(STATE_COOLDOWN)) return;
+    if (pan_refused_exit()) return;
 
     /* Read current temperature */
     float current_temp = read_pan_temperature();
@@ -486,12 +569,18 @@ void state_heating_update(void) {
         /* TODO: Handle p_use_probe for cascade control when integrated */
     }
 
+#ifdef TEMPER_PAN_CONTROL_C1
+    if (pan_control_exit(pan_control_step(sm_get_context()->target_temperature,
+                                          sm_get_context()->intensity_level))) {
+        return;
+    }
+#else
     if (sm_get_context()->target_temperature < 50.0f) {
         /* Run low-temperature burst control */
         /* low_temp_update(current_temp); */
         /* Use standard PID for now */
         float pid_output = pid_update(sm_get_context()->target_temperature, current_temp);
-        power_set_level(apply_thermal_caps((uint8_t)(pid_output * 10), current_temp));
+        power_set_level(state_handlers_apply_thermal_caps((uint8_t)(pid_output * 10), current_temp));
     } else {
         /* Run standard PID controller */
         float pid_output = pid_update(sm_get_context()->target_temperature, current_temp);
@@ -499,8 +588,9 @@ void state_heating_update(void) {
         /* Apply intensity limiting */
         float intensity_max[] = {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
         float clamped_output = fminf(pid_output, intensity_max[sm_get_context()->intensity_level - 1] * 100.0f);
-        power_set_level(apply_thermal_caps((uint8_t)clamped_output, current_temp));
+        power_set_level(state_handlers_apply_thermal_caps((uint8_t)clamped_output, current_temp));
     }
+#endif
 
     /* Update PLL for ZVS tracking */
     pll_update();
@@ -511,12 +601,16 @@ void state_heating_update(void) {
         return;
     }
 
-    /* Thermal runaway detection */
+#ifndef TEMPER_PAN_CONTROL_C1
+    /* Thermal runaway detection. C1 builds: the supervisor in pan_control_step() replaces this latch
+     * (stage 1 holds power 0 above target + 10 K; 2a / 2b latch when the pan still heats). A hot pan
+     * placed above target or a lowered target tripped it falsely (sensor-r3 D-RUN). */
     if (current_temp > (sm_get_context()->target_temperature + 10.0f)) {
         watchdog_feed();
         enter_hardware_latched_fault(FAULT_THERMAL_RUNAWAY);
         return;
     }
+#endif
 
     /* Pan removal detection (with debouncing) */
     if (detect_pan_presence() == PAN_ABSENT) {

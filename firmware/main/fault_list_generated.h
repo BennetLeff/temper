@@ -22,6 +22,8 @@
     X(FAULT_NONE, "NO FAULT") \
     X(FAULT_WATCHDOG_RESET, "WATCHDOG RESET") \
     X(FAULT_PAN_DETECT_HW, "PAN DETECT HW") \
+    X(FAULT_CURRENT_SENSE, "CURRENT SENSE") \
+    X(FAULT_PROBE_LEAKAGE, "PROBE LEAKAGE") \
     X(FAULT_ADC_STUCK, "ADC STUCK") \
     X(FAULT_BIAS_GOOD_LOST, "BIAS GOOD LOST") \
     X(FAULT_BIAS_GOOD_STUCK, "BIAS GOOD STUCK") \
@@ -37,4 +39,4 @@
     X(FAULT_THERMAL_RUNAWAY, "THERMAL RUNAWAY") 
 
 /* FAULT_COUNT is derived from the above list — see state_machine.h.
-   After regeneration:  13 manifest + 3 supplemental = 16 total entries. */
+   After regeneration:  13 manifest + 5 supplemental = 18 total entries. */

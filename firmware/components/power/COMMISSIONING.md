@@ -522,4 +522,19 @@ Then one reviewed change sets `CONFIG_TEMPER_POWER_CALIBRATED=y`, enters the mea
 - **H10. Live MCPWM retiming.** `hw_pwm_update` relies on `update_period_on_empty` and `update_cmp_on_tez` shadow loading; never compiled against ESP-IDF or scoped (step 9a.1). Per-leg non-overlap does not depend on the load timing (one comparator per leg), but a period and its compares landing on different timer zeros gives one period of up to half-step duty error.
 - **H11. Peak and f_res estimates.** The peak estimate is max(2.17 × half RMS, 1.485 × crest AD8436 sample, max |CT_MON| sample) and the f_res fit assumes a series RLC with constant L and R across a 2 kHz span; both are pre-measurement (ceiling gate 5, step 9a.2).
 - **H12. Low-power operation.** The loop's lowest continuous power is what the pan draws at 60 kHz. The FHA model (120 V, 55 µH / 0.5 µF) gives about 73 W into a 1.4 Ω pan, 104 W at 2.0 Ω and 175 W at 3.5 Ω (×1.21 at 132 V). Requests below that are capped at 60 kHz and over-delivered (`TF_POWER_AT_FMAX`). Pulse-skipping or LINE_ZC burst (`burst_scheduler`, disabled) is out of scope here; the temperature PID above it sees the over-delivery.
+- **H13. C1 pan loop on this stage (2026-11-24, `main/pan_control.c`).** Open before COMMISSIONED:
+  - Pan detection reports no pan on the target (the pulse is disabled), so PREHEAT is unreachable on hardware.
+  - The loop commands 0-1800 W every 100 ms; the stage cannot run below its floor (H12), so a low hold power becomes
+    on/off chopping at up to 10 Hz with a start sequence each time. sensor-r3 assumed a 20 s burst. Decide with H12.
+  - The disobey limit is P_cmd + 250 W; the floor at 132 V plus the 10 % estimator error is about 233 W. Measure the
+    floor on the highest-resistance pan.
+  - Stage power below 2 A of tank current counts as 0 W, "no power" is 50 W (`platform_stage_power`): confirm the
+    gate-off RMS offset.
+  - The rim and heatsink drivers run on the fixed 12 dB ADC frames with the rail not measured.
+  - The loop keeps sensor-r3's estimated (commanded) power for gain identification; the measured power feeds the
+    supervisor and the current-sense check only.
+  - origin/main's C1 SIL suite is not ported; FAULT_CURRENT_SENSE and FAULT_PROBE_LEAKAGE are covered by
+    `test_c1_runtime.c` only.
+  - A rim fault ends heating (sensor-r3 D-RIM: short / over-range / ADC, or open after 10 min); the 2026-10-12
+    rim-plausibility limp (250 C cap on the pan RTD) still acts first.
 - **H13. Blower off through an MCU-only hang (controller L3, accepted 2026-10-12).** Expander P15 FAN_OFF is a TCA9555 output latch, which an MCU reset or hang does not clear, so a hang while the fan law had the blower off leaves it off. Accepted: the TPS3823 watchdog drops PERMIT, so the tank is off too; a hang means blower off and tank off, which is safe (only residual heat). Open hardware options if that is ever not enough: a TCA9539 (the TCA9555 with a RESET pin) with RESET tied to the MCU's EN, so every MCU reset returns FAN_OFF to an input (blower on); or a hardware tach-loss trip (retriggerable monostable on FG into a spare interlock input, DECISIONS C28).

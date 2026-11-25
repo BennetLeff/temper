@@ -15,3 +15,10 @@ entries:
     label: "WATCHDOG RESET"
   - name: FAULT_PAN_DETECT_HW
     label: "PAN DETECT HW"
+  # sensor-r3 C1 (D-ISENSE, D-LEAK): raised only in TEMPER_PAN_CONTROL_C1 builds. Their SIL scenarios
+  # are in origin/main's C1 suite, which is not ported to this branch yet; move these two to the
+  # manifest with it. Until then test_c1_runtime.c covers them.
+  - name: FAULT_CURRENT_SENSE
+    label: "CURRENT SENSE"
+  - name: FAULT_PROBE_LEAKAGE
+    label: "PROBE LEAKAGE"

@@ -21,6 +21,16 @@
 extern "C" {
 #endif
 
+/* ---------------------------------------------------------------- native-21 stage power */
+/* Stage power for the pan loop, from the binding's last closed half line cycle. *halves_seen is the
+ * caller's memory of halves_ok: no new half since the last call is stale (false). Below
+ * PLATFORM_STAGE_MIN_TANK_A the binding has no phase and takes cos(phi) = 1 on a bus held at the line
+ * peak, so an offset of the RMS channel would read as power: the tank dissipates at most
+ * I^2 R = 14 W there (3.5 ohm), and it is reported as 0. */
+#define PLATFORM_STAGE_MIN_TANK_A 2.0f
+bool platform_stage_power(bool have_half, uint32_t halves_ok, uint32_t *halves_seen, float tank_rms_a,
+                          float p_inv_w, float *p_w);
+
 /* ---------------------------------------------------------------- native-21 over-current sources */
 /* Design lead decision 2026-10-12: DC bus current is not measured on this hardware; the state
  * machine's over-current interlocks read these instead.

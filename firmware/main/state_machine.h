@@ -112,6 +112,8 @@ static const fault_name_entry_t fault_name_table[] = {
     X(EVENT_FAULT_RESET_PERSISTS,   "FAULT_RESET_PERSISTS") \
     X(EVENT_BIAS_GOOD_STUCK,        "BIAS_GOOD_STUCK") \
     X(EVENT_BIAS_GOOD_LOW_AT_START, "BIAS_GOOD_LOW_AT_START") \
+    X(EVENT_CONTACT_LOST,           "CONTACT_LOST") \
+    X(EVENT_PAN_REFUSED,            "PAN_REFUSED") \
     X(EVENT_BIAS_GOOD_LOST,         "BIAS_GOOD_LOST")
 
 #define EXPAND_EVENT_ENUM(sym, str)  sym,
@@ -276,6 +278,8 @@ void state_machine_set_intensity(uint8_t level);
  * are asserted; either condition immediately asserts hardware shutdown.
  */
 void state_machine_report_rtd_frozen(void);
+void state_machine_report_latched_fault(fault_code_t fault);
+void state_machine_report_pan_contact_lost(void);
 void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
                                            void *context);
 

@@ -197,6 +197,20 @@ void power_bias_step(bool *stuck, bool *lost)
 #endif
 }
 
+/* The binding's latched pan refusal (telemetry pan_refusal); no binding: nothing was requested. */
+bool power_pan_refused(void)
+{
+#if CONFIG_TEMPER_POWER_HW_BINDING
+    n21_binding_t *b = n21_hw_binding();
+    if (b == NULL) return false;
+    n21_telemetry_t t;
+    n21_telemetry(b, &t);
+    return t.pan_refusal != N21_PAN_OK;
+#else
+    return false;
+#endif
+}
+
 bool power_bias_start_refused(void)
 {
 #if CONFIG_TEMPER_POWER_HW_BINDING

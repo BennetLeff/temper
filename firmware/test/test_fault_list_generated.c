@@ -43,9 +43,9 @@ void test_fault_adc_stuck_exists(void)
 
 void test_fault_count_expected(void)
 {
-    /* 13 manifest-derived + 3 supplemental = 16 total (B13 H2 added FAULT_BIAS_GOOD_STUCK and
-     * FAULT_BIAS_GOOD_LOST) */
-    TEST_ASSERT_EQUAL(16, FAULT_COUNT);
+    /* 13 manifest-derived + 5 supplemental = 18 total (the C1 port added FAULT_CURRENT_SENSE and
+     * FAULT_PROBE_LEAKAGE) */
+    TEST_ASSERT_EQUAL(18, FAULT_COUNT);
 }
 
 /* ---------------------------------------------------------------------------

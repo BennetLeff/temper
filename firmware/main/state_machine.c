@@ -102,6 +102,13 @@ extern rtd_sensor_fail_t read_pan_sensor_failure(void);
 extern bool rtd_reset_verified(void);
 /* False once RUN_EN has been killed (ctrl_board_run_en_kill(): until MCU reset). */
 extern bool power_path_rearmable(void);
+#ifdef TEMPER_PAN_CONTROL_C1
+#include "pan_control.h"
+#define read_pan_temperature() pan_control_reading_c()
+#define read_rtd_resistance() pan_control_resistance_ohm()
+#define read_pan_sensor_failure() pan_control_reading_failure()
+#define rtd_reset_verified() pan_control_sensor_fault_clean()
+#endif
 extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);
 extern void eeprom_log_fault(fault_code_t code, uint32_t timestamp);
@@ -190,6 +197,22 @@ void state_machine_report_rtd_frozen(void) {
     enter_hardware_latched_fault(FAULT_ADC_STUCK);
 }
 
+void state_machine_report_latched_fault(fault_code_t fault) {
+    if (fault_already_latched()) {
+        assert_hardware_fault_cut();
+        return;
+    }
+    enter_hardware_latched_fault(fault);
+}
+
+void state_machine_report_pan_contact_lost(void) {
+    /* EVENT_CONTACT_LOST: a self-loop in PREHEAT and HEATING; D1 holds the power at 0. */
+    if (sm_ctx.current_state == STATE_PREHEAT || sm_ctx.current_state == STATE_HEATING) {
+        display_show_message("PAN MUST TOUCH SENSOR");
+        buzzer_beep(BEEP_PAN_REMOVED_MS);
+    }
+}
+
 /* Self-test stubs */
 extern bool test_adc_calibration(void);
 extern bool test_pwm_generation(void);
@@ -251,6 +274,11 @@ void state_machine_init(void) {
     sm_ctx.heatsink_temp_stuck_count = 0;
     sm_ctx.prev_stuck_check_temp = -1.0f;
 
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* Power-up: the time of the last cook is unknown, so the cold soak (D-SOAK) counts from here. */
+    pan_control_soak_restart();
+#endif
+
     transition_to(STATE_INIT);
 }
 
@@ -274,6 +302,11 @@ void state_machine_update(void) {
      * See SAFETY_INTERLOCK_DESIGN.md Section 7. */
     watchdog_hardware_feed();
     
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* Cold-soak history (D-SOAK), in every state. */
+    pan_control_soak_note(now);
+#endif
+
     /* Runaway boundary interlock: check before ALL state-specific logic.
      * This fires even during message display to ensure safety-critical
      * events preempt all normal operation. */
@@ -410,6 +443,13 @@ void transition_to(system_state_t new_state) {
     if (sm_ctx.current_state == STATE_HEATING) {
         /* low_temp_stop(); */
     }
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* Leaving the power states stops the C1 loop (command 0). */
+    if ((sm_ctx.current_state == STATE_PREHEAT || sm_ctx.current_state == STATE_HEATING) &&
+        new_state != STATE_PREHEAT && new_state != STATE_HEATING) {
+        pan_control_stop();
+    }
+#endif
 
     /* Record previous state */
     sm_ctx.previous_state = sm_ctx.current_state;
@@ -491,6 +531,9 @@ bool check_safety_interlocks(void) {
         return true;
     }
 
+#ifndef TEMPER_PAN_CONTROL_C1
+    /* C1 builds: 49 identical 15-bit codes are normal; rtd_service's stale and 250-code frozen checks
+     * replace this one (sensor-r3 D-STALE). */
     /* ADC stuck check — identical pan temperature across consecutive reads
      * indicates a frozen sensor. Uses its own tracking separate from the
      * runaway rate-of-rise tracker (which updates every pass). */
@@ -507,6 +550,7 @@ bool check_safety_interlocks(void) {
         sm_ctx.pan_temp_stuck_count = 0;
         sm_ctx.prev_stuck_check_temp = pan_temp;
     }
+#endif
 
     return false;
 }
@@ -560,6 +604,14 @@ static void check_runaway_boundary(void) {
         goto trigger_runaway;
     }
 
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* R1 sustained rise (pan_supervisor.c): 1 s means rising > 15 K/s for 5 blocks. The 10 ms check
+     * below trips on C1 noise and on a preheated pan placed on the sensor (sensor-r3 D-RUN). */
+    if (pan_control_rate_sample(temp, now)) {
+        sm_ctx.fault_code = FAULT_RUNAWAY_BOUNDARY;
+        goto trigger_runaway;
+    }
+#else
     /* Rate-of-rise check (requires at least one prior reading) */
     if (sm_ctx.last_pan_temp_time_ms > 0) {
         uint32_t dt_ms = now - sm_ctx.last_pan_temp_time_ms;
@@ -573,6 +625,7 @@ static void check_runaway_boundary(void) {
         }
     }
 
+#endif
     /* Store for next iteration */
     sm_ctx.last_pan_temp_c = temp;
     sm_ctx.last_pan_temp_time_ms = now;
@@ -593,6 +646,9 @@ trigger_runaway:
 void state_machine_reset_temp_baseline(void) {
     sm_ctx.last_pan_temp_c = read_pan_temperature();
     sm_ctx.last_pan_temp_time_ms = get_time_ms();
+#ifdef TEMPER_PAN_CONTROL_C1
+    pan_control_rate_reset();
+#endif
 }
 
 void state_machine_reset_stuck_tracking(void) {
@@ -608,6 +664,14 @@ bool fault_cleared(void) {
         return false;
     }
     
+#ifdef TEMPER_PAN_CONTROL_C1
+    /* A stopped MAX31865 service needs a power cycle; its report may have been absorbed by another
+     * latched fault, so this holds for every fault (sensor-r3 D-RESET). */
+    if (!pan_control_sensor_ready()) {
+        return false;
+    }
+#endif
+
     switch (sm_ctx.fault_code) {
         case FAULT_OVER_TEMP:
             /* Both below the hardware release bands (sink 83.0-88.2 C, coil 147.4-157.7 C). */
@@ -639,6 +703,12 @@ bool fault_cleared(void) {
 
         case FAULT_RUNAWAY_BOUNDARY:
             return false;  /* Never clearable by software */
+
+#ifdef TEMPER_PAN_CONTROL_C1
+        case FAULT_PROBE_LEAKAGE:
+            /* Only a cold-soak latch clears, once the Pt100 agrees with the heatsink again (D-SOAK). */
+            return pan_control_cold_soak_clearable();
+#endif
 
         case FAULT_BIAS_GOOD_STUCK:
             /* U40 / the heartbeat chain cannot go low (check 1): the platform's verdict is

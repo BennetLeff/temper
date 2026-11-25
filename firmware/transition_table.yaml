@@ -52,6 +52,10 @@ transitions:
   # B13 H2 check 2 at a restart (the request went to zero and back): refused -> COOLDOWN, no fault.
   - { from: STATE_PREHEAT, event: EVENT_BIAS_GOOD_LOW_AT_START, to: STATE_COOLDOWN }
   - { from: STATE_PREHEAT, event: EVENT_PAN_REMOVED,      to: STATE_NO_PAN }
+  # C1 (TEMPER_PAN_CONTROL_C1): D1 holds power at 0 and retries; UI "PAN MUST TOUCH SENSOR".
+  - { from: STATE_PREHEAT, event: EVENT_CONTACT_LOST,     to: STATE_PREHEAT, notes: "self-loop" }
+  # C1: the binding's pan refusal (n21 no-pan stop); the user starts again (UL 858 47.8).
+  - { from: STATE_PREHEAT, event: EVENT_PAN_REFUSED,      to: STATE_COOLDOWN }
   - { from: STATE_PREHEAT, event: EVENT_STOP_BUTTON,      to: STATE_COOLDOWN }
 
   # HEATING
@@ -66,6 +70,10 @@ transitions:
   - { from: STATE_HEATING, event: EVENT_BIAS_GOOD_STUCK,  to: STATE_FAULT, fault: FAULT_BIAS_GOOD_STUCK }
   - { from: STATE_HEATING, event: EVENT_BIAS_GOOD_LOW_AT_START, to: STATE_COOLDOWN }
   - { from: STATE_HEATING, event: EVENT_PAN_REMOVED,      to: STATE_NO_PAN }
+  # C1 (TEMPER_PAN_CONTROL_C1): D1 holds power at 0 and retries; UI "PAN MUST TOUCH SENSOR".
+  - { from: STATE_HEATING, event: EVENT_CONTACT_LOST,     to: STATE_HEATING, notes: "self-loop" }
+  # C1: the binding's pan refusal (n21 no-pan stop); the user starts again (UL 858 47.8).
+  - { from: STATE_HEATING, event: EVENT_PAN_REFUSED,      to: STATE_COOLDOWN }
   - { from: STATE_HEATING, event: EVENT_STOP_BUTTON,      to: STATE_COOLDOWN }
   - { from: STATE_HEATING, event: EVENT_TIMER_EXPIRED,    to: STATE_COOLDOWN }
 
