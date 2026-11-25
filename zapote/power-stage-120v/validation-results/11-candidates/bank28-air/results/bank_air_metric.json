@@ -117,7 +117,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 58.7,
      "T_pad_C": 86.9,
-     "T_A_C": 75.44,
+     "T_A_C": 75.43,
      "dT_col_K": 27.64,
      "dT_allowed_K": 20.0,
      "T_op_C": 103.1,
@@ -131,7 +131,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 58.7,
      "T_pad_C": 86.7,
-     "T_A_C": 61.27,
+     "T_A_C": 61.26,
      "dT_col_K": 21.48,
      "dT_allowed_K": 20.0,
      "T_op_C": 82.7,
@@ -153,7 +153,7 @@
      "eff_ratio": 1.0399
     }
    ],
-   "board_sha256_of_pad_runs": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263"
+   "board_sha256_of_pad_runs": "25596d8eff460eabab3c538c83daea0d88eb1135fd7ae1519d8cc30a4f32421a"
   },
   "B32643B8104J000": {
    "mpn": "B32643B8104J000",
@@ -199,7 +199,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 64.7,
      "T_pad_C": 86.3,
-     "T_A_C": 76.4,
+     "T_A_C": 76.39,
      "dT_col_K": 12.3,
      "dT_allowed_K": 15.0,
      "T_op_C": 88.7,
@@ -227,7 +227,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 64.7,
      "T_pad_C": 86.2,
-     "T_A_C": 73.71,
+     "T_A_C": 73.7,
      "dT_col_K": 9.53,
      "dT_allowed_K": 15.0,
      "T_op_C": 83.2,
@@ -255,7 +255,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 58.7,
      "T_pad_C": 86.9,
-     "T_A_C": 73.9,
+     "T_A_C": 73.89,
      "dT_col_K": 12.26,
      "dT_allowed_K": 15.0,
      "T_op_C": 86.2,
@@ -291,7 +291,7 @@
      "eff_ratio": 0.7959
     }
    ],
-   "board_sha256_of_pad_runs": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263"
+   "board_sha256_of_pad_runs": "25596d8eff460eabab3c538c83daea0d88eb1135fd7ae1519d8cc30a4f32421a"
   },
   "MMK104J3DF1KN208G2": {
    "mpn": "MMK104J3DF1KN208G2",
@@ -421,7 +421,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 58.7,
      "T_pad_C": 86.7,
-     "T_A_C": 72.88,
+     "T_A_C": 72.87,
      "dT_col_K": 9.31,
      "dT_allowed_K": 10.0,
      "T_op_C": 82.2,
@@ -429,7 +429,7 @@
      "eff_ratio": 0.965
     }
    ],
-   "board_sha256_of_pad_runs": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263"
+   "board_sha256_of_pad_runs": "25596d8eff460eabab3c538c83daea0d88eb1135fd7ae1519d8cc30a4f32421a"
   },
   "B32643H8104J000": {
    "mpn": "B32643H8104J000",
@@ -475,12 +475,12 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 64.7,
      "T_pad_C": 86.3,
-     "T_A_C": 76.4,
+     "T_A_C": 76.39,
      "dT_col_K": 23.53,
      "dT_allowed_K": 23.39,
      "T_op_C": 99.9,
      "Top_max_C": 125.0,
-     "eff_ratio": 1.003
+     "eff_ratio": 1.0029
     },
     {
      "point": "design flow (base h20) @61",
@@ -503,7 +503,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 64.7,
      "T_pad_C": 86.2,
-     "T_A_C": 73.71,
+     "T_A_C": 73.7,
      "dT_col_K": 18.24,
      "dT_allowed_K": 24.44,
      "T_op_C": 91.9,
@@ -531,12 +531,12 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 58.7,
      "T_pad_C": 86.9,
-     "T_A_C": 73.9,
+     "T_A_C": 73.89,
      "dT_col_K": 23.46,
-     "dT_allowed_K": 24.36,
+     "dT_allowed_K": 24.37,
      "T_op_C": 97.4,
      "Top_max_C": 125.0,
-     "eff_ratio": 0.9814
+     "eff_ratio": 0.9813
     },
     {
      "point": "design flow (base h20) @55, h15 pads",
@@ -564,23 +564,23 @@
      "dT_allowed_K": 25.75,
      "T_op_C": 88.6,
      "Top_max_C": 125.0,
-     "eff_ratio": 0.8403
+     "eff_ratio": 0.8402
     }
    ],
-   "board_sha256_of_pad_runs": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263",
+   "board_sha256_of_pad_runs": "25596d8eff460eabab3c538c83daea0d88eb1135fd7ae1519d8cc30a4f32421a",
    "release": {
-    "board_sha256_of_release_runs": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263",
+    "board_sha256_of_release_runs": "25596d8eff460eabab3c538c83daea0d88eb1135fd7ae1519d8cc30a4f32421a",
     "runs": [
      "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/c17.5_h10_p0p25.json",
      "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/c17.5_h10_p0p5.json"
     ],
     "T_air_C": 76.0,
     "pads_C": {
-     "C21": 80.76,
-     "C22": 80.05,
-     "C23": 78.68,
-     "C151": 76.77,
-     "C152": 75.39
+     "C21": 80.74,
+     "C22": 80.04,
+     "C23": 78.67,
+     "C151": 76.76,
+     "C152": 75.38
     },
     "18.375 A": {
      "with_radiation": {

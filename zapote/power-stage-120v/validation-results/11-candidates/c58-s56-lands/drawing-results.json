@@ -71,46 +71,30 @@
  },
  {
   "ref": "Q2",
-  "verdict": "FAIL",
+  "verdict": "PASS",
   "worst_mm": 0.0,
-  "why": [
-   "pad 1 hole 1.5, maximum lead diagonal 1.659",
-   "pad 2 hole 1.5, maximum lead diagonal 1.659",
-   "pad 3 hole 1.5, maximum lead diagonal 1.659"
-  ],
+  "why": [],
   "source": "Infineon IPW65R018CFD7 Rev. 2.0 PG-TO247-3 (sha c364050a04a4): e 5.44, b 1.00-1.40, c 0.38-0.89, so the lead diagonal is up to 1.66 mm; a round hole must clear it"
  },
  {
   "ref": "Q3",
-  "verdict": "FAIL",
+  "verdict": "PASS",
   "worst_mm": 0.0,
-  "why": [
-   "pad 1 hole 1.5, maximum lead diagonal 1.659",
-   "pad 2 hole 1.5, maximum lead diagonal 1.659",
-   "pad 3 hole 1.5, maximum lead diagonal 1.659"
-  ],
+  "why": [],
   "source": "Infineon IPW65R018CFD7 Rev. 2.0 PG-TO247-3 (sha c364050a04a4): e 5.44, b 1.00-1.40, c 0.38-0.89, so the lead diagonal is up to 1.66 mm; a round hole must clear it"
  },
  {
   "ref": "Q5",
-  "verdict": "FAIL",
+  "verdict": "PASS",
   "worst_mm": 0.0,
-  "why": [
-   "pad 1 hole 1.5, maximum lead diagonal 1.659",
-   "pad 2 hole 1.5, maximum lead diagonal 1.659",
-   "pad 3 hole 1.5, maximum lead diagonal 1.659"
-  ],
+  "why": [],
   "source": "Infineon IPW65R018CFD7 Rev. 2.0 PG-TO247-3 (sha c364050a04a4): e 5.44, b 1.00-1.40, c 0.38-0.89, so the lead diagonal is up to 1.66 mm; a round hole must clear it"
  },
  {
   "ref": "Q6",
-  "verdict": "FAIL",
+  "verdict": "PASS",
   "worst_mm": 0.0,
-  "why": [
-   "pad 1 hole 1.5, maximum lead diagonal 1.659",
-   "pad 2 hole 1.5, maximum lead diagonal 1.659",
-   "pad 3 hole 1.5, maximum lead diagonal 1.659"
-  ],
+  "why": [],
   "source": "Infineon IPW65R018CFD7 Rev. 2.0 PG-TO247-3 (sha c364050a04a4): e 5.44, b 1.00-1.40, c 0.38-0.89, so the lead diagonal is up to 1.66 mm; a round hole must clear it"
  },
  {

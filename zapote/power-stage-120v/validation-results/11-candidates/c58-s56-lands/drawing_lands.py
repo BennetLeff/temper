@@ -4,13 +4,13 @@
     python3 -I drawing_lands.py [BOARD.kicad_pcb]   -> drawing-results.json (board of record s56 when no board is given),
                                                        exit 1 on any FAIL
 
-Pads are read from the committed board of record (board-of-record-s56/section.kicad_pcb). DRAWING holds what was read off
+Pads are read from the committed board of record (board-of-record-s57/section.kicad_pcb). DRAWING holds what was read off
 each maker's sheet (2026-11-25, by eye from the rendered page or its text): pad number -> (x, y), and the land size or
 drill where the drawing gives one. Position tolerance 0.10 mm (pattern centred). This is a transcription check: it catches
 a wrong package or pitch, not a misread drawing, and an independent reader should repeat it before the order."""
 import json, math, re, sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
-PCB = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 and __name__ == "__main__" else HERE.parents[1] / "08-manufacturing-package/native-21/board-of-record-s56/section.kicad_pcb"
+PCB = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 and __name__ == "__main__" else HERE.parents[1] / "08-manufacturing-package/native-21/board-of-record-s57/section.kicad_pcb"
 TOL = 0.10
 # ref: (source, {pad: (x, y)}, {"size": (w, h) | "drill": (lead_min_hole, max)} )
 row = lambda x, n, p, y0: {str(i + 1): (x, y0 + i * p) for i in range(n)}

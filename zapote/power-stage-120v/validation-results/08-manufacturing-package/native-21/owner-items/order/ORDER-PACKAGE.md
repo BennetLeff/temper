@@ -1,6 +1,6 @@
 # Native-21 prototype lot at JLCPCB: order package for owner approval
 
-> **Current for stage 56 (2026-11-24; DECISIONS 85, 86), with the consign-r1 assembly routes (owner 2026-10-18). Prepared, NOT ordered.**
+> **Current for stage 57 (2026-11-25; DECISIONS 85, 86, 87), with the consign-r1 assembly routes (owner 2026-10-18). Prepared, NOT ordered.**
 > Run `scripts/check_order_docs.py` before ordering; it must print PASS.
 > Nothing was ordered, carted, logged into or submitted. The order plan is `../../PROTOTYPE-LOT.md`; the routes are written into
 > `fab/bom-jlcpcb.csv` by `../../scripts/apply_lcsc.py` (ORDER_PLAN). This package supplies its files:
@@ -8,8 +8,8 @@
 >   (`scripts/proto_stock.py`; dated read `../../sourcing/STOCK-2026-10-18-consign-r1.csv`);
 > - `CPL-PREVIEW-CHECKLIST.md`: the 31 NEEDS-PREVIEW parts to confirm in JLC's CPL preview, and the two JLC lines with no LCSC
 >   number (the bank, D3 / D17) to place in it (`scripts/cpl_preview_checklist.py`);
-> - board SHA-256 `27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263`, gerbers
->   `fab/native-21-gerbers.zip` SHA-256 `81b391a921e510b83a088885419fdba3e6b9004a2309e6002de7b693c75de86d` (FAB-NOTE.md);
+> - board SHA-256 `25596d8eff460eabab3c538c83daea0d88eb1135fd7ae1519d8cc30a4f32421a`, gerbers
+>   `fab/native-21-gerbers.zip` SHA-256 `f91513c5ce1163b758912ec1e4899f406645d0471d9a5bce69a232e08157cea9` (FAB-NOTE.md);
 > - **JLC assembles 91 of the 95 BOM lines**, every fitted THT part included (J1 and C38–C41 too). Routes:
 >   - **JLC Global Sourcing** (in JLC's warehouse before the PCBA order): U41 / U42 RECOM R24C2T25/R-R (C9900245652; **reject
 >     the auto-match C22466894**; MSL 3 bake), the bank TDK B32643H8104J000 (private-library stock, no public number), C5 / C6,
@@ -23,7 +23,7 @@
 > - **order remarks:** "Q2, Q3, Q5, Q6 (TO-247) and BR1 are Do Not Place: leave their holes open and unsoldered. Trim every through-hole lead to 2.5 mm or less below the board bottom after soldering. The bank C21–C23/C151/C152 goes in the 22.5 mm holes (pad 2 at x 185.5); leave the five x 190.5 holes open and unsoldered. Leave RV1 and the F1 clips unfitted. Tick H on the bank-fit silk mark."
 >
 > The text below is the stage 11/12 survey of 2026-10-08, kept as history: its stock tables, part choices and "NO-GO" verdict
-> are not the s56 state. Ordering is a purchase and needs the owner.
+> are not the s57 state. Ordering is a purchase and needs the owner.
 
 Prepared 2026-10-08 (US time; fetches stamped 2026-10-09 04:29 UTC). **Nothing was ordered, carted, logged into or submitted.** This is preparation only. The owner approves and places the order.
 

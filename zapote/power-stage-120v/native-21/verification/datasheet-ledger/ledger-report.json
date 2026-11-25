@@ -689,7 +689,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), release worst ref R58",
-     "ratio": 0.915,
+     "ratio": 0.9134,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -698,7 +698,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R58",
-     "ratio": 1.3284,
+     "ratio": 1.3214,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     },
@@ -707,7 +707,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (element)",
-     "ratio": 0.7671,
+     "ratio": 0.7658,
      "severity": "violation",
      "stress": "Element temperature, c17.5_h10"
     },
@@ -716,7 +716,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Temperature rating (element)",
-     "ratio": 1.0961,
+     "ratio": 1.091,
      "severity": "gap",
      "stress": "Element temperature, c28_h10"
     },
@@ -1649,7 +1649,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Top,max",
-     "ratio": 0.84,
+     "ratio": 0.8392,
      "severity": "gap",
      "stress": "Body temperature c28"
     },
@@ -1722,7 +1722,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Top,max",
-     "ratio": 0.9409,
+     "ratio": 0.9391,
      "severity": "violation",
      "stress": "Top C40 c17.5 (release)"
     },
@@ -1731,7 +1731,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Top,max",
-     "ratio": 1.03,
+     "ratio": 1.0264,
      "severity": "gap",
      "stress": "Top C40 c22"
     },
@@ -1740,7 +1740,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Top,max",
-     "ratio": 1.29,
+     "ratio": 1.2836,
      "severity": "gap",
      "stress": "Top C40 c28"
     }
@@ -2446,7 +2446,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Operating temperature max",
-     "ratio": 0.992,
+     "ratio": 0.9896,
      "severity": "violation",
      "stress": "Board temperature bound at the cap, c17.5 (release)"
     },
@@ -2455,7 +2455,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Operating temperature max",
-     "ratio": 1.1208,
+     "ratio": 1.1168,
      "severity": "gap",
      "stress": "Board temperature bound at the cap, c22"
     },
@@ -2803,8 +2803,8 @@
      "id": "P at c17.5 terminal (release)",
      "max_ratio": 0.8,
      "ok": true,
-     "rating": "P allowed at c17.5 terminal 120.1 C (release)",
-     "ratio": 0.1431,
+     "rating": "P allowed at c17.5 terminal 119.9 C (release)",
+     "ratio": 0.1425,
      "severity": "violation",
      "stress": "P shunt c17.5 (release)"
     },
@@ -2813,7 +2813,7 @@
      "max_ratio": 0.85,
      "ok": true,
      "rating": "T operating max",
-     "ratio": 0.73,
+     "ratio": 0.7282,
      "severity": "violation",
      "stress": "T element c17.5 (release)"
     },
@@ -2821,8 +2821,8 @@
      "id": "P at c22 terminal",
      "max_ratio": 0.8,
      "ok": true,
-     "rating": "P allowed at c22 terminal 139.0 C",
-     "ratio": 0.3445,
+     "rating": "P allowed at c22 terminal 138.6 C",
+     "ratio": 0.3401,
      "severity": "gap",
      "stress": "P shunt c22"
     },
@@ -2831,7 +2831,7 @@
      "max_ratio": 0.85,
      "ok": false,
      "rating": "T operating max",
-     "ratio": 0.8559,
+     "ratio": 0.8529,
      "severity": "gap",
      "stress": "T element c22"
     },
@@ -2839,7 +2839,7 @@
      "id": "P at c28 terminal",
      "max_ratio": 1.0,
      "ok": false,
-     "rating": "P allowed at c28 terminal 184.3 C",
+     "rating": "P allowed at c28 terminal 183.4 C",
      "ratio": 864.0,
      "severity": "gap",
      "stress": "P shunt c28"
@@ -2849,7 +2849,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "T operating max",
-     "ratio": 1.1435,
+     "ratio": 1.1382,
      "severity": "gap",
      "stress": "T element c28"
     },
@@ -3110,7 +3110,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Operating temperature max",
-     "ratio": 0.992,
+     "ratio": 0.9896,
      "severity": "violation",
      "stress": "Board temperature bound at the cap, c17.5 (release)"
     },
@@ -3119,7 +3119,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Operating temperature max",
-     "ratio": 1.1208,
+     "ratio": 1.1168,
      "severity": "gap",
      "stress": "Board temperature bound at the cap, c22"
     }
@@ -3673,7 +3673,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Free-air / junction temperature max",
-     "ratio": 0.8232,
+     "ratio": 0.8216,
      "severity": "violation",
      "stress": "Local temperature, BASIS max"
     }
@@ -3835,7 +3835,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "Power derated at the c17.5 terminal estimate (release)",
-     "ratio": 0.378,
+     "ratio": 0.3749,
      "severity": "violation",
      "stress": "R_on dissipation, 60 kHz window top"
     },
@@ -3844,7 +3844,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Operating temperature max",
-     "ratio": 0.8676,
+     "ratio": 0.8658,
      "severity": "violation",
      "stress": "Element estimate c17.5 (release)"
     },
@@ -3853,7 +3853,7 @@
      "max_ratio": 0.8,
      "ok": true,
      "rating": "Power derated at the c22 terminal estimate",
-     "ratio": 0.7558,
+     "ratio": 0.7262,
      "severity": "gap",
      "stress": "R_on dissipation, 60 kHz window top"
     },
@@ -3862,7 +3862,7 @@
      "max_ratio": 1.0,
      "ok": false,
      "rating": "Operating temperature max",
-     "ratio": 1.2143,
+     "ratio": 1.2084,
      "severity": "gap",
      "stress": "Element estimate c28"
     },
@@ -3964,7 +3964,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Tj abs max",
-     "ratio": 0.8727,
+     "ratio": 0.872,
      "severity": "gap",
      "stress": "Tj U42 c22"
     },
@@ -3973,7 +3973,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Tj abs max",
-     "ratio": 0.9167,
+     "ratio": 0.9153,
      "severity": "gap",
      "stress": "Tj U42 c28"
     }
@@ -4448,7 +4448,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "T operating max",
-     "ratio": 0.6619,
+     "ratio": 0.6613,
      "severity": "gap",
      "stress": "T body R22 c28"
     },
@@ -4579,7 +4579,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R87",
-     "ratio": 0.5486,
+     "ratio": 0.5479,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -5360,7 +5360,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R81",
-     "ratio": 0.5465,
+     "ratio": 0.5458,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
@@ -6396,7 +6396,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "TJ operating max",
-     "ratio": 0.9648,
+     "ratio": 0.964,
      "severity": "gap",
      "stress": "U3 junction, ratchet max"
     }
@@ -6436,7 +6436,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Temperature rating (TJ)",
-     "ratio": 0.9992,
+     "ratio": 0.9984,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     },

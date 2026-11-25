@@ -1934,24 +1934,24 @@
      "source": "p.1 electrical table (REV. 01/26)"
     },
     {
-     "parameter": "P allowed at c17.5 terminal 120.1 C (release)",
-     "datasheet_limit": 2.495,
+     "parameter": "P allowed at c17.5 terminal 119.9 C (release)",
+     "datasheet_limit": 2.505,
      "unit": "W",
-     "basis": "5 W x (170 - 120.1) / 100 on the terminal derating curve",
+     "basis": "5 W x (170 - 119.9) / 100 on the terminal derating curve",
      "source": "p.3 Terminal Temperature Derating Curve"
     },
     {
-     "parameter": "P allowed at c22 terminal 139.0 C",
-     "datasheet_limit": 1.55,
+     "parameter": "P allowed at c22 terminal 138.6 C",
+     "datasheet_limit": 1.57,
      "unit": "W",
-     "basis": "5 W x (170 - 139.0) / 100",
+     "basis": "5 W x (170 - 138.6) / 100",
      "source": "p.3 Terminal Temperature Derating Curve"
     },
     {
-     "parameter": "P allowed at c28 terminal 184.3 C",
+     "parameter": "P allowed at c28 terminal 183.4 C",
      "datasheet_limit": 0.001,
      "unit": "W",
-     "basis": "5 W x (170 - 184.3) / 100",
+     "basis": "5 W x (170 - 183.4) / 100",
      "source": "p.3 Terminal Temperature Derating Curve",
      "condition": "the curve reaches 0 W at a 170 C terminal; the hot-copper c28 terminal 184.6 C is past it, so the limit is entered as 0.001 W (the ratio only says 'over the curve')"
     },
@@ -2021,7 +2021,7 @@
     },
     {
      "parameter": "T terminal c17.5 (release)",
-     "worst_case_value": 120.1,
+     "worst_case_value": 119.9,
      "unit": "C",
      "condition": "B3 ratings body model s43, release case c17.5_h10: still air, bay 61 C",
      "evidence": [
@@ -2031,13 +2031,13 @@
         "case": "c17.5_h10",
         "item": "R5: terminal derating"
        },
-       "est_c": 120.1
+       "est_c": 119.9
       }
      ]
     },
     {
      "parameter": "T terminal c22",
-     "worst_case_value": 139.0,
+     "worst_case_value": 138.6,
      "unit": "C",
      "condition": "context: c22_h10, bay 55 C",
      "evidence": [
@@ -2047,13 +2047,13 @@
         "case": "c22_h10",
         "item": "R5: terminal derating"
        },
-       "est_c": 139.0
+       "est_c": 138.6
       }
      ]
     },
     {
      "parameter": "T terminal c28",
-     "worst_case_value": 184.3,
+     "worst_case_value": 183.4,
      "unit": "C",
      "condition": "context: c28_h10, bay 55 C",
      "evidence": [
@@ -2063,13 +2063,13 @@
         "case": "c28_h10",
         "item": "R5: terminal derating"
        },
-       "est_c": 184.3
+       "est_c": 183.4
       }
      ]
     },
     {
      "parameter": "T element c17.5 (release)",
-     "worst_case_value": 124.1,
+     "worst_case_value": 123.8,
      "unit": "C",
      "condition": "release case c17.5_h10, bay 61 C (B3 gate estimate; R5's element converges slowly, p ~ 0.2, and the gate under-corrects it, b3_ratings_gate.py:21-23; see the mesh-corrected row)",
      "evidence": [
@@ -2079,14 +2079,14 @@
         "case": "c17.5_h10",
         "item": "R5: element max"
        },
-       "est_c": 124.1
+       "est_c": 123.8
       },
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py:21-23"
      ]
     },
     {
      "parameter": "T element c22",
-     "worst_case_value": 145.5,
+     "worst_case_value": 145.0,
      "unit": "C",
      "condition": "context: c22_h10, bay 55 C",
      "evidence": [
@@ -2096,13 +2096,13 @@
         "case": "c22_h10",
         "item": "R5: element max"
        },
-       "est_c": 145.5
+       "est_c": 145.0
       }
      ]
     },
     {
      "parameter": "T element c28",
-     "worst_case_value": 194.4,
+     "worst_case_value": 193.5,
      "unit": "C",
      "condition": "context: c28_h10, bay 55 C",
      "evidence": [
@@ -2112,7 +2112,7 @@
         "case": "c28_h10",
         "item": "R5: element max"
        },
-       "est_c": 194.4
+       "est_c": 193.5
       }
      ]
     },
@@ -2135,7 +2135,7 @@
         "case": "c17.5_h10",
         "item": "R5: element max"
        },
-       "est_c": 124.1
+       "est_c": 123.8
       },
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/audit-2026-10-15/README.md:130-131",
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/b3_ratings_gate.py:21-23"
@@ -2146,12 +2146,12 @@
    "checks": [
     {
      "id": "P at c17.5 terminal (release)",
-     "rating": "P allowed at c17.5 terminal 120.1 C (release)",
+     "rating": "P allowed at c17.5 terminal 119.9 C (release)",
      "stress": "P shunt c17.5 (release)",
      "max_ratio": 0.8,
      "severity": "violation",
      "rule": "0.357 W against 2.490 W allowed at the 120.2 C release-case terminal (80 % rule)",
-     "ratio": 0.1431
+     "ratio": 0.1425
     },
     {
      "id": "element c17.5 (release)",
@@ -2160,16 +2160,16 @@
      "max_ratio": 0.85,
      "severity": "violation",
      "rule": "element <= 85 % of 170 C at the release case (hot copper; K-mesh under-correction ~4 K noted in the audit)",
-     "ratio": 0.73
+     "ratio": 0.7282
     },
     {
      "id": "P at c22 terminal",
-     "rating": "P allowed at c22 terminal 139.0 C",
+     "rating": "P allowed at c22 terminal 138.6 C",
      "stress": "P shunt c22",
      "max_ratio": 0.8,
      "severity": "gap",
      "rule": "context, bay 55 C",
-     "ratio": 0.3445
+     "ratio": 0.3401
     },
     {
      "id": "element c22",
@@ -2178,11 +2178,11 @@
      "max_ratio": 0.85,
      "severity": "gap",
      "rule": "context, bay 55 C",
-     "ratio": 0.8559
+     "ratio": 0.8529
     },
     {
      "id": "P at c28 terminal",
-     "rating": "P allowed at c28 terminal 184.3 C",
+     "rating": "P allowed at c28 terminal 183.4 C",
      "stress": "P shunt c28",
      "max_ratio": 1.0,
      "severity": "gap",
@@ -2196,7 +2196,7 @@
      "max_ratio": 1.0,
      "severity": "gap",
      "rule": "airflow route (c22/c28): element above 170 C",
-     "ratio": 1.1435
+     "ratio": 1.1382
     },
     {
      "id": "OCP pulse",
@@ -2233,7 +2233,7 @@
     "owner: zero stock (DECISIONS.md:846, F13)."
    ],
    "finding": null,
-   "notes": "Batch A 2026-10-15: shunt-current gap closed (leg returns pass through R5, power_stage_120v.ato:361-367) and the pulse gap closed (14 W for <= 10 us against >= 2 kW). The old '30 % of 3 W at 130 C' check is replaced by the curve at the modelled terminal temperatures. Merged 2026-10-15 onto s42 (DECISIONS 55/56): VIOLATION -> PARTIAL. Batch A's finding was stated at the 28 A ceiling: At the 28 A Kconfig ceiling that the hardware is sized for (DECISIONS.md:518; firmware trip 29.4 A), still air, bay 55 C, the s41 B3 ratings model puts R5's element at 170.3 C against its 170 C maximum and its terminal at 157.4 C, where Bourns' REV. 01/26 derating curve allows 0.63 W against the 0.864 W dissipated (1.37x). The B3 release gate already fails this row (DECISIONS 53, -9.1 K), but the ledger still carried the superseded h25 model (140 C) and the 3 W @ 130 C rating Bourns has withdrawn. At the 22 A default ceiling R5 passes (24 % of the curve, element 133.8 C). Clears if the owner retires the 28 A still-air ceiling, with board-face airflow, or with the 0.5 mOhm shunt after an OCP front-end rework (DECISIONS 53). At the release case (c18_h10, bay 61 C, 18.9 A trip) R5 dissipates 0.357 W against 2.57 W allowed at its 118.6 C terminal (0.14, rule 0.8) and the element is 123.1 C (0.72, rule 0.85); the 28 A rows are the airflow-route gap. Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. Terminals 118.6 / 131.3 / 163.0 -> 118.3 / 130.9 / 162.5 C, elements 123.1 / 138.3 / 174.8 -> 122.8 / 138.0 / 174.4 C (c18 / c22 / c28). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): R5 element mesh-corrected row (+6 K) and check; desk gap -> B3-estimate."
+   "notes": "Batch A 2026-10-15: shunt-current gap closed (leg returns pass through R5, power_stage_120v.ato:361-367) and the pulse gap closed (14 W for <= 10 us against >= 2 kW). The old '30 % of 3 W at 130 C' check is replaced by the curve at the modelled terminal temperatures. Merged 2026-10-15 onto s42 (DECISIONS 55/56): VIOLATION -> PARTIAL. Batch A's finding was stated at the 28 A ceiling: At the 28 A Kconfig ceiling that the hardware is sized for (DECISIONS.md:518; firmware trip 29.4 A), still air, bay 55 C, the s41 B3 ratings model puts R5's element at 170.3 C against its 170 C maximum and its terminal at 157.4 C, where Bourns' REV. 01/26 derating curve allows 0.63 W against the 0.864 W dissipated (1.37x). The B3 release gate already fails this row (DECISIONS 53, -9.1 K), but the ledger still carried the superseded h25 model (140 C) and the 3 W @ 130 C rating Bourns has withdrawn. At the 22 A default ceiling R5 passes (24 % of the curve, element 133.8 C). Clears if the owner retires the 28 A still-air ceiling, with board-face airflow, or with the 0.5 mOhm shunt after an OCP front-end rework (DECISIONS 53). At the release case (c18_h10, bay 61 C, 18.9 A trip) R5 dissipates 0.357 W against 2.57 W allowed at its 118.6 C terminal (0.14, rule 0.8) and the element is 123.1 C (0.72, rule 0.85); the 28 A rows are the airflow-route gap. Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. Terminals 118.6 / 131.3 / 163.0 -> 118.3 / 130.9 / 162.5 C, elements 123.1 / 138.3 / 174.8 -> 122.8 / 138.0 / 174.4 C (c18 / c22 / c28). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): R5 element mesh-corrected row (+6 K) and check; desk gap -> B3-estimate. S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "CC0603KRX7R9BB104": {
    "mpn": "CC0603KRX7R9BB104",
@@ -4452,7 +4452,7 @@
    "stresses": [
     {
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
-     "worst_case_value": 117.3,
+     "worst_case_value": 117.1,
      "unit": "C",
      "condition": "R58: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 118.9 C), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s52 5e7c12c1 (S18 B3 model)",
      "evidence": [
@@ -4463,8 +4463,8 @@
         "case": "c17.5_h10",
         "item": "R58: 1206 terminal"
        },
-       "est_c": 117.3,
-       "margin_k": 10.9
+       "est_c": 117.1,
+       "margin_k": 11.1
       },
       {
        "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
@@ -4472,14 +4472,14 @@
         "case": "c17.5_h10",
         "item": "R58: 1206 element"
        },
-       "est_c": 118.9,
-       "margin_k": 36.1
+       "est_c": 118.7,
+       "margin_k": 36.3
       }
      ]
     },
     {
      "parameter": "Local temperature, c28_h10 @ 55 C",
-     "worst_case_value": 170.3,
+     "worst_case_value": 169.4,
      "unit": "C",
      "condition": "R58: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe; body element 169.9 C), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s52 5e7c12c1 (S18 B3 model)",
      "evidence": [
@@ -4490,8 +4490,8 @@
         "case": "c28_h10",
         "item": "R58: 1206 terminal"
        },
-       "est_c": 170.3,
-       "margin_k": -42.1
+       "est_c": 169.4,
+       "margin_k": -41.2
       },
       {
        "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
@@ -4499,14 +4499,14 @@
         "case": "c28_h10",
         "item": "R58: 1206 element"
        },
-       "est_c": 169.9,
-       "margin_k": -14.9
+       "est_c": 169.1,
+       "margin_k": -14.1
       }
      ]
     },
     {
      "parameter": "Element temperature, c17.5_h10",
-     "worst_case_value": 118.9,
+     "worst_case_value": 118.7,
      "unit": "C",
      "condition": "R58: B3 body model tj_c",
      "evidence": [
@@ -4517,8 +4517,8 @@
         "case": "c17.5_h10",
         "item": "R58: 1206 terminal"
        },
-       "est_c": 117.3,
-       "margin_k": 10.9
+       "est_c": 117.1,
+       "margin_k": 11.1
       },
       {
        "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
@@ -4526,14 +4526,14 @@
         "case": "c17.5_h10",
         "item": "R58: 1206 element"
        },
-       "est_c": 118.9,
-       "margin_k": 36.1
+       "est_c": 118.7,
+       "margin_k": 36.3
       }
      ]
     },
     {
      "parameter": "Element temperature, c28_h10",
-     "worst_case_value": 169.9,
+     "worst_case_value": 169.1,
      "unit": "C",
      "condition": "R58: B3 body model tj_c",
      "evidence": [
@@ -4544,8 +4544,8 @@
         "case": "c28_h10",
         "item": "R58: 1206 terminal"
        },
-       "est_c": 170.3,
-       "margin_k": -42.1
+       "est_c": 169.4,
+       "margin_k": -41.2
       },
       {
        "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
@@ -4553,8 +4553,8 @@
         "case": "c28_h10",
         "item": "R58: 1206 element"
        },
-       "est_c": 169.9,
-       "margin_k": -14.9
+       "est_c": 169.1,
+       "margin_k": -14.1
       }
      ]
     },
@@ -4596,8 +4596,8 @@
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "117.3 C <= 128.2 C (R58)",
-     "ratio": 0.915
+     "rule": "117.1 C <= 128.2 C (R58)",
+     "ratio": 0.9134
     },
     {
      "id": "temperature, c28 (temp-ratings 2026-10-15)",
@@ -4605,8 +4605,8 @@
      "stress": "Local temperature, c28_h10 @ 55 C",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "170.3 C <= 128.2 C (R58); an overrun is the airflow-route (c22/c28) owner gap",
-     "ratio": 1.3284
+     "rule": "169.4 C <= 128.2 C (R58); an overrun is the airflow-route (c22/c28) owner gap",
+     "ratio": 1.3214
     },
     {
      "id": "element, c17.5_h10 (temp-ratings 2026-10-15)",
@@ -4614,8 +4614,8 @@
      "stress": "Element temperature, c17.5_h10",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "118.9 C <= 155 C",
-     "ratio": 0.7671
+     "rule": "118.7 C <= 155 C",
+     "ratio": 0.7658
     },
     {
      "id": "element, c28_h10 (temp-ratings 2026-10-15)",
@@ -4623,8 +4623,8 @@
      "stress": "Element temperature, c28_h10",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "169.9 C <= 155 C",
-     "ratio": 1.0961
+     "rule": "169.1 C <= 155 C",
+     "ratio": 1.091
     },
     {
      "id": "V",
@@ -4661,7 +4661,7 @@
     "owner (maker question): UniRoyal publishes no single-pulse rating; the 12.6 A, ns-wide turn-off peak is compared by energy (0.92 uJ per edge) with the 5 s overload, the nearest published number (the same basis as 25121WF680JT4E)"
    ],
    "finding": null,
-   "notes": "S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): electrical ratings and worst-case stresses added (signal_audit.md; stresses from the pin_absmax net model, scripts/net_stress.py); the 'Not audited' / 'only the temperature rating is audited' gaps are closed by them."
+   "notes": "S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): electrical ratings and worst-case stresses added (signal_audit.md; stresses from the pin_absmax net model, scripts/net_stress.py); the 'Not audited' / 'only the temperature rating is audited' gaps are closed by them. S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "IPW65R018CFD7": {
    "mpn": "IPW65R018CFD7",
@@ -5015,7 +5015,7 @@
     },
     {
      "parameter": "Board temperature bound at the cap, c17.5 (release)",
-     "worst_case_value": 124.0,
+     "worst_case_value": 123.7,
      "unit": "C",
      "condition": "no B3 row for the caps: bounded by the FET-row copper at the release case (c18_h10, bay 61 C); each cap sits across its MOSFET in the FET row",
      "evidence": [
@@ -5025,13 +5025,13 @@
         "case": "c17.5_h10",
         "item": "laminate: FET-row copper"
        },
-       "est_c": 124.0
+       "est_c": 123.7
       }
      ]
     },
     {
      "parameter": "Board temperature bound at the cap, c22",
-     "worst_case_value": 140.1,
+     "worst_case_value": 139.6,
      "unit": "C",
      "condition": "context: c22_h10 FET-row copper, bay 55 C",
      "evidence": [
@@ -5041,7 +5041,7 @@
         "case": "c22_h10",
         "item": "laminate: FET-row copper"
        },
-       "est_c": 140.1
+       "est_c": 139.6
       }
      ]
     },
@@ -5098,7 +5098,7 @@
      "max_ratio": 1.0,
      "severity": "violation",
      "rule": "FET-row copper 122.1 C <= 125 C at the release case (an upper bound for the cap)",
-     "ratio": 0.992
+     "ratio": 0.9896
     },
     {
      "id": "temperature bound c22",
@@ -5107,7 +5107,7 @@
      "max_ratio": 1.0,
      "severity": "gap",
      "rule": "airflow route (c22/c28): the c22 FET-row bound 132.6 C is over 125 C (the cap's own temperature is not modelled)",
-     "ratio": 1.1208
+     "ratio": 1.1168
     },
     {
      "id": "bus worst with D3",
@@ -5136,7 +5136,7 @@
     "bench: without the D3 / D17 clamp the stacked gate-off event reaches 512.4 V (0.512 of 1 kV, over the 50 % rule); the 50 % rule holds only with D3 credit (489.2 V). ALT-D3 s5 T1 measures it."
    ],
    "finding": null,
-   "notes": "Four caps: one across each MOSFET (power_stage_120v.ato:213-218). Batch A 2026-10-15: ratings now from the as-ordered Yageo part. Inputs reproduced by scripts/audit_bleed_snubber.py. Merged 2026-10-15 onto s42 (DECISIONS 55/56): S4 die VDS re-cited to s42 (347 V at typical Qrr; was 620 V as built s29-s41), so the 50 % rule passes; temperature bounded by the FET-row copper at the release case (123.0 C). Stage 43: re-keyed from GRM31A5C3A102JW01D (not a Murata part) to the source MPN CC1206JKNPOCBN102 (elec/src/parts.ato, frozen/default.csv); the source-MPN owner gap is closed. FET-row bound re-cited to s43: 123.0 -> 122.1 C (release), 133.6 -> 132.6 C (c22). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V). S20b (2026-10-16, band-terms ledger_event): the stacked event re-based to the current tank state, 451.6 -> 512.4 V (E_t 0.475 -> 0.897 J at the 119.09 A shunt top; OVP-delay gate-off 323.04 V). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm)."
+   "notes": "Four caps: one across each MOSFET (power_stage_120v.ato:213-218). Batch A 2026-10-15: ratings now from the as-ordered Yageo part. Inputs reproduced by scripts/audit_bleed_snubber.py. Merged 2026-10-15 onto s42 (DECISIONS 55/56): S4 die VDS re-cited to s42 (347 V at typical Qrr; was 620 V as built s29-s41), so the 50 % rule passes; temperature bounded by the FET-row copper at the release case (123.0 C). Stage 43: re-keyed from GRM31A5C3A102JW01D (not a Murata part) to the source MPN CC1206JKNPOCBN102 (elec/src/parts.ato, frozen/default.csv); the source-MPN owner gap is closed. FET-row bound re-cited to s43: 123.0 -> 122.1 C (release), 133.6 -> 132.6 C (c22). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V). S20b (2026-10-16, band-terms ledger_event): the stacked event re-based to the current tank state, 451.6 -> 512.4 V (E_t 0.475 -> 0.897 J at the 119.09 A shunt top; OVP-delay gate-off 323.04 V). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "CST3015-200ED": {
    "mpn": "CST3015-200ED",
@@ -5644,7 +5644,7 @@
     },
     {
      "parameter": "Body temperature c28",
-     "worst_case_value": 105.0,
+     "worst_case_value": 104.9,
      "unit": "C",
      "condition": "context: c28_h10 (28 A, 29.4 A trip), still air, bay 55 C, C21",
      "evidence": [
@@ -5654,7 +5654,7 @@
         "case": "c28_h10",
         "item": "C21: MMKP Top,max"
        },
-       "est_c": 105.0
+       "est_c": 104.9
       }
      ]
     }
@@ -5820,8 +5820,8 @@
      "stress": "Body temperature c28",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "airflow route (c22/c28): 105.0 C vs 125 C in still air at bay 55 C",
-     "ratio": 0.84
+     "rule": "airflow route (c22/c28): 104.9 C vs 125 C in still air at bay 55 C",
+     "ratio": 0.8392
     },
     {
      "id": "self-heating 24 A, declared airflow (table chord)",
@@ -5862,7 +5862,7 @@
     "certifier: approval basis. HOT-side resonant-tank part with no UL / ENEC component file (none is listed or normally needed for a tank film cap): case UL 94 V-0 (p.2); AEC-Q200D and IEC 60384-16:2019 (p.15); THB 85 C / 85 % RH 1000 h (p.24). Closing answer: the certifier accepts it under the end-product evaluation (abnormal-operation tests with the bank in circuit)."
    ],
    "finding": null,
-   "notes": "S52 (2026-10-16, validation-results/11-candidates/s52-proto-bom/README.md): replaces KNSCHA MMK104J3DF1KN208G2 (stage 51; in stock, kept as the fallback in `alternates`) on the same dual-pitch footprint's 22.5 mm hole. Voltage rows pass with the same F3 as c34 (both 2000 V); the current rows set a 24 A strict ladder cap (s51: 22 A). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): F_T table-chord allowance and check; desk gaps -> owner (maker question) / certifier. S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row)."
+   "notes": "S52 (2026-10-16, validation-results/11-candidates/s52-proto-bom/README.md): replaces KNSCHA MMK104J3DF1KN208G2 (stage 51; in stock, kept as the fallback in `alternates`) on the same dual-pitch footprint's 22.5 mm hole. Voltage rows pass with the same F3 as c34 (both 2000 V); the current rows set a 24 A strict ladder cap (s51: 22 A). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): F_T table-chord allowance and check; desk gaps -> owner (maker question) / certifier. S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "RC1206FR-07470KL": {
    "mpn": "RC1206FR-07470KL",
@@ -5978,7 +5978,7 @@
     },
     {
      "parameter": "T body R22 c22",
-     "worst_case_value": 85.5,
+     "worst_case_value": 85.4,
      "unit": "C",
      "condition": "context: c22_h10, bay 55 C",
      "evidence": [
@@ -5988,13 +5988,13 @@
         "case": "c22_h10",
         "item": "R22: 1206 thick"
        },
-       "est_c": 85.5
+       "est_c": 85.4
       }
      ]
     },
     {
      "parameter": "T body R22 c28",
-     "worst_case_value": 102.6,
+     "worst_case_value": 102.5,
      "unit": "C",
      "condition": "context: c28_h10 (28 A Kconfig ceiling), still air, bay 55 C",
      "evidence": [
@@ -6004,7 +6004,7 @@
         "case": "c28_h10",
         "item": "R22: 1206 thick"
        },
-       "est_c": 102.6
+       "est_c": 102.5
       }
      ]
     },
@@ -6088,7 +6088,7 @@
      "max_ratio": 1.0,
      "severity": "gap",
      "rule": "context: <= 155 C",
-     "ratio": 0.6619
+     "ratio": 0.6613
     },
     {
      "id": "third fault",
@@ -6111,7 +6111,7 @@
     "bench: R26-R29 (divider) are not in the B3 thermal model; their dissipation is <= 11 mW each at 287.62 V, but the local board temperature is unmeasured (IR at first power)."
    ],
    "finding": null,
-   "notes": "2026-10-15 batch B: rated values re-read on the current RC_L V.12 sheet (unchanged from the 2004 V.2: 200 / 400 / 500 V, 1/4 W at 70 C, 155 C). B3's '1206 thick film (unverified) 155 C' rows for R22-R25 are now verified (p.6/p.7). The old 160 V stress (640 V / 4) is replaced by the 28 A grid bound 690.4 / 4 = 172.6 V peak; checked as rms (Yageo defines the rating as DC or AC rms). Approval basis: commodity thick-film resistor; no UL/CSA component recognition exists or is relied on (functional divider and bleed inside the HOT domain, no barrier). Merged 2026-10-15 onto s42 (DECISIONS 55/56): body re-cited to the release case (R22 83.9 C; 98.1 C at c28); power and temperature pass at both; source lines moved +2 (candidate 39). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row)."
+   "notes": "2026-10-15 batch B: rated values re-read on the current RC_L V.12 sheet (unchanged from the 2004 V.2: 200 / 400 / 500 V, 1/4 W at 70 C, 155 C). B3's '1206 thick film (unverified) 155 C' rows for R22-R25 are now verified (p.6/p.7). The old 160 V stress (640 V / 4) is replaced by the 28 A grid bound 690.4 / 4 = 172.6 V peak; checked as rms (Yageo defines the rating as DC or AC rms). Approval basis: commodity thick-film resistor; no UL/CSA component recognition exists or is relied on (functional divider and bleed inside the HOT domain, no barrier). Merged 2026-10-15 onto s42 (DECISIONS 55/56): body re-cited to the release case (R22 83.9 C; 98.1 C at c28); power and temperature pass at both; source lines moved +2 (candidate 39). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "B2P3-VH(LF)(SN)": {
    "mpn": "B2P3-VH(LF)(SN)",
@@ -6612,7 +6612,7 @@
     },
     {
      "parameter": "U3 junction, ratchet max",
-     "worst_case_value": 120.6,
+     "worst_case_value": 120.5,
      "unit": "C",
      "condition": "same row, worst ratchet case (c28_h10); ratchet only (release is c17.5_h10)",
      "evidence": [
@@ -6622,7 +6622,7 @@
         "case": "c28_h10",
         "item": "U3: TPS70950QDBVRQ1 TJ"
        },
-       "est_c": 120.6
+       "est_c": 120.5
       }
      ]
     }
@@ -6734,8 +6734,8 @@
      "stress": "U3 junction, ratchet max",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "120.6 C <= 125 C (c28_h10, ratchet only)",
-     "ratio": 0.9648
+     "rule": "120.5 C <= 125 C (c28_h10, ratchet only)",
+     "ratio": 0.964
     }
    ],
    "layout_guidance": [
@@ -6758,7 +6758,7 @@
     "U3's input cap C25 is not at the pins (7.4.1 p.19 layout guidance; see layout_guidance)"
    ],
    "finding": null,
-   "notes": "S19 (2026-10-16): the u3-286 lane's u3ledger.py VIOLATION (EN tied to IN, 15.5 / 17.4 V on a 7 V abs-max pin) is closed at stage 48 by the 100 k / 27 k EN dividers: U3 EN 2.987-3.413 V over IN 14.50-15.46 V (3.681 V at 16.68 V); U37-U39 EN 3.414-3.845 V over 16.575-17.43 V (4.111 V at 18.643 V). Floating EN (allowed by Table 4-1 p.3) was rejected: with the 300 nA typical pull-up, a few-megohm leakage path to GND on uncoated PD3 laminate would disable the LDO. The Q1 grade closes the +-1 %-to-85 C gap of SBVS186H 6.5 p.5. Card: validation-results/11-candidates/c48-ldo-en-ref-watch/README.md. S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row)."
+   "notes": "S19 (2026-10-16): the u3-286 lane's u3ledger.py VIOLATION (EN tied to IN, 15.5 / 17.4 V on a 7 V abs-max pin) is closed at stage 48 by the 100 k / 27 k EN dividers: U3 EN 2.987-3.413 V over IN 14.50-15.46 V (3.681 V at 16.68 V); U37-U39 EN 3.414-3.845 V over 16.575-17.43 V (4.111 V at 18.643 V). Floating EN (allowed by Table 4-1 p.3) was rejected: with the 300 nA typical pull-up, a few-megohm leakage path to GND on uncoated PD3 laminate would disable the LDO. The Q1 grade closes the +-1 %-to-85 C gap of SBVS186H 6.5 p.5. Card: validation-results/11-candidates/c48-ldo-en-ref-watch/README.md. S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "RT0603BRD0715K8L": {
    "mpn": "RT0603BRD0715K8L",
@@ -7422,7 +7422,7 @@
     },
     {
      "parameter": "Local temperature, BASIS max",
-     "worst_case_value": 102.9,
+     "worst_case_value": 102.7,
      "unit": "C",
      "condition": "same row, worst over the BASIS cases (c28_h10)",
      "evidence": [
@@ -7432,7 +7432,7 @@
         "case": "c28_h10",
         "item": "U5: LM4050AEM3-2.5/NOPB TA"
        },
-       "est_c": 102.9
+       "est_c": 102.7
       }
      ]
     },
@@ -7495,8 +7495,8 @@
      "stress": "Local temperature, BASIS max",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "102.9 C <= 125 C",
-     "ratio": 0.8232
+     "rule": "102.7 C <= 125 C",
+     "ratio": 0.8216
     }
    ],
    "layout_guidance": [
@@ -7514,7 +7514,7 @@
     "long-term drift (120 ppm / 1000 h typical) and thermal hysteresis are typical-only and outside the band model"
    ],
    "finding": null,
-   "notes": "JLC C2156518, extended, 50 in stock 2026-10-15 against 500 for 500 boards (LM4050QAEM3-2.5 C2157745 43, C2157326 3): the 500-board lot is an owner pre-order (>= 550 incl. attrition) consigned to JLC; $3.4228 at 500+. The JLC listing's -40..85 C is wrong for the E suffix (TI 5.3 p.5, addendum p.25). Replaces LM4040A25IDBZR (C9421) on the same DBZ pads: at the c17.5 @ 61 release case the A25I read 89.1 C against 85 C (-4.1 K). Bands: validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md. S20 closed by ledger286.py: the bus-OVP rows now cite the s47 band top 287.62 V. S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change). S56 (2026-11-24, 11-candidates/c56-s56-scope): B3 rows re-cited to the s56 margins.json (R127 / R129 27 k -> 16 k, BOM only; no copper or heat-source change)."
+   "notes": "JLC C2156518, extended, 50 in stock 2026-10-15 against 500 for 500 boards (LM4050QAEM3-2.5 C2157745 43, C2157326 3): the 500-board lot is an owner pre-order (>= 550 incl. attrition) consigned to JLC; $3.4228 at 500+. The JLC listing's -40..85 C is wrong for the E suffix (TI 5.3 p.5, addendum p.25). Replaces LM4040A25IDBZR (C9421) on the same DBZ pads: at the c17.5 @ 61 release case the A25I read 89.1 C against 85 C (-4.1 K). Bands: validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md. S20 closed by ledger286.py: the bus-OVP rows now cite the s47 band top 287.62 V. S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change). S56 (2026-11-24, 11-candidates/c56-s56-scope): B3 rows re-cited to the s56 margins.json (R127 / R129 27 k -> 16 k, BOM only; no copper or heat-source change). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "RT0603BRD0710KL": {
    "mpn": "RT0603BRD0710KL",
@@ -9315,7 +9315,7 @@
     },
     {
      "parameter": "Top C40 c17.5 (release)",
-     "worst_case_value": 103.5,
+     "worst_case_value": 103.3,
      "unit": "C",
      "condition": "B3 body model incl. self-heating, s42, release case c17.5_h10 (18.9 A trip, still air h 10, bay 61 C); C40 is the hottest (C41 106.3, C38 104.9, C39 99.4 C)",
      "evidence": [
@@ -9325,14 +9325,14 @@
         "case": "c17.5_h10",
         "item": "C40: MKP Top,max"
        },
-       "est_c": 103.5
+       "est_c": 103.3
       },
       "DECISIONS.md:2045-2046"
      ]
     },
     {
      "parameter": "Top C40 c22",
-     "worst_case_value": 113.3,
+     "worst_case_value": 112.9,
      "unit": "C",
      "condition": "context: c22_h10 (22 A at 1.05 x trip), still air, bay 55 C",
      "evidence": [
@@ -9342,13 +9342,13 @@
         "case": "c22_h10",
         "item": "C40: MKP Top,max"
        },
-       "est_c": 113.3
+       "est_c": 112.9
       }
      ]
     },
     {
      "parameter": "Top C40 c28",
-     "worst_case_value": 141.9,
+     "worst_case_value": 141.2,
      "unit": "C",
      "condition": "context: c28_h10 (28 A Kconfig ceiling), still air, bay 55 C",
      "evidence": [
@@ -9358,7 +9358,7 @@
         "case": "c28_h10",
         "item": "C40: MKP Top,max"
        },
-       "est_c": 141.9
+       "est_c": 141.2
       }
      ]
     }
@@ -9399,7 +9399,7 @@
      "max_ratio": 1.0,
      "severity": "violation",
      "rule": "108.8 <= 110 C at the release case (B3 gated row, +1.2 K)",
-     "ratio": 0.9409
+     "ratio": 0.9391
     },
     {
      "id": "Top C40 c22",
@@ -9408,7 +9408,7 @@
      "max_ratio": 1.0,
      "severity": "gap",
      "rule": "airflow route (c22/c28): 116.0 C, 6.0 K over",
-     "ratio": 1.03
+     "ratio": 1.0264
     },
     {
      "id": "Top C40 c28",
@@ -9417,7 +9417,7 @@
      "max_ratio": 1.0,
      "severity": "gap",
      "rule": "airflow route (c22/c28): 137.7 C, 27.7 K over",
-     "ratio": 1.29
+     "ratio": 1.2836
     }
    ],
    "layout_guidance": [
@@ -9431,7 +9431,7 @@
     "bench: per-part RMS current share is unknown: B3 carries 0.05-0.2 W per part as an estimate (make_heat_sources.py:113, ~3.8 A at the 14 mOhm ESR if real); measure, and apply the p.64 FT derating above 85 C ambient."
    ],
    "finding": null,
-   "notes": "2026-10-15 batch B: IRMS 5.4 A now read on the TDK sheet (was the parts.ato docstring). Approval basis: DC-link decoupling after BR1, not an X capacitor across the mains; no UL/CSA recognition relied on (UL 94 V-0 case and resin only). Merged 2026-10-15 onto s42 (DECISIONS 55/56): Top re-cited to the release case (C40 108.9 C, 0.99 of 110 C); the spike bound is the F6 490 V (s42 grid 347 / 435 V). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. C40 108.9 -> 108.8 C (release), 137.8 -> 137.7 C (c28). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V start; stacked event 451.6 V). S20b (2026-10-16, band-terms ledger_event): the stacked event re-based to the current tank state, 451.6 -> 512.4 V (E_t 0.475 -> 0.897 J at the 119.09 A shunt top; OVP-delay gate-off 323.04 V). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm)."
+   "notes": "2026-10-15 batch B: IRMS 5.4 A now read on the TDK sheet (was the parts.ato docstring). Approval basis: DC-link decoupling after BR1, not an X capacitor across the mains; no UL/CSA recognition relied on (UL 94 V-0 case and resin only). Merged 2026-10-15 onto s42 (DECISIONS 55/56): Top re-cited to the release case (C40 108.9 C, 0.99 of 110 C); the spike bound is the F6 490 V (s42 grid 347 / 435 V). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. C40 108.9 -> 108.8 C (release), 137.8 -> 137.7 C (c28). S20 (2026-10-16, ledger286.py): re-cited from the 286 V hand estimate to the s47 OVP band top (287.62 V start; stacked event 451.6 V). S20b (2026-10-16, band-terms ledger_event): the stacked event re-based to the current tank state, 451.6 -> 512.4 V (E_t 0.475 -> 0.897 J at the 119.09 A shunt top; OVP-delay gate-off 323.04 V). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "RC1206FR-073RL": {
    "mpn": "RC1206FR-073RL",
@@ -11284,7 +11284,7 @@
     },
     {
      "parameter": "Local temperature, c28_h10 @ 55 C",
-     "worst_case_value": 124.9,
+     "worst_case_value": 124.8,
      "unit": "C",
      "condition": "U26: B3 body-model junction (tj_c); B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 1 ref(s); board s52 5e7c12c1 (S18 B3 model)",
      "evidence": [
@@ -11295,8 +11295,8 @@
         "case": "c28_h10",
         "item": "U26: TJ max"
        },
-       "est_c": 124.9,
-       "margin_k": 0.1
+       "est_c": 124.8,
+       "margin_k": 0.2
       }
      ]
     },
@@ -11355,8 +11355,8 @@
      "stress": "Local temperature, c28_h10 @ 55 C",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "124.9 C <= 125.0 C (U26); an overrun is the airflow-route (c22/c28) owner gap",
-     "ratio": 0.9992
+     "rule": "124.8 C <= 125.0 C (U26); an overrun is the airflow-route (c22/c28) owner gap",
+     "ratio": 0.9984
     },
     {
      "id": "VIN rec",
@@ -11400,7 +11400,7 @@
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "finding": null,
-   "notes": "S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): electrical ratings and worst-case stresses added (signal_audit.md; stresses from the pin_absmax net model, scripts/net_stress.py); the 'Not audited' / 'only the temperature rating is audited' gaps are closed by them."
+   "notes": "S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): electrical ratings and worst-case stresses added (signal_audit.md; stresses from the pin_absmax net model, scripts/net_stress.py); the 'Not audited' / 'only the temperature rating is audited' gaps are closed by them. S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "TLVH431BQDBZR": {
    "mpn": "TLVH431BQDBZR",
@@ -11665,7 +11665,7 @@
         "item": "R77: monitor divider,"
        },
        "est_c": 84.3,
-       "margin_k": 70.5
+       "margin_k": 70.6
       }
      ]
     },
@@ -11734,7 +11734,7 @@
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "finding": null,
-   "notes": "S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): electrical ratings and worst-case stresses added (signal_audit.md; stresses from the pin_absmax net model, scripts/net_stress.py); the 'Not audited' / 'only the temperature rating is audited' gaps are closed by them. S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row)."
+   "notes": "S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): electrical ratings and worst-case stresses added (signal_audit.md; stresses from the pin_absmax net model, scripts/net_stress.py); the 'Not audited' / 'only the temperature rating is audited' gaps are closed by them. S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "TL431BQDBZR": {
    "mpn": "TL431BQDBZR",
@@ -11978,7 +11978,7 @@
         "item": "R59: monitor divider,"
        },
        "est_c": 89.2,
-       "margin_k": 22.2
+       "margin_k": 22.3
       }
      ]
     },
@@ -12047,7 +12047,7 @@
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "finding": null,
-   "notes": "S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): electrical ratings and worst-case stresses added (signal_audit.md; stresses from the pin_absmax net model, scripts/net_stress.py); the 'Not audited' / 'only the temperature rating is audited' gaps are closed by them. S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row)."
+   "notes": "S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): electrical ratings and worst-case stresses added (signal_audit.md; stresses from the pin_absmax net model, scripts/net_stress.py); the 'Not audited' / 'only the temperature rating is audited' gaps are closed by them. S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "RT0603BRD074K42L": {
    "mpn": "RT0603BRD074K42L",
@@ -12137,7 +12137,7 @@
         "item": "R79: monitor divider,"
        },
        "est_c": 86.2,
-       "margin_k": 68.6
+       "margin_k": 68.7
       }
      ]
     },
@@ -12206,7 +12206,7 @@
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "finding": null,
-   "notes": "S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): electrical ratings and worst-case stresses added (signal_audit.md; stresses from the pin_absmax net model, scripts/net_stress.py); the 'Not audited' / 'only the temperature rating is audited' gaps are closed by them. S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row)."
+   "notes": "S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): electrical ratings and worst-case stresses added (signal_audit.md; stresses from the pin_absmax net model, scripts/net_stress.py); the 'Not audited' / 'only the temperature rating is audited' gaps are closed by them. S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "RT0603BRD07750RL": {
    "mpn": "RT0603BRD07750RL",
@@ -12312,7 +12312,7 @@
     },
     {
      "parameter": "Local temperature, c28_h10 @ 55 C",
-     "worst_case_value": 84.7,
+     "worst_case_value": 84.6,
      "unit": "C",
      "condition": "R81: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s52 5e7c12c1 (S18 B3 model)",
      "evidence": [
@@ -12323,8 +12323,8 @@
         "case": "c28_h10",
         "item": "R81: monitor divider,"
        },
-       "est_c": 84.7,
-       "margin_k": 70.2
+       "est_c": 84.6,
+       "margin_k": 70.3
       }
      ]
     }
@@ -12373,8 +12373,8 @@
      "stress": "Local temperature, c28_h10 @ 55 C",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "84.7 C <= 155.0 C (R81); an overrun is the airflow-route (c22/c28) owner gap",
-     "ratio": 0.5465
+     "rule": "84.6 C <= 155.0 C (R81); an overrun is the airflow-route (c22/c28) owner gap",
+     "ratio": 0.5458
     }
    ],
    "layout_guidance": [
@@ -12389,7 +12389,7 @@
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "finding": null,
-   "notes": "JLC C861551, extended, 2,661 in stock 2026-10-15; $0.0271 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm)."
+   "notes": "JLC C861551, extended, 2,661 in stock 2026-10-15; $0.0271 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "RT0603BRD072K94L": {
    "mpn": "RT0603BRD072K94L",
@@ -12690,7 +12690,7 @@
         "item": "R85: monitor divider,"
        },
        "est_c": 85.6,
-       "margin_k": 67.0
+       "margin_k": 67.1
       }
      ]
     }
@@ -12755,7 +12755,7 @@
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "finding": null,
-   "notes": "JLC C728600, extended, 18,027 in stock 2026-10-15; $0.0331 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row)."
+   "notes": "JLC C728600, extended, 18,027 in stock 2026-10-15; $0.0331 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "RT0603BRD07104KL": {
    "mpn": "RT0603BRD07104KL",
@@ -12861,7 +12861,7 @@
     },
     {
      "parameter": "Local temperature, c28_h10 @ 55 C",
-     "worst_case_value": 83.6,
+     "worst_case_value": 83.5,
      "unit": "C",
      "condition": "R87: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s52 5e7c12c1 (S18 B3 model)",
      "evidence": [
@@ -12872,8 +12872,8 @@
         "case": "c28_h10",
         "item": "R87: monitor divider,"
        },
-       "est_c": 83.6,
-       "margin_k": 69.3
+       "est_c": 83.5,
+       "margin_k": 69.4
       }
      ]
     }
@@ -12922,8 +12922,8 @@
      "stress": "Local temperature, c28_h10 @ 55 C",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "83.6 C <= 152.4 C (R87); an overrun is the airflow-route (c22/c28) owner gap",
-     "ratio": 0.5486
+     "rule": "83.5 C <= 152.4 C (R87); an overrun is the airflow-route (c22/c28) owner gap",
+     "ratio": 0.5479
     }
    ],
    "layout_guidance": [
@@ -12938,7 +12938,7 @@
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "finding": null,
-   "notes": "JLC C861070, extended, 8,450 in stock 2026-10-15; $0.0212 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change). S56 (2026-11-24, 11-candidates/c56-s56-scope): B3 rows re-cited to the s56 margins.json (R127 / R129 27 k -> 16 k, BOM only; no copper or heat-source change)."
+   "notes": "JLC C861070, extended, 8,450 in stock 2026-10-15; $0.0212 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change). S56 (2026-11-24, 11-candidates/c56-s56-scope): B3 rows re-cited to the s56 margins.json (R127 / R129 27 k -> 16 k, BOM only; no copper or heat-source change). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "LM2901BIDR": {
    "mpn": "LM2901BIDR",
@@ -13213,7 +13213,7 @@
     },
     {
      "parameter": "Tj U42 c22",
-     "worst_case_value": 130.9,
+     "worst_case_value": 130.8,
      "unit": "C",
      "condition": "context: c22_h10, bay 55 C",
      "evidence": [
@@ -13223,13 +13223,13 @@
         "case": "c22_h10",
         "item": "U42: Tj abs"
        },
-       "est_c": 130.9
+       "est_c": 130.8
       }
      ]
     },
     {
      "parameter": "Tj U42 c28",
-     "worst_case_value": 137.5,
+     "worst_case_value": 137.3,
      "unit": "C",
      "condition": "context: c28_h10 (28 A Kconfig ceiling), still air, bay 55 C",
      "evidence": [
@@ -13239,7 +13239,7 @@
         "case": "c28_h10",
         "item": "U42: Tj abs"
        },
-       "est_c": 137.5
+       "est_c": 137.3
       }
      ]
     }
@@ -13307,7 +13307,7 @@
      "max_ratio": 1.0,
      "severity": "gap",
      "rule": "context: 130.6 <= 150 C",
-     "ratio": 0.8727
+     "ratio": 0.872
     },
     {
      "id": "Tj c28",
@@ -13316,7 +13316,7 @@
      "max_ratio": 1.0,
      "severity": "gap",
      "rule": "context: 135.4 <= 150 C",
-     "ratio": 0.9167
+     "ratio": 0.9153
     }
    ],
    "layout_guidance": [
@@ -13335,7 +13335,7 @@
     "bench: start-up (6-13 ms vs 16 ms timeout) and 11-16 MHz switching emissions (DECISIONS.md:442-448)."
    ],
    "finding": "Isolation claim resolved: elec/src/f6_parts.ato:354 ('reinforced 5 kVAC / 1.4 kVDC working') matches the current R24C2T25/R Rev. 1-2024 sheet (p.1; p.8: 1.4 kVp repetitive, 1000 Vrms TDDB, 1.4 kVDC). The 'preliminary 850 Vrms / 1.2 kVp functional' copy was the different non-/R R24C2T25 series. Barrier check now 520/1400 = 37 % (was 43 % against the wrong part).",
-   "notes": "2026-10-15 batch B: 'Tj converged 105 C' (DECISIONS.md:824, old model) replaced by B3's s41 body rows. The UL file E542996 (p.1 logo) could not be read (UL Product iQ 403); not relied on: the barrier is HOT-to-HOT functional. The 1.5x CMTI rule moved from violation to gap severity because the CMTI README scopes it to gate-command crossings; the absolute CMTI check stays violation severity and passes. Merged 2026-10-15 onto s42 (DECISIONS 55/56): CMTI re-cited to s42 (49.7 V/ns, 3.0x); Tj to the release case (133.7 C, 0.89 of 150 C). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. U42 Tj 133.7 -> 133.6 C (release). S50 (2026-10-16, 11-candidates/c50-permit-gate): B3 rows re-cited to the s50 margins.json. S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change)."
+   "notes": "2026-10-15 batch B: 'Tj converged 105 C' (DECISIONS.md:824, old model) replaced by B3's s41 body rows. The UL file E542996 (p.1 logo) could not be read (UL Product iQ 403); not relied on: the barrier is HOT-to-HOT functional. The 1.5x CMTI rule moved from violation to gap severity because the CMTI README scopes it to gate-command crossings; the absolute CMTI check stays violation severity and passes. Merged 2026-10-15 onto s42 (DECISIONS 55/56): CMTI re-cited to s42 (49.7 V/ns, 3.0x); Tj to the release case (133.7 C, 0.89 of 150 C). Stage 43 (s43, 61447816; track cleanup, DECISIONS 57 draft): B3 rows re-cited to the s43 margins.json. U42 Tj 133.7 -> 133.6 C (release). S50 (2026-10-16, 11-candidates/c50-permit-gate): B3 rows re-cited to the s50 margins.json. S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "0603WAF2702T5E": {
    "mpn": "0603WAF2702T5E",
@@ -16397,7 +16397,7 @@
     },
     {
      "parameter": "Board temperature bound at the cap, c17.5 (release)",
-     "worst_case_value": 124.0,
+     "worst_case_value": 123.7,
      "unit": "C",
      "condition": "no B3 row for the cap: bounded by the FET-row copper at the release case (c18_h10, 18.0 A at its 18.9 A trip, bay 61 C; DECISIONS 56 stress basis), the hottest copper of the FET row the caps sit 17 mm south of",
      "evidence": [
@@ -16407,13 +16407,13 @@
         "case": "c17.5_h10",
         "item": "laminate: FET-row copper"
        },
-       "est_c": 124.0
+       "est_c": 123.7
       }
      ]
     },
     {
      "parameter": "Board temperature bound at the cap, c22",
-     "worst_case_value": 140.1,
+     "worst_case_value": 139.6,
      "unit": "C",
      "condition": "context: c22_h10 FET-row copper, bay 55 C (the c39 entry cited 133.5 C, the pre-DECISIONS-56 s42 c22 row)",
      "evidence": [
@@ -16423,7 +16423,7 @@
         "case": "c22_h10",
         "item": "laminate: FET-row copper"
        },
-       "est_c": 140.1
+       "est_c": 139.6
       }
      ]
     }
@@ -16446,7 +16446,7 @@
      "max_ratio": 1.0,
      "severity": "violation",
      "rule": "FET-row copper 122.1 C <= 125 C at the release case (an upper bound for the cap; the cap's own temperature is not modelled)",
-     "ratio": 0.992
+     "ratio": 0.9896
     },
     {
      "id": "temperature bound c22",
@@ -16455,7 +16455,7 @@
      "max_ratio": 1.0,
      "severity": "gap",
      "rule": "airflow route (c22/c28): the c22 FET-row bound 132.6 C is over 125 C (the cap's own temperature is not modelled)",
-     "ratio": 1.1208
+     "ratio": 1.1168
     }
    ],
    "layout_guidance": [
@@ -16470,7 +16470,7 @@
     "Pulse current (gate charge, ~0.1-1 A for < 1 us) is not compared with a rating; C0G MLCC dissipation is negligible."
    ],
    "finding": null,
-   "notes": "JLC C85980, extended, 76,738 in stock 2026-10-15; 1500+ $0.015. Stage 43: temperature re-cited from the c22 FET-row value (133.5 C) to the DECISIONS 56 release case (c18_h10, bay 61 C) on s43's margins.json, 122.1 C <= 125 C; the c22 overrun (132.6 C) is an airflow-route owner gap. S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm)."
+   "notes": "JLC C85980, extended, 76,738 in stock 2026-10-15; 1500+ $0.015. Stage 43: temperature re-cited from the c22 FET-row value (133.5 C) to the DECISIONS 56 release case (c18_h10, bay 61 C) on s43's margins.json, 122.1 C <= 125 C; the c22 overrun (132.6 C) is an airflow-route owner gap. S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "PS122WF680JT4E": {
    "mpn": "PS122WF680JT4E",
@@ -16501,16 +16501,16 @@
     },
     {
      "parameter": "Power derated at the c17.5 terminal estimate (release)",
-     "datasheet_limit": 0.5741,
+     "datasheet_limit": 0.5788,
      "unit": "W",
-     "basis": "2 W x (155 - T) / 85 at T = 130.6 C (R10 terminal, B3 release case c17.5_h10, bay 61 C); the curve is an ambient curve, applied at the terminal (the B3 gate's convention)",
+     "basis": "2 W x (155 - T) / 85 at T = 130.4 C (R10 terminal, B3 release case c17.5_h10, bay 61 C); the curve is an ambient curve, applied at the terminal (the B3 gate's convention)",
      "source": "p.23 Derating Curve (100 % at 70 C to 0 % at 155 C, 'Ambient temperature')"
     },
     {
      "parameter": "Power derated at the c22 terminal estimate",
-     "datasheet_limit": 0.2871,
+     "datasheet_limit": 0.2988,
      "unit": "W",
-     "basis": "2 W x (155 - T) / 85 at T = 142.8 C (R12 terminal, B3 c22_h10, bay 55 C)",
+     "basis": "2 W x (155 - T) / 85 at T = 142.3 C (R12 terminal, B3 c22_h10, bay 55 C)",
      "source": "p.23 Derating Curve"
     },
     {
@@ -16545,7 +16545,7 @@
     },
     {
      "parameter": "Element estimate c17.5 (release)",
-     "worst_case_value": 134.48,
+     "worst_case_value": 134.2,
      "unit": "C",
      "condition": "R10, B3 body model c17.5_h10 bay 61 C (chip2512 r_pad 37.6 K/W from the body dimensions, identical for PS12); terminal 130.6 C",
      "evidence": [
@@ -16555,7 +16555,7 @@
         "case": "c17.5_h10",
         "item": "R10: 2512 element"
        },
-       "est_c": 134.5
+       "est_c": 134.2
       },
       {
        "file": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/margins.json",
@@ -16563,14 +16563,14 @@
         "case": "c17.5_h10",
         "item": "R10: 2512 terminal"
        },
-       "est_c": 130.6
+       "est_c": 130.4
       },
       "validation-results/11-candidates/c54-release-margins/results/margins-c54.json"
      ]
     },
     {
      "parameter": "Element estimate c28",
-     "worst_case_value": 188.21,
+     "worst_case_value": 187.3,
      "unit": "C",
      "condition": "R12, c28_h10 bay 55 C; terminal 182.9 C",
      "evidence": [
@@ -16580,7 +16580,7 @@
         "case": "c28_h10",
         "item": "R12: 2512 element"
        },
-       "est_c": 188.2
+       "est_c": 187.3
       }
      ]
     },
@@ -16607,8 +16607,8 @@
      "stress": "R_on dissipation, 60 kHz window top",
      "max_ratio": 0.8,
      "severity": "violation",
-     "rule": "<= 80 % of the derated power at the release terminal (B3 row R10 +12.9 K, 2 W line)",
-     "ratio": 0.378
+     "rule": "<= 80 % of the derated power at the release terminal (B3 row R10 +13.1 K, 2 W line)",
+     "ratio": 0.3749
     },
     {
      "id": "element c17.5 (release)",
@@ -16617,7 +16617,7 @@
      "max_ratio": 1.0,
      "severity": "violation",
      "rule": "element <= 155 C at the release case",
-     "ratio": 0.8676
+     "ratio": 0.8658
     },
     {
      "id": "power c22",
@@ -16625,8 +16625,8 @@
      "stress": "R_on dissipation, 60 kHz window top",
      "max_ratio": 0.8,
      "severity": "gap",
-     "rule": "airflow route (c22/c28): 0.217 W against 0.2871 W at the 142.8 C c22 terminal (R12; B3 row +0.7 K, hot copper, 2 W line)",
-     "ratio": 0.7558
+     "rule": "airflow route (c22/c28): 0.217 W against 0.2988 W at the 142.3 C c22 terminal (R12; B3 row +1.1 K, hot copper, 2 W line)",
+     "ratio": 0.7262
     },
     {
      "id": "element c28",
@@ -16635,7 +16635,7 @@
      "max_ratio": 1.0,
      "severity": "gap",
      "rule": "airflow route (c22/c28): element over 155 C at c28 in still air",
-     "ratio": 1.2143
+     "ratio": 1.2084
     },
     {
      "id": "voltage",
@@ -16673,7 +16673,7 @@
     "b3_ratings_gate.py rates every 2512 R_on at 1 W until results/b3-gate.patch (GATE_R_MPN) is applied."
    ],
    "finding": null,
-   "notes": "Candidate 54 (validation-results/11-candidates/c54-release-margins). JLC C2793964 extended; stock and price in results/bom-patch.json. Same body and terminals as 25121WF680JT4E (V.3 p.4/9 vs catalogue p.23: L 6.35 W 3.20 H 0.55 A 0.60 B 0.50 mm), so the B3 solve, heat file and terminal / element estimates are unchanged. Second source: Yageo RC2512JK-7W68RL (2 W, 5 %, RC_L V.12 p.6/p.7). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row)."
+   "notes": "Candidate 54 (validation-results/11-candidates/c54-release-margins). JLC C2793964 extended; stock and price in results/bom-patch.json. Same body and terminals as 25121WF680JT4E (V.3 p.4/9 vs catalogue p.23: L 6.35 W 3.20 H 0.55 A 0.60 B 0.50 mm), so the B3 solve, heat file and terminal / element estimates are unchanged. Second source: Yageo RC2512JK-7W68RL (2 W, 5 %, RC_L V.12 p.6/p.7). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S57 (2026-11-25, 11-candidates/c58-s56-lands): B3 rows re-cited to the s57 margins.json (FET holes 1.5 -> 1.8 mm; no copper change outside the hole)."
   },
   "ERJ-PA3F4991V": {
    "mpn": "ERJ-PA3F4991V",

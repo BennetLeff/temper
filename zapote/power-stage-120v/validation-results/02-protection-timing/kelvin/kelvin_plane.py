@@ -131,7 +131,8 @@ def main() -> None:
               "native21s53": "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27",
               "native21s54": "9c639732ea84dc9682ea95b35c14c40c3d7ec0fda06d3d9fb0a748958bc9a7c0",
               "native21s55": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d",
-              "native21s56": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263"}
+              "native21s56": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263",
+              "native21s57": "25596d8eff460eabab3c538c83daea0d88eb1135fd7ae1519d8cc30a4f32421a"}
     assert data["board_sha256"] == PINNED[tag], f"{export} is not the pinned {tag} board"
     # stage 33: copper z and thickness from the board's stackup.json (the native-20 export: native-20's; every
     # native21* tag: native-21's single layer-stack source). Same 70 / 61 um and JLC041622-7628 z as the old literals.

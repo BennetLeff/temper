@@ -4,13 +4,13 @@ PS = `zapote/power-stage-120v` (in the repository). VR = `PS/validation-results`
 `runs-native21/` is the build directory beside the repository worktree; it is **not in git**, so we send those files.
 Hashes checked 2026-10-18.
 
-## Board of record now: stage 56 (BOM-only change on stage 55's copper; README section 0; updated 2026-11-24)
+## Board of record now: stage 57 (TO-247 holes 1.5 to 1.8 mm on stage 56; README section 0; updated 2026-11-25)
 | File | Path | SHA-256 / note |
 |---|---|---|
-| Routed board, schematic, rules, STEP (in git) | `N21/board-of-record-s56/` | `SHA256SUMS` there; board `27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263` |
-| Gerber zip | `N21/fab/native-21-gerbers.zip` | `81b391a921e510b83a088885419fdba3e6b9004a2309e6002de7b693c75de86d` |
-| Card | `VR/10-benchmark/scorecard-native21s56.json` | every gate passes; REJECT vs s55 on cost (+$0.07) and a CMTI basis change, adopted (DECISIONS 85) |
-| Chain build (outside git) | `runs-native21/s56/c56b/` (log `runs-native21/s56/chain2.out`) | CHAIN_DONE |
+| Routed board, schematic, rules, STEP (in git) | `N21/board-of-record-s57/` | `SHA256SUMS` there; board `25596d8eff460eabab3c538c83daea0d88eb1135fd7ae1519d8cc30a4f32421a` |
+| Gerber zip | `N21/fab/native-21-gerbers.zip` | `f91513c5ce1163b758912ec1e4899f406645d0471d9a5bce69a232e08157cea9` |
+| Card | `VR/10-benchmark/scorecard-native21s57.json` | ACCEPT vs s56 (DECISIONS 87) |
+| Chain build (outside git) | `runs-native21/s57/c57b/` (log `runs-native21/s57/chain2.out`) | CHAIN_DONE |
 
 ## Board of record (stage 53, superseded)
 | File | Path | SHA-256 / note |

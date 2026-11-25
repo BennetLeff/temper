@@ -1,6 +1,6 @@
 # Native-21 prototype lot: order plan (prepared, NOT ordered)
 
-Re-pointed to stage 56 on 2026-11-24 (board `27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263`, copper key `cf4d7c896672`; DECISIONS 85, 86). `owner-items/order/scripts/check_order_docs.py` fails if this file, the order package or the CPL checklist drifts from the board of record: run it before ordering. Sources, one per block:
+Re-pointed to stage 57 on 2026-11-25 (board `25596d8eff460eabab3c538c83daea0d88eb1135fd7ae1519d8cc30a4f32421a`, copper key `a4a2e176134f`; DECISIONS 85, 86, 87). `owner-items/order/scripts/check_order_docs.py` fails if this file, the order package or the CPL checklist drifts from the board of record: run it before ordering. Sources, one per block:
 
 | Block | Committed source |
 | --- | --- |
@@ -9,7 +9,7 @@ Re-pointed to stage 56 on 2026-11-24 (board `27f20b786d52aea937f52bfbeb0af43e93e
 | Stock at 20 boards | `owner-items/order/proto-stock-s56-20boards.csv`, from `owner-items/order/scripts/proto_stock.py` (asserts agreement with the scorecard's `bom_lines_short_proto`); dated reads `sourcing/STOCK-2026-10-18-consign-r1.csv` (the consign-r1 lines), `STOCK-2026-10-16.csv`, `STOCK-2026-10-16-bank-s52.csv` over `SNAPSHOT-2026-10-15.csv` |
 | Assembly routes | consign-r1 package, owner 2026-10-18 (`../../11-candidates/consign-r1/README.md`, `../../11-candidates/consign-r1/DECISIONS-DRAFT.md`); written into the BOM by `scripts/apply_lcsc.py` (ORDER_PLAN, ORDER_VARIANT) |
 | Bank, L1, Y caps, EMI, 24 A ceiling | DECISIONS 74; `../../11-candidates/s52-proto-bom/README.md` |
-| Scorecard | `../../10-benchmark/scorecard-native21s56.json` |
+| Scorecard | `../../10-benchmark/scorecard-native21s57.json` |
 | Owner decisions | OWNER 2026-10-16: lot of 10–20 boards, stock gate sized at 20; prototype bank B32643H8104J000; certifier-driven provisions go in s53 (`S53-SCOPE.md`) |
 | Bench plan | `../../../COMMISSIONING.md`, D-8, `native-21/BRINGUP-PROBES.md`, `owner-items/CERTIFIER-CHECKLIST.md`, OPEN-ITEMS S1, S6, S14, S15 |
 
@@ -21,7 +21,7 @@ is carted or ordered. `owner-items/order/ORDER-PACKAGE.md` holds the supporting 
 
 | Item | Choice | Source |
 | --- | --- | --- |
-| Bare PCBs | **10 to 20** from `fab/native-21-gerbers.zip` (SHA-256 `81b391a921e510b83a088885419fdba3e6b9004a2309e6002de7b693c75de86d`); the stock gate is sized at 20 | owner decision 2026-10-16; FAB-NOTE |
+| Bare PCBs | **10 to 20** from `fab/native-21-gerbers.zip` (SHA-256 `f91513c5ce1163b758912ec1e4899f406645d0471d9a5bce69a232e08157cea9`); the stock gate is sized at 20 | owner decision 2026-10-16; FAB-NOTE |
 | Size / layers | 290 × 190 mm L outline, **4 layers** (six layers was accepted on the data and not adopted on price, DECISIONS 40) | FAB-NOTE; DECISIONS 40 |
 | Stack-up | JLCPCB **JLC041622-7628**, 1.6 mm nominal; no thickness remark (DECISIONS 44) | FAB-NOTE; `stackup.json` |
 | Copper | **2 oz outer and 2 oz inner** | FAB-NOTE |
@@ -66,7 +66,7 @@ On a board preheated from below to ≥ 100 °C (heavy copper):
   bottom preheater for BR1 anyway.
 - **J6**, only if JLC Global Sourcing offers no supplier.
 
-Cost reference: `parts_usd_at_500_v2` is 175.47 per board on s56 (174.99 on the s53 order BOM; 175.04 on the s52 BOM before the J3 / J11 variant;
+Cost reference: `parts_usd_at_500_v2` is 175.47 per board on s56 and s57 (174.99 on the s53 order BOM; 175.04 on the s52 BOM before the J3 / J11 variant;
 s51: 169.77; DECISIONS 74: bank $6.83 against $1.52, L1 −$0.67, Y caps +$0.64, +$5.27 per board at 500). No prototype-lot parts
 total is claimed here, and Global Sourcing prices are only known at order; re-price at order.
 

@@ -1,11 +1,11 @@
-# Reviewer packet: Temper 120 V induction power board, native-21 stage 53 (section 0: now stage 56)
+# Reviewer packet: Temper 120 V induction power board, native-21 stage 53 (section 0: now stage 57)
 
 For a professional power-electronics PCB designer. Written 2026-10-18. Nothing here has been built or bench-tested.
 Every number names its source file. Paths are relative to PS = `zapote/power-stage-120v` in this repository, unless they
 start with `firmware/` (repository worktree root) or `runs-native21/` (the build directory beside the worktree, outside
 git). `VR` = `PS/validation-results`. `FILES.md` (this folder) lists every path.
 
-## 0. Read first: the board of record is now stage 56 (updated 2026-11-24)
+## 0. Read first: the board of record is now stage 57 (updated 2026-11-25)
 
 Sections 1–9 are the stage-53 packet, written 2026-10-18. Three stages have landed since. Where this section and a later one
 disagree, this section wins.
@@ -33,16 +33,16 @@ disagree, this section wins.
 | Touch current | 0.2412 / 0.25 mA | unchanged. The governing limit is recorded as 0.5 mA (UL grounded portable); first article measures it | item 81; `VR/11-candidates/c54-touch-current/` |
 | Datasheet ledger | 3 / 92 / 0 | still 3 VERIFIED / 92 PARTIAL / 0 VIOLATION. Every SIGNAL line now carries electrical ratings. The two desk findings are resolved: U13.A edge fixed at s55; C2 ripple 0.874 of rating at the release case, 28 A open | items 81–82; `VR/11-candidates/c54-ledger-desk/results/gap-classes.md` |
 
-**Files for s56** (s55's copper with R127 / R129 at 16 k, DECISIONS 85; they replace the section 2 rows for the routed board, 3D model and Gerbers):
-- **Routed board:** now in git at `VR/08-manufacturing-package/native-21/board-of-record-s56/` (`section.kicad_pcb`,
+**Files for s57** (s56 with the TO-247 holes at 1.8 mm, DECISIONS 87; they replace the section 2 rows for the routed board, 3D model and Gerbers):
+- **Routed board:** now in git at `VR/08-manufacturing-package/native-21/board-of-record-s57/` (`section.kicad_pcb`,
   `.kicad_sch`, `.kicad_dru`, `board.step`, `SHA256SUMS`). Board SHA-256
-  `27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263`, copper key `cf4d7c896672`.
-- **Gerbers:** zip SHA-256 `81b391a921e510b83a088885419fdba3e6b9004a2309e6002de7b693c75de86d`.
-- **Card:** `VR/10-benchmark/scorecard-native21s56.json`.
+  `25596d8eff460eabab3c538c83daea0d88eb1135fd7ae1519d8cc30a4f32421a`, copper key `a4a2e176134f`.
+- **Gerbers:** zip SHA-256 `f91513c5ce1163b758912ec1e4899f406645d0471d9a5bce69a232e08157cea9`.
+- **Card:** `VR/10-benchmark/scorecard-native21s57.json`.
 - **Counts:** 95 BOM lines, 374 placements, 786 vias (771 POFV 0.3 mm), 885 plated holes, DRC 0, JLC DFM PASS.
 
 **Section 9 items now fixed:** the FAB-NOTE via and hole counts (s55 census), the `PS/README.md` header and the
-`OPEN-ITEMS.md` header (both name s56).
+`OPEN-ITEMS.md` header (both name s57).
 
 ## 1. What the board is
 

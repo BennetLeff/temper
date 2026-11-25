@@ -34,6 +34,6 @@ what was executed and where the plan's fixes do not match the committed evidence
 
 ## Not started (and why)
 
-s56 is done and is BOM only (DECISIONS 85). C51's circuit is done on `controller-c51` (no layout). D-22, UI Rev 2, R45 CAD, coil former: each is its own stage with its own gates. B1, bench-h and D-8 need
+s56 is done and is BOM only (DECISIONS 85). s57 (FET holes 1.8 mm, DECISIONS 87) is built on it; independent review pending. C51's circuit is done on `controller-c51` (no layout). D-22, UI Rev 2, R45 CAD, coil former: each is its own stage with its own gates. B1, bench-h and D-8 need
 hardware. The JLC and Intertek emails, quotes and orders need the owner's go-ahead; the Intertek questions were already
 sent 2026-10-27, so a new message risks a duplicate.

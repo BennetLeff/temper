@@ -185,6 +185,12 @@ STAGE_FACTS["56"] = {
     "band_record_cite": "s52 solve carried to s56 (kelvin_budget.py s53–s56 notes, DECISIONS 75 / 81 / 82 / 85)",
 }
 
+# s57 (DECISIONS 87): Q2 / Q3 / Q5 / Q6 holes 1.5 -> 1.8 mm; no net, value or pose change; the facts above carry.
+STAGE_FACTS["57"] = {
+    **STAGE_FACTS["56"],
+    "band_record_cite": "s52 solve carried to s57 (kelvin_budget.py s53–s57 notes, DECISIONS 75 / 81 / 82 / 85 / 87)",
+}
+
 # role (ato address) -> designator the procedure and the threshold engine assume
 ROLES = {
     "r_shunt": "R5", "r_ocp_ref": "R32", "r_ocp_sense": "R33", "r_th_top": "R34", "r_th_bot": "R35",
