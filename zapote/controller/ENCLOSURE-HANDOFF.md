@@ -104,4 +104,3 @@ Heights above the board's top surface (bottom Z23, top Z24.6 since R30; Z40 leav
   43 dB(A), -20..70 C, pulse sensor, PWM. The page does not give PWM or sensor limits, and the duty of the 3.12 W is not stated. No h or flow study
   exists for a face fan: S24 must show flow reaching U26 and the board's hot spots, and the fan's 20 mm depth replaces the plan's 25.
 - **Controller board envelope:** the outline is unchanged.
-
