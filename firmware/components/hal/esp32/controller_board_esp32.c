@@ -122,6 +122,19 @@ static bool fan2_write(void *ctx, uint8_t reg, uint8_t value)
     return s_fan2 && i2c_master_transmit(s_fan2, b, sizeof b, 5) == ESP_OK;
 }
 
+/* C51 food-probe CS# (P06). The select write runs inside an RTD SPI bus hold, so its limit is short: the
+ * RMS ADC on the same bus drops a half-cycle after a 1.5 ms gap. */
+bool ctrl_board_food_cs_prepare(void)
+{
+    return s_exp && exp_write(TCA9555_REG_OUTPUT0, ctrl_exp_output0());
+}
+
+bool ctrl_board_food_cs(bool selected)
+{
+    uint8_t b[2] = {TCA9555_REG_CONFIG0, ctrl_exp_config0(selected)};
+    return s_exp && i2c_master_transmit(s_exp, b, sizeof b, 2) == ESP_OK;
+}
+
 static const emc2301_ops_t s_fan2_ops = {.read = fan2_read, .write = fan2_write, .ctx = NULL};
 
 bool ctrl_board_face_fan_service(uint8_t drive, emc2301_poll_t *out)

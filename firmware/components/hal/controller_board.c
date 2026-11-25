@@ -122,6 +122,16 @@ uint8_t ctrl_exp_output1(bool fan_off)
     return fan_off ? (uint8_t)0xFFu : (uint8_t)(0xFFu & ~bit);
 }
 
+uint8_t ctrl_exp_config0(bool food_cs_selected)
+{
+    return food_cs_selected ? (uint8_t)(0xFFu & ~(1u << CTRL_EXP_RTD_FOOD_CS_N)) : (uint8_t)0xFFu;
+}
+
+uint8_t ctrl_exp_output0(void)
+{
+    return (uint8_t)(0xFFu & ~(1u << CTRL_EXP_RTD_FOOD_CS_N));
+}
+
 size_t ctrl_exp_init_writes(bool fan_off_output, ctrl_i2c_write_t out[6])
 {
     size_t n = 0;
@@ -131,11 +141,11 @@ size_t ctrl_exp_init_writes(bool fan_off_output, ctrl_i2c_write_t out[6])
     if (fan_off_output) {
         /* FAN_OFF = 0 (blower on) latched before P15 becomes an output; others stay 1. */
         out[n++] = (ctrl_i2c_write_t){TCA9555_REG_OUTPUT1, ctrl_exp_output1(false)};
-        out[n++] = (ctrl_i2c_write_t){TCA9555_REG_CONFIG0, 0xFF};
+        out[n++] = (ctrl_i2c_write_t){TCA9555_REG_CONFIG0, ctrl_exp_config0(false)};
         out[n++] = (ctrl_i2c_write_t){TCA9555_REG_CONFIG1,
                                       (uint8_t)(0xFFu & ~(1u << (CTRL_EXP_FAN_OFF - 8)))};
     } else {
-        out[n++] = (ctrl_i2c_write_t){TCA9555_REG_CONFIG0, 0xFF};
+        out[n++] = (ctrl_i2c_write_t){TCA9555_REG_CONFIG0, ctrl_exp_config0(false)};
         out[n++] = (ctrl_i2c_write_t){TCA9555_REG_CONFIG1, 0xFF};
     }
     return n;

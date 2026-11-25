@@ -7,6 +7,7 @@ idf_component_register(
         "state_machine.c"
         "state_handlers.c"
         "thermal_io.c"
+        "food_rtd_esp32.c"
         "pan_control.c"
         "pan_io.c"
         "soak_store_nvs.c"
@@ -43,6 +44,7 @@ idf_component_register(
         "../components/sensors/rtd_service.c"
         "../components/sensors/rtd_convert.c"
         "../components/sensors/rtd_food.c"
+        "../components/sensors/rtd_food_service.c"
         "../components/sensors/rim_ntc.c"
         "../components/sensors/hs_ntc.c"
         # Platform layer (ESP-IDF only; host doubles in test/state_machine_stubs.c)

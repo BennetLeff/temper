@@ -210,6 +210,14 @@ target_link_libraries(test_rtd_food m)
 target_compile_options(test_rtd_food PRIVATE -UNDEBUG -Wall -Wextra -Werror)
 add_test(NAME rtd_food_tests COMMAND test_rtd_food)
 
+# C51 food-probe RTD service: bus discipline on the shared RTD SPI bus, unplug / open lead / stale config.
+add_executable(test_rtd_food_service test_rtd_food_service.c ../components/sensors/rtd_food_service.c
+               ../components/sensors/rtd_food.c ../components/sensors/rtd_convert.c)
+target_include_directories(test_rtd_food_service PRIVATE ../components/sensors/include ../components/hal/include)
+target_link_libraries(test_rtd_food_service m)
+target_compile_options(test_rtd_food_service PRIVATE -UNDEBUG -Wall -Wextra -Werror)
+add_test(NAME rtd_food_service_tests COMMAND test_rtd_food_service)
+
 # EMC2301 face-fan driver (controller C51) against a register model of its watchdog.
 add_executable(test_emc2301_only
     ${UNITY_SOURCES}

@@ -418,6 +418,23 @@ static void test_blw_pg_debounce(void)
     assert(z.blw_pg == CTRL_BLW_PG_UNKNOWN);
 }
 
+/* C51 food-probe CS# (P06): selected = P06 an output driving its latch 0; released = every port-0 pin an
+ * input, as the init plan leaves it, so R136 deselects. Nothing else on port 0 ever becomes an output. */
+static void test_food_cs_on_p06_only(void)
+{
+    const uint8_t bit = (uint8_t)(1u << CTRL_EXP_RTD_FOOD_CS_N);
+    assert(CTRL_EXP_RTD_FOOD_CS_N < 8);
+    assert(ctrl_exp_config0(false) == 0xFF);
+    assert(ctrl_exp_config0(true) == (uint8_t)(0xFFu & ~bit));
+    assert(!(ctrl_exp_output0() & bit));
+    ctrl_i2c_write_t w[6];
+    for (int fo = 0; fo <= 1; fo++) {
+        size_t n = ctrl_exp_init_writes(fo != 0, w);
+        for (size_t i = 0; i < n; i++)
+            if (w[i].reg == TCA9555_REG_CONFIG0) assert(w[i].value == ctrl_exp_config0(false));
+    }
+}
+
 int main(void)
 {
     TEST(test_no_duplicate_gpio_or_net);
@@ -431,6 +448,7 @@ int main(void)
     TEST(test_expander_plan_and_decode);
     TEST(test_blw_pg_stays_input);
     TEST(test_blw_pg_debounce);
+    TEST(test_food_cs_on_p06_only);
     printf("controller pin map: %u tests passed\n", tests);
     return 0;
 }

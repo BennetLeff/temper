@@ -119,8 +119,8 @@
                                          * <= 0.30 V without it (controller_calcs.py blw_pg()).
                                          * Input only: CONFIG1 bit 6 is never cleared. */
 #define CTRL_EXP_RTD_FOOD_DRDY_N    5   /* P05, food-probe MAX31865 DRDY#, active low (C51); input, 10 k pull-up not fitted: the part drives it */
-#define CTRL_EXP_RTD_FOOD_CS_N      6   /* P06, food-probe MAX31865 CS# (C51). Stays an INPUT here: 10 k to v3v3 (R136)
-                                         * deselects the part until its driver exists. */
+#define CTRL_EXP_RTD_FOOD_CS_N      6   /* P06, food-probe MAX31865 CS# (C51). An input (R136 10 k to v3v3 deselects) except
+                                         * during one U50 transfer, when it drives its latch 0 (rtd_food_service.h). */
 #define CTRL_EXP_BAY_FAN_ALERT_N   15   /* P17, EMC2301 (0x2F) ALERT#, active low, 10 k pull-up (C51); input */
 
 #endif

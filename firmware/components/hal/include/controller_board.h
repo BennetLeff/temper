@@ -104,6 +104,11 @@ typedef struct { uint8_t reg, value; } ctrl_i2c_write_t;
 size_t ctrl_exp_init_writes(bool fan_off_output, ctrl_i2c_write_t out[6]);
 /* OUTPUT1 value for a FAN_OFF request: only P15 is an output, the other port-1 bits stay 1. */
 uint8_t ctrl_exp_output1(bool fan_off);
+/* CONFIG0 value: all port-0 pins inputs (the init plan's), or P06 (food-probe CS#, C51) an output to select
+ * U50. OUTPUT0 value: P06 latch 0, written once before the first select; the other port-0 pins are inputs,
+ * so their latches do nothing. */
+uint8_t ctrl_exp_config0(bool food_cs_selected);
+uint8_t ctrl_exp_output0(void);
 
 typedef struct {
     bool rtd_drdy;      /* P07 low: a MAX31865 conversion is ready */
@@ -190,6 +195,11 @@ bool ctrl_board_blower_tach_count(uint16_t *count);
  * apart: (re)initialises the part until it answers, then services it. If this is not called, or the bus
  * fails, the part's continuous watchdog drives the fan to 100 % within 4 s. */
 bool ctrl_board_face_fan_service(uint8_t drive, emc2301_poll_t *out);
+/* C51 food-probe CS# (TCA9555 P06). prepare: OUTPUT0 with the P06 latch 0, once, outside any SPI hold.
+ * select: CONFIG0 = ctrl_exp_config0(selected), one I2C write with a 2 ms limit; called only while the
+ * caller holds the RTD SPI bus (rtd_food_service.h). */
+bool ctrl_board_food_cs_prepare(void);
+bool ctrl_board_food_cs(bool selected);
 #endif
 
 #endif

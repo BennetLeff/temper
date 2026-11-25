@@ -23,6 +23,7 @@
 #include "state_machine.h"
 #include "hal.h"
 #include <math.h>
+#include "food_rtd.h"
 #include "controller_board.h"
 #include "esp_timer.h"
 #include "rtd_service.h"
@@ -156,6 +157,9 @@ static void monitor_task(void *arg) {
          * (thermal_io.c / thermal_mgmt.c blower_ctrl_step()). 100 ms = its BLOWER_TICK_S. */
         thermal_blower_tick();
 
+        /* C51 food probe (J9): at most one short RTD-bus hold per tick (rtd_food_service.h). */
+        food_rtd_tick();
+
         /* C51 face fan (J15): full drive until the bay-NTC fan law exists. Serviced once a second; the
          * EMC2301 watchdog takes it to 100 % if this task stops for 4 s. */
         if (++face_fan_ticks >= EMC2301_SERVICE_PERIOD_MS / MONITOR_LOOP_PERIOD_MS) {
@@ -167,8 +171,11 @@ static void monitor_task(void *arg) {
                 face_fan_logs = 0;
                 float bay_c = NAN;
                 bool bay_ok = read_bay_temperature(&bay_c);
-                ESP_LOGI(TAG, "bay %s %.1f C, face fan %s drive %u tach %u", bay_ok ? "ok" : "no reading", (double)bay_c,
-                         fan_ok ? "ok" : "unserviced", (unsigned)fan2.drive, (unsigned)fan2.tach_count);
+                float food_c = NAN;
+                rtd_food_state_t food = food_rtd_read(&food_c);
+                ESP_LOGI(TAG, "bay %s %.1f C, face fan %s drive %u tach %u, food probe state %d %.2f C",
+                         bay_ok ? "ok" : "no reading", (double)bay_c, fan_ok ? "ok" : "unserviced",
+                         (unsigned)fan2.drive, (unsigned)fan2.tach_count, (int)food, (double)food_c);
             }
         }
 

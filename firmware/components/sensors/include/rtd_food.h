@@ -36,6 +36,8 @@ typedef enum {
     RTD_FOOD_UNPLUGGED,   /* D5: FORCE+ open (probe out) */
     RTD_FOOD_OPEN_LEAD,   /* code outside the window: one sense lead open, or a short */
     RTD_FOOD_INPUT_FAULT, /* D4..D2: the input circuit, not the temperature */
+    RTD_FOOD_NO_READING,  /* service: starting, or a transfer failed */
+    RTD_FOOD_LINK_STUCK,  /* service: CS# could not be released; channel stopped until reset */
 } rtd_food_state_t;
 
 /* Window as code ratios: about -36 C and 380 C (rtd_food_unplug's proposal). */
