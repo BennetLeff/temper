@@ -1,15 +1,15 @@
 # Native-21 prototype lot: order plan (prepared, NOT ordered)
 
-Regenerated for s52 on 2026-10-16 and re-pointed to s53 (integration board `82af7bd93e62…`, copper key `b7a0bc5790b9`; the s53 BOM is the s52 BOM). Sources, one per block:
+Re-pointed to stage 56 on 2026-11-24 (board `27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263`, copper key `cf4d7c896672`; DECISIONS 85, 86). `owner-items/order/scripts/check_order_docs.py` fails if this file, the order package or the CPL checklist drifts from the board of record: run it before ordering. Sources, one per block:
 
 | Block | Committed source |
 | --- | --- |
-| Board, fab, via covering, laminate, finish | `fab/FAB-NOTE.md` (s52), `../../../native-21/stackup.json`, DECISIONS 40, 41, 44 |
-| BOM and CPL | `fab/bom-jlcpcb.csv` (95 lines), **`fab/cpl-jlcpcb-order.csv`** (372 rows, the file to upload to JLC: rotation-corrected and Y-negated), `fab/cpl-jlcpcb.csv` (the uncorrected positive-Y source), `cpl-rotation-audit/audit.csv` |
-| Stock at 20 boards | `owner-items/order/proto-stock-s52-20boards.csv`, from `owner-items/order/scripts/proto_stock.py` (asserts agreement with the scorecard's `bom_lines_short_proto`); dated reads `sourcing/STOCK-2026-10-18-consign-r1.csv` (the consign-r1 lines), `STOCK-2026-10-16.csv`, `STOCK-2026-10-16-bank-s52.csv` over `SNAPSHOT-2026-10-15.csv` |
+| Board, fab, via covering, laminate, finish | `fab/FAB-NOTE.md`, `../../../native-21/stackup.json`, DECISIONS 40, 41, 44 |
+| BOM and CPL | `fab/bom-jlcpcb.csv` (95 lines), **`fab/cpl-jlcpcb-order.csv`** (374 rows, the file to upload to JLC: rotation-corrected and Y-negated), `fab/cpl-jlcpcb.csv` (the uncorrected positive-Y source), `cpl-rotation-audit/audit.csv` |
+| Stock at 20 boards | `owner-items/order/proto-stock-s56-20boards.csv`, from `owner-items/order/scripts/proto_stock.py` (asserts agreement with the scorecard's `bom_lines_short_proto`); dated reads `sourcing/STOCK-2026-10-18-consign-r1.csv` (the consign-r1 lines), `STOCK-2026-10-16.csv`, `STOCK-2026-10-16-bank-s52.csv` over `SNAPSHOT-2026-10-15.csv` |
 | Assembly routes | consign-r1 package, owner 2026-10-18 (`../../11-candidates/consign-r1/README.md`, `../../11-candidates/consign-r1/DECISIONS-DRAFT.md`); written into the BOM by `scripts/apply_lcsc.py` (ORDER_PLAN, ORDER_VARIANT) |
 | Bank, L1, Y caps, EMI, 24 A ceiling | DECISIONS 74; `../../11-candidates/s52-proto-bom/README.md` |
-| Scorecard | `../../10-benchmark/scorecard-native21s53.json` |
+| Scorecard | `../../10-benchmark/scorecard-native21s56.json` |
 | Owner decisions | OWNER 2026-10-16: lot of 10–20 boards, stock gate sized at 20; prototype bank B32643H8104J000; certifier-driven provisions go in s53 (`S53-SCOPE.md`) |
 | Bench plan | `../../../COMMISSIONING.md`, D-8, `native-21/BRINGUP-PROBES.md`, `owner-items/CERTIFIER-CHECKLIST.md`, OPEN-ITEMS S1, S6, S14, S15 |
 
@@ -21,7 +21,7 @@ is carted or ordered. `owner-items/order/ORDER-PACKAGE.md` holds the supporting 
 
 | Item | Choice | Source |
 | --- | --- | --- |
-| Bare PCBs | **10 to 20** from `fab/native-21-gerbers.zip` (SHA-256 `a6afd37a…ddc`); the stock gate is sized at 20 | owner decision 2026-10-16; FAB-NOTE |
+| Bare PCBs | **10 to 20** from `fab/native-21-gerbers.zip` (SHA-256 `81b391a921e510b83a088885419fdba3e6b9004a2309e6002de7b693c75de86d`); the stock gate is sized at 20 | owner decision 2026-10-16; FAB-NOTE |
 | Size / layers | 290 × 190 mm L outline, **4 layers** (six layers was accepted on the data and not adopted on price, DECISIONS 40) | FAB-NOTE; DECISIONS 40 |
 | Stack-up | JLCPCB **JLC041622-7628**, 1.6 mm nominal; no thickness remark (DECISIONS 44) | FAB-NOTE; `stackup.json` |
 | Copper | **2 oz outer and 2 oz inner** | FAB-NOTE |
@@ -31,9 +31,9 @@ is carted or ordered. `owner-items/order/ORDER-PACKAGE.md` holds the supporting 
 | Via covering | **Epoxy-filled and capped (POFV) for every 0.3 mm via, no exceptions**; the ten 1.6/0.8 mm current vias stay tented | FAB-NOTE |
 | Stencil | J2 / J5 want 150 µm paste; fine-pitch stencil not chosen (B6, decide at order) | OPEN-ITEMS B6 |
 | Quoted bare board | $17.28 per board at 500 (4 L, JLC041622-7628 pinned); no prototype-quantity figure on record for the s52 spec | DECISIONS 40 |
-| SMT assembly | From `fab/bom-jlcpcb.csv` + `fab/cpl-jlcpcb-order.csv` (upload this one: `fab/cpl-jlcpcb.csv` previews mirrored off the board in JLC's viewer): **95 BOM lines, 372 CPL rows.** **92 lines are assembled by JLC** (19 Basic, 73 Extended), every fitted THT part included; **3 are left to the owner**: BR1 and RV1 (Do Not Place at JLC) and the F1 cartridge, plus the F1 clips (`fab/hand-assembly-extras.csv`). Of the 92, one line is **consigned** (the FETs) and the rest come from JLC stock, JLC pre-order or JLC Global Sourcing (below). How many boards JLC assembles is the owner's choice inside the lot; the stock bound is 20 | BOM Assembly column |
-| CPL | OK 299 / CORRECTED 32 / NEEDS-PREVIEW **31** / excluded 10 (BR1, RV1, F1, and the bank and D3 / D17, which carry no LCSC number). Confirm the 31 in JLC's preview, and place the bank and D3 / D17 by hand in it, with `owner-items/order/CPL-PREVIEW-CHECKLIST.md` before confirming the order | `cpl-rotation-audit/audit.csv` |
-| Order remarks | "Q2/Q3/Q5/Q6 (TO-247): seat the package on the lead shoulders, not flush on the board. Trim every through-hole lead to 2.5 mm or less below the board bottom after soldering. The bank C21–C23/C151/C152 goes in the 22.5 mm holes (pad 2 at x 185.5); leave the five x 190.5 holes open and unsoldered. BR1 is Do Not Place: leave BR1, RV1 and the F1 clips unfitted. Tick H on the bank-fit silk mark." | FAB-NOTE, Assembly |
+| SMT assembly | From `fab/bom-jlcpcb.csv` + `fab/cpl-jlcpcb-order.csv` (upload this one: `fab/cpl-jlcpcb.csv` previews mirrored off the board in JLC's viewer): **95 BOM lines, 374 CPL rows.** **91 lines are assembled by JLC** (18 Basic, 73 Extended), every fitted THT part included; **4 are left to the owner**: Q2 / Q3 / Q5 / Q6 (Do Not Place, DECISIONS 86), BR1 and RV1 (Do Not Place at JLC) and the F1 cartridge, plus the F1 clips (`fab/hand-assembly-extras.csv`). Nothing is consigned; the 91 come from JLC stock, JLC pre-order or JLC Global Sourcing (below). How many boards JLC assembles is the owner's choice inside the lot; the stock bound is 20 | BOM Assembly column |
+| CPL | OK 296 / CORRECTED 33 / NEEDS-PREVIEW **31** / excluded 14 (Q2 / Q3 / Q5 / Q6, BR1, RV1, F1, and the bank and D3 / D17, which carry no LCSC number). Confirm the 31 in JLC's preview, and place the bank and D3 / D17 by hand in it, with `owner-items/order/CPL-PREVIEW-CHECKLIST.md` before confirming the order | `cpl-rotation-audit/audit.csv` |
+| Order remarks | "Q2, Q3, Q5, Q6 (TO-247) and BR1 are Do Not Place: leave their holes open and unsoldered. Trim every through-hole lead to 2.5 mm or less below the board bottom after soldering. The bank C21–C23/C151/C152 goes in the 22.5 mm holes (pad 2 at x 185.5); leave the five x 190.5 holes open and unsoldered. Leave RV1 and the F1 clips unfitted. Tick H on the bank-fit silk mark." | FAB-NOTE, Assembly |
 
 **Assembly routes (consign-r1 package, accepted by the owner 2026-10-18: "JLC does as much as possible; through-hole hand work is fine when it can't be avoided").**
 - **JLC Global Sourcing** (JLC buys from the named distributor; each part must be in JLC's warehouse before the PCBA order; no batch
@@ -41,9 +41,8 @@ is carted or ordered. `owner-items/order/ORDER-PACKAGE.md` holds the supporting 
   C22466894**, a different non-/R product; MSL 3, have JLC bake it), the bank **TDK B32643H8104J000** (no public LCSC number:
   select the private-library stock at the BOM step), C5 / C6, L1, D3 / D17 (**Good-Ark** 30KPA150CA; not JLC's Littelfuse-branded
   C19111562), F2, J2 / J5, and J6 if JLC lists a supplier (else J6 is Do Not Place and the owner fits it).
-- **Consigned:** Q2 / Q3 / Q5 / Q6 IPW65R018CFD7 from the single 120-piece DigiKey lot (D-8 lot traceability): ship 84 to JLC (80
-  placements + 4 spare), keep 36. All 80 placements come from the consigned stock: JLC does not mix sources for one MPN in an order.
-  JLC hand-solders them, seated on the lead shoulders.
+- **Do Not Place, kept by the owner (DECISIONS 86):** Q2 / Q3 / Q5 / Q6 IPW65R018CFD7, the single 120-piece DigiKey lot (D-8 lot
+  traceability): 80 for the boards, 40 for D-8 and rework. None go to JLC.
 - **Reserved by JLC pre-order** (JLC's own stock; no custom lot numbers): C1 / C2, T1, U5.
 - **Order-file variant:** J3 / J11 are ordered as the grey JST **B2P3-VH-H(LF)(SN)**, C160900 (JLC 5,610), the same header in a
   grey housing; the frozen netlist keeps B2P3-VH(LF)(SN).
@@ -52,6 +51,8 @@ is carted or ordered. `owner-items/order/ORDER-PACKAGE.md` holds the supporting 
 
 **Owner hand assembly (through-hole only; the owner's bench has no SMD gear, and none is needed now: U41 / U42 are JLC's).**
 On a board preheated from below to ≥ 100 °C (heavy copper):
+- **Q2 / Q3 / Q5 / Q6 (DECISIONS 86), Do Not Place at JLC:** soldered with all four tabs clamped on the M11 seating fixture (coplanar
+  within 0.05 mm). The fixture is not designed yet (OPEN-ITEMS S32).
 - **BR1 (GBJ2510-F), Do Not Place at JLC; the owner fits it before mains.** It is the only mains-to-bus path. With it out, PS2 runs
   from mains while the bus is fed from a bench DC supply, so nothing back-feeds PS2's output (bring-up with BR1 not fitted:
   `firmware/components/power/COMMISSIONING.md`, commission-s53).
@@ -65,13 +66,13 @@ On a board preheated from below to ≥ 100 °C (heavy copper):
   bottom preheater for BR1 anyway.
 - **J6**, only if JLC Global Sourcing offers no supplier.
 
-Cost reference: `parts_usd_at_500_v2` is 174.99 per board on the order BOM (175.04 on the s52 BOM before the J3 / J11 variant;
+Cost reference: `parts_usd_at_500_v2` is 175.47 per board on s56 (174.99 on the s53 order BOM; 175.04 on the s52 BOM before the J3 / J11 variant;
 s51: 169.77; DECISIONS 74: bank $6.83 against $1.52, L1 −$0.67, Y caps +$0.64, +$5.27 per board at 500). No prototype-lot parts
 total is claimed here, and Global Sourcing prices are only known at order; re-price at order.
 
 ## Parts to buy before ordering
 
-Basis: `owner-items/order/proto-stock-s52-20boards.csv`: every fitted line against qty_per_board × 20 boards, on the scorecard's
+Basis: `owner-items/order/proto-stock-s56-20boards.csv` (no new stock read: s56's dates are below): every fitted line against qty_per_board × 20 boards, on the scorecard's
 stock-gate rules (buildable = the larger of JLC library stock and one authorised distributor, never a sum; brokers count 0).
 **Short lines at 20 boards: 0.** Dated reads are 2026-10-18 for the consign-r1 lines (`sourcing/STOCK-2026-10-18-consign-r1.csv`:
 JLC part API plus Octopart's public distributor pages; F2's DigiKey figure is a browser read of DigiKey's product page), 2026-10-16
@@ -107,8 +108,7 @@ apply when shipping to the US; shipping not priced). JLC's own BOM-review page t
 - The lot needs 80 (4 per board x 20 boards). 80 at the 60-break is $11.4205 each = $913.64. Buying 120 costs $1,281.51, so the
   extra 40 cost $367.87 ($9.20 each, below the 80-part price). Recommended: the MOSFETs are the parts most likely to be destroyed
   in bring-up and the D-8 double-pulse bench, and the lot guidance asks for one recorded lot (D-8 lot traceability).
-- Consign 84 of them to JLC (owner 2026-10-18): JLC hand-solders the TO-247 row from the consigned stock only (JLC holds 6, and
-  JLC does not mix sources for one MPN in an order); keep 36 for D-8 and rework.
+- All 120 stay with the owner (DECISIONS 86, replacing the 2026-10-18 consignment of 84): 80 for the boards, 40 for D-8 and rework.
 - The saving against JLC's $20.64 is about $37 per board at 80 parts (4 x ($20.64 - $11.42)).
 
 Every other line is covered by JLC stock at 20 boards (CSV). **Fixings:** M3 nylon (UL94 V-0) screws, washers and standoffs for
@@ -137,13 +137,12 @@ pre-compliance decides; fitting the 2203 (12.37 dB) is the fallback.
    evidence was refreshed on the s51 matrices (252/252 on both legs). Not an independent re-review.
 2. **Enclosure bosses: closed by decision (DECISIONS 76).** The board has 10 mounting holes; R43 supports seven (H1, H3–H8, 0.00 mm
    offset, `c53-astra-results/local/bosses/`). H2, H9 and H10 stay empty: no hardware, no board change.
-3. JLC's laminate answer (S12), then fix the order remark and `stackup.json` together.
+3. JLC's laminate answer (S12, asked 2026-11-24), then fix the order remark and `stackup.json` together.
 4. FAB-NOTE's pre-order tier: F6 and S3 re-run on the native-21 FEM corrections (done, DECISIONS 77), M11
-   heatsink stack parts sourced, and the parts above secured: every **Global Sourcing** line in JLC's parts warehouse, the
-   **consigned FET lot** received by JLC, and the **C1 / C2, T1, U5 pre-orders** placed, all before the PCBA order (JLC needs the
+   heatsink stack parts sourced, and the parts above secured: every **Global Sourcing** line in JLC's parts warehouse, and the **C1 / C2, T1, U5 pre-orders** placed, all before the PCBA order (JLC needs the
    parts in its warehouse first). Global Sourcing can cancel a part it judges unassemblable: re-plan that line (consign it, or
    leave it Do Not Place for the owner) rather than order without it.
-4a. **Owner bench:** a bottom preheater (≥ 100 °C) for BR1, RV1 and the F1 clips.
+4a. **Owner bench:** a bottom preheater (≥ 100 °C) for the FETs, BR1, RV1 and the F1 clips, and the M11 seating fixture (OPEN-ITEMS S32).
 5. **Module:** the inlet module with ≥ 100 µH DM per line, or the EMI deviation accepted in writing.
 6. **CPL:** the 31 NEEDS-PREVIEW parts confirmed in JLC's preview, and the bank and D3 / D17 placed in it (`CPL-PREVIEW-CHECKLIST.md`).
 7. **Bank stock re-read** (≥ 100 at one distributor before the Global Sourcing request, else KNSCHA). **S25 timing changes with

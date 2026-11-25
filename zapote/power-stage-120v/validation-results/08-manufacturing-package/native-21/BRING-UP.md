@@ -45,7 +45,7 @@ firmware and Kconfig symbol names, and every COMMISSIONING step named here exist
 | Before power | Build and measure the coil | "The coil" below; `output/temper-coil-r1/` |
 | Desk | Host suite, ESP-IDF build, pin-map check | COMMISSIONING step 0 |
 | SELV only | Controller alone, bench 15 V into J13 (current limit and checks in step 1). Flash over the Tag-Connect TC2050 with the programmer's 3V3 pin not driven | COMMISSIONING step 1 |
-| Mains on PS2, bus dead | Logic and gate supplies, PWM, interlock, BIAS_GOOD (GPIO35) checks; gates disconnected | COMMISSIONING step 2 |
+| Mains on PS2, bus dead | Logic and gate supplies, PWM, interlock, BIAS_GOOD (GPIO35) checks; gates disconnected. Also record V24_RAW and U41 / U42 CTRL from a cold start and again after a warm soak, with both modules up (DECISIONS 85: 3.06 V minimum expected against RECOM's 2.1 V maximum threshold) | COMMISSIONING step 2; the CTRL readings: this row |
 | Mains on PS2, bus from DC | CT, OCP and OVP trip calibration | COMMISSIONING step 3 |
 | Mains on PS2, bus from DC | First switching, ZVS, resonance map, phase calibration, with gates and coil connected | COMMISSIONING step 4 |
 | Unpowered | The owner fits BR1; hv_ret–PE tie removed | COMMISSIONING step 4b; bench-sink §6.3 |

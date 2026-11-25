@@ -1,13 +1,13 @@
-# Reviewer packet: Temper 120 V induction power board, native-21 stage 53 (section 0: now stage 55)
+# Reviewer packet: Temper 120 V induction power board, native-21 stage 53 (section 0: now stage 56)
 
 For a professional power-electronics PCB designer. Written 2026-10-18. Nothing here has been built or bench-tested.
 Every number names its source file. Paths are relative to PS = `zapote/power-stage-120v` in this repository, unless they
 start with `firmware/` (repository worktree root) or `runs-native21/` (the build directory beside the worktree, outside
 git). `VR` = `PS/validation-results`. `FILES.md` (this folder) lists every path.
 
-## 0. Read first: the board of record is now stage 55 (updated 2026-10-20)
+## 0. Read first: the board of record is now stage 56 (updated 2026-11-24)
 
-Sections 1–9 are the stage-53 packet, written 2026-10-18. Two stages have landed since. Where this section and a later one
+Sections 1–9 are the stage-53 packet, written 2026-10-18. Three stages have landed since. Where this section and a later one
 disagree, this section wins.
 
 - **Stage 54** (`PS/DECISIONS.md` item 81, `VR/11-candidates/c54-board/README.md`), the c54 lanes the s53 text calls "running":
@@ -22,7 +22,10 @@ disagree, this section wins.
   - The SELV-spine lock was reissued on the new board.
   - The C2 X2 ripple rating was re-read from KEMET's graph: 1.97 A for 1 µF, not 1.5 A.
 
-| Section 5 row | s53 (below) | s55 | Source |
+- **Stage 56** (item 85, `VR/11-candidates/c56-s56-scope/README.md`): R127 / R129, the U41 / U42 CTRL dividers, 27 k → 16 k. BOM only;
+  copper is s55's, so the s55 column below holds. Item 86: Q2 / Q3 / Q5 / Q6 are not placed by JLC.
+
+| Section 5 row | s53 (below) | s55 / s56 | Source |
 |---|---|---|---|
 | Release thermal margin | +1.3 K, R10 binding | **+3.8 K**, now bound by the laminate 1 mm-block copper peak; R10 +12.9 K | item 81; card `b3_release_margin_K` |
 | J1 cord terminal | 103.1 / 105 °C on a scaled curve | **94.8 / 105 °C, +10.2 K** (two-node clamp model, 14 AWG lead; gated B3 row) | item 81; `VR/11-candidates/c54-j1-thermal/` |
