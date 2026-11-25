@@ -3,11 +3,15 @@
 Prompted by the U30 defect on the controller (land of the wrong package through every gate) and the external review's list.
 `compare_lands.py RAW_DIR` distils the public EasyEDA/LCEDA records, and reruns from `jlc-pads.json` without it.
 
-**Not checked:** the lines the library has no record for, or whose request was refused, are printed as NOT CHECKED and are not passed.
-They include the review's U41/U42 (RECOM), T1 (CT), L1, J2/J5, F2, J6 and R130, all with custom lands. They need the maker's drawing.
-**F1 and BR1 have no JLC code in the BOM (owner-supplied / hand-fitted), so nothing here checks them.** J4 (C491447) had JLC geometry in
-the first screen. Result: 15 of 26 PASS, 11 not checked: three standard chip resistors (R51, R71, R132) and the custom or
-through-hole lands C1/C2, L1, T1, J2/J5, F2, R130, J6, U41/U42, which with F1 and BR1 need a maker-drawing check before the s56 order.
+**`drawing_lands.py` (2026-11-25):** the remaining lines against maker drawings on disk, and the hand-fitted parts the BOM
+gives no JLC code (F1, RV1, BR1, Q2/Q3/Q5/Q6, the bank caps, D3/D17), which no pad check had covered.
+Not checked: J2/J5 and RV1 (no sheet on disk), and three standard chip sizes. Negative control: moving one T1 pad 0.3 mm in a
+copy of the script makes T1 FAIL.
+
+**One FAIL: the FET holes.** Infineon's outline allows a lead up to 1.40 x 0.89 mm (1.66 mm diagonal); the TO-247 holes are 1.5 mm.
+The drawing does not bound the typical lead, so leads may or may not fit; whether they do is known only from a fitted part or a larger hole.
+1.8 mm in the 2.5 mm wide pad would leave 0.35 mm of copper each side. Nothing was changed: s56 is the board of record and the change needs
+its own stage (copper, B3 and scorecard). The FETs are DNP at JLC and fitted later, so it is a bench item unless a stage is opened.
 
 **Measure:** pad centres only (RMS at the best 90 degree rotation, limit 0.30 mm), as `check_land_patterns.py`. Not pad size, height or pin 1.
 

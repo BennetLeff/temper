@@ -1,0 +1,174 @@
+[
+ {
+  "ref": "U41",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "RECOM R24C2T25/R Rev. 1-2024 p.12 recommended footprint (sha 2e8133d235cb)"
+ },
+ {
+  "ref": "U42",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "as U41"
+ },
+ {
+  "ref": "T1",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "Coilcraft CST3015 doc 1608-2 rev 09/08/25 p.2 land pattern (sha 0da51f0ee583)"
+ },
+ {
+  "ref": "F2",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "Schurter UMT-H p.2 soldering pads (sha bac65726cd08): 10 mm gap, 3.75 x 5.6"
+ },
+ {
+  "ref": "J6",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "Phoenix 1704004 p.7 drilling plan (sha 068a14900fa7): 15.24 mm, hole 1.4"
+ },
+ {
+  "ref": "C1",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "KEMET R46 F3095 (sha 5a3131ce8de7): 22.5 +/-0.4, lead 0.8"
+ },
+ {
+  "ref": "C2",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "as C1"
+ },
+ {
+  "ref": "BR1",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "Diodes GBJ2510 DS21221 rev 11-2 (sha c7d965771158): 10.0, 7.5, 7.5; lead 1.1 x 0.8 max diagonal 1.36"
+ },
+ {
+  "ref": "R130",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "Vishay AC05 (sha 246742c2396d): lead 0.8 +/-0.03, body 7.5 max, mounted upright: pitch is ours, no drawing"
+ },
+ {
+  "ref": "L1",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "TDK B82726S22*3A020 data sheet as transcribed in elec/src/parts.ato (sheet not on disk): 10 mm in a row, 25 mm between, 2 mm pins"
+ },
+ {
+  "ref": "Q2",
+  "verdict": "FAIL",
+  "worst_mm": 0.0,
+  "why": [
+   "pad 1 hole 1.5, maximum lead diagonal 1.659",
+   "pad 2 hole 1.5, maximum lead diagonal 1.659",
+   "pad 3 hole 1.5, maximum lead diagonal 1.659"
+  ],
+  "source": "Infineon IPW65R018CFD7 Rev. 2.0 PG-TO247-3 (sha c364050a04a4): e 5.44, b 1.00-1.40, c 0.38-0.89, so the lead diagonal is up to 1.66 mm; a round hole must clear it"
+ },
+ {
+  "ref": "Q3",
+  "verdict": "FAIL",
+  "worst_mm": 0.0,
+  "why": [
+   "pad 1 hole 1.5, maximum lead diagonal 1.659",
+   "pad 2 hole 1.5, maximum lead diagonal 1.659",
+   "pad 3 hole 1.5, maximum lead diagonal 1.659"
+  ],
+  "source": "Infineon IPW65R018CFD7 Rev. 2.0 PG-TO247-3 (sha c364050a04a4): e 5.44, b 1.00-1.40, c 0.38-0.89, so the lead diagonal is up to 1.66 mm; a round hole must clear it"
+ },
+ {
+  "ref": "Q5",
+  "verdict": "FAIL",
+  "worst_mm": 0.0,
+  "why": [
+   "pad 1 hole 1.5, maximum lead diagonal 1.659",
+   "pad 2 hole 1.5, maximum lead diagonal 1.659",
+   "pad 3 hole 1.5, maximum lead diagonal 1.659"
+  ],
+  "source": "Infineon IPW65R018CFD7 Rev. 2.0 PG-TO247-3 (sha c364050a04a4): e 5.44, b 1.00-1.40, c 0.38-0.89, so the lead diagonal is up to 1.66 mm; a round hole must clear it"
+ },
+ {
+  "ref": "Q6",
+  "verdict": "FAIL",
+  "worst_mm": 0.0,
+  "why": [
+   "pad 1 hole 1.5, maximum lead diagonal 1.659",
+   "pad 2 hole 1.5, maximum lead diagonal 1.659",
+   "pad 3 hole 1.5, maximum lead diagonal 1.659"
+  ],
+  "source": "Infineon IPW65R018CFD7 Rev. 2.0 PG-TO247-3 (sha c364050a04a4): e 5.44, b 1.00-1.40, c 0.38-0.89, so the lead diagonal is up to 1.66 mm; a round hole must clear it"
+ },
+ {
+  "ref": "C21",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "TDK MMKP B32643B sheet (sha ab9fdca0b967): 22.5 +/-0.4, lead 0.8 +/-0.05; the fitted H-type sheet is transcribed in parts.ato"
+ },
+ {
+  "ref": "C22",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "TDK MMKP B32643B sheet (sha ab9fdca0b967): 22.5 +/-0.4, lead 0.8 +/-0.05; the fitted H-type sheet is transcribed in parts.ato"
+ },
+ {
+  "ref": "C23",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "TDK MMKP B32643B sheet (sha ab9fdca0b967): 22.5 +/-0.4, lead 0.8 +/-0.05; the fitted H-type sheet is transcribed in parts.ato"
+ },
+ {
+  "ref": "C151",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "TDK MMKP B32643B sheet (sha ab9fdca0b967): 22.5 +/-0.4, lead 0.8 +/-0.05; the fitted H-type sheet is transcribed in parts.ato"
+ },
+ {
+  "ref": "C152",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "TDK MMKP B32643B sheet (sha ab9fdca0b967): 22.5 +/-0.4, lead 0.8 +/-0.05; the fitted H-type sheet is transcribed in parts.ato"
+ },
+ {
+  "ref": "D3",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "Littelfuse 30KPA P600 (sha 1fe25d7c0973): lead 1.22-1.36 (pitch 12.7 is ours)"
+ },
+ {
+  "ref": "D17",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "Littelfuse 30KPA P600 (sha 1fe25d7c0973): lead 1.22-1.36 (pitch 12.7 is ours)"
+ },
+ {
+  "ref": "F1",
+  "verdict": "PASS",
+  "slots_mm": [
+   10.8,
+   10.8
+  ],
+  "source": "Littelfuse 125 003 clip, sheet 03/12/13 (sha 58666b2c7e73): 10.80 mm, slots 1.20 x 2.5. The 30.96 mm between the clips follows the 38 mm fuse and is not on this sheet"
+ }
+]
