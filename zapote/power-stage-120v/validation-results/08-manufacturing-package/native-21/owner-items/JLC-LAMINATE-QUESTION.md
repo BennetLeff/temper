@@ -1,6 +1,6 @@
 # JLC laminate UL scope question (OPEN-ITEMS S12), 2026-10-18
 
-Status: **sent 2026-11-24** to support@jlcpcb.com (owner-approved; text as below, signed, no customer ID). Reply pending. It replaces the CTI-only drafts `../sourcing/inquiries/CTI-JLC.md` and
+Status: **sent 2026-11-24** to support@jlcpcb.com (owner-approved; text as below, signed, no customer ID). **Reply received 2026-11-25: partial** (see the end). It replaces the CTI-only drafts `../sourcing/inquiries/CTI-JLC.md` and
 `CTI-JLC-6L.md`, which were never sent (DECISIONS 41 settled CTI from public records). This one asks about UL scope for
 2 oz inner copper, which public records do not settle. Certifier side of the same question: `CERTIFIER-PACKET.md` A3 #25.
 
@@ -78,3 +78,25 @@ What this means, in one line each:
 - KB-6164F and KB-6165F cover 102 µm with the same PLC 3 and 130 °C MOT, so they would fix the scope without changing CTI
   or the thermal limit B3 uses (`b3-ratings` laminate row, MOT 130 °C, DECISIONS 46).
 - Whether JLC can supply either, under which Material Type, is the open question.
+
+## Reply, 2026-11-25 (summary)
+
+| Question | Answer |
+| --- | --- |
+| 1 Laminate, prepreg, UL file / type, 2 oz inner | **Not answered**; points to JLC's UL page and a stackup image |
+| 2 Which option covers 2 oz inner | "KB-6164 TG135": the option we asked about, with no statement on copper weight |
+| 3 MOT | 130 °C |
+| 4 CTI / PLC | 175–250 V, PLC 3 |
+| 5 Prepreg family | **Not answered** ("select the stackup on the website") |
+| 6 Documents | UL marking can be ordered; documents **not answered** |
+
+JLC's UL page (last updated 2026-11-10) lists KB-6164 TG135 and KB-6165 TG155 under JLC-4 (E479892, 4–32 layers). It states no copper weight, MOT or CTI,
+and does not list KB-6164F or KB-6165F. The marking may be left off "without prior notice" if there is no room (choose Specify Position).
+
+## Follow-up draft (NOT sent)
+
+> Thank you. Two points are still open for our 4-layer, 1.6 mm, 2 oz outer / 2 oz inner board (JLC041622-7628):
+> 1. Kingboard's UL file E123995 limits KB-6164 / KB-6064 multilayer internal copper to 35 µm. Our inner copper is about 61 µm. Does your UL recognition
+>    E479892, type JLC-4, cover KB-6164 TG135 with 2 oz inner copper? Please answer yes or no, and state the maximum inner copper weight.
+> 2. If no: which Material Type that you can supply (for example KB-6165 TG155, KB-6164F, KB-6165F, S1000H) is recognised with 2 oz inner copper
+>    and CTI PLC 3 or better, with which prepreg, and at what extra cost?

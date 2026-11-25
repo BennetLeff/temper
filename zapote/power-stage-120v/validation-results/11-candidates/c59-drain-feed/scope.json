@@ -1,0 +1,945 @@
+{
+ "board_sha256": "25596d8eff460eabab3c538c83daea0d88eb1135fd7ae1519d8cc30a4f32421a",
+ "pins": {
+  "A Q2.2": {
+   "net": "bus_p",
+   "feed_layer": "In2.Cu",
+   "tongue_margin_mm": [
+    -0.475,
+    "C12.2",
+    "sw_a"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.357,
+      "pad",
+      "C12.2",
+      "sw_a"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "sw_a"
+     ]
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "hv_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": null
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "sw_a"
+     ]
+    }
+   },
+   "ratio_two_layers": 2.939,
+   "ratio_via_field": 2.073
+  },
+  "A Q5.2": {
+   "net": "bus_p",
+   "feed_layer": "In2.Cu",
+   "tongue_margin_mm": [
+    -0.475,
+    "C19.2",
+    "sw_b"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.357,
+      "pad",
+      "C19.2",
+      "sw_b"
+     ],
+     "zone_void_growth_mm": null
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "hv_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": null
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      1.615,
+      "sw_b"
+     ]
+    }
+   },
+   "ratio_two_layers": 2.939,
+   "ratio_via_field": 2.073
+  },
+  "A Q3.2": {
+   "net": "sw_a",
+   "feed_layer": "B.Cu",
+   "tongue_margin_mm": [
+    -0.475,
+    "C13.2",
+    "leg_ret"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.357,
+      "pad",
+      "C13.2",
+      "leg_ret"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "leg_ret"
+     ]
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "leg_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "bus_p"
+     ]
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "leg_ret"
+     ]
+    }
+   },
+   "ratio_two_layers": 3.357,
+   "ratio_via_field": 2.368
+  },
+  "A Q6.2": {
+   "net": "sw_b",
+   "feed_layer": "B.Cu",
+   "tongue_margin_mm": [
+    -0.475,
+    "C20.2",
+    "leg_ret"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.357,
+      "pad",
+      "C20.2",
+      "leg_ret"
+     ],
+     "zone_void_growth_mm": [
+      0.015,
+      "leg_ret"
+     ]
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "leg_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "bus_p"
+     ]
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "leg_ret"
+     ]
+    }
+   },
+   "ratio_two_layers": 3.357,
+   "ratio_via_field": 2.368
+  },
+  "B Q2.2": {
+   "net": "bus_p",
+   "feed_layer": "In2.Cu",
+   "tongue_margin_mm": [
+    -0.299,
+    "C12.2",
+    "sw_a"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.191,
+      "pad",
+      "C12.2",
+      "sw_a"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "sw_a"
+     ]
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.007,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      1.363,
+      "hv_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.007,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": null
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.007,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      1.363,
+      "sw_a"
+     ]
+    }
+   },
+   "ratio_two_layers": 2.939,
+   "ratio_via_field": 2.073
+  },
+  "B Q5.2": {
+   "net": "bus_p",
+   "feed_layer": "In2.Cu",
+   "tongue_margin_mm": [
+    -0.299,
+    "C19.2",
+    "sw_b"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.191,
+      "pad",
+      "C19.2",
+      "sw_b"
+     ],
+     "zone_void_growth_mm": null
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.007,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      1.363,
+      "hv_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.007,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": null
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.007,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      1.215,
+      "sw_b"
+     ]
+    }
+   },
+   "ratio_two_layers": 2.939,
+   "ratio_via_field": 2.073
+  },
+  "B Q3.2": {
+   "net": "sw_a",
+   "feed_layer": "B.Cu",
+   "tongue_margin_mm": [
+    -0.299,
+    "C13.2",
+    "leg_ret"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.191,
+      "pad",
+      "C13.2",
+      "leg_ret"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "leg_ret"
+     ]
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.007,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      1.363,
+      "leg_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.007,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      1.363,
+      "bus_p"
+     ]
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.007,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "leg_ret"
+     ]
+    }
+   },
+   "ratio_two_layers": 3.357,
+   "ratio_via_field": 2.368
+  },
+  "B Q6.2": {
+   "net": "sw_b",
+   "feed_layer": "B.Cu",
+   "tongue_margin_mm": [
+    -0.299,
+    "C20.2",
+    "leg_ret"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.191,
+      "pad",
+      "C20.2",
+      "leg_ret"
+     ],
+     "zone_void_growth_mm": [
+      0.027,
+      "leg_ret"
+     ]
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.007,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      1.363,
+      "leg_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.007,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      1.363,
+      "bus_p"
+     ]
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.007,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "leg_ret"
+     ]
+    }
+   },
+   "ratio_two_layers": 3.357,
+   "ratio_via_field": 2.368
+  },
+  "C Q2.2": {
+   "net": "bus_p",
+   "feed_layer": "In2.Cu",
+   "tongue_margin_mm": [
+    -0.026,
+    "Q2.1",
+    "leg_a-gate_h"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "sw_a"
+     ]
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      0.849,
+      "hv_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": null
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      0.849,
+      "sw_a"
+     ]
+    }
+   },
+   "ratio_two_layers": 2.939,
+   "ratio_via_field": 0.518
+  },
+  "C Q5.2": {
+   "net": "bus_p",
+   "feed_layer": "In2.Cu",
+   "tongue_margin_mm": [
+    -0.026,
+    "Q5.1",
+    "leg_b-gate_h"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": null
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      0.849,
+      "hv_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": null
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      0.781,
+      "sw_b"
+     ]
+    }
+   },
+   "ratio_two_layers": 2.939,
+   "ratio_via_field": 0.518
+  },
+  "C Q3.2": {
+   "net": "sw_a",
+   "feed_layer": "B.Cu",
+   "tongue_margin_mm": [
+    -0.026,
+    "Q3.1",
+    "leg_a-gate_l"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "leg_ret"
+     ]
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.849,
+      "leg_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.849,
+      "bus_p"
+     ]
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "leg_ret"
+     ]
+    }
+   },
+   "ratio_two_layers": 3.357,
+   "ratio_via_field": 0.592
+  },
+  "C Q6.2": {
+   "net": "sw_b",
+   "feed_layer": "B.Cu",
+   "tongue_margin_mm": [
+    -0.026,
+    "Q6.1",
+    "leg_b-gate_l"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.024,
+      "leg_ret"
+     ]
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.849,
+      "leg_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.849,
+      "bus_p"
+     ]
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      0.003,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "leg_ret"
+     ]
+    }
+   },
+   "ratio_two_layers": 3.357,
+   "ratio_via_field": 0.592
+  },
+  "D Q2.2": {
+   "net": "bus_p",
+   "feed_layer": "In2.Cu",
+   "tongue_margin_mm": [
+    -0.328,
+    "R10.1",
+    "leg_a-out_h"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.213,
+      "pad",
+      "R10.1",
+      "leg_a-out_h"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "sw_a"
+     ]
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "hv_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": null
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q2.1",
+      "leg_a-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "sw_a"
+     ]
+    }
+   },
+   "ratio_two_layers": 2.939,
+   "ratio_via_field": 2.073
+  },
+  "D Q5.2": {
+   "net": "bus_p",
+   "feed_layer": "In2.Cu",
+   "tongue_margin_mm": [
+    -0.328,
+    "R18.1",
+    "leg_b-out_h"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.213,
+      "pad",
+      "R18.1",
+      "leg_b-out_h"
+     ],
+     "zone_void_growth_mm": null
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "hv_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": null
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q5.1",
+      "leg_b-gate_h"
+     ],
+     "zone_void_growth_mm": [
+      1.615,
+      "sw_b"
+     ]
+    }
+   },
+   "ratio_two_layers": 2.939,
+   "ratio_via_field": 2.073
+  },
+  "D Q3.2": {
+   "net": "sw_a",
+   "feed_layer": "B.Cu",
+   "tongue_margin_mm": [
+    -0.328,
+    "R12.1",
+    "leg_a-out_l"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.213,
+      "pad",
+      "R12.1",
+      "leg_a-out_l"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "leg_ret"
+     ]
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "leg_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "bus_p"
+     ]
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q3.1",
+      "leg_a-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "leg_ret"
+     ]
+    }
+   },
+   "ratio_two_layers": 3.357,
+   "ratio_via_field": 2.368
+  },
+  "D Q6.2": {
+   "net": "sw_b",
+   "feed_layer": "B.Cu",
+   "tongue_margin_mm": [
+    -0.328,
+    "R20.1",
+    "leg_b-out_l"
+   ],
+   "vias": {
+    "F.Cu": {
+     "fixed_copper_margin_mm": [
+      -0.213,
+      "pad",
+      "R20.1",
+      "leg_b-out_l"
+     ],
+     "zone_void_growth_mm": [
+      0.015,
+      "leg_ret"
+     ]
+    },
+    "In1.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "leg_ret"
+     ]
+    },
+    "In2.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      1.747,
+      "bus_p"
+     ]
+    },
+    "B.Cu": {
+     "fixed_copper_margin_mm": [
+      0.023,
+      "pad",
+      "Q6.1",
+      "leg_b-gate_l"
+     ],
+     "zone_void_growth_mm": [
+      0.0,
+      "leg_ret"
+     ]
+    }
+   },
+   "ratio_two_layers": 3.357,
+   "ratio_via_field": 2.368
+  }
+ }
+}

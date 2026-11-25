@@ -1,0 +1,45 @@
+{
+ "neck_I2t": 1089.3,
+ "rows": [
+  {
+   "fuse": "KLDR025.TXP (fitted)",
+   "clearing_I2t": 1710.0,
+   "copper_ratio": 0.64,
+   "copper_ok": false,
+   "carry_A": 16.9,
+   "carry_ok_15A": true,
+   "carry_ok_13p5A_release": true,
+   "fit": "same clips"
+  },
+  {
+   "fuse": "KLKR020 (fast, Class CC)",
+   "clearing_I2t": 900.0,
+   "copper_ratio": 1.21,
+   "copper_ok": true,
+   "carry_A": 13.5,
+   "carry_ok_15A": false,
+   "carry_ok_13p5A_release": true,
+   "fit": "same clips"
+  },
+  {
+   "fuse": "CCMR020 (TD, Class CC)",
+   "clearing_I2t": 918.0,
+   "copper_ratio": 1.19,
+   "copper_ok": true,
+   "carry_A": 13.5,
+   "carry_ok_15A": false,
+   "carry_ok_13p5A_release": true,
+   "fit": "same clips"
+  },
+  {
+   "fuse": "Bel 0ADEC9250-BE (fast, 6.3 x 32, Recognized)",
+   "clearing_I2t": 470.0,
+   "copper_ratio": 2.32,
+   "copper_ok": true,
+   "carry_A": 18.0,
+   "carry_ok_15A": true,
+   "carry_ok_13p5A_release": true,
+   "fit": "new clips and footprint; certifier"
+  }
+ ]
+}
