@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """s56 lands against the maker's drawing, for lines with no JLC geometry (compare_lands.py) and the hand-fitted parts.
 
-    python3 -I drawing_lands.py            -> drawing-results.json, exit 1 on any FAIL
+    python3 -I drawing_lands.py [BOARD.kicad_pcb]   -> drawing-results.json (board of record s56 when no board is given),
+                                                       exit 1 on any FAIL
 
 Pads are read from the committed board of record (board-of-record-s56/section.kicad_pcb). DRAWING holds what was read off
 each maker's sheet (2026-11-25, by eye from the rendered page or its text): pad number -> (x, y), and the land size or
@@ -9,7 +10,7 @@ drill where the drawing gives one. Position tolerance 0.10 mm (pattern centred).
 a wrong package or pitch, not a misread drawing, and an independent reader should repeat it before the order."""
 import json, math, re, sys, pathlib
 HERE = pathlib.Path(__file__).resolve().parent
-PCB = HERE.parents[1] / "08-manufacturing-package/native-21/board-of-record-s56/section.kicad_pcb"
+PCB = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 and __name__ == "__main__" else HERE.parents[1] / "08-manufacturing-package/native-21/board-of-record-s56/section.kicad_pcb"
 TOL = 0.10
 # ref: (source, {pad: (x, y)}, {"size": (w, h) | "drill": (lead_min_hole, max)} )
 row = lambda x, n, p, y0: {str(i + 1): (x, y0 + i * p) for i in range(n)}
@@ -40,14 +41,16 @@ for _q in ("Q2", "Q3", "Q5", "Q6"):
 for _c in ("C21", "C22", "C23", "C151", "C152"):
     DRAWING[_c] = ("TDK MMKP B32643B sheet (sha ab9fdca0b967): 22.5 +/-0.4, lead 0.8 +/-0.05; the fitted H-type sheet is transcribed in parts.ato",
                    {"1": (-11.25, 0), "2": (11.25, 0)}, {"lead_diag": 0.85, "second_hole_at": 27.5})
+DRAWING["RV1"] = ("Littelfuse TMOV/iTMOV revised 10/01/19 pp.6-7, 20 mm, 115-420 V row (sha 039bf6182ec4): e 6.5-8.5, lead 0.76-0.86; "
+                  "bulk leads are offset e1 1.5-4.0 (FOOTPRINTS.md F4: form lead 2 into line)", {"1": (-3.75, 0), "2": (3.75, 0)}, {"lead_diag": 0.86})
+for _j in ("J2", "J5"):
+    DRAWING[_j] = ("Wuerth 7466004R rev 001.003 2023-07-03 p.1 recommended land (sha e629b5c54c31): pad dia 8.5, NPTH 5.2", {}, {"ring": (8.5, 5.2)})
 for _d in ("D3", "D17"):
     DRAWING[_d] = ("Littelfuse 30KPA P600 (sha 1fe25d7c0973): lead 1.22-1.36 (pitch 12.7 is ours)", {"1": (-6.35, 0), "2": (6.35, 0)}, {"lead_diag": 1.36})
-NOT_CHECKED = {"J2": "Wuerth sheet not on disk; c35 README says the land was generated from its p.1 drawing", "J5": "as J2",
-               "RV1": "Littelfuse TMOV20RP sheet not on disk (pitch 7.5, hole 1.2 here)",
-               "R51 R52 R55 R56": "standard 1206", "R71 R72 R74 R75 R131": "standard 0603", "R132": "standard 0603"}
+NOT_CHECKED = {"R51 R52 R55 R56": "standard 1206", "R71 R72 R74 R75 R131": "standard 0603", "R132": "standard 0603"}
 # clips carry two slots per fuse end: compared as hole pairs at 10.80 mm
-CLIP = {"F1": (10.80, ("Littelfuse 125 003 clip, sheet 03/12/13 (sha 58666b2c7e73): 10.80 mm, slots 1.20 x 2.5. The 30.96 mm between "
-                       "the clips follows the 38 mm fuse and is not on this sheet"))}
+CLIP = {"F1": (10.80, ("Littelfuse 125 003 clip, sheet 03/12/13 (sha 58666b2c7e73): 10.80 mm, slots 1.20 x 2.5. The clips' 30.96 mm "
+                       "centres: Littelfuse KLDR (sha c51ae8155f39) 38.1 mm long, 12.7 mm ferrules, 10.3 mm: each 11.57 mm clip covers 9.4 mm of ferrule"))}
 
 
 def pads(ref, t):
@@ -64,6 +67,15 @@ def pads(ref, t):
 def check():
     t, rows = PCB.read_text(), []
     for ref, (src, want, ex) in DRAWING.items():
+        if "ring" in ex:
+            npth = [p for p in pads(ref, t) if p[4] and float(p[4].split()[0]) == ex["ring"][1]]
+            block = t[t.rfind("\n\t(footprint ", 0, t.find('"Reference" "%s"' % ref)):]
+            block = block[:block.find("\n\t(footprint ", 5)]
+            g = re.search(r"\(gr_circle\s+\(center ([-\d.]+) ([-\d.]+)\)\s+\(end ([-\d.]+) ([-\d.]+)\)\s+\(width ([-\d.]+)\)", block)
+            od = 0.0 if g is None else 2 * math.hypot(float(g[3]) - float(g[1]), float(g[4]) - float(g[2])) + float(g[5])
+            ok = len(npth) == 1 and abs(od - ex["ring"][0]) <= TOL
+            rows.append({"ref": ref, "verdict": "PASS" if ok else "FAIL", "pad_od_mm": round(od, 3), "why": [] if ok else ["ring"], "source": src})
+            continue
         got = [p for p in pads(ref, t) if p[0] in want]
         if "second_hole_at" in ex:      # dual-pitch footprint: the other pad-2 hole stays empty
             x1 = next(p[1] for p in got if p[0] == "1")
@@ -102,5 +114,5 @@ if __name__ == "__main__":
     for k, v in NOT_CHECKED.items():
         print("NOT CHECKED", k, v)
     for x in r:
-        print(x["verdict"], x["ref"], x.get("worst_mm", x.get("slots_mm")), x.get("why", ""))
+        print(x["verdict"], x["ref"], x.get("worst_mm", x.get("slots_mm", x.get("pad_od_mm"))), x.get("why", ""))
     sys.exit(any(x["verdict"] == "FAIL" for x in r))

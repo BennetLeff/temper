@@ -4,11 +4,13 @@ Prompted by the U30 defect on the controller (land of the wrong package through 
 `compare_lands.py RAW_DIR` distils the public EasyEDA/LCEDA records, and reruns from `jlc-pads.json` without it.
 
 **`drawing_lands.py` (2026-11-25):** the remaining lines against maker drawings on disk, and the hand-fitted parts the BOM
-gives no JLC code (F1, RV1, BR1, Q2/Q3/Q5/Q6, the bank caps, D3/D17), which no pad check had covered.
-Not checked: J2/J5 and RV1 (no sheet on disk), and three standard chip sizes. Negative control: moving one T1 pad 0.3 mm in a
-copy of the script makes T1 FAIL.
+gives no JLC code. Correction: `FOOTPRINTS.md` already held drawing readings for RV1, L1, BR1 and T1 (F4-F7); what was missing was a
+re-runnable check, and Q2/Q3/Q5/Q6, D3/D17 and the bank caps had none.
+- RV1 lead 0.76-0.86 (Littelfuse 10/01/19, 115-420 V row), J2/J5 Wuerth land (pad 8.5, NPTH 5.2), F1 clip cover on the KLDR ferrule
+  (9.4 of 11.57 mm) are closed. Not checked: three standard chip sizes.
+- Negative control: moving one T1 pad 0.3 mm in a copy of the script makes T1 FAIL; the stage 56 board fails on the FET holes.
 
-**One FAIL: the FET holes.** Infineon's outline allows a lead up to 1.40 x 0.89 mm (1.66 mm diagonal); the TO-247 holes are 1.5 mm.
+**One FAIL on s56: the FET holes (fixed in s57, DECISIONS 87).** Infineon's outline allows a lead up to 1.40 x 0.89 mm (1.66 mm diagonal); the TO-247 holes are 1.5 mm.
 The drawing does not bound the typical lead, so leads may or may not fit; whether they do is known only from a fitted part or a larger hole.
 1.8 mm in the 2.5 mm wide pad would leave 0.35 mm of copper each side. Nothing was changed: s56 is the board of record and the change needs
 its own stage (copper, B3 and scorecard). The FETs are DNP at JLC and fitted later, so it is a bench item unless a stage is opened.

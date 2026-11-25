@@ -149,6 +149,27 @@
   "source": "TDK MMKP B32643B sheet (sha ab9fdca0b967): 22.5 +/-0.4, lead 0.8 +/-0.05; the fitted H-type sheet is transcribed in parts.ato"
  },
  {
+  "ref": "RV1",
+  "verdict": "PASS",
+  "worst_mm": 0.0,
+  "why": [],
+  "source": "Littelfuse TMOV/iTMOV revised 10/01/19 pp.6-7, 20 mm, 115-420 V row (sha 039bf6182ec4): e 6.5-8.5, lead 0.76-0.86; bulk leads are offset e1 1.5-4.0 (FOOTPRINTS.md F4: form lead 2 into line)"
+ },
+ {
+  "ref": "J2",
+  "verdict": "PASS",
+  "pad_od_mm": 8.5,
+  "why": [],
+  "source": "Wuerth 7466004R rev 001.003 2023-07-03 p.1 recommended land (sha e629b5c54c31): pad dia 8.5, NPTH 5.2"
+ },
+ {
+  "ref": "J5",
+  "verdict": "PASS",
+  "pad_od_mm": 8.5,
+  "why": [],
+  "source": "Wuerth 7466004R rev 001.003 2023-07-03 p.1 recommended land (sha e629b5c54c31): pad dia 8.5, NPTH 5.2"
+ },
+ {
   "ref": "D3",
   "verdict": "PASS",
   "worst_mm": 0.0,
@@ -169,6 +190,6 @@
    10.8,
    10.8
   ],
-  "source": "Littelfuse 125 003 clip, sheet 03/12/13 (sha 58666b2c7e73): 10.80 mm, slots 1.20 x 2.5. The 30.96 mm between the clips follows the 38 mm fuse and is not on this sheet"
+  "source": "Littelfuse 125 003 clip, sheet 03/12/13 (sha 58666b2c7e73): 10.80 mm, slots 1.20 x 2.5. The clips' 30.96 mm centres: Littelfuse KLDR (sha c51ae8155f39) 38.1 mm long, 12.7 mm ferrules, 10.3 mm: each 11.57 mm clip covers 9.4 mm of ferrule"
  }
 ]
