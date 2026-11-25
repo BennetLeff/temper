@@ -1,0 +1,382 @@
+[
+ {
+  "lcsc": "C92145",
+  "mpn": "1714971",
+  "ref": "J1",
+  "footprint": "temper:Phoenix_MKDS-5-2-9.52_1714971",
+  "jlc_package": "CONN-TH_MKDS5-2-9.5",
+  "rms_mm": 0.0,
+  "kicad_pads": [
+   "1",
+   "2"
+  ],
+  "jlc_pads": [
+   "1",
+   "2"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C3299886",
+  "mpn": "R463N410050N1K",
+  "ref": "C1",
+  "footprint": "temper:KEMET_R463N410000N1M_P22.50_ReviewOnly",
+  "verdict": "NOT CHECKED (no JLC geometry read)"
+ },
+ {
+  "lcsc": "C7084710",
+  "mpn": "B82726S2243A020",
+  "ref": "L1",
+  "footprint": "temper:B82726S2_ReviewOnly",
+  "verdict": "NOT CHECKED (no JLC geometry read)"
+ },
+ {
+  "lcsc": "C3802167",
+  "mpn": "B32676G1905K000",
+  "ref": "C5",
+  "footprint": "temper:TDK_B32656G0275J000_4Pin_P37.50_P20.30_ReviewOnly",
+  "jlc_package": "CAP-TH_4P-L42.0-W30.0-P37.50-D1.2-S20.30",
+  "rms_mm": 0.0,
+  "kicad_pads": [
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "jlc_pads": [
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C4175647",
+  "mpn": "CSS2H-2512R-1L00F",
+  "ref": "R5",
+  "footprint": "temper:R_Shunt_Bourns_CSS2H-2512_Kelvin",
+  "jlc_package": "RES-SMD_L6.4-W3.2_LRS2512",
+  "rms_mm": 0.1,
+  "kicad_pads": [
+   "1",
+   "2"
+  ],
+  "jlc_pads": [
+   "1",
+   "2"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C17455725",
+  "mpn": "2EDR8259XXUMA1",
+  "ref": "U1",
+  "footprint": "lib:SOIC16W_Isolated",
+  "jlc_package": "SO-14W_L10.3-W7.5-P1.27-LS10.3-BL_2EDR8259X",
+  "rms_mm": 0.123,
+  "kicad_pads": [
+   "1",
+   "10",
+   "11",
+   "14",
+   "15",
+   "16",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9"
+  ],
+  "jlc_pads": [
+   "1",
+   "10",
+   "11",
+   "14",
+   "15",
+   "16",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C138687",
+  "mpn": "CL32B106KBJNNNE",
+  "ref": "C9",
+  "footprint": "Capacitor_SMD:C_1210_3225Metric",
+  "jlc_package": "C1210",
+  "rms_mm": 0.042,
+  "kicad_pads": [
+   "1",
+   "2"
+  ],
+  "jlc_pads": [
+   "1",
+   "2"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C728510",
+  "mpn": "RL1206FR-070R68L",
+  "ref": "R51",
+  "footprint": "Resistor_SMD:R_1206_3216Metric",
+  "verdict": "NOT CHECKED (no JLC geometry read)"
+ },
+ {
+  "lcsc": "C128504",
+  "mpn": "6SVPC220MV",
+  "ref": "C126",
+  "footprint": "Capacitor_SMD:CP_Elec_6.3x5.9",
+  "jlc_package": "CAP-SMD_BD6.3-L6.6-W6.6-FD",
+  "rms_mm": 0.13,
+  "kicad_pads": [
+   "1",
+   "2"
+  ],
+  "jlc_pads": [
+   "1",
+   "2"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C4036134",
+  "mpn": "ERJ-PA3F4991V",
+  "ref": "R71",
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "verdict": "NOT CHECKED (no JLC geometry read)"
+ },
+ {
+  "lcsc": "C2793964",
+  "mpn": "PS122WF680JT4E",
+  "ref": "R10",
+  "footprint": "Resistor_SMD:R_2512_6332Metric",
+  "jlc_package": "R2512",
+  "rms_mm": 0.104,
+  "kicad_pads": [
+   "1",
+   "2"
+  ],
+  "jlc_pads": [
+   "1",
+   "2"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C85980",
+  "mpn": "GRM1885C1H472JA01D",
+  "ref": "C55",
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "jlc_package": "C0603",
+  "rms_mm": 0.075,
+  "kicad_pads": [
+   "1",
+   "2"
+  ],
+  "jlc_pads": [
+   "1",
+   "2"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C50132500",
+  "mpn": "CST3015-200ED",
+  "ref": "T1",
+  "footprint": "temper:CST3015",
+  "verdict": "NOT CHECKED (no JLC geometry read)"
+ },
+ {
+  "lcsc": "C6708126",
+  "mpn": "7466004R",
+  "ref": "J2",
+  "footprint": "temper:Wuerth_REDCUBE-SMT_WP-SMBU_7466004R",
+  "verdict": "NOT CHECKED (no JLC geometry read)"
+ },
+ {
+  "lcsc": "C160900",
+  "mpn": "B2P3-VH-H(LF)(SN)",
+  "ref": "J3",
+  "footprint": "Connector_JST:JST_VH_B2P3-VH_1x02_P7.92mm_Vertical",
+  "jlc_package": "CONN-TH_B2P3-VH-H-LF-SN",
+  "rms_mm": 0.0,
+  "kicad_pads": [
+   "1",
+   "2"
+  ],
+  "jlc_pads": [
+   "1",
+   "2"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C3163739",
+  "mpn": "3403.0279.23",
+  "ref": "F2",
+  "footprint": "temper:Fuse_Schurter_UMT-H_15.4x5.35mm",
+  "verdict": "NOT CHECKED (no JLC geometry read)"
+ },
+ {
+  "lcsc": "C1382388",
+  "mpn": "AC05000001507JAC00",
+  "ref": "R130",
+  "footprint": "temper:R_Axial_Vishay_AC05_D7.5mm_P5.08mm_Vertical",
+  "verdict": "NOT CHECKED (no JLC geometry read)"
+ },
+ {
+  "lcsc": "C6675337",
+  "mpn": "MPM-20-24",
+  "ref": "PS2",
+  "footprint": "Converter_ACDC:Converter_ACDC_MeanWell_IRM-20-xx_THT",
+  "jlc_package": "PWRM-TH_L52.4-W27.2_MPM-20-5",
+  "rms_mm": 0.0,
+  "kicad_pads": [
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "jlc_pads": [
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C728597",
+  "mpn": "RT0603BRD077K5L",
+  "ref": "R33",
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "jlc_package": "R0603",
+  "rms_mm": 0.072,
+  "kicad_pads": [
+   "1",
+   "2"
+  ],
+  "jlc_pads": [
+   "1",
+   "2"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C326732",
+  "mpn": "RT0603BRD0716KL",
+  "ref": "R34",
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "jlc_package": "R0603",
+  "rms_mm": 0.072,
+  "kicad_pads": [
+   "1",
+   "2"
+  ],
+  "jlc_pads": [
+   "1",
+   "2"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C5481600",
+  "mpn": "1704004",
+  "ref": "J6",
+  "footprint": "temper:Phoenix_KDS3_1704004_1Pos_2Pin_ReviewOnly",
+  "verdict": "NOT CHECKED (no JLC geometry read)"
+ },
+ {
+  "lcsc": "C137279",
+  "mpn": "RC1206FR-073RL",
+  "ref": "R39",
+  "footprint": "Resistor_SMD:R_1206_3216Metric",
+  "jlc_package": "R1206",
+  "rms_mm": 0.016,
+  "kicad_pads": [
+   "1",
+   "2"
+  ],
+  "jlc_pads": [
+   "1",
+   "2"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C9900245652",
+  "mpn": "R24C2T25/R-R",
+  "ref": "U41",
+  "footprint": "temper:RECOM_SSOP-36_7.5x12.83mm_P0.65mm_ReviewOnly",
+  "verdict": "NOT CHECKED (no JLC geometry read)"
+ },
+ {
+  "lcsc": "C5216431",
+  "mpn": "ISO6721FBDR",
+  "ref": "U43",
+  "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+  "jlc_package": "SOIC-8_L4.9-W3.9-P1.27-LS6.0-BL",
+  "rms_mm": 0.125,
+  "kicad_pads": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8"
+  ],
+  "jlc_pads": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8"
+  ],
+  "verdict": "PASS"
+ },
+ {
+  "lcsc": "C22962",
+  "mpn": "0603WAF2200T5E",
+  "ref": "R132",
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "verdict": "NOT CHECKED (no JLC geometry read)"
+ },
+ {
+  "lcsc": "C145344",
+  "mpn": "VOL628A-2X001T",
+  "ref": "U36",
+  "footprint": "temper:VOL628A_LSOP4_ReviewOnly",
+  "jlc_package": "SOP-4_L7.5-W3.8-P2.54-LS10.2-TL",
+  "rms_mm": 0.15,
+  "kicad_pads": [
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "jlc_pads": [
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "verdict": "PASS"
+ }
+]
