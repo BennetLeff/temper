@@ -5,24 +5,24 @@
 | term | value mm | source |
 |---|---|---|
 | hole position | +/- 0.075 | [JLC] |
-| finished hole, 1.5 drill | 1.42-1.63 | [JLC] (-0.08, 0.13) |
+| finished hole, 1.8 drill | 1.72-1.93 | [JLC] (-0.08, 0.13) |
 | lead thickness c | 0.38-0.89 | [IPW] p.12 |
-| lead free in its hole, (D - c)/2 | +/- 0.265 to +/- 0.625 | from the two rows above |
+| lead free in its hole, (D - c)/2 | +/- 0.415 to +/- 0.775 | from the two rows above |
 | package A1 | +/- 0.20 (datasheet), +/- 0.05 within a lot (EST) | [IPW] p.12 |
-| **one device, worst** | **+/- 0.900** | sum |
+| **one device, worst** | **+/- 1.050** | sum |
 
 Spread between the four devices (what a single flat sink face must meet):
 
 | case | spread mm (lot A1) | spread mm (datasheet A1) |
 |---|---|---|
-| U: leads anywhere in their holes (no remark, or not honoured) | 1.500 | 1.800 |
+| U: leads anywhere in their holes (no remark, or not honoured) | 1.800 | 2.100 |
 | R: order remark honoured, leads against the edge-side hole walls | 0.270 | 0.570 |
 
 ## 2. What can close a gap once the device is soldered
 
 - Strip compliance: 0.01 mm (EST: no catalogue compression data for SIL PAD 2000).
 - Lead elastic translation at 200 MPa (EST): 0.0095 mm at the stiffest corner; translation stiffness up to 11924 N/mm, so the clamp cannot move a soldered device.
-- **Budget 0.0195 mm.** Without shims the spread is 0.270-1.800 mm: closes? U False, R False. **The strip + clamp alone does not close every tab.**
+- **Budget 0.0195 mm.** Without shims the spread is 0.270-2.100 mm: closes? U False, R False. **The strip + clamp alone does not close every tab.**
 - With a per-device shim selected in 0.025 mm steps the residual is <= 0.0125 mm: closes = **True**.
 
 ## 3. Lean
@@ -41,12 +41,12 @@ Zero-shim device: 68.4-85.4 N (bench_thermal.py). A shim s moves the package fro
 | FR-4 0.8 | 0.596-1.467 | 60.0-85.9 |
 | no pad | 1.306-2.337 | 60.0-82.9 |
 
-The options cover 0-2.337 mm; worst spread 1.800 mm: covered = **True**. The 'no pad' option puts the spring end on the package front (the FR-4 pad is credited for nothing; insulation.md).
+The options cover 0-2.337 mm; worst spread 2.100 mm: covered = **True**. The 'no pad' option puts the spring end on the package front (the FR-4 pad is credited for nothing; insulation.md).
 
 ## 5. Sink, bar and BR1 positions
 
-- Sink face y 0.681 .. 2.481 (nominal 1.581): the floating sink settles on the most-proud tab; bracket slots must give at least +/- 0.90 mm in y and +/- 3.1 deg of tilt.
-- Bar back face to the C38-C41 courtyard: >= 1.399 mm at the deepest sink position.
-- BR1 (fitted later by the owner, seated on the strip by its screw): lead play +/- 0.360..0.565 mm. Shim behind the strip at BR1 -0.460 .. 1.340 mm. A positive value is selected at the BR1 dry fit; a negative one is taken by the lead play and, beyond it, by leaning BR1 back 0.0075 rad about its holes before soldering (the 1.6 mm board allows 0.423 rad): fits = **True**.
+- Sink face y 0.531 .. 2.631 (nominal 1.581): the floating sink settles on the most-proud tab; bracket slots must give at least +/- 1.05 mm in y and +/- 3.1 deg of tilt.
+- Bar back face to the C38-C41 courtyard: >= 1.249 mm at the deepest sink position.
+- BR1 (fitted later by the owner, seated on the strip by its screw): lead play +/- 0.360..0.565 mm. Shim behind the strip at BR1 -0.610 .. 1.490 mm. A positive value is selected at the BR1 dry fit; a negative one is taken by the lead play and, beyond it, by leaning BR1 back 0.0187 rad about its holes before soldering (the 1.6 mm board allows 0.423 rad): fits = **True**.
 - Unseated body float allowed by the strip-top creepage: 2.26 mm (acceptance set at 1.0 mm).
 

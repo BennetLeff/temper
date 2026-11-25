@@ -2,7 +2,7 @@
 
 ## A. Common sink + selected shims (revision 2; bench_thermal.py / bench_tolerance.py, bound case)
 
-- 17.5 A: sink 72.8 C, Tj 87.1 C; 22 A: sink 85.6 C (fan), Tj 111.4 C. One NTC and one TCO see all five devices' heat.
+- 17.5 A: sink 72.8 C, Tj 87.1 C; 22 A: sink 85.7 C (fan), Tj 111.6 C. One NTC and one TCO see all five devices' heat.
 - Hand work: gauge 8 gaps, run shim_select.py, cut and grease up to 3 layers x 4, float and lock the sink.
 
 ## B. One sink per device
@@ -26,7 +26,7 @@ Width window for a per-device sink: >= 14.15 mm (cover E1 max) and <= 17.50 mm (
 
 ## C. Common sink + thick soft gap pad (GAP PAD 5000S35, no shims, no spring clamp)
 
-Usable thickness window = 10-30 % strain (the data range [HNK] p.28). Spread to absorb: R 0.270-0.570 mm, U 1.500-1.800 mm, plus up to 0.179 mm of lean wedge per device.
+Usable thickness window = 10-30 % strain (the data range [HNK] p.28). Spread to absorb: R 0.270-0.570 mm, U 1.800-2.100 mm, plus up to 0.179 mm of lean wedge per device.
 
 | sheet in | mm | window mm | Rcs at 10 % strain, small tab C/W | covers R (lot) | covers R (datasheet) | covers U |
 |---|---|---|---|---|---|---|
@@ -37,5 +37,5 @@ Usable thickness window = 10-30 % strain (the data range [HNK] p.28). Spread to 
 | 0.1 | 2.54 | 0.508 | 3.39 | True | False | False |
 | 0.125 | 3.17 | 0.635 | 4.15 | True | True | False |
 
-- Even the 0.125 in sheet's window (0.635 mm) misses the no-remark spread and only covers the remark case if lean is small, at Rcs 4.15 C/W (the shim bound adds 0.941 to the strip's 1.489). Whether it fits is known only after gauging the row, i.e. the same hand work as A.
+- Even the 0.125 in sheet's window (0.635 mm) misses the no-remark spread and only covers the remark case if lean is small, at Rcs 4.15 C/W (the shim bound adds 0.953 to the strip's 1.489). Whether it fits is known only after gauging the row, i.e. the same hand work as A.
 

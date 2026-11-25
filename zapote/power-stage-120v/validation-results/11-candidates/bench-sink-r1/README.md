@@ -1,5 +1,7 @@
 # Bench heatsink r1: thermal mount for the first native-21 boards
 
+**2026-11-25 (stage 57, DECISIONS 87): the FET holes are 1.8 mm.** Lead play grows 0.15 mm, so the thickest FET shim is 2.2 mm (was 2.0). Every verdict in `results/` is unchanged; re-run with `scripts/bench_*.py`. The bracket slots need ± 1.05 mm in y (was ± 0.90; they have ± 2.0).
+
 **2026-11-24 (DECISIONS 86): the owner, not JLC, solders Q2 / Q3 / Q5 / Q6, on the M11 seating fixture.** Read "JLC-soldered" below as "soldered before the sink is fitted", and drop §2's FET remark. The gauge-and-shim procedure is kept: it closes every tab whatever the seating.
 
 Study, 2026-10-18. Branch `study/bench-sink-r1`, from `codex/power-stage-integration` @ f9d945326.
@@ -43,29 +45,29 @@ A thick soft gap pad (GAP PAD 5000S35, no shims) was also checked. Its usable wi
 
 Source: `results/tolerance.md`.
 
-- **Per-device tab offset.** A soldered TO-247's tab plane sits up to **± 0.900 mm** from the footprint. The terms are:
+- **Per-device tab offset.** A soldered TO-247's tab plane sits up to **± 1.050 mm** from the footprint. The terms are:
   - JLC hole position ± 0.075;
-  - lead play in the 1.5 mm hole, ± 0.265–0.625 (finished hole 1.42–1.63, lead thickness 0.38–0.89);
+  - lead play in the 1.8 mm hole (stage 57), ± 0.415–0.775 (finished hole 1.72–1.93, lead thickness 0.38–0.89);
   - package A1, ± 0.20.
 - **Spread across the four FETs** (what one flat sink face must meet):
   - **0.270–0.570 mm** if JLC honours the order remark (§2);
-  - **1.500–1.800 mm** if it does not.
+  - **1.800–2.100 mm** if it does not.
 - **What can close a gap once the device is soldered: 0.0195 mm.** That is 0.010 of strip compliance (EST) plus 0.0095 of elastic lead translation. A soldered device is up to 11 924 N/mm stiff in translation, so the clamp cannot move it.
 - **The fix.** A shim under the strip at each device, selected from feeler-gauge measurements in 0.025 mm steps, leaves ≤ 0.0125 mm: it closes. Clamp force is kept inside 60–102 N by choosing the FR-4 pad per device:
   - 1.6 mm pad for shims 0–0.897 mm;
   - 0.8 mm pad for 0.596–1.467 mm;
   - no pad for 1.306–2.337 mm.
 
-  Together these cover the worst 1.800 mm spread.
+  Together these cover the worst 2.100 mm spread.
 - **Lean.** The clamp straightens lean elastically. The inspection limit is **0.0112 rad (0.64°) per device relative to the row mean**, which is a 0.179 mm gap difference between the gauge heights. At that limit the strip still sees ≥ 45.0 N. Board bow is common to all four devices, up to 0.0547 rad; a floating sink takes it.
 
-**Thermal: the bound case still runs.** The bound is the design shim (2.0 mm, three greased faces) at the lowest guaranteed force (45 N) on every FET at once (`results/thermal.md`). Results at 30 °C ambient, natural convection, ZVS loss basis D:
+**Thermal: the bound case still runs.** The bound is the design shim (2.2 mm, three greased faces) at the lowest guaranteed force (45 N) on every FET at once (`results/thermal.md`). Results at 30 °C ambient, natural convection, ZVS loss basis D:
 
 | ceiling | sink | Tj FET (bound) | Tj BR1 |
 |---|---|---|---|
 | **17.5 A** (ships) | **72.8 °C** | **87.1 °C** | 97.3 °C |
 | 17.5 A at 40 °C ambient | 83.8 °C, so **fan** | 99.1 °C | 108.4 °C |
-| **22 A** (headroom) | 85.6 °C, so **fan** | 111.4 °C | 110.2 °C |
+| **22 A** (headroom) | 85.7 °C, so **fan** | 111.6 °C | 110.3 °C |
 | 28 A | 125.5 °C without a fan | 182.8 °C: **not allowed without the fan and a measured interface** | 150.1 °C |
 
 - **Fan rule.** To hold the sink ≤ 80 °C (6 K under the TCO's 86 °C hold), R_SA must be ≤ 1.073 / 0.825 / 0.564 °C/W at 17.5 / 22 / 28 A. The 511-3M is 0.90 °C/W without a fan, so the fan is needed above 17.5 A.
@@ -73,14 +75,14 @@ Source: `results/tolerance.md`.
 - **Lost ZVS.** The sink-sensed trips do not protect the junction: the bound Tj is 178.6 °C at the 95 °C firmware trip, 17.5 A. Step 4's ZVS check and the lag latch protect that case.
 
 **Insulation (`results/insulation.md`).** Everything passes:
-- with the sink face anywhere in **0.681–2.481 mm**;
+- with the sink face anywhere in **0.531–2.631 mm**;
 - with shims under the strip;
 - with bodies floated up to 1.0 mm;
 - with any of the three pad options.
 
 Tightest values: creepage 4.2 mm (floor 4.0); clearance 3.334 mm for the spring with no pad (floor 1.3); BR1 lead 3.789 mm. The SIL PAD 2000 is rated 9.1× the 622.4 V peak stress.
 
-**BR1 fit with the FETs in place (§6.3).** BR1 is seated on the strip by its own screw before it is soldered, so its fit needs no tolerance from JLC. Its shim behind the strip ranges from −0.460 to 1.340 mm; a negative value is taken by leaning BR1 back 0.0075 rad in its holes. **Preheat: a benchtop hot-air bottom preheater** under a window extension beside BR1, with the board bottom at BR1 held at 100–110 °C (`bench_params.PREHEAT_BOARD_C`). The TCO comes off the sink while soldering.
+**BR1 fit with the FETs in place (§6.3).** BR1 is seated on the strip by its own screw before it is soldered, so its fit needs no tolerance from JLC. Its shim behind the strip ranges from −0.610 to 1.490 mm; a negative value is taken by leaning BR1 back 0.0187 rad in its holes. **Preheat: a benchtop hot-air bottom preheater** under a window extension beside BR1, with the board bottom at BR1 held at 100–110 °C (`bench_params.PREHEAT_BOARD_C`). The TCO comes off the sink while soldering.
 
 **Commits.**
 - revision 1: c5a448069, 21aa9ed23, 878ffc59d, 49a5de610;
@@ -93,7 +95,7 @@ Tightest values: creepage 4.2 mm (floor 4.0); clearance 3.334 mm for the spring 
   - It **floats** on two brackets: an M4 pivot through each outer fin in a Ø8 hole with a fender washer, plus a second M4 in a Ø8 hole to lock the tilt.
   - The clamp pulls it onto the soldered row, and it settles on the most-proud tab. Then it is locked.
   - Lower edge 4.5 ± 0.3 mm above the board top, set with a gauge.
-  - Face y between 0.681 and 2.481 depending on the row; nominal 1.581 (`tolerance.md`).
+  - Face y between 0.531 and 2.631 depending on the row; nominal 1.581 (`tolerance.md`).
 - **Insulator.** One continuous **SIL PAD 2000 (0.010 in)** strip, 114.5 × 30 mm, behind Q5, Q6, Q3, Q2 and BR1. It hangs 2.5 mm below the sink's lower edge.
 - **Shims.**
   - A **selected shim under the strip at each FET**: 16 × 22 mm, ≤ 3 layers, greased, lower edge 1.0 mm above the sink edge.
@@ -142,7 +144,7 @@ Each decision gives what was chosen, the data behind it, and what would reverse 
   - 76.2 mm long along z, fins vertical, 0.90 °C/W natural.
   - Milled base.
   - DigiKey had 25 at $40.69.
-- **Why it floats.** The soldered row sets where the sink face must be: anywhere in 0.681–2.481, with up to 0.0547 rad of common tilt (`tolerance.md`). A sink that floats in y and tilt during clamping finds that position itself. The clamp loop is internal: bar, springs, devices, strip, sink. The sink is locked afterwards.
+- **Why it floats.** The soldered row sets where the sink face must be: anywhere in 0.531–2.631, with up to 0.0547 rad of common tilt (`tolerance.md`). A sink that floats in y and tilt during clamping finds that position itself. The clamp loop is internal: bar, springs, devices, strip, sink. The sink is locked afterwards.
 - **Reverses if:**
   - stock runs out: use the 511-6M, same profile;
   - §7's natural R_SA is above 1.073 °C/W: run the fan at 17.5 A too.
@@ -156,7 +158,7 @@ Each decision gives what was chosen, the data behind it, and what would reverse 
   | SIL PAD 2000 | 87.1 °C | 0.876–1.489 °C/W |
   | K-10 | 89.4 °C | – |
 
-  The shim stack adds 0.941 °C/W (small tab) or 0.592 °C/W (large tab). SP2000's rating is 9.1× the peak stress.
+  The shim stack adds 0.953 °C/W (small tab) or 0.592 °C/W (large tab). SP2000's rating is 9.1× the peak stress.
 - **Why shims rather than a thicker conformable pad.**
   - A gap filler thick enough to absorb the 1.8 mm worst spread would itself add more than the shim stack.
   - Its compression would vary with each device's gap, so the pressure would too.
@@ -202,7 +204,7 @@ Unchanged. No HOT stress on it.
 **Consequence.** There is no seat-before-solder any more. Seating, lean and coplanarity become inspection items.
 
 **Seating.**
-- The b1 and b2 shoulder widths (1.60–2.41 and 2.57–3.43 mm) cannot enter the 1.42–1.63 mm finished hole, so a fully pushed body stands at L1 (3.85–4.50 mm).
+- The drain shoulder (b2 2.57–3.43 mm) cannot enter the 1.72–1.93 mm finished hole, so a fully pushed body still stands at L1 (3.85–4.50 mm). Since stage 57 a small gate or source shoulder (b1 down to 1.60 mm) can enter its hole, so pins 1 and 3 no longer guarantee squareness; the drain shoulder spans the hole, and the seating fixture (S32) sets squareness.
 - A body floating up is accepted to 1.0 mm. The strip-top creepage allows 2.26 mm (`tolerance.md`).
 
 **Inspection on receipt.** Per FET, check:
@@ -241,7 +243,7 @@ All numbers here are from `results/compare.md` (`compare_mounts.py`).
   - The common sink's NTC sees every device's heat. Neither design senses a bad interface; §7's calibration run does.
 - **Leads.** A sink hanging on its soldered device must weigh ≤ 83 g, from the leads' 27.8 N·mm elastic moment at an estimated 34 mm lever. Otherwise it needs its own support, which brings back a per-device positioning fit.
 - **Insulation.** At an 18 mm pitch, the 4 mm of pad needed beyond each tab edge makes neighbouring pads overlap. So the per-device design still needs one continuous strip, plus five PE bonds.
-- **Gap pad.** GAP PAD 5000S35's data covers 10–30 % strain, a window of 0.102–0.635 mm. That misses the no-remark spread of 1.500–1.800 mm. The thickest sheet costs Rcs 4.15 °C/W, and you only learn whether it fits by gauging.
+- **Gap pad.** GAP PAD 5000S35's data covers 10–30 % strain, a window of 0.102–0.635 mm. That misses the no-remark spread of 1.800–2.100 mm. The thickest sheet costs Rcs 4.15 °C/W, and you only learn whether it fits by gauging.
 
 **Why the shim design stays.** It is the only option here that:
 - closes every tab whatever JLC does;
@@ -365,7 +367,7 @@ Hand tools and a drill press. Dimensions are in `results/drill-table.md`.
    - Lift the strip's free right end, slide in the greased BR1 shim stack (Ø3.5 hole at the screw), and lay the strip back.
 4. **Screw.** Fit BR1 with its M3 × 10 SHCS and flat washer through the bar slot, using a 2.5 mm ball-end hex driver, ≤ 0.56 N·m.
    - BR1 hangs on the screw, with ≥ 0.2 mm under its seat features.
-   - If the strip face lies beyond BR1's free position (negative shim), the screw leans BR1 back in its holes: up to 0.0075 rad, against 0.423 rad available.
+   - If the strip face lies beyond BR1's free position (negative shim), the screw leans BR1 back in its holes: up to 0.0187 rad, against 0.423 rad available.
 5. **Preheat.**
    - Stand the fixture on its left end.
    - Put the hot-air nozzle of a **benchtop hot-air bottom preheater** at the window extension (x 75–115, y 22–45).
@@ -388,19 +390,19 @@ Revision 1's plan stands:
 - **During runs.** Sink thermocouples per device, IR on the package fronts, and total sink power to tell loss basis A from D.
 
 Added in revision 2:
-- **Per-device Rcs against its shim thickness** from the fit sheet. This shows whether the shim stack costs less than the bound's 0.941 °C/W, which decides whether 28 A is runnable.
+- **Per-device Rcs against its shim thickness** from the fit sheet. This shows whether the shim stack costs less than the bound's 0.953 °C/W, which decides whether 28 A is runnable.
 - **Re-gauge after the first hot run.** Repeat the feeler gauging (clamp off) after the first 10-minute step-8 session. If any gap moved by more than 0.0195 mm, re-select.
 - **Clamp check.** Measure the bar-to-package-front distance beside each pad with calipers. With the pocket depth and pad thickness this gives the spring's installed length; compare it with the fit sheet.
 
 ## 8. Hand-off to M11
 
 Revision 1's items stand: Rcs calibration, clamp force uniformity, BR1 seat, loss basis, NTC offset, TCO margin. New:
-- **Production must also meet a JLC-soldered row.** This study's stack says a single flat sink face cannot meet four soldered TO-247s in 1.5 mm holes: 0.270–1.800 mm spread against 0.0195 mm of compliance. M11's AlN stack therefore needs either:
+- **Production must also meet a JLC-soldered row.** This study's stack says a single flat sink face cannot meet four soldered TO-247s in 1.8 mm holes: 0.270–2.100 mm spread against 0.0195 mm of compliance. M11's AlN stack therefore needs either:
   - per-device compliance (individually sprung insulators or tiles); or
   - an assembly step that fixes the tab plane before soldering: a soldering fixture or comb.
 
   The bench's measured gaps (the `gaps.csv` files) give M11 the real spread for JLC's process.
-- **Where the order remark ends up.** Whether JLC honoured it (the measured spread against 0.270 / 1.500 mm) decides whether a remark is enough for production, or whether M11 needs a fixture.
+- **Where the order remark ends up.** Whether JLC honoured it (the measured spread against 0.270 / 1.800 mm) decides whether a remark is enough for production, or whether M11 needs a fixture.
 
 ## 9. BOM
 

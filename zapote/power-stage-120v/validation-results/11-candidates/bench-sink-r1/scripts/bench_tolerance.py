@@ -7,7 +7,7 @@ Owner decision 2026-10-18: JLC solders Q2/Q3/Q5/Q6 (wave line, hand-inserted: [J
 to the soldered devices afterwards. A soldered device can no longer move to the sink. The tab plane of each device at the
 board line (y, at z = Z_PIVOT) is offset from the footprint by
   * hole position              +/- HOLE_POS_TOL                    [JLC]
-  * lead free in its hole      +/- (D_fin - c) / 2                  D_fin = 1.5 drill -0.08/+0.13 [JLC], c [IPW]
+  * lead free in its hole      +/- (D_fin - c) / 2                  D_fin = 1.8 drill (stage 57) -0.08/+0.13 [JLC], c [IPW]
   * package A1 (back -> leads) +/- 0.20 datasheet, +/- A1_LOT_TOL within one lot (EST)               [IPW]
 and leans by
   * board bow / twist          IPC 0.75 % of the diagonal as quoted by [JLCB] (common lean + a small differential)

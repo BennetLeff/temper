@@ -72,7 +72,9 @@ The plenum end cap is 0.60 mm from In2 rect_n and 3.14 mm from BR1 pad 4.
 
 **Package geometry above the board:**
 - Source: Infineon IPW65R018CFD7 Rev 2.0 p.12, PG-TO247-3 drawing Z8B00003327 rev 06. The package seats
-  on the lead shoulders (b1 ≥ 1.60 and b2 ≥ 2.57 against the 1.5 mm drill).
+  on the drain lead shoulder (b2 ≥ 2.57 against the 1.8 mm drill, 1.93 mm finished at most; stage 57,
+  DECISIONS 87). The gate and source shoulders (b1 ≥ 1.60) can enter a 1.72–1.93 mm hole, so they no longer square
+  the part; the fixture does.
 - **Body bottom:** 3.85–4.50 mm (L1).
 - **Exposed drain metal:** from 5.55–12.41 mm to 23.20–25.49 mm (D, D1, D2).
 - **Plastic beside the metal:** ≥ 0.675 mm ((E − E1)/2 minimum).

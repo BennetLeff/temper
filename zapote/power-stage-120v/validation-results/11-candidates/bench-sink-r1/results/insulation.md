@@ -24,7 +24,7 @@ Tab -> PE capacitance through the SIL PAD 2000 0.254 mm strip: 21.1-33.5 pF per 
 | sink lower edge -> strip outer face -> (gap < X bridged) -> board over edge pours | creepage | 4.2 | 4.0 | True | z_sink 4.2, strip bottom 1.4, gap 1.4 | worst of z_sink x overhang corners |
 | sink lower edge -> edge pour below (F.Cu y >= 0.6) | clearance | 4.13 | 1.3 | True | z_sink 4.2, strip bottom 1.4 | worst of z_sink x overhang corners |
 | sink lower edge -> round strip bottom -> lead | clearance | 4.209 | 1.3 | True | z_sink 4.2, strip bottom 2.0 | worst of z_sink x overhang corners |
-| sink lower edge -> FET lead pad copper (sink face anywhere in its range) | clearance | 4.13 | 1.3 | True | z_sink 4.2, strip bottom 1.4, face y 2.48 | worst of z_sink x overhang corners |
+| sink lower edge -> FET lead pad copper (sink face anywhere in its range) | clearance | 4.13 | 1.3 | True | z_sink 4.2, strip bottom 1.4, face y 2.63 | worst of z_sink x overhang corners |
 | tab-metal bottom edge -> strip bottom -> shim lower edge (shimmed device) | creepage | 6.104 | 4.0 | True | z_sink 4.8, strip bottom 2.6 | worst of z_sink x overhang corners |
 | Q5 tab-metal left edge -> strip left end -> sink face | creepage | 5.479 | 4.0 | True | strip 0.5 mm short | E1 max, device -0.15 |
 | tab-metal top edge -> strip top -> sink face | creepage | 5.264 | 4.0 | True | strip 0.5 mm low, body floated 1.0 mm | L1, D max, D2 min |
@@ -43,4 +43,4 @@ Tab -> PE capacitance through the SIL PAD 2000 0.254 mm strip: 21.1-33.5 pF per 
 
 All paths >= floor and every rated insulator >= 4x its peak stress: **True**
 
-Geometry: sink face y 1.581 nominal, 0.681..2.481 with JLC-soldered devices; tab metal z 5.55..25.49; tab plane -> nearest lead surface 1.755 mm.
+Geometry: sink face y 1.581 nominal, 0.531..2.631 with JLC-soldered devices; tab metal z 5.55..25.49; tab plane -> nearest lead surface 1.755 mm.

@@ -31,7 +31,7 @@ Y_TAB = 1.835                       # FET tab plane, F.Fab, [M11]
 Y_BR1_BACK = 2.30                   # BR1 back face, [M11]
 Y_FET_LEAD = 4.215                  # lead-row centre, [M11]
 Y_BR1_LEAD = 4.6
-FET_DRILL = 1.5                     # TO-247-3_Vertical pads, [M11]
+FET_DRILL = 1.8                     # temper:TO-247-3_Vertical_D1.8 since stage 57 (DECISIONS 87; 1.5 before), [M11]
 BR1_DRILL = 1.6                     # FOOTPRINTS.md F6
 Y_PAD_EDGE_FET = 1.965              # nearest FET pad copper to the edge, [M11]
 Y_EDGE_COPPER = 0.6                 # HOT pours on all four layers come to 0.6 mm from the edge, [M11]
@@ -168,7 +168,6 @@ FAN = dict(pn="Cooltron FD1225B12W2-61-2NC1", size=120.0, depth=25.0, gap_to_fin
 # /capabilities/pcb-assembly-capabilities; [JLCF] jlcpcb.com/help/article/98-PCB-Assembly-FAQs; [JLCB] JLC warpage blog)
 PTH_TOL = (-0.08, 0.13)             # finished plated-hole diameter about the drill, [JLC]
 HOLE_POS_TOL = 0.075                # hole position, [JLC]
-FET_DRILL = 1.5                     # KiCad Package_TO_SOT_THT:TO-247-3_Vertical, all three pads
 BOW_TWIST = 0.0075                  # IPC bow/twist limit for SMT boards, as quoted by [JLCB]; no JLC guarantee was found
 BOARD_XY = (290.0, 190.0)           # FAB-NOTE 'Size' (L-shaped outline; the bounding box is used)
 A1_LOT_TOL = 0.05                   # EST: within-lot spread of A1 (one DigiKey lot, D-8); the datasheet range is the bound
@@ -185,7 +184,7 @@ PAD_COMPLIANCE = 0.010              # mm, EST: SIL PAD 2000 thickness change ove
 SHIM_STEP = 0.025                   # 0.001 in: shim stock steps
 SHIM_LAYERS_MAX = 3                 # at most three layers, each face greased (thermal model takes all three)
 K_SHIM_FET = 109.0                  # W/mK, EST: brass shim stock (aluminium 167 is better; brass is the bound)
-SHIM_MAX_DESIGN = 2.0               # mm: thermal model's thickest FET shim; bench_tolerance.py asserts it covers the stack
+SHIM_MAX_DESIGN = 2.2               # mm: thermal model's thickest FET shim; bench_tolerance.py asserts it covers the stack
 SHIM_FET_SIZE = (16.0, 22.0)        # x, z: covers E1 max x D1 max; inside the 18 mm pitch with 2 mm to spare
 SHIM_FET_Z0 = Z_SINK_BOTTOM + 1.0   # shim lower edge 1.0 mm above the sink's lower edge (creepage rows stay sink-limited)
 FR4_THIN_T = (0.71, 0.87)           # 1/32 in sheet, +/-10 % (EST) for devices whose shim would over-compress the spring

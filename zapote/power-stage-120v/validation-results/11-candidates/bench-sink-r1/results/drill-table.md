@@ -28,8 +28,8 @@ Clamp bar: 6061 3/8 x 1 in, cut 130.5 mm; u from the bar's left end (board x -11
 | cut part | size mm | from |
 |---|---|---|
 | insulator strip | 114.5 x 30.0 | Bergquist SP2000-0.010-00-1212 (304.8 x 304.8 mm) |
-| BR1 shim (selected at the BR1 dry fit, Ø3.5 hole at the screw) | 28.0 x 17.0 x 0-2.0 | shim stock, <= 3 layers |
-| FET shims (selected by shim_select.py) | 16.0 x 22.0 x 0-2.0, lower edge at v 1.0 | shim stock, <= 3 layers, deburred |
+| BR1 shim (selected at the BR1 dry fit, Ø3.5 hole at the screw) | 28.0 x 17.0 x 0-2.2 | shim stock, <= 3 layers |
+| FET shims (selected by shim_select.py) | 16.0 x 22.0 x 0-2.2, lower edge at v 1.0 | shim stock, <= 3 layers, deburred |
 | FR-4 pressure pads x 4 (+ spares) | 14.0 x 16.0 x 1.6, or x 0.8 per shim_select.py | 1/16 and 1/32 in G-10/FR-4 sheet |
 | spacers x 2 | 10.0 long, OD 6, ID 4.3 | RAF M0539-4-AL |
 
