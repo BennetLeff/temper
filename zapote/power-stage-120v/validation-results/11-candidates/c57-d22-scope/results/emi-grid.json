@@ -1,0 +1,98 @@
+{
+ "proto:88:1": {
+  "nominal_min_margin_dB": 10.513366285856293,
+  "sensitivity_min_margin_all_dB": 6.118415399102389,
+  "verdict": "PASS",
+  "controls_ok": true
+ },
+ "proto:88:0.3": {
+  "nominal_min_margin_dB": 8.902166463672955,
+  "sensitivity_min_margin_all_dB": 4.484519676000943,
+  "verdict": "INCONCLUSIVE",
+  "controls_ok": true
+ },
+ "proto:88:0.5": {
+  "nominal_min_margin_dB": 9.3954074959139,
+  "sensitivity_min_margin_all_dB": 4.984536103288804,
+  "verdict": "INCONCLUSIVE",
+  "controls_ok": true
+ },
+ "proto:88:2": {
+  "nominal_min_margin_dB": 11.123288992585742,
+  "sensitivity_min_margin_all_dB": 6.935183204810642,
+  "verdict": "PASS",
+  "controls_ok": true
+ },
+ "proto:100:0.3": {
+  "nominal_min_margin_dB": 9.913190600665118,
+  "sensitivity_min_margin_all_dB": 5.509403623852208,
+  "verdict": "INCONCLUSIVE",
+  "controls_ok": true
+ },
+ "proto:100:1": {
+  "nominal_min_margin_dB": 11.139424258424519,
+  "sensitivity_min_margin_all_dB": 6.95131628444922,
+  "verdict": "PASS",
+  "controls_ok": true
+ },
+ "proto:100:2": {
+  "nominal_min_margin_dB": 11.130598128722426,
+  "sensitivity_min_margin_all_dB": 6.942492479896231,
+  "verdict": "PASS",
+  "controls_ok": true
+ },
+ "proto:110:0.3": {
+  "nominal_min_margin_dB": 10.670587688905584,
+  "sensitivity_min_margin_all_dB": 6.277588989544569,
+  "verdict": "PASS",
+  "controls_ok": true
+ },
+ "proto:49.7:1": {
+  "nominal_min_margin_dB": 7.0614082741953865,
+  "sensitivity_min_margin_all_dB": 2.619767212878685,
+  "verdict": "INCONCLUSIVE",
+  "controls_ok": true
+ },
+ "proto:49.7:2": {
+  "nominal_min_margin_dB": 9.746843931359649,
+  "sensitivity_min_margin_all_dB": 5.341441663395429,
+  "verdict": "INCONCLUSIVE",
+  "controls_ok": true
+ },
+ "proto:77:2": {
+  "nominal_min_margin_dB": 11.116595781156505,
+  "sensitivity_min_margin_all_dB": 6.92848986264746,
+  "verdict": "PASS",
+  "controls_ok": true
+ },
+ "prod:41:0.3": {
+  "nominal_min_margin_dB": 11.135478573430916,
+  "sensitivity_min_margin_all_dB": 6.873963783916182,
+  "verdict": "PASS",
+  "controls_ok": true
+ },
+ "prod:41:1": {
+  "nominal_min_margin_dB": 12.3744735254499,
+  "sensitivity_min_margin_all_dB": 8.186315016029269,
+  "verdict": "PASS",
+  "controls_ok": true
+ },
+ "prod:49.7:0.3": {
+  "nominal_min_margin_dB": 12.384143465757681,
+  "sensitivity_min_margin_all_dB": 8.195983693045719,
+  "verdict": "PASS",
+  "controls_ok": true
+ },
+ "prod:49.7:1": {
+  "nominal_min_margin_dB": 12.37945595499091,
+  "sensitivity_min_margin_all_dB": 8.19129736081225,
+  "verdict": "PASS",
+  "controls_ok": true
+ },
+ "prod:88:0.3": {
+  "nominal_min_margin_dB": 12.406082223254003,
+  "sensitivity_min_margin_all_dB": 8.21792207413452,
+  "verdict": "PASS",
+  "controls_ok": true
+ }
+}

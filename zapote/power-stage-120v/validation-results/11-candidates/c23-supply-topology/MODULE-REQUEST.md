@@ -31,7 +31,7 @@ and 5 are the source; this file records what the stage-38 board's leakage and EM
   8.8 uA (`07-conducted-emi/leakage/result.json`). With the module Y kept it is 0.653 mA and fails.
 - **EMI (s19b):** nominal 12.37 dB, every sensitivity >= 8.19 dB with the SCF31X choke and no module Y
   (`07-conducted-emi/s19b/results.json`; board L1 B82726S2203A020, 2 x 41 uH DM; for the stage-52 L1 see item 3). The SCF31X DM leakage is unpublished; the model takes 1 % (56.8 uH). At 0.3 %
-  the co-design study's minimum is 6.87 dB, so **please measure the DM leakage of a sample** (open item).
+  the co-design study's minimum is 6.87 dB, so **please measure the DM leakage of a sample** (open item). **2026-11-25 (`../c57-d22-scope/`): this is now the gating input: with the stage-52 L1, 100 uH per line gives 5.51 dB at 0.3 % and 6.95 dB at 1 %. The vertical SCF31X-220-2R1A011JV (45 x 31 x 42 mm) has the same electrical row and packs better.**
 
 ## Sourcing (read 2026-10-15, public pages only)
 | Source | Result |

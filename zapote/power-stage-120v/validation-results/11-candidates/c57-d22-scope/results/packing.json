@@ -1,0 +1,86 @@
+{
+ "area_mm2": {
+  "2x WE-HCFT 3635, SCF31X-JH": 7436,
+  "2x WE-HCFT 3635, SCF31X-JV": 6941,
+  "2x CPER3231, SCF31X-JV": 6404,
+  "2x toroid on edge, SCF31X-JV": 7106
+ },
+ "cases": {
+  "2x WE-HCFT 3635, SCF31X-JH | 110x80": {
+   "0mm": "fits",
+   "1mm": "infeasible"
+  },
+  "2x WE-HCFT 3635, SCF31X-JH | 120x80": {
+   "0mm": "fits",
+   "1mm": "fits",
+   "2mm": "infeasible"
+  },
+  "2x WE-HCFT 3635, SCF31X-JH | 130x85": {
+   "0mm": "fits",
+   "1mm": "fits",
+   "2mm": "fits",
+   "3mm": "fits",
+   "4mm": "infeasible"
+  },
+  "2x WE-HCFT 3635, SCF31X-JV | 110x80": {
+   "0mm": "fits",
+   "1mm": "fits",
+   "2mm": "infeasible"
+  },
+  "2x WE-HCFT 3635, SCF31X-JV | 120x80": {
+   "0mm": "fits",
+   "1mm": "fits",
+   "2mm": "fits",
+   "3mm": "infeasible"
+  },
+  "2x WE-HCFT 3635, SCF31X-JV | 130x85": {
+   "0mm": "fits",
+   "1mm": "fits",
+   "2mm": "fits",
+   "3mm": "fits",
+   "4mm": "fits",
+   "5mm": "infeasible"
+  },
+  "2x CPER3231, SCF31X-JV | 110x80": {
+   "0mm": "fits",
+   "1mm": "fits",
+   "2mm": "fits",
+   "3mm": "infeasible"
+  },
+  "2x CPER3231, SCF31X-JV | 120x80": {
+   "0mm": "fits",
+   "1mm": "fits",
+   "2mm": "fits",
+   "3mm": "fits",
+   "4mm": "infeasible"
+  },
+  "2x CPER3231, SCF31X-JV | 130x85": {
+   "0mm": "fits",
+   "1mm": "fits",
+   "2mm": "fits",
+   "3mm": "fits",
+   "4mm": "fits",
+   "5mm": "fits",
+   "6mm": "infeasible"
+  },
+  "2x toroid on edge, SCF31X-JV | 110x80": {
+   "0mm": "fits",
+   "1mm": "fits",
+   "2mm": "infeasible"
+  },
+  "2x toroid on edge, SCF31X-JV | 120x80": {
+   "0mm": "fits",
+   "1mm": "fits",
+   "2mm": "fits",
+   "3mm": "infeasible"
+  },
+  "2x toroid on edge, SCF31X-JV | 130x85": {
+   "0mm": "fits",
+   "1mm": "fits",
+   "2mm": "fits",
+   "3mm": "fits",
+   "4mm": "fits",
+   "5mm": "infeasible"
+  }
+ }
+}

@@ -1,0 +1,100 @@
+{
+ "0077439A7 AL +0%": {
+  "turns_for_100uH_at_21A": 42,
+  "H_Oe": 103.2,
+  "beyond_guaranteed_50pct_point": true,
+  "mu_fraction": 0.427,
+  "13 AWG": {
+   "winding_factor_pct": 25.8,
+   "DCR20_mohm": 19.3,
+   "P_hot_15A_W": 5.71,
+   "within_1W8": false
+  },
+  "12 AWG": {
+   "winding_factor_pct": 32.5,
+   "DCR20_mohm": 15.7,
+   "P_hot_15A_W": 4.65,
+   "within_1W8": false
+  },
+  "10 AWG": {
+   "winding_factor_pct": 51.7,
+   "DCR20_mohm": 10.8,
+   "P_hot_15A_W": 3.18,
+   "within_1W8": false
+  }
+ },
+ "0077439A7 AL -8%": {
+  "turns_for_100uH_at_21A": 45,
+  "H_Oe": 110.6,
+  "beyond_guaranteed_50pct_point": true,
+  "mu_fraction": 0.398,
+  "13 AWG": {
+   "winding_factor_pct": 27.7,
+   "DCR20_mohm": 20.8,
+   "P_hot_15A_W": 6.16,
+   "within_1W8": false
+  },
+  "12 AWG": {
+   "winding_factor_pct": 34.9,
+   "DCR20_mohm": 17.1,
+   "P_hot_15A_W": 5.05,
+   "within_1W8": false
+  },
+  "10 AWG": {
+   "winding_factor_pct": 55.4,
+   "DCR20_mohm": 11.7,
+   "P_hot_15A_W": 3.47,
+   "within_1W8": false
+  }
+ },
+ "0077439A7 size": {
+  "wound_OD_40pct_mm": 52.4,
+  "wound_HT_40pct_mm": 26.1,
+  "stands_on_edge_in_50mm": false,
+  "L_at_21A_uH_at_guaranteed_50pct_point": 84.6
+ },
+ "0077083A7 AL +0%": {
+  "turns_for_100uH_at_21A": 98,
+  "H_Oe": 262.8,
+  "beyond_guaranteed_50pct_point": true,
+  "mu_fraction": 0.129,
+  "13 AWG": {
+   "winding_factor_pct": 60.2,
+   "DCR20_mohm": 43.4,
+   "P_hot_15A_W": 12.83,
+   "within_1W8": false
+  },
+  "12 AWG": {
+   "winding_factor_pct": 75.9,
+   "fits_window": false
+  },
+  "10 AWG": {
+   "winding_factor_pct": 120.7,
+   "fits_window": false
+  }
+ },
+ "0077083A7 AL -8%": {
+  "turns_for_100uH_at_21A": 117,
+  "H_Oe": 313.8,
+  "beyond_guaranteed_50pct_point": true,
+  "mu_fraction": 0.098,
+  "13 AWG": {
+   "winding_factor_pct": 71.9,
+   "fits_window": false
+  },
+  "12 AWG": {
+   "winding_factor_pct": 90.7,
+   "fits_window": false
+  },
+  "10 AWG": {
+   "winding_factor_pct": 144.2,
+   "fits_window": false
+  }
+ },
+ "0077083A7 size": {
+  "wound_OD_40pct_mm": 44.3,
+  "wound_HT_40pct_mm": 22.4,
+  "stands_on_edge_in_50mm": true,
+  "L_at_21A_uH_at_guaranteed_50pct_point": 42.6
+ }
+}

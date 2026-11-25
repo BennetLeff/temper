@@ -1,5 +1,7 @@
 # M11 insulation stack: sourcing for the native-21 prototype lot
 
+> **2026-11-24: do not order row 3 / section 3 as written.** GPHC3.0-0.020-02-0816 (0.020") was superseded on 2026-10-09 by the 1.0 mm (0.040") GAP PAD HC 3.0, cut 30.3 × 17.5 mm (DECISIONS "Gap pad" and `../m11/SINK-DRAWING-NOTES.md`). The 0.040" order code has not been looked up here.
+
 **Lot:** 5 boards plus 2 spare stacks, so **7 stacks**. Read date for every web source is **2026-10-08** unless the row says otherwise.
 **Spec:** `validation-results/08-manufacturing-package/native-21/owner-items/m11/RECOMMENDATION.md` (§4, §4.1, §4.2) and DECISIONS.md 2026-10-08 "heatsink HOT↔PE insulation stack (review M11)".
 **Scope:** research only. Nothing was ordered, carted, quoted through a form or emailed.
