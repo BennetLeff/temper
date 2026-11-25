@@ -7,7 +7,7 @@
 | hole position | +/- 0.075 | [JLC] |
 | finished hole, 1.8 drill | 1.72-1.93 | [JLC] (-0.08, 0.13) |
 | lead thickness c | 0.38-0.89 | [IPW] p.12 |
-| lead free in its hole, (D - c)/2 | +/- 0.415 to +/- 0.775 | from the two rows above |
+| lead free in its hole: min corner-limited, max (D - c)/2 | +/- 0.055 to +/- 0.775 | from the two rows above |
 | package A1 | +/- 0.20 (datasheet), +/- 0.05 within a lot (EST) | [IPW] p.12 |
 | **one device, worst** | **+/- 1.050** | sum |
 
@@ -47,6 +47,6 @@ The options cover 0-2.337 mm; worst spread 2.100 mm: covered = **True**. The 'no
 
 - Sink face y 0.531 .. 2.631 (nominal 1.581): the floating sink settles on the most-proud tab; bracket slots must give at least +/- 1.05 mm in y and +/- 3.1 deg of tilt.
 - Bar back face to the C38-C41 courtyard: >= 1.249 mm at the deepest sink position.
-- BR1 (fitted later by the owner, seated on the strip by its screw): lead play +/- 0.360..0.565 mm. Shim behind the strip at BR1 -0.610 .. 1.490 mm. A positive value is selected at the BR1 dry fit; a negative one is taken by the lead play and, beyond it, by leaning BR1 back 0.0187 rad about its holes before soldering (the 1.6 mm board allows 0.423 rad): fits = **True**.
+- BR1 (fitted later by the owner, seated on the strip by its screw): lead play +/- 0.124..0.565 mm. Shim behind the strip at BR1 -0.610 .. 1.490 mm. A positive value is selected at the BR1 dry fit; a negative one is taken by the lead play and, beyond it, by leaning BR1 back 0.0362 rad about its holes before soldering (the 1.6 mm board allows 0.154 rad): fits = **True**.
 - Unseated body float allowed by the strip-top creepage: 2.26 mm (acceptance set at 1.0 mm).
 

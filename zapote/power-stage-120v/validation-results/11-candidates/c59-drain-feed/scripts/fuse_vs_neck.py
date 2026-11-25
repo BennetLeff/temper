@@ -36,6 +36,10 @@ for n, i, melt, clear, der, listed, fit in F:
                  "G4_copper": g(None if clear is None else clear <= neck), "G5_F2_selective": g(None if melt is None else melt >= 2 * F2),
                  "G6_listed": "PASS" if listed else "UNKNOWN",
                  "br1_0p5x510": g(None if clear is None else clear <= 0.5 * BR1), "br1_1x510": g(None if clear is None else clear <= BR1), "fit": fit})
+cc = json.loads((H.parent / "ccmr020-melt.json").read_text())           # ccmr020_melt.py: estimate, control set of nine KLDR ratings
+for r in rows:
+    if r["fuse"].startswith("CCMR020"):
+        r.update(melt_I2t_range_est=cc["melt_range_A2s"], G3_nuisance=cc["G3_nuisance"] + " (est)", G5_F2_selective=cc["G5_F2_selective"] + " (est)")
 by = {r["fuse"].split()[0]: r for r in rows}
 assert by["KLDR025.TXP"]["G4_copper"] == "FAIL" and abs(by["KLDR025.TXP"]["copper_ratio"] - 0.64) < 0.01   # reproduces DECISIONS 88
 assert by["FWC-25A10F"]["G5_F2_selective"] == "FAIL" and by["A60Q25-2"]["G4_copper"] == "UNKNOWN"          # fail / unknown paths exist

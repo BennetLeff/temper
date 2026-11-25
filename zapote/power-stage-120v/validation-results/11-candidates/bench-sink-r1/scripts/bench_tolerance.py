@@ -104,14 +104,14 @@ def main():
     face = M.sink_face_range()
     bar_film = cl["bar_to_film_courtyard_mm"] - (face[2] - face[1])
     # BR1: its strip face must meet BR1's back within its lead play when BR1 is dry-fitted vertical
-    play_br1 = ((P.BR1_DRILL_FIN[0] - P.GBJ["lead_t"][1]) / 2, (P.BR1_DRILL_FIN[1] - P.GBJ["lead_t"][0]) / 2)
+    play_br1 = (M.corner_play(P.BR1_DRILL_FIN[0], P.GBJ["lead_w"][1], P.GBJ["lead_t"][1]), (P.BR1_DRILL_FIN[1] - P.GBJ["lead_t"][0]) / 2)
     t = P.PADS[P.PAD_CHOICE]["t"]
     grease = P.GREASE_BLT
     br1_shim = (P.Y_BR1_BACK - (face[2] + grease + t), P.Y_BR1_BACK - (face[0] + grease + t))
     # a negative BR1 shim beyond its lead play is taken by leaning BR1 back about its holes (leads still unsoldered)
     excess = max(0.0, -br1_shim[0] - play_br1[0])
     br1_lean = excess / P.BR1_HOLE_Z
-    br1_cap = math.atan((P.BR1_DRILL_FIN[0] - P.GBJ["lead_t"][1]) / P.BOARD_T)
+    br1_cap = math.atan(2 * play_br1[0] / P.BOARD_T)
     assert P.SHIM_MAX_DESIGN >= sp["U_datasheet"], "thermal model's shim must cover the worst spread"
     assert P.SHIM_MAX_DESIGN >= br1_shim[1]
     float_max = (P.STRIP_TOP_Z - P.STRIP_PLACE_TOL) - (T["L1"][1] + T["D"][1] - T["D2"][0]) + t - P.CREEPAGE_BASIC
@@ -131,7 +131,7 @@ def main():
           f"| hole position | +/- {P.HOLE_POS_TOL} | [JLC] |",
           f"| finished hole, {P.FET_DRILL} drill | {M.hole_fin()[0]:.2f}-{M.hole_fin()[1]:.2f} | [JLC] {P.PTH_TOL} |",
           f"| lead thickness c | {T['c'][0]}-{T['c'][1]} | [IPW] p.12 |",
-          f"| lead free in its hole, (D - c)/2 | +/- {sp['play'][0]:.3f} to +/- {sp['play'][1]:.3f} | from the two rows above |",
+          f"| lead free in its hole: min corner-limited, max (D - c)/2 | +/- {sp['play'][0]:.3f} to +/- {sp['play'][1]:.3f} | from the two rows above |",
           f"| package A1 | +/- {(T['A1'][1] - T['A1'][0]) / 2:.2f} (datasheet), +/- {P.A1_LOT_TOL} within a lot (EST) | [IPW] p.12 |",
           f"| **one device, worst** | **+/- {M.tab_offset_bound():.3f}** | sum |", "",
           "Spread between the four devices (what a single flat sink face must meet):", "",

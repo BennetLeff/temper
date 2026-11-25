@@ -1,0 +1,93 @@
+{
+ "need_mm": 0.155,
+ "need_datasheet_A1_mm": 0.305,
+ "corners": {
+  "D 1.72 b 1.00 c 0.38": {
+   "flat_strip": 0.67,
+   "corner": 0.51,
+   "corner_ex": 0.45,
+   "closes": true
+  },
+  "D 1.72 b 1.20 c 0.60": {
+   "flat_strip": 0.56,
+   "corner": 0.316,
+   "corner_ex": 0.233,
+   "closes": true
+  },
+  "D 1.72 b 1.40 c 0.89": {
+   "flat_strip": 0.415,
+   "corner": 0.055,
+   "corner_ex": -0.072,
+   "closes": false
+  },
+  "D 1.82 b 1.00 c 0.38": {
+   "flat_strip": 0.722,
+   "corner": 0.573,
+   "corner_ex": 0.519,
+   "closes": true
+  },
+  "D 1.82 b 1.20 c 0.60": {
+   "flat_strip": 0.613,
+   "corner": 0.388,
+   "corner_ex": 0.314,
+   "closes": true
+  },
+  "D 1.82 b 1.40 c 0.89": {
+   "flat_strip": 0.467,
+   "corner": 0.14,
+   "corner_ex": 0.037,
+   "closes": false
+  },
+  "D 1.93 b 1.00 c 0.38": {
+   "flat_strip": 0.775,
+   "corner": 0.635,
+   "corner_ex": 0.585,
+   "closes": true
+  },
+  "D 1.93 b 1.20 c 0.60": {
+   "flat_strip": 0.665,
+   "corner": 0.456,
+   "corner_ex": 0.39,
+   "closes": true
+  },
+  "D 1.93 b 1.40 c 0.89": {
+   "flat_strip": 0.52,
+   "corner": 0.219,
+   "corner_ex": 0.13,
+   "closes": false
+  }
+ },
+ "lead_limit_one_lot": {
+  "1.00": {
+   "c_max_min_hole": 0.969,
+   "c_max_nominal_hole": 1.107
+  },
+  "1.10": {
+   "c_max_min_hole": 0.871,
+   "c_max_nominal_hole": 1.02
+  },
+  "1.20": {
+   "c_max_min_hole": 0.756,
+   "c_max_nominal_hole": 0.918
+  },
+  "1.30": {
+   "c_max_min_hole": 0.615,
+   "c_max_nominal_hole": 0.798
+  },
+  "1.40": {
+   "c_max_min_hole": 0.436,
+   "c_max_nominal_hole": 0.653
+  }
+ },
+ "drill_that_closes_the_worst_lead_mm": 2.04,
+ "BR1": {
+  "step_shift_needed_mm": 0.2,
+  "flat_strip_worst": 0.36,
+  "corner_worst": 0.124,
+  "corner_nominal": 0.29,
+  "need_with_hole_pos": 0.275,
+  "closes_worst": false,
+  "closes_nominal": true
+ },
+ "control_fails": []
+}

@@ -11,6 +11,8 @@ without yielding a lead; anything larger must be taken by a shim (translation) o
 """
 from __future__ import annotations
 
+import math
+
 import itertools
 
 import bench_params as P
@@ -51,9 +53,17 @@ def hole_fin():
 
 
 def lead_play():
-    """Half the free play of a lead in its finished hole, across the tab plane: (D - c) / 2, over the corners."""
+    """Half the free play of a lead in its finished hole, across the tab plane.
+
+    MIN: the rectangle's corner meets the round hole first, so corner_play() (c60-seating-fixture). MAX: the flat form
+    (D - c) / 2, which ignores the corner and so bounds a lead with rounded corners (the spread and shims use it)."""
     d = hole_fin()
-    return ((d[0] - T["c"][1]) / 2, (d[1] - T["c"][0]) / 2)
+    return (corner_play(d[0], T["b"][1], T["c"][1]), (d[1] - T["c"][0]) / 2)
+
+
+def corner_play(d, b, c):
+    """Half play of a sharp-cornered b x c lead in a round hole d, across c, centred along b."""
+    return math.sqrt((d / 2) ** 2 - (b / 2) ** 2) - c / 2
 
 
 def tab_offset_bound():

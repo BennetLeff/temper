@@ -23,13 +23,17 @@
    "copper_ratio": 1.19,
    "carry_A": 13.5,
    "G2_carry_15A": "FAIL",
-   "G3_nuisance": "UNKNOWN",
+   "G3_nuisance": "PASS (est)",
    "G4_copper": "PASS",
-   "G5_F2_selective": "UNKNOWN",
+   "G5_F2_selective": "UNRESOLVED (est)",
    "G6_listed": "PASS",
    "br1_0p5x510": "FAIL",
    "br1_1x510": "FAIL",
-   "fit": "same clips"
+   "fit": "same clips",
+   "melt_I2t_range_est": [
+    55.8,
+    138.9
+   ]
   },
   {
    "fuse": "KLKR020 (fast, Class CC)",

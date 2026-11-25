@@ -47,7 +47,7 @@ Source: `results/tolerance.md`.
 
 - **Per-device tab offset.** A soldered TO-247's tab plane sits up to **± 1.050 mm** from the footprint. The terms are:
   - JLC hole position ± 0.075;
-  - lead play in the 1.8 mm hole (stage 57), ± 0.415–0.775 (finished hole 1.72–1.93, lead thickness 0.38–0.89);
+  - lead play in the 1.8 mm hole (stage 57), ± 0.055–0.775 (finished hole 1.72–1.93, lead 1.0–1.4 × 0.38–0.89; the minimum is corner-limited, c60);
   - package A1, ± 0.20.
 - **Spread across the four FETs** (what one flat sink face must meet):
   - **0.270–0.570 mm** if JLC honours the order remark (§2);
@@ -82,7 +82,7 @@ Source: `results/tolerance.md`.
 
 Tightest values: creepage 4.2 mm (floor 4.0); clearance 3.334 mm for the spring with no pad (floor 1.3); BR1 lead 3.789 mm. The SIL PAD 2000 is rated 9.1× the 622.4 V peak stress.
 
-**BR1 fit with the FETs in place (§6.3).** BR1 is seated on the strip by its own screw before it is soldered, so its fit needs no tolerance from JLC. Its shim behind the strip ranges from −0.610 to 1.490 mm; a negative value is taken by leaning BR1 back 0.0187 rad in its holes. **Preheat: a benchtop hot-air bottom preheater** under a window extension beside BR1, with the board bottom at BR1 held at 100–110 °C (`bench_params.PREHEAT_BOARD_C`). The TCO comes off the sink while soldering.
+**BR1 fit with the FETs in place (§6.3).** BR1 is seated on the strip by its own screw before it is soldered, so its fit needs no tolerance from JLC. Its shim behind the strip ranges from −0.610 to 1.490 mm; a negative value is taken by leaning BR1 back 0.0362 rad in its holes. **Preheat: a benchtop hot-air bottom preheater** under a window extension beside BR1, with the board bottom at BR1 held at 100–110 °C (`bench_params.PREHEAT_BOARD_C`). The TCO comes off the sink while soldering.
 
 **Commits.**
 - revision 1: c5a448069, 21aa9ed23, 878ffc59d, 49a5de610;
@@ -367,7 +367,7 @@ Hand tools and a drill press. Dimensions are in `results/drill-table.md`.
    - Lift the strip's free right end, slide in the greased BR1 shim stack (Ø3.5 hole at the screw), and lay the strip back.
 4. **Screw.** Fit BR1 with its M3 × 10 SHCS and flat washer through the bar slot, using a 2.5 mm ball-end hex driver, ≤ 0.56 N·m.
    - BR1 hangs on the screw, with ≥ 0.2 mm under its seat features.
-   - If the strip face lies beyond BR1's free position (negative shim), the screw leans BR1 back in its holes: up to 0.0187 rad, against 0.423 rad available.
+   - If the strip face lies beyond BR1's free position (negative shim), the screw leans BR1 back in its holes: up to 0.0362 rad, against 0.154 rad available (corner-limited play, c60; was 0.0187 / 0.423).
 5. **Preheat.**
    - Stand the fixture on its left end.
    - Put the hot-air nozzle of a **benchtop hot-air bottom preheater** at the window extension (x 75–115, y 22–45).
