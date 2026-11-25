@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""PS3 / blower-buck / logic-rail behaviour after the J13 rail merge (controller-j13-merge, DECISIONS C49).
+"""PS3 / blower-buck / logic-rail behaviour after the J13 rail merge (DECISIONS C49), C51: MPM-90-15ST and the face fan.
 
     python3 tools/ps3_loss_sim.py [--json OUT]        (stdlib only, deterministic; exit 1 if a check fails)
 
 Behavioural bounds, not SPICE. Datasheet inputs (read 2026-10-18, files not stored in the repo):
-  MEAN WELL MPM-65-SPEC 2024-10-30 p.2/p.3: 15 V, 4.33 A / 65 W rated, 4.77 A / 71.6 W peak (10 s, <= 33 % duty, average
-    <= rated); overload "115 % ~ 135 % rated output power", hiccup, auto-recovery (hiccup timing not stated); voltage
-    tolerance +/-2 %; hold-up 12 ms at 115 VAC full load; setup time 1000 ms; derating for 15 V: 100 % to 50 C, 80 % at
-    60 C, 50 % at 70 C, 30 % at 80 C (graph, read by eye); output derating 80 % at 80 VAC, 100 % from 100 VAC.
+  MEAN WELL MPM-90-SPEC 2024-10-30 p.2/p.3: 15 V, 5.67 A / 85.05 W convection, 93.5 W peak (10 s, <= 33 % duty, average
+    <= rated); overload "115% ~ 160% rated output power", hiccup, auto-recovery (hiccup timing not stated); voltage
+    tolerance +/-2 %; hold-up 10 ms at 115 VAC full load (typ.); setup 1000 ms; derating at 100 VAC: 100 % to 50 C, 75 % at
+    60 C, 50 % at 70 C, 25 % at 80 C (graph, read by eye); output derating 80 % at 80 VAC, 100 % from 100 VAC.
   TI TPS62933 SLUSEA4D: I_SS 4.5 / 5.5 / 6.5 uA, VREF 0.8 V, t_SS = C_SS x VREF / I_SS (eq. 6); IHS_LIMIT 4.2 / 5 / 5.8 A;
     hiccup after 256 us in current limit, off for 10.5 x t_SS; VIN UVLO falling 3.1-3.5 V.
 Not stated in either datasheet: PS3 hiccup on/off times; the fan's start / lock current (Delta BFB1012VH-F00: 2.70 A max
@@ -21,13 +21,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import controller_calcs as cc  # noqa: E402
 
-# ---- PS3 (MPM-65-15ST)
-P_RATED = 65.0
-OCP_FRAC = (1.15, 1.35)
+# ---- PS3 (one table for every calculation: controller_calcs.PS3_PARTS)
+PART = "MPM-90-15ST"
+P_RATED = cc.PS3_PARTS[PART]["w"]
+OCP_FRAC = (cc.PS3_PARTS[PART]["ocp"], 1.60)
 V_OUT = 15.0
-V_TOL = 0.02
-DERATE = [(50.0, 1.00), (60.0, 0.80), (70.0, 0.50), (80.0, 0.30)]      # 15 V curve, ambient C -> load fraction
-HOLDUP_115VAC_MS = 12.0
+V_TOL = cc.PS3_PARTS[PART]["tol"]
+DERATE = cc.PS3_PARTS[PART]["derate"]      # 15 V curve at 100 VAC, ambient C -> load fraction
+HOLDUP_115VAC_MS = cc.PS3_PARTS[PART]["holdup_ms"]
+P_FACE_FAN = cc.FAN2_ALLOC_W / 0.90
 
 
 def derate_frac(t_c):
@@ -56,8 +58,8 @@ def run():
     out = {"inputs": {"p_rated_W": P_RATED, "ocp_W": [P_RATED * f for f in OCP_FRAC], "harness_loop_ohm": loop_ohm,
                       "logic_W": p_logic, "blower_v_out_hi_V": v_hi, "buck_eta": eta}}
 
-    # 1. Load against the derating curve: the continuous PS3 load is the fan at its highest corner plus the logic.
-    p_total = b["ps3_out_W"] + p_logic
+    # 1. Load against the derating curve: the continuous PS3 load is the blower at its highest corner, the logic and the face fan.
+    p_total = b["ps3_out_W"] + p_logic + P_FACE_FAN
     frac = p_total / P_RATED
     out["continuous"] = {"p_total_W": p_total, "fraction_of_rated": frac, "max_ambient_C": t_at_frac(frac),
                          "at_60C_derated_W": P_RATED * derate_frac(60.0), "fraction_of_60C_derated": p_total / (P_RATED * derate_frac(60.0))}
@@ -65,7 +67,7 @@ def run():
     # 2. How much fan current can PS3 carry before the overload trips (worst case: low trip point, +2 % ... -2 % supply)?
     def ps3_input_w(i_fan):
         p_out = v_hi * i_fan
-        p = p_out / eta + p_logic
+        p = p_out / eta + p_logic + P_FACE_FAN
         i = p / (V_OUT * (1 - V_TOL))
         return p + i * i * loop_ohm                     # harness loss in the supply-to-board loop
     lo, hi = 0.0, 20.0
@@ -92,7 +94,7 @@ def run():
 
     # 4. PS3 lost (hiccup, mains dip, stall): the logic rail runs from the merge bulk until the 3.3 V buck's EN stops it.
     en = cc.en_uvlo()
-    v_start = 15 * (1 - V_TOL) - (b["ps3_out_A_at_low_corner"] + i_logic) * loop_ohm - 0.55    # after the Schottky (VF max)
+    v_start = 15 * (1 - V_TOL) - (b["ps3_out_A_at_low_corner"] + i_logic + P_FACE_FAN / V_OUT) * loop_ohm - 0.55    # after the Schottky (VF max)
     c_bulk = 100e-6 * 0.8 + 10e-6 * 0.5 + 0.1e-6          # 100 uF -20 %, 10 uF X7R at 14 V bias (about 50 %), 0.1 uF
     p_in = p_logic
     # constant-power load: dV/dt = -P / (C V)
@@ -125,7 +127,7 @@ def run():
     # checks
     c = {"fan_must_draw_more_than_rated_max_to_trip_ps3": i_fan_trip > 2.70 * 1.5,
          "continuous_load_below_60C_derated": out["continuous"]["fraction_of_60C_derated"] < 1.0,
-         "max_ambient_above_58C_bay": (out["continuous"]["max_ambient_C"] or 0) > 58.0,
+         "max_ambient_above_61C_bay": (out["continuous"]["max_ambient_C"] or 0) > 61.0,
          "logic_rail_above_buck_start": v_start >= en["start_max_V"] + 0.5,
          "buck_stops_before_3v3_collapse_into_uvlo_order_known": "driver_VDDI_UVLO_off_max_2.95V" in seen}
     out["checks"] = c

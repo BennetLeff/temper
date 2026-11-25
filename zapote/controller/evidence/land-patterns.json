@@ -1,5 +1,5 @@
 {
- "checked": 88,
+ "checked": 94,
  "failed": [],
  "limit_mm": 0.3,
  "rows": [
@@ -60,6 +60,17 @@
   },
   {
    "exception": null,
+   "footprint": "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical",
+   "jlc_package": "CONN-TH_B2B-PH-K-S",
+   "lcsc": "C131337",
+   "mpn": "B2B-PH-K-S(LF)(SN)",
+   "refs": [
+    "J14"
+   ],
+   "rms_mm": 0.0
+  },
+  {
+   "exception": null,
    "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
    "jlc_package": "CONN-TH_B2B-XH-A-LF-SN",
    "lcsc": "C158012",
@@ -89,8 +100,7 @@
    "mpn": "B3B-XH-A(LF)(SN)",
    "refs": [
     "J10",
-    "J12",
-    "J9"
+    "J12"
    ],
    "rms_mm": 0.0
   },
@@ -101,9 +111,21 @@
    "lcsc": "C144395",
    "mpn": "B4B-XH-A(LF)(SN)",
    "refs": [
-    "J3"
+    "J3",
+    "J9"
    ],
    "rms_mm": 0.0
+  },
+  {
+   "exception": null,
+   "footprint": "Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical",
+   "jlc_package": "CONN-TH_B5B-XH-A-LF-SN",
+   "lcsc": "C157991",
+   "mpn": "B5B-XH-A(LF)(SN)",
+   "refs": [
+    "J15"
+   ],
+   "rms_mm": 0.057
   },
   {
    "exception": null,
@@ -123,9 +145,21 @@
    "lcsc": "C76892",
    "mpn": "BLM18AG121SN1D",
    "refs": [
+    "R131",
     "R46"
    ],
    "rms_mm": 0.088
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23",
+   "jlc_package": "SOT-23-3_L2.9-W1.6-P1.90-LS2.8-BR",
+   "lcsc": "C82045",
+   "mpn": "BSS138LT1G",
+   "refs": [
+    "Q2"
+   ],
+   "rms_mm": 0.281
   },
   {
    "exception": null,
@@ -178,7 +212,16 @@
    "lcsc": "C14663",
    "mpn": "CC0603KRX7R9BB104",
    "refs": [
+    "C110",
+    "C111",
+    "C112",
+    "C113",
+    "C114",
+    "C115",
     "C12",
+    "C121",
+    "C123",
+    "C126",
     "C14",
     "C20",
     "C3",
@@ -258,6 +301,7 @@
    "mpn": "CL10B103KB8NNNC",
    "refs": [
     "C11",
+    "C120",
     "C2"
    ],
    "rms_mm": 0.075
@@ -269,6 +313,9 @@
    "lcsc": "C163508",
    "mpn": "CL10C102JB8NNNC",
    "refs": [
+    "C118",
+    "C119",
+    "C127",
     "C18",
     "C64",
     "C97"
@@ -296,6 +343,7 @@
    "lcsc": "C9807",
    "mpn": "CL31A106KAHNNNE",
    "refs": [
+    "C122",
     "C13",
     "C15",
     "C4"
@@ -309,6 +357,8 @@
    "lcsc": "C12891",
    "mpn": "CL31A226KAHNNNE",
    "refs": [
+    "C124",
+    "C125",
     "C16",
     "C17"
    ],
@@ -325,6 +375,17 @@
     "C9"
    ],
    "rms_mm": 0.217
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SO:MSOP-8_3x3mm_P0.65mm",
+   "jlc_package": "MSOP-8_L3.0-W3.0-P0.65-LS5.0-BL",
+   "lcsc": "C148036",
+   "mpn": "EMC2301-1-ACZL-TR",
+   "refs": [
+    "U52"
+   ],
+   "rms_mm": 0.034
   },
   {
    "exception": null,
@@ -370,6 +431,11 @@
    "mpn": "ESD5Z3.3T1G",
    "refs": [
     "D1",
+    "D10",
+    "D11",
+    "D12",
+    "D13",
+    "D15",
     "D2",
     "D3",
     "D4",
@@ -385,6 +451,7 @@
    "lcsc": "C82044",
    "mpn": "ESD5Z5.0T1G",
    "refs": [
+    "D14",
     "D7"
    ],
    "rms_mm": 0.012
@@ -420,6 +487,8 @@
    "lcsc": "C97946",
    "mpn": "GRM31C5C1H104JA01L",
    "refs": [
+    "C116",
+    "C117",
     "C31",
     "C38",
     "C80",
@@ -446,7 +515,8 @@
    "lcsc": "C779509",
    "mpn": "MAX31865AAP+T",
    "refs": [
-    "U30"
+    "U30",
+    "U50"
    ],
    "rms_mm": 0.009
   },
@@ -481,6 +551,7 @@
    "refs": [
     "R11",
     "R110",
+    "R150",
     "R17",
     "R20",
     "R38",
@@ -524,6 +595,11 @@
     "R119",
     "R120",
     "R124",
+    "R136",
+    "R154",
+    "R155",
+    "R156",
+    "R157",
     "R19",
     "R25",
     "R28",
@@ -585,6 +661,7 @@
    "mpn": "RC0603FR-0712K1L",
    "refs": [
     "R12",
+    "R151",
     "R18",
     "R21"
    ],
@@ -610,6 +687,11 @@
    "refs": [
     "R10",
     "R106",
+    "R132",
+    "R133",
+    "R134",
+    "R135",
+    "R158",
     "R26",
     "R27",
     "R69",
@@ -625,7 +707,9 @@
    "lcsc": "C105578",
    "mpn": "RC0603FR-071ML",
    "refs": [
-    "R123"
+    "R123",
+    "R137",
+    "R138"
    ],
    "rms_mm": 0.072
   },
@@ -761,11 +845,11 @@
    "refs": [
     "R100",
     "R105",
+    "R153",
     "R77",
     "R80",
     "R81",
-    "R84",
-    "R93"
+    "R84"
    ],
    "rms_mm": 0.072
   },
@@ -787,6 +871,7 @@
    "lcsc": "C861125",
    "mpn": "RT0603BRD07140KL",
    "refs": [
+    "R152",
     "R23",
     "R36"
    ],
@@ -810,6 +895,10 @@
    "lcsc": "C110776",
    "mpn": "RT0603BRD071KL",
    "refs": [
+    "R139",
+    "R140",
+    "R141",
+    "R142",
     "R57",
     "R58",
     "R59",
@@ -858,6 +947,17 @@
    "exception": null,
    "footprint": "Resistor_SMD:R_0603_1608Metric",
    "jlc_package": "R0603",
+   "lcsc": "C326725",
+   "mpn": "RT0603BRD0747KL",
+   "refs": [
+    "R93"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
    "lcsc": "C861561",
    "mpn": "RT0603BRD077K06L",
    "refs": [
@@ -899,6 +999,17 @@
     "R83"
    ],
    "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0805_2012Metric",
+   "jlc_package": "R0805",
+   "lcsc": "C728653",
+   "mpn": "RT0805BRD074K3L",
+   "refs": [
+    "R130"
+   ],
+   "rms_mm": 0.088
   },
   {
    "exception": null,
@@ -1038,7 +1149,8 @@
    "lcsc": "C79272",
    "mpn": "SWPA6045S100MT",
    "refs": [
-    "L1"
+    "L1",
+    "L3"
    ],
    "rms_mm": 0.353
   },
@@ -1177,7 +1289,8 @@
    "lcsc": "C3200405",
    "mpn": "TPS62933DRLR",
    "refs": [
-    "U2"
+    "U2",
+    "U51"
    ],
    "rms_mm": 0.1
   },

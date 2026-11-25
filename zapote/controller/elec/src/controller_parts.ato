@@ -609,3 +609,65 @@ component TagConnectPads10:
     signal p8 ~ pin 8
     signal p9 ~ pin 9
     signal p10 ~ pin 10
+
+# ------------------------------------------------------------------ C51
+
+component Emc2301:
+    """Microchip EMC2301-1-ACZL-TR, RPM-based PWM fan controller, MSOP-8 (LCSC C148036). DS20006532A Table 3-1:
+    SMDATA1 SMCLK2 VDD3 GND4 PWM5 TACH6 CLK7 ALERT#8; SMBus address 0101_111 (0x2F), 10-400 kHz."""
+    designator_prefix = "U"
+    mpn = "EMC2301-1-ACZL-TR"
+    manufacturer = "Microchip"
+    footprint = "Package_SO:MSOP-8_3x3mm_P0.65mm"
+    signal SMDATA ~ pin 1
+    signal SMCLK ~ pin 2
+    signal VDD ~ pin 3
+    signal GND ~ pin 4
+    signal PWM ~ pin 5
+    signal TACH ~ pin 6
+    signal CLK ~ pin 7
+    signal ALERT_N ~ pin 8
+
+component NmosBss138:
+    """onsemi BSS138LT1G 50 V 200 mA logic-level N-MOSFET, SOT-23 (LCSC C82045): G1 S2 D3. VGS(th) 1.5 V max, so it
+    conducts with 2.9 V of gate drive where the 2N7002 (2.5 V max) might not."""
+    designator_prefix = "Q"
+    mpn = "BSS138LT1G"
+    manufacturer = "onsemi"
+    footprint = "Package_TO_SOT_SMD:SOT-23"
+    signal G ~ pin 1
+    signal S ~ pin 2
+    signal D ~ pin 3
+
+component PhHeader2:
+    """JST B2B-PH-K-S(LF)(SN), 2-pin 2.00 mm vertical (LCSC C131337). Bay NTC: a different family from the XH
+    thermistor headers J1 and J2, so the leads cannot be swapped."""
+    designator_prefix = "J"
+    mpn = "B2B-PH-K-S(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
+component XhHeader4:
+    """JST B4B-XH-A(LF)(SN), 4-pin 2.50 mm vertical (LCSC C144395), as J3."""
+    designator_prefix = "J"
+    mpn = "B4B-XH-A(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+
+component XhHeader5:
+    """JST B5B-XH-A(LF)(SN), 5-pin 2.50 mm vertical (LCSC C157991)."""
+    designator_prefix = "J"
+    mpn = "B5B-XH-A(LF)(SN)"
+    manufacturer = "JST"
+    footprint = "Connector_JST:JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical"
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+    signal p3 ~ pin 3
+    signal p4 ~ pin 4
+    signal p5 ~ pin 5

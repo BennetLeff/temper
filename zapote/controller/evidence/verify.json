@@ -1,14 +1,40 @@
 {
   "failed": [],
   "inputs": {
-    "native21_commit": "7c55c9ab81260b396be266861a0f0e8a42f96a5f",
+    "native21_commit": "f0c669a86b70ac270d36fa416fd75870c078974a",
     "netlist": "frozen/default.net",
-    "netlist_sha256": "c7281eaca97a0dbc7fba912c99f312b509b9e7a2d42afd7f9b69464454f86f13"
+    "netlist_sha256": "2c8f7b018f2cd8dd320e8b78bedda4e9dc8b24cefee48c14c288592a0389eefa"
   },
   "schema": "temper.controller.verify.v1",
   "sections": {
     "adc1": {
       "checks": {
+        "BAY_ADC_driven_by_TLV9062IDR_buffer": {
+          "detail": [
+            "bay_buf_out"
+          ],
+          "ok": true
+        },
+        "BAY_ADC_input_rc_le_1kHz": {
+          "detail": {
+            "C": [
+              "C72"
+            ],
+            "R": "R94",
+            "buffer_out": [
+              "bay_buf_out"
+            ],
+            "f_Hz": 159.2,
+            "input": "bay_filt"
+          },
+          "ok": true
+        },
+        "BAY_ADC_on_one_adc1_gpio": {
+          "detail": [
+            8
+          ],
+          "ok": true
+        },
         "COIL_ADC_driven_by_TLV9062IDR_buffer": {
           "detail": [
             "coil_buf_out"
@@ -75,32 +101,6 @@
           ],
           "ok": true
         },
-        "M12_ADC_driven_by_TLV9062IDR_buffer": {
-          "detail": [
-            "m12_buf_out"
-          ],
-          "ok": true
-        },
-        "M12_ADC_input_rc_le_1kHz": {
-          "detail": {
-            "C": [
-              "C72"
-            ],
-            "R": "R94",
-            "buffer_out": [
-              "m12_buf_out"
-            ],
-            "f_Hz": 159.2,
-            "input": "m12_filt"
-          },
-          "ok": true
-        },
-        "M12_ADC_on_one_adc1_gpio": {
-          "detail": [
-            8
-          ],
-          "ok": true
-        },
         "RIM_ADC_driven_by_TLV9061IDBVR_buffer": {
           "detail": [
             "rim_buf_out"
@@ -141,10 +141,10 @@
         },
         "budget_pattern_len_le_24": {
           "detail": {
+            "BAY": 8888.888888888889,
             "COIL": 8888.888888888889,
             "CT_MON": 17777.777777777777,
             "HS": 8888.888888888889,
-            "M12": 8888.888888888889,
             "RIM": 8888.888888888889,
             "VBUS": 26666.666666666668
           },
@@ -152,10 +152,10 @@
         },
         "budget_total_le_datasheet_100k": {
           "detail": {
+            "BAY": 8888.888888888889,
             "COIL": 8888.888888888889,
             "CT_MON": 17777.777777777777,
             "HS": 8888.888888888889,
-            "M12": 8888.888888888889,
             "RIM": 8888.888888888889,
             "VBUS": 26666.666666666668
           },
@@ -163,10 +163,10 @@
         },
         "budget_total_le_idf_83333": {
           "detail": {
+            "BAY": 8888.888888888889,
             "COIL": 8888.888888888889,
             "CT_MON": 17777.777777777777,
             "HS": 8888.888888888889,
-            "M12": 8888.888888888889,
             "RIM": 8888.888888888889,
             "VBUS": 26666.666666666668
           },
@@ -174,10 +174,10 @@
         },
         "budget_vbus_gap_le_150us": {
           "detail": {
+            "BAY": 8888.888888888889,
             "COIL": 8888.888888888889,
             "CT_MON": 17777.777777777777,
             "HS": 8888.888888888889,
-            "M12": 8888.888888888889,
             "RIM": 8888.888888888889,
             "VBUS": 26666.666666666668
           },
@@ -185,10 +185,10 @@
         },
         "budget_vbus_ge_20k": {
           "detail": {
+            "BAY": 8888.888888888889,
             "COIL": 8888.888888888889,
             "CT_MON": 17777.777777777777,
             "HS": 8888.888888888889,
-            "M12": 8888.888888888889,
             "RIM": 8888.888888888889,
             "VBUS": 26666.666666666668
           },
@@ -236,7 +236,7 @@
         "GPIO5": "pwm_la_mcu",
         "GPIO6": "HS_ADC",
         "GPIO7": "COIL_ADC",
-        "GPIO8": "M12_ADC",
+        "GPIO8": "BAY_ADC",
         "GPIO9": "RIM_ADC",
         "adc1_pins_not_analog": {
           "4": "pwm_ha_mcu",
@@ -490,7 +490,7 @@
           "detail": null,
           "ok": true
         },
-        "sim_ps3_loss_max_ambient_above_58C_bay": {
+        "sim_ps3_loss_max_ambient_above_61C_bay": {
           "detail": null,
           "ok": true
         },
@@ -498,9 +498,11 @@
           "detail": {
             "caps": [
               "C14",
+              "C123",
               "C9",
               "C13",
-              "C15"
+              "C15",
+              "C122"
             ],
             "en_top": [
               "R17"
@@ -562,8 +564,8 @@
             "README power table",
             "CONTROLLER-REQUEST items 1, 2, 4"
           ],
-          "v_blw_min_V": 14.432695464653284,
-          "v_logic_min_V": 13.882695464653283
+          "v_blw_min_V": 14.395183755616246,
+          "v_logic_min_V": 13.845183755616246
         },
         "ps3_budget": {
           "blower_A": 2.8829641297883883,
@@ -594,11 +596,11 @@
         },
         "ps3_loss_sim": {
           "continuous": {
-            "at_60C_derated_W": 52.0,
-            "fraction_of_60C_derated": 0.8567421541910107,
-            "fraction_of_rated": 0.6853937233528086,
-            "max_ambient_C": 63.82020922157305,
-            "p_total_W": 44.55059201793256
+            "at_60C_derated_W": 63.787499999999994,
+            "fraction_of_60C_derated": 0.8377735591898327,
+            "fraction_of_rated": 0.6283301693923744,
+            "max_ambient_C": 64.86679322430503,
+            "p_total_W": 53.439480906821444
           },
           "inputs": {
             "blower_v_out_hi_V": 12.399922859520029,
@@ -606,34 +608,34 @@
             "harness_loop_ohm": 0.063301009,
             "logic_W": 4.83,
             "ocp_W": [
-              74.75,
-              87.75
+              97.80749999999999,
+              136.08
             ],
-            "p_rated_W": 65.0
+            "p_rated_W": 85.05
           },
           "overload": {
             "buck_output_ceiling_A": [
               4.2,
               5.8
             ],
-            "fan_current_to_trip_lowest_ocp_A": 4.961003186605788,
+            "fan_current_to_trip_lowest_ocp_A": 5.910729057534919,
             "fan_rated_max_A": 2.7,
-            "margin_x_fan_rated_max": 1.8374085876317734,
+            "margin_x_fan_rated_max": 2.189158910198118,
             "note": "PS3 trips only if the 12 V load draws more than fan_current_to_trip_lowest_ocp_A; the buck can pass its own limit (4.2-5.8 A peak), so a short is bounded by hiccup, and only a fan drawing >= this current can trip PS3 at start."
           },
           "ps3_loss": {
             "buck_en_stop_V": 9.802991089108911,
             "gate_drive": "the drivers' VDDI UVLO forces the outputs low within the times above after the buck stops, before the MCU (brown-out about 2.43 V) can drive anything; the PERMIT path (supervisor filter, U37) is independent and not timed here",
             "logic_cap_uF": 85.10000000000001,
-            "ps3_holdup_ms_115VAC": 12.0,
-            "t_buck_stops_ms": 0.8700000000000147,
+            "ps3_holdup_ms_115VAC": 10.0,
+            "t_buck_stops_ms": 0.8610000000000144,
             "v3v3_fall_us_after_buck_stop": {
               "MCU_brownout_2.43V": 35.0,
               "TPS3703_UV_3.146V": 6.999999999999999,
               "driver_VDDI_UVLO_off_max_2.95V": 15.000000000000004,
               "driver_VDDI_UVLO_off_min_2.55V": 31.000000000000007
             },
-            "v_logic_start_V": 13.957695464653282
+            "v_logic_start_V": 13.920183755616245
           },
           "soft_start": {
             "hiccup_off_ms": [
@@ -661,17 +663,211 @@
         "every_part_has_a_basis": {
           "detail": [],
           "ok": true
+        },
+        "land_patterns_match_jlc": {
+          "detail": [],
+          "ok": true
         }
       },
       "data": {
         "count": {
-          "components": 289,
-          "distinct_mpns": 90
+          "components": 342,
+          "distinct_mpns": 96
         },
         "unverified": [
           "0430451600"
         ]
       }
+    },
+    "c51": {
+      "checks": {
+        "bay_ntc_on_gpio8": {
+          "detail": {
+            "gpio8": "BAY_ADC",
+            "pullup": [
+              "R93"
+            ]
+          },
+          "ok": true
+        },
+        "fan2_alert_p17_pulled_up": {
+          "detail": "FAN2_ALERT",
+          "ok": true
+        },
+        "fan2_buck_12v_from_v15_blw": {
+          "detail": {
+            "divider": [
+              140000.0,
+              10000.0
+            ],
+            "vin": "V15_BLW"
+          },
+          "ok": true
+        },
+        "fan2_on_internal_i2c": {
+          "detail": {
+            "bus": [
+              "I2C_SCL_BOOT",
+              "I2C_SDA"
+            ],
+            "u52": [
+              "I2C_SCL_BOOT",
+              "I2C_SDA"
+            ]
+          },
+          "ok": true
+        },
+        "fan2_pwm_cascode": {
+          "detail": {
+            "gate_source_drain": [
+              "v3v3",
+              "FAN2_PWM",
+              "J15_PWM"
+            ],
+            "j15_pwm_nodes": [
+              "D14",
+              "J15",
+              "Q2"
+            ]
+          },
+          "ok": true
+        },
+        "fan2_tach_path": {
+          "detail": [
+            "R158"
+          ],
+          "ok": true
+        },
+        "food_cs_p06_pulled_up": {
+          "detail": {
+            "p06": "RTD2_CS_N",
+            "pullup": [
+              "R136"
+            ]
+          },
+          "ok": true
+        },
+        "food_drdy_p05": {
+          "detail": "RTD2_DRDY",
+          "ok": true
+        },
+        "food_rref_4k3": {
+          "detail": [
+            "R130"
+          ],
+          "ok": true
+        },
+        "food_shares_only_listed_nets": {
+          "detail": [
+            "RTD2_CS_N",
+            "RTD2_DRDY",
+            "RTD_SCK",
+            "RTD_SDI",
+            "RTD_SDO",
+            "selv_gnd",
+            "v3v3"
+          ],
+          "ok": true
+        },
+        "food_spi_behind_1k": {
+          "detail": {
+            "RTD2_CS_N": [
+              "1kohm +/- 1%"
+            ],
+            "RTD_SCK": [
+              "1kohm +/- 1%"
+            ],
+            "RTD_SDI": [
+              "1kohm +/- 1%"
+            ],
+            "RTD_SDO": [
+              "1kohm +/- 1%"
+            ]
+          },
+          "ok": true
+        },
+        "food_supply_is_its_own_bead": {
+          "detail": {
+            "bead": [
+              "R131"
+            ],
+            "vdd": "RTD2_AVDD"
+          },
+          "ok": true
+        },
+        "j14_header_is_unique_on_the_board": {
+          "detail": [],
+          "ok": true
+        },
+        "j15_header_is_unique_on_the_board": {
+          "detail": [],
+          "ok": true
+        },
+        "j15_pin_map": {
+          "detail": {
+            "1": "selv_gnd",
+            "2": "V12_FAN2",
+            "3": "J15_FG",
+            "4": "J15_PWM",
+            "5": "selv_gnd"
+          },
+          "ok": true
+        },
+        "j9_1_cap_and_tvs": {
+          "detail": {
+            "caps": [
+              "C112"
+            ],
+            "tvs": [
+              "D10"
+            ]
+          },
+          "ok": true
+        },
+        "j9_2_cap_and_tvs": {
+          "detail": {
+            "caps": [
+              "C113"
+            ],
+            "tvs": [
+              "D11"
+            ]
+          },
+          "ok": true
+        },
+        "j9_3_cap_and_tvs": {
+          "detail": {
+            "caps": [
+              "C114"
+            ],
+            "tvs": [
+              "D12"
+            ]
+          },
+          "ok": true
+        },
+        "j9_4_cap_and_tvs": {
+          "detail": {
+            "caps": [
+              "C115"
+            ],
+            "tvs": [
+              "D13"
+            ]
+          },
+          "ok": true
+        },
+        "j9_pin_map": {
+          "detail": {
+            "1": "rtd2_force_p",
+            "2": "rtd2_sense_p_ext",
+            "3": "rtd2_sense_n_ext",
+            "4": "rtd2_force_n"
+          },
+          "ok": true
+        }
+      },
+      "data": {}
     },
     "calcs": {
       "checks": {
@@ -1540,7 +1736,7 @@
           "GPIO5": "pwm_la_mcu",
           "GPIO6": "HS_ADC",
           "GPIO7": "COIL_ADC",
-          "GPIO8": "M12_ADC",
+          "GPIO8": "BAY_ADC",
           "GPIO9": "RIM_ADC"
         }
       }
@@ -1946,7 +2142,7 @@
           "RAIL_FAULT",
           "RAIL_OK",
           "RIM_HOT",
-          "RTD_AVDD",
+          "RTD2_AVDD",
           "RTD_RAIL_OK",
           "RUNAWAY_FAULT",
           "RUNAWAY_RTD",
@@ -2551,37 +2747,37 @@
     "v3v3": {
       "checks": {
         "j4_pin3_current_le_contact_rating": {
-          "detail": 0.049345358988948464,
+          "detail": 0.02773465615056683,
           "ok": true
         },
         "native21_rail_inside_3135_3465": {
           "detail": [
-            3.236896130065459,
-            3.374371003073652
+            3.2392990419789065,
+            3.374891469997356
           ],
           "ok": true
         },
         "ps1_within_21W_at_full_blower": {
-          "detail": 4.834404413887074,
+          "detail": 4.7921772640561695,
           "ok": true
         },
         "within_inductor_irms_2p45A": {
-          "detail": 1051.5263623532503,
+          "detail": 1041.1676098694788,
           "ok": true
         },
         "within_tps62933_3A": {
-          "detail": 1051.5263623532503,
+          "detail": 1041.1676098694788,
           "ok": true
         }
       },
       "data": {
-        "controller_mA": 542.1810033643019,
-        "native21_on_J4_3_mA": 49.34535898894846,
+        "controller_mA": 553.4329537189119,
+        "native21_on_J4_3_mA": 27.73465615056683,
         "native21_rail_V": {
           "harness": {
             "allocation": "J4 harness <= 1.0 m, AWG22, Micro-Fit 43030 terminals (DEFAULT; harness not yet specified)",
-            "ground_shift_max_V": 0.007817054462747367,
-            "ground_shift_min_V": -0.0013716878145361526,
+            "ground_shift_max_V": 0.008337521386451502,
+            "ground_shift_min_V": -0.0007709598361743192,
             "length_m": 1.0,
             "r_conductor_ohm": 0.08339312,
             "r_ground_3pin_ohm": 0.027797706666666668,
@@ -2589,16 +2785,16 @@
               "Micro-Fit",
               "AWG22"
             ],
-            "v3v3_drop_V": 0.004115063443608458
+            "v3v3_drop_V": 0.0023128795085229576
           },
-          "max": 3.374371003073652,
-          "min": 3.236896130065459
+          "max": 3.374891469997356,
+          "min": 3.2392990419789065
         },
         "oled_off_board_mA": {
           "basis": "Newhaven NHD-3.12-25664UCW2 rev: IDD 340 mA max, 3.3 V, 100 % on, factory jumper (via J7.2, R33)",
           "mA": 340.0
         },
-        "peak_mA": 1051.5263623532503,
+        "peak_mA": 1041.1676098694788,
         "ps1": {
           "basis": "efficiency 85 % (3.3 V) is an allocation from the TPS62933 typical curves; IRM-20-15 21 W rated; blower on PS3 (check_blwin)",
           "blower_input_W_now_on_ps3": {
@@ -2606,8 +2802,8 @@
             "full_typ": 18.933333333333334,
             "r32_cap": 10.0
           },
-          "p_3v3_rail_W": 4.286516288887074,
-          "p_total_W": 4.834404413887074,
+          "p_3v3_rail_W": 4.2442891390561694,
+          "p_total_W": 4.7921772640561695,
           "p_v15_direct_W": 0.547888125,
           "rating_W": 21.0
         },
@@ -2620,25 +2816,18 @@
             "ref": "U4"
           },
           {
-            "basis": "330ohm R + 0 ohm to gnd",
-            "board": "native21",
-            "mA": 11.052631578947368,
-            "path": "leg_a.r_dis_pu",
-            "ref": "R8"
-          },
-          {
-            "basis": "330ohm R + 0 ohm to gnd",
-            "board": "native21",
-            "mA": 11.052631578947368,
-            "path": "leg_b.r_dis_pu",
-            "ref": "R16"
-          },
-          {
             "basis": "MAX31865AAP+T: MAX31865 DS: IDD 3.5 mA + 0.4 mA (input > ref) + BIAS IOUT 5.75 mA max",
             "board": "controller",
             "mA": 9.65,
             "path": "rtd_pan.adc",
             "ref": "U30"
+          },
+          {
+            "basis": "MAX31865AAP+T: MAX31865 DS: IDD 3.5 mA + 0.4 mA (input > ref) + BIAS IOUT 5.75 mA max",
+            "board": "controller",
+            "mA": 9.65,
+            "path": "rtd_food.adc",
+            "ref": "U50"
           },
           {
             "basis": "AMC1311BDWVR: SBAS786C 6.x: IDD2 7.2 mA max (3.0-3.6 V)",
@@ -2655,16 +2844,16 @@
             "ref": "U5"
           },
           {
-            "basis": "UCC21550BDWKR: SLUSE89C 6.6: IVCCI 4.8 mA max (VIN=VCC)",
+            "basis": "2EDR8259XXUMA1: Infineon 2EDR8259X Rev 1.7 p.12: IVDDIq 2.12 mA max not switching, doubled as a switching allowance",
             "board": "native21",
-            "mA": 4.8,
+            "mA": 4.24,
             "path": "leg_a.driver",
             "ref": "U1"
           },
           {
-            "basis": "UCC21550BDWKR: SLUSE89C 6.6: IVCCI 4.8 mA max (VIN=VCC)",
+            "basis": "2EDR8259XXUMA1: Infineon 2EDR8259X Rev 1.7 p.12: IVDDIq 2.12 mA max not switching, doubled as a switching allowance",
             "board": "native21",
-            "mA": 4.8,
+            "mA": 4.24,
             "path": "leg_b.driver",
             "ref": "U2"
           },
@@ -2690,6 +2879,20 @@
             "ref": "R96"
           },
           {
+            "basis": "CA-IS3720HW: Chipanalog CA-IS372x p.11: IDDB 3.2 mA max at 1 Mbps",
+            "board": "native21",
+            "mA": 3.2,
+            "path": "u_iso",
+            "ref": "U9"
+          },
+          {
+            "basis": "CA-IS3720HW: Chipanalog CA-IS372x p.11: IDDB 3.2 mA max at 1 Mbps",
+            "board": "native21",
+            "mA": 3.2,
+            "path": "hb.iso",
+            "ref": "U32"
+          },
+          {
             "basis": "TLV9062IDR: SBOS839N 7.x: IQ 0.8 mA/amp max (5.5 V, -40..125 C)",
             "board": "controller",
             "mA": 1.6,
@@ -2709,34 +2912,6 @@
             "mA": 1.33,
             "path": "u_io",
             "ref": "U8"
-          },
-          {
-            "basis": "ISO7710DWR: SLLSER9E 5.12: ICC2 1.2 mA max DC (3.3 V)",
-            "board": "native21",
-            "mA": 1.2,
-            "path": "u_iso",
-            "ref": "U9"
-          },
-          {
-            "basis": "ISO7710DWR: SLLSER9E 5.12: ICC2 1.2 mA max DC (3.3 V)",
-            "board": "native21",
-            "mA": 1.2,
-            "path": "monitor_ls.iso",
-            "ref": "U32"
-          },
-          {
-            "basis": "ISO7710DWR: SLLSER9E 5.12: ICC2 1.2 mA max DC (3.3 V)",
-            "board": "native21",
-            "mA": 1.2,
-            "path": "bias_ha.monitor.iso",
-            "ref": "U33"
-          },
-          {
-            "basis": "ISO7710DWR: SLLSER9E 5.12: ICC2 1.2 mA max DC (3.3 V)",
-            "board": "native21",
-            "mA": 1.2,
-            "path": "bias_hb.monitor.iso",
-            "ref": "U34"
           },
           {
             "basis": "1kohm +/- 1% to clamp 2.4975 V",
@@ -2793,6 +2968,13 @@
             "mA": 0.55,
             "path": "u_adc",
             "ref": "U15"
+          },
+          {
+            "basis": "EMC2301-1-ACZL-TR: DS20006532A p. 4: IDD 475 uA max (PWM open drain by default)",
+            "board": "controller",
+            "mA": 0.475,
+            "path": "bay_fan.u_fan",
+            "ref": "U52"
           },
           {
             "basis": "REF2025AIDDCR: TI REF20xx product page: IQ < 430 uA (family)",
@@ -2931,6 +3113,34 @@
             "basis": "10kohm +/- 1% R + 0 ohm to gnd",
             "board": "controller",
             "mA": 0.35,
+            "path": "rtd_food.r_cs_pu",
+            "ref": "R136"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
+            "path": "bay_fan.r_alert",
+            "ref": "R155"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
+            "path": "bay_fan.r_pwm",
+            "ref": "R156"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
+            "path": "bay_fan.r_tach_pu",
+            "ref": "R157"
+          },
+          {
+            "basis": "10kohm +/- 1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.35,
             "path": "r_cs_oled_pu",
             "ref": "R119"
           },
@@ -2970,23 +3180,16 @@
             "ref": "R19"
           },
           {
-            "basis": "10kohm +/- 0.1% R + 0 ohm to gnd",
-            "board": "controller",
-            "mA": 0.3468468468468468,
-            "path": "r_m12_pu",
-            "ref": "R93"
-          },
-          {
-            "basis": "3.32kohm R + 9500 ohm to gnd",
+            "basis": "2.21kohm R + 10450 ohm to gnd",
             "board": "native21",
-            "mA": 0.27382645803698435,
+            "mA": 0.2761066177935376,
             "path": "r_ct_hi_top",
             "ref": "R43"
           },
           {
-            "basis": "10kohm R + 3154 ohm to gnd",
+            "basis": "11kohm R + 2100 ohm to gnd",
             "board": "native21",
-            "mA": 0.27382645803698435,
+            "mA": 0.2761066177935376,
             "path": "r_ct_lo_top",
             "ref": "R45"
           },
@@ -3019,46 +3222,39 @@
             "ref": "R125"
           },
           {
-            "basis": "SLUSE89C RINxD 50 kOhm min",
+            "basis": "47kohm +/- 0.1% R + 0 ohm to gnd",
+            "board": "controller",
+            "mA": 0.07379720145677593,
+            "path": "r_bay_pu",
+            "ref": "R93"
+          },
+          {
+            "basis": "SLUSE89C RINxD 50 kOhm min (kept as the bound for the 2EDR8259X, whose pull-down is 150 k)",
             "board": "native21<-controller",
             "mA": 0.06929999999999999,
             "path": "pwm_ha INx pull-down",
             "ref": "U1"
           },
           {
-            "basis": "SLUSE89C RINxD 50 kOhm min",
+            "basis": "SLUSE89C RINxD 50 kOhm min (kept as the bound for the 2EDR8259X, whose pull-down is 150 k)",
             "board": "native21<-controller",
             "mA": 0.06929999999999999,
             "path": "pwm_la INx pull-down",
             "ref": "U1"
           },
           {
-            "basis": "SLUSE89C RINxD 50 kOhm min",
+            "basis": "SLUSE89C RINxD 50 kOhm min (kept as the bound for the 2EDR8259X, whose pull-down is 150 k)",
             "board": "native21<-controller",
             "mA": 0.06929999999999999,
             "path": "pwm_hb INx pull-down",
             "ref": "U2"
           },
           {
-            "basis": "SLUSE89C RINxD 50 kOhm min",
+            "basis": "SLUSE89C RINxD 50 kOhm min (kept as the bound for the 2EDR8259X, whose pull-down is 150 k)",
             "board": "native21<-controller",
             "mA": 0.06929999999999999,
             "path": "pwm_lb INx pull-down",
             "ref": "U2"
-          },
-          {
-            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
-            "board": "controller",
-            "mA": 0.065,
-            "path": "rtd_pan.low_window",
-            "ref": "U31"
-          },
-          {
-            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
-            "board": "controller",
-            "mA": 0.065,
-            "path": "rtd_pan.high_window",
-            "ref": "U32"
           },
           {
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
@@ -3087,6 +3283,20 @@
             "mA": 0.065,
             "path": "u_rim_trip",
             "ref": "U40"
+          },
+          {
+            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
+            "board": "controller",
+            "mA": 0.065,
+            "path": "rtd_pan.low_window",
+            "ref": "U31"
+          },
+          {
+            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
+            "board": "controller",
+            "mA": 0.065,
+            "path": "rtd_pan.high_window",
+            "ref": "U32"
           },
           {
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
@@ -3222,13 +3432,6 @@
             "ref": "U43"
           },
           {
-            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
-            "board": "controller",
-            "mA": 0.01,
-            "path": "rtd_pan.window_and",
-            "ref": "U33"
-          },
-          {
             "basis": "SN74LVC1G32DBVR: SCES219W: ICC 10 uA",
             "board": "controller",
             "mA": 0.01,
@@ -3327,18 +3530,32 @@
             "ref": "U41"
           },
           {
-            "basis": "SN74LVC1G32DBVR: SCES219W: ICC 10 uA",
+            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
+            "board": "controller",
+            "mA": 0.01,
+            "path": "rtd_pan.window_and",
+            "ref": "U33"
+          },
+          {
+            "basis": "SN74LVC1G00DBVR: SCES212: ICC 10 uA",
             "board": "native21",
             "mA": 0.01,
             "path": "leg_a.dis_or",
             "ref": "U22"
           },
           {
-            "basis": "SN74LVC1G32DBVR: SCES219W: ICC 10 uA",
+            "basis": "SN74LVC1G00DBVR: SCES212: ICC 10 uA",
             "board": "native21",
             "mA": 0.01,
             "path": "leg_b.dis_or",
             "ref": "U23"
+          },
+          {
+            "basis": "SN74LVC1G17DBVR: SCES351Y: ICC 10 uA",
+            "board": "native21",
+            "mA": 0.01,
+            "path": "u_bf_st",
+            "ref": "U47"
           },
           {
             "basis": "SN74LVC1G332DBVR: SCES489E: ICC 10 uA",
@@ -3348,18 +3565,18 @@
             "ref": "U13"
           },
           {
+            "basis": "SN74LVC1G132DBVR: SCES546: ICC 10 uA",
+            "board": "native21",
+            "mA": 0.01,
+            "path": "hb.buf",
+            "ref": "U46"
+          },
+          {
             "basis": "SN74LVC1G17DBVR: SCES351Y: ICC 10 uA",
             "board": "native21",
             "mA": 0.01,
             "path": "u_bias_flt",
             "ref": "U40"
-          },
-          {
-            "basis": "SN74LVC1G332DBVR: SCES489E: ICC 10 uA",
-            "board": "native21",
-            "mA": 0.01,
-            "path": "bias_or",
-            "ref": "U25"
           },
           {
             "basis": "SN74LVC1G17DBVR: SCES351Y: ICC 10 uA",
@@ -3418,14 +3635,28 @@
             "ref": "R27"
           },
           {
+            "basis": "BSS138LT1G: cascode: gate on v3v3 is high impedance",
+            "board": "controller",
+            "mA": 0.0,
+            "path": "bay_fan.q_pwm",
+            "ref": "Q2"
+          },
+          {
             "basis": "BAS116H,115: clamp diode; conducts only into v3v3",
             "board": "native21",
             "mA": 0.0,
             "path": "d_ct_hi",
             "ref": "D4"
+          },
+          {
+            "basis": "R + inf ohm to gnd",
+            "board": "native21<-controller",
+            "mA": 0.0,
+            "path": "permit gate network",
+            "ref": "R135"
           }
         ],
-        "total_mA": 591.5263623532503,
+        "total_mA": 581.1676098694787,
         "ui_board_allocation_mA": {
           "basis": "[UNVERIFIED] J7.2 allocation for the R33 UI board: 30 mA logic + 3.3 V encoder option (MCP23S08, TMP122) and 90 mA for the self-oscillating buzzer; parts not yet chosen",
           "mA": 120.0

@@ -15,14 +15,14 @@
       "VBUS",
       "HS",
       "COIL",
-      "M12",
+      "BAY",
       "RIM"
     ],
     "rates_sps": {
+      "BAY": 8888.888888888889,
       "COIL": 8888.888888888889,
       "CT_MON": 17777.777777777777,
       "HS": 8888.888888888889,
-      "M12": 8888.888888888889,
       "RIM": 8888.888888888889,
       "VBUS": 26666.666666666668
     },
@@ -33,6 +33,33 @@
     ],
     "total_sps": 80000.0,
     "vbus_max_gap_us": 62.5
+  },
+  "bay_ntc": {
+    "checks": {
+      "adc_linear_from_5C": true,
+      "interpolation_within_2pct_of_B": true,
+      "open_lead_apart_from_0C_by_0p3V": true,
+      "slope_61C_ge_20mV_per_K": true
+    },
+    "interp_vs_B_at_85C": -0.011422766467487855,
+    "mV_per_K_at_61C": 27.197305357483547,
+    "node_V": {
+      "0": 2.9164581981532316,
+      "10": 2.6964569640062597,
+      "100": 0.3492850293020779,
+      "20": 2.410513233601841,
+      "25": 2.247619047619047,
+      "40": 1.7066673468751248,
+      "55": 1.201439712270567,
+      "61": 1.0284000143220573,
+      "70": 0.806242959345166,
+      "80": 0.6103791109750935
+    },
+    "rpu_ohm": 47000.0,
+    "source": [
+      "Semitec GT-2 table (repo GT2_104_HOT)",
+      "ESP32-S3"
+    ]
   },
   "bias_good": {
     "checks": {
@@ -556,9 +583,17 @@
         1.1833095244168785,
         2.1166904755831215
       ],
-      "55 A pk trip": [
-        0.825,
-        2.4749999999999996
+      "28 A RMS tank": [
+        1.0560303038033,
+        2.2439696961966997
+      ],
+      "73.19 A pk trip, nominal (s56)": [
+        0.5521499999999999,
+        2.7478499999999997
+      ],
+      "79.32 A pk trip, high corner (s56)": [
+        0.46019999999999994,
+        2.8398
       ]
     },
     "settled": "CT_SENSE_MON via R47 1k, ~2 kOhm source",
@@ -603,6 +638,25 @@
     "stop_min_V": 9.802991089108911
   },
   "failed_checks": [],
+  "fan2_buck": {
+    "checks": {
+      "headroom_without_foldback": true,
+      "inductor_peak_le_2p45A_irms_rating": true,
+      "start_at_2x_current_inside_4p2A_limit": true,
+      "vout_within_10p8_to_12p6": true
+    },
+    "i_out_A": 0.6666666666666666,
+    "inductor_peak_A": 1.0325203252032518,
+    "source": [
+      "TPS62933",
+      "Sunlord SWPA6045S100MT (controller_parts.ato)"
+    ],
+    "vin_min_V": 14.469879383548433,
+    "vout_V": [
+      11.797958041958045,
+      12.202758758758756
+    ]
+  },
   "fan_buck": {
     "checks": {
       "duty_ok_without_foldback": true,
@@ -783,18 +837,18 @@
         ],
         "needed_mm": 20.2
       },
-      "J9 M12 probe": {
+      "J9 food probe (C51, 4-pin, proposed centre)": {
         "centre": [
-          -33.0,
+          -31.5,
           86.0
         ],
         "conflict": false,
-        "distance_mm": 13.89,
+        "distance_mm": 13.2,
         "nearest_hole": [
           -26.0,
           74.0
         ],
-        "needed_mm": 8.95
+        "needed_mm": 10.2
       }
     },
     "source": "CONTROLLER-SPEC R31 connector table and hole list, R33 J7; JLC/JST body lengths"
@@ -848,8 +902,8 @@
       "README power table",
       "CONTROLLER-REQUEST items 1, 2, 4"
     ],
-    "v_blw_min_V": 14.432695464653284,
-    "v_logic_min_V": 13.882695464653283
+    "v_blw_min_V": 14.395183755616246,
+    "v_logic_min_V": 13.845183755616246
   },
   "ps3_budget": {
     "blower_A": 2.8829641297883883,
@@ -886,6 +940,48 @@
     ],
     "u2_vin_min_V": 14.453078389551283,
     "u2_vin_needed_V": 13.535882116726057
+  },
+  "ps3_face_fan": {
+    "checks": {
+      "j13_vh_7A_ge_total": true,
+      "mpm90_fits_at_61C": true,
+      "mpm90_fits_at_61C_3000m": true,
+      "tps62933_vin_above_ovp": true,
+      "v15_blw_parts_above_ovp_20p3": true
+    },
+    "mpm65": {
+      "derated_W": 50.050000000000004,
+      "derating_ambient_C": 61.0,
+      "face_fan_input_W": 8.88888888888889,
+      "fits": false,
+      "margin_W": -3.38948090682144,
+      "part": "MPM-65-15ST",
+      "source": "MPM-65-SPEC 2024-10-30",
+      "total_W": 53.439480906821444
+    },
+    "mpm90": {
+      "derated_W": 61.661249999999995,
+      "derating_ambient_C": 61.0,
+      "face_fan_input_W": 8.88888888888889,
+      "fits": true,
+      "margin_W": 8.221769093178551,
+      "part": "MPM-90-15ST",
+      "source": "MPM-90-SPEC 2024-10-30 p. 2 and the 100 VAC derating line p. 3 (read by eye); altitude note 7: 3.5 C per 1000 m above 2000 m",
+      "total_W": 53.439480906821444
+    },
+    "mpm90_3000m": {
+      "derated_W": 54.21937499999999,
+      "derating_ambient_C": 64.5,
+      "face_fan_input_W": 8.88888888888889,
+      "fits": true,
+      "margin_W": 0.7798940931785481,
+      "part": "MPM-90-15ST",
+      "source": "MPM-90-SPEC 2024-10-30 p. 2 and the 100 VAC derating line p. 3 (read by eye); altitude note 7: 3.5 C per 1000 m above 2000 m",
+      "total_W": 53.439480906821444
+    },
+    "source": [
+      "MPM-90-SPEC 2024-10-30 p. 2 and the 100 VAC derating line p. 3 (read by eye); altitude note 7: 3.5 C per 1000 m above 2000 m"
+    ]
   },
   "rail_3v3": {
     "checks": {
@@ -1007,7 +1103,7 @@
   },
   "rms_channel": {
     "adc_V_at_22A_rms": 1.32,
-    "adc_V_at_55A_peak_trip": 2.3334523779156067,
+    "adc_V_at_73p19A_peak_trip": 3.105188718902604,
     "adc_lsb_V": 0.000822021484375,
     "bandwidth_1pct_Hz": 65000.0,
     "checks": {
@@ -1024,16 +1120,80 @@
     "fault_clamp_current_A": 0.011007999999999999,
     "gain": 4.0,
     "gain_tolerance": 0.0015,
+    "high_corner_trip_A_peak": 79.32,
     "leakage_error_at_22A": 0.0015151515151515152,
     "post_filter_Hz": 994.718394324346,
     "reference": "MCP3202 VREF = v3v3 (3.242-3.367 V); CH1 reads the LM4040A25 (0.1 %) so firmware divides it out",
     "ripple_attenuation_2f": 0.01604178058560903,
+    "saturates_at_A_peak": 76.41467282022624,
     "settling_0p1pct_fall_ms_assumed": 3.4099999999999997,
     "source": "AD8436 Rev. B; MCP3202 DS21034F; BAT54S DS11005; CT transfer 15 mV/A",
     "tank_band_Hz": [
       31000.0,
       55000.0
     ]
+  },
+  "rtd_food": {
+    "checks": {
+      "code_in_range_at_300C": true,
+      "corrected_loading_le_0p05K": true,
+      "five_tau_le_5p5ms": true,
+      "open_sense_detected_within_2s": true
+    },
+    "open_sense_tau_s": 0.3232,
+    "rows": {
+      "0": {
+        "code_ratio": 0.23355813953488372,
+        "loading_K_after_nominal_correction_1pct_pullup": 0.011002226031778575,
+        "loading_K_uncorrected": 1.1002226031778575,
+        "r_ohm": 1000.0,
+        "rref_0p1pct_K": 0.2558657216692719,
+        "rref_25ppm_60K_K": 0.3837985825039078,
+        "self_heat_mW": 0.14216864807129254
+      },
+      "100": {
+        "code_ratio": 0.32349086895348833,
+        "loading_K_after_nominal_correction_1pct_pullup": 0.01570274335583155,
+        "loading_K_uncorrected": 1.570274335583155,
+        "r_ohm": 1385.0549999999998,
+        "rref_0p1pct_K": 0.3651800780425906,
+        "rref_25ppm_60K_K": 0.547770117063886,
+        "self_heat_mW": 0.17105989490120582
+      },
+      "200": {
+        "code_ratio": 0.4107260018604652,
+        "loading_K_after_nominal_correction_1pct_pullup": 0.020563478639219084,
+        "loading_K_uncorrected": 2.0563478639219084,
+        "r_ohm": 1758.5600000000002,
+        "rref_0p1pct_K": 0.47822043347020143,
+        "rref_25ppm_60K_K": 0.7173306502053022,
+        "self_heat_mW": 0.1911590785544684
+      },
+      "300": {
+        "code_ratio": 0.49526353825581404,
+        "loading_K_after_nominal_correction_1pct_pullup": 0.025600018249202192,
+        "loading_K_uncorrected": 2.560001824920219,
+        "r_ohm": 2120.515,
+        "rref_0p1pct_K": 0.5953492616093072,
+        "rref_25ppm_60K_K": 0.8930238924139611,
+        "self_heat_mW": 0.20517712618703968
+      },
+      "60": {
+        "code_ratio": 0.28784148876744187,
+        "loading_K_after_nominal_correction_1pct_pullup": 0.013804120083354665,
+        "loading_K_uncorrected": 1.3804120083354665,
+        "r_ohm": 1232.4189999999999,
+        "rref_0p1pct_K": 0.3210260484501031,
+        "rref_25ppm_60K_K": 0.48153907267515456,
+        "self_heat_mW": 0.1607520948298537
+      }
+    },
+    "source": [
+      "MAX31865",
+      "IEC 60751",
+      "Yageo RT0805BRD 0.1 % 25 ppm"
+    ],
+    "tau_s": 0.0009470671160257393
   },
   "runaway": {
     "checks": {

@@ -1,0 +1,242 @@
+# C51 (DECISIONS C51): plug-in food-probe RTD channel. 4-wire Pt1000, second MAX31865 on the RTD SPI bus.
+# Not part of any hardware trip: the pan channel (rtd_c1_block.ato) keeps its own converter, window and rail monitor.
+# Differences from the pan front end, on purpose:
+#   * Rref 4.30 k (Pt1000), VDD/DVDD from v3v3 through its own bead: an ESD hit here does not touch RTD_AVDD.
+#   * 1 k in series with every SPI line (pan: 33 ohm). If the plug-in channel's converter is damaged, or its CS is stuck
+#     low (it is an I2C expander pin), the pan converter still drives MISO and SCLK / MOSI still reach it.
+#   * open-lead pull-ups 1 M (pan: 499 k, whose 0.85 % loading would dominate at Pt1000 currents).
+#   * no window comparators, no runaway, no fault net.
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+import Resistor from "components.ato"
+import Capacitor from "components.ato"
+import MAX31865 from "components.ato"
+from "controller_parts.ato" import EsdTvs3v3, XhHeader4
+
+module RtdFood:
+    signal v3v3
+    signal gnd
+    signal sck
+    signal sdi
+    signal sdo
+    signal cs_n
+    signal drdy_n
+    signal force_p
+    signal force_n
+    signal sense_p_ext
+    signal sense_n_ext
+    signal sense_p_mid
+    signal sense_n_mid
+    signal sense_p
+    signal sense_n
+    signal avdd
+    signal bias
+    signal refin_n
+
+    adc = new MAX31865
+    adc.designator = "U50"
+    adc.mpn = "MAX31865AAP+T"
+    adc.footprint = "Package_SO:SSOP-20_5.3x7.2mm_P0.65mm"
+    adc.GND1 ~ gnd
+    adc.GND2 ~ gnd
+    adc.DGND ~ gnd
+    adc.FORCE2 ~ gnd
+    adc.BIAS ~ bias
+    adc.REFIN_P ~ bias
+    adc.REFIN_N ~ refin_n
+    adc.ISENSOR ~ refin_n
+    adc.FORCE_P ~ force_p
+    adc.FORCE_N ~ force_n
+    adc.RTDIN_P ~ sense_p
+    adc.RTDIN_N ~ sense_n
+    adc.DRDY ~ drdy_n
+    adc.VDD ~ avdd
+    adc.DVDD ~ v3v3
+
+    r_ref = new Resistor
+    r_ref.designator = "R130"
+    r_ref.value = 4.3kohm +/- 0.1%
+    r_ref.mpn = "RT0805BRD074K3L"
+    r_ref.footprint = "Resistor_SMD:R_0805_2012Metric"
+    r_ref.p1 ~ bias
+    r_ref.p2 ~ refin_n
+
+    fb = new Resistor                 # ferrite, as rtd_pan.fb_power
+    fb.designator = "R131"
+    fb.value = 120ohm
+    fb.mpn = "BLM18AG121SN1D"
+    fb.footprint = "Inductor_SMD:L_0603_1608Metric"
+    fb.p1 ~ v3v3
+    fb.p2 ~ avdd
+    c_vdd = new Capacitor
+    c_vdd.designator = "C110"
+    c_vdd.value = 100nF +/- 10%
+    c_vdd.mpn = "CC0603KRX7R9BB104"
+    c_vdd.p1 ~ avdd
+    c_vdd.p2 ~ gnd
+    c_dvdd = new Capacitor
+    c_dvdd.designator = "C111"
+    c_dvdd.value = 100nF +/- 10%
+    c_dvdd.mpn = "CC0603KRX7R9BB104"
+    c_dvdd.p1 ~ v3v3
+    c_dvdd.p2 ~ gnd
+
+    # SPI: 1 k each, at the converter. tau 1 k x ~25 pF = 25 ns on the inputs, ~0.15 us into the shared MISO net.
+    r_sck = new Resistor
+    r_sck.designator = "R132"
+    r_sck.value = 1kohm +/- 1%
+    r_sck.mpn = "RC0603FR-071KL"
+    r_sck.p1 ~ sck
+    r_sck.p2 ~ adc.SCLK
+    r_sdi = new Resistor
+    r_sdi.designator = "R133"
+    r_sdi.value = 1kohm +/- 1%
+    r_sdi.mpn = "RC0603FR-071KL"
+    r_sdi.p1 ~ sdi
+    r_sdi.p2 ~ adc.SDI
+    r_sdo = new Resistor
+    r_sdo.designator = "R134"
+    r_sdo.value = 1kohm +/- 1%
+    r_sdo.mpn = "RC0603FR-071KL"
+    r_sdo.p1 ~ adc.SDO
+    r_sdo.p2 ~ sdo
+    r_cs = new Resistor
+    r_cs.designator = "R135"
+    r_cs.value = 1kohm +/- 1%
+    r_cs.mpn = "RC0603FR-071KL"
+    r_cs.p1 ~ cs_n
+    r_cs.p2 ~ adc.CS_N
+    # deselected while the expander is an input (power-up): 10 k against its 100 k pull-up
+    r_cs_pu = new Resistor
+    r_cs_pu.designator = "R136"
+    r_cs_pu.value = 10kohm +/- 1%
+    r_cs_pu.mpn = "RC0603FR-0710KL"
+    r_cs_pu.p1 ~ v3v3
+    r_cs_pu.p2 ~ cs_n
+
+    # J9: 1 FORCE+, 2 SENSE+, 3 SENSE-, 4 FORCE- (J3's order)
+    j = new XhHeader4
+    j.designator = "J9"
+    j.p1 ~ force_p
+    j.p2 ~ sense_p_ext
+    j.p3 ~ sense_n_ext
+    j.p4 ~ force_n
+    d_fp = new EsdTvs3v3
+    d_fp.designator = "D10"
+    d_fp.K ~ force_p
+    d_fp.A ~ gnd
+    d_sp = new EsdTvs3v3
+    d_sp.designator = "D11"
+    d_sp.K ~ sense_p_ext
+    d_sp.A ~ gnd
+    d_sn = new EsdTvs3v3
+    d_sn.designator = "D12"
+    d_sn.K ~ sense_n_ext
+    d_sn.A ~ gnd
+    d_fn = new EsdTvs3v3
+    d_fn.designator = "D13"
+    d_fn.K ~ force_n
+    d_fn.A ~ gnd
+    c_fp = new Capacitor
+    c_fp.designator = "C112"
+    c_fp.value = 100nF +/- 10%
+    c_fp.mpn = "CC0603KRX7R9BB104"
+    c_fp.p1 ~ force_p
+    c_fp.p2 ~ gnd
+    c_sp = new Capacitor
+    c_sp.designator = "C113"
+    c_sp.value = 100nF +/- 10%
+    c_sp.mpn = "CC0603KRX7R9BB104"
+    c_sp.p1 ~ sense_p_ext
+    c_sp.p2 ~ gnd
+    c_sn = new Capacitor
+    c_sn.designator = "C114"
+    c_sn.value = 100nF +/- 10%
+    c_sn.mpn = "CC0603KRX7R9BB104"
+    c_sn.p1 ~ sense_n_ext
+    c_sn.p2 ~ gnd
+    c_fn = new Capacitor
+    c_fn.designator = "C115"
+    c_fn.value = 100nF +/- 10%
+    c_fn.mpn = "CC0603KRX7R9BB104"
+    c_fn.p1 ~ force_n
+    c_fn.p2 ~ gnd
+
+    r_bias_p = new Resistor
+    r_bias_p.designator = "R137"
+    r_bias_p.value = 1Mohm +/- 1%
+    r_bias_p.mpn = "RC0603FR-071ML"
+    r_bias_p.p1 ~ sense_p_ext
+    r_bias_p.p2 ~ bias
+    r_bias_n = new Resistor
+    r_bias_n.designator = "R138"
+    r_bias_n.value = 1Mohm +/- 1%
+    r_bias_n.mpn = "RC0603FR-071ML"
+    r_bias_n.p1 ~ sense_n_ext
+    r_bias_n.p2 ~ bias
+
+    # two-pole differential filter, the CR-1 values
+    r_s1p = new Resistor
+    r_s1p.designator = "R139"
+    r_s1p.value = 1kohm +/- 0.1%
+    r_s1p.mpn = "RT0603BRD071KL"
+    r_s1p.p1 ~ sense_p_ext
+    r_s1p.p2 ~ sense_p_mid
+    r_s1n = new Resistor
+    r_s1n.designator = "R140"
+    r_s1n.value = 1kohm +/- 0.1%
+    r_s1n.mpn = "RT0603BRD071KL"
+    r_s1n.p1 ~ sense_n_ext
+    r_s1n.p2 ~ sense_n_mid
+    c_s1 = new Capacitor
+    c_s1.designator = "C116"
+    c_s1.value = 100nF +/- 5%
+    c_s1.mpn = "GRM31C5C1H104JA01L"
+    c_s1.footprint = "Capacitor_SMD:C_1206_3216Metric"
+    c_s1.p1 ~ sense_p_mid
+    c_s1.p2 ~ sense_n_mid
+    r_s2p = new Resistor
+    r_s2p.designator = "R141"
+    r_s2p.value = 1kohm +/- 0.1%
+    r_s2p.mpn = "RT0603BRD071KL"
+    r_s2p.p1 ~ sense_p_mid
+    r_s2p.p2 ~ sense_p
+    r_s2n = new Resistor
+    r_s2n.designator = "R142"
+    r_s2n.value = 1kohm +/- 0.1%
+    r_s2n.mpn = "RT0603BRD071KL"
+    r_s2n.p1 ~ sense_n_mid
+    r_s2n.p2 ~ sense_n
+    c_s2 = new Capacitor
+    c_s2.designator = "C117"
+    c_s2.value = 100nF +/- 5%
+    c_s2.mpn = "GRM31C5C1H104JA01L"
+    c_s2.footprint = "Capacitor_SMD:C_1206_3216Metric"
+    c_s2.p1 ~ sense_p
+    c_s2.p2 ~ sense_n
+    c_cm_p = new Capacitor
+    c_cm_p.designator = "C118"
+    c_cm_p.value = 1nF +/- 5%
+    c_cm_p.mpn = "CL10C102JB8NNNC"
+    c_cm_p.p1 ~ sense_p
+    c_cm_p.p2 ~ gnd
+    c_cm_n = new Capacitor
+    c_cm_n.designator = "C119"
+    c_cm_n.value = 1nF +/- 5%
+    c_cm_n.mpn = "CL10C102JB8NNNC"
+    c_cm_n.p1 ~ sense_n
+    c_cm_n.p2 ~ gnd
+
+    sense_p.override_net_name = "rtd2_sense_p"
+    sense_n.override_net_name = "rtd2_sense_n"
+    sense_p_ext.override_net_name = "rtd2_sense_p_ext"
+    sense_n_ext.override_net_name = "rtd2_sense_n_ext"
+    sense_p_mid.override_net_name = "rtd2_sense_p_mid"
+    sense_n_mid.override_net_name = "rtd2_sense_n_mid"
+    force_p.override_net_name = "rtd2_force_p"
+    force_n.override_net_name = "rtd2_force_n"
+    bias.override_net_name = "rtd2_bias"
+    refin_n.override_net_name = "rtd2_refin_n"
+    avdd.override_net_name = "RTD2_AVDD"
+    cs_n.override_net_name = "RTD2_CS_N"
+    drdy_n.override_net_name = "RTD2_DRDY"

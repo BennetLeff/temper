@@ -26,6 +26,8 @@ and native-21's frozen netlist snapshot. Checks, each fail-closed:
   capmode    capacitive-mode detector (C39): structure from the netlist, a sequence simulation of
              the captured gates (inductive never faults, capacitive faults on the first edge,
              RUN_EN clears, stuck/reversed CT), and the timing calcs
+  c51        food-probe RTD (J9), bay NTC (J14) and R45 face fan (J15): pin maps, isolation from the pan
+             channel and the trip chain, fan PWM cascode (C51)
   bom        every resolved MPN is in bom/controller-parts.json with a source
   misc       PWM pull-downs <= 10 kOhm, strap pins safe at reset, the TC2050 debug land, no
              tactile switch, EN / IO0 on no connector but that land (C41)
@@ -142,6 +144,9 @@ MODELS: dict[str, Model] = {
                            "14": "in", "15": "in", "16": "in", "17": "out", "18": "gnd", "19": "gnd",
                            "20": "other"},
                           3.5 + 0.4 + 5.75, "MAX31865 DS: IDD 3.5 mA + 0.4 mA (input > ref) + BIAS IOUT 5.75 mA max"),
+    "EMC2301-1-ACZL-TR": Model({"1": "od", "2": "in", "3": "vcc", "4": "gnd", "5": "od", "6": "in", "7": "in", "8": "od"},
+                               0.475, "DS20006532A p. 4: IDD 475 uA max (PWM open drain by default)"),
+    "BSS138LT1G": Model({"1": "in", "2": "other", "3": "other"}, 0.0, "cascode: gate on v3v3 is high impedance"),
     "2N7002": Model({"1": "in", "2": "gnd", "3": "other"}, 0.0, "CJ 2N7002"),
     # follow-up 2026-10-08: tank RMS channel, external ADC
     "AD8436ARQZ-R7": Model({"1": "other", "2": "other", "3": "in", "4": "out", "5": "in", "6": "in", "7": "other",
@@ -155,6 +160,12 @@ MODELS: dict[str, Model] = {
     "BAT54S-7-F": Model({"1": "other", "2": "other", "3": "other"}, 0.002,
                         "DS11005: IR 2 uA max (25 V); conducts into v3v3 only on a fault"),
     # native-21 parts on its v3v3 net (pins used: supply only; others conservative)
+    # stage 56 (C51 snapshot); maxima as the power board's own J4.3 census (c54-ledger-desk signal_audit.py)
+    "2EDR8259XXUMA1": _ic([3, 8], [4], ins=[1, 2, 5], ma=4.24,
+                          basis="Infineon 2EDR8259X Rev 1.7 p.12: IVDDIq 2.12 mA max not switching, doubled as a switching allowance"),
+    "CA-IS3720HW": _ic([14], [9, 16], outs=[12, 13], ma=3.2, basis="Chipanalog CA-IS372x p.11: IDDB 3.2 mA max at 1 Mbps"),
+    "SN74LVC1G00DBVR": _ic([5], [3], ins=[1, 2], outs=[4], ma=0.010, basis="SCES212: ICC 10 uA"),
+    "SN74LVC1G132DBVR": _ic([5], [3], ins=[1, 2], outs=[4], ma=0.010, basis="SCES546: ICC 10 uA"),
     "UCC21550BDWKR": _ic([3, 8], [4], ins=[1, 2], ma=4.8, basis="SLUSE89C 6.6: IVCCI 4.8 mA max (VIN=VCC)"),
     "AMC1311BDWVR": _ic([8], [5], ma=7.2, basis="SBAS786C 6.x: IDD2 7.2 mA max (3.0-3.6 V)"),
     "ISO7710DWR": _ic([14], [9, 15], ma=1.2, basis="SLLSER9E 5.12: ICC2 1.2 mA max DC (3.3 V)"),
@@ -368,11 +379,7 @@ def check_j4(rep: Report, nl: Netlist, n21: Netlist):
               (nl.mpn["J4"], n21.mpn["J4"]))
     rep.check("j4", "controller_j4_right_angle_r27", "Horizontal" in nl.footprint.get("J4", ""),
               nl.footprint.get("J4"))
-    # J4.1: the pinned native-21 snapshot (2026-10-08) still has PS1's 15 V here. The power board dropped
-    # PS1 (stage 38) and drives BIAS_GOOD on J4.1 (stage 48; net bias_good_j4 in native-21 frozen/default.net
-    # at c52d5bffb; power-stage DECISIONS 67); candidate 23's CONTROLLER-REQUEST items 1, 2, 11, 12 ask for
-    # exactly this controller side. The other 15 pins still compare against the snapshot.
-    theirs[1] = "bias_good_j4"
+    # C51: the snapshot is stage 56, so all 16 pins (J4.1 = bias_good_j4 included) compare against the board of record.
     for p in range(1, 17):
         rep.check("j4", f"pin{p}_{theirs[p]}", mine[p] == theirs[p] and mine[p] is not None, (mine[p], theirs[p]))
     pn = nl.pin_net()
@@ -444,7 +451,7 @@ def check_j4(rep: Report, nl: Netlist, n21: Netlist):
 def check_adc1(rep: Report, nl: Netlist, calcs: dict):
     gm = gpio_map(nl)
     analog = {"VBUS_ADC": "OPA2388IDR", "CT_MON_ADC": "TLV9062IDR", "HS_ADC": "TLV9062IDR",
-              "COIL_ADC": "TLV9062IDR", "M12_ADC": "TLV9062IDR", "RIM_ADC": "TLV9061IDBVR"}
+              "COIL_ADC": "TLV9062IDR", "BAY_ADC": "TLV9062IDR", "RIM_ADC": "TLV9061IDBVR"}
     pn = nl.pin_net()
     where = {}
     for net, amp in analog.items():
@@ -458,7 +465,7 @@ def check_adc1(rep: Report, nl: Netlist, calcs: dict):
     # L3 (R32 / study 06, DECISIONS C29): every NTC channel's buffer input is a series-R /
     # shunt-C node with a corner <= 1 kHz, independent of the NTC's resistance
     import math
-    for net in ("HS_ADC", "COIL_ADC", "M12_ADC", "RIM_ADC"):
+    for net in ("HS_ADC", "COIL_ADC", "BAY_ADC", "RIM_ADC"):
         rs = [r for r, p in nl.nets.get(net, []) if r.startswith("R")]
         src = [pn.get((r, "2" if p == "1" else "1"), OPEN) for r, p in nl.nets.get(net, []) if r in rs]
         amp = [(r2, p2) for s_ in src for r2, p2 in nl.nets.get(s_, []) if pin_role(nl, r2, p2) == "out"]
@@ -493,7 +500,7 @@ def check_adc1(rep: Report, nl: Netlist, calcs: dict):
     rep.check("adc1", "spi_10_13_to_rtd_front_end", all(gm[g] == n for g, n in rtd.items()),
               {g: gm[g] for g in rtd})
     pat = calcs["adc_pattern"]
-    names = {"VBUS": "VBUS_ADC", "CT_MON": "CT_MON_ADC", "HS": "HS_ADC", "COIL": "COIL_ADC", "M12": "M12_ADC",
+    names = {"VBUS": "VBUS_ADC", "CT_MON": "CT_MON_ADC", "HS": "HS_ADC", "COIL": "COIL_ADC", "BAY": "BAY_ADC",
              "RIM": "RIM_ADC"}
     rep.check("adc1", "sample_pattern_covers_every_channel",
               {names[c] for c in pat["pattern"]} == set(analog))
@@ -678,9 +685,9 @@ def check_v3v3(rep: Report, nl: Netlist, n21: Netlist, calcs: dict):
     cross = []
     for net in ("pwm_ha", "pwm_la", "pwm_hb", "pwm_lb"):
         for ref, pin in n21.nets[net]:
-            if n21.mpn.get(ref) == "UCC21550BDWKR":
+            if n21.mpn.get(ref) in ("UCC21550BDWKR", "2EDR8259XXUMA1"):
                 cross.append({"board": "native21<-controller", "ref": ref, "path": f"{net} INx pull-down",
-                              "mA": VMAX / UCC_IN_PULLDOWN_MIN * 1e3, "basis": "SLUSE89C RINxD 50 kOhm min"})
+                              "mA": VMAX / UCC_IN_PULLDOWN_MIN * 1e3, "basis": "SLUSE89C RINxD 50 kOhm min (kept as the bound for the 2EDR8259X, whose pull-down is 150 k)"})
     nm = Merged(n21)
     for ref, pin in n21.nets["permit"]:
         if ref.startswith("R"):
@@ -988,7 +995,7 @@ def check_blwin(rep: Report, nl: Netlist, calcs: dict) -> None:
     j13 = {p: nl.net_of("J13", str(p)) for p in (1, 2)}
     rep.check("blwin", "j13_pin_map", j13[1] == BLW and j13[2] == GND and nl.mpn.get("J13") == "B2P-VH(LF)(SN)",
               {"pins": j13, "mpn": nl.mpn.get("J13")})
-    reg = [r for r, mp in nl.mpn.items() if mp == "TPS62933DRLR"]
+    reg = [r for r, mp in nl.mpn.items() if mp == "TPS62933DRLR" and nl.refs[r] == "u_12"]   # C51 adds bay_fan.u_buck
     u2 = reg[0] if len(reg) == 1 else None
     vin = nl.net_of(u2, "3") if u2 else None          # TPS62933 pin 3 = VIN
     en = nl.net_of(u2, "2") if u2 else None           # pin 2 = EN
@@ -1249,6 +1256,81 @@ def check_capmode(rep: Report, nl: Netlist, calcs: dict | None = None) -> None:
             rep.check(S, f"timing_{k}", ok, None)
 
 
+def check_c51(rep: Report, nl: Netlist) -> None:
+    """C51: plug-in food-probe RTD (J9), bay NTC (J14), R45 face fan (J15)."""
+    S, pn = "c51", nl.pin_net()
+    io = next(r for r, mp in nl.mpn.items() if mp == "TCA9555PWR")
+    mcu = next(r for r, mp in nl.mpn.items() if mp == MCU_MPN)
+    gm = gpio_map(nl)
+
+    def ends(r):
+        return {pn.get((r, "1"), OPEN), pn.get((r, "2"), OPEN)}
+
+    def between(a, b, kind="R"):
+        return [r for r in nl.refs if r.startswith(kind) and None not in (a, b) and ends(r) == {a, b}]
+    adc = "U50"
+    # SPI: exactly one 1 k between each shared line and the converter pin
+    spi = {}
+    for pin, net in (("15", "RTD_SCK"), ("14", "RTD_SDI"), ("17", "RTD_SDO"), ("16", "RTD2_CS_N")):
+        rs = between(nl.net_of(adc, pin), net)
+        spi[net] = [nl.value[r] for r in rs]
+    rep.check(S, "food_spi_behind_1k", all(len(v) == 1 and parse_value(v[0])[0] == 1e3 for v in spi.values()), spi)
+    bead = [r for r in between(V3, nl.net_of(adc, "3")) if nl.mpn[r] == "BLM18AG121SN1D"]
+    rep.check(S, "food_supply_is_its_own_bead", nl.net_of(adc, "3") == "RTD2_AVDD" and len(bead) == 1
+              and nl.net_of(adc, "2") == V3, {"vdd": nl.net_of(adc, "3"), "bead": bead})
+    pu = between(V3, "RTD2_CS_N")
+    rep.check(S, "food_cs_p06_pulled_up", nl.net_of(io, "10") == "RTD2_CS_N" and len(pu) == 1
+              and parse_value(nl.value[pu[0]])[0] == 10e3, {"p06": nl.net_of(io, "10"), "pullup": pu})
+    rep.check(S, "food_drdy_p05", nl.net_of(io, "9") == "RTD2_DRDY" == nl.net_of(adc, "1"), nl.net_of(adc, "1"))
+    ref = between(nl.net_of(adc, "4"), nl.net_of(adc, "6"))
+    rep.check(S, "food_rref_4k3", len(ref) == 1 and parse_value(nl.value[ref[0]])[0] == 4.3e3
+              and nl.net_of(adc, "5") == nl.net_of(adc, "4") and nl.net_of(adc, "7") == nl.net_of(adc, "6"), ref)
+    # nothing else on the board sees the channel: its nets' outside nodes are only these
+    mine = {r for r, p in nl.refs.items() if p.startswith("rtd_food.")}
+    allowed = {V3, GND, "RTD_SCK", "RTD_SDI", "RTD_SDO", "RTD2_CS_N", "RTD2_DRDY"}
+    shared = sorted({n for n, nodes in nl.nets.items() if {r for r, _ in nodes} & mine and {r for r, _ in nodes} - mine})
+    rep.check(S, "food_shares_only_listed_nets", set(shared) <= allowed, shared)
+    j9 = {p: nl.net_of("J9", p) for p in "1234"}
+    want9 = {"1": "rtd2_force_p", "2": "rtd2_sense_p_ext", "3": "rtd2_sense_n_ext", "4": "rtd2_force_n"}
+    rep.check(S, "j9_pin_map", j9 == want9 and nl.mpn.get("J9") == "B4B-XH-A(LF)(SN)", j9)
+    for p, net in want9.items():
+        caps = [r for r in between(net, GND, "C") if abs(parse_value(nl.value[r])[0] - 100e-9) < 1e-12]
+        tvs = [r for r in nl.refs if nl.mpn.get(r) == "ESD5Z3.3T1G" and nl.net_of(r, "1") == net and nl.net_of(r, "2") == GND]
+        rep.check(S, f"j9_{p}_cap_and_tvs", len(caps) == 1 and len(tvs) == 1, {"caps": caps, "tvs": tvs})
+    # bay NTC: J14 -> 47 k / buffer -> GPIO8
+    node = nl.net_of("J14", "1")
+    pu14 = between(V3, node)
+    rep.check(S, "bay_ntc_on_gpio8", gm.get(8) == "BAY_ADC" and nl.net_of("J14", "2") == GND and len(pu14) == 1
+              and parse_value(nl.value[pu14[0]])[0] == 47e3, {"gpio8": gm.get(8), "pullup": pu14})
+    # face fan
+    scl, sda = nl.net_of(io, "22"), nl.net_of(io, "23")
+    rep.check(S, "fan2_on_internal_i2c", (nl.net_of("U52", "2"), nl.net_of("U52", "1")) == (scl, sda)
+              and nl.net_of(mcu, "27") == scl and nl.net_of(mcu, "30") == sda,
+              {"u52": (nl.net_of("U52", "2"), nl.net_of("U52", "1")), "bus": (scl, sda)})
+    q = nl.ref_of("bay_fan.q_pwm")
+    gsd = [nl.net_of(q, p) for p in "123"]
+    pwm_nodes = {r for r, _ in nl.nets.get("J15_PWM", [])}
+    rep.check(S, "fan2_pwm_cascode", gsd == [V3, "FAN2_PWM", "J15_PWM"] and nl.net_of("U52", "5") == "FAN2_PWM"
+              and between(V3, "FAN2_PWM") != [] and pwm_nodes == {q, "J15", nl.ref_of("bay_fan.d_pwm")},
+              {"gate_source_drain": gsd, "j15_pwm_nodes": sorted(pwm_nodes)})
+    rep.check(S, "fan2_alert_p17_pulled_up", nl.net_of(io, "20") == "FAN2_ALERT" == nl.net_of("U52", "8")
+              and len(between(V3, "FAN2_ALERT")) == 1, nl.net_of(io, "20"))
+    fg = between("J15_FG", "FAN2_TACH")
+    rep.check(S, "fan2_tach_path", nl.net_of("U52", "6") == "FAN2_TACH" and len(fg) == 1 and len(between(V3, "J15_FG")) == 1, fg)
+    j15 = {p: nl.net_of("J15", p) for p in "12345"}
+    rep.check(S, "j15_pin_map", j15 == {"1": GND, "2": "V12_FAN2", "3": "J15_FG", "4": "J15_PWM", "5": GND}, j15)
+    fb = nl.net_of("U51", "8")
+    top, bot = between("V12_FAN2", fb), between(fb, GND)
+    vals = [parse_value(nl.value[r])[0] for r in top + bot]
+    rep.check(S, "fan2_buck_12v_from_v15_blw", nl.net_of("U51", "3") == "V15_BLW" and vals == [140e3, 10e3],
+              {"vin": nl.net_of("U51", "3"), "divider": vals})
+    # a plug that carries 12 V fits no sensor header, and the bay NTC plug fits no other thermistor header
+    for j in ("J15", "J14"):
+        same = [r for r, mp in nl.mpn.items() if r.startswith("J") and r != j and mp == nl.mpn[j]]
+        rep.check(S, f"{j.lower()}_header_is_unique_on_the_board", not same, same)
+
+
+
 def check_bom(rep: Report, nl: Netlist):
     table = json.loads((UNIT / "bom/controller-parts.json").read_text())["parts"]
     mpns = sorted(set(nl.mpn.values()))
@@ -1338,7 +1420,11 @@ def main() -> int:
     check_hs_adc(rep, nl)
     check_sensor_io(rep, nl)
     check_capmode(rep, nl, calcs)
+    check_c51(rep, nl)
     check_bom(rep, nl)
+    import check_land_patterns
+    lands = check_land_patterns.run()
+    rep.check("bom", "land_patterns_match_jlc", not lands["failed"], lands["failed"])
     check_misc(rep, nl)
     out = {"schema": "temper.controller.verify.v1",
            "inputs": {"netlist": str(args.build.relative_to(UNIT) / "default.net"),

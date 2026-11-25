@@ -1,19 +1,19 @@
 {
   "schema": "temper.controller.native21-snapshot.v1",
-  "branch": "codex/power-stage-integration",
-  "commit": "7c55c9ab81260b396be266861a0f0e8a42f96a5f",
+  "branch": "claude/native21-s55-unified",
+  "commit": "f0c669a86b70ac270d36fa416fd75870c078974a",
   "files": {
     "default.net": {
-      "source": "zapote/power-stage-120v/frozen/default.net",
-      "sha256": "4a848153742a60167ef230090a2cd056f6f71993b2dd95f8ecdd268dd89d67d3"
+      "source": "zapote/power-stage-120v/native-21/frozen/default.net",
+      "sha256": "c1b5222b4a26ebb5f6ef093c2c0062c7f01b0bc11469c3acd47ecb46b5bcbd55"
     },
     "default.csv": {
-      "source": "zapote/power-stage-120v/frozen/default.csv",
-      "sha256": "fb8ebfc0604db5388ea3ee44e724517b85ccfcfd78404c3ffb72ddbc89663ea8"
+      "source": "zapote/power-stage-120v/native-21/frozen/default.csv",
+      "sha256": "ba6f96f3aad7b8a78fc2e4443c5a9fe479381dbcaf9260bc4cc885be46d7f888"
     },
     "resolved-components.json": {
-      "source": "zapote/power-stage-120v/frozen/resolved-components.json",
-      "sha256": "de83f85ea286ea50155f3e55812ce9a9c903d70fb0d5d71954d4c02e3b0dd5ae"
+      "source": "zapote/power-stage-120v/native-21/frozen/resolved-components.json",
+      "sha256": "435d515d5e21c7fe0e93c9fa632df6d34eb62b128e37434e8489ef6f4b875cf4"
     }
   }
 }

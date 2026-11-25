@@ -616,6 +616,42 @@
       "basis": "ADI MAX31865, same device as MAX31865AAP+; JLC C779509 SSOP-20-208mil, exact-MPN read 2026-11-25",
       "lcsc": "C779509",
       "jlc_stock_2026_11_25": 2141
+    },
+    "EMC2301-1-ACZL-TR": {
+      "origin": "controller C51",
+      "basis": "Microchip DS20006532A: VDD 3.0-3.6 V, 475 uA max, 5 V tolerant TACH / SMBus / ALERT pins",
+      "lcsc": "C148036",
+      "jlc_stock_2026_11_25": 1953
+    },
+    "BSS138LT1G": {
+      "origin": "controller C51",
+      "basis": "onsemi BSS138L: VGS(th) 0.5-1.5 V [data sheet not re-read for C51]; pinout from JLC's symbol C82045",
+      "lcsc": "C82045",
+      "jlc_stock_2026_11_25": 301141
+    },
+    "RT0805BRD074K3L": {
+      "origin": "controller C51",
+      "basis": "Yageo RT 0.1 % 25 ppm 0805",
+      "lcsc": "C728653",
+      "jlc_stock_2026_11_25": 4813
+    },
+    "RT0603BRD0747KL": {
+      "origin": "controller C51",
+      "basis": "Yageo RT 0.1 % 25 ppm 0603",
+      "lcsc": "C326725",
+      "jlc_stock_2026_11_25": 15117
+    },
+    "B2B-PH-K-S(LF)(SN)": {
+      "origin": "controller C51",
+      "basis": "JST PH 2.0 mm top entry",
+      "lcsc": "C131337",
+      "jlc_stock_2026_11_25": 338562
+    },
+    "B5B-XH-A(LF)(SN)": {
+      "origin": "controller C51",
+      "basis": "JST eXH.pdf",
+      "lcsc": "C157991",
+      "jlc_stock_2026_11_25": 58056
     }
   }
 }

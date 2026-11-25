@@ -1,0 +1,191 @@
+# C51 (DECISIONS C51): R45 board-face fan. Fixed 12 V buck from V15_BLW, EMC2301 fan controller on the internal I2C bus
+# (address 0x2F), 5-pin J15 (a 4-pin XH would mate J3's and J9's RTD leads with 12 V).
+# The fan rail has no switch. The EMC2301 PWM pin is open drain through a cascode BSS138 whose gate is v3v3: with v3v3
+# off the fan's own pull-up reads 100 %, and the fan's 5.25 V never reaches the unpowered EMC2301 (absolute maximum:
+# 3.6 V above VDD, DS20006532A p. 3).
+#pragma experiment("MODULE_TEMPLATING")
+#pragma experiment("TRAITS")
+import Resistor from "components.ato"
+import Capacitor from "components.ato"
+from "controller_parts.ato" import Tps62933, Ind10u, Emc2301, NmosBss138, XhHeader5, EsdTvs3v3, EsdTvs5v0
+
+module BayFan:
+    signal vin
+    signal v3v3
+    signal gnd
+    signal scl
+    signal sda
+    signal alert_n
+    signal v12
+    signal sw
+    signal bst
+    signal fb
+    signal ss
+    signal en
+    signal tach_j
+    signal tach
+    signal pwm
+    signal pwm_j
+    signal clk
+
+    u_buck = new Tps62933
+    u_buck.designator = "U51"
+    u_buck.VIN ~ vin
+    u_buck.GND ~ gnd
+    u_buck.SW ~ sw
+    u_buck.BST ~ bst
+    u_buck.FB ~ fb
+    u_buck.SS ~ ss
+    u_buck.EN ~ en
+    r_en_top = new Resistor
+    r_en_top.designator = "R150"
+    r_en_top.value = 100kohm +/- 1%
+    r_en_top.mpn = "RC0603FR-07100KL"
+    r_en_top.p1 ~ vin
+    r_en_top.p2 ~ en
+    r_en_bot = new Resistor
+    r_en_bot.designator = "R151"
+    r_en_bot.value = 12.1kohm +/- 1%
+    r_en_bot.mpn = "RC0603FR-0712K1L"
+    r_en_bot.p1 ~ en
+    r_en_bot.p2 ~ gnd
+    r_fb_top = new Resistor
+    r_fb_top.designator = "R152"
+    r_fb_top.value = 140kohm +/- 0.1%
+    r_fb_top.mpn = "RT0603BRD07140KL"
+    r_fb_top.p1 ~ v12
+    r_fb_top.p2 ~ fb
+    r_fb_bot = new Resistor
+    r_fb_bot.designator = "R153"
+    r_fb_bot.value = 10kohm +/- 0.1%
+    r_fb_bot.mpn = "RT0603BRD0710KL"
+    r_fb_bot.p1 ~ fb
+    r_fb_bot.p2 ~ gnd
+    c_ss = new Capacitor
+    c_ss.designator = "C120"
+    c_ss.value = 10nF +/- 10%
+    c_ss.mpn = "CL10B103KB8NNNC"
+    c_ss.p1 ~ ss
+    c_ss.p2 ~ gnd
+    c_bst = new Capacitor
+    c_bst.designator = "C121"
+    c_bst.value = 100nF +/- 10%
+    c_bst.mpn = "CC0603KRX7R9BB104"
+    c_bst.p1 ~ bst
+    c_bst.p2 ~ sw
+    l = new Ind10u
+    l.designator = "L3"
+    l.p1 ~ sw
+    l.p2 ~ v12
+    c_in_a = new Capacitor
+    c_in_a.designator = "C122"
+    c_in_a.value = 10uF +/- 10%
+    c_in_a.mpn = "CL31A106KAHNNNE"
+    c_in_a.footprint = "Capacitor_SMD:C_1206_3216Metric"
+    c_in_a.p1 ~ vin
+    c_in_a.p2 ~ gnd
+    c_in_b = new Capacitor
+    c_in_b.designator = "C123"
+    c_in_b.value = 100nF +/- 10%
+    c_in_b.mpn = "CC0603KRX7R9BB104"
+    c_in_b.p1 ~ vin
+    c_in_b.p2 ~ gnd
+    c_out_a = new Capacitor
+    c_out_a.designator = "C124"
+    c_out_a.value = 22uF +/- 10%
+    c_out_a.mpn = "CL31A226KAHNNNE"
+    c_out_a.footprint = "Capacitor_SMD:C_1206_3216Metric"
+    c_out_a.p1 ~ v12
+    c_out_a.p2 ~ gnd
+    c_out_b = new Capacitor
+    c_out_b.designator = "C125"
+    c_out_b.value = 22uF +/- 10%
+    c_out_b.mpn = "CL31A226KAHNNNE"
+    c_out_b.footprint = "Capacitor_SMD:C_1206_3216Metric"
+    c_out_b.p1 ~ v12
+    c_out_b.p2 ~ gnd
+
+    u_fan = new Emc2301
+    u_fan.designator = "U52"
+    u_fan.SMDATA ~ sda
+    u_fan.SMCLK ~ scl
+    u_fan.VDD ~ v3v3
+    u_fan.GND ~ gnd
+    u_fan.PWM ~ pwm
+    u_fan.TACH ~ tach
+    u_fan.CLK ~ clk
+    u_fan.ALERT_N ~ alert_n
+    c_fan = new Capacitor
+    c_fan.designator = "C126"
+    c_fan.value = 100nF +/- 10%
+    c_fan.mpn = "CC0603KRX7R9BB104"
+    c_fan.p1 ~ v3v3
+    c_fan.p2 ~ gnd
+    r_clk = new Resistor              # CLK is an input by default; DRECK would make it an output, so not a hard tie
+    r_clk.designator = "R154"
+    r_clk.value = 10kohm +/- 1%
+    r_clk.mpn = "RC0603FR-0710KL"
+    r_clk.p1 ~ clk
+    r_clk.p2 ~ gnd
+    r_alert = new Resistor
+    r_alert.designator = "R155"
+    r_alert.value = 10kohm +/- 1%
+    r_alert.mpn = "RC0603FR-0710KL"
+    r_alert.p1 ~ v3v3
+    r_alert.p2 ~ alert_n
+    r_pwm = new Resistor
+    r_pwm.designator = "R156"
+    r_pwm.value = 10kohm +/- 1%
+    r_pwm.mpn = "RC0603FR-0710KL"
+    r_pwm.p1 ~ v3v3
+    r_pwm.p2 ~ pwm
+    q_pwm = new NmosBss138
+    q_pwm.designator = "Q2"
+    q_pwm.G ~ v3v3
+    q_pwm.S ~ pwm
+    q_pwm.D ~ pwm_j
+    d_pwm = new EsdTvs5v0
+    d_pwm.designator = "D14"
+    d_pwm.K ~ pwm_j
+    d_pwm.A ~ gnd
+
+    # FG: open collector, the J10 circuit
+    r_tach_pu = new Resistor
+    r_tach_pu.designator = "R157"
+    r_tach_pu.value = 10kohm +/- 1%
+    r_tach_pu.mpn = "RC0603FR-0710KL"
+    r_tach_pu.p1 ~ v3v3
+    r_tach_pu.p2 ~ tach_j
+    d_tach = new EsdTvs3v3
+    d_tach.designator = "D15"
+    d_tach.K ~ tach_j
+    d_tach.A ~ gnd
+    r_tach = new Resistor
+    r_tach.designator = "R158"
+    r_tach.value = 1kohm +/- 1%
+    r_tach.mpn = "RC0603FR-071KL"
+    r_tach.p1 ~ tach_j
+    r_tach.p2 ~ tach
+    c_tach = new Capacitor
+    c_tach.designator = "C127"
+    c_tach.value = 1nF +/- 5%
+    c_tach.mpn = "CL10C102JB8NNNC"
+    c_tach.p1 ~ tach
+    c_tach.p2 ~ gnd
+
+    # J15: 1 GND, 2 +12 V, 3 FG, 4 PWM (the 4-wire fan order), 5 GND
+    j = new XhHeader5
+    j.designator = "J15"
+    j.p1 ~ gnd
+    j.p2 ~ v12
+    j.p3 ~ tach_j
+    j.p4 ~ pwm_j
+    j.p5 ~ gnd
+
+    v12.override_net_name = "V12_FAN2"
+    sw.override_net_name = "sw_fan2"
+    pwm.override_net_name = "FAN2_PWM"
+    pwm_j.override_net_name = "J15_PWM"
+    tach_j.override_net_name = "J15_FG"
+    tach.override_net_name = "FAN2_TACH"
+    alert_n.override_net_name = "FAN2_ALERT"

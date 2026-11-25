@@ -318,22 +318,22 @@ def d11_receiver() -> dict:
 def ct_mon() -> dict:
     r_src, r_load = 2e3, 10e6
     gain_err = r_src / (r_src + r_load)
-    mv_per_a = 15.0          # 1.5 ohm burden / 100:1 CT (native-21 interface_numbers.py)
+    mv_per_a = 15.0          # 3 ohm burden / 200:1 CT (stage 54 on, FAULT-INTERFACE.md); same 15 mV/A as the former 1.5 ohm / 100:1
     out = {}
-    for label, i_pk in (("22 A RMS tank", 22 * math.sqrt(2)), ("55 A pk trip", 55.0)):
+    for label, i_pk in (("22 A RMS tank", 22 * math.sqrt(2)), ("28 A RMS tank", 28 * math.sqrt(2)),
+                        ("73.19 A pk trip, nominal (s56)", 73.19), ("79.32 A pk trip, high corner (s56)", 79.32)):
         swing = i_pk * mv_per_a / 1e3
         out[label] = (1.65 - swing, 1.65 + swing)
     return {"source": ["ESP32-S3"], "settled": "CT_SENSE_MON via R47 1k, ~2 kOhm source",
             "load_ohm": r_load, "gain_error": gain_err,
             "range_V": out, "atten": "ATTEN3 (0-2900 mV)",
             "checks": {"load_ge_1Mohm": r_load >= 1e6,
-                       "trip_range_in_atten3": out["55 A pk trip"][0] > 0.05
-                       and out["55 A pk trip"][1] < 2.9}}
+                       "trip_range_in_atten3": all(v[0] > 0.05 and v[1] < 2.9 for v in out.values())}}
 
 
 def adc_pattern() -> dict:
     total = 80_000.0
-    pattern = ["VBUS", "CT_MON", "VBUS", "CT_MON", "VBUS", "HS", "COIL", "M12", "RIM"]   # RIM: R36 rim NTC
+    pattern = ["VBUS", "CT_MON", "VBUS", "CT_MON", "VBUS", "HS", "COIL", "BAY", "RIM"]   # RIM: R36 rim NTC
     slot = 1 / total
     rates = {ch: pattern.count(ch) * total / len(pattern) for ch in dict.fromkeys(pattern)}
     idx = [i for i, ch in enumerate(pattern) if ch == "VBUS"]
@@ -363,7 +363,7 @@ def landings() -> dict:
     rows = {
         "J4 SELV (left edge, mating -X)": ((-31.15, 42.4), 27.65),
         "J7 UI bus (12-pin, R33)": ((46.0, 60.0), 32.4),
-        "J9 M12 probe": ((-33.0, 86.0), 9.9),
+        "J9 food probe (C51, 4-pin, proposed centre)": ((-31.5, 86.0), 12.4),
         "J10 fan": ((139.0, 86.0), 9.9),
         "J1 coil NTC": ((55.0, 84.0), 7.4),
         "J2 heatsink NTC": ((-20.0, 84.0), 7.4),
@@ -387,11 +387,11 @@ def rms_channel() -> dict:
     """AD8436 tank-RMS channel into the MCP3202 (owner-approved follow-up)."""
     f_band = (31e3, 55e3)                       # tank frequency band (coordinator)
     bw_1pct = 65e3                              # AD8436 Rev. B Table 1, 300 mV rms
-    mv_per_a = 15.0                             # 1.5 ohm burden / 100:1 CT
+    mv_per_a = 15.0                             # 3 ohm burden / 200:1 CT (stage 54 on)
     gain = 1 + 30e3 / 10e3                      # output buffer, RT0603 0.1 %
     gain_tol = 2 * 0.001 * (30e3 / 10e3) / gain
     rms_22 = 22 * mv_per_a / 1e3
-    rms_trip = 55 / math.sqrt(2) * mv_per_a / 1e3
+    rms_trip = 73.19 / math.sqrt(2) * mv_per_a / 1e3        # s56 nominal trip; 79.32 A high corner: see saturates_at
     out_22, out_trip = rms_22 * gain, rms_trip * gain
     vdd_min, vdd_max = 3.242, 3.367             # v3v3 band (rail_3v3) = MCP3202 reference
     # coupling high-passes: 100 nF into the 10 MOhm bias and into the 8 kOhm core input
@@ -410,7 +410,8 @@ def rms_channel() -> dict:
     return {"source": "AD8436 Rev. B; MCP3202 DS21034F; BAT54S DS11005; CT transfer 15 mV/A",
             "bandwidth_1pct_Hz": bw_1pct, "tank_band_Hz": f_band,
             "gain": gain, "gain_tolerance": gain_tol,
-            "adc_V_at_22A_rms": out_22, "adc_V_at_55A_peak_trip": out_trip,
+            "adc_V_at_22A_rms": out_22, "adc_V_at_73p19A_peak_trip": out_trip, "saturates_at_A_peak": vdd_min / gain / mv_per_a * 1e3 * math.sqrt(2),
+            "high_corner_trip_A_peak": 79.32,
             "adc_lsb_V": lsb, "codes_at_22A": out_22 / lsb,
             "coupling_error_at_31kHz": hp_err, "post_filter_Hz": lpf, "ripple_attenuation_2f": ripple_atten,
             "settling_0p1pct_fall_ms_assumed": settle_fall_ms,
@@ -578,6 +579,9 @@ def merge_rail() -> dict:
     en_start_max = en_uvlo()["start_max_V"]
     c_bulk = 100e-6 * 0.8 + 10e-6 * 0.8                  # 100 uF electrolytic -20 %, 10 uF X7R at bias
     holdup_s = c_bulk * (v_logic_min - en_uvlo()["stop_min_V"]) / i_logic
+    # C51: the face fan (fan2) is on V15_BLW too, and PS3 is the MPM-90-15ST (ps3_c51()); the MPM-65 lines below are the C49 record
+    v_blw_min -= FAN2_ALLOC_W / 0.90 / 15 * b["harness_loop_ohm"]
+    v_logic_min = v_blw_min - vf
     p_total = b["ps3_out_W"] + 4.83
     # MEAN WELL MPM-65-SPEC 2024-10-30 (read 2026-10-18): 15 V curve is 100 % to 50 C, 80 % at 60 C, 50 % at 70 C (p.3, by eye);
     # overload is hiccup at 115-135 % of the 65 W rated power, so the lowest trip point is 1.15 x 65 W / 15 V = 4.98 A (p.2).
@@ -1085,6 +1089,131 @@ def harness_sensitivity() -> dict:
             "checks": {"default_and_r27_route_inside_contract": rows["1.0 m"] >= 3.135 and rows["0.074 m"] >= 3.135}}
 
 
+# ---- C51: plug-in food probe, bay NTC, face fan, PS3
+def pt1000(t: float) -> float:
+    return 1000.0 * (1 + 3.9083e-3 * t - 5.775e-7 * t * t)
+
+
+def rtd_food(c_entry: float = 100e-9) -> dict:
+    """Food-probe channel (DECISIONS C51): Pt1000, Rref 4.30 k 0.1 % 25 ppm, MAX31865 bias 2.0 V, 1 M open-lead pull-ups
+    on the connector side, the CR-1 filter (2 x 1 k / 100 nF C0G / 2 x 1 k / 100 nF C0G).
+
+    Loading: the sense-side pull-up adds V/1M to the RTD but not to Rref, so code x Rref over-reads; firmware removes
+    the nominal term, and only the resistor tolerances and VBIAS cancel-out remain. The open-circuit time constant and
+    the settling check use every tolerance upward (R +1 %, X7R +10 %, C0G +5 %).
+    """
+    rref, rpu = 4300.0, 1e6
+    rows = {}
+    for t in (0.0, 60.0, 100.0, 200.0, 300.0):
+        r = pt1000(t)
+        # current through Rref then RTD; pull-up from BIAS into the top of the RTD
+        v_top = (2.0 / rref + 2.0 / rpu) / (1 / rref + 1 / rpu + 1 / r)
+        i_ref = (2.0 - v_top) / rref
+        ratio = v_top / (i_ref * rref)
+        over = ratio * rref - r
+        s = pt1000(t + 0.5) - pt1000(t - 0.5)
+        rows[f"{t:g}"] = {"r_ohm": r, "code_ratio": ratio, "loading_K_uncorrected": over / s,
+                          "loading_K_after_nominal_correction_1pct_pullup": over * 0.01 / s,
+                          "rref_0p1pct_K": r * 0.001 / s, "rref_25ppm_60K_K": r * 25e-6 * 60 / s,
+                          "self_heat_mW": i_ref * i_ref * r * 1e3}
+    # Elmore sum at the hottest probe (300 C): connector node then the two filter sections
+    rt = pt1000(300.0)
+    rs = 1 / (1 / rref + 1 / rt)
+    c_top = 2 * c_entry * 1.10                        # FORCE+ and SENSE+ entry capacitors, in parallel
+    tau = rs * c_top + (2e3 * 100e-9 + 4e3 * 100e-9) * 1.05 * 1.001 + 2e3 * 2e-9
+    return {"source": ["MAX31865", "IEC 60751", "Yageo RT0805BRD 0.1 % 25 ppm"], "rows": rows, "tau_s": tau,
+            "open_sense_tau_s": rpu * 1.01 * (c_entry * 1.10 + 2 * 100e-9 * 1.05),
+            "checks": {"five_tau_le_5p5ms": 5 * tau <= 5.5e-3,
+                       "code_in_range_at_300C": rows["300"]["code_ratio"] < 0.95,
+                       "corrected_loading_le_0p05K": all(x["loading_K_after_nominal_correction_1pct_pullup"] <= 0.05
+                                                         for x in rows.values()),
+                       "open_sense_detected_within_2s": 5 * rpu * 1.01 * (c_entry * 1.10 + 2 * 100e-9 * 1.05) <= 2.0}}
+
+
+def bay_ntc(rpu: float = 47e3) -> dict:
+    """R45-BAY-NTC (C51, OPEN-ITEMS S27): Semitec 104GT-2 to ground with rpu to v3v3, U7B, GPIO8 ATTEN3 (0-2900 mV).
+
+    R(T): 0-25 C and 100 C are Semitec table values (GT2_104_HOT); 40-80 C are log-linear in 1/T between 25 C and 100 C,
+    which the 85 C value of B25/85 = 4267 K bounds (difference stated in the output)."""
+    def r(t):
+        ks = sorted(GT2_104_HOT)
+        for a, b in zip(ks, ks[1:]):
+            if a <= t <= b:
+                x = (1 / (t + 273.15) - 1 / (a + 273.15)) / (1 / (b + 273.15) - 1 / (a + 273.15))
+                return 1e3 * math.exp(math.log(GT2_104_HOT[a]) + x * math.log(GT2_104_HOT[b] / GT2_104_HOT[a]))
+        raise ValueError(t)
+    vdd = 3.304
+    v = {t: vdd * r(t) / (r(t) + rpu) for t in (0, 10, 20, 25, 40, 55, 61, 70, 80, 100)}
+    r85_b = 100e3 * math.exp(4267.0 * (1 / 358.15 - 1 / 298.15))
+    slope61 = (vdd * r(60) / (r(60) + rpu) - vdd * r(62) / (r(62) + rpu)) / 2 * 1e3
+    return {"source": ["Semitec GT-2 table (repo GT2_104_HOT)", "ESP32-S3"], "rpu_ohm": rpu, "node_V": {str(k): x for k, x in v.items()},
+            "mV_per_K_at_61C": slope61, "interp_vs_B_at_85C": r(85) / r85_b - 1,
+            "checks": {"adc_linear_from_5C": vdd * r(5) / (r(5) + rpu) < 2.9 * 1.02 and v[10] < 2.85,
+                       "slope_61C_ge_20mV_per_K": slope61 >= 20.0,
+                       "open_lead_apart_from_0C_by_0p3V": vdd - v[0] >= 0.3,
+                       "interpolation_within_2pct_of_B": abs(r(85) / r85_b - 1) < 0.02}}
+
+
+PS3_PARTS = {
+    # rated W, (ambient C, load fraction) at 100 VAC, overload low fraction, tolerance, hold-up ms at 115 VAC, OVP max
+    "MPM-65-15ST": {"w": 65.0, "derate": [(50, 1.0), (60, 0.80), (70, 0.50), (80, 0.30)], "ocp": 1.15, "tol": 0.02,
+                    "holdup_ms": 12.0, "ovp": 20.25, "src": "MPM-65-SPEC 2024-10-30"},
+    "MPM-90-15ST": {"w": 85.05, "derate": [(50, 1.0), (60, 0.75), (70, 0.50), (80, 0.25)], "ocp": 1.15, "tol": 0.02,
+                    "holdup_ms": 10.0, "ovp": 20.3,
+                    "src": "MPM-90-SPEC 2024-10-30 p. 2 and the 100 VAC derating line p. 3 (read by eye); altitude note 7: "
+                           "3.5 C per 1000 m above 2000 m"},
+}
+FAN2_ALLOC_W = 8.0        # R45 face fan at 12 V: an allocation, no fan is selected
+
+
+def derated_w(part: str, t_c: float) -> float:
+    d = PS3_PARTS[part]["derate"]
+    if t_c <= d[0][0]:
+        return PS3_PARTS[part]["w"]
+    for (t0, f0), (t1, f1) in zip(d, d[1:]):
+        if t0 <= t_c <= t1:
+            return PS3_PARTS[part]["w"] * (f0 + (f1 - f0) * (t_c - t0) / (t1 - t0))
+    return 0.0
+
+
+def ps3_c51(part: str = "MPM-90-15ST", bay_c: float = 61.0, altitude_m: float = 2000.0) -> dict:
+    """PS3 with the blower at its highest corner, the logic and the face fan, at the bay-air limit (S27: 61 C)."""
+    p_fan = FAN2_ALLOC_W / 0.90
+    total = ps3_budget()["ps3_out_W"] + 4.83 + p_fan
+    t = bay_c + max(0.0, altitude_m - 2000.0) / 1000.0 * 3.5
+    cap = derated_w(part, t)
+    return {"part": part, "source": PS3_PARTS[part]["src"], "total_W": total, "face_fan_input_W": p_fan,
+            "derating_ambient_C": t, "derated_W": cap, "margin_W": cap - total, "fits": total <= cap}
+
+
+def fan2_buck() -> dict:
+    """R45 face-fan buck: TPS62933, 140 k / 10.0 k 0.1 %, SWPA6045S100MT 10 uH (Irms 2.45 A, Isat 3.5 A)."""
+    v = [f * (1 + 140e3 * (1 + a) / (10e3 * (1 + b))) for f in (0.788, 0.812) for a in (-1e-3, 1e-3) for b in (-1e-3, 1e-3)]
+    i = FAN2_ALLOC_W / 12.0
+    vin = 15 * 1.025
+    ripple = (vin - 12.0) * 12.0 / (vin * 8e-6 * 450e3)
+    dmax = 1 - 140e-9 * 550e3
+    m = ps3_c51()
+    b = ps3_budget()
+    v_in_min = 15 * (1 - PS3_PARTS["MPM-90-15ST"]["tol"]) - m["total_W"] / (15 * 0.98) * b["harness_loop_ohm"]
+    return {"source": ["TPS62933", "Sunlord SWPA6045S100MT (controller_parts.ato)"], "vout_V": [min(v), max(v)],
+            "i_out_A": i, "inductor_peak_A": i + ripple / 2, "vin_min_V": v_in_min,
+            "checks": {"vout_within_10p8_to_12p6": min(v) >= 10.8 and max(v) <= 12.6,
+                       "inductor_peak_le_2p45A_irms_rating": i + ripple / 2 <= 2.45,
+                       "headroom_without_foldback": v_in_min * dmax >= max(v) + 0.1,
+                       "start_at_2x_current_inside_4p2A_limit": 2 * i + ripple / 2 <= 4.2}}
+
+
+def ps3_face_fan() -> dict:
+    """The C51 supply check, at sea level to 2000 m and at 3000 m, with MPM-65 as the negative control."""
+    a, hi, old = ps3_c51(), ps3_c51(altitude_m=3000.0), ps3_c51("MPM-65-15ST")
+    return {"source": [a["source"]], "mpm90": a, "mpm90_3000m": hi, "mpm65": old,
+            "checks": {"mpm90_fits_at_61C": a["fits"], "mpm90_fits_at_61C_3000m": hi["fits"],
+                       "v15_blw_parts_above_ovp_20p3": 25.0 > PS3_PARTS["MPM-90-15ST"]["ovp"],
+                       "tps62933_vin_above_ovp": 30.0 > PS3_PARTS["MPM-90-15ST"]["ovp"],
+                       "j13_vh_7A_ge_total": 7.0 >= a["total_W"] / (15 * 0.98)}}
+
+
 def main() -> int:
     quiet = "--quiet" in sys.argv
     result = {
@@ -1112,6 +1241,10 @@ def main() -> int:
         "rim_trip": rim_trip(),
         "capmode": capmode(),
         "harness_sensitivity": harness_sensitivity(),
+        "rtd_food": rtd_food(),
+        "bay_ntc": bay_ntc(),
+        "fan2_buck": fan2_buck(),
+        "ps3_face_fan": ps3_face_fan(),
     }
     failed = [f"{blk}.{name}" for blk, val in result.items() if isinstance(val, dict)
               for name, ok in val.get("checks", {}).items() if not ok]
