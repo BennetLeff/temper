@@ -35,7 +35,7 @@
  * latch, so it can only remove permission), owned by controller_board_esp32.c, which presets it low
  * at boot. SUP_RUN_OK is TCA9555 P14, read from the expander cache that the control task refreshes;
  * a stale or failed snapshot reads as "not ok". ADC1 also carries the four thermal channels (HS,
- * COIL, M12, RIM); their latest frame means are kept for the thermal owner (n21_hw_thermal_mv).
+ * COIL, BAY, RIM); their latest frame means are kept for the thermal owner (n21_hw_thermal_mv).
  */
 #include "n21_hw.h"
 #include "rms_shadow.h"
@@ -62,7 +62,7 @@ static const char *TAG = "n21_hw";
 enum { HA, LA, HB, LB };
 static const int PWM_PIN[4] = {N21_GPIO_PWM_HA, N21_GPIO_PWM_LA, N21_GPIO_PWM_HB, N21_GPIO_PWM_LB};
 #define N21_ADC_PATTERN_LEN 9
-static const int THERMAL_CH[N21_THERMAL_COUNT] = {N21_ADC1_CH_HS, N21_ADC1_CH_COIL, N21_ADC1_CH_M12,
+static const int THERMAL_CH[N21_THERMAL_COUNT] = {N21_ADC1_CH_HS, N21_ADC1_CH_COIL, N21_ADC1_CH_BAY,
                                                    N21_ADC1_CH_RIM};
 
 #define CAP_EDGES 8
@@ -470,7 +470,7 @@ static bool adc_configure(uint32_t fs_hz)
         {N21_ADC1_CH_VBUS, ADC_ATTEN_DB_6}, {N21_ADC1_CH_CT_MON, ADC_ATTEN_DB_12},
         {N21_ADC1_CH_VBUS, ADC_ATTEN_DB_6}, {N21_ADC1_CH_CT_MON, ADC_ATTEN_DB_12},
         {N21_ADC1_CH_VBUS, ADC_ATTEN_DB_6}, {N21_ADC1_CH_HS, ADC_ATTEN_DB_12},
-        {N21_ADC1_CH_COIL, ADC_ATTEN_DB_12}, {N21_ADC1_CH_M12, ADC_ATTEN_DB_12},
+        {N21_ADC1_CH_COIL, ADC_ATTEN_DB_12}, {N21_ADC1_CH_BAY, ADC_ATTEN_DB_12},
         {N21_ADC1_CH_RIM, ADC_ATTEN_DB_12},
     };
     adc_digi_pattern_config_t p[N21_ADC_PATTERN_LEN];
@@ -488,7 +488,7 @@ static bool adc_create(void)
     adc_continuous_handle_cfg_t hc = {.max_store_buf_size = 4 * ADC_FRAME, .conv_frame_size = ADC_FRAME};
     if (adc_continuous_new_handle(&hc, &hw.adc) != ESP_OK) return false;
     /* DECISIONS C12 pattern at 80 kS/s, with R36's rim NTC as the ninth slot (C27): VBUS, CT_MON,
-     * VBUS, CT_MON, VBUS, HS, COIL, M12, RIM (VBUS 26.7 kS/s). HS/COIL/M12/RIM belong to the thermal
+     * VBUS, CT_MON, VBUS, HS, COIL, BAY, RIM (VBUS 26.7 kS/s). HS/COIL/BAY/RIM belong to the thermal
      * owner (n21_hw_thermal_mv). HIL (C12 flag): repeated channels in one pattern on this IDF. */
     adc_cali_curve_fitting_config_t c6 = {.unit_id = ADC_UNIT_1, .atten = ADC_ATTEN_DB_6, .bitwidth = ADC_BITWIDTH_DEFAULT};
     adc_cali_curve_fitting_config_t c12 = {.unit_id = ADC_UNIT_1, .atten = ADC_ATTEN_DB_12, .bitwidth = ADC_BITWIDTH_DEFAULT};

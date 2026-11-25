@@ -5,8 +5,9 @@ The integrated SELV controller's GPIO / expander map lives in
 ``firmware/components/hal/include/controller_pins.h`` (numbers) and
 ``firmware/components/hal/controller_board.c`` (one row per GPIO: net, function,
 pulls). This guard re-derives the map from the hardware source,
-``zapote/controller/elec/src/controller.ato`` on branch ``controller-layout``,
-and fails on any disagreement:
+``zapote/controller/elec/src/controller.ato`` on branch ``controller-c51``,
+and fails on any disagreement (either side of ``~`` is read, and a pin mention it
+cannot parse is a gate error):
 
 1. every ``mcu.IOn`` / ``mcu.RXD0`` / ``mcu.TXD0`` net has a
    ``CTRL_GPIO_<NET>`` define with the same GPIO, and every numeric
@@ -30,7 +31,7 @@ Exit codes: 0 pass, 3 violation, 5 gate error (input missing / unparseable).
 
 Usage:
   python3 firmware/tools/check_controller_pinmap.py
-  python3 firmware/tools/check_controller_pinmap.py --git-ref controller-layout
+  python3 firmware/tools/check_controller_pinmap.py --git-ref controller-c51
 """
 
 from __future__ import annotations
@@ -87,14 +88,30 @@ def parse_ohms(text: str) -> float | None:
 
 def parse_ato(text: str) -> AtoMap:
     ato = AtoMap()
-    for m in re.finditer(r"^\s*mcu\.(?:IO(\d+)|(RXD0)|(TXD0))\s*~\s*(\w+)\s*$", text, re.M):
-        gpio = int(m.group(1)) if m.group(1) else (RXD0_GPIO if m.group(2) else TXD0_GPIO)
-        net = m.group(4)
-        if net in ato.gpio:
-            raise GateError(f"ato net {net} on two MCU pins")
-        ato.gpio[net] = gpio
-    for m in re.finditer(r"^\s*u_io\.P([01])([0-7])\s*~\s*(\w+)\s*$", text, re.M):
-        ato.expander[m.group(3)] = 8 * int(m.group(1)) + int(m.group(2))
+    # Comments hold pin names in prose; a connection may be written either way round (C51: `rtd_food.cs_n ~ u_io.P06`).
+    code = re.sub(r"#[^\n]*", "", text)
+    pin = r"(?:mcu\.(?:IO\d+|RXD0|TXD0)|u_io\.P[01][0-7])"
+    used = 0
+    for m in re.finditer(rf"^\s*(?:({pin})\s*~\s*([\w.]+)|([\w.]+)\s*~\s*({pin}))\s*$", code, re.M):
+        name, other = (m.group(1), m.group(2)) if m.group(1) else (m.group(4), m.group(3))
+        if re.fullmatch(pin, other):
+            raise GateError(f"{name} ~ {other}: a pin tied to a pin is not supported")
+        used += 1
+        net = other.replace(".", "_")
+        if name.startswith("u_io."):
+            bit = 8 * int(name[-2]) + int(name[-1])
+            if net in ato.expander and ato.expander[net] != bit:
+                raise GateError(f"ato net {net} on two expander pins")
+            ato.expander[net] = bit
+        else:
+            key = name[4:]
+            gpio = RXD0_GPIO if key == "RXD0" else TXD0_GPIO if key == "TXD0" else int(key[2:])
+            if net in ato.gpio:
+                raise GateError(f"ato net {net} on two MCU pins")
+            ato.gpio[net] = gpio
+    mentions = len(re.findall(rf"\b{pin}\b", code))
+    if mentions != used:
+        raise GateError(f"{mentions} MCU / expander pin mentions in the ato but {used} parsed: a connection form this guard cannot read")
     pins: dict[str, dict[str, str]] = {}
     for m in re.finditer(r"^\s*(\w+)\.(p1|p2)\s*~\s*([\w.]+)\s*$", text, re.M):
         pins.setdefault(m.group(1), {})[m.group(2)] = m.group(3)

@@ -79,7 +79,8 @@ static void test_expander_bits_unique(void)
 {
     const int bits[] = {CTRL_EXP_RTD_DRDY, CTRL_EXP_LATCHED_FAULT_RB, CTRL_EXP_RTD_FAULT_RB,
                         CTRL_EXP_HS_FAULT_RB, CTRL_EXP_COIL_FAULT_RB, CTRL_EXP_SUP_RUN_OK_RB,
-                        CTRL_EXP_FAN_OFF, CTRL_EXP_BLW_PG, CTRL_EXP_RTD2_CS_RESERVED};
+                        CTRL_EXP_FAN_OFF, CTRL_EXP_BLW_PG, CTRL_EXP_RTD_FOOD_CS_N,
+                        CTRL_EXP_RTD_FOOD_DRDY_N, CTRL_EXP_BAY_FAN_ALERT_N};
     const size_t n = sizeof bits / sizeof bits[0];
     for (size_t i = 0; i < n; i++) {
         assert(bits[i] >= 0 && bits[i] <= 15);
@@ -115,7 +116,7 @@ static void test_l2_moves(void)
     const struct { int gpio, ch; } adc[] = {
         {CTRL_GPIO_CT_MON_ADC, CTRL_ADC1_CH_CT_MON_ADC}, {CTRL_GPIO_VBUS_ADC, CTRL_ADC1_CH_VBUS_ADC},
         {CTRL_GPIO_HS_ADC, CTRL_ADC1_CH_HS_ADC}, {CTRL_GPIO_COIL_ADC, CTRL_ADC1_CH_COIL_ADC},
-        {CTRL_GPIO_M12_ADC, CTRL_ADC1_CH_M12_ADC}, {CTRL_GPIO_RIM_ADC, CTRL_ADC1_CH_RIM_ADC}};
+        {CTRL_GPIO_BAY_ADC, CTRL_ADC1_CH_BAY_ADC}, {CTRL_GPIO_RIM_ADC, CTRL_ADC1_CH_RIM_ADC}};
     for (size_t i = 0; i < sizeof adc / sizeof adc[0]; i++) {
         assert(adc[i].ch == adc[i].gpio - 1);
         assert(ctrl_pin_find(adc[i].gpio)->fn == CTRL_FN_ADC);

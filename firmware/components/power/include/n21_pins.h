@@ -4,7 +4,7 @@
  * Native-21 binding's view of the integrated SELV controller (zapote/controller, layout L2) pin map.
  * Every number comes from controller_pins.h, the board's single source of truth (cross-checked
  * against the controller ato by firmware/tools/check_controller_pinmap.py). This is NOT the legacy
- * temper_pins.h board (whose SPI clock on GPIO8 is M12_ADC here).
+ * temper_pins.h board (whose SPI clock on GPIO8 is BAY_ADC here).
  *
  * Firmware has two outputs into PERMIT's fan-in, and neither can grant it:
  *   - IL_RESET_N, a reset *request* edge, which the latch honours only with every source healthy;
@@ -34,7 +34,7 @@
 /* Thermal channels sampled in the same ADC1 pattern (C12, C27); converted by thermal_mgmt. */
 #define N21_ADC1_CH_HS         CTRL_ADC1_CH_HS_ADC
 #define N21_ADC1_CH_COIL       CTRL_ADC1_CH_COIL_ADC
-#define N21_ADC1_CH_M12        CTRL_ADC1_CH_M12_ADC
+#define N21_ADC1_CH_BAY        CTRL_ADC1_CH_BAY_ADC
 #define N21_ADC1_CH_RIM        CTRL_ADC1_CH_RIM_ADC
 #define N21_GPIO_RTD_CS_N      CTRL_GPIO_RTD_CS_N   /* MAX31865, shares the bus below */
 #define N21_GPIO_SPI_SCK       CTRL_GPIO_RTD_SCK

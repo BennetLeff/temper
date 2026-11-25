@@ -65,13 +65,13 @@
 #define CTRL_GPIO_VBUS_ADC          2
 #define CTRL_GPIO_HS_ADC            6   /* heatsink NTC (thermal-sense block) */
 #define CTRL_GPIO_COIL_ADC          7   /* coil NTC (thermal-sense block) */
-#define CTRL_GPIO_M12_ADC           8   /* M12 probe NTC */
+#define CTRL_GPIO_BAY_ADC           8   /* J14 bay NTC, 47 k pull-up (C51; the M12 divider before) */
 #define CTRL_GPIO_RIM_ADC           9   /* R36 rim NTC (C27), built like the coil channel */
 #define CTRL_ADC1_CH_CT_MON_ADC     0
 #define CTRL_ADC1_CH_VBUS_ADC       1
 #define CTRL_ADC1_CH_HS_ADC         5
 #define CTRL_ADC1_CH_COIL_ADC       6
-#define CTRL_ADC1_CH_M12_ADC        7
+#define CTRL_ADC1_CH_BAY_ADC        7
 #define CTRL_ADC1_CH_RIM_ADC        8
 
 /* ---------------------------------------------------------------- I2C to the TCA9555 (C27) */
@@ -118,6 +118,9 @@
                                          * 20 k / 4.7 k from V15_BLW at J13: >= 2.74 V with PS3 on,
                                          * <= 0.30 V without it (controller_calcs.py blw_pg()).
                                          * Input only: CONFIG1 bit 6 is never cleared. */
-#define CTRL_EXP_RTD2_CS_RESERVED   6   /* P06, reserved for a second MAX31865 CS (C14); input */
+#define CTRL_EXP_RTD_FOOD_DRDY_N    5   /* P05, food-probe MAX31865 DRDY#, active low (C51); input, 10 k pull-up not fitted: the part drives it */
+#define CTRL_EXP_RTD_FOOD_CS_N      6   /* P06, food-probe MAX31865 CS# (C51). Stays an INPUT here: 10 k to v3v3 (R136)
+                                         * deselects the part until its driver exists. */
+#define CTRL_EXP_BAY_FAN_ALERT_N   15   /* P17, EMC2301 (0x2F) ALERT#, active low, 10 k pull-up (C51); input */
 
 #endif

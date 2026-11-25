@@ -68,9 +68,20 @@ def test_parse_reads_the_l2_moves():
 
 
 def test_live_branch_matches_firmware_map():
-    if not _has_ref("controller-j13-merge"):
-        pytest.skip("controller-j13-merge branch not in this clone")
-    assert guard.main(["--git-ref", "controller-j13-merge"]) == guard.EXIT_OK
+    if not _has_ref("controller-c51"):
+        pytest.skip("controller-c51 branch not in this clone")
+    assert guard.main(["--git-ref", "controller-c51"]) == guard.EXIT_OK
+
+
+C51_KEYS = ("M12_ADC", "m12_adc", "BAY_ADC", "bay_adc", "RTD_FOOD", "BAY_FAN")
+
+
+def test_c49_controller_differs_only_by_the_c51_pins():
+    ref = "59ff40af5"
+    if not _has_ref(ref):
+        pytest.skip("controller C49 commit not in this clone")
+    errors = _run(guard.load_git_ref(ref), sources={})
+    assert errors and all(any(k in e for k in C51_KEYS) for e in errors), errors
 
 
 def test_c48_controller_differs_only_by_the_j13_merge_pins():
@@ -80,7 +91,7 @@ def test_c48_controller_differs_only_by_the_j13_merge_pins():
     if not _has_ref(ref):
         pytest.skip("controller C48 commit not in this clone")
     errors = _run(guard.load_git_ref(ref), sources={})
-    assert errors and all(any(k in e for k in ("BIAS_GOOD", "bias_good", "RAIL_OK", "rail_ok")) for e in errors), errors
+    assert errors and all(any(k in e for k in ("BIAS_GOOD", "bias_good", "RAIL_OK", "rail_ok") + C51_KEYS) for e in errors), errors
 
 
 def test_parse_reads_blw_pg():
@@ -94,8 +105,8 @@ def test_parse_reads_blw_pg():
     [
         ("mcu.IO14 ~ run_en", "mcu.IO13 ~ run_en", "run_en"),            # moved GPIO
         ("mcu.IO9 ~ rim_adc", "mcu.IO10 ~ rim_adc", "rim_adc"),          # ADC channel too
-        ("u_io.P07 ~ rtd_drdy", "u_io.P06 ~ rtd_drdy", "rtd_drdy"),      # expander bit
-        ("u_io.P16 ~ blw_pg", "u_io.P17 ~ blw_pg", "blw_pg"),            # BLW_PG moved (C33)
+        ("u_io.P07 ~ rtd_drdy", "u_io.P03 ~ rtd_drdy", "rtd_drdy"),      # expander bit
+        ("u_io.P16 ~ blw_pg", "u_io.P04 ~ blw_pg", "blw_pg"),            # BLW_PG moved (C33)
         ("    r_run_en_pd.p2 ~ selv_gnd\n", "", "run_en"),                # RUN_EN pull-down gone
         ("    r_dc_pd.p2 ~ selv_gnd\n", "", "ui_dc"),                     # GPIO45 strap pull-down gone
         ("    r_scl_pu.p1 ~ v3v3\n", "", "boot_io0"),                     # GPIO0 strap pull-up gone
@@ -142,3 +153,42 @@ def test_gate_error_on_unparseable_ato(tmp_path):
     p = tmp_path / "empty.ato"
     p.write_text("module Nothing:\n    pass\n")
     assert guard.main(["--ato", str(p)]) == guard.EXIT_GATE_ERROR
+
+
+# ---------------------------------------------------------------- reversed connections (C51)
+def _reversed(old: str, new: str) -> str:
+    text = _fixture_text()
+    assert old in text
+    return text.replace(old, new, 1)
+
+
+def test_expander_net_on_the_right_hand_side_is_read():
+    # C51 writes `rtd_food.cs_n ~ u_io.P06`; the parser used to see only `u_io.P06 ~ net`.
+    ato = guard.parse_ato(_fixture_text() + "\n    rtd_food.cs_n ~ u_io.P06\n")
+    assert ato.expander["rtd_food_cs_n"] == 6
+
+
+def test_reversed_expander_net_without_a_define_is_a_violation():
+    # P03 is spare in the fixture, so nothing else can claim it.
+    errors = _run(_fixture_text() + "\n    bay_fan.other ~ u_io.P03\n")
+    assert any("bay_fan_other" in e for e in errors)
+
+
+def test_reversed_mcu_net_is_read():
+    ato = guard.parse_ato(_fixture_text() + "\n    probe.sig ~ mcu.IO21\n")
+    assert ato.gpio["probe_sig"] == 21
+
+
+def test_unparsed_pin_mention_is_a_gate_error():
+    with pytest.raises(guard.GateError):
+        guard.parse_ato(_fixture_text() + "\n    u_io.P03 ~> strange ~> thing\n")
+
+
+def test_comments_do_not_count_as_pin_mentions():
+    guard.parse_ato(_fixture_text() + "\n    # u_io.P03 is spare, so is mcu.IO21\n")
+
+
+def test_c51_expander_bits_are_defined():
+    d = guard.parse_defines(guard.PINS_H.read_text())
+    assert (d["CTRL_EXP_RTD_FOOD_CS_N"], d["CTRL_EXP_RTD_FOOD_DRDY_N"], d["CTRL_EXP_BAY_FAN_ALERT_N"]) == (6, 5, 15)
+    assert d["CTRL_GPIO_BAY_ADC"] == 8 and "CTRL_GPIO_M12_ADC" not in d

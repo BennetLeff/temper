@@ -1,8 +1,8 @@
 {
-  "branch": "controller-j13-merge",
-  "commit": "59ff40af5993b707a2739f57b073f194c7b30198",
-  "commit_subject": "controller C49: J13 rail merge, BIAS_GOOD on J4.1 (GPIO35), RAIL_OK_RB on expander P02",
+  "branch": "controller-c51",
+  "commit": "cf187073ffa58281bd5a8def72f835c4fcb5e40f",
+  "commit_subject": "controller C51: J9 capacitor-before-clamp layout rule; AVDD figure against the rail, not zero",
   "path": "zapote/controller/elec/src/controller.ato",
-  "git_blob": "97eda33ecca54746763a038ba60f4ed41888533f",
-  "note": "Byte-exact copy, read by firmware/tools/check_controller_pinmap.py. C49 (J13 rail merge): GPIO35 = bias_good_rb (J4.1 BIAS_GOOD), expander P02 = rail_ok_rb, P00/P01 = cm_ha_ok_rb / cm_la_ok_rb. Refresh: git show <commit>:<path> > controller.ato, then update commit, commit_subject and git_blob."
+  "git_blob": "7f4758082fbf21f98c46c1814bee6b3f0889189b",
+  "note": "Byte-exact copy, read by firmware/tools/check_controller_pinmap.py. C51: GPIO8 = bay_adc (the M12 divider became the bay NTC), expander P05 / P06 = food-RTD DRDY# / CS#, P17 = face-fan ALERT#; C49 moves (GPIO35 bias_good_rb, P02 rail_ok_rb) are in it. Refresh: git show <commit>:<path> > controller.ato, then update commit, commit_subject and git_blob."
 }
