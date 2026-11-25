@@ -93,10 +93,11 @@ What this means, in one line each:
 JLC's UL page (last updated 2026-11-10) lists KB-6164 TG135 and KB-6165 TG155 under JLC-4 (E479892, 4–32 layers). It states no copper weight, MOT or CTI,
 and does not list KB-6164F or KB-6165F. The marking may be left off "without prior notice" if there is no room (choose Specify Position).
 
-## Follow-up draft (NOT sent)
+## Follow-up (owner-approved 2026-11-25; NOT sent: the mail tool refused it)
 
 > Thank you. Two points are still open for our 4-layer, 1.6 mm, 2 oz outer / 2 oz inner board (JLC041622-7628):
 > 1. Kingboard's UL file E123995 limits KB-6164 / KB-6064 multilayer internal copper to 35 µm. Our inner copper is about 61 µm. Does your UL recognition
 >    E479892, type JLC-4, cover KB-6164 TG135 with 2 oz inner copper? Please answer yes or no, and state the maximum inner copper weight.
 > 2. If no: which Material Type that you can supply (for example KB-6165 TG155, KB-6164F, KB-6165F, S1000H) is recognised with 2 oz inner copper
 >    and CTI PLC 3 or better, with which prepreg, and at what extra cost?
+> Also, from question 6 of our first message: which UL or material certificate ships with the order, and does it state the laminate, prepreg and UL file?

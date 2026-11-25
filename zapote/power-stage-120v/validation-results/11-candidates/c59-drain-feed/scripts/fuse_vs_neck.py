@@ -1,20 +1,44 @@
 #!/usr/bin/env python3
-"""OPEN-ITEMS S33: total clearing I2t of the surveyed fuses against the corrected drain-pin copper (DECISIONS 88).
+"""OPEN-ITEMS S33: candidate mains fuses against the corrected drain-pin copper (DECISIONS 88) and f1_decision.py's other gates.
 
     python3 -I fuse_vs_neck.py      -> ../fuse-vs-neck.json
 
-Fuse figures are 12-decisions/f1-data/SURVEY.md's (section 1-2; several are read from mirrors, not re-read here). carry is the repo's G2
-rule, In x 0.75 x derate(50 C), against 15 A. Derates: KLDR / CCMR 0.90, Bel 0.96 (survey, plots); KLKR prints none, so 0.90 is ASSUMED."""
+Sources: KLDR / Bel as 12-decisions/f1-data. CCMR020: Littelfuse CCMR sheet rev 10/10/2022 p.4 (sha a63cfddb1077): 918 A2s at 200 kA, no
+melting figure. FWC-25A10F: Eaton 720011 Nov 2017 p.2 (sha f0cdada2fa5d): pre-arc 60, clearing 390 at 600 V and 15 % pf, class aR, UL
+Recognised; its correction curve reads K ~ 0.57 at 140 V [PLOT, by eye], not used for the gate. Mersen A60Q25-2: its data sheet
+(sha 057155e5dc54) and product page print NO I2t, so it is left UNKNOWN. Derate at 50 C: KLDR / CCMR 0.90, Bel 0.96 (survey, plots);
+KLKR and FWC sheets read print none, so G2 is UNKNOWN for them. Gates are f1_decision.py's: G2 carry >= 15 A, G3 inrush / surge share of the
+pre-arc I2t, G4 clearing <= copper, G5 melt >= 2 x F2's 67 A2s, G6 Listed. A gate that cannot be read is UNKNOWN, never PASS."""
 import json
 from pathlib import Path
 H = Path(__file__).resolve().parent
 d = json.loads((H.parents[2] / "02-protection-timing/shoot-through-f1/s57_necks_hole.json").read_text())
 neck = d["min_ratio_single_layer"] * d["F1_clearing_I2t"]
-F = [("KLDR025.TXP (fitted)", 25, 1710.0, 0.90, "same clips"), ("KLKR020 (fast, Class CC)", 20, 900.0, 0.90, "same clips"),
-     ("CCMR020 (TD, Class CC)", 20, 918.0, 0.90, "same clips"), ("Bel 0ADEC9250-BE (fast, 6.3 x 32, Recognized)", 25, 470.0, 0.96, "new clips and footprint; certifier")]
-rows = [{"fuse": n, "clearing_I2t": c, "copper_ratio": round(neck / c, 2), "copper_ok": neck >= c, "carry_A": round(i * 0.75 * k, 1),
-         "carry_ok_15A": i * 0.75 * k >= 15, "carry_ok_13p5A_release": i * 0.75 * k >= 13.5, "fit": w} for n, i, c, k, w in F]
-assert not rows[0]["copper_ok"] and abs(rows[0]["copper_ratio"] - 0.64) < 0.01     # control: today's fuse reproduces DECISIONS 88
+F2, BR1 = 67.0, 510.0
+# name, amps, melt, clearing, derate, listed, fit
+F = [("KLDR025.TXP (fitted)", 25, 226.0, 1710.0, 0.90, True, "same clips"),
+     ("CCMR020.TXP (TD, Class CC)", 20, None, 918.0, 0.90, True, "same clips"),
+     ("KLKR020 (fast, Class CC)", 20, None, 900.0, None, True, "same clips"),
+     ("FWC-25A10F (aR, 10 x 38)", 25, 60.0, 390.0, None, False, "same clips, overlap not tested; partial-range fuse"),
+     ("A60Q25-2 (10 x 38)", 25, None, None, None, False, "same clips; no published I2t"),
+     ("Bel 0ADEC9250-BE (6.3 x 32)", 25, 200.0, 470.0, 0.96, False, "new clips and footprint")]
+
+
+def g(ok):
+    return "UNKNOWN" if ok is None else "PASS" if ok else "FAIL"
+
+
+rows = []
+for n, i, melt, clear, der, listed, fit in F:
+    rows.append({"fuse": n, "clearing_I2t": clear, "melt_I2t": melt, "copper_ratio": None if clear is None else round(neck / clear, 2),
+                 "carry_A": None if der is None else round(i * 0.75 * der, 2),
+                 "G2_carry_15A": g(None if der is None else i * 0.75 * der >= 15), "G3_nuisance": g(None if melt is None else 1.0 <= 0.22 * melt and 12.2 <= 0.38 * melt),
+                 "G4_copper": g(None if clear is None else clear <= neck), "G5_F2_selective": g(None if melt is None else melt >= 2 * F2),
+                 "G6_listed": "PASS" if listed else "UNKNOWN",
+                 "br1_0p5x510": g(None if clear is None else clear <= 0.5 * BR1), "br1_1x510": g(None if clear is None else clear <= BR1), "fit": fit})
+by = {r["fuse"].split()[0]: r for r in rows}
+assert by["KLDR025.TXP"]["G4_copper"] == "FAIL" and abs(by["KLDR025.TXP"]["copper_ratio"] - 0.64) < 0.01   # reproduces DECISIONS 88
+assert by["FWC-25A10F"]["G5_F2_selective"] == "FAIL" and by["A60Q25-2"]["G4_copper"] == "UNKNOWN"          # fail / unknown paths exist
 (H.parent / "fuse-vs-neck.json").write_text(json.dumps({"neck_I2t": round(neck, 1), "rows": rows}, indent=1) + "\n")
 for r in rows:
-    print(r)
+    print(f"{r['fuse']:28s} ratio {r['copper_ratio']} carry {r['carry_A']} " + " ".join(f"{k}={v}" for k, v in r.items() if k[:1] == "G" or k.startswith("br1")))
