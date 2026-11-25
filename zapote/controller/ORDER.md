@@ -1,5 +1,9 @@
 # Controller prototype order package (JLC PCB + PCBA)
 
+> **DO NOT ORDER this board (2026-11-25): U30 cannot be soldered.** MAX31865AAP is a 5.3 mm SSOP-20 (JLC C89608: body 7.2 x 5.3, pitch 0.65,
+> lead span 7.8 mm). This board (and C48) has the 3.9 mm QSOP land, whose pad rows are 0.89 mm in from the leads. Fixed on branch
+> `controller-c51` with a gate (`tools/check_land_patterns.py`). The text below is kept as a record.
+
 > **JLC preview done 2026-10-19 (`evidence/fab-loose-ends/cpl-rotation/PREVIEW-2026-10-19.md`): the CPL had to change.** The NEEDS-PREVIEW parts were
 > rotated wrong in JLC's own viewer (U11, U12, U16, Q1 by 180, U3 by 90). `layout/fab.py` now applies the geometry offsets (29 rotations changed; the THT connectors J1 J2 J3 J4 J7 stay at KiCad's rotation: check their body and keying against our silk in the preview), and the CPL
 > hash in the table below is the corrected file. The BOM and Gerbers are unchanged. The viewer also showed: **Standard PCBA is required** (83 extended part types,
