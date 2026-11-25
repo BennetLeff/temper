@@ -1356,7 +1356,7 @@ void test_sm_fault_on_probe_open(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Legacy gross-open diagnostic (>10kOhm), retained behind the 300 Ohm
+    /* Legacy gross-open diagnostic (>10kOhm), retained behind the 233 Ohm
      * MAX31865 guard-window path during migration. */
     mock_sm_set_rtd_resistance(15000.0f);
     mock_sm_advance_time(100);
@@ -1372,7 +1372,7 @@ void test_sm_fault_on_probe_open(void) {
  *
  * The staged policy keeps the historical >10 kOhm check as a secondary
  * gross-open diagnostic, but the programmed MAX31865 high threshold is
- * 300 Ohm.  The firmware-facing resistance API must therefore make 300 Ohm
+ * R(360 C).  The firmware-facing resistance API must therefore make that value
  * an open fault rather than waiting for the legacy diagnostic.
  */
 void test_sm_fault_on_probe_open_at_max31865_guard_boundary(void) {
@@ -1396,8 +1396,8 @@ void test_sm_fault_on_probe_open_at_max31865_guard_boundary(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
 
-    /* MAX31865 programmed high threshold: 300 Ohm is itself a fault. */
-    mock_sm_set_rtd_resistance(300.0f);
+    /* MAX31865 programmed high threshold: the boundary is itself a fault. */
+    mock_sm_set_rtd_resistance(RTD_OPEN_FAULT_OHM);
     mock_sm_advance_time(100);
     state_machine_update();
 
@@ -1430,7 +1430,7 @@ void test_sm_fault_on_probe_short(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
     
-    /* Trigger probe short (<10Ω) */
+    /* Trigger probe short (below R(-40 C)) */
     mock_sm_set_rtd_resistance(5.0f);
     mock_sm_advance_time(100);
     state_machine_update();
@@ -1442,8 +1442,8 @@ void test_sm_fault_on_probe_short(void) {
 /**
  * Test: the MAX31865 digital guard-window lower boundary is inclusive.
  *
- * A 10 Ohm reading is the configured short boundary, so this must be a
- * short fault (not merely values below 10 Ohm).
+ * A reading at RTD_SHORT_FAULT_OHM is the configured short boundary, so this must be a
+ * short fault (not merely values below it).
  */
 void test_sm_fault_on_probe_short_at_max31865_guard_boundary(void) {
     /* Set up to reach HEATING state. */
@@ -1466,8 +1466,8 @@ void test_sm_fault_on_probe_short_at_max31865_guard_boundary(void) {
     mock_sm_advance_time(100);
     state_machine_update();  /* PREHEAT -> HEATING */
 
-    /* MAX31865 programmed low threshold: 10 Ohm is itself a fault. */
-    mock_sm_set_rtd_resistance(10.0f);
+    /* MAX31865 programmed low threshold: the boundary is itself a fault. */
+    mock_sm_set_rtd_resistance(RTD_SHORT_FAULT_OHM);
     mock_sm_advance_time(100);
     state_machine_update();
 
@@ -1734,14 +1734,14 @@ void test_sm_reset_rejected_while_fault_active(void) {
 /**
  * Test: an RTD reading that still violates the MAX31865 window cannot clear
  * a latched probe-open fault.  This covers the reset path as well as fault
- * detection: the 300 Ohm guard boundary is inclusive in both places.
+ * detection: the guard boundary is inclusive in both places.
  */
 void test_sm_reset_rejected_while_rtd_open_guard_active(void) {
     setup_test();
     state_machine_force_state(STATE_HEATING);
     state_machine_reset_temp_baseline();
 
-    mock_sm_set_rtd_resistance(300.0f);
+    mock_sm_set_rtd_resistance(RTD_OPEN_FAULT_OHM);
     mock_sm_advance_time(100);
     state_machine_update();
 

@@ -22,6 +22,13 @@ static uint16_t word_for(float ohm)
     return (uint16_t)(((uint16_t)floorf(32768.0f * ohm / MAX31865_RREF_OHM)) << 1);
 }
 
+/* The word the MAX31865 returns for an element of r ohm behind the CR-1 filter: the inverse of CR-7's
+ * R_true = R_meas - (7.86e-4 R_meas - 0.0331). */
+static uint16_t word_for_element(float r)
+{
+    return word_for((float)(((double)r - 0.0331) / (1.0 - 7.86e-4)));
+}
+
 /* ---------------------------------------------------------------- MAX31865 / PT100 */
 static void test_word_to_ohm(void)
 {
@@ -41,7 +48,7 @@ static void test_fault_bit_and_bad_rref_are_infinite(void)
 }
 
 /* The conversion's RREF and the threshold words in config.yaml (derived from the board's r_ref by
- * board_derivations.yaml) must describe the same reference: the words decode to 10 / 300 ohm. */
+ * board_derivations.yaml) must describe the same reference: the words decode to R(-40 C) / R(360 C). */
 static void test_rref_matches_threshold_words(void)
 {
     float lo = max31865_rtd_word_to_ohm(MAX31865_LOW_THRESHOLD_WORD, MAX31865_RREF_OHM);
@@ -61,7 +68,7 @@ static void test_pt100_round_trip_and_table(void)
     for (float t = 0.0f; t <= 850.0f; t += 5.0f) assert(NEAR(pt100_ohm_to_c(pt100_r_at(t)), t, 0.01));
     /* Through the MAX31865 quantisation: within 1 LSB (0.013 ohm, ~0.035 K). */
     for (float t = 0.0f; t <= 300.0f; t += 10.0f)
-        assert(NEAR(platform_pan_temperature(true, word_for(pt100_r_at(t)), MAX31865_RREF_OHM), t, 0.05));
+        assert(NEAR(platform_pan_temperature(true, word_for_element(pt100_r_at(t + 0.061f)), MAX31865_RREF_OHM), t, 0.05));
 }
 
 /* Below 0 C the quadratic ignores the CVD C term. Bound the error against the full equation. */
@@ -73,6 +80,18 @@ static void test_pt100_below_zero_error(void)
         float back = pt100_ohm_to_c((float)r);
         assert(NEAR(back, t, 0.03)); /* < 0.03 K down to -50 C */
     }
+}
+
+/* CR-7: filter loading and self-heating, as numbers. 138.506 ohm measured is 138.430 ohm true: 99.80 C,
+ * less 0.061 K. Uncorrected the pan would read 0.26 K hot here. */
+static void test_cr7_corrections(void)
+{
+    assert(NEAR(platform_rtd_resistance(true, word_for(138.506f), MAX31865_RREF_OHM), 138.430, 0.014));
+    assert(NEAR(platform_pan_temperature(true, word_for(138.506f), MAX31865_RREF_OHM), 99.74, 0.05));
+    /* The correction never hides the hardware window: at either threshold word the software guard
+     * sees a value within 0.16 ohm of the hardware's. */
+    assert(NEAR(platform_rtd_resistance(true, MAX31865_HIGH_THRESHOLD_WORD, MAX31865_RREF_OHM), RTD_OPEN_FAULT_OHM, 0.16));
+    assert(NEAR(platform_rtd_resistance(true, MAX31865_LOW_THRESHOLD_WORD, MAX31865_RREF_OHM), RTD_SHORT_FAULT_OHM, 0.06));
 }
 
 static void test_pan_and_rtd_sentinels(void)
@@ -692,6 +711,7 @@ int main(void)
     TEST(test_rref_matches_threshold_words);
     TEST(test_pt100_round_trip_and_table);
     TEST(test_pt100_below_zero_error);
+    TEST(test_cr7_corrections);
     TEST(test_pan_and_rtd_sentinels);
     TEST(test_power_bus_trip);
     TEST(test_power_tank_trip);

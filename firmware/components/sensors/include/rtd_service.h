@@ -2,15 +2,19 @@
  * @file rtd_service.h
  * @brief Board-owned MAX31865 SPI2/DRDY service.
  *
- * Sequence (datasheet procedure; design lead decision 2026-10-12, PLATFORM.md):
- *   bootstrap: thresholds, then an automatic fault-detection cycle (conversions off);
- *   FAULT_CYCLE: CONFIG polled once per control tick until D3:D2 read back 00, then the
- *     latched status is reported and continuous conversions start (4-wire, 60 Hz notch);
+ * Sequence (controller C37 / C46; sensor-r3 firmware DECISIONS D-FCYC):
+ *   bootstrap: thresholds, VBIAS on with conversions off;
+ *   manual fault cycle, once, at power-up: wait STEP, step 1, wait STEP, step 2, poll D3:D2 = 00,
+ *     read and report 07h, wait RESTART from step 2, release DRDY, start continuous conversions
+ *     (4-wire, 60 Hz notch). Waits are measured on the HAL microsecond clock, not counted in ticks;
  *   CONVERTING: DRDY (TCA9555 P07, DECISIONS C23) sampled once per control tick; each low
  *     DRDY is one conversion: the data word is read (which releases DRDY) and DRDY is
- *     re-sampled to confirm the release before the next low is accepted;
- *   every RTD_FAULT_CYCLE_PERIOD_TICKS, right after a conversion has been read, conversions
- *     pause and a new fault-detection cycle runs.
+ *     re-sampled to confirm the release before the next low is accepted.
+ * No cycle runs while converting. At one step per 10 ms tick a manual cycle plus the first
+ * conversion after a restart (52-55 ms) leaves no margin inside the 100 ms word age below. Each
+ * conversion still checks the input against the thresholds: open element, shorted element and open
+ * RTDIN- are caught within a conversion (D-FCYC). RTDIN- shorted to ground in service can convert
+ * inside the window and is seen only by the power-up cycle.
  * Any reported fault ends the service (terminal; the state machine has latched the cut).
  * `rtd_service_control_tick()` is called by the control task and is the sole owner of MAX31865
  * SPI transfers and state-machine fault delivery.
@@ -34,12 +38,16 @@ extern "C" {
  * first after a restart takes about the single-conversion time (~52 ms at 60 Hz; bench item). */
 #define RTD_DRDY_TIMEOUT_CONTROL_TICKS 10u
 
-/* Periodic fault-detection cycle: every 100 control ticks = 1 s (design lead: <= 1 s). Open and
- * short of the element are already caught on every conversion by the threshold faults (the data
- * word's fault bit, below), so the periodic cycle adds the lead / force-path diagnoses; each costs
- * a pause of about one tick plus the first conversion. At 1 s that is < 7 % of conversions, and
- * the word never ages past RTD_DRDY_TIMEOUT_CONTROL_TICKS across a pause. */
-#define RTD_FAULT_CYCLE_PERIOD_TICKS 100u
+/* Manual-cycle waits (sensor-r3 fault_cycle.py / fault-cycle.json, 1536 corners of the CR-1 input
+ * network: tau_max 1009.9 us, worst 15-bit settle 5.533 ms). STEP >= 5 tau_max before each step;
+ * RESTART from step 2 = max(5 tau_max + 1 ms, 10.5 tau_max, 2 x 5.533 ms) -> 11.5 ms, plus 1 ms for
+ * the chip's own step-2 check. */
+#define RTD_FAULT_CYCLE_STEP_US    5500u
+#define RTD_FAULT_CYCLE_RESTART_US 12500u
+
+/* rtd_service_startup() bound, in 10 ms steps: every phase is bounded by
+ * RTD_DRDY_TIMEOUT_CONTROL_TICKS on its own; well inside the TPS3823's watchdog time. */
+#define RTD_STARTUP_MAX_TICKS 60u
 
 /**
  * DRDY level source: returns false when no fresh sample is available, else
@@ -53,7 +61,7 @@ typedef bool (*rtd_drdy_level_fn)(void *context, bool refresh, bool *drdy_low);
 /** Install the DRDY source; required before rtd_service_bootstrap(). */
 void rtd_service_set_drdy_source(rtd_drdy_level_fn level, void *context);
 
-/** Configure SPI2 and the MAX31865 chip-select, and start the first cycle.
+/** Configure SPI2 and the MAX31865 chip-select, write the thresholds and switch VBIAS on.
  * Fails (and the control task then fails closed) without a DRDY source. */
 hal_status_t rtd_service_bootstrap(void);
 
@@ -62,6 +70,15 @@ hal_status_t rtd_service_bootstrap(void);
  * function that performs RTD SPI traffic or calls the state machine.
  */
 void rtd_service_control_tick(void);
+
+/**
+ * Run the service to its first data word before the control task exists, so the state machine never
+ * runs without a pan reading (its runaway check latches on one). step() must wait one control period
+ * and refresh the DRDY source. Faults are reported to the state machine as usual, so call it after
+ * state_machine_init(). False: no reading (a fault was reported, or the bound ran out and was
+ * reported as open).
+ */
+bool rtd_service_startup(void (*step)(void *context), void *context);
 
 /** True after a successful bootstrap until a fault is reported (terminal). */
 bool rtd_service_is_ready(void);

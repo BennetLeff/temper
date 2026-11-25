@@ -27,15 +27,22 @@ float pt100_ohm_to_c(float ohm)
     return (float)((-a + sqrt(disc)) / (2.0 * b));
 }
 
+/* Sensor-r3 pcb/CHANGE-REQUEST.md CR-7, for the C1 cartridge on the CR-1 front end. */
+#define RTD_LOADING_K1     7.86e-4f
+#define RTD_LOADING_K0_OHM (-0.0331f)
+#define RTD_SELF_HEATING_K 0.061f
+
 float platform_rtd_resistance(bool have_word, uint16_t rtd_word, float rref_ohm)
 {
     if (!have_word) return INFINITY;
-    return max31865_rtd_word_to_ohm(rtd_word, rref_ohm);
+    /* CR-7: loading of the CR-1 sense filter (controller C37 fits it). +inf stays +inf. */
+    float r = max31865_rtd_word_to_ohm(rtd_word, rref_ohm);
+    return isfinite(r) ? r - (RTD_LOADING_K1 * r + RTD_LOADING_K0_OHM) : r;
 }
 
 float platform_pan_temperature(bool have_word, uint16_t rtd_word, float rref_ohm)
 {
-    return pt100_ohm_to_c(platform_rtd_resistance(have_word, rtd_word, rref_ohm));
+    return pt100_ohm_to_c(platform_rtd_resistance(have_word, rtd_word, rref_ohm)) - RTD_SELF_HEATING_K;
 }
 
 /* ---------------------------------------------------------------- native-21 over-current sources */

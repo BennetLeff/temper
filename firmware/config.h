@@ -90,11 +90,11 @@ typedef struct {
  */
 
 typedef struct {
-    float rtd_short_fault_ohm; /**< PT100/MAX31865 short-fault boundary; values at or below fault (Ω) */
-    float rtd_open_fault_ohm; /**< PT100/MAX31865 open/out-of-range guard; values at or above fault (Ω) */
+    float rtd_short_fault_ohm; /**< Pan PT100 low fault boundary R(-40 degC); values at or below fault (controller C46) (Ω) */
+    float rtd_open_fault_ohm; /**< Pan PT100 high fault boundary R(360 degC), above the 300 degC runaway limit; values at or above fault (controller C46) (Ω) */
     float rtd_gross_open_diagnostic_ohm; /**< Legacy gross-open diagnostic retained while SIL fixtures migrate (Ω) */
-    uint16_t max31865_low_threshold_word; /**< 10Ω PT100 short threshold for 430Ω RREF; 15-bit ADC code shifted left one (register word) */
-    uint16_t max31865_high_threshold_word; /**< 300Ω PT100 open threshold for 430Ω RREF; 15-bit ADC code shifted left one (register word) */
+    uint16_t max31865_low_threshold_word; /**< 84.27Ω (-40 degC) low threshold for 430Ω RREF (controller C46); 15-bit ADC code shifted left one (register word) */
+    uint16_t max31865_high_threshold_word; /**< 233.2144Ω (360 degC) high threshold for 430Ω RREF (controller C46); 15-bit ADC code shifted left one (register word) */
     uint16_t pan_debounce_count; /**< Pan detection debounce samples */
     uint8_t pan_confidence_required; /**< Pan detection confirmations needed */
     uint16_t adc_min_valid_raw; /**< ADC minimum valid raw value */
@@ -107,11 +107,11 @@ typedef struct {
 
 /* Default thresholds */
 #define THRESHOLDS_DEFAULT { \
-    .rtd_short_fault_ohm = 10.0f, \
-    .rtd_open_fault_ohm = 300.0f, \
+    .rtd_short_fault_ohm = 84.27f, \
+    .rtd_open_fault_ohm = 233.2144f, \
     .rtd_gross_open_diagnostic_ohm = 10000.0f, \
-    .max31865_low_threshold_word = 1526, \
-    .max31865_high_threshold_word = 45722, \
+    .max31865_low_threshold_word = 12844, \
+    .max31865_high_threshold_word = 35544, \
     .pan_debounce_count = 10, \
     .pan_confidence_required = 3, \
     .adc_min_valid_raw = 100, \
@@ -269,11 +269,11 @@ void config_print(void);
 #define PAN_DETECT_TIMEOUT_MS 5000
 #define NO_PAN_TIMEOUT_MS 3000
 #define MAX_PREHEAT_TIME_MS 600000
-#define RTD_SHORT_FAULT_OHM 10.0f
-#define RTD_OPEN_FAULT_OHM 300.0f
+#define RTD_SHORT_FAULT_OHM 84.27f
+#define RTD_OPEN_FAULT_OHM 233.2144f
 #define RTD_GROSS_OPEN_DIAGNOSTIC_OHM 10000.0f
-#define MAX31865_LOW_THRESHOLD_WORD 1526
-#define MAX31865_HIGH_THRESHOLD_WORD 45722
+#define MAX31865_LOW_THRESHOLD_WORD 12844
+#define MAX31865_HIGH_THRESHOLD_WORD 35544
 #define PAN_DEBOUNCE_COUNT 10
 #define PAN_CONFIDENCE_REQUIRED 3
 #define MESSAGE_DISPLAY_TIME_MS 2000

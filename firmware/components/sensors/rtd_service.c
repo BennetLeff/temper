@@ -5,7 +5,7 @@
  * Integrated controller, layout L2: SPI2 on RTD_SCK 11 / RTD_SDI (MOSI) 13 / RTD_SDO (MISO) 12,
  * CS 10, mode 3 so the MCP3202 can share the bus (DECISIONS C20). DRDY moved from GPIO14 to the
  * TCA9555 P07 (C23), so it is no longer an interrupt: the control task samples its level from the
- * expander snapshot every tick. The conversion / fault-cycle schedule is in rtd_service.h. A
+ * expander snapshot every tick. The fault-cycle and conversion schedule is in rtd_service.h. A
  * missed or stuck DRDY ends in the fail-silent timeout (fail-closed), never in a stale reading.
  */
 
@@ -28,10 +28,16 @@ static bool s_ready;
 static bool s_bootstrap_failed;
 static bool s_bootstrap_failure_reported;
 
-typedef enum { RTD_PHASE_FAULT_CYCLE = 0, RTD_PHASE_CONVERTING } rtd_phase_t;
+typedef enum {
+    RTD_PHASE_BIAS = 0,   /* VBIAS on, conversions off: wait STEP             */
+    RTD_PHASE_STEP1,      /* manual step 1 written: wait STEP                 */
+    RTD_PHASE_STEP2,      /* manual step 2 written: poll D3:D2, read 07h      */
+    RTD_PHASE_RESTART,    /* 07h clean: wait RESTART from step 2              */
+    RTD_PHASE_CONVERTING,
+} rtd_phase_t;
 static rtd_phase_t s_phase;
 static uint8_t s_wait_ticks;          /* ticks waiting for the current cycle / conversion */
-static uint16_t s_since_fault_cycle;  /* ticks since conversions (re)started */
+static hal_time_us_t s_phase_t0_us;   /* start of the running manual-cycle wait */
 static bool s_drdy_armed;             /* DRDY seen high (released) since the last data read */
 
 /* Latest RTD data word, read on each conversion (rtd_service_latest_word). */
@@ -85,15 +91,15 @@ hal_status_t rtd_service_bootstrap(void)
     s_ready = false;
     s_bootstrap_failed = false;
     s_bootstrap_failure_reported = false;
-    s_phase = RTD_PHASE_FAULT_CYCLE;
+    s_phase = RTD_PHASE_BIAS;
     s_wait_ticks = 0u;
-    s_since_fault_cycle = 0u;
+    s_phase_t0_us = 0u;
     s_drdy_armed = false;
     s_rtd_word = 0u;
     s_rtd_word_valid = false;
     s_rtd_word_age_ticks = 0u;
 
-    if (hal_spi == NULL || s_drdy_level == NULL) {
+    if (hal_spi == NULL || hal_timer == NULL || s_drdy_level == NULL) {
         s_bootstrap_failed = true;
         return HAL_ERROR_NOT_READY;
     }
@@ -110,13 +116,14 @@ hal_status_t rtd_service_bootstrap(void)
         return status;
     }
 
-    /* Thresholds, then the startup fault-detection cycle (conversions off). */
+    /* Thresholds, then VBIAS on; the control tick runs the manual fault cycle. */
     status = max31865_initialize(&s_max31865, spi_device);
     if (status != HAL_OK) {
         s_bootstrap_failed = true;
         return status;
     }
 
+    s_phase_t0_us = hal_timer->get_time_us();
     s_ready = true;
     return HAL_OK;
 }
@@ -132,37 +139,85 @@ static bool read_word_and_rearm(uint16_t *word)
     return ok;
 }
 
-/* FAULT_CYCLE -> CONVERTING: report the cycle's status, resume conversions, clear DRDY. */
-static void finish_fault_cycle(void)
+static bool waited(uint32_t wait_us)
 {
-    bool reported = false;
-    hal_status_t st = max31865_complete_fault_cycle(&s_max31865,
-                                                    state_machine_report_rtd_device_fault,
-                                                    NULL, &reported);
-    if (st != HAL_OK || reported) {
-        fail_closed(false); /* the driver has reported */
+    const hal_time_us_t now = hal_timer->get_time_us();
+    return now >= s_phase_t0_us && now - s_phase_t0_us >= wait_us;
+}
+
+static void enter(rtd_phase_t phase)
+{
+    s_phase = phase;
+    s_wait_ticks = 0u;
+}
+
+/* A phase that never completes (stopped clock, chip stuck in its cycle) must not leave the RTD
+ * unmonitored. */
+static void phase_wait(void)
+{
+    if (++s_wait_ticks >= RTD_DRDY_TIMEOUT_CONTROL_TICKS) {
+        fail_closed(true);
+    }
+}
+
+/* Release a stale DRDY, then start conversions. */
+static void start_converting(void)
+{
+    uint16_t discard = 0u;
+    (void)read_word_and_rearm(&discard); /* no conversion yet */
+    if (max31865_start_conversions(&s_max31865) != HAL_OK) {
+        fail_closed(true);
         return;
     }
-    uint16_t discard = 0u;
-    (void)read_word_and_rearm(&discard); /* no conversion yet: only releases a stale DRDY */
-    s_phase = RTD_PHASE_CONVERTING;
-    s_wait_ticks = 0u;
-    s_since_fault_cycle = 0u;
+    enter(RTD_PHASE_CONVERTING);
 }
 
 static void tick_fault_cycle(void)
 {
     bool done = false;
-    if (max31865_fault_cycle_done(&s_max31865, &done) != HAL_OK) {
-        fail_closed(true);
+    bool reported = false;
+
+    switch (s_phase) {
+    case RTD_PHASE_BIAS:
+    case RTD_PHASE_STEP1:
+        if (!waited(RTD_FAULT_CYCLE_STEP_US)) {
+            phase_wait();
+            return;
+        }
+        if ((s_phase == RTD_PHASE_BIAS ? max31865_manual_fault_step1(&s_max31865)
+                                       : max31865_manual_fault_step2(&s_max31865)) != HAL_OK) {
+            fail_closed(true); /* step 2 without step 1 would be the automatic cycle */
+            return;
+        }
+        s_phase_t0_us = hal_timer->get_time_us();
+        enter(s_phase == RTD_PHASE_BIAS ? RTD_PHASE_STEP1 : RTD_PHASE_STEP2);
         return;
-    }
-    if (done) {
-        finish_fault_cycle();
+    case RTD_PHASE_STEP2:
+        if (max31865_fault_cycle_done(&s_max31865, &done) != HAL_OK) {
+            fail_closed(true);
+            return;
+        }
+        if (!done) {
+            phase_wait();
+            return;
+        }
+        if (max31865_check_fault_status(&s_max31865, state_machine_report_rtd_device_fault, NULL,
+                                        &reported) != HAL_OK || reported) {
+            fail_closed(false); /* the driver has reported */
+            return;
+        }
+        enter(RTD_PHASE_RESTART);
+        /* fall through */
+    case RTD_PHASE_RESTART:
+        if (!waited(RTD_FAULT_CYCLE_RESTART_US)) { /* s_phase_t0_us is still step 2's */
+            phase_wait();
+            return;
+        }
+        start_converting();
         return;
-    }
-    if (++s_wait_ticks >= RTD_DRDY_TIMEOUT_CONTROL_TICKS) {
-        fail_closed(true); /* the cycle never finished: device or bus fault */
+    case RTD_PHASE_CONVERTING:
+    default:
+        return;
     }
 }
 
@@ -196,19 +251,6 @@ static void tick_converting(void)
         fail_closed(true);
         return;
     }
-
-    if (s_since_fault_cycle < UINT16_MAX) {
-        s_since_fault_cycle++;
-    }
-    /* Periodic fault cycle, started right after a conversion was read so the word is fresh. */
-    if (completed && s_since_fault_cycle >= RTD_FAULT_CYCLE_PERIOD_TICKS) {
-        if (max31865_start_fault_detection(&s_max31865) != HAL_OK) {
-            fail_closed(true);
-            return;
-        }
-        s_phase = RTD_PHASE_FAULT_CYCLE;
-        s_wait_ticks = 0u;
-    }
 }
 
 void rtd_service_control_tick(void)
@@ -226,11 +268,29 @@ void rtd_service_control_tick(void)
     if (!s_ready) {
         return;
     }
-    if (s_phase == RTD_PHASE_FAULT_CYCLE) {
-        tick_fault_cycle();
-    } else {
+    if (s_phase == RTD_PHASE_CONVERTING) {
         tick_converting();
+    } else {
+        tick_fault_cycle();
     }
+}
+
+bool rtd_service_startup(void (*step)(void *context), void *context)
+{
+    for (uint32_t i = 0u; i < RTD_STARTUP_MAX_TICKS; i++) {
+        if (step != NULL) {
+            step(context);
+        }
+        rtd_service_control_tick();
+        if (rtd_service_latest_word(NULL, NULL)) {
+            return true;
+        }
+        if (!s_ready) {
+            return false; /* reported by the tick */
+        }
+    }
+    fail_closed(true);
+    return false;
 }
 
 bool rtd_service_is_ready(void)

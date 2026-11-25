@@ -52,6 +52,14 @@ static bool expander_drdy_level(void *context, bool refresh, bool *drdy_low)
     return true;
 }
 
+/* One control period, with a fresh expander snapshot for DRDY (rtd_service_startup). */
+static void rtd_startup_step(void *context)
+{
+    (void)context;
+    vTaskDelay(pdMS_TO_TICKS(10));
+    (void)ctrl_board_poll_expander();
+}
+
 /* Task priorities */
 #define CONTROL_TASK_PRIORITY   (configMAX_PRIORITIES - 1)  /* Highest */
 #define UI_TASK_PRIORITY        (configMAX_PRIORITIES - 3)
@@ -237,6 +245,12 @@ void app_main(void) {
     /* Check boot reason (watchdog reset handling) */
     check_boot_reason();
     
+    /* Power-up fault cycle and first pan reading (~0.1 s) before anything runs the state machine: a
+     * tick without a reading latches the runaway boundary. A fault here is latched as usual. */
+    if (!rtd_service_startup(rtd_startup_step, NULL)) {
+        ESP_LOGE(TAG, "no pan RTD reading at startup");
+    }
+
     /* Create control task (highest priority) */
     xTaskCreatePinnedToCore(
         control_task,

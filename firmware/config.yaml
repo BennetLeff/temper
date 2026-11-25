@@ -104,19 +104,19 @@ timeouts:
 thresholds:
   - c_symbol: RTD_SHORT_FAULT_OHM
     field: rtd_short_fault_ohm
-    value: 10.0
+    value: 84.27
     c_type: float
     units: "Ω"
     env_var: RTD_SHORT_FAULT_OHM
-    doc: "PT100/MAX31865 short-fault boundary; values at or below fault"
+    doc: "Pan PT100 low fault boundary R(-40 degC); values at or below fault (controller C46)"
 
   - c_symbol: RTD_OPEN_FAULT_OHM
     field: rtd_open_fault_ohm
-    value: 300.0
+    value: 233.2144
     c_type: float
     units: "Ω"
     env_var: RTD_OPEN_FAULT_OHM
-    doc: "PT100/MAX31865 open/out-of-range guard; values at or above fault"
+    doc: "Pan PT100 high fault boundary R(360 degC), above the 300 degC runaway limit; values at or above fault (controller C46)"
 
   - c_symbol: RTD_GROSS_OPEN_DIAGNOSTIC_OHM
     field: rtd_gross_open_diagnostic_ohm
@@ -128,18 +128,18 @@ thresholds:
 
   - c_symbol: MAX31865_LOW_THRESHOLD_WORD
     field: max31865_low_threshold_word
-    value: 1526
+    value: 12844
     c_type: uint16_t
     units: "register word"
-    doc: "10Ω PT100 short threshold for 430Ω RREF; 15-bit ADC code shifted left one"
+    doc: "84.27Ω (-40 degC) low threshold for 430Ω RREF (controller C46); 15-bit ADC code shifted left one"
     board_derivation: true  # re-derived from the board's r_ref by scripts/check_firmware_board_contract.py (registry: firmware/tools/board_derivations.yaml)
 
   - c_symbol: MAX31865_HIGH_THRESHOLD_WORD
     field: max31865_high_threshold_word
-    value: 45722
+    value: 35544
     c_type: uint16_t
     units: "register word"
-    doc: "300Ω PT100 open threshold for 430Ω RREF; 15-bit ADC code shifted left one"
+    doc: "233.2144Ω (360 degC) high threshold for 430Ω RREF (controller C46); 15-bit ADC code shifted left one"
     board_derivation: true  # re-derived from the board's r_ref by scripts/check_firmware_board_contract.py (registry: firmware/tools/board_derivations.yaml)
 
   - c_symbol: PAN_DEBOUNCE_COUNT

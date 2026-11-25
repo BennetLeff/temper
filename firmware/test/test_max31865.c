@@ -3,6 +3,8 @@
  * @brief Host contract tests for MAX31865 threshold programming and faults.
  */
 
+#include <math.h>
+
 #include "unity/unity.h"
 
 #include "../components/hal/include/hal.h"
@@ -19,7 +21,10 @@ extern uint8_t mock_spi_get_register(hal_spi_device_t device, uint8_t reg);
 extern void mock_spi_fail_next_read(hal_status_t status);
 extern void mock_spi_fail_next_write(hal_status_t status);
 extern bool mock_gpio_is_initialized(hal_pin_t pin);
+extern void mock_timer_set_time(hal_time_us_t time_us);
+extern void mock_timer_advance(hal_time_us_t delta_us);
 extern void mock_sm_reset(void);
+extern void mock_sm_set_pan_temperature(float temp);
 extern uint32_t mock_sm_get_trigger_shutdown_count(void);
 
 static max31865_device_t sensor;
@@ -81,6 +86,7 @@ void setUp(void)
     drdy.release_on_read = true;
     drdy.polls = 0u;
     drdy.refreshes = 0u;
+    mock_timer_set_time(1000u);
     rtd_service_set_drdy_source(fake_drdy_level, NULL);
 }
 
@@ -89,28 +95,28 @@ void tearDown(void)
     (void)hal_deinit();
 }
 
-void test_max31865_init_writes_encoded_threshold_words_and_starts_async_cycle(void)
+void test_max31865_init_writes_c46_threshold_words_and_bias_only(void)
 {
     hal_spi_device_t spi_device = create_max31865_device();
 
     TEST_ASSERT_EQUAL(HAL_OK, max31865_initialize(&sensor, spi_device));
 
-    TEST_ASSERT_EQUAL_HEX8(0xB2,
+    TEST_ASSERT_EQUAL_HEX8(0x8A,
                            mock_spi_get_register(spi_device,
                                                  MAX31865_REG_HIGH_THRESHOLD_MSB));
-    TEST_ASSERT_EQUAL_HEX8(0x9A,
+    TEST_ASSERT_EQUAL_HEX8(0xD8,
                            mock_spi_get_register(spi_device,
                                                  MAX31865_REG_HIGH_THRESHOLD_MSB + 1u));
-    TEST_ASSERT_EQUAL_HEX8(0x05,
+    TEST_ASSERT_EQUAL_HEX8(0x32,
                            mock_spi_get_register(spi_device,
                                                  MAX31865_REG_LOW_THRESHOLD_MSB));
-    TEST_ASSERT_EQUAL_HEX8(0xF6,
+    TEST_ASSERT_EQUAL_HEX8(0x2C,
                            mock_spi_get_register(spi_device,
                                                  MAX31865_REG_LOW_THRESHOLD_MSB + 1u));
-    TEST_ASSERT_EQUAL_UINT16(0xB29A, MAX31865_HIGH_THRESHOLD_WORD);
-    TEST_ASSERT_EQUAL_UINT16(0x05F6, MAX31865_LOW_THRESHOLD_WORD);
-    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_VBIAS |
-                               MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC,
+    TEST_ASSERT_EQUAL_UINT16(35544u, MAX31865_HIGH_THRESHOLD_WORD);
+    TEST_ASSERT_EQUAL_UINT16(12844u, MAX31865_LOW_THRESHOLD_WORD);
+    /* VBIAS on, conversions off, no fault cycle and no fault clear (D1). */
+    TEST_ASSERT_EQUAL_HEX8(0x80u,
                            mock_spi_get_register(spi_device,
                                                  MAX31865_REG_CONFIG));
 }
@@ -122,12 +128,7 @@ void test_max31865_high_threshold_fault_reaches_terminal_open_path(void)
     mock_spi_set_register(spi_device, MAX31865_REG_FAULT_STATUS,
                           MAX31865_FAULT_HIGH_THRESHOLD);
 
-    /* The service call occurs only after the production owner has observed
-     * DRDY or an equivalent verified completion delay. */
-    TEST_ASSERT_EQUAL(HAL_OK, max31865_service_fault_cycle(
-                                  &sensor,
-                                  state_machine_report_rtd_device_fault,
-                                  NULL));
+    TEST_ASSERT_EQUAL(HAL_OK, max31865_check_fault_status(&sensor, state_machine_report_rtd_device_fault, NULL, NULL));
 
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
@@ -141,10 +142,7 @@ void test_max31865_low_threshold_fault_reaches_terminal_short_path(void)
     mock_spi_set_register(spi_device, MAX31865_REG_FAULT_STATUS,
                           MAX31865_FAULT_LOW_THRESHOLD);
 
-    TEST_ASSERT_EQUAL(HAL_OK, max31865_service_fault_cycle(
-                                  &sensor,
-                                  state_machine_report_rtd_device_fault,
-                                  NULL));
+    TEST_ASSERT_EQUAL(HAL_OK, max31865_check_fault_status(&sensor, state_machine_report_rtd_device_fault, NULL, NULL));
 
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_PROBE_SHORT, state_machine_get_fault());
@@ -157,30 +155,23 @@ void test_max31865_non_threshold_fault_fails_closed_as_probe_open(void)
     TEST_ASSERT_EQUAL(HAL_OK, max31865_initialize(&sensor, spi_device));
     mock_spi_set_register(spi_device, MAX31865_REG_FAULT_STATUS, 0x04u);
 
-    TEST_ASSERT_EQUAL(HAL_OK, max31865_service_fault_cycle(
-                                  &sensor,
-                                  state_machine_report_rtd_device_fault,
-                                  NULL));
+    TEST_ASSERT_EQUAL(HAL_OK, max31865_check_fault_status(&sensor, state_machine_report_rtd_device_fault, NULL, NULL));
 
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
     TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
 }
 
-void test_max31865_restart_write_failure_fails_closed_as_probe_open(void)
+/* Data sheet manual cycle: 100X100Xb (step 1), then 100X110Xb (step 2). Writing step 2's code without
+ * step 1 would run the automatic cycle, which is invalid behind the CR-1 filter (controller C37). */
+void test_max31865_manual_cycle_config_words(void)
 {
-    hal_spi_device_t spi_device = create_max31865_device();
-    TEST_ASSERT_EQUAL(HAL_OK, max31865_initialize(&sensor, spi_device));
-    mock_spi_fail_next_write(HAL_ERROR);
-
-    TEST_ASSERT_EQUAL(HAL_ERROR, max31865_service_fault_cycle(
-                                     &sensor,
-                                     state_machine_report_rtd_device_fault,
-                                     NULL));
-
-    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
-    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
-    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+    hal_spi_device_t d = create_max31865_device();
+    TEST_ASSERT_EQUAL(HAL_OK, max31865_initialize(&sensor, d));
+    TEST_ASSERT_EQUAL(HAL_OK, max31865_manual_fault_step1(&sensor));
+    TEST_ASSERT_EQUAL_HEX8(0x88u, mock_spi_get_register(d, MAX31865_REG_CONFIG));
+    TEST_ASSERT_EQUAL(HAL_OK, max31865_manual_fault_step2(&sensor));
+    TEST_ASSERT_EQUAL_HEX8(0x8Cu, mock_spi_get_register(d, MAX31865_REG_CONFIG));
 }
 
 void test_max31865_status_read_failure_fails_closed_as_probe_open(void)
@@ -189,10 +180,7 @@ void test_max31865_status_read_failure_fails_closed_as_probe_open(void)
     TEST_ASSERT_EQUAL(HAL_OK, max31865_initialize(&sensor, spi_device));
     mock_spi_fail_next_read(HAL_ERROR);
 
-    TEST_ASSERT_EQUAL(HAL_ERROR, max31865_service_fault_cycle(
-                                     &sensor,
-                                     state_machine_report_rtd_device_fault,
-                                     NULL));
+    TEST_ASSERT_EQUAL(HAL_ERROR, max31865_check_fault_status(&sensor, state_machine_report_rtd_device_fault, NULL, NULL));
 
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
@@ -222,12 +210,22 @@ void test_rtd_service_requires_drdy_source(void)
     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
 }
 
-/* ---------------------------------------------------------------- conversion / fault-cycle schedule */
+/* ---------------------------------------------------------------- manual fault cycle, conversions */
 #define RTD_DEV ((hal_spi_device_t)0)
+#define CFG_BIAS  0x80u
+#define CFG_STEP1 0x88u
+#define CFG_STEP2 0x8Cu
 
 static uint8_t config_reg(void) { return mock_spi_get_register(RTD_DEV, MAX31865_REG_CONFIG); }
 
-/* The MAX31865 clears CONFIG D3:D2 when the automatic fault cycle has finished. */
+static void tick_after(uint32_t us)
+{
+    mock_timer_advance(us);
+    rtd_service_control_tick();
+}
+static void tick(void) { tick_after(10000u); }
+
+/* The MAX31865 clears CONFIG D3:D2 once step 2 has finished. */
 static void mock_fault_cycle_finishes(void)
 {
     mock_spi_set_register(RTD_DEV, MAX31865_REG_CONFIG,
@@ -240,13 +238,23 @@ static void set_rtd_word(uint16_t w)
     mock_spi_set_register(RTD_DEV, MAX31865_REG_RTD_MSB + 1u, (uint8_t)w);
 }
 
-static void bootstrap_to_converting(void)
+static void bootstrap_to_step2(void)
 {
     TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
-    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_FAULT_CYCLE, config_reg());
-    TEST_ASSERT_FALSE(rtd_service_converting());
+    TEST_ASSERT_EQUAL_HEX8(CFG_BIAS, config_reg());
+    tick();
+    TEST_ASSERT_EQUAL_HEX8(CFG_STEP1, config_reg());
+    tick();
+    TEST_ASSERT_EQUAL_HEX8(CFG_STEP2, config_reg());
+}
+
+static void bootstrap_to_converting(void)
+{
+    bootstrap_to_step2();
     mock_fault_cycle_finishes();
-    rtd_service_control_tick();
+    tick(); /* 07h read; restart wait running (12.5 ms from step 2) */
+    TEST_ASSERT_FALSE(rtd_service_converting());
+    tick();
     TEST_ASSERT_TRUE(rtd_service_converting());
     TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_CONVERTING, config_reg());
 }
@@ -256,66 +264,199 @@ static void conversion(uint16_t w)
 {
     set_rtd_word(w);
     drdy.low = true;
-    rtd_service_control_tick();
+    tick();
 }
 
 void test_rtd_config_words_are_4wire_60hz(void)
 {
-    /* Fault cycle 100X010Xb with conversions off; converting = bias + auto. D4 = 0 (4-wire,
-     * modules.ato:2122), D0 = 0 (60 Hz notch, power-stage-120v DECISIONS.md:299). */
-    TEST_ASSERT_EQUAL_HEX8(0x84u, MAX31865_CONFIG_FAULT_CYCLE);
+    TEST_ASSERT_EQUAL_HEX8(0x80u, MAX31865_CONFIG_BIAS_ON);
+    TEST_ASSERT_EQUAL_HEX8(0x88u, MAX31865_CONFIG_MANUAL_STEP1);
+    TEST_ASSERT_EQUAL_HEX8(0x8Cu, MAX31865_CONFIG_MANUAL_STEP2);
     TEST_ASSERT_EQUAL_HEX8(0xC0u, MAX31865_CONFIG_CONVERTING);
-    TEST_ASSERT_EQUAL_HEX8(0u, MAX31865_CONFIG_FAULT_CYCLE & MAX31865_CONFIG_CONVERSION_AUTO);
     TEST_ASSERT_EQUAL_HEX8(0u, MAX31865_CONFIG_CONVERTING & (MAX31865_CONFIG_3WIRE | MAX31865_CONFIG_FILTER_50HZ));
+    /* sensor-r3 fault-cycle.json: tau_max 1009.9 us, worst 15-bit settle 5533 us. */
+    TEST_ASSERT_TRUE(RTD_FAULT_CYCLE_STEP_US >= 5u * 1010u);
+    TEST_ASSERT_TRUE(RTD_FAULT_CYCLE_RESTART_US >= 1000u + 2u * 5533u + 400u);
 }
 
-void test_rtd_service_startup_fault_cycle_then_conversions(void)
+/* Every wait is measured on the microsecond clock: short ticks (jitter, a late first tick) never
+ * advance the cycle early. */
+void test_rtd_service_manual_cycle_waits_are_timed_not_counted(void)
 {
+    unsigned i;
     TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
-    /* Thresholds then the startup fault cycle, conversions off. */
-    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_FAULT_CYCLE, config_reg());
-    /* Not finished yet: wait, no state change, no word. */
-    drdy.low = true; /* a DRDY low during the fault cycle is not a conversion */
-    rtd_service_control_tick();
+    tick_after(5000u);
+    TEST_ASSERT_EQUAL_HEX8(CFG_BIAS, config_reg());
+    tick_after(500u);                                   /* 5.5 ms since VBIAS */
+    TEST_ASSERT_EQUAL_HEX8(CFG_STEP1, config_reg());
+    tick_after(5000u);
+    TEST_ASSERT_EQUAL_HEX8(CFG_STEP1, config_reg());
+    tick_after(500u);                                   /* 5.5 ms since step 1 */
+    TEST_ASSERT_EQUAL_HEX8(CFG_STEP2, config_reg());
+    mock_fault_cycle_finishes();
+    for (i = 0u; i < 6u; i++) {                         /* 12 ms since step 2 */
+        tick_after(2000u);
+        TEST_ASSERT_FALSE(rtd_service_converting());
+    }
+    tick_after(500u);                                   /* 12.5 ms */
+    TEST_ASSERT_TRUE(rtd_service_converting());
+}
+
+void test_rtd_service_startup_cycle_then_conversions(void)
+{
+    bootstrap_to_step2();
+    drdy.low = true; /* a DRDY low during the cycle is not a conversion */
+    tick();          /* still busy */
     TEST_ASSERT_FALSE(rtd_service_converting());
     TEST_ASSERT_FALSE(rtd_service_latest_word(NULL, NULL));
-    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
-    /* Finished, clean status: conversions start; the stale DRDY was released by a discard read. */
     mock_fault_cycle_finishes();
-    rtd_service_control_tick();
-    TEST_ASSERT_TRUE(rtd_service_converting());
-    TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_CONVERTING, config_reg());
-    TEST_ASSERT_FALSE(drdy.low);
+    tick();
+    TEST_ASSERT_TRUE(rtd_service_converting()); /* step 2 was > 12.5 ms ago */
+    TEST_ASSERT_FALSE(drdy.low);                /* released by the discard read */
     TEST_ASSERT_FALSE(rtd_service_latest_word(NULL, NULL));
     TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
 }
 
 void test_rtd_service_startup_fault_cycle_reports_fault(void)
 {
-    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
-    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, MAX31865_FAULT_HIGH_THRESHOLD);
+    bootstrap_to_step2();
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, 0x28u); /* element open (D-FCYC) */
     mock_fault_cycle_finishes();
-    rtd_service_control_tick();
+    tick();
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
     TEST_ASSERT_FALSE(rtd_service_is_ready());
+    TEST_ASSERT_FALSE(rtd_service_converting());
     TEST_ASSERT_FALSE(rtd_service_latest_word(NULL, NULL));
 }
 
 void test_rtd_service_fault_cycle_never_finishing_fails_closed(void)
 {
-    uint8_t tick;
-
-    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
-    for (tick = 0u; tick < RTD_DRDY_TIMEOUT_CONTROL_TICKS - 1u; tick++) {
-        rtd_service_control_tick();
+    uint8_t n;
+    bootstrap_to_step2();
+    for (n = 0u; n < RTD_DRDY_TIMEOUT_CONTROL_TICKS - 1u; n++) {
+        tick();
         TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
     }
-    rtd_service_control_tick();
+    tick();
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
     TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
     TEST_ASSERT_FALSE(rtd_service_is_ready());
+}
+
+/* A stopped clock must not leave the sensor unmonitored. */
+void test_rtd_service_stopped_clock_fails_closed(void)
+{
+    uint8_t n;
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    for (n = 0u; n < RTD_DRDY_TIMEOUT_CONTROL_TICKS; n++) tick_after(0u);
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+    TEST_ASSERT_FALSE(rtd_service_is_ready());
+}
+
+/* A failed step-1 write must not be followed by step 2's code (it would run the automatic cycle). */
+void test_rtd_service_failed_step_write_aborts(void)
+{
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    mock_spi_fail_next_write(HAL_ERROR);
+    tick();
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+    tick();
+    tick();
+    TEST_ASSERT_EQUAL_HEX8(CFG_BIAS, config_reg());
+}
+
+void test_rtd_service_restart_write_failure_fails_closed(void)
+{
+    bootstrap_to_step2();
+    mock_fault_cycle_finishes();
+    tick();
+    mock_spi_fail_next_write(HAL_ERROR);
+    tick();
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+    TEST_ASSERT_FALSE(rtd_service_converting());
+}
+
+/* No fault cycle runs while converting: it cannot fit the 100 ms word age (rtd_service.h). */
+void test_rtd_service_no_cycle_while_converting(void)
+{
+    unsigned n;
+    bootstrap_to_converting();
+    for (n = 0u; n < 400u; n++) {
+        if (n % 2u == 0u) { set_rtd_word((uint16_t)(0x4000u + (n << 1))); drdy.low = true; }
+        tick();
+        TEST_ASSERT_TRUE(rtd_service_converting());
+        TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_CONVERTING, config_reg());
+    }
+    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+}
+
+/* ---------------------------------------------------------------- startup before the control task */
+/* The runaway boundary check latches on any tick without a pan temperature, so main.c runs the
+ * service to its first reading before the control task starts. */
+static struct { unsigned steps, word_at, fault_at; } boot;
+
+static void boot_step(void *context)
+{
+    (void)context;
+    boot.steps++;
+    mock_timer_advance(10000u);
+    if (config_reg() == CFG_STEP2) {
+        mock_fault_cycle_finishes();
+        if (boot.fault_at) mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, 0x28u);
+    }
+    if (rtd_service_converting() && boot.word_at && boot.steps >= boot.word_at) {
+        set_rtd_word(0x4000u);
+        drdy.low = true;
+    } else {
+        drdy.low = false;
+    }
+}
+
+void test_rtd_startup_runs_to_first_word(void)
+{
+    boot.steps = 0u; boot.word_at = 10u; boot.fault_at = 0u;
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    TEST_ASSERT_TRUE(rtd_service_startup(boot_step, NULL));
+    TEST_ASSERT_TRUE(rtd_service_latest_word(NULL, NULL));
+    TEST_ASSERT_EQUAL_UINT32(10u, boot.steps);
+    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+}
+
+/* Why startup exists: one state-machine tick without a pan temperature latches the runaway fault. */
+void test_state_machine_tick_without_reading_latches_runaway(void)
+{
+    mock_sm_set_pan_temperature(NAN);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_RUNAWAY_FAULT, state_machine_get_state());
+}
+
+void test_rtd_startup_reports_power_up_fault(void)
+{
+    boot.steps = 0u; boot.word_at = 10u; boot.fault_at = 1u;
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    TEST_ASSERT_FALSE(rtd_service_startup(boot_step, NULL));
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+}
+
+void test_rtd_startup_silent_converter_is_bounded(void)
+{
+    boot.steps = 0u; boot.word_at = 0u; boot.fault_at = 0u;
+    TEST_ASSERT_EQUAL(HAL_OK, rtd_service_bootstrap());
+    TEST_ASSERT_FALSE(rtd_service_startup(boot_step, NULL));
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+    TEST_ASSERT_TRUE(boot.steps <= RTD_STARTUP_MAX_TICKS);
+    TEST_ASSERT_TRUE(RTD_STARTUP_MAX_TICKS * 10u < 1000u); /* inside the TPS3823's 1.6 s */
+}
+
+void test_rtd_startup_failed_bootstrap_reports(void)
+{
+    boot.steps = 0u; boot.word_at = 0u; boot.fault_at = 0u;
+    rtd_service_set_drdy_source(NULL, NULL);
+    TEST_ASSERT_EQUAL(HAL_ERROR_NOT_READY, rtd_service_bootstrap());
+    TEST_ASSERT_FALSE(rtd_service_startup(boot_step, NULL));
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
 }
 
 void test_rtd_service_conversion_reads_word_and_releases_drdy(void)
@@ -337,48 +478,6 @@ void test_rtd_service_conversion_reads_word_and_releases_drdy(void)
     TEST_ASSERT_EQUAL_UINT8(0u, age);
     TEST_ASSERT_FALSE(drdy.low); /* the data read released DRDY */
     TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
-}
-
-/* Schedule: conversions every 2 ticks (16.7 ms at 60 Hz vs the 10 ms tick). The periodic fault
- * cycle starts on the first conversion at or after RTD_FAULT_CYCLE_PERIOD_TICKS, pauses
- * conversions, and they resume once it finishes; the word never goes stale across the pause. */
-void test_rtd_service_periodic_fault_cycle_schedule(void)
-{
-    unsigned t, started_at = 0u, cycles = 0u;
-
-    bootstrap_to_converting();
-    for (t = 1u; t <= 3u * RTD_FAULT_CYCLE_PERIOD_TICKS; t++) {
-        if (rtd_service_converting()) {
-            if (t % 2u == 0u) {
-                set_rtd_word((uint16_t)(0x4000u + (t << 1)));
-                drdy.low = true;
-            }
-            rtd_service_control_tick();
-            if (!rtd_service_converting()) {
-                /* A fault cycle started this tick: with conversions off. */
-                TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_FAULT_CYCLE, config_reg());
-                TEST_ASSERT_TRUE(t - started_at >= RTD_FAULT_CYCLE_PERIOD_TICKS);
-                TEST_ASSERT_TRUE(t - started_at <= RTD_FAULT_CYCLE_PERIOD_TICKS + 2u);
-                cycles++;
-            }
-        } else {
-            /* In the fault cycle: a DRDY low is not consumed as a conversion. */
-            drdy.low = true;
-            mock_fault_cycle_finishes();
-            rtd_service_control_tick();
-            TEST_ASSERT_TRUE(rtd_service_converting());
-            TEST_ASSERT_EQUAL_HEX8(MAX31865_CONFIG_CONVERTING, config_reg());
-            started_at = t;
-        }
-        if (t > 2u) {
-            uint8_t age = 0xFFu;
-            TEST_ASSERT_TRUE(rtd_service_latest_word(NULL, &age));
-            TEST_ASSERT_TRUE(age <= 3u);
-        }
-        TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
-    }
-    /* 300 ticks: cycles start at t = 100 and t = 202 (first even tick >= 100 after a resume). */
-    TEST_ASSERT_EQUAL_UINT32(2u, cycles);
 }
 
 /* Staleness: conversions stop. The word stays usable for RTD_DRDY_TIMEOUT_CONTROL_TICKS - 1 more
@@ -469,20 +568,29 @@ void test_max31865_rref_matches_threshold_words(void)
 
 void run_max31865_tests(void)
 {
-    RUN_TEST(test_max31865_init_writes_encoded_threshold_words_and_starts_async_cycle);
+    RUN_TEST(test_max31865_init_writes_c46_threshold_words_and_bias_only);
     RUN_TEST(test_max31865_high_threshold_fault_reaches_terminal_open_path);
     RUN_TEST(test_max31865_low_threshold_fault_reaches_terminal_short_path);
     RUN_TEST(test_max31865_non_threshold_fault_fails_closed_as_probe_open);
-    RUN_TEST(test_max31865_restart_write_failure_fails_closed_as_probe_open);
+    RUN_TEST(test_max31865_manual_cycle_config_words);
     RUN_TEST(test_max31865_status_read_failure_fails_closed_as_probe_open);
     RUN_TEST(test_rtd_service_bootstrap_failure_fails_closed_from_control_task);
     RUN_TEST(test_rtd_service_requires_drdy_source);
     RUN_TEST(test_rtd_config_words_are_4wire_60hz);
-    RUN_TEST(test_rtd_service_startup_fault_cycle_then_conversions);
+    RUN_TEST(test_rtd_service_manual_cycle_waits_are_timed_not_counted);
+    RUN_TEST(test_rtd_service_startup_cycle_then_conversions);
     RUN_TEST(test_rtd_service_startup_fault_cycle_reports_fault);
     RUN_TEST(test_rtd_service_fault_cycle_never_finishing_fails_closed);
+    RUN_TEST(test_rtd_service_stopped_clock_fails_closed);
+    RUN_TEST(test_rtd_service_failed_step_write_aborts);
+    RUN_TEST(test_rtd_service_restart_write_failure_fails_closed);
+    RUN_TEST(test_rtd_service_no_cycle_while_converting);
+    RUN_TEST(test_rtd_startup_runs_to_first_word);
+    RUN_TEST(test_state_machine_tick_without_reading_latches_runaway);
+    RUN_TEST(test_rtd_startup_reports_power_up_fault);
+    RUN_TEST(test_rtd_startup_silent_converter_is_bounded);
+    RUN_TEST(test_rtd_startup_failed_bootstrap_reports);
     RUN_TEST(test_rtd_service_conversion_reads_word_and_releases_drdy);
-    RUN_TEST(test_rtd_service_periodic_fault_cycle_schedule);
     RUN_TEST(test_rtd_service_word_ages_out_when_conversions_stop);
     RUN_TEST(test_rtd_service_fault_mid_conversion_reports_and_stops);
     RUN_TEST(test_rtd_service_fault_bit_with_clean_status_fails_closed_open);

@@ -58,6 +58,17 @@ hardware shunt comparator (BUS_FAULT, which drops PERMIT on its own) and by the 
   sweep: 13) pass.
 
 **D2. MAX31865 in normal conversion mode, with the fault cycle at startup and periodically.**
+
+> **Superseded in part, 2026-11-24.** The controller's CR-1 sense filter (C37) makes the automatic fault cycle invalid: it
+> flags a healthy probe (sensor-r3 D-FCYC). Now: one **manual** cycle at power-up (CONFIG 0x80, 0x88, 0x8C; 5.5 ms per
+> step and 12.5 ms to restart, on the microsecond clock), no cycle while converting, and any fault stays terminal. A
+> manual cycle plus the first conversion (52-55 ms) does not fit the 100 ms word age, so the 1 s repeat is gone. Opens
+> and shorts are still caught on every conversion; RTDIN- shorted to ground in service is seen only at power-up.
+> Thresholds are C46's 12844 / 35544 (R(-40 C) / R(360 C)) and the pan temperature carries CR-7's loading and
+> self-heating corrections. `rtd_service_startup()` runs the service to its first reading before the control task,
+> because one state-machine tick without a reading latches the runaway fault (every boot, before this). The
+> periodic-cycle text below is history.
+
 - Wiring **4-wire** (CONFIG D4 = 0): RTDSensing uses the datasheet 4-wire topology with FORCE+/RTDIN+ and FORCE-/RTDIN-
   on separate conductors (`zapote/controller/elec/src/modules.ato:2122-2128`, branch controller-layout; DECISIONS C27
   cartridge table). Filter **60 Hz** (D0 = 0): the product is 120-127 V~ 60 Hz
@@ -208,10 +219,9 @@ diagnostics; the OLED carries the state text.
 ## Open items found doing this (not changed: control logic / owner decisions)
 
 - **P1, P2: resolved** by the design lead's decisions D1 and D2 above.
-- **P2a (bench).** Confirm on hardware: the automatic fault cycle's completion (CONFIG D3:D2 -> 00) within a tick, the
-  first-conversion time after each restart (assumed ~52 ms, inside the 100 ms bound), and that the datasheet's automatic
-  fault-cycle timing suits this front end's input RC (1 nF C0G with the 1 MOhm open-lead bias, `modules.ato:1842-1856`);
-  if it does not, the datasheet's manual cycle is the fallback.
+- **P2a (bench; manual cycle since 2026-11-24).** Confirm on hardware: the manual fault cycle's completion (CONFIG D3:D2 -> 00) within a tick, the
+  first-conversion time after each restart (assumed ~52 ms, inside the 100 ms bound), and that a
+  healthy probe reads 07h = 0x00 after it on the C49 front end (the waits are sensor-r3 model figures).
 - **P3 (UI board).** The MCP23S08 bit map, buzzer polarity, encoder detent ratio and OLED RES# source are provisional until
   the UI board is captured (DECISIONS open item 3); update `ui_board_map.h` from its schematic. The SSD1322 init sequence and
   nibble order follow the Newhaven example and need a bench check.

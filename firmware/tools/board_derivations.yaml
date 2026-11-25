@@ -86,9 +86,9 @@ derivations:
     formula: max31865_low_threshold_word
     compare: "=="
     description: >-
-      MAX31865 low fault-threshold register word for the 10 ohm PT100
+      MAX31865 low fault-threshold register word for the 84.27 ohm (-40 C) PT100
       short boundary: the smallest 15-bit ratiometric ADC code strictly
-      above RTD/RREF * 2^15 (so an RTD AT or BELOW 10 ohm trips), shifted
+      above RTD/RREF * 2^15 (so an RTD AT or BELOW it trips), shifted
       left one bit.
     inputs:
       - name: rtd_resistance
@@ -107,9 +107,9 @@ derivations:
     formula: max31865_high_threshold_word
     compare: "=="
     description: >-
-      MAX31865 high fault-threshold register word for the 300 ohm PT100
+      MAX31865 high fault-threshold register word for the 233.2144 ohm (360 C) PT100
       open boundary: the largest 15-bit ratiometric ADC code at-or-below
-      RTD/RREF * 2^15 (so an RTD AT or ABOVE 300 ohm trips), shifted left
+      RTD/RREF * 2^15 (so an RTD AT or ABOVE it trips), shifted left
       one bit.
     inputs:
       - name: rtd_resistance

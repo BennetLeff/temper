@@ -31,7 +31,8 @@ extern "C" {
 #define MAX31865_CONFIG_VBIAS                 0x80u /* D7 bias on */
 #define MAX31865_CONFIG_CONVERSION_AUTO       0x40u /* D6 continuous conversions */
 #define MAX31865_CONFIG_3WIRE                 0x10u /* D4: 1 = 3-wire, 0 = 2- or 4-wire */
-#define MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC 0x04u /* D3:D2 = 01 */
+#define MAX31865_CONFIG_FAULT_CYCLE_STEP1     0x08u /* D3:D2 = 10: manual cycle, first step */
+#define MAX31865_CONFIG_FAULT_CYCLE_STEP2     0x0Cu /* D3:D2 = 11: manual cycle, second step */
 #define MAX31865_CONFIG_FAULT_CYCLE_MASK      0x0Cu /* D3:D2 read back 00 once a cycle is done */
 #define MAX31865_CONFIG_FILTER_50HZ           0x01u /* D0: 1 = 50 Hz notch, 0 = 60 Hz */
 
@@ -43,12 +44,14 @@ extern "C" {
  *    (zapote/power-stage-120v/DECISIONS.md:299). */
 #define MAX31865_CONFIG_WIRING_FILTER 0x00u
 
-/* Automatic fault-detection cycle: 100X010Xb with conversions off (D6 = 0), as the datasheet
- * procedure requires. Normal operation: bias on, continuous conversions. */
-#define MAX31865_CONFIG_FAULT_CYCLE (MAX31865_CONFIG_VBIAS | MAX31865_CONFIG_FAULT_CYCLE_AUTOMATIC | \
-                                     MAX31865_CONFIG_WIRING_FILTER)
-#define MAX31865_CONFIG_CONVERTING  (MAX31865_CONFIG_VBIAS | MAX31865_CONFIG_CONVERSION_AUTO | \
-                                     MAX31865_CONFIG_WIRING_FILTER)
+/* Manual fault-detection cycle (data sheet "Fault Detection Cycle (D3:D2)"): bias on with conversions
+ * off, 100X100Xb, then 100X110Xb, the caller timing the waits (rtd_service.h). The automatic cycle
+ * (D3:D2 = 01, or 11 without a prior 10) is invalid on the controller: the CR-1 input filter is far
+ * above the 100 us it allows and it flags a healthy probe (controller C37; sensor-r3 D-FCYC). */
+#define MAX31865_CONFIG_BIAS_ON      (MAX31865_CONFIG_VBIAS | MAX31865_CONFIG_WIRING_FILTER)
+#define MAX31865_CONFIG_MANUAL_STEP1 (MAX31865_CONFIG_BIAS_ON | MAX31865_CONFIG_FAULT_CYCLE_STEP1)
+#define MAX31865_CONFIG_MANUAL_STEP2 (MAX31865_CONFIG_BIAS_ON | MAX31865_CONFIG_FAULT_CYCLE_STEP2)
+#define MAX31865_CONFIG_CONVERTING   (MAX31865_CONFIG_BIAS_ON | MAX31865_CONFIG_CONVERSION_AUTO)
 
 /* Fault-status bits from register 07h. */
 #define MAX31865_FAULT_HIGH_THRESHOLD 0x80u
@@ -79,14 +82,18 @@ typedef void (*max31865_fault_sink_t)(bool short_fault, bool open_fault,
                                       void *context);
 
 /**
- * Write the configured threshold words and start an asynchronous automatic
- * fault-detection cycle. Does not claim that a conversion has completed.
+ * Write the threshold words, then VBIAS on with conversions off (D1 not set: 07h stays latched).
+ * Starts no fault cycle.
  */
 hal_status_t max31865_initialize(max31865_device_t *device,
                                  hal_spi_device_t spi_device);
 
-/** Start an asynchronous automatic fault-detection cycle. */
-hal_status_t max31865_start_fault_detection(const max31865_device_t *device);
+/** Manual fault cycle, step 1 (checks with FORCE- closed, then opens it). A failed write must abort
+ * the cycle: step 2's code without step 1 runs the automatic cycle. */
+hal_status_t max31865_manual_fault_step1(const max31865_device_t *device);
+
+/** Manual fault cycle, step 2 (checks with FORCE- open, closes it; D3:D2 self-clear). */
+hal_status_t max31865_manual_fault_step2(const max31865_device_t *device);
 
 /** Read the raw latched value of MAX31865 fault-status register 07h. */
 hal_status_t max31865_read_fault_status(const max31865_device_t *device,
@@ -99,16 +106,13 @@ hal_status_t max31865_start_conversions(const max31865_device_t *device);
 hal_status_t max31865_fault_cycle_done(const max31865_device_t *device, bool *done);
 
 /**
- * Service a completed fault-detection cycle (the caller has seen
- * max31865_fault_cycle_done()): read and report the latched status, then
- * resume continuous conversions. A status-read failure, or failure to resume
- * conversions after a clean status, is reported as open/out-of-range before
- * the error is returned, so the safety path fails closed. *fault_reported (may
- * be NULL) is set when the sink was called.
+ * Read the latched fault status after a completed cycle and report a set bit. A failed read is
+ * reported as open/out-of-range. *fault_reported (may be NULL) is set when the sink was called.
+ * Conversions are restarted by the caller, after the input has settled.
  */
-hal_status_t max31865_complete_fault_cycle(const max31865_device_t *device,
-                                           max31865_fault_sink_t fault_sink,
-                                           void *context, bool *fault_reported);
+hal_status_t max31865_check_fault_status(const max31865_device_t *device,
+                                         max31865_fault_sink_t fault_sink,
+                                         void *context, bool *fault_reported);
 
 /**
  * A conversion's data word carried the fault bit: read the latched fault
@@ -118,14 +122,6 @@ hal_status_t max31865_complete_fault_cycle(const max31865_device_t *device,
 hal_status_t max31865_report_conversion_fault(const max31865_device_t *device,
                                               max31865_fault_sink_t fault_sink,
                                               void *context);
-
-/**
- * Legacy single call: max31865_complete_fault_cycle() without the report flag.
- * Kept for the driver contract tests.
- */
-hal_status_t max31865_service_fault_cycle(const max31865_device_t *device,
-                                          max31865_fault_sink_t fault_sink,
-                                          void *context);
 
 /** Read the 16-bit RTD data word (registers 01h/02h, MSB first). Reading it also releases DRDY
  * (datasheet: DRDY returns high when the RTD data registers are read). */

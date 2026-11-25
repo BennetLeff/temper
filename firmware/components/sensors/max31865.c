@@ -33,18 +33,23 @@ static void report_fault(max31865_fault_sink_t fault_sink, uint8_t status,
                context);
 }
 
-hal_status_t max31865_start_fault_detection(const max31865_device_t *device)
+static hal_status_t write_config(const max31865_device_t *device, uint8_t config)
 {
-    const uint8_t config = MAX31865_CONFIG_FAULT_CYCLE;
-
     if (!device_ready(device)) {
         return HAL_ERROR_INVALID_ARG;
     }
+    /* CONFIG.D1 is never set: fault status stays latched until a power cycle. */
+    return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_CONFIG, &config, 1u);
+}
 
-    /* Do not set CONFIG.D1 here: fault status is deliberately latched until
-     * the safety-reset policy explicitly clears it. */
-    return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_CONFIG,
-                             &config, 1u);
+hal_status_t max31865_manual_fault_step1(const max31865_device_t *device)
+{
+    return write_config(device, MAX31865_CONFIG_MANUAL_STEP1);
+}
+
+hal_status_t max31865_manual_fault_step2(const max31865_device_t *device)
+{
+    return write_config(device, MAX31865_CONFIG_MANUAL_STEP2);
 }
 
 hal_status_t max31865_initialize(max31865_device_t *device,
@@ -80,7 +85,7 @@ hal_status_t max31865_initialize(max31865_device_t *device,
         return status;
     }
 
-    return max31865_start_fault_detection(device);
+    return write_config(device, MAX31865_CONFIG_BIAS_ON);
 }
 
 hal_status_t max31865_read_fault_status(const max31865_device_t *device,
@@ -96,13 +101,7 @@ hal_status_t max31865_read_fault_status(const max31865_device_t *device,
 
 hal_status_t max31865_start_conversions(const max31865_device_t *device)
 {
-    const uint8_t config = MAX31865_CONFIG_CONVERTING;
-
-    if (!device_ready(device)) {
-        return HAL_ERROR_INVALID_ARG;
-    }
-    return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_CONFIG,
-                             &config, 1u);
+    return write_config(device, MAX31865_CONFIG_CONVERTING);
 }
 
 hal_status_t max31865_fault_cycle_done(const max31865_device_t *device, bool *done)
@@ -120,9 +119,9 @@ hal_status_t max31865_fault_cycle_done(const max31865_device_t *device, bool *do
     return status;
 }
 
-hal_status_t max31865_complete_fault_cycle(const max31865_device_t *device,
-                                           max31865_fault_sink_t fault_sink,
-                                           void *context, bool *fault_reported)
+hal_status_t max31865_check_fault_status(const max31865_device_t *device,
+                                         max31865_fault_sink_t fault_sink,
+                                         void *context, bool *fault_reported)
 {
     uint8_t fault_status = 0u;
     hal_status_t status = max31865_read_fault_status(device, &fault_status);
@@ -130,36 +129,21 @@ hal_status_t max31865_complete_fault_cycle(const max31865_device_t *device,
     if (fault_reported != NULL) {
         *fault_reported = false;
     }
-    if (status != HAL_OK) {
-        /* The MCU cannot distinguish a missing/open RTD path from an SPI
-         * transport failure safely, so surface it through the same terminal
-         * open/out-of-range path. */
-        if (fault_sink != NULL) {
+    if (status == HAL_OK && fault_status == 0u) {
+        return HAL_OK;
+    }
+    if (fault_sink != NULL) {
+        if (status != HAL_OK) {
+            /* A transport failure cannot be told from an open RTD path: same terminal path. */
             fault_sink(false, true, context);
-            if (fault_reported != NULL) *fault_reported = true;
+        } else {
+            report_fault(fault_sink, fault_status, context);
         }
-        return status;
-    }
-
-    if (fault_status != 0u && fault_sink != NULL) {
-        report_fault(fault_sink, fault_status, context);
-        if (fault_reported != NULL) *fault_reported = true;
-    }
-    status = max31865_start_conversions(device);
-    if (status != HAL_OK && fault_status == 0u && fault_sink != NULL) {
-        /* A good completed cycle is not enough if conversions cannot be
-         * resumed: continuing operation would leave the RTD path unmonitored. */
-        fault_sink(false, true, context);
-        if (fault_reported != NULL) *fault_reported = true;
+        if (fault_reported != NULL) {
+            *fault_reported = true;
+        }
     }
     return status;
-}
-
-hal_status_t max31865_service_fault_cycle(const max31865_device_t *device,
-                                          max31865_fault_sink_t fault_sink,
-                                          void *context)
-{
-    return max31865_complete_fault_cycle(device, fault_sink, context, NULL);
 }
 
 hal_status_t max31865_report_conversion_fault(const max31865_device_t *device,
