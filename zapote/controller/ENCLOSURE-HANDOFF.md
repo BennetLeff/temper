@@ -90,3 +90,18 @@ Heights above the board's top surface (bottom Z23, top Z24.6 since R30; Z40 leav
     - It runs from v15, so keep its output buffer → 1 kΩ → clamp → U15 CH0 path short, with the clamp at U15.
     - U15 sits on the RTD SPI bus. Place it between the MCU and the RTD front end, not inside the RTD analog area.
 12. **J7 UI bus (R33).** The six 100 Ω series resistors and the two SRV05-4 arrays go at J7; the CS pull-ups at the module. The 5 V LDO U16 and its 2 × 100 Ω droppers (≈ 0.12 W each) go near J7, away from the thermal-sense nodes.
+
+## C51 request to R45 (2026-11-25; not agreed yet, and nothing is routed until it is)
+| Connector | Proposed body centre (world X, Y) | Body | Free on C49's layout? |
+|---|---|---|---|
+| J9 food probe, JST B4B-XH-A, 4-pin (was B3B, centre X -33) | (-31.5, 86) | 12.4 x 5.75 | yes; 1.6 mm to J2's body edge |
+| J14 bay NTC, JST B2B-PH (R45-BAY-NTC bead at about (-95, 200, 55)) | (66, 86) | 5.9 wide | yes, no part centre within Y 77-90 |
+| J15 face fan, JST B5B-XH-A | (104.5, 86) | 14.9 x 5.75 | yes; nearest part C74 at X 114.1 |
+
+- The lead lengths are R45's: the bay NTC bead is on the far side of the power board from J14.
+- J15 carries 12 V at up to 0.67 A (8 W allocation) and FG / PWM.
+- **Face-fan candidate, not a selection: Sanyo Denki 9GA0612P6G001.** Maker's page: 60 x 60 x 20 mm, 12 V (10.8-13.2), 0.26 A, 3.12 W, 31.1 CFM, 125 Pa,
+  43 dB(A), -20..70 C, pulse sensor, PWM. The page does not give PWM or sensor limits, and the duty of the 3.12 W is not stated. No h or flow study
+  exists for a face fan: S24 must show flow reaching U26 and the board's hot spots, and the fan's 20 mm depth replaces the plan's 25.
+- **Controller board envelope:** the outline is unchanged.
+
