@@ -46,7 +46,7 @@ Largest gap between all bodies, whole millimetres:
 
 ## Recommendation
 1. Measure DM leakage on 2 SCF31X samples (JV if stocked), at low level and under DC bias, before choosing the DM part.
-2. Reserve **130 x 85 mm** in R45 (height 50 mm kept). Not checked against the R45 neighbours; R43's stand is X -150..-40, Y 296..376.
+2. Reserve **130 x 85 mm** in R45 (height 50 mm kept). Not checked against the R45 neighbours; R43's module envelope is X +40..+150, Y 296..376, Z 26..76 (corrected 2026-11-25: this line had the X sign reversed).
 3. Leakage >= 1 %: WE-HCFT 74437636351012 passes at its typical 88 uH, by 0.12 dB at exactly 1 %. Below that: wait for the production
    L1, or run the recorded prototype EMI deviation.
 
@@ -60,3 +60,20 @@ the expected frequencies are 38.6 kHz (0.3 %, 17.0 uH), 29.9 (0.5 %, 28.4), 21.1
 
 **JV height:** 42 mm tall against 33 for JH. The review's 1-3 mm of top clearance assumes the 50 mm includes the PCB and its standoffs; no
 record in this repo says whether it does (c23 MODULE-REQUEST has no envelope). R45 must state it before JV is chosen over JH.
+
+## Neighbours in R43 (2026-11-25, `scripts/neighbours_r43.py`, `results/neighbours-r43.json`)
+R45 does not exist, so this is R43's frozen mesh. Boxes against triangles; the module, its stand and nuts, and the harnesses with "EMI" in the name are
+left out because they move with the module. Creepage, plugs, terminals and service clearance are not in it.
+
+| Box (height 50) | Result |
+|---|---|
+| R43 today 110 x 80 | clear; nearest coil plenum floors 5.0 (G11), mains anchor 290 5.0 (aluminium), SELV posts 7.0 (nylon), pan-RTD harness 9.9 |
+| **130 x 85 grown to -X and +Y (X 20..150, Y 296..381)** | **clear; the same parts at the same gaps**, plus the C20 PE harness at 10.9 |
+| 130 x 85 grown to +X (X 40..170) | hits harness_PE_native21_J6_to_star |
+| 130 x 85 grown to -Y (Y 291..376) | clear, but the mains anchor is at 0.0 mm |
+| any of them at height 60 | hits the coil plenum floors (Z 81) |
+
+- Reserve **X 20..150, Y 296..381, Z 26..76** in R45. The stand grows with it (X 40..150 today, to Y 384).
+- **JV choke:** Z26 to 76 is 50 mm; the JV needs 42.0 + PCB 1.6 = 43.6, so the standoff and solder side get 6.4 mm, and the plenum floor is 5.0 mm
+  above Z76. Whether the envelope's Z26 is the module's lowest point or the PCB plane is not recorded. JH (33) leaves 15.4 mm.
+

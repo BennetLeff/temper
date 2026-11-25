@@ -1,0 +1,314 @@
+{
+ "r43_envelope": [
+  40.0,
+  296.0,
+  26.0,
+  150.0,
+  376.0,
+  76.0
+ ],
+ "cases": [
+  {
+   "case": "as R43 envelope, z0..+50",
+   "box": [
+    40.0,
+    296.0,
+    26.0,
+    150.0,
+    376.0,
+    76.0
+   ],
+   "hits": {}
+  },
+  {
+   "case": "as R43 envelope, z0..R43 top",
+   "box": [
+    40.0,
+    296.0,
+    26.0,
+    150.0,
+    376.0,
+    76.0
+   ],
+   "hits": {}
+  },
+  {
+   "case": "130x85 from the same -X/-Y corner, height 50",
+   "box": [
+    40.0,
+    296.0,
+    26.0,
+    170.0,
+    381.0,
+    76.0
+   ],
+   "hits": {
+    "harness_PE_native21_J6_to_star": 71
+   }
+  },
+  {
+   "case": "130x85 from the same -X/-Y corner, height 60",
+   "box": [
+    40.0,
+    296.0,
+    26.0,
+    170.0,
+    381.0,
+    86.0
+   ],
+   "hits": {
+    "harness_PE_native21_J6_to_star": 71,
+    "electronics_coil_plenum_floors": 14
+   }
+  },
+  {
+   "case": "130x85 from the +X/-Y corner, height 50",
+   "box": [
+    20.0,
+    296.0,
+    26.0,
+    150.0,
+    381.0,
+    76.0
+   ],
+   "hits": {}
+  },
+  {
+   "case": "130x85 from the +X/-Y corner, height 60",
+   "box": [
+    20.0,
+    296.0,
+    26.0,
+    150.0,
+    381.0,
+    86.0
+   ],
+   "hits": {
+    "electronics_coil_plenum_floors": 16
+   }
+  },
+  {
+   "case": "130x85 from the -X/+Y corner, height 50",
+   "box": [
+    40.0,
+    291.0,
+    26.0,
+    170.0,
+    376.0,
+    76.0
+   ],
+   "hits": {
+    "harness_PE_native21_J6_to_star": 2569
+   }
+  },
+  {
+   "case": "130x85 from the -X/+Y corner, height 60",
+   "box": [
+    40.0,
+    291.0,
+    26.0,
+    170.0,
+    376.0,
+    86.0
+   ],
+   "hits": {
+    "harness_PE_native21_J6_to_star": 2569,
+    "electronics_coil_plenum_floors": 14
+   }
+  },
+  {
+   "case": "130x85 from the +X/+Y corner, height 50",
+   "box": [
+    20.0,
+    291.0,
+    26.0,
+    150.0,
+    376.0,
+    76.0
+   ],
+   "hits": {}
+  },
+  {
+   "case": "130x85 from the +X/+Y corner, height 60",
+   "box": [
+    20.0,
+    291.0,
+    26.0,
+    150.0,
+    376.0,
+    86.0
+   ],
+   "hits": {
+    "harness_TCO_sink_to_glass_TCO": 34,
+    "electronics_coil_plenum_floors": 16
+   }
+  },
+  {
+   "case": "130x85 shifted 10 mm -X, height 50",
+   "box": [
+    30.0,
+    296.0,
+    26.0,
+    160.0,
+    381.0,
+    76.0
+   ],
+   "hits": {}
+  },
+  {
+   "case": "130x85 shifted 10 mm -X, height 60",
+   "box": [
+    30.0,
+    296.0,
+    26.0,
+    160.0,
+    381.0,
+    86.0
+   ],
+   "hits": {
+    "electronics_coil_plenum_floors": 14
+   }
+  }
+ ],
+ "gaps": [
+  {
+   "case": "R43 today 110x80x50",
+   "box": [
+    40.0,
+    296.0,
+    26.0,
+    150.0,
+    376.0,
+    76.0
+   ],
+   "under_12mm": [
+    [
+     5.0,
+     "electronics_coil_plenum_floors",
+     "G11 (FR5) 1.5 mm, natural"
+    ],
+    [
+     5.0,
+     "electronics_harness_mains_anchor_290",
+     "5052-H32 1.0 mm, mill finish"
+    ],
+    [
+     7.0,
+     "electronics_SELV_crossing_posts",
+     "nylon 6/6 UL94 V-0"
+    ],
+    [
+     9.9,
+     "harness_pan_RTD_to_controller",
+     "6-core jacketed cable (4-wire RTD + 2 rim NTC), SAB TD 801 F class"
+    ],
+    [
+     11.0,
+     "harness_TCO_sink_to_glass_TCO",
+     "18 AWG 250 \u00b0C, mains-rated"
+    ],
+    [
+     11.9,
+     "harness_PE_native21_J6_to_star",
+     "14 AWG insulated copper"
+    ]
+   ]
+  },
+  {
+   "case": "130x85x50, grown to -X and +Y",
+   "box": [
+    20.0,
+    296.0,
+    26.0,
+    150.0,
+    381.0,
+    76.0
+   ],
+   "under_12mm": [
+    [
+     5.0,
+     "electronics_coil_plenum_floors",
+     "G11 (FR5) 1.5 mm, natural"
+    ],
+    [
+     5.0,
+     "electronics_harness_mains_anchor_290",
+     "5052-H32 1.0 mm, mill finish"
+    ],
+    [
+     7.0,
+     "electronics_SELV_crossing_posts",
+     "nylon 6/6 UL94 V-0"
+    ],
+    [
+     9.9,
+     "harness_pan_RTD_to_controller",
+     "6-core jacketed cable (4-wire RTD + 2 rim NTC), SAB TD 801 F class"
+    ],
+    [
+     10.9,
+     "harness_PE_C20_to_chassis_star",
+     "14 AWG tinned copper/silicone with glass braid"
+    ],
+    [
+     10.9,
+     "harness_TCO_sink_to_glass_TCO",
+     "18 AWG 250 \u00b0C, mains-rated"
+    ],
+    [
+     11.9,
+     "harness_PE_native21_J6_to_star",
+     "14 AWG insulated copper"
+    ]
+   ]
+  },
+  {
+   "case": "130x80x50, grown to -X",
+   "box": [
+    20.0,
+    296.0,
+    26.0,
+    150.0,
+    376.0,
+    76.0
+   ],
+   "under_12mm": [
+    [
+     5.0,
+     "electronics_coil_plenum_floors",
+     "G11 (FR5) 1.5 mm, natural"
+    ],
+    [
+     5.0,
+     "electronics_harness_mains_anchor_290",
+     "5052-H32 1.0 mm, mill finish"
+    ],
+    [
+     7.0,
+     "electronics_SELV_crossing_posts",
+     "nylon 6/6 UL94 V-0"
+    ],
+    [
+     9.9,
+     "harness_pan_RTD_to_controller",
+     "6-core jacketed cable (4-wire RTD + 2 rim NTC), SAB TD 801 F class"
+    ],
+    [
+     10.9,
+     "harness_TCO_sink_to_glass_TCO",
+     "18 AWG 250 \u00b0C, mains-rated"
+    ],
+    [
+     11.9,
+     "harness_PE_native21_J6_to_star",
+     "14 AWG insulated copper"
+    ]
+   ]
+  }
+ ],
+ "jv_stack_mm": {
+  "choke": 42.0,
+  "pcb": 1.6,
+  "note": "top of JV above the PCB bottom: 43.6 + standoff height"
+ }
+}
