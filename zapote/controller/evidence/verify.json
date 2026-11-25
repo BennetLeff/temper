@@ -3,7 +3,7 @@
   "inputs": {
     "native21_commit": "7c55c9ab81260b396be266861a0f0e8a42f96a5f",
     "netlist": "frozen/default.net",
-    "netlist_sha256": "17572fa50ade02364aa58a1df72836796dfc1b85affebb1bbbdc73e61c4d3005"
+    "netlist_sha256": "c7281eaca97a0dbc7fba912c99f312b509b9e7a2d42afd7f9b69464454f86f13"
   },
   "schema": "temper.controller.verify.v1",
   "sections": {
@@ -1636,7 +1636,7 @@
           "ok": true
         },
         "rtd_c1_block_equals_rtd_source_plus_listed_edits": {
-          "detail": "rtd_c1: OK (17 edits + C1 section)",
+          "detail": "rtd_c1: OK (18 edits + C1 section)",
           "ok": true
         }
       },
@@ -2634,7 +2634,7 @@
             "ref": "R16"
           },
           {
-            "basis": "MAX31865AAP+: MAX31865 DS: IDD 3.5 mA + 0.4 mA (input > ref) + BIAS IOUT 5.75 mA max",
+            "basis": "MAX31865AAP+T: MAX31865 DS: IDD 3.5 mA + 0.4 mA (input > ref) + BIAS IOUT 5.75 mA max",
             "board": "controller",
             "mA": 9.65,
             "path": "rtd_pan.adc",

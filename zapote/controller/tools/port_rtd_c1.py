@@ -66,6 +66,13 @@ EDITS = [
     ("    r_rtdin_p_bias = new Resistor\n",
      "    # C1 (CR-1): 499 k 1 %, on the connector-side node rtd_sense_p_ext (not the converter pin).\n"
      "    r_rtdin_p_bias = new Resistor\n"),
+    # C51: MAX31865AAP is the 5.3 mm SSOP-20 (JLC C779509 / C89608: L7.2 W5.3 P0.65 LS7.8); the library's
+    # 3.9 mm QSOP land does not meet its leads. +T is the tape-and-reel code of the same part.
+    ("    adc = new MAX31865\n",
+     "    adc = new MAX31865\n"
+     "    # C51: 5.3 mm SSOP-20 land and the tape-and-reel MPN (tools/check_land_patterns.py)\n"
+     '    adc.mpn = "MAX31865AAP+T"\n'
+     '    adc.footprint = "Package_SO:SSOP-20_5.3x7.2mm_P0.65mm"\n'),
     # CR-1: 100 nF C0G 1206 across the converter pins (was 1 nF 0603)
     ("    c_rtd_input.value = 1nF\n", "    c_rtd_input.value = 100nF +/- 5%\n"),
     ('    c_rtd_input.mpn = "C0603C102J5GACTU"\n', '    c_rtd_input.mpn = "GRM31C5C1H104JA01L"\n'),

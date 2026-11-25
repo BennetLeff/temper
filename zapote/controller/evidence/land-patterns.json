@@ -1,0 +1,1196 @@
+{
+ "checked": 88,
+ "failed": [],
+ "limit_mm": 0.3,
+ "rows": [
+  {
+   "exception": null,
+   "footprint": "Connector_Molex:Molex_Micro-Fit_3.0_43045-1600_2x08_P3.00mm_Horizontal",
+   "jlc_package": "CONN-TH_16P-P3.00-S3.00_L12.2-W27.7-EH16.7",
+   "lcsc": "C277731",
+   "mpn": "0430451600",
+   "refs": [
+    "J4"
+   ],
+   "rms_mm": 0.0
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23",
+   "jlc_package": "SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR",
+   "lcsc": "C8545",
+   "mpn": "2N7002",
+   "refs": [
+    "Q1"
+   ],
+   "rms_mm": 0.059
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+   "jlc_package": "TSSOP-14_L5.0-W4.4-P0.65-LS6.4-BL",
+   "lcsc": "C546857",
+   "mpn": "74HC30PW,118",
+   "refs": [
+    "U22"
+   ],
+   "rms_mm": 0.062
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SO:QSOP-20_3.9x8.7mm_P0.635mm",
+   "jlc_package": "QSOP-20_L8.7-W3.9-P0.64-LS6.0-BL",
+   "lcsc": "C495329",
+   "mpn": "AD8436ARQZ-R7",
+   "refs": [
+    "U14"
+   ],
+   "rms_mm": 0.08
+  },
+  {
+   "exception": null,
+   "footprint": "Connector_JST:JST_XH_B12B-XH-A_1x12_P2.50mm_Vertical",
+   "jlc_package": "CONN-TH_B12B-XH-A-LF-SN",
+   "lcsc": "C158027",
+   "mpn": "B12B-XH-A(LF)(SN)",
+   "refs": [
+    "J7"
+   ],
+   "rms_mm": 0.138
+  },
+  {
+   "exception": null,
+   "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+   "jlc_package": "CONN-TH_B2B-XH-A-LF-SN",
+   "lcsc": "C158012",
+   "mpn": "B2B-XH-A(LF)(SN)",
+   "refs": [
+    "J1",
+    "J2"
+   ],
+   "rms_mm": 0.0
+  },
+  {
+   "exception": null,
+   "footprint": "Connector_JST:JST_VH_B2P-VH_1x02_P3.96mm_Vertical",
+   "jlc_package": "CONN-TH_B2P-VH-LF-SN",
+   "lcsc": "C160315",
+   "mpn": "B2P-VH(LF)(SN)",
+   "refs": [
+    "J13"
+   ],
+   "rms_mm": 0.0
+  },
+  {
+   "exception": null,
+   "footprint": "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+   "jlc_package": "CONN-TH_3P-P2.50_A2501WV2-3P",
+   "lcsc": "C144394",
+   "mpn": "B3B-XH-A(LF)(SN)",
+   "refs": [
+    "J10",
+    "J12",
+    "J9"
+   ],
+   "rms_mm": 0.0
+  },
+  {
+   "exception": null,
+   "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+   "jlc_package": "CONN-TH_B4B-XH-A-LF-SN",
+   "lcsc": "C144395",
+   "mpn": "B4B-XH-A(LF)(SN)",
+   "refs": [
+    "J3"
+   ],
+   "rms_mm": 0.0
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23",
+   "jlc_package": "SOT-23_L2.9-W1.3-P1.90-LS2.4-BR",
+   "lcsc": "C83574",
+   "mpn": "BAT54S-7-F",
+   "refs": [
+    "D8"
+   ],
+   "rms_mm": 0.2
+  },
+  {
+   "exception": null,
+   "footprint": "Inductor_SMD:L_0603_1608Metric",
+   "jlc_package": "L0603",
+   "lcsc": "C76892",
+   "mpn": "BLM18AG121SN1D",
+   "refs": [
+    "R46"
+   ],
+   "rms_mm": 0.088
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "jlc_package": "C0603",
+   "lcsc": "C2181873",
+   "mpn": "C0603C102J5GACTU",
+   "refs": [
+    "C39",
+    "C40"
+   ],
+   "rms_mm": 0.075
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "jlc_package": "C0603",
+   "lcsc": "C127833",
+   "mpn": "C0603C104K5RACTU",
+   "refs": [
+    "C21",
+    "C22",
+    "C23",
+    "C24",
+    "C25",
+    "C26",
+    "C27",
+    "C28",
+    "C29",
+    "C30",
+    "C32",
+    "C33",
+    "C34",
+    "C35",
+    "C36",
+    "C37",
+    "C46",
+    "C47",
+    "C48",
+    "C49",
+    "C50",
+    "C51"
+   ],
+   "rms_mm": 0.075
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "jlc_package": "C0603",
+   "lcsc": "C14663",
+   "mpn": "CC0603KRX7R9BB104",
+   "refs": [
+    "C12",
+    "C14",
+    "C20",
+    "C3",
+    "C5",
+    "C52",
+    "C53",
+    "C54",
+    "C55",
+    "C56",
+    "C57",
+    "C58",
+    "C59",
+    "C60",
+    "C61",
+    "C62",
+    "C63",
+    "C65",
+    "C66",
+    "C67",
+    "C68",
+    "C69",
+    "C70",
+    "C71",
+    "C72",
+    "C73",
+    "C74",
+    "C75",
+    "C76",
+    "C77",
+    "C78",
+    "C79",
+    "C85",
+    "C90",
+    "C92",
+    "C93",
+    "C94"
+   ],
+   "rms_mm": 0.075
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "jlc_package": "C0603",
+   "lcsc": "C107083",
+   "mpn": "CC0603KRX7R9BB224",
+   "refs": [
+    "C42",
+    "C43",
+    "C44",
+    "C45"
+   ],
+   "rms_mm": 0.075
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "jlc_package": "C0603",
+   "lcsc": "C15849",
+   "mpn": "CL10A105KB8NNNC",
+   "refs": [
+    "C10",
+    "C19",
+    "C83",
+    "C86",
+    "C88",
+    "C91",
+    "C95",
+    "C96"
+   ],
+   "rms_mm": 0.075
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "jlc_package": "C0603",
+   "lcsc": "C1589",
+   "mpn": "CL10B103KB8NNNC",
+   "refs": [
+    "C11",
+    "C2"
+   ],
+   "rms_mm": 0.075
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "jlc_package": "C0603",
+   "lcsc": "C163508",
+   "mpn": "CL10C102JB8NNNC",
+   "refs": [
+    "C18",
+    "C64",
+    "C97"
+   ],
+   "rms_mm": 0.075
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:C_0805_2012Metric",
+   "jlc_package": "C0805",
+   "lcsc": "C45783",
+   "mpn": "CL21A226MAQNNNE",
+   "refs": [
+    "C6",
+    "C7",
+    "C8",
+    "C89"
+   ],
+   "rms_mm": 0.05
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+   "jlc_package": "C1206",
+   "lcsc": "C9807",
+   "mpn": "CL31A106KAHNNNE",
+   "refs": [
+    "C13",
+    "C15",
+    "C4"
+   ],
+   "rms_mm": 0.118
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+   "jlc_package": "C1206",
+   "lcsc": "C12891",
+   "mpn": "CL31A226KAHNNNE",
+   "refs": [
+    "C16",
+    "C17"
+   ],
+   "rms_mm": 0.118
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:CP_Elec_8x6.2",
+   "jlc_package": "CAP-SMD_BD8.0-L8.3-W8.3-FD",
+   "lcsc": "C178539",
+   "mpn": "EEE-FK1E101P",
+   "refs": [
+    "C1",
+    "C9"
+   ],
+   "rms_mm": 0.217
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C190610",
+   "mpn": "ERA-3AEB103V",
+   "refs": [
+    "R48",
+    "R50",
+    "R54"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C491142",
+   "mpn": "ERA-3AEB5901V",
+   "refs": [
+    "R49",
+    "R90"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C4019122",
+   "mpn": "ERA-3AEB6192V",
+   "refs": [
+    "R47"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Diode_SMD:D_SOD-523",
+   "jlc_package": "SOD-523F_L1.2-W0.8-LS1.7-RD",
+   "lcsc": "C61148",
+   "mpn": "ESD5Z3.3T1G",
+   "refs": [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6"
+   ],
+   "rms_mm": 0.012
+  },
+  {
+   "exception": null,
+   "footprint": "Diode_SMD:D_SOD-523",
+   "jlc_package": "SOD-523F_L1.2-W0.8-LS1.7-RD",
+   "lcsc": "C82044",
+   "mpn": "ESD5Z5.0T1G",
+   "refs": [
+    "D7"
+   ],
+   "rms_mm": 0.012
+  },
+  {
+   "exception": null,
+   "footprint": "RF_Module:ESP32-S3-WROOM-1U",
+   "jlc_package": "WIRELM-SMD_ESP32-S3-WROOM-1U",
+   "lcsc": "C2980297",
+   "mpn": "ESP32-S3-WROOM-1U-N8",
+   "refs": [
+    "U4"
+   ],
+   "rms_mm": 0.013
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "jlc_package": "C0603",
+   "lcsc": "C85973",
+   "mpn": "GRM1885C1H103JA01D",
+   "refs": [
+    "C41",
+    "C84",
+    "C87"
+   ],
+   "rms_mm": 0.075
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:C_1206_3216Metric",
+   "jlc_package": "C1206",
+   "lcsc": "C97946",
+   "mpn": "GRM31C5C1H104JA01L",
+   "refs": [
+    "C31",
+    "C38",
+    "C80",
+    "C81",
+    "C82"
+   ],
+   "rms_mm": 0.118
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23",
+   "jlc_package": "SOT-23-3_L2.9-W1.6-P1.90-LS2.8-BR",
+   "lcsc": "C9421",
+   "mpn": "LM4040A25IDBZR",
+   "refs": [
+    "U13"
+   ],
+   "rms_mm": 0.281
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SO:SSOP-20_5.3x7.2mm_P0.65mm",
+   "jlc_package": "SSOP-20_L7.2-W5.3-P0.65-LS7.8-BL",
+   "lcsc": "C779509",
+   "mpn": "MAX31865AAP+T",
+   "refs": [
+    "U30"
+   ],
+   "rms_mm": 0.009
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "jlc_package": "SOP-8_L4.9-W3.9-P1.27-LS6.0-BL",
+   "lcsc": "C56997",
+   "mpn": "MCP3202-CI/SN",
+   "refs": [
+    "U15"
+   ],
+   "rms_mm": 0.208
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "jlc_package": "SOIC-8_L5.0-W4.0-P1.27-LS6.0-BL",
+   "lcsc": "C1517414",
+   "mpn": "OPA2388IDR",
+   "refs": [
+    "U5"
+   ],
+   "rms_mm": 0.23
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C14675",
+   "mpn": "RC0603FR-07100KL",
+   "refs": [
+    "R11",
+    "R110",
+    "R17",
+    "R20",
+    "R38",
+    "R51",
+    "R52",
+    "R73"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C105588",
+   "mpn": "RC0603FR-07100RL",
+   "refs": [
+    "R113",
+    "R114",
+    "R115",
+    "R116",
+    "R117",
+    "R118",
+    "R85",
+    "R87",
+    "R92",
+    "R95",
+    "R98"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C98220",
+   "mpn": "RC0603FR-0710KL",
+   "refs": [
+    "R103",
+    "R108",
+    "R109",
+    "R119",
+    "R120",
+    "R124",
+    "R19",
+    "R25",
+    "R28",
+    "R29",
+    "R33",
+    "R5",
+    "R55",
+    "R56",
+    "R6",
+    "R61",
+    "R62",
+    "R63",
+    "R64",
+    "R65",
+    "R66",
+    "R67",
+    "R68",
+    "R7",
+    "R70",
+    "R71",
+    "R74",
+    "R75",
+    "R8",
+    "R88",
+    "R91",
+    "R94",
+    "R97"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C114606",
+   "mpn": "RC0603FR-0710ML",
+   "refs": [
+    "R101",
+    "R86"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C137802",
+   "mpn": "RC0603FR-0711K5L",
+   "refs": [
+    "R30"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C123417",
+   "mpn": "RC0603FR-0712K1L",
+   "refs": [
+    "R12",
+    "R18",
+    "R21"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C137779",
+   "mpn": "RC0603FR-071K21L",
+   "refs": [
+    "R37"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C22548",
+   "mpn": "RC0603FR-071KL",
+   "refs": [
+    "R10",
+    "R106",
+    "R26",
+    "R27",
+    "R69",
+    "R82",
+    "R9"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C105578",
+   "mpn": "RC0603FR-071ML",
+   "refs": [
+    "R123"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C105575",
+   "mpn": "RC0603FR-0720KL",
+   "refs": [
+    "R15"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C108661",
+   "mpn": "RC0603FR-0733RL",
+   "refs": [
+    "R1",
+    "R107",
+    "R2",
+    "R3",
+    "R4",
+    "R42",
+    "R43",
+    "R44",
+    "R45"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C137741",
+   "mpn": "RC0603FR-0734K8L",
+   "refs": [
+    "R32"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C131054",
+   "mpn": "RC0603FR-07499KL",
+   "refs": [
+    "R40",
+    "R41"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C99782",
+   "mpn": "RC0603FR-074K7L",
+   "refs": [
+    "R102",
+    "R111",
+    "R112",
+    "R16"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C482887",
+   "mpn": "RC0603FR-0756K2L",
+   "refs": [
+    "R22"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C95177",
+   "mpn": "RC0603JR-070RL",
+   "refs": [
+    "R72"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_1206_3216Metric",
+   "jlc_package": "R1206",
+   "lcsc": "C137392",
+   "mpn": "RC1206FR-07100RL",
+   "refs": [
+    "R121",
+    "R122"
+   ],
+   "rms_mm": 0.016
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+   "jlc_package": "TSOT-23-5_L2.9-W1.6-P0.95-LS2.8-BR",
+   "lcsc": "C962078",
+   "mpn": "REF2025AIDDCR",
+   "refs": [
+    "U29"
+   ],
+   "rms_mm": 0.061
+  },
+  {
+   "exception": "EasyEDA has no record for C4260028 (404 on 2026-11-25); 0805 chip on the stock R_0805 land",
+   "footprint": "Resistor_SMD:R_0805_2012Metric",
+   "jlc_package": null,
+   "lcsc": "C4260028",
+   "mpn": "RG2012V-431-W-T1",
+   "refs": [
+    "R39"
+   ],
+   "rms_mm": null
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C95204",
+   "mpn": "RT0603BRD0710KL",
+   "refs": [
+    "R100",
+    "R105",
+    "R77",
+    "R80",
+    "R81",
+    "R84",
+    "R93"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C705719",
+   "mpn": "RT0603BRD0711K5L",
+   "refs": [
+    "R24"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C861125",
+   "mpn": "RT0603BRD07140KL",
+   "refs": [
+    "R23",
+    "R36"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C728584",
+   "mpn": "RT0603BRD0716K5L",
+   "refs": [
+    "R53"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C110776",
+   "mpn": "RT0603BRD071KL",
+   "refs": [
+    "R57",
+    "R58",
+    "R59",
+    "R60",
+    "R89",
+    "R96"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C723637",
+   "mpn": "RT0603BRD0720KL",
+   "refs": [
+    "R76",
+    "R78",
+    "R79"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C723484",
+   "mpn": "RT0603BRD0722K1L",
+   "refs": [
+    "R13"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C723585",
+   "mpn": "RT0603BRD0730KL",
+   "refs": [
+    "R104"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C861561",
+   "mpn": "RT0603BRD077K06L",
+   "refs": [
+    "R14",
+    "R35"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C861580",
+   "mpn": "RT0603BRD0786K6L",
+   "refs": [
+    "R99"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C861587",
+   "mpn": "RT0603BRD078K06L",
+   "refs": [
+    "R31"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
+   "lcsc": "C728600",
+   "mpn": "RT0603BRD0790K9L",
+   "refs": [
+    "R34",
+    "R83"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+   "jlc_package": "SOIC-14_L8.7-W3.9-P1.27-LS6.0-BL",
+   "lcsc": "C133541",
+   "mpn": "SN74LVC14ADR",
+   "refs": [
+    "U23",
+    "U24"
+   ],
+   "rms_mm": 0.144
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+   "jlc_package": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR",
+   "lcsc": "C7666",
+   "mpn": "SN74LVC1G08DBVR",
+   "refs": [
+    "U11",
+    "U25",
+    "U33",
+    "U37"
+   ],
+   "rms_mm": 0.159
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+   "jlc_package": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR",
+   "lcsc": "C7835",
+   "mpn": "SN74LVC1G14DBVR",
+   "refs": [
+    "U12",
+    "U45",
+    "U46"
+   ],
+   "rms_mm": 0.159
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+   "jlc_package": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR",
+   "lcsc": "C10096",
+   "mpn": "SN74LVC1G32DBVR",
+   "refs": [
+    "U27",
+    "U28",
+    "U41",
+    "U44"
+   ],
+   "rms_mm": 0.159
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+   "jlc_package": "SOT-23-5_L2.9-W1.6-P0.95-LS2.8-TL",
+   "lcsc": "C2867613",
+   "mpn": "SN74LVC1G38DBVR",
+   "refs": [
+    "U35"
+   ],
+   "rms_mm": 0.159
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
+   "jlc_package": "SSOP-8_L2.0-W2.3-P0.50-LS3.1-BR",
+   "lcsc": "C70285",
+   "mpn": "SN74LVC1G74DCUR",
+   "refs": [
+    "U20"
+   ],
+   "rms_mm": 0.05
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+   "jlc_package": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR",
+   "lcsc": "C402161",
+   "mpn": "SN74LVC1G86DBVR",
+   "refs": [
+    "U43"
+   ],
+   "rms_mm": 0.159
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm",
+   "jlc_package": "TSSOP-20_L6.5-W4.4-P0.65-LS6.4-BL",
+   "lcsc": "C7668",
+   "mpn": "SN74LVC244APWR",
+   "refs": [
+    "U9"
+   ],
+   "rms_mm": 0.009
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+   "jlc_package": "TSSOP-14_L5.0-W4.4-P0.65-LS6.5-BL",
+   "lcsc": "C350561",
+   "mpn": "SN74LVC74APWR",
+   "refs": [
+    "U42"
+   ],
+   "rms_mm": 0.063
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+   "jlc_package": "SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BL",
+   "lcsc": "C2836319",
+   "mpn": "SRV05-4",
+   "refs": [
+    "U38",
+    "U39"
+   ],
+   "rms_mm": 0.012
+  },
+  {
+   "exception": null,
+   "footprint": "Diode_SMD:D_SMA",
+   "jlc_package": "SMA_L4.2-W2.6-LS5.0-RD_1",
+   "lcsc": "C2480",
+   "mpn": "SS14",
+   "refs": [
+    "D9"
+   ],
+   "rms_mm": 0.035
+  },
+  {
+   "exception": "inner pad edges agree (KiCad 1.40 mm, JLC 1.37 mm from centre); JLC's land only reaches further outside the 6.0 mm body (3.84 against 3.10 mm)",
+   "footprint": "Inductor_SMD:L_Sunlord_SWPA6045S",
+   "jlc_package": "IND-SMD_L6.0-W6.0_SWPA6045S",
+   "lcsc": "C79272",
+   "mpn": "SWPA6045S100MT",
+   "refs": [
+    "L1"
+   ],
+   "rms_mm": 0.353
+  },
+  {
+   "exception": null,
+   "footprint": "Temper_Controller:L_Sunlord_SWRB1205S",
+   "jlc_package": "IND-SMD_L12.5-W12.5",
+   "lcsc": "C169383",
+   "mpn": "SWRB1205S-100MT",
+   "refs": [
+    "L2"
+   ],
+   "rms_mm": 0.228
+  },
+  {
+   "exception": "flush probe land, no part is placed",
+   "footprint": "Connector:Tag-Connect_TC2050-IDC-NL_2x05_P1.27mm_Vertical",
+   "jlc_package": null,
+   "lcsc": null,
+   "mpn": "TC2050-IDC-NL-LAND",
+   "refs": [
+    "J11"
+   ],
+   "rms_mm": null
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SO:TSSOP-24_4.4x7.8mm_P0.65mm",
+   "jlc_package": "TSSOP-24_L7.8-W4.4-P0.65-LS6.4-BL",
+   "lcsc": "C465732",
+   "mpn": "TCA9555PWR",
+   "refs": [
+    "U8"
+   ],
+   "rms_mm": 0.16
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+   "jlc_package": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR",
+   "lcsc": "C105188",
+   "mpn": "TLV3201AIDBVR",
+   "refs": [
+    "U10",
+    "U17",
+    "U18",
+    "U31",
+    "U32",
+    "U40"
+   ],
+   "rms_mm": 0.159
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23",
+   "jlc_package": "SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR",
+   "lcsc": "C2867465",
+   "mpn": "TLV76050DBZR",
+   "refs": [
+    "U16"
+   ],
+   "rms_mm": 0.059
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+   "jlc_package": "SOT-23-5_L2.9-W1.6-P0.95-LS2.8-BR",
+   "lcsc": "C29777121",
+   "mpn": "TLV9031DBVR",
+   "refs": [
+    "U19",
+    "U26"
+   ],
+   "rms_mm": 0.037
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+   "jlc_package": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BL",
+   "lcsc": "C398358",
+   "mpn": "TLV9061IDBVR",
+   "refs": [
+    "U36"
+   ],
+   "rms_mm": 0.016
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+   "jlc_package": "SOIC-8_L5.0-W4.0-P1.27-LS6.0-BL",
+   "lcsc": "C398355",
+   "mpn": "TLV9062IDR",
+   "refs": [
+    "U6",
+    "U7"
+   ],
+   "rms_mm": 0.23
+  },
+  {
+   "exception": null,
+   "footprint": "Package_SON:WSON-6_1.5x1.5mm_P0.5mm",
+   "jlc_package": "WSON-6_L1.5-W1.5-P0.50-BL",
+   "lcsc": "C1850327",
+   "mpn": "TPS3703A4330DSERQ1",
+   "refs": [
+    "U3"
+   ],
+   "rms_mm": 0.019
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+   "jlc_package": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BL",
+   "lcsc": "C7719",
+   "mpn": "TPS3823-33DBVR",
+   "refs": [
+    "U21"
+   ],
+   "rms_mm": 0.016
+  },
+  {
+   "exception": null,
+   "footprint": "Temper_RTD:TPS389001DSER_WSON-6_DSE",
+   "jlc_package": "WSON-6_L1.5-W1.5-P0.50-TL",
+   "lcsc": "C1509297",
+   "mpn": "TPS389001DSER",
+   "refs": [
+    "U34"
+   ],
+   "rms_mm": 0.035
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-583-8",
+   "jlc_package": "SOT-583-8_L2.1-W1.2-P0.50-LS1.6-BR",
+   "lcsc": "C3200405",
+   "mpn": "TPS62933DRLR",
+   "refs": [
+    "U2"
+   ],
+   "rms_mm": 0.1
+  },
+  {
+   "exception": null,
+   "footprint": "Package_TO_SOT_SMD:SOT-583-8",
+   "jlc_package": "SOT-583-8_L2.1-W1.2-P0.50-LS1.6-BR",
+   "lcsc": "C5219272",
+   "mpn": "TPS62933FDRLR",
+   "refs": [
+    "U1"
+   ],
+   "rms_mm": 0.1
+  }
+ ]
+}

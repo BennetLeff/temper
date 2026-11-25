@@ -3,12 +3,12 @@
   "build_command": "uv tool run --offline --from atopile==0.2.69 ato --non-interactive build elec/src/controller.ato:SelvController",
   "build_report_failed": false,
   "entry": "elec/src/controller.ato:SelvController",
-  "export_command": "uv tool run --offline --from atopile==0.2.69 python tools/circuit_export.py /Users/bennet/Desktop/temper/worktrees/ctrl-j13/zapote/controller /Users/bennet/Desktop/temper/worktrees/ctrl-j13/zapote/controller/build/resolved-components.json --entry-file elec/src/controller.ato --entry SelvController",
+  "export_command": "uv tool run --offline --from atopile==0.2.69 python tools/circuit_export.py /Users/bennet/Desktop/temper/worktrees/ctrl-c51/zapote/controller /Users/bennet/Desktop/temper/worktrees/ctrl-c51/zapote/controller/build/resolved-components.json --entry-file elec/src/controller.ato --entry SelvController",
   "exporter_sha256": "9068441892e2df3424a383c3682bdf5971527f9d4afa1812ce5171ddf8e36159",
   "frozen_sha256": {
-    "default.csv": "ff0da416778cb55f6d95fc068388ec8a742e463a4fb248c918e7aa073e9e8c0d",
-    "default.net": "17572fa50ade02364aa58a1df72836796dfc1b85affebb1bbbdc73e61c4d3005",
-    "resolved-components.json": "51060ac45ce8d4c9e0a7674181e3901badbbbf1b98f6685b8b3a9525c5f9e835"
+    "default.csv": "9b7e95c8e0e0e52891f157b6ec0abea2d01e785ac4e15e21e6d60074d05d6e19",
+    "default.net": "c7281eaca97a0dbc7fba912c99f312b509b9e7a2d42afd7f9b69464454f86f13",
+    "resolved-components.json": "d840483f162265973182c7090cfe9cf024b1120204626a73520f202e0b97bc97"
   },
   "normalization": "absolute unit path replaced by 'UNIT'",
   "returncode": 0,
@@ -24,7 +24,7 @@
     "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
     "elec/src/interlock_block.ato": "b55ff14f0d64af3492ed05e03d35c6ec031eb9c9fd1301105009bc76ccad1c9f",
     "elec/src/modules.ato": "1f9acff6493bad71bdb145ca6a42f7567d70f3c0b30f6bc6c22d082aec01ba0d",
-    "elec/src/rtd_c1_block.ato": "ef00549d81a84d27d0d10b05fa8cc17298e029224afac6415b07544d401edbd2",
+    "elec/src/rtd_c1_block.ato": "22645a5dcb4cf08b11e781e38967bce372f48e21623582dceef9b40a28a1dc9a",
     "elec/src/thermal_block.ato": "2bcf180030b413ceab566771603d640311cb6762ce7d9466b8c2e351adbf81ef"
   },
   "warning_kinds": [

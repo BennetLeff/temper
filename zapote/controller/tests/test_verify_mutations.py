@@ -342,7 +342,7 @@ class Mutations(unittest.TestCase):
     def test_part_bridging_v15_blw_and_v15_selv_fails(self):
         t = move_node(self.base, self.ref("c_blw_bulk"), "2", "v15_selv")
         failed = self.run_checks(t)
-        self.assertIn("blwin.no_part_bridges_v15_blw_and_v15_selv", failed)
+        self.assertIn("blwin.only_the_merge_schottky_joins_v15_blw_to_v15_selv", failed)
         self.assertIn("blwin.bulk_cap_on_v15_blw", failed)
 
     def test_j13_pins_swapped_fails(self):

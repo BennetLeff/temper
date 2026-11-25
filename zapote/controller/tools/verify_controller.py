@@ -137,7 +137,7 @@ MODELS: dict[str, Model] = {
                          basis="TI REF20xx product page: IQ < 430 uA (family)"),
     "TPS389001DSER": _ic([4], [2], ins=[1, 3], ods=[6], other=[5], ma=0.006,
                          basis="SLVSD65A: IDD 5.8 uA (3.3 V, -40..105 C)", logic="free:rtd_avdd_ok"),
-    "MAX31865AAP+": Model({"1": "out", "2": "vcc", "3": "vcc", "4": "out", "5": "in", "6": "in", "7": "other",
+    "MAX31865AAP+T": Model({"1": "out", "2": "vcc", "3": "vcc", "4": "out", "5": "in", "6": "in", "7": "other",
                            "8": "other", "9": "gnd", "10": "in", "11": "in", "12": "other", "13": "gnd",
                            "14": "in", "15": "in", "16": "in", "17": "out", "18": "gnd", "19": "gnd",
                            "20": "other"},

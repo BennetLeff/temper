@@ -1,6 +1,6 @@
 # GENERATED for zapote/controller by tools/port_rtd_c1.py from elec/src/modules.ato RTDSensing
 # (library sha256 1f9acff6493bad71bdb145ca6a42f7567d70f3c0b30f6bc6c22d082aec01ba0d; module text sha256 76d4c8612d8894c3b3c067f15163ae6131d5ac4d5f2e92674b23cda2477cb4dd). sensor-r3 CR-1 / CR-2
-# (DECISIONS C37): 17 exact line edits plus the appended C1 section. Do not edit by hand.
+# (DECISIONS C37): 18 exact line edits plus the appended C1 section. Do not edit by hand.
 #pragma experiment("MODULE_TEMPLATING")
 #pragma experiment("TRAITS")
 import Resistor from "components.ato"
@@ -75,6 +75,9 @@ module RTDSensingC1:
     signal rtd_sense_n_mid
     
     adc = new MAX31865
+    # C51: 5.3 mm SSOP-20 land and the tape-and-reel MPN (tools/check_land_patterns.py)
+    adc.mpn = "MAX31865AAP+T"
+    adc.footprint = "Package_SO:SSOP-20_5.3x7.2mm_P0.65mm"
     
     r_ref = new Resistor
     r_ref.value = 430ohm +/- 0.05%

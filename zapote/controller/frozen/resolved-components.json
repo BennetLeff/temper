@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "ff0da416778cb55f6d95fc068388ec8a742e463a4fb248c918e7aa073e9e8c0d",
+    "build/default.csv": "9b7e95c8e0e0e52891f157b6ec0abea2d01e785ac4e15e21e6d60074d05d6e19",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "17572fa50ade02364aa58a1df72836796dfc1b85affebb1bbbdc73e61c4d3005",
+    "build/default.net": "c7281eaca97a0dbc7fba912c99f312b509b9e7a2d42afd7f9b69464454f86f13",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -957,9 +957,9 @@
       "address": "UNIT/elec/src/controller.ato:SelvController::rtd_pan.adc",
       "attributes": {
         "designator": "U30",
-        "footprint": "Package_SO:SSOP-20_3.9x8.7mm_P0.635mm",
+        "footprint": "Package_SO:SSOP-20_5.3x7.2mm_P0.65mm",
         "manufacturer": "Analog Devices",
-        "mpn": "MAX31865AAP+",
+        "mpn": "MAX31865AAP+T",
         "resolution": "15",
         "v_supply_max": "3.6V"
       }
@@ -3123,7 +3123,7 @@
     "elec/src/interfaces.ato": "a4a08b335ff5f788428f4b16d94a9ee35b7771b4ec2280bf6d4e9a69ff6bc73e",
     "elec/src/interlock_block.ato": "b55ff14f0d64af3492ed05e03d35c6ec031eb9c9fd1301105009bc76ccad1c9f",
     "elec/src/modules.ato": "1f9acff6493bad71bdb145ca6a42f7567d70f3c0b30f6bc6c22d082aec01ba0d",
-    "elec/src/rtd_c1_block.ato": "ef00549d81a84d27d0d10b05fa8cc17298e029224afac6415b07544d401edbd2",
+    "elec/src/rtd_c1_block.ato": "22645a5dcb4cf08b11e781e38967bce372f48e21623582dceef9b40a28a1dc9a",
     "elec/src/thermal_block.ato": "2bcf180030b413ceab566771603d640311cb6762ce7d9466b8c2e351adbf81ef"
   }
 }

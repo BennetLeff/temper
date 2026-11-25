@@ -610,6 +610,12 @@
       "origin": "controller C41: J11 debug/programming port as a Tag-Connect TC2050-IDC-NL footprint",
       "basis": "Tag-Connect TC2050-IDC-NL land (KiCad Connector:Tag-Connect_TC2050-IDC-NL_2x05_P1.27mm_Vertical): copper pads and holes only, no fitted part",
       "board_only": true
+    },
+    "MAX31865AAP+T": {
+      "origin": "ported: zapote/rtd (RTDSensing); C51 tape-and-reel code and 5.3 mm SSOP-20 land",
+      "basis": "ADI MAX31865, same device as MAX31865AAP+; JLC C779509 SSOP-20-208mil, exact-MPN read 2026-11-25",
+      "lcsc": "C779509",
+      "jlc_stock_2026_11_25": 2141
     }
   }
 }

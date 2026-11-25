@@ -54,6 +54,7 @@ CPL_ROTATION_OFFSET = {
     "C546857": 270,   # 74HC30PW,118, TSSOP-14
     "C133541": 270,   # SN74LVC14ADR, SOIC-14
     "C89608": 270,    # MAX31865AAP+, SSOP-20
+    "C779509": 270,   # MAX31865AAP+T (C51): the same JLC footprint as C89608
     "C2836319": 270,  # SRV05-4, SOT-23-6
     "C350561": 270,   # SN74LVC74APWR, TSSOP-14 (C44 audit: geometry and DB agree)
     # 2026-10-19, JLC's own 3D placement preview of this board (evidence/fab-loose-ends/cpl-rotation/PREVIEW-2026-10-19.md): the
