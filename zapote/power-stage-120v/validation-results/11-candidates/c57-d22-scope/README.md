@@ -49,3 +49,14 @@ Largest gap between all bodies, whole millimetres:
 2. Reserve **130 x 85 mm** in R45 (height 50 mm kept). Not checked against the R45 neighbours; R43's stand is X -150..-40, Y 296..376.
 3. Leakage >= 1 %: WE-HCFT 74437636351012 passes at its typical 88 uH, by 0.12 dB at exactly 1 %. Below that: wait for the production
    L1, or run the recorded prototype EMI deviation.
+
+## Measuring the leakage (2026-11-25, after the third external review)
+Short one winding and measure the other: with k near 1 that reads L(1 - k^2), about 2 L (1 - k), which is the loop total the model
+calls LDMADD (series-opposing reads 2 L (1 - k) directly). The resonance method works without an LCR meter: in parallel with 1 uF film
+the expected frequencies are 38.6 kHz (0.3 %, 17.0 uH), 29.9 (0.5 %, 28.4), 21.1 (1 %, 56.8), 14.9 (2 %, 113.6).
+- L takes the capacitor's error one for one, so 2-3 % needs a capacitor measured to that, not a 5 % or 10 % part. 10 % would still
+  separate 0.5 % from 1 %; it would not settle 88 uH at exactly 1 % (0.12 dB of margin).
+- It is a small-signal value. The 21 A check stays separate.
+
+**JV height:** 42 mm tall against 33 for JH. The review's 1-3 mm of top clearance assumes the 50 mm includes the PCB and its standoffs; no
+record in this repo says whether it does (c23 MODULE-REQUEST has no envelope). R45 must state it before JV is chosen over JH.

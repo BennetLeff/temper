@@ -27,9 +27,13 @@ what was executed and where the plan's fixes do not match the committed evidence
 | MAX31865 manual cycle | s55 repeats the automatic cycle every 1 s. A manual cycle needs >= 5.5 + 5.5 + 11.5 ms of waits plus the ~52 ms first conversion, against the 100 ms stale limit | Done in 67a6c77b1 + 950823387: manual cycle at power-up and before a probe-fault reset, none while converting. Open: RUN_EN is killed until MCU reset on every latched fault, so that reset is refused on hardware (owner decision) |
 | Pan control port | Not in the plan: native-21 has no bus-current sense, and no pan detection on target | Ported in c0b3f5653 with the stage's measured power; open items in firmware COMMISSIONING H13 (on/off chopping below the stage floor, C1 SIL not ported) |
 | P06 as RTD2 CS | Confirmed reserved (controller DECISIONS) | As planned |
+| C51 base: C49 as drawn | U30 (MAX31865AAP) is on a 3.9 mm QSOP land; the part is a 5.3 mm SSOP-20 (pad rows 0.89 mm off). C48 and C49 cannot be assembled | Fixed on `controller-c51` with a land-pattern gate; s56 screened the same way: 63 parts with JLC geometry, worst RMS 0.28 mm; 26 lines without geometry agree by JLC package name (2026-11-25 read), not by pads |
+| J9 5-pin XH, J15 4-pin XH, bay pull-up 10 k, entry caps as CR-1 | 5-pin J9 overhangs the board; a 4-pin fan plug fits J3 / J9; 10 k cannot tell open from cold; 220 nF does not settle in 5.5 ms | J9 4-pin, J15 5-pin, 47 k, 100 nF (controller DECISIONS C51) |
+| R39: stocked 0.05 % 430 ohm | JLC 2026-11-25: 0 of RG2012V / RG2012N-431, TNPW0805430RBEEA, RT0805BRB07430RL | Still consigned |
+| MPM-90-15ST "~30 W headroom at 60 C" | MPM-90-SPEC 2024-10-30: 85.05 W rated, 75 % at 60 C on the 100 VAC line = 63.8 W; C51 load 53.4 W | Needed (MPM-65 does not fit at 61 C), 8.2 W left at 61 C, 0.8 W at 3000 m. Same 109 x 52 x 33.5 mm case. Not checked: terminal clearance to native-21, and the conducted-EMI model, which carries the MPM-65 |
 
 ## Not started (and why)
 
-s56 is done and is BOM only (DECISIONS 85). D-22, C51, UI Rev 2, R45 CAD, coil former: each is its own stage with its own gates. B1, bench-h and D-8 need
+s56 is done and is BOM only (DECISIONS 85). C51's circuit is done on `controller-c51` (no layout). D-22, UI Rev 2, R45 CAD, coil former: each is its own stage with its own gates. B1, bench-h and D-8 need
 hardware. The JLC and Intertek emails, quotes and orders need the owner's go-ahead; the Intertek questions were already
 sent 2026-10-27, so a new message risks a duplicate.
