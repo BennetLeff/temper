@@ -3673,7 +3673,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Free-air / junction temperature max",
-     "ratio": 0.8224,
+     "ratio": 0.8232,
      "severity": "violation",
      "stress": "Local temperature, BASIS max"
     }
@@ -4579,7 +4579,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R87",
-     "ratio": 0.5479,
+     "ratio": 0.5486,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }

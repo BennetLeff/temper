@@ -118,7 +118,10 @@ def test_unknown_symbols_fail(rendered, ctx):
 
 def test_new_board_of_record_refuses(tmp_path, monkeypatch):
     note = tmp_path / "FAB-NOTE.md"
-    note.write_text(cbt.FAB_NOTE.read_text().replace("Board: native-21 stage 55,", "Board: native-21 stage 56,"))
+    was = cbt.FAB_NOTE.read_text()
+    text = was.replace("Board: native-21 stage 56,", "Board: native-21 stage 57,")
+    assert text != was, "FAB-NOTE is on another stage: advance this test with it"
+    note.write_text(text)
     monkeypatch.setattr(cbt, "FAB_NOTE", note)
     with pytest.raises(cbt.GateError, match="re-base"):
         cbt.render()
@@ -156,7 +159,9 @@ def test_bringup_drift_fails(ctx, line, expect):
 
 
 def test_bringup_must_name_board_of_record(ctx):
-    text = cbt.BRINGUP.read_text().replace("**stage 55**", "**the current stage**", 1)
+    was = cbt.BRINGUP.read_text()
+    text = was.replace("**stage 56**", "**the current stage**", 1)
+    assert text != was, "BRING-UP is on another stage: advance this test with it"
     assert any("does not name the board of record" in e for e in _check_bringup(text, ctx))
 
 

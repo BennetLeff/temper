@@ -17,12 +17,12 @@
    "min_mm": 8.507,
    "pass": true,
    "between": [
-    "pad n_filt C4",
-    "pad pe C4"
+    "pad l_filt C3",
+    "pad pe C3"
    ],
    "at_mm": [
     225.0,
-    109.1
+    102.8
    ]
   }
  },

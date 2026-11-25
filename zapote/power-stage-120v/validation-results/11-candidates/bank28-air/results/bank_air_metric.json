@@ -153,7 +153,7 @@
      "eff_ratio": 1.0399
     }
    ],
-   "board_sha256_of_pad_runs": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d"
+   "board_sha256_of_pad_runs": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263"
   },
   "B32643B8104J000": {
    "mpn": "B32643B8104J000",
@@ -227,7 +227,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 64.7,
      "T_pad_C": 86.2,
-     "T_A_C": 73.7,
+     "T_A_C": 73.71,
      "dT_col_K": 9.53,
      "dT_allowed_K": 15.0,
      "T_op_C": 83.2,
@@ -291,7 +291,7 @@
      "eff_ratio": 0.7959
     }
    ],
-   "board_sha256_of_pad_runs": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d"
+   "board_sha256_of_pad_runs": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263"
   },
   "MMK104J3DF1KN208G2": {
    "mpn": "MMK104J3DF1KN208G2",
@@ -429,7 +429,7 @@
      "eff_ratio": 0.965
     }
    ],
-   "board_sha256_of_pad_runs": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d"
+   "board_sha256_of_pad_runs": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263"
   },
   "B32643H8104J000": {
    "mpn": "B32643H8104J000",
@@ -503,7 +503,7 @@
      "v_bank_m_s": 3.07,
      "T_air_C": 64.7,
      "T_pad_C": 86.2,
-     "T_A_C": 73.7,
+     "T_A_C": 73.71,
      "dT_col_K": 18.24,
      "dT_allowed_K": 24.44,
      "T_op_C": 91.9,
@@ -536,7 +536,7 @@
      "dT_allowed_K": 24.36,
      "T_op_C": 97.4,
      "Top_max_C": 125.0,
-     "eff_ratio": 0.9813
+     "eff_ratio": 0.9814
     },
     {
      "point": "design flow (base h20) @55, h15 pads",
@@ -567,12 +567,12 @@
      "eff_ratio": 0.8403
     }
    ],
-   "board_sha256_of_pad_runs": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d",
+   "board_sha256_of_pad_runs": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263",
    "release": {
-    "board_sha256_of_release_runs": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d",
+    "board_sha256_of_release_runs": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263",
     "runs": [
-     "/Users/bennet/Desktop/temper/worktrees/ps-c54/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/c17.5_h10_p0p25.json",
-     "/Users/bennet/Desktop/temper/worktrees/ps-c54/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/c17.5_h10_p0p5.json"
+     "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/c17.5_h10_p0p25.json",
+     "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/validation-results/04-board-current-thermal/round5-native21/b3-ratings/runs/c17.5_h10_p0p5.json"
     ],
     "T_air_C": 76.0,
     "pads_C": {

@@ -30,16 +30,16 @@ disagree, this section wins.
 | Touch current | 0.2412 / 0.25 mA | unchanged. The governing limit is recorded as 0.5 mA (UL grounded portable); first article measures it | item 81; `VR/11-candidates/c54-touch-current/` |
 | Datasheet ledger | 3 / 92 / 0 | still 3 VERIFIED / 92 PARTIAL / 0 VIOLATION. Every SIGNAL line now carries electrical ratings. The two desk findings are resolved: U13.A edge fixed at s55; C2 ripple 0.874 of rating at the release case, 28 A open | items 81–82; `VR/11-candidates/c54-ledger-desk/results/gap-classes.md` |
 
-**Files for s55** (they replace the section 2 rows for the routed board, 3D model and Gerbers):
-- **Routed board:** now in git at `VR/08-manufacturing-package/native-21/board-of-record-s55/` (`section.kicad_pcb`,
+**Files for s56** (s55's copper with R127 / R129 at 16 k, DECISIONS 85; they replace the section 2 rows for the routed board, 3D model and Gerbers):
+- **Routed board:** now in git at `VR/08-manufacturing-package/native-21/board-of-record-s56/` (`section.kicad_pcb`,
   `.kicad_sch`, `.kicad_dru`, `board.step`, `SHA256SUMS`). Board SHA-256
-  `d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d`, copper key `cf4d7c896672`.
-- **Gerbers:** zip SHA-256 `4342b4fda043483a4184aedb23b4081a17391bb697599384c8d0419e6b814638`.
-- **Card:** `VR/10-benchmark/scorecard-native21s55.json`.
+  `27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263`, copper key `cf4d7c896672`.
+- **Gerbers:** zip SHA-256 `81b391a921e510b83a088885419fdba3e6b9004a2309e6002de7b693c75de86d`.
+- **Card:** `VR/10-benchmark/scorecard-native21s56.json`.
 - **Counts:** 95 BOM lines, 374 placements, 786 vias (771 POFV 0.3 mm), 885 plated holes, DRC 0, JLC DFM PASS.
 
 **Section 9 items now fixed:** the FAB-NOTE via and hole counts (s55 census), the `PS/README.md` header and the
-`OPEN-ITEMS.md` header (both name s55).
+`OPEN-ITEMS.md` header (both name s56).
 
 ## 1. What the board is
 

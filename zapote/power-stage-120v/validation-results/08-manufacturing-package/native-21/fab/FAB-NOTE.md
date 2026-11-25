@@ -1,6 +1,6 @@
 # Fabrication note: power-stage-120v native-21 (CANDIDATE, not released)
 
-Board: native-21 stage 55, the board of record (DECISIONS.md item 82: U47 SN74LVC1G17 Schmitt buffer + C179 100 nF between the R134 / C167 CMTI filter and U13.A, C167 moved 3.25 mm south, one new v3v3 via, the SELV-spine lock reissued; stage 54 was item 81: the c54 remediation, R_on on UniRoyal PS12 2 W, the split bleed on Panasonic ERJ-PA3, R44 / R45 11 k, an ac_n_in F.Cu strip with 8 stitch vias at J1.2 and 9 track-cleanup edits; stage 53 was DECISIONS.md item 75: the S10 ovp_ok_hot In1 run moves to In2, the R43 real-pose fit gate and the 3D-model gate; item 74: the prototype bank C21–C23 / C151 / C152 is TDK
+Board: native-21 stage 56, the board of record (DECISIONS.md item 85: the R24C2T25 CTRL dividers R127 / R129 27 k → 16 k RT0603BRD0716KL, BOM only, copper unchanged from stage 55; stage 55 was item 82: U47 SN74LVC1G17 Schmitt buffer + C179 100 nF between the R134 / C167 CMTI filter and U13.A, C167 moved 3.25 mm south, one new v3v3 via, the SELV-spine lock reissued; stage 54 was item 81: the c54 remediation, R_on on UniRoyal PS12 2 W, the split bleed on Panasonic ERJ-PA3, R44 / R45 11 k, an ac_n_in F.Cu strip with 8 stitch vias at J1.2 and 9 track-cleanup edits; stage 53 was DECISIONS.md item 75: the S10 ovp_ok_hot In1 run moves to In2, the R43 real-pose fit gate and the 3D-model gate; item 74: the prototype bank C21–C23 / C151 / C152 is TDK
 B32643H8104J000 (24 A strict ladder; Mouser 1,736 / DigiKey 306 on the 2026-10-18 read), bought by JLC Global Sourcing and
 hand-soldered by JLC into the 22.5 mm holes; L1 is B82726S2243A020, JLC Global Sourcing (C7084710 holds 0), JLC
 hand-solders it (consign-r1, owner 2026-10-18); C3 / C4 are Murata DE1E3RA222MJ4BH01F. Item 73:
@@ -13,14 +13,14 @@ OCP divider, R33 7.5 k / R34 16 k / R35 11 k, and the bank-area re-cut for a 200
 ENs on 100 k / 27 k dividers and on the 125 °C TPS70950QDBVRQ1, the REF25 watchdog on U14's second channel, BIAS_GOOD
 read back on J4.1 through R146, end-of-line test pads; item 63: U5 (REF25) on the 125 °C LM4050AEM3-2.5/NOPB; item 62:
 the rail-monitor ICs on their 125 °C grades; item 60: the S16 rail-monitor values; the stage history is DECISIONS.md
-items 12–75). Built by `sh native-21/layout/gates/chain.sh native21s55 …`; SHA-256
-`d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d` (the c55 lane build; copper key cf4d7c896672; s54's was 97e65aab55df). Plated holes 885: the
+items 12–75). Built by `sh native-21/layout/gates/chain.sh native21s56 …`; SHA-256
+`27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263` (the c56 build; copper key cf4d7c896672, as s55's board d9ee93a8; s54's was 97e65aab55df). Plated holes 885: the
 bank goes into the 22.5 mm holes (pad 2 at x 185.5); the five x 190.5 holes are plated and stay open at assembly.
 The silk bank-variant fit mark ("BANK FIT, TICK ONE") carries H = B32643H8104J000 24 A MAX and B = B32643B8104J000
 28 A: tick H on the prototype boards. U5 is JLC stock reserved by pre-order (JLC 50 against 20 on the 20-board lot;
 OPEN-ITEMS owner action 7 for volume); U3 / U37–U39 TPS70950QDBVRQ1 (C485909) are JLC Extended, 11,607 in stock.
 Gerbers: `native-21-gerbers.zip`, SHA-256
-`4342b4fda043483a4184aedb23b4081a17391bb697599384c8d0419e6b814638`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
+`81b391a921e510b83a088885419fdba3e6b9004a2309e6002de7b693c75de86d`. Thermal basis: hot-copper B3, tank ceiling 17.5 A
 (DECISIONS.md item 61).
 
 **This package isn't released for ordering.** The gates come in two tiers (decision 2026-10-08; PROTOTYPE-LOT.md agrees).

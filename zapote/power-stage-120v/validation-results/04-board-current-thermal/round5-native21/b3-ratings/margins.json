@@ -155,7 +155,7 @@
     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
     "gated": true,
     "limit_c": 143.5,
-    "est_c": 127.7,
+    "est_c": 127.8,
     "margin_k": 15.7
    },
    {
@@ -2034,9 +2034,9 @@
     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
     "gated": true,
     "limit_c": 125.0,
-    "est_c": 102.8,
+    "est_c": 102.9,
     "self_heat_k": 0.2,
-    "margin_k": 22.2
+    "margin_k": 22.1
    },
    {
     "item": "R59: monitor divider, terminal derating at 0.1025 W (20 % margin; Yageo RC1206 thick film 1/4 W, -55..155 C (not re-read))",
@@ -2128,8 +2128,8 @@
     "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
     "gated": false,
     "limit_c": 125.0,
-    "est_c": 94.1,
-    "margin_k": 30.9
+    "est_c": 94.2,
+    "margin_k": 30.8
    },
    {
     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
@@ -2294,7 +2294,7 @@
     "item": "R87: monitor divider, terminal derating at 0.0020 W (20 % margin; Viking ARG03 thin film 1/10 W, -55..155 C (p.3))",
     "gated": false,
     "limit_c": 152.9,
-    "est_c": 83.5,
+    "est_c": 83.6,
     "margin_k": 69.3
    },
    {
@@ -2615,9 +2615,9 @@
   ]
  },
  "board_sha256": {
-  "c17.5_h10": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d",
-  "c22_h10": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d",
-  "c28_h10": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d"
+  "c17.5_h10": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263",
+  "c22_h10": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263",
+  "c28_h10": "27f20b786d52aea937f52bfbeb0af43e93ee06f0ff08572fd50ef835b26f8263"
  },
  "metrics": {
   "b3_laminate_margin_K": -50.8,

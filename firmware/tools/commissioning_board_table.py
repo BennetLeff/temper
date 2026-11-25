@@ -179,6 +179,11 @@ STAGE_FACTS = {
         "ovp_supply_limit_v": 295.0, "ovp_supply_current_ma": 50,
     },
 }
+# s56 (DECISIONS 85): R127 / R129 27 k -> 16 k, BOM only on s55's copper; the facts above carry.
+STAGE_FACTS["56"] = {
+    **STAGE_FACTS["55"],
+    "band_record_cite": "s52 solve carried to s56 (kelvin_budget.py s53–s56 notes, DECISIONS 75 / 81 / 82 / 85)",
+}
 
 # role (ato address) -> designator the procedure and the threshold engine assume
 ROLES = {

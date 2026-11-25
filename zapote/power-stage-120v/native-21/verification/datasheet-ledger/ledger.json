@@ -5383,7 +5383,7 @@
      "enforced_by": "libraries/temper.pretty/Wuerth_REDCUBE-SMT_WP-SMBU_7466004R.kicad_mod"
     },
     {
-     "item": "terminal current into the inner and B.Cu layers through 20 land vias (0.85 / 0.3 mm) per terminal round the Ø8.5 land (design guide p.7 / p.11: 0.3-0.4 mm drills)",
+     "item": "terminal current into the inner and B.Cu layers through 20 land vias (0.85 / 0.3 mm) per terminal round the \u00d88.5 land (design guide p.7 / p.11: 0.3-0.4 mm drills)",
      "enforced_by": "native-21/layout/patches21.py"
     },
     {
@@ -7422,7 +7422,7 @@
     },
     {
      "parameter": "Local temperature, BASIS max",
-     "worst_case_value": 102.8,
+     "worst_case_value": 102.9,
      "unit": "C",
      "condition": "same row, worst over the BASIS cases (c28_h10)",
      "evidence": [
@@ -7432,7 +7432,7 @@
         "case": "c28_h10",
         "item": "U5: LM4050AEM3-2.5/NOPB TA"
        },
-       "est_c": 102.8
+       "est_c": 102.9
       }
      ]
     },
@@ -7495,8 +7495,8 @@
      "stress": "Local temperature, BASIS max",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "102.8 C <= 125 C",
-     "ratio": 0.8224
+     "rule": "102.9 C <= 125 C",
+     "ratio": 0.8232
     }
    ],
    "layout_guidance": [
@@ -7514,7 +7514,7 @@
     "long-term drift (120 ppm / 1000 h typical) and thermal hysteresis are typical-only and outside the band model"
    ],
    "finding": null,
-   "notes": "JLC C2156518, extended, 50 in stock 2026-10-15 against 500 for 500 boards (LM4050QAEM3-2.5 C2157745 43, C2157326 3): the 500-board lot is an owner pre-order (>= 550 incl. attrition) consigned to JLC; $3.4228 at 500+. The JLC listing's -40..85 C is wrong for the E suffix (TI 5.3 p.5, addendum p.25). Replaces LM4040A25IDBZR (C9421) on the same DBZ pads: at the c17.5 @ 61 release case the A25I read 89.1 C against 85 C (-4.1 K). Bands: validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md. S20 closed by ledger286.py: the bus-OVP rows now cite the s47 band top 287.62 V. S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change)."
+   "notes": "JLC C2156518, extended, 50 in stock 2026-10-15 against 500 for 500 boards (LM4050QAEM3-2.5 C2157745 43, C2157326 3): the 500-board lot is an owner pre-order (>= 550 incl. attrition) consigned to JLC; $3.4228 at 500+. The JLC listing's -40..85 C is wrong for the E suffix (TI 5.3 p.5, addendum p.25). Replaces LM4040A25IDBZR (C9421) on the same DBZ pads: at the c17.5 @ 61 release case the A25I read 89.1 C against 85 C (-4.1 K). Bands: validation-results/11-candidates/c47-ref25-grade/results/bands-s47.md. S20 closed by ledger286.py: the bus-OVP rows now cite the s47 band top 287.62 V. S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S51 (2026-10-16, 11-candidates/c51-bank-source): B3 rows re-cited to the s51 margins.json (KNSCHA bank, film_mmkp82 body spec, ESR 10.7 mOhm typ / 39.8 mOhm worst at 40 kHz). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change). S56 (2026-11-24, 11-candidates/c56-s56-scope): B3 rows re-cited to the s56 margins.json (R127 / R129 27 k -> 16 k, BOM only; no copper or heat-source change)."
   },
   "RT0603BRD0710KL": {
    "mpn": "RT0603BRD0710KL",
@@ -12861,7 +12861,7 @@
     },
     {
      "parameter": "Local temperature, c28_h10 @ 55 C",
-     "worst_case_value": 83.5,
+     "worst_case_value": 83.6,
      "unit": "C",
      "condition": "R87: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 3 ref(s); board s52 5e7c12c1 (S18 B3 model)",
      "evidence": [
@@ -12872,7 +12872,7 @@
         "case": "c28_h10",
         "item": "R87: monitor divider,"
        },
-       "est_c": 83.5,
+       "est_c": 83.6,
        "margin_k": 69.3
       }
      ]
@@ -12922,8 +12922,8 @@
      "stress": "Local temperature, c28_h10 @ 55 C",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "83.5 C <= 152.4 C (R87); an overrun is the airflow-route (c22/c28) owner gap",
-     "ratio": 0.5479
+     "rule": "83.6 C <= 152.4 C (R87); an overrun is the airflow-route (c22/c28) owner gap",
+     "ratio": 0.5486
     }
    ],
    "layout_guidance": [
@@ -12938,7 +12938,7 @@
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
    "finding": null,
-   "notes": "JLC C861070, extended, 8,450 in stock 2026-10-15; $0.0212 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change)."
+   "notes": "JLC C861070, extended, 8,450 in stock 2026-10-15; $0.0212 at 1,500 pcs (3 per board x 500). The band it sets is in validation-results/11-candidates/c45-s16-monitor/results/bands-s45.md (study 11-candidates/s16-monitor-2026-10-15, reproduced to 1e-4). S18 (2026-10-15, 11-candidates/s18-ps2-body): B3 rows re-cited to the margins.json with PS2's body-to-air path (0.33 W less heat into the board at the release case). S48 (2026-10-16, 11-candidates/c48-ldo-en-ref-watch): B3 rows re-cited to the s48 margins.json (U3 beside C26 at 0.160 W). S49 (2026-10-16, 11-candidates/c49-c34-bank): B3 rows re-cited to the s49 margins.json (c34 bank, film_mmkp body spec, ESR 8 mOhm). S52 (2026-10-16, 11-candidates/s52-proto-bom): B3 rows re-cited to the s52 margins.json (TDK B32643H bank, film_mmkp_h body spec, ESR 10.9 mOhm typ / 22.9 mOhm worst at 40 kHz; L1 B82726S2243A020 1.44 W at 15 A). S54 (2026-10-20, 11-candidates/c54-board): B3 rows re-cited to the s54 margins.json (R_on PS12 2 W, split bleed ERJ-PA3, R44/R45 11 k, CT network gated rows, R39 heat at 1:200, J1 ac_n_in F.Cu strip and gated terminal row). S55 (2026-10-20, 11-candidates/c55-findings): B3 rows re-cited to the s55 margins.json (U47 Schmitt buffer and C179 on the SELV side, C167 moved; no heat-source change). S56 (2026-11-24, 11-candidates/c56-s56-scope): B3 rows re-cited to the s56 margins.json (R127 / R129 27 k -> 16 k, BOM only; no copper or heat-source change)."
   },
   "LM2901BIDR": {
    "mpn": "LM2901BIDR",
