@@ -3137,3 +3137,11 @@ Also corrected the same day: FAB-JLCPCB.md no longer claims JLC uses NP-155F. JL
     - **CCMR020 (S33):** F2 selectivity is UNRESOLVED (melting I²t estimated 56–139 A²s against 134); the owner's 13.5 A prototype condition is not met yet.
     - **Not changed:** board, Gerbers, BOM.
     - **Reverses if:** the lot measures under the c60 limits, or Littelfuse gives a melting I²t.
+90. **Prototype fuse: CCMR020 on the open bench; FWC-25A10F is a held fallback; Bel for production (2026-11-25, owner via pasted review).**
+    - **Owner:** a blower-supply (PS3) fault may open F1 as well as F2 on prototypes. Checked: F2 feeds PS3, and PS3 carries the controller logic (stage 38), so F2 opening already stops the controller. F1 then costs one extra cartridge.
+    - **CCMR020:** open bench only. The 0.75 rule with the sheet's rerating gives 15.0 A at 25 °C, about 14.5 A at 35 °C [PLOT], 13.5 A at 50 °C and 12.75 A at 61 °C. Measure the air at F1 before an enclosed run. Stock unconfirmed. Copper ratio 1.19 (DECISIONS 88).
+    - **FWC-25A10F, not approved:** "full 15 A" is not shown. Its sheet has no ambient derate; 25 A × 0.75 needs a factor of at least 0.80 for 15 A. It melts at 60 A²s, under F2's 67, and class aR does not protect against slow overloads, so a branch breaker must. Use it only after the certifier (packet A2 5a) or an explicit owner call, and never as the only overload protection.
+    - **Production:** Bel 0ADEC9250-BE for native-22, after the certifier.
+    - **FET lot:** measure b and c on all three leads of about 25 parts (c60). "About 1.20 × 0.60" as a typical Infineon lead is not a datasheet figure; the sheet gives only the 1.00–1.40 × 0.38–0.89 limits. A 2.04 mm hole on the 2.5 mm pad leaves a 0.23 mm ring, under JLC's 0.254.
+    - **Corrects:** certifier packet A2 5 (0.993 → 3.61 is 0.637 → 2.32).
+    - **Not changed:** board, Gerbers, BOM.

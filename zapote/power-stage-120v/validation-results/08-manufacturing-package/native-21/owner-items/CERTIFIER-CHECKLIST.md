@@ -148,12 +148,12 @@ The packet now reads "UL 858 / UL 1026, to be confirmed"; S15 cites UL 858 25.3.
 - **Topic / clause:** UL 248-4 (Class CC) vs UL 248-14 (supplemental); end-product short-circuit clause and available-current level in UL 1026 / UL 858 / CSA C22.2 No. 64 /
   NMX-J-521: clause to confirm (paywalled, not read; DECISIONS ~871). Branch breaker plus Class CC F1, no inlet fuse (DECISIONS 335).
 - **Design now:** F1 = Littelfuse KLDR025.TXP, 25 A time-delay, 600 Vac / 200 kA, UL Listed E81895, CSA LR29862, $18.516 at 500; in 2 x Littelfuse 01250003H open clips (UL
-  Recognized E14721, 30 A, **no voltage rating, no CSA file printed**). Continuous capacity 16.0 A at the 61 C release bay. KLDR025 clears 1,710 A^2s; copper margin 0.993 on s53 (`02-protection-timing/shoot-through-f1/s53_necks.json`;
-  fails copper by 0.7 % at 105 C, DECISIONS.md:1090). Fault-current bound 4.7-8.4 kA at 127 V + 10 %; 200 kA rating makes it moot (23.8x).
+  Recognized E14721, 30 A, **no voltage rating, no CSA file printed**). Continuous capacity 16.0 A at the 61 C release bay. KLDR025 clears 1,710 A^2s; copper margin 0.637 on s57 (DECISIONS 88; the 0.993 on s53 was optimistic) (`02-protection-timing/shoot-through-f1/s53_necks.json`;
+  fails copper by 36 % by that correction). Fault-current bound 4.7-8.4 kA at 127 V + 10 %; 200 kA rating makes it moot (23.8x).
 - **Assumed:** STRICT on interrupting rating (Listed Class CC). RELIANT on (a) open PCB clips accepted for a Class CC fuse and their temperature rise at 15 A, and (b) F1 never
   interrupting 15-25 A overloads: the 15 A plug and cord rest on the branch breaker plus a firmware current estimate (finding #11; entry 11).
 - **If the lab disagrees:** clips: swap to a Class CC holder / block (layout stage, power board; enclosure fit). Opposite direction: if the lab accepts a UL 248-14 Recognized
-  fuse (Bel 0ADEC9250-BE) the gain is -$18.86 per board and copper margin 0.99 -> 3.61 (BOM + clip footprint, layout stage). A 6.3 x 32 fast-acting F1 would save $26-30 and
+  fuse (Bel 0ADEC9250-BE) the gain is -$18.86 per board and copper margin 0.637 -> 2.32 (corrected 2026-11-25, DECISIONS 88; was 0.99 -> 3.61) (BOM + clip footprint, layout stage). A 6.3 x 32 fast-acting F1 would save $26-30 and
   reverses Class CC (needs this answer first). `sourcing/inquiries/F1-CERTIFIER.md` was rewritten for KLDR025 / 01250003H on 2026-10-18 (send-ready draft).
   The F1 wire-out tabs (S53-SCOPE item 4) were not built at s53, so a clip refusal is an inlet layout change.
 - **Priority:** MED, HIGH if clips are refused (footprint change at the mains inlet).
