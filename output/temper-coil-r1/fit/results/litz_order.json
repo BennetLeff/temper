@@ -1,0 +1,93 @@
+{
+ "about": "Litz per coil and the spool to order (Remington 260/38LITZ), from the R1 CAD and the bench lead lengths.\n\nPer coil = winding as wound (R1 + the spare outer turn: the spare is wound first and trimmed at W8, so it is bought)\n         + both leads at the bench length (fit/bench_leads.py) + in-barrel strip length (Panduit P14-8RHT6-C 7.1 mm)\n         + one re-termination per lead (25 mm: a failed crimp is cut off and redone) + 50 mm handling at the spool end.\nPer order = 2 coils + the W9 termination qualification (3 samples x 1.00 m + 2 x strip, BUILD-AND-MEASURE W9: \"repeat until\ntwo samples pass\") + 10 % of one coil for a practice winding start (it is unwound and kept as scrap lengths).\nCross-check: coil_geometry.Winding.length_m (ring-sum model of the same spiral).\nSpools (Remington product page, read 2026-10-21): 2 oz 9 ft $33.25, 4 oz 19 ft $57.58, 8 oz 38 ft $102.86, 1 lb 76 ft\n$187.65, 2.5 lb 189 ft $455.20, 5 lb 378 ft $800.25, 10 lb 756 ft $1,434.06.\nRun: .venv/bin/python -B fit/litz_order.py  -> fit/results/litz_order.json (needs fit/results/bench_leads.json)",
+ "per_coil_mm": {
+  "winding_R1": 9252.967607980869,
+  "winding_with_spare": 9984.68705855552,
+  "spare_turn": 731.719450574652,
+  "leads_bench": 464.16511295143835,
+  "strip_and_retermination": 64.2,
+  "handling": 50.0,
+  "total": 10563.052171506959
+ },
+ "model_crosscheck_m": {
+  "R1_rings": 9.268875140461587,
+  "R1_with_spare_rings": 10.000587220397405
+ },
+ "qualification_mm": 3042.6000000000004,
+ "practice_mm": 1056.3052171506959,
+ "order_mm": 25225.009560164614,
+ "spools": [
+  {
+   "spool": "2 oz",
+   "ft": 9,
+   "m": 2.74,
+   "usd": 33.25,
+   "covers_order": false,
+   "coils_covered": -1
+  },
+  {
+   "spool": "4 oz",
+   "ft": 19,
+   "m": 5.79,
+   "usd": 57.58,
+   "covers_order": false,
+   "coils_covered": 0
+  },
+  {
+   "spool": "8 oz",
+   "ft": 38,
+   "m": 11.58,
+   "usd": 102.86,
+   "covers_order": false,
+   "coils_covered": 0
+  },
+  {
+   "spool": "1 lb",
+   "ft": 76,
+   "m": 23.16,
+   "usd": 187.65,
+   "covers_order": false,
+   "coils_covered": 1
+  },
+  {
+   "spool": "2.5 lb",
+   "ft": 189,
+   "m": 57.61,
+   "usd": 455.2,
+   "covers_order": true,
+   "coils_covered": 5
+  },
+  {
+   "spool": "5 lb",
+   "ft": 378,
+   "m": 115.21,
+   "usd": 800.25,
+   "covers_order": true,
+   "coils_covered": 10
+  },
+  {
+   "spool": "10 lb",
+   "ft": 756,
+   "m": 230.43,
+   "usd": 1434.06,
+   "covers_order": true,
+   "coils_covered": 21
+  },
+  {
+   "spool": "1 lb + 8 oz (two spools, maybe two lots)",
+   "ft": 114,
+   "m": 34.75,
+   "usd": 290.51,
+   "covers_order": true,
+   "coils_covered": 3
+  }
+ ],
+ "pick": {
+  "spool": "2.5 lb",
+  "ft": 189,
+  "m": 57.61,
+  "usd": 455.2,
+  "covers_order": true,
+  "coils_covered": 5
+ }
+}

@@ -1,0 +1,844 @@
+{
+ "schema": "temper.board-shrink-r1.controller-area.v1",
+ "board_file": "/Users/bennet/Desktop/temper/worktrees/ctrl-j13/zapote/controller/pcb/controller.kicad_pcb",
+ "board_sha256": "b3af25b892858e0c89624ed72ce207e9e1f25d6429aaed4f7814804229f8b1bb",
+ "board_matches_order_md": true,
+ "outline_bbox_kicad_mm": [
+  20.0,
+  20.0,
+  226.0,
+  96.0
+ ],
+ "outline_mm": [
+  206.0,
+  76.0
+ ],
+ "board_area_mm2": 15656.0,
+ "holes": [
+  {
+   "kicad_xy": [
+    24.0,
+    92.0
+   ],
+   "world_xy": [
+    -34.0,
+    18.0
+   ],
+   "d_mm": 4.0
+  },
+  {
+   "kicad_xy": [
+    32.0,
+    36.0
+   ],
+   "world_xy": [
+    -26.0,
+    74.0
+   ],
+   "d_mm": 4.0
+  },
+  {
+   "kicad_xy": [
+    123.0,
+    92.0
+   ],
+   "world_xy": [
+    65.0,
+    18.0
+   ],
+   "d_mm": 4.0
+  },
+  {
+   "kicad_xy": [
+    133.0,
+    24.0
+   ],
+   "world_xy": [
+    75.0,
+    86.0
+   ],
+   "d_mm": 4.0
+  },
+  {
+   "kicad_xy": [
+    222.0,
+    30.0
+   ],
+   "world_xy": [
+    164.0,
+    80.0
+   ],
+   "d_mm": 4.0
+  },
+  {
+   "kicad_xy": [
+    222.0,
+    92.0
+   ],
+   "world_xy": [
+    164.0,
+    18.0
+   ],
+   "d_mm": 4.0
+  }
+ ],
+ "hole_cut_mm2": 75.4,
+ "hole_keepout_mm2": 301.6,
+ "placements": 289,
+ "smd": 278,
+ "tht": 9,
+ "other_attr": [
+  "U34",
+  "J11"
+ ],
+ "side_counts": {
+  "F": 289,
+  "B": 0
+ },
+ "crtyd_fallback_refs": [],
+ "crtyd_total_mm2": 4005.6,
+ "utilisation_pct_of_board": 25.6,
+ "utilisation_pct_of_usable": 26.1,
+ "blocks": {
+  "connectors": {
+   "description": "J1-J13 (incl. J4 Micro-Fit, J7 12-way UI, J13 VH, J11 TC2050 land)",
+   "parts": 10,
+   "smd": 0,
+   "tht": 9,
+   "crtyd_mm2": 1162.5,
+   "share_of_crtyd_pct": 29.0,
+   "as_placed_hull_mm2": 13125.4,
+   "hull_density_pct": 8.9,
+   "world_bbox": [
+    -38.5,
+    13.7,
+    158.7,
+    90.4
+   ],
+   "refs": [
+    "J1",
+    "J2",
+    "J3",
+    "J4",
+    "J7",
+    "J9",
+    "J10",
+    "J11",
+    "J12",
+    "J13"
+   ]
+  },
+  "mcu": {
+   "description": "ESP32-S3-WROOM-1U U4 + decoupling, EN RC, UI CS pull-ups, strap pull-down",
+   "parts": 8,
+   "smd": 8,
+   "tht": 0,
+   "crtyd_mm2": 400.9,
+   "share_of_crtyd_pct": 10.0,
+   "as_placed_hull_mm2": 1066.7,
+   "hull_density_pct": 37.6,
+   "world_bbox": [
+    133.0,
+    15.2,
+    163.7,
+    69.8
+   ],
+   "refs": [
+    "C89",
+    "C90",
+    "C91",
+    "R109",
+    "R110",
+    "R119",
+    "R120",
+    "U4"
+   ]
+  },
+  "buck_3v3": {
+   "description": "3.3 V buck U1/L1 (TPS62933F) and its passives, v15 bulk",
+   "parts": 14,
+   "smd": 14,
+   "tht": 0,
+   "crtyd_mm2": 192.7,
+   "share_of_crtyd_pct": 4.8,
+   "as_placed_hull_mm2": 336.8,
+   "hull_density_pct": 57.2,
+   "world_bbox": [
+    22.7,
+    15.0,
+    54.3,
+    28.7
+   ],
+   "refs": [
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "C5",
+    "C6",
+    "C7",
+    "C8",
+    "L1",
+    "R11",
+    "R12",
+    "R13",
+    "R14",
+    "U1"
+   ]
+  },
+  "blower_buck": {
+   "description": "Blower buck U2/L2 (TPS62933 + SWRB1205S), PS3 bulk, speed injection, FAN_OFF, BLW_PG, tach, J13 merge diode",
+   "parts": 27,
+   "smd": 27,
+   "tht": 0,
+   "crtyd_mm2": 424.0,
+   "share_of_crtyd_pct": 10.6,
+   "as_placed_hull_mm2": 2043.8,
+   "hull_density_pct": 20.7,
+   "world_bbox": [
+    67.3,
+    42.3,
+    137.0,
+    87.0
+   ],
+   "refs": [
+    "C9",
+    "C10",
+    "C11",
+    "C12",
+    "C13",
+    "C14",
+    "C15",
+    "C16",
+    "C17",
+    "C18",
+    "D1",
+    "D9",
+    "L2",
+    "Q1",
+    "R15",
+    "R16",
+    "R17",
+    "R18",
+    "R19",
+    "R20",
+    "R21",
+    "R22",
+    "R23",
+    "R24",
+    "R25",
+    "R26",
+    "U2"
+   ]
+  },
+  "rtd": {
+   "description": "RTD front end (rtd_pan.*: MAX31865, REF2025, windows, TPS389001, Rref, CR-1 filter + J3 TVS)",
+   "parts": 50,
+   "smd": 49,
+   "tht": 0,
+   "crtyd_mm2": 328.1,
+   "share_of_crtyd_pct": 8.2,
+   "as_placed_hull_mm2": 1301.1,
+   "hull_density_pct": 25.2,
+   "world_bbox": [
+    113.0,
+    55.4,
+    166.3,
+    88.1
+   ],
+   "refs": [
+    "C29",
+    "C30",
+    "C31",
+    "C32",
+    "C33",
+    "C34",
+    "C35",
+    "C36",
+    "C37",
+    "C38",
+    "C39",
+    "C40",
+    "C41",
+    "C42",
+    "C43",
+    "C44",
+    "C45",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "R39",
+    "R40",
+    "R41",
+    "R42",
+    "R43",
+    "R44",
+    "R45",
+    "R46",
+    "R47",
+    "R48",
+    "R49",
+    "R50",
+    "R51",
+    "R52",
+    "R53",
+    "R54",
+    "R55",
+    "R56",
+    "R57",
+    "R58",
+    "R59",
+    "R60",
+    "U29",
+    "U30",
+    "U31",
+    "U32",
+    "U33",
+    "U34",
+    "U35"
+   ]
+  },
+  "thermal_sense": {
+   "description": "Thermal-sense trip comparators (thermal.*: heatsink/coil NTC hot + open)",
+   "parts": 24,
+   "smd": 24,
+   "tht": 0,
+   "crtyd_mm2": 151.9,
+   "share_of_crtyd_pct": 3.8,
+   "as_placed_hull_mm2": 599.6,
+   "hull_density_pct": 25.3,
+   "world_bbox": [
+    -12.1,
+    75.3,
+    36.5,
+    88.4
+   ],
+   "refs": [
+    "C21",
+    "C22",
+    "C23",
+    "C24",
+    "C25",
+    "C26",
+    "C27",
+    "C28",
+    "R29",
+    "R30",
+    "R31",
+    "R32",
+    "R33",
+    "R34",
+    "R35",
+    "R36",
+    "R37",
+    "R38",
+    "U17",
+    "U18",
+    "U19",
+    "U26",
+    "U27",
+    "U28"
+   ]
+  },
+  "interlock": {
+   "description": "Interlock latch/watchdog/aggregate (interlock.*) + PERMIT gate U37",
+   "parts": 27,
+   "smd": 27,
+   "tht": 0,
+   "crtyd_mm2": 308.0,
+   "share_of_crtyd_pct": 7.7,
+   "as_placed_hull_mm2": 1868.1,
+   "hull_density_pct": 16.5,
+   "world_bbox": [
+    -37.1,
+    22.5,
+    23.1,
+    74.8
+   ],
+   "refs": [
+    "C46",
+    "C47",
+    "C48",
+    "C49",
+    "C50",
+    "C51",
+    "C70",
+    "R61",
+    "R62",
+    "R63",
+    "R64",
+    "R65",
+    "R66",
+    "R67",
+    "R68",
+    "R69",
+    "R70",
+    "R71",
+    "R102",
+    "R103",
+    "U20",
+    "U21",
+    "U22",
+    "U23",
+    "U24",
+    "U25",
+    "U37"
+   ]
+  },
+  "trip_glue": {
+   "description": "Trip glue: rail window U3, SENSOR_LIVE/RAIL_FAULT, read-back buffer U9, runaway + rim trip comparators",
+   "parts": 23,
+   "smd": 23,
+   "tht": 0,
+   "crtyd_mm2": 189.1,
+   "share_of_crtyd_pct": 4.7,
+   "as_placed_hull_mm2": 2651.9,
+   "hull_density_pct": 7.1,
+   "world_bbox": [
+    18.2,
+    46.5,
+    121.0,
+    77.6
+   ],
+   "refs": [
+    "C19",
+    "C20",
+    "C57",
+    "C58",
+    "C59",
+    "C60",
+    "C61",
+    "C77",
+    "C78",
+    "C79",
+    "R27",
+    "R28",
+    "R76",
+    "R77",
+    "R99",
+    "R100",
+    "U3",
+    "U9",
+    "U10",
+    "U11",
+    "U12",
+    "U40",
+    "U41"
+   ]
+  },
+  "capmode": {
+   "description": "C39 capacitive-mode detector U42-U46",
+   "parts": 14,
+   "smd": 14,
+   "tht": 0,
+   "crtyd_mm2": 128.7,
+   "share_of_crtyd_pct": 3.2,
+   "as_placed_hull_mm2": 286.8,
+   "hull_density_pct": 44.9,
+   "world_bbox": [
+    70.3,
+    15.8,
+    93.7,
+    32.2
+   ],
+   "refs": [
+    "C52",
+    "C53",
+    "C54",
+    "C55",
+    "C56",
+    "R72",
+    "R73",
+    "R74",
+    "R75",
+    "U42",
+    "U43",
+    "U44",
+    "U45",
+    "U46"
+   ]
+  },
+  "rms": {
+   "description": "Tank RMS: AD8436 U14 + MCP3202 U15 + clamp",
+   "parts": 18,
+   "smd": 18,
+   "tht": 0,
+   "crtyd_mm2": 192.0,
+   "share_of_crtyd_pct": 4.8,
+   "as_placed_hull_mm2": 392.2,
+   "hull_density_pct": 49.0,
+   "world_bbox": [
+    -20.4,
+    22.3,
+    7.1,
+    41.2
+   ],
+   "refs": [
+    "C80",
+    "C81",
+    "C82",
+    "C83",
+    "C84",
+    "C85",
+    "C86",
+    "C87",
+    "C88",
+    "D8",
+    "R101",
+    "R104",
+    "R105",
+    "R106",
+    "R107",
+    "R108",
+    "U14",
+    "U15"
+   ]
+  },
+  "d11_ctmon": {
+   "description": "D-11 bus receiver (OPA2388, LM4040, 0.1 % R) + ct_mon buffer",
+   "parts": 17,
+   "smd": 17,
+   "tht": 0,
+   "crtyd_mm2": 147.1,
+   "share_of_crtyd_pct": 3.7,
+   "as_placed_hull_mm2": 3951.8,
+   "hull_density_pct": 3.7,
+   "world_bbox": [
+    -23.2,
+    29.9,
+    166.3,
+    64.8
+   ],
+   "refs": [
+    "C62",
+    "C63",
+    "C64",
+    "C66",
+    "R78",
+    "R79",
+    "R80",
+    "R81",
+    "R82",
+    "R83",
+    "R84",
+    "R85",
+    "R86",
+    "R87",
+    "U5",
+    "U6",
+    "U13"
+   ]
+  },
+  "ntc_afe": {
+   "description": "NTC / M12 / rim analog front ends: buffers, input RCs, ADC anti-kick RCs, TVS",
+   "parts": 25,
+   "smd": 25,
+   "tht": 0,
+   "crtyd_mm2": 148.6,
+   "share_of_crtyd_pct": 3.7,
+   "as_placed_hull_mm2": 6518.1,
+   "hull_density_pct": 2.3,
+   "world_bbox": [
+    -35.9,
+    39.5,
+    148.9,
+    89.0
+   ],
+   "refs": [
+    "C65",
+    "C67",
+    "C68",
+    "C69",
+    "C71",
+    "C72",
+    "C73",
+    "C74",
+    "C75",
+    "C76",
+    "D6",
+    "D7",
+    "R88",
+    "R89",
+    "R90",
+    "R91",
+    "R92",
+    "R93",
+    "R94",
+    "R95",
+    "R96",
+    "R97",
+    "R98",
+    "U7",
+    "U36"
+   ]
+  },
+  "j4_if": {
+   "description": "J4 interface: PWM series + pull-downs, ZC series, BIAS_GOOD input",
+   "parts": 13,
+   "smd": 13,
+   "tht": 0,
+   "crtyd_mm2": 56.2,
+   "share_of_crtyd_pct": 1.4,
+   "as_placed_hull_mm2": 6060.3,
+   "hull_density_pct": 0.9,
+   "world_bbox": [
+    -31.7,
+    15.8,
+    165.5,
+    60.9
+   ],
+   "refs": [
+    "C97",
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+    "R5",
+    "R6",
+    "R7",
+    "R8",
+    "R9",
+    "R10",
+    "R123",
+    "R124"
+   ]
+  },
+  "expander": {
+   "description": "TCA9555 expander U8 + I2C pull-ups",
+   "parts": 4,
+   "smd": 4,
+   "tht": 0,
+   "crtyd_mm2": 76.2,
+   "share_of_crtyd_pct": 1.9,
+   "as_placed_hull_mm2": 111.0,
+   "hull_density_pct": 68.7,
+   "world_bbox": [
+    114.2,
+    39.8,
+    125.8,
+    52.5
+   ],
+   "refs": [
+    "C92",
+    "R111",
+    "R112",
+    "U8"
+   ]
+  },
+  "ui_bus": {
+   "description": "J7 UI bus support: SRV05-4 ESD x2, 100 R series x6, +5 V LDO TLV76050 + droppers",
+   "parts": 15,
+   "smd": 15,
+   "tht": 0,
+   "crtyd_mm2": 99.6,
+   "share_of_crtyd_pct": 2.5,
+   "as_placed_hull_mm2": 491.4,
+   "hull_density_pct": 20.3,
+   "world_bbox": [
+    38.0,
+    51.5,
+    79.4,
+    67.5
+   ],
+   "refs": [
+    "C93",
+    "C94",
+    "C95",
+    "C96",
+    "R113",
+    "R114",
+    "R115",
+    "R116",
+    "R117",
+    "R118",
+    "R121",
+    "R122",
+    "U16",
+    "U38",
+    "U39"
+   ]
+  }
+ },
+ "packages": {
+  "0603": {
+   "count": 202,
+   "crtyd_mm2": 873.0
+  },
+  "other": {
+   "count": 70,
+   "crtyd_mm2": 2973.2
+  },
+  "1206": {
+   "count": 12,
+   "crtyd_mm2": 126.4
+  },
+  "0805": {
+   "count": 5,
+   "crtyd_mm2": 33.0
+  }
+ },
+ "largest_courtyards": [
+  {
+   "ref": "J4",
+   "lib": "Molex_Micro-Fit_3.0_43045-1600_2x08_P3.00mm_Horizontal",
+   "crtyd_mm2": 383.1
+  },
+  {
+   "ref": "U4",
+   "lib": "ESP32-S3-WROOM-1U",
+   "crtyd_mm2": 368.3
+  },
+  {
+   "ref": "J7",
+   "lib": "JST_XH_B12B-XH-A_1x12_P2.50mm_Vertical",
+   "crtyd_mm2": 225.4
+  },
+  {
+   "ref": "L2",
+   "lib": "L_Sunlord_SWRB1205S",
+   "crtyd_mm2": 182.2
+  },
+  {
+   "ref": "J3",
+   "lib": "JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+   "crtyd_mm2": 90.4
+  },
+  {
+   "ref": "J13",
+   "lib": "JST_VH_B2P-VH_1x02_P3.96mm_Vertical",
+   "crtyd_mm2": 84.2
+  },
+  {
+   "ref": "C9",
+   "lib": "CP_Elec_8x6.2",
+   "crtyd_mm2": 81.5
+  },
+  {
+   "ref": "C1",
+   "lib": "CP_Elec_8x6.2",
+   "crtyd_mm2": 81.5
+  },
+  {
+   "ref": "J12",
+   "lib": "JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+   "crtyd_mm2": 73.6
+  },
+  {
+   "ref": "J9",
+   "lib": "JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+   "crtyd_mm2": 73.6
+  },
+  {
+   "ref": "J10",
+   "lib": "JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+   "crtyd_mm2": 73.6
+  },
+  {
+   "ref": "U23",
+   "lib": "SOIC-14_3.9x8.7mm_P1.27mm",
+   "crtyd_mm2": 66.5
+  }
+ ],
+ "edge_parts": [
+  {
+   "ref": "C70",
+   "path": "c_permit",
+   "sides": [
+    "left"
+   ]
+  },
+  {
+   "ref": "J13",
+   "path": "j_blw",
+   "sides": [
+    "rear"
+   ]
+  },
+  {
+   "ref": "J12",
+   "path": "j_rim",
+   "sides": [
+    "rear"
+   ]
+  },
+  {
+   "ref": "J9",
+   "path": "j_m12",
+   "sides": [
+    "left",
+    "rear"
+   ]
+  },
+  {
+   "ref": "J10",
+   "path": "j_fan",
+   "sides": [
+    "rear"
+   ]
+  },
+  {
+   "ref": "J11",
+   "path": "j_dbg",
+   "sides": [
+    "front"
+   ]
+  },
+  {
+   "ref": "J4",
+   "path": "j4",
+   "sides": [
+    "left"
+   ]
+  },
+  {
+   "ref": "J3",
+   "path": "rtd_pan.j_rtd1",
+   "sides": [
+    "rear"
+   ]
+  }
+ ],
+ "connector_pin1_world_xy": {
+  "J7": [
+   32.25,
+   60.57
+  ],
+  "J1": [
+   53.75,
+   84.57
+  ],
+  "J13": [
+   86.02,
+   86.25
+  ],
+  "J12": [
+   123.5,
+   86.57
+  ],
+  "J9": [
+   -35.5,
+   86.57
+  ],
+  "J10": [
+   136.5,
+   86.57
+  ],
+  "J11": [
+   138.0,
+   19.0
+  ],
+  "J4": [
+   -28.57,
+   31.9
+  ],
+  "J3": [
+   148.25,
+   86.57
+  ],
+  "J2": [
+   -21.25,
+   84.57
+  ]
+ }
+}

@@ -1,0 +1,731 @@
+[
+ {
+  "candidate": "1 CFD7, s42 network (68 ohm / 4.7 nF), as built",
+  "part": "IPW65R018CFD7",
+  "mpn": "IPW65R018CFD7XKSA1",
+  "S4_max_Qrr": {
+   "slew": 68.58,
+   "difdt": 244.0,
+   "vds": 383.9,
+   "no_edge": 0,
+   "ratio": 0.98,
+   "rating": 70
+  },
+  "S4_typ_Qrr": {
+   "slew": 49.7,
+   "difdt": 244.0,
+   "vds": 347.2,
+   "no_edge": 0,
+   "ratio": 0.71,
+   "rating": 70
+  },
+  "decision_grid": {
+   "grid": "cfd7_c39_tt260/full",
+   "complete": "640/640",
+   "pass": 640,
+   "pass_hot": 640,
+   "S1_t_trans_ns": 190.2,
+   "S2_vds_V": 435.0,
+   "max_off_gate_V": 1.567
+  },
+  "thermal": {
+   "35-60|17.5": {
+    "S8_tj": 68.4,
+    "S8_ts": 62.0,
+    "S8_P_dev_W": 4.7,
+    "S8_P_4dev_W": 18.7,
+    "bench_tj": 88.5,
+    "bench_ts": 73.5,
+    "tj_limit": 150,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "35-60|28": {
+    "S8_tj": 91.2,
+    "S8_ts": 72.8,
+    "S8_P_dev_W": 13.66,
+    "S8_P_4dev_W": 53.8,
+    "bench_tj": 187.2,
+    "bench_ts": 127.9,
+    "tj_limit": 150,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   }
+  },
+  "gate": {
+   "Q_nC": 382.6,
+   "P_Ron_W": 0.217,
+   "I_bias_channel_mA": 49.52,
+   "R10_margin_at_17.5A_K_est": 1.3
+  },
+  "cost": {
+   "per_board_20": 45.68,
+   "per_board_500": 40.7,
+   "delta_vs_cfd7_500": 0.0,
+   "stock": "459",
+   "lead_time": "8 weeks"
+  }
+ },
+ {
+  "candidate": "2 CM8, 100 ohm / 1 nF",
+  "part": "IPW65R018CM8",
+  "mpn": "IPW65R018CM8XKSA1",
+  "S4_max_Qrr": {
+   "slew": 66.36,
+   "difdt": 285.0,
+   "vds": 371.5,
+   "no_edge": 0,
+   "ratio": 0.948,
+   "rating": 70
+  },
+  "S4_typ_Qrr": {
+   "slew": 45.31,
+   "difdt": 284.0,
+   "vds": 356.0,
+   "no_edge": 0,
+   "ratio": 0.647,
+   "rating": 70
+  },
+  "decision_grid": {
+   "grid": "cm8_r100_tt180/fullL",
+   "complete": "640/640",
+   "pass": 640,
+   "pass_hot": 640,
+   "S1_t_trans_ns": 116.4,
+   "S2_vds_V": 488.5,
+   "max_off_gate_V": 1.334
+  },
+  "thermal": {
+   "35-60|17.5": {
+    "S8_tj": 68.4,
+    "S8_ts": 62.1,
+    "S8_P_dev_W": 4.77,
+    "S8_P_4dev_W": 19.0,
+    "bench_tj": 88.7,
+    "bench_ts": 73.7,
+    "tj_limit": 150,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "35-60|28": {
+    "S8_tj": 90.0,
+    "S8_ts": 72.4,
+    "S8_P_dev_W": 13.41,
+    "S8_P_4dev_W": 52.7,
+    "bench_tj": 181.2,
+    "bench_ts": 125.1,
+    "tj_limit": 150,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   }
+  },
+  "gate": {
+   "Q_nC": 288.0,
+   "P_Ron_W": 0.1447,
+   "I_bias_channel_mA": 40.18,
+   "R10_margin_at_17.5A_K_est": 8.98
+  },
+  "cost": {
+   "per_board_20": 39.06,
+   "per_board_500": 33.93,
+   "delta_vs_cfd7_500": -6.77,
+   "stock": "2",
+   "lead_time": "24 weeks"
+  }
+ },
+ {
+  "candidate": "2' CM8, 39 ohm / 1 nF (DECISIONS 54 route)",
+  "part": null,
+  "mpn": "IPW65R018CM8XKSA1",
+  "S4_max_Qrr": {
+   "slew": 95.74,
+   "difdt": 563.0,
+   "vds": 525.8,
+   "no_edge": 0,
+   "ratio": 1.368,
+   "rating": 70
+  },
+  "S4_typ_Qrr": {
+   "slew": 68.69,
+   "difdt": 563.0,
+   "vds": 513.7,
+   "no_edge": 0,
+   "ratio": 0.981,
+   "rating": 70
+  },
+  "decision_grid": {
+   "grid": "cm8_r39_tt180/full",
+   "complete": "640/640",
+   "pass": 639,
+   "pass_hot": 639,
+   "S1_t_trans_ns": 116.2,
+   "S2_vds_V": 487.1,
+   "max_off_gate_V": 0.701
+  },
+  "gate": {
+   "Q_nC": 288.0,
+   "P_Ron_W": 0.1415,
+   "I_bias_channel_mA": 40.18,
+   "R10_margin_at_17.5A_K_est": 9.32
+  },
+  "cost": {
+   "per_board_20": 39.06,
+   "per_board_500": 33.93,
+   "delta_vs_cfd7_500": -6.77,
+   "stock": "2",
+   "lead_time": "24 weeks"
+  }
+ },
+ {
+  "candidate": "3 SiC IMW65R026M2H, +15 V, 8.2 ohm / 1 nF",
+  "part": "IMW65R026M2H_15",
+  "mpn": "IMW65R026M2HXKSA1",
+  "S4_max_Qrr": {
+   "slew": 11.78,
+   "difdt": 2227.0,
+   "vds": 339.0,
+   "no_edge": 0,
+   "ratio": null,
+   "rating": "not stated"
+  },
+  "S4_typ_Qrr": {
+   "slew": 11.78,
+   "difdt": 2227.0,
+   "vds": 339.0,
+   "no_edge": 0,
+   "ratio": null,
+   "rating": "not stated"
+  },
+  "decision_grid": {
+   "grid": "sic26_15_r8p2/full",
+   "complete": "640/640",
+   "pass": 640,
+   "pass_hot": 640,
+   "S1_t_trans_ns": 42.4,
+   "S2_vds_V": 433.4,
+   "max_off_gate_V": 0.446
+  },
+  "thermal": {
+   "35-60|17.5": {
+    "S8_tj": 86.3,
+    "S8_ts": 68.7,
+    "S8_P_dev_W": 10.14,
+    "S8_P_4dev_W": 40.5,
+    "bench_tj": 124.6,
+    "bench_ts": 90.8,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "35-60|28": {
+    "S8_tj": 131.6,
+    "S8_ts": 87.3,
+    "S8_P_dev_W": 25.6,
+    "S8_P_4dev_W": 101.2,
+    "bench_tj": 316.4,
+    "bench_ts": 192.0,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   }
+  },
+  "gate": {
+   "Q_nC": 61.3,
+   "P_Ron_W": 0.0221,
+   "I_bias_channel_mA": 26.58,
+   "R10_margin_at_17.5A_K_est": 22.01
+  },
+  "cost": {
+   "per_board_20": 33.5,
+   "per_board_500": 28.35,
+   "delta_vs_cfd7_500": -12.35,
+   "stock": "270",
+   "lead_time": "not shown"
+  }
+ },
+ {
+  "candidate": "3 SiC IMW65R026M2H, +15 V, DT 200 ns",
+  "part": "IMW65R026M2H_15_dt200",
+  "mpn": "IMW65R026M2HXKSA1",
+  "S4_max_Qrr": {
+   "slew": 11.78,
+   "difdt": 2227.0,
+   "vds": 339.0,
+   "no_edge": 0,
+   "ratio": null,
+   "rating": "not stated"
+  },
+  "S4_typ_Qrr": {
+   "slew": 11.78,
+   "difdt": 2227.0,
+   "vds": 339.0,
+   "no_edge": 0,
+   "ratio": null,
+   "rating": "not stated"
+  },
+  "decision_grid": {
+   "grid": "sic26_15_r8p2/full",
+   "complete": "640/640",
+   "pass": 640,
+   "pass_hot": 640,
+   "S1_t_trans_ns": 42.4,
+   "S2_vds_V": 433.4,
+   "max_off_gate_V": 0.446
+  },
+  "thermal": {
+   "35-60|17.5": {
+    "S8_tj": 82.5,
+    "S8_ts": 67.1,
+    "S8_P_dev_W": 8.84,
+    "S8_P_4dev_W": 35.3,
+    "bench_tj": 115.8,
+    "bench_ts": 86.1,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "35-60|28": {
+    "S8_tj": 125.6,
+    "S8_ts": 84.8,
+    "S8_P_dev_W": 23.48,
+    "S8_P_4dev_W": 93.3,
+    "bench_tj": 294.6,
+    "bench_ts": 180.5,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   }
+  },
+  "gate": {
+   "Q_nC": 61.3,
+   "P_Ron_W": 0.0221,
+   "I_bias_channel_mA": 26.58,
+   "R10_margin_at_17.5A_K_est": 22.01
+  },
+  "cost": {
+   "per_board_20": 33.5,
+   "per_board_500": 28.35,
+   "delta_vs_cfd7_500": -12.35,
+   "stock": "270",
+   "lead_time": "not shown"
+  }
+ },
+ {
+  "candidate": "3 SiC IMW65R026M2H, +15 V, s42 network 68 ohm / 4.7 nF, DT 200 ns",
+  "part": "IMW65R026M2H_15_s42_dt200",
+  "mpn": "IMW65R026M2HXKSA1",
+  "S4_max_Qrr": {
+   "slew": 3.85,
+   "difdt": 168.0,
+   "vds": 285.7,
+   "no_edge": 0,
+   "ratio": null,
+   "rating": "not stated"
+  },
+  "S4_typ_Qrr": {
+   "slew": 3.85,
+   "difdt": 168.0,
+   "vds": 285.7,
+   "no_edge": 0,
+   "ratio": null,
+   "rating": "not stated"
+  },
+  "decision_grid": {
+   "grid": "sic26_15_r68c4p7/full",
+   "complete": "640/640",
+   "pass": 640,
+   "pass_hot": 640,
+   "S1_t_trans_ns": 56.5,
+   "S2_vds_V": 457.9,
+   "max_off_gate_V": -0.879
+  },
+  "thermal": {
+   "35-60|17.5": {
+    "S8_tj": 86.7,
+    "S8_ts": 68.8,
+    "S8_P_dev_W": 10.27,
+    "S8_P_4dev_W": 41.0,
+    "bench_tj": 124.8,
+    "bench_ts": 90.9,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "35-60|28": {
+    "S8_tj": 133.4,
+    "S8_ts": 88.0,
+    "S8_P_dev_W": 26.18,
+    "S8_P_4dev_W": 103.5,
+    "bench_tj": 320.9,
+    "bench_ts": 194.4,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   }
+  },
+  "gate": {
+   "Q_nC": 61.3,
+   "P_Ron_W": 0.0607,
+   "I_bias_channel_mA": 30.24,
+   "R10_margin_at_17.5A_K_est": 17.91
+  },
+  "cost": {
+   "per_board_20": 33.5,
+   "per_board_500": 28.35,
+   "delta_vs_cfd7_500": -12.35,
+   "stock": "270",
+   "lead_time": "not shown"
+  }
+ },
+ {
+  "candidate": "3 SiC IMW65R026M2H, +15 V, s42 network, DT unchanged (FET-only swap)",
+  "part": "IMW65R026M2H_15_s42",
+  "mpn": "IMW65R026M2HXKSA1",
+  "S4_max_Qrr": {
+   "slew": 3.85,
+   "difdt": 168.0,
+   "vds": 285.7,
+   "no_edge": 0,
+   "ratio": null,
+   "rating": "not stated"
+  },
+  "S4_typ_Qrr": {
+   "slew": 3.85,
+   "difdt": 168.0,
+   "vds": 285.7,
+   "no_edge": 0,
+   "ratio": null,
+   "rating": "not stated"
+  },
+  "decision_grid": {
+   "grid": "sic26_15_r68c4p7/full",
+   "complete": "640/640",
+   "pass": 640,
+   "pass_hot": 640,
+   "S1_t_trans_ns": 56.5,
+   "S2_vds_V": 457.9,
+   "max_off_gate_V": -0.879
+  },
+  "thermal": {
+   "35-60|17.5": {
+    "S8_tj": 90.6,
+    "S8_ts": 70.5,
+    "S8_P_dev_W": 11.6,
+    "S8_P_4dev_W": 46.3,
+    "bench_tj": 134.0,
+    "bench_ts": 95.8,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "35-60|28": {
+    "S8_tj": 139.4,
+    "S8_ts": 90.5,
+    "S8_P_dev_W": 28.23,
+    "S8_P_4dev_W": 111.7,
+    "bench_tj": 342.9,
+    "bench_ts": 206.0,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   }
+  },
+  "gate": {
+   "Q_nC": 61.3,
+   "P_Ron_W": 0.0607,
+   "I_bias_channel_mA": 30.24,
+   "R10_margin_at_17.5A_K_est": 17.91
+  },
+  "cost": {
+   "per_board_20": 33.5,
+   "per_board_500": 28.35,
+   "delta_vs_cfd7_500": -12.35,
+   "stock": "270",
+   "lead_time": "not shown"
+  }
+ },
+ {
+  "candidate": "3 SiC IMW65R026M2H, +18 V, 8.2 ohm / 1 nF",
+  "part": "IMW65R026M2H_18",
+  "mpn": "IMW65R026M2HXKSA1",
+  "S4_max_Qrr": {
+   "slew": 11.49,
+   "difdt": 2577.0,
+   "vds": 387.6,
+   "no_edge": 0,
+   "ratio": null,
+   "rating": "not stated"
+  },
+  "S4_typ_Qrr": {
+   "slew": 11.49,
+   "difdt": 2577.0,
+   "vds": 387.6,
+   "no_edge": 0,
+   "ratio": null,
+   "rating": "not stated"
+  },
+  "decision_grid": {
+   "grid": "sic26_18_r8p2/s4b",
+   "complete": "42/42",
+   "pass": 42,
+   "pass_hot": 42,
+   "S1_t_trans_ns": null,
+   "S2_vds_V": null,
+   "max_off_gate_V": -0.233
+  },
+  "thermal": {
+   "35-60|17.5": {
+    "S8_tj": 82.5,
+    "S8_ts": 67.1,
+    "S8_P_dev_W": 8.87,
+    "S8_P_4dev_W": 35.3,
+    "bench_tj": 117.8,
+    "bench_ts": 87.2,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "35-60|28": {
+    "S8_tj": 123.7,
+    "S8_ts": 84.0,
+    "S8_P_dev_W": 22.89,
+    "S8_P_4dev_W": 90.6,
+    "bench_tj": 314.3,
+    "bench_ts": 190.9,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   }
+  },
+  "gate": {
+   "Q_nC": 70.8,
+   "P_Ron_W": 0.0294,
+   "I_bias_channel_mA": 27.15,
+   "R10_margin_at_17.5A_K_est": 21.23
+  },
+  "cost": {
+   "per_board_20": 33.5,
+   "per_board_500": 28.35,
+   "delta_vs_cfd7_500": -12.35,
+   "stock": "270",
+   "lead_time": "not shown"
+  }
+ },
+ {
+  "candidate": "3 SiC IMW65R026M2H, +18 V, DT 200 ns",
+  "part": "IMW65R026M2H_18_dt200",
+  "mpn": "IMW65R026M2HXKSA1",
+  "S4_max_Qrr": {
+   "slew": 11.49,
+   "difdt": 2577.0,
+   "vds": 387.6,
+   "no_edge": 0,
+   "ratio": null,
+   "rating": "not stated"
+  },
+  "S4_typ_Qrr": {
+   "slew": 11.49,
+   "difdt": 2577.0,
+   "vds": 387.6,
+   "no_edge": 0,
+   "ratio": null,
+   "rating": "not stated"
+  },
+  "decision_grid": {
+   "grid": "sic26_18_r8p2/s4b",
+   "complete": "42/42",
+   "pass": 42,
+   "pass_hot": 42,
+   "S1_t_trans_ns": null,
+   "S2_vds_V": null,
+   "max_off_gate_V": -0.233
+  },
+  "thermal": {
+   "35-60|17.5": {
+    "S8_tj": 78.3,
+    "S8_ts": 65.4,
+    "S8_P_dev_W": 7.46,
+    "S8_P_4dev_W": 29.7,
+    "bench_tj": 107.8,
+    "bench_ts": 81.9,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "35-60|28": {
+    "S8_tj": 117.0,
+    "S8_ts": 81.3,
+    "S8_P_dev_W": 20.62,
+    "S8_P_4dev_W": 81.6,
+    "bench_tj": 286.3,
+    "bench_ts": 176.2,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   }
+  },
+  "gate": {
+   "Q_nC": 70.8,
+   "P_Ron_W": 0.0294,
+   "I_bias_channel_mA": 27.15,
+   "R10_margin_at_17.5A_K_est": 21.23
+  },
+  "cost": {
+   "per_board_20": 33.5,
+   "per_board_500": 28.35,
+   "delta_vs_cfd7_500": -12.35,
+   "stock": "270",
+   "lead_time": "not shown"
+  }
+ },
+ {
+  "candidate": "3 SiC C3M0025065D [EST, no model]",
+  "part": "C3M0025065D",
+  "mpn": "C3M0025065D",
+  "S4_max_Qrr": null,
+  "S4_typ_Qrr": null,
+  "thermal": {
+   "35-60|17.5": {
+    "S8_tj": 79.8,
+    "S8_ts": 66.7,
+    "S8_P_dev_W": 8.52,
+    "S8_P_4dev_W": 34.0,
+    "bench_tj": 111.6,
+    "bench_ts": 84.8,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "35-60|28": {
+    "S8_tj": 114.1,
+    "S8_ts": 81.9,
+    "S8_P_dev_W": 20.99,
+    "S8_P_4dev_W": 83.6,
+    "bench_tj": 209.0,
+    "bench_ts": 137.8,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   }
+  },
+  "cost": {
+   "per_board_20": 31.73,
+   "per_board_500": 26.6,
+   "delta_vs_cfd7_500": -14.1,
+   "stock": "430",
+   "lead_time": "22 weeks"
+  }
+ },
+ {
+  "candidate": "3 SiC NTHL032N065M3S [EST, no model]",
+  "part": "NTHL032N065M3S",
+  "mpn": "NTHL032N065M3S",
+  "S4_max_Qrr": null,
+  "S4_typ_Qrr": null,
+  "thermal": {
+   "35-60|17.5": {
+    "S8_tj": 95.4,
+    "S8_ts": 72.0,
+    "S8_P_dev_W": 12.85,
+    "S8_P_4dev_W": 51.2,
+    "bench_tj": 146.4,
+    "bench_ts": 101.6,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "35-60|28": {
+    "S8_tj": 157.8,
+    "S8_ts": 96.8,
+    "S8_P_dev_W": 33.43,
+    "S8_P_4dev_W": 132.4,
+    "bench_tj": 338.4,
+    "bench_ts": 201.7,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   }
+  },
+  "cost": {
+   "per_board_20": 22.42,
+   "per_board_500": 17.17,
+   "delta_vs_cfd7_500": -23.53,
+   "stock": "845 (+5,850 factory stock shown)",
+   "lead_time": "29 weeks"
+  }
+ },
+ {
+  "candidate": "4a RC-IGBT IHW40N65R6, 35-60 kHz",
+  "part": "IHW40N65R6",
+  "mpn": "IHW40N65R6XKSA1",
+  "S4_max_Qrr": null,
+  "S4_typ_Qrr": null,
+  "thermal": {
+   "35-60 (4a drop-in)|17.5": {
+    "S8_tj": 98.4,
+    "S8_ts": 73.4,
+    "S8_P_dev_W": 13.99,
+    "S8_P_4dev_W": 55.9,
+    "bench_tj": 159.3,
+    "bench_ts": 108.7,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "35-60 (4a drop-in)|28": {
+    "S8_tj": 136.4,
+    "S8_ts": 88.7,
+    "S8_P_dev_W": 26.7,
+    "S8_P_4dev_W": 105.9,
+    "bench_tj": 257.1,
+    "bench_ts": 159.9,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "20-30 (4b retune)|17.5": {
+    "S8_tj": 93.9,
+    "S8_ts": 71.6,
+    "S8_P_dev_W": 12.5,
+    "S8_P_4dev_W": 49.9,
+    "bench_tj": 144.3,
+    "bench_ts": 100.8,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   },
+   "20-30 (4b retune)|28": {
+    "S8_tj": 127.4,
+    "S8_ts": 85.1,
+    "S8_P_dev_W": 23.68,
+    "S8_P_4dev_W": 94.1,
+    "bench_tj": 232.0,
+    "bench_ts": 146.8,
+    "tj_limit": 175,
+    "S8_runaway_f": null,
+    "bench_runaway_f": null
+   }
+  },
+  "cost": {
+   "per_board_20": 8.62,
+   "per_board_500": 5.46,
+   "delta_vs_cfd7_500": -35.24,
+   "stock": "104",
+   "lead_time": "36 weeks"
+  }
+ },
+ {
+  "candidate": "4a RC-IGBT IHW40N65R5, 35-60 kHz (loss grid incomplete)",
+  "part": "IHW40N65R5",
+  "mpn": "IHW40N65R5XKSA1",
+  "S4_max_Qrr": null,
+  "S4_typ_Qrr": null,
+  "cost": {
+   "per_board_20": 8.77,
+   "per_board_500": 5.56,
+   "delta_vs_cfd7_500": -35.14,
+   "stock": "239",
+   "lead_time": "36 weeks"
+  }
+ }
+]

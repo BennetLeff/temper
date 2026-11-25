@@ -1,0 +1,3076 @@
+{
+ "c8p_39__q": {
+  "s2q": {
+   "runs": 56,
+   "complete": 56,
+   "S2": {
+    "n": 56,
+    "max_vds_V": 489.2,
+    "max_off_V": 0.129,
+    "max_vgs_abs_V": 15.59,
+    "max_slew2080_esl10_Vns": 37.94,
+    "max_slew2080_esl1.06_Vns": 36.65,
+    "max_gate_charge_nC": 283.4
+   },
+   "screens_c25_pass": 56,
+   "screens_c25_pass_hot": 56,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": 0.129,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cfd7_c39": {
+  "slowgate": {
+   "runs": 16,
+   "complete": 16,
+   "S1": {
+    "n": 16,
+    "max_vds_V": 240.9,
+    "max_off_V": -1.729,
+    "max_vgs_abs_V": 14.98,
+    "max_slew2080_esl10_Vns": 18.94,
+    "zvs": "16/16",
+    "worst_t_trans_ns": 240.3,
+    "margin_ns": {
+     "340": 99.7,
+     "408": 168.0
+    },
+    "max_turn_on_gate4_ns": 940.3,
+    "min_gate_at_1us_V": 4.37,
+    "min_gate_at_1us_V_gn_slowgate_rows": 4.37,
+    "min_gate_at_2us_V": 9.04,
+    "min_gate_at_2us_V_gn_slowgate_rows": 9.04,
+    "min_gate_at_3us_V": 11.56,
+    "min_gate_at_3us_V_gn_slowgate_rows": 11.56
+   },
+   "screens_c25_pass": 16,
+   "screens_c25_pass_hot": 16,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -1.729
+   },
+   "device_data_key": "IPW65R018CFD7"
+  }
+ },
+ "cfd7_c39__q": {
+  "s2q": {
+   "runs": 56,
+   "complete": 56,
+   "S2": {
+    "n": 56,
+    "max_vds_V": 401.4,
+    "max_off_V": -0.467,
+    "max_vgs_abs_V": 14.97,
+    "max_slew2080_esl10_Vns": 28.69,
+    "max_slew2080_esl1.06_Vns": 27.5,
+    "max_gate_charge_nC": 382.6
+   },
+   "screens_c25_pass": 56,
+   "screens_c25_pass_hot": 56,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -0.467,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CFD7"
+  }
+ },
+ "cfd7_c39_tt125": {
+  "s4L": {
+   "runs": 336,
+   "complete": 336,
+   "S4": {
+    "n": 336,
+    "max_vds_V": 347.2,
+    "max_off_V": 0.497,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 49.7,
+    "max_slew2080_esl1.06_Vns": 49.15,
+    "max_difdt_75_25_Apus": 244.0,
+    "max_irr_A": 50.8,
+    "max_turn_on_gate4_ns": 481.4,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 336,
+   "screens_c25_pass_hot": 336,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 49.7,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.71,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.188,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.414,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 0.497
+   },
+   "device_data_key": "IPW65R018CFD7"
+  },
+  "s4bL": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 341.7,
+    "max_off_V": 0.237,
+    "max_vgs_abs_V": 15.0,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 49.7,
+    "max_slew2080_esl1.06_Vns": 49.15,
+    "max_difdt_75_25_Apus": 244.0,
+    "max_irr_A": 50.8,
+    "max_turn_on_gate4_ns": 481.4,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 49.7,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.71,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.188,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.414,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 0.237
+   },
+   "device_data_key": "IPW65R018CFD7"
+  }
+ },
+ "cfd7_c39_tt260": {
+  "full": {
+   "runs": 640,
+   "complete": 640,
+   "S1": {
+    "n": 80,
+    "max_vds_V": 353.6,
+    "max_off_V": -1.718,
+    "max_vgs_abs_V": 14.98,
+    "max_slew2080_esl10_Vns": 20.62,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 190.2,
+    "margin_ns": {
+     "340": 149.8,
+     "408": 218.1
+    },
+    "max_turn_on_gate4_ns": 799.4
+   },
+   "S2": {
+    "n": 56,
+    "max_vds_V": 435.0,
+    "max_off_V": -2.567,
+    "max_vgs_abs_V": 14.96,
+    "max_slew2080_esl10_Vns": 20.53,
+    "max_slew2080_esl1.06_Vns": 20.26,
+    "max_gate_charge_nC": 471.5
+   },
+   "S4": {
+    "n": 336,
+    "max_vds_V": 383.9,
+    "max_off_V": 1.567,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 144,
+    "slew_refused": "144 of 336 S4 rows have no edge in the window; re-run in the long window",
+    "max_slew2080_esl10_Vns": null,
+    "max_slew2080_esl1.06_Vns": null,
+    "max_difdt_75_25_Apus": 244.0,
+    "max_irr_A": 70.0,
+    "max_turn_on_gate4_ns": 481.4,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "S5": {
+    "n": 168,
+    "max_vds_V": 360.4,
+    "max_off_V": -0.216,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 22.12,
+    "max_slew2080_esl1.06_Vns": 20.79
+   },
+   "screens_c25_pass": 640,
+   "screens_c25_pass_hot": 640,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": null,
+    "S4_slew_refused": "144 of 336 S4 rows have no edge in the window; re-run in the long window",
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.188,
+    "difdt_pass_80pct": true,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 1.567,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CFD7"
+  },
+  "s4L": {
+   "runs": 336,
+   "complete": 336,
+   "S4": {
+    "n": 336,
+    "max_vds_V": 383.9,
+    "max_off_V": 1.567,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 68.58,
+    "max_slew2080_esl1.06_Vns": 67.76,
+    "max_difdt_75_25_Apus": 244.0,
+    "max_irr_A": 70.0,
+    "max_turn_on_gate4_ns": 481.4,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 336,
+   "screens_c25_pass_hot": 336,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 68.58,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.98,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.188,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.572,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 1.567
+   },
+   "device_data_key": "IPW65R018CFD7"
+  },
+  "s4bL": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 383.9,
+    "max_off_V": 1.338,
+    "max_vgs_abs_V": 15.0,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 68.58,
+    "max_slew2080_esl1.06_Vns": 67.76,
+    "max_difdt_75_25_Apus": 244.0,
+    "max_irr_A": 70.0,
+    "max_turn_on_gate4_ns": 481.4,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 68.58,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.98,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.188,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.572,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 1.338
+   },
+   "device_data_key": "IPW65R018CFD7"
+  }
+ },
+ "cfd7_r68c6p8_tt260": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 281.7,
+    "max_off_V": -1.434,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 42,
+    "slew_refused": "42 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "max_slew2080_esl10_Vns": null,
+    "max_slew2080_esl1.06_Vns": null,
+    "max_difdt_75_25_Apus": 212.0,
+    "max_irr_A": 37.6,
+    "max_turn_on_gate4_ns": 543.0,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": null,
+    "S4_slew_refused": "42 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.163,
+    "difdt_pass_80pct": true,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -1.434
+   },
+   "device_data_key": "IPW65R018CFD7"
+  },
+  "s4bL": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 281.7,
+    "max_off_V": -1.434,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 63.76,
+    "max_slew2080_esl1.06_Vns": 63.42,
+    "max_difdt_75_25_Apus": 212.0,
+    "max_irr_A": 37.6,
+    "max_turn_on_gate4_ns": 543.0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 63.76,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.911,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.163,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.531,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -1.434
+   },
+   "device_data_key": "IPW65R018CFD7"
+  }
+ },
+ "cm8_r100": {
+  "slowgate": {
+   "runs": 16,
+   "complete": 16,
+   "S1": {
+    "n": 16,
+    "max_vds_V": 242.5,
+    "max_off_V": -1.889,
+    "max_vgs_abs_V": 14.98,
+    "max_slew2080_esl10_Vns": 21.68,
+    "zvs": "16/16",
+    "worst_t_trans_ns": 152.1,
+    "margin_ns": {
+     "340": 187.9,
+     "408": 256.2
+    },
+    "max_turn_on_gate4_ns": 1037.0,
+    "min_gate_at_1us_V": 3.76,
+    "min_gate_at_1us_V_gn_slowgate_rows": 3.76,
+    "min_gate_at_2us_V": 9.0,
+    "min_gate_at_2us_V_gn_slowgate_rows": 9.0,
+    "min_gate_at_3us_V": 11.66,
+    "min_gate_at_3us_V_gn_slowgate_rows": 11.66
+   },
+   "screens_c25_pass": 16,
+   "screens_c25_pass_hot": 16,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -1.889
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r100_tt100": {
+  "s4bL": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 356.0,
+    "max_off_V": 0.095,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 45.31,
+    "max_slew2080_esl1.06_Vns": 44.79,
+    "max_difdt_75_25_Apus": 284.0,
+    "max_irr_A": 44.0,
+    "max_turn_on_gate4_ns": 602.2,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 45.31,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.647,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.218,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.378,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 0.095
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r100_tt180": {
+  "fullL": {
+   "runs": 640,
+   "complete": 640,
+   "S1": {
+    "n": 80,
+    "max_vds_V": 359.0,
+    "max_off_V": -1.889,
+    "max_vgs_abs_V": 15.85,
+    "max_slew2080_esl10_Vns": 22.73,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 116.4,
+    "margin_ns": {
+     "340": 223.6,
+     "408": 291.9
+    },
+    "max_turn_on_gate4_ns": 1234.9,
+    "min_gate_at_1us_V": 2.43,
+    "min_gate_at_1us_V_gn_slowgate_rows": 4.21,
+    "min_gate_at_2us_V": 8.3,
+    "min_gate_at_2us_V_gn_slowgate_rows": 9.31,
+    "min_gate_at_3us_V": 11.23,
+    "min_gate_at_3us_V_gn_slowgate_rows": 11.8
+   },
+   "S2": {
+    "n": 56,
+    "max_vds_V": 488.5,
+    "max_off_V": -2.493,
+    "max_vgs_abs_V": 18.74,
+    "max_slew2080_esl10_Vns": 36.06,
+    "max_slew2080_esl1.06_Vns": 35.1,
+    "max_gate_charge_nC": 313.8
+   },
+   "S4": {
+    "n": 336,
+    "max_vds_V": 371.5,
+    "max_off_V": 1.334,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 66.36,
+    "max_slew2080_esl1.06_Vns": 65.77,
+    "max_difdt_75_25_Apus": 285.0,
+    "max_irr_A": 56.2,
+    "max_turn_on_gate4_ns": 661.2,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "S5": {
+    "n": 168,
+    "max_vds_V": 366.0,
+    "max_off_V": -0.625,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 19.1,
+    "max_slew2080_esl1.06_Vns": 19.01
+   },
+   "screens_c25_pass": 640,
+   "screens_c25_pass_hot": 640,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 66.36,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.948,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.219,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.553,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 1.334,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 367.0,
+    "max_off_V": 0.924,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 2,
+    "slew_refused": "2 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "max_slew2080_esl10_Vns": null,
+    "max_slew2080_esl1.06_Vns": null,
+    "max_difdt_75_25_Apus": 284.0,
+    "max_irr_A": 56.2,
+    "max_turn_on_gate4_ns": 602.2,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": null,
+    "S4_slew_refused": "2 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.218,
+    "difdt_pass_80pct": true,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 0.924
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s4bL": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 367.0,
+    "max_off_V": 0.924,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 66.36,
+    "max_slew2080_esl1.06_Vns": 65.77,
+    "max_difdt_75_25_Apus": 284.0,
+    "max_irr_A": 56.2,
+    "max_turn_on_gate4_ns": 602.2,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 66.36,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.948,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.218,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.553,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 0.924
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s2q": {
+   "runs": 56,
+   "complete": 56,
+   "S2": {
+    "n": 56,
+    "max_vds_V": 488.5,
+    "max_off_V": -2.493,
+    "max_vgs_abs_V": 18.74,
+    "max_slew2080_esl10_Vns": 36.06,
+    "max_slew2080_esl1.06_Vns": 35.1,
+    "max_gate_charge_nC": 296.0
+   },
+   "screens_c25_pass": 56,
+   "screens_c25_pass_hot": 56,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -2.493,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r100c4p7_tt180": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 282.0,
+    "max_off_V": -2.354,
+    "max_vgs_abs_V": 15.81,
+    "no_edge_rows": 42,
+    "slew_refused": "42 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "max_slew2080_esl10_Vns": null,
+    "max_slew2080_esl1.06_Vns": null,
+    "max_difdt_75_25_Apus": 181.0,
+    "max_irr_A": 16.8,
+    "max_turn_on_gate4_ns": 537.7,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": null,
+    "S4_slew_refused": "42 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.139,
+    "difdt_pass_80pct": true,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -2.354
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r120": {
+  "slowgate": {
+   "runs": 16,
+   "complete": 16,
+   "S1": {
+    "n": 16,
+    "max_vds_V": 242.5,
+    "max_off_V": -1.914,
+    "max_vgs_abs_V": 14.98,
+    "max_slew2080_esl10_Vns": 21.66,
+    "zvs": "16/16",
+    "worst_t_trans_ns": 152.2,
+    "margin_ns": {
+     "340": 187.8,
+     "408": 256.1
+    },
+    "max_turn_on_gate4_ns": 1256.8,
+    "min_gate_at_1us_V": 2.51,
+    "min_gate_at_1us_V_gn_slowgate_rows": 2.51,
+    "min_gate_at_2us_V": 7.65,
+    "min_gate_at_2us_V_gn_slowgate_rows": 7.65,
+    "min_gate_at_3us_V": 10.51,
+    "min_gate_at_3us_V_gn_slowgate_rows": 10.51
+   },
+   "screens_c25_pass": 16,
+   "screens_c25_pass_hot": 16,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -1.914
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r120_tt180": {
+  "s4bL": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 351.0,
+    "max_off_V": 0.804,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 59.4,
+    "max_slew2080_esl1.06_Vns": 58.52,
+    "max_difdt_75_25_Apus": 248.0,
+    "max_irr_A": 51.4,
+    "max_turn_on_gate4_ns": 456.1,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 59.4,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.849,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.191,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.495,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 0.804
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r150": {
+  "slowgate": {
+   "runs": 16,
+   "complete": 16,
+   "S1": {
+    "n": 16,
+    "max_vds_V": 242.6,
+    "max_off_V": -1.945,
+    "max_vgs_abs_V": 14.98,
+    "max_slew2080_esl10_Vns": 21.66,
+    "zvs": "16/16",
+    "worst_t_trans_ns": 152.2,
+    "margin_ns": {
+     "340": 187.8,
+     "408": 256.1
+    },
+    "max_turn_on_gate4_ns": 1579.7,
+    "min_gate_at_1us_V": 1.1,
+    "min_gate_at_1us_V_gn_slowgate_rows": 1.1,
+    "min_gate_at_2us_V": 5.93,
+    "min_gate_at_2us_V_gn_slowgate_rows": 5.93,
+    "min_gate_at_3us_V": 8.94,
+    "min_gate_at_3us_V_gn_slowgate_rows": 8.94
+   },
+   "screens_c25_pass": 16,
+   "screens_c25_pass_hot": 16,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -1.945
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r150_tt180": {
+  "fullL": {
+   "runs": 640,
+   "complete": 640,
+   "S1": {
+    "n": 80,
+    "max_vds_V": 358.9,
+    "max_off_V": -1.945,
+    "max_vgs_abs_V": 14.97,
+    "max_slew2080_esl10_Vns": 22.73,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 116.4,
+    "margin_ns": {
+     "340": 223.6,
+     "408": 291.9
+    },
+    "max_turn_on_gate4_ns": 1855.3,
+    "min_gate_at_1us_V": -0.45,
+    "min_gate_at_1us_V_gn_slowgate_rows": 1.67,
+    "min_gate_at_2us_V": 4.66,
+    "min_gate_at_2us_V_gn_slowgate_rows": 6.36,
+    "min_gate_at_3us_V": 8.28,
+    "min_gate_at_3us_V_gn_slowgate_rows": 9.21
+   },
+   "S2": {
+    "n": 56,
+    "max_vds_V": 488.7,
+    "max_off_V": -2.789,
+    "max_vgs_abs_V": 19.29,
+    "max_slew2080_esl10_Vns": 35.98,
+    "max_slew2080_esl1.06_Vns": 35.07,
+    "max_gate_charge_nC": 283.6
+   },
+   "S4": {
+    "n": 336,
+    "max_vds_V": 283.7,
+    "max_off_V": -1.784,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 50.01,
+    "max_slew2080_esl1.06_Vns": 49.4,
+    "max_difdt_75_25_Apus": 209.0,
+    "max_irr_A": 19.6,
+    "max_turn_on_gate4_ns": 567.4,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "S5": {
+    "n": 168,
+    "max_vds_V": 324.0,
+    "max_off_V": -0.801,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 13.93,
+    "max_slew2080_esl1.06_Vns": 13.39
+   },
+   "screens_c25_pass": 640,
+   "screens_c25_pass_hot": 640,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 50.01,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.714,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.161,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.417,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -0.801,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 282.6,
+    "max_off_V": -2.344,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 42,
+    "slew_refused": "42 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "max_slew2080_esl10_Vns": null,
+    "max_slew2080_esl1.06_Vns": null,
+    "max_difdt_75_25_Apus": 209.0,
+    "max_irr_A": 19.6,
+    "max_turn_on_gate4_ns": 566.6,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": null,
+    "S4_slew_refused": "42 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.161,
+    "difdt_pass_80pct": true,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -2.344
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s4bL": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 282.6,
+    "max_off_V": -2.344,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 50.01,
+    "max_slew2080_esl1.06_Vns": 49.22,
+    "max_difdt_75_25_Apus": 209.0,
+    "max_irr_A": 19.6,
+    "max_turn_on_gate4_ns": 566.6,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 50.01,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.714,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.161,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.417,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -2.344
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s2q": {
+   "runs": 56,
+   "complete": 56,
+   "S2": {
+    "n": 56,
+    "max_vds_V": 488.7,
+    "max_off_V": -2.789,
+    "max_vgs_abs_V": 19.29,
+    "max_slew2080_esl10_Vns": 35.98,
+    "max_slew2080_esl1.06_Vns": 35.07,
+    "max_gate_charge_nC": 303.4
+   },
+   "screens_c25_pass": 56,
+   "screens_c25_pass_hot": 56,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -2.789,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r27_tt180": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 465.1,
+    "max_off_V": -1.289,
+    "max_vgs_abs_V": 17.3,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 114.55,
+    "max_slew2080_esl1.06_Vns": 110.62,
+    "max_difdt_75_25_Apus": 762.0,
+    "max_irr_A": 86.9,
+    "max_turn_on_gate4_ns": 113.5,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 114.55,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 1.636,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.586,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.955,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -1.289
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r39": {
+  "full": {
+   "runs": 640,
+   "complete": 640,
+   "S1": {
+    "n": 80,
+    "max_vds_V": 359.3,
+    "max_off_V": -1.534,
+    "max_vgs_abs_V": 14.98,
+    "max_slew2080_esl10_Vns": 22.74,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 116.2,
+    "margin_ns": {
+     "340": 223.8,
+     "408": 292.1
+    },
+    "max_turn_on_gate4_ns": 445.0
+   },
+   "S2": {
+    "n": 56,
+    "max_vds_V": 486.7,
+    "max_off_V": -1.754,
+    "max_vgs_abs_V": 16.37,
+    "max_slew2080_esl10_Vns": 36.32,
+    "max_slew2080_esl1.06_Vns": 35.32,
+    "max_gate_charge_nC": 285.9
+   },
+   "S4": {
+    "n": 336,
+    "max_vds_V": 371.8,
+    "max_off_V": -1.438,
+    "max_vgs_abs_V": 15.03,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 39.94,
+    "max_slew2080_esl1.06_Vns": 38.77,
+    "max_difdt_75_25_Apus": 563.0,
+    "max_irr_A": 44.9,
+    "max_turn_on_gate4_ns": 159.0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 340,
+     "esl_nH": 10
+    }
+   },
+   "S5": {
+    "n": 168,
+    "max_vds_V": 376.2,
+    "max_off_V": -1.045,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 30.24,
+    "max_slew2080_esl1.06_Vns": 29.66
+   },
+   "screens_c25_pass": 640,
+   "screens_c25_pass_hot": 640,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 39.94,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.571,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.433,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.333,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -1.045,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 365.9,
+    "max_off_V": -2.009,
+    "max_vgs_abs_V": 15.03,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 39.82,
+    "max_slew2080_esl1.06_Vns": 38.28,
+    "max_difdt_75_25_Apus": 563.0,
+    "max_irr_A": 44.8,
+    "max_turn_on_gate4_ns": 156.9,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 39.82,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.569,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.433,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.332,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -2.009
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "slowgate": {
+   "runs": 16,
+   "complete": 16,
+   "S1": {
+    "n": 16,
+    "max_vds_V": 243.2,
+    "max_off_V": -1.545,
+    "max_vgs_abs_V": 14.98,
+    "max_slew2080_esl10_Vns": 21.64,
+    "zvs": "16/16",
+    "worst_t_trans_ns": 152.0,
+    "margin_ns": {
+     "340": 188.0,
+     "408": 256.3
+    },
+    "max_turn_on_gate4_ns": 380.5,
+    "min_gate_at_1us_V": 10.78,
+    "min_gate_at_1us_V_gn_slowgate_rows": 10.78,
+    "min_gate_at_2us_V": 13.98,
+    "min_gate_at_2us_V_gn_slowgate_rows": 13.98,
+    "min_gate_at_3us_V": 14.57,
+    "min_gate_at_3us_V_gn_slowgate_rows": 14.57
+   },
+   "screens_c25_pass": 16,
+   "screens_c25_pass_hot": 16,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -1.545
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r39__q": {
+  "s2q": {
+   "runs": 56,
+   "complete": 56,
+   "S2": {
+    "n": 56,
+    "max_vds_V": 492.7,
+    "max_off_V": 0.047,
+    "max_vgs_abs_V": 15.57,
+    "max_slew2080_esl10_Vns": 34.15,
+    "max_slew2080_esl1.06_Vns": 33.58,
+    "max_gate_charge_nC": 288.0
+   },
+   "screens_c25_pass": 56,
+   "screens_c25_pass_hot": 56,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": 0.047,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r39_tt100": {
+  "full": {
+   "runs": 640,
+   "complete": 640,
+   "S1": {
+    "n": 80,
+    "max_vds_V": 359.3,
+    "max_off_V": -1.534,
+    "max_vgs_abs_V": 14.98,
+    "max_slew2080_esl10_Vns": 22.74,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 116.2,
+    "margin_ns": {
+     "340": 223.8,
+     "408": 292.1
+    },
+    "max_turn_on_gate4_ns": 445.0
+   },
+   "S2": {
+    "n": 56,
+    "max_vds_V": 487.1,
+    "max_off_V": -1.754,
+    "max_vgs_abs_V": 16.37,
+    "max_slew2080_esl10_Vns": 36.32,
+    "max_slew2080_esl1.06_Vns": 35.32,
+    "max_gate_charge_nC": 285.9
+   },
+   "S4": {
+    "n": 336,
+    "max_vds_V": 513.7,
+    "max_off_V": -0.426,
+    "max_vgs_abs_V": 25.35,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 68.69,
+    "max_slew2080_esl1.06_Vns": 68.28,
+    "max_difdt_75_25_Apus": 563.0,
+    "max_irr_A": 71.9,
+    "max_turn_on_gate4_ns": 159.0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "S5": {
+    "n": 168,
+    "max_vds_V": 376.2,
+    "max_off_V": -1.042,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 30.41,
+    "max_slew2080_esl1.06_Vns": 29.73
+   },
+   "screens_c25_pass": 640,
+   "screens_c25_pass_hot": 640,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 68.69,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.981,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.433,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.572,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -0.426,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 390.3,
+    "max_off_V": -1.812,
+    "max_vgs_abs_V": 15.03,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 68.69,
+    "max_slew2080_esl1.06_Vns": 68.28,
+    "max_difdt_75_25_Apus": 563.0,
+    "max_irr_A": 61.8,
+    "max_turn_on_gate4_ns": 156.9,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 68.69,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.981,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.433,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.572,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -1.812
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r39_tt180": {
+  "full": {
+   "runs": 640,
+   "complete": 640,
+   "S1": {
+    "n": 80,
+    "max_vds_V": 359.3,
+    "max_off_V": -1.534,
+    "max_vgs_abs_V": 14.98,
+    "max_slew2080_esl10_Vns": 22.74,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 116.2,
+    "margin_ns": {
+     "340": 223.8,
+     "408": 292.1
+    },
+    "max_turn_on_gate4_ns": 444.9
+   },
+   "S2": {
+    "n": 56,
+    "max_vds_V": 487.1,
+    "max_off_V": -1.754,
+    "max_vgs_abs_V": 16.37,
+    "max_slew2080_esl10_Vns": 36.32,
+    "max_slew2080_esl1.06_Vns": 35.32,
+    "max_gate_charge_nC": 285.9
+   },
+   "S4": {
+    "n": 336,
+    "max_vds_V": 525.8,
+    "max_off_V": 0.701,
+    "max_vgs_abs_V": 29.71,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 95.74,
+    "max_slew2080_esl1.06_Vns": 91.08,
+    "max_difdt_75_25_Apus": 563.0,
+    "max_irr_A": 77.9,
+    "max_turn_on_gate4_ns": 159.0,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "S5": {
+    "n": 168,
+    "max_vds_V": 376.2,
+    "max_off_V": -1.041,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 30.4,
+    "max_slew2080_esl1.06_Vns": 29.73
+   },
+   "screens_c25_pass": 639,
+   "screens_c25_pass_hot": 639,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 95.74,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 1.368,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.433,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.798,
+    "S4_vds_pass_520": false,
+    "max_off_gate_V": 0.701,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 437.5,
+    "max_off_V": -0.689,
+    "max_vgs_abs_V": 15.03,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 95.74,
+    "max_slew2080_esl1.06_Vns": 91.08,
+    "max_difdt_75_25_Apus": 563.0,
+    "max_irr_A": 77.9,
+    "max_turn_on_gate4_ns": 156.9,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 95.74,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 1.368,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.433,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.798,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -0.689
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r47_tt180": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 421.4,
+    "max_off_V": -0.385,
+    "max_vgs_abs_V": 15.03,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 83.44,
+    "max_slew2080_esl1.06_Vns": 81.98,
+    "max_difdt_75_25_Apus": 492.0,
+    "max_irr_A": 73.6,
+    "max_turn_on_gate4_ns": 186.2,
+    "worst_slew_row": {
+     "drv": "weak",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 83.44,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 1.192,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.378,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.695,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -0.385
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r47c2p2_tt100": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 365.8,
+    "max_off_V": 0.719,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 62.23,
+    "max_slew2080_esl1.06_Vns": 60.86,
+    "max_difdt_75_25_Apus": 395.0,
+    "max_irr_A": 53.7,
+    "max_turn_on_gate4_ns": 210.5,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 62.23,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.889,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.304,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.519,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 0.719
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r47c2p2_tt180": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 401.6,
+    "max_off_V": 2.227,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 78.49,
+    "max_slew2080_esl1.06_Vns": 77.7,
+    "max_difdt_75_25_Apus": 395.0,
+    "max_irr_A": 67.7,
+    "max_turn_on_gate4_ns": 210.5,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 12,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 78.49,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 1.121,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.304,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.654,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 2.227
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s2q": {
+   "runs": 56,
+   "complete": 56,
+   "S2": {
+    "n": 56,
+    "max_vds_V": 539.0,
+    "max_off_V": -1.865,
+    "max_vgs_abs_V": 19.12,
+    "max_slew2080_esl10_Vns": 31.24,
+    "max_slew2080_esl1.06_Vns": 30.77,
+    "max_gate_charge_nC": 307.5
+   },
+   "screens_c25_pass": 56,
+   "screens_c25_pass_hot": 56,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -1.865,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r56c2p2_tt100": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 358.4,
+    "max_off_V": 0.878,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 56.12,
+    "max_slew2080_esl1.06_Vns": 55.02,
+    "max_difdt_75_25_Apus": 350.0,
+    "max_irr_A": 50.4,
+    "max_turn_on_gate4_ns": 248.1,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 56.12,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.802,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.269,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.468,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 0.878
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r56c2p2_tt180": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 387.3,
+    "max_off_V": 2.29,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 75.65,
+    "max_slew2080_esl1.06_Vns": 74.73,
+    "max_difdt_75_25_Apus": 351.0,
+    "max_irr_A": 63.6,
+    "max_turn_on_gate4_ns": 248.1,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 6,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 75.65,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 1.081,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.27,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.63,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 2.29
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s2q": {
+   "runs": 56,
+   "complete": 56,
+   "S2": {
+    "n": 56,
+    "max_vds_V": 540.9,
+    "max_off_V": -2.013,
+    "max_vgs_abs_V": 19.53,
+    "max_slew2080_esl10_Vns": 31.2,
+    "max_slew2080_esl1.06_Vns": 30.74,
+    "max_gate_charge_nC": 309.2
+   },
+   "screens_c25_pass": 56,
+   "screens_c25_pass_hot": 56,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -2.013,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r68": {
+  "slowgate": {
+   "runs": 16,
+   "complete": 16,
+   "S1": {
+    "n": 16,
+    "max_vds_V": 242.7,
+    "max_off_V": -1.772,
+    "max_vgs_abs_V": 14.98,
+    "max_slew2080_esl10_Vns": 21.65,
+    "zvs": "16/16",
+    "worst_t_trans_ns": 152.1,
+    "margin_ns": {
+     "340": 187.9,
+     "408": 256.2
+    },
+    "max_turn_on_gate4_ns": 692.6,
+    "min_gate_at_1us_V": 6.85,
+    "min_gate_at_1us_V_gn_slowgate_rows": 6.85,
+    "min_gate_at_2us_V": 11.57,
+    "min_gate_at_2us_V_gn_slowgate_rows": 11.57,
+    "min_gate_at_3us_V": 13.51,
+    "min_gate_at_3us_V_gn_slowgate_rows": 13.51
+   },
+   "screens_c25_pass": 16,
+   "screens_c25_pass_hot": 16,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -1.772
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r68_tt100": {
+  "s4bL": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 363.7,
+    "max_off_V": -0.765,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 58.06,
+    "max_slew2080_esl1.06_Vns": 56.67,
+    "max_difdt_75_25_Apus": 376.0,
+    "max_irr_A": 51.3,
+    "max_turn_on_gate4_ns": 263.6,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 58.06,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.829,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.289,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.484,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -0.765
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r68_tt180": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 391.0,
+    "max_off_V": 0.187,
+    "max_vgs_abs_V": 16.59,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 75.39,
+    "max_slew2080_esl1.06_Vns": 75.34,
+    "max_difdt_75_25_Apus": 376.0,
+    "max_irr_A": 64.8,
+    "max_turn_on_gate4_ns": 263.6,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 75.39,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 1.077,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.289,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.628,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 0.187
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s2q": {
+   "runs": 56,
+   "complete": 56,
+   "S2": {
+    "n": 56,
+    "max_vds_V": 489.1,
+    "max_off_V": -2.301,
+    "max_vgs_abs_V": 18.0,
+    "max_slew2080_esl10_Vns": 36.13,
+    "max_slew2080_esl1.06_Vns": 35.19,
+    "max_gate_charge_nC": 289.9
+   },
+   "screens_c25_pass": 56,
+   "screens_c25_pass_hot": 56,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -2.301,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r68c10_tt180": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 281.8,
+    "max_off_V": -2.263,
+    "max_vgs_abs_V": 15.0,
+    "no_edge_rows": 42,
+    "slew_refused": "42 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "max_slew2080_esl10_Vns": null,
+    "max_slew2080_esl1.06_Vns": null,
+    "max_difdt_75_25_Apus": 169.0,
+    "max_irr_A": 14.7,
+    "max_turn_on_gate4_ns": 523.7,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": null,
+    "S4_slew_refused": "42 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.13,
+    "difdt_pass_80pct": true,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -2.263
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r68c2p2_tt100": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 353.1,
+    "max_off_V": 1.124,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 46.31,
+    "max_slew2080_esl1.06_Vns": 46.23,
+    "max_difdt_75_25_Apus": 306.0,
+    "max_irr_A": 46.7,
+    "max_turn_on_gate4_ns": 298.4,
+    "worst_slew_row": {
+     "drv": "weak",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 46.31,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.662,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.235,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.386,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 1.124
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r68c2p2_tt180": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 373.8,
+    "max_off_V": 2.428,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 70.66,
+    "max_slew2080_esl1.06_Vns": 70.27,
+    "max_difdt_75_25_Apus": 306.0,
+    "max_irr_A": 59.4,
+    "max_turn_on_gate4_ns": 298.4,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 0,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 70.66,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 1.009,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.235,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.589,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 2.428
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s2q": {
+   "runs": 56,
+   "complete": 56,
+   "S2": {
+    "n": 56,
+    "max_vds_V": 540.4,
+    "max_off_V": -2.173,
+    "max_vgs_abs_V": 19.91,
+    "max_slew2080_esl10_Vns": 31.19,
+    "max_slew2080_esl1.06_Vns": 30.73,
+    "max_gate_charge_nC": 312.3
+   },
+   "screens_c25_pass": 56,
+   "screens_c25_pass_hot": 56,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -2.173,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r68c4p7": {
+  "slowgate": {
+   "runs": 16,
+   "complete": 16,
+   "S1": {
+    "n": 16,
+    "max_vds_V": 238.7,
+    "max_off_V": -1.912,
+    "max_vgs_abs_V": 14.98,
+    "max_slew2080_esl10_Vns": 21.79,
+    "zvs": "16/16",
+    "worst_t_trans_ns": 158.9,
+    "margin_ns": {
+     "340": 181.1,
+     "408": 249.4
+    },
+    "max_turn_on_gate4_ns": 713.8,
+    "min_gate_at_1us_V": 6.25,
+    "min_gate_at_1us_V_gn_slowgate_rows": 6.25,
+    "min_gate_at_2us_V": 10.74,
+    "min_gate_at_2us_V_gn_slowgate_rows": 10.74,
+    "min_gate_at_3us_V": 12.86,
+    "min_gate_at_3us_V_gn_slowgate_rows": 12.86
+   },
+   "screens_c25_pass": 16,
+   "screens_c25_pass_hot": 16,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -1.912
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r68c4p7_tt100": {
+  "full": {
+   "runs": 640,
+   "complete": 640,
+   "S1": {
+    "n": 80,
+    "max_vds_V": 354.7,
+    "max_off_V": -1.74,
+    "max_vgs_abs_V": 14.97,
+    "max_slew2080_esl10_Vns": 22.44,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 123.6,
+    "margin_ns": {
+     "340": 216.4,
+     "408": 284.7
+    },
+    "max_turn_on_gate4_ns": 783.1
+   },
+   "S2": {
+    "n": 56,
+    "max_vds_V": 607.9,
+    "max_off_V": -2.459,
+    "max_vgs_abs_V": 16.32,
+    "max_slew2080_esl10_Vns": 29.71,
+    "max_slew2080_esl1.06_Vns": 29.26,
+    "max_gate_charge_nC": 368.6
+   },
+   "S4": {
+    "n": 336,
+    "max_vds_V": 361.6,
+    "max_off_V": 2.827,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 39.34,
+    "max_slew2080_esl1.06_Vns": 38.25,
+    "max_difdt_75_25_Apus": 236.0,
+    "max_irr_A": 40.4,
+    "max_turn_on_gate4_ns": 371.1,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "S5": {
+    "n": 168,
+    "max_vds_V": 361.1,
+    "max_off_V": 0.697,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 16.97,
+    "max_slew2080_esl1.06_Vns": 16.72
+   },
+   "screens_c25_pass": 572,
+   "screens_c25_pass_hot": 301,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 39.34,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.562,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.182,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.328,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 2.827,
+    "S2_vds_pass_585": false
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r68c4p7_tt180": {
+  "full": {
+   "runs": 640,
+   "complete": 640,
+   "S1": {
+    "n": 80,
+    "max_vds_V": 354.7,
+    "max_off_V": -1.74,
+    "max_vgs_abs_V": 14.97,
+    "max_slew2080_esl10_Vns": 22.44,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 123.6,
+    "margin_ns": {
+     "340": 216.4,
+     "408": 284.7
+    },
+    "max_turn_on_gate4_ns": 783.2
+   },
+   "S2": {
+    "n": 56,
+    "max_vds_V": 607.9,
+    "max_off_V": -2.459,
+    "max_vgs_abs_V": 16.32,
+    "max_slew2080_esl10_Vns": 29.71,
+    "max_slew2080_esl1.06_Vns": 29.26,
+    "max_gate_charge_nC": 368.6
+   },
+   "S4": {
+    "n": 336,
+    "max_vds_V": 361.2,
+    "max_off_V": 4.242,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 59.72,
+    "max_slew2080_esl1.06_Vns": 59.06,
+    "max_difdt_75_25_Apus": 236.0,
+    "max_irr_A": 51.8,
+    "max_turn_on_gate4_ns": 371.1,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "S5": {
+    "n": 168,
+    "max_vds_V": 361.2,
+    "max_off_V": 0.7,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 16.99,
+    "max_slew2080_esl1.06_Vns": 16.73
+   },
+   "screens_c25_pass": 301,
+   "screens_c25_pass_hot": 301,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 59.72,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.853,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.182,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.498,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 4.242,
+    "S2_vds_pass_585": false
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 356.3,
+    "max_off_V": 4.038,
+    "max_vgs_abs_V": 15.01,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 59.72,
+    "max_slew2080_esl1.06_Vns": 59.06,
+    "max_difdt_75_25_Apus": 235.0,
+    "max_irr_A": 51.8,
+    "max_turn_on_gate4_ns": 370.9,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 0,
+   "screens_c25_pass_hot": 0,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 59.72,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.853,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.181,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.498,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 4.038
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s4bL": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 356.3,
+    "max_off_V": 4.038,
+    "max_vgs_abs_V": 15.01,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 59.72,
+    "max_slew2080_esl1.06_Vns": 59.06,
+    "max_difdt_75_25_Apus": 235.0,
+    "max_irr_A": 51.8,
+    "max_turn_on_gate4_ns": 370.9,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 0,
+   "screens_c25_pass_hot": 0,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 59.72,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.853,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.181,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.498,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 4.038
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r68c6p8_tt100": {
+  "full": {
+   "runs": 640,
+   "complete": 640,
+   "S1": {
+    "n": 80,
+    "max_vds_V": 354.8,
+    "max_off_V": -1.765,
+    "max_vgs_abs_V": 14.97,
+    "max_slew2080_esl10_Vns": 22.36,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 127.8,
+    "margin_ns": {
+     "340": 212.2,
+     "408": 280.5
+    },
+    "max_turn_on_gate4_ns": 798.4
+   },
+   "S2": {
+    "n": 56,
+    "max_vds_V": 660.6,
+    "max_off_V": -2.707,
+    "max_vgs_abs_V": 16.27,
+    "max_slew2080_esl10_Vns": 28.86,
+    "max_slew2080_esl1.06_Vns": 28.44,
+    "max_gate_charge_nC": 419.4
+   },
+   "S4": {
+    "n": 336,
+    "max_vds_V": 362.0,
+    "max_off_V": 2.9,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 30.52,
+    "max_slew2080_esl1.06_Vns": 30.01,
+    "max_difdt_75_25_Apus": 202.0,
+    "max_irr_A": 36.6,
+    "max_turn_on_gate4_ns": 431.6,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "S5": {
+    "n": 168,
+    "max_vds_V": 344.4,
+    "max_off_V": 0.814,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 14.39,
+    "max_slew2080_esl1.06_Vns": 13.86
+   },
+   "screens_c25_pass": 502,
+   "screens_c25_pass_hot": 436,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 30.52,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.436,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.155,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.254,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 2.9,
+    "S2_vds_pass_585": false
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r68c6p8_tt180": {
+  "full": {
+   "runs": 640,
+   "complete": 640,
+   "S1": {
+    "n": 80,
+    "max_vds_V": 354.8,
+    "max_off_V": -1.764,
+    "max_vgs_abs_V": 14.97,
+    "max_slew2080_esl10_Vns": 22.36,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 127.8,
+    "margin_ns": {
+     "340": 212.2,
+     "408": 280.5
+    },
+    "max_turn_on_gate4_ns": 798.5
+   },
+   "S2": {
+    "n": 56,
+    "max_vds_V": 660.9,
+    "max_off_V": -2.707,
+    "max_vgs_abs_V": 16.27,
+    "max_slew2080_esl10_Vns": 28.85,
+    "max_slew2080_esl1.06_Vns": 28.44,
+    "max_gate_charge_nC": 419.4
+   },
+   "S4": {
+    "n": 336,
+    "max_vds_V": 352.7,
+    "max_off_V": 4.175,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 50.75,
+    "max_slew2080_esl1.06_Vns": 49.86,
+    "max_difdt_75_25_Apus": 202.0,
+    "max_irr_A": 46.3,
+    "max_turn_on_gate4_ns": 431.6,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "S5": {
+    "n": 168,
+    "max_vds_V": 344.7,
+    "max_off_V": 0.816,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 14.41,
+    "max_slew2080_esl1.06_Vns": 13.89
+   },
+   "screens_c25_pass": 484,
+   "screens_c25_pass_hot": 484,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 50.75,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.725,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.155,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.423,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 4.175,
+    "S2_vds_pass_585": false
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 344.7,
+    "max_off_V": 4.061,
+    "max_vgs_abs_V": 15.0,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 50.75,
+    "max_slew2080_esl1.06_Vns": 49.86,
+    "max_difdt_75_25_Apus": 202.0,
+    "max_irr_A": 46.3,
+    "max_turn_on_gate4_ns": 431.6,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 24,
+   "screens_c25_pass_hot": 24,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 50.75,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.725,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.155,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.423,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 4.061
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s4bL": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 344.7,
+    "max_off_V": 4.061,
+    "max_vgs_abs_V": 15.0,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 50.75,
+    "max_slew2080_esl1.06_Vns": 49.86,
+    "max_difdt_75_25_Apus": 202.0,
+    "max_irr_A": 46.3,
+    "max_turn_on_gate4_ns": 431.6,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 24,
+   "screens_c25_pass_hot": 24,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 50.75,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.725,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.155,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.423,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 4.061
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r82_tt100": {
+  "s4bL": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 358.6,
+    "max_off_V": -0.292,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 46.75,
+    "max_slew2080_esl1.06_Vns": 46.73,
+    "max_difdt_75_25_Apus": 328.0,
+    "max_irr_A": 47.8,
+    "max_turn_on_gate4_ns": 418.5,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 46.75,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.668,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.252,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.39,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -0.292
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r82_tt180": {
+  "s4bL": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 378.4,
+    "max_off_V": 0.609,
+    "max_vgs_abs_V": 15.68,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 71.96,
+    "max_slew2080_esl1.06_Vns": 71.22,
+    "max_difdt_75_25_Apus": 328.0,
+    "max_irr_A": 60.7,
+    "max_turn_on_gate4_ns": 418.5,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 71.96,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 1.028,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.252,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.6,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 0.609
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r82c2p2_tt100": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 350.8,
+    "max_off_V": 1.417,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 44.25,
+    "max_slew2080_esl1.06_Vns": 43.93,
+    "max_difdt_75_25_Apus": 270.0,
+    "max_irr_A": 43.4,
+    "max_turn_on_gate4_ns": 520.3,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 44.25,
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_ratio": 0.632,
+    "diode_dvdt_pass_80pct": true,
+    "difdt_ratio": 0.208,
+    "difdt_pass_80pct": true,
+    "mosfet_dvdt_ratio": 0.369,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 1.417
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r82c2p2_tt180": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 363.0,
+    "max_off_V": 2.606,
+    "max_vgs_abs_V": 15.02,
+    "no_edge_rows": 4,
+    "slew_refused": "4 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "max_slew2080_esl10_Vns": null,
+    "max_slew2080_esl1.06_Vns": null,
+    "max_difdt_75_25_Apus": 270.0,
+    "max_irr_A": 55.5,
+    "max_turn_on_gate4_ns": 520.3,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 198,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 4,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": null,
+    "S4_slew_refused": "4 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.208,
+    "difdt_pass_80pct": true,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 2.606
+   },
+   "device_data_key": "IPW65R018CM8"
+  },
+  "s2q": {
+   "runs": 56,
+   "complete": 56,
+   "S2": {
+    "n": 56,
+    "max_vds_V": 540.3,
+    "max_off_V": -2.323,
+    "max_vgs_abs_V": 20.25,
+    "max_slew2080_esl10_Vns": 31.17,
+    "max_slew2080_esl1.06_Vns": 30.71,
+    "max_gate_charge_nC": 315.7
+   },
+   "screens_c25_pass": 56,
+   "screens_c25_pass_hot": 56,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -2.323,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r82c4p7_tt180": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 344.8,
+    "max_off_V": 3.542,
+    "max_vgs_abs_V": 15.01,
+    "no_edge_rows": 6,
+    "slew_refused": "6 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "max_slew2080_esl10_Vns": null,
+    "max_slew2080_esl1.06_Vns": null,
+    "max_difdt_75_25_Apus": 208.0,
+    "max_irr_A": 47.1,
+    "max_turn_on_gate4_ns": 772.9,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 24,
+   "screens_c25_pass_hot": 24,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": null,
+    "S4_slew_refused": "6 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.16,
+    "difdt_pass_80pct": true,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 3.542
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "cm8_r82c6p8_tt180": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 281.9,
+    "max_off_V": -2.323,
+    "max_vgs_abs_V": 15.0,
+    "no_edge_rows": 42,
+    "slew_refused": "42 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "max_slew2080_esl10_Vns": null,
+    "max_slew2080_esl1.06_Vns": null,
+    "max_difdt_75_25_Apus": 178.0,
+    "max_irr_A": 21.6,
+    "max_turn_on_gate4_ns": 516.8,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 27,
+     "vbus": 170,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 10
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": null,
+    "S4_slew_refused": "42 of 42 S4 rows have no edge in the window; re-run in the long window",
+    "diode_dvdt_rating_Vns": 70,
+    "diode_dvdt_pass_80pct": false,
+    "difdt_ratio": 0.137,
+    "difdt_pass_80pct": true,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -2.323
+   },
+   "device_data_key": "IPW65R018CM8"
+  }
+ },
+ "sic26_15_r68c4p7": {
+  "full": {
+   "runs": 640,
+   "complete": 640,
+   "S1": {
+    "n": 80,
+    "max_vds_V": 368.5,
+    "max_off_V": -1.447,
+    "max_vgs_abs_V": 14.97,
+    "max_slew2080_esl10_Vns": 15.75,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 56.5,
+    "margin_ns": {
+     "340": 283.5,
+     "408": 351.8
+    },
+    "max_turn_on_gate4_ns": 236.5
+   },
+   "S2": {
+    "n": 56,
+    "max_vds_V": 457.9,
+    "max_off_V": -1.76,
+    "max_vgs_abs_V": 15.43,
+    "max_slew2080_esl10_Vns": 17.63,
+    "max_slew2080_esl1.06_Vns": 17.49,
+    "max_gate_charge_nC": 120.8
+   },
+   "S4": {
+    "n": 336,
+    "max_vds_V": 285.7,
+    "max_off_V": -0.879,
+    "max_vgs_abs_V": 15.09,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 3.85,
+    "max_slew2080_esl1.06_Vns": 3.85,
+    "max_difdt_75_25_Apus": 168.0,
+    "max_irr_A": 2.2,
+    "max_turn_on_gate4_ns": 185.2,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 340,
+     "esl_nH": 1.06
+    }
+   },
+   "S5": {
+    "n": 168,
+    "max_vds_V": 286.4,
+    "max_off_V": -1.557,
+    "max_vgs_abs_V": 14.99,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 2.71,
+    "max_slew2080_esl1.06_Vns": 2.71
+   },
+   "screens_c25_pass": 640,
+   "screens_c25_pass_hot": 640,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 3.85,
+    "diode_dvdt_rating_Vns": "not stated",
+    "mosfet_dvdt_ratio": 0.019,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -0.879,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IMW65R026M2H_15"
+  },
+  "slowgate": {
+   "runs": 16,
+   "complete": 16,
+   "S1": {
+    "n": 16,
+    "max_vds_V": 276.8,
+    "max_off_V": -1.396,
+    "max_vgs_abs_V": 14.98,
+    "max_slew2080_esl10_Vns": 13.91,
+    "zvs": "16/16",
+    "worst_t_trans_ns": 62.1,
+    "margin_ns": {
+     "340": 277.9,
+     "408": 346.2
+    },
+    "max_turn_on_gate4_ns": 223.4,
+    "min_gate_at_1us_V": 12.72,
+    "min_gate_at_1us_V_gn_slowgate_rows": 12.72,
+    "min_gate_at_2us_V": 14.41,
+    "min_gate_at_2us_V_gn_slowgate_rows": 14.41,
+    "min_gate_at_3us_V": 14.67,
+    "min_gate_at_3us_V_gn_slowgate_rows": 14.67
+   },
+   "screens_c25_pass": 16,
+   "screens_c25_pass_hot": 16,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -1.396
+   },
+   "device_data_key": "IMW65R026M2H_15"
+  },
+  "zvs170": {
+   "runs": 288,
+   "complete": 288,
+   "S1": {
+    "n": 288,
+    "max_vds_V": 367.3,
+    "max_off_V": -1.648,
+    "max_vgs_abs_V": 14.99,
+    "max_slew2080_esl10_Vns": 15.52,
+    "zvs": "235/288",
+    "worst_t_trans_ns": 265.8,
+    "margin_ns": {
+     "340": 74.2,
+     "408": 142.5
+    },
+    "max_turn_on_gate4_ns": 269.8
+   },
+   "screens_c25_pass": 235,
+   "screens_c25_pass_hot": 235,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -1.648
+   },
+   "device_data_key": "IMW65R026M2H_15"
+  }
+ },
+ "sic26_15_r8p2": {
+  "full": {
+   "runs": 640,
+   "complete": 640,
+   "S1": {
+    "n": 80,
+    "max_vds_V": 386.7,
+    "max_off_V": -0.694,
+    "max_vgs_abs_V": 15.93,
+    "max_slew2080_esl10_Vns": 19.07,
+    "zvs": "80/80",
+    "worst_t_trans_ns": 42.4,
+    "margin_ns": {
+     "340": 297.6,
+     "408": 365.9
+    },
+    "max_turn_on_gate4_ns": 23.2
+   },
+   "S2": {
+    "n": 56,
+    "max_vds_V": 433.4,
+    "max_off_V": 0.446,
+    "max_vgs_abs_V": 17.01,
+    "max_slew2080_esl10_Vns": 23.42,
+    "max_slew2080_esl1.06_Vns": 23.2,
+    "max_gate_charge_nC": 61.3
+   },
+   "S4": {
+    "n": 336,
+    "max_vds_V": 339.0,
+    "max_off_V": 0.385,
+    "max_vgs_abs_V": 16.94,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 11.62,
+    "max_slew2080_esl1.06_Vns": 11.78,
+    "max_difdt_75_25_Apus": 2227.0,
+    "max_irr_A": 13.3,
+    "max_turn_on_gate4_ns": 21.5,
+    "worst_slew_row": {
+     "drv": "strong",
+     "leg": "B",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 340,
+     "esl_nH": 1.06
+    }
+   },
+   "S5": {
+    "n": 168,
+    "max_vds_V": 361.5,
+    "max_off_V": 0.412,
+    "max_vgs_abs_V": 16.22,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 11.8,
+    "max_slew2080_esl1.06_Vns": 11.85
+   },
+   "screens_c25_pass": 640,
+   "screens_c25_pass_hot": 640,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 11.78,
+    "diode_dvdt_rating_Vns": "not stated",
+    "mosfet_dvdt_ratio": 0.059,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 0.446,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IMW65R026M2H_15"
+  },
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 332.3,
+    "max_off_V": 0.066,
+    "max_vgs_abs_V": 15.46,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 11.11,
+    "max_slew2080_esl1.06_Vns": 11.43,
+    "max_difdt_75_25_Apus": 2227.0,
+    "max_irr_A": 13.3,
+    "max_turn_on_gate4_ns": 20.3,
+    "worst_slew_row": {
+     "drv": "nom",
+     "leg": "A",
+     "temp_C": 100,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 1.06
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 11.43,
+    "diode_dvdt_rating_Vns": "not stated",
+    "mosfet_dvdt_ratio": 0.057,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": 0.066
+   },
+   "device_data_key": "IMW65R026M2H_15"
+  },
+  "zvs170": {
+   "runs": 288,
+   "complete": 288,
+   "S1": {
+    "n": 288,
+    "max_vds_V": 385.8,
+    "max_off_V": -0.689,
+    "max_vgs_abs_V": 15.95,
+    "max_slew2080_esl10_Vns": 18.89,
+    "zvs": "254/288",
+    "worst_t_trans_ns": 210.5,
+    "margin_ns": {
+     "340": 129.5,
+     "408": 197.8
+    },
+    "max_turn_on_gate4_ns": 25.4
+   },
+   "screens_c25_pass": 254,
+   "screens_c25_pass_hot": 254,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": -0.689
+   },
+   "device_data_key": "IMW65R026M2H_15"
+  }
+ },
+ "sic26_15_r8p2__q": {
+  "s2q": {
+   "runs": 56,
+   "complete": 56,
+   "S2": {
+    "n": 56,
+    "max_vds_V": 432.3,
+    "max_off_V": 0.446,
+    "max_vgs_abs_V": 17.01,
+    "max_slew2080_esl10_Vns": 22.94,
+    "max_slew2080_esl1.06_Vns": 22.71,
+    "max_gate_charge_nC": 61.3
+   },
+   "screens_c25_pass": 56,
+   "screens_c25_pass_hot": 56,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": 0.446,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IMW65R026M2H_15"
+  }
+ },
+ "sic26_18_r8p2": {
+  "s4b": {
+   "runs": 42,
+   "complete": 42,
+   "S4": {
+    "n": 42,
+    "max_vds_V": 387.6,
+    "max_off_V": -0.233,
+    "max_vgs_abs_V": 19.42,
+    "no_edge_rows": 0,
+    "max_slew2080_esl10_Vns": 11.39,
+    "max_slew2080_esl1.06_Vns": 11.49,
+    "max_difdt_75_25_Apus": 2577.0,
+    "max_irr_A": 16.7,
+    "max_turn_on_gate4_ns": 18.4,
+    "worst_slew_row": {
+     "drv": "weak",
+     "leg": "A",
+     "temp_C": 150,
+     "vbus": 280,
+     "dir": 0,
+     "dt_ns": 600,
+     "esl_nH": 1.06
+    }
+   },
+   "screens_c25_pass": 42,
+   "screens_c25_pass_hot": 42,
+   "not_complete": [],
+   "ratings_check": {
+    "S4_slew_Vns": 11.49,
+    "diode_dvdt_rating_Vns": "not stated",
+    "mosfet_dvdt_ratio": 0.057,
+    "S4_vds_pass_520": true,
+    "max_off_gate_V": -0.233
+   },
+   "device_data_key": "IMW65R026M2H_18"
+  }
+ },
+ "sic26_18_r8p2__q": {
+  "s2q": {
+   "runs": 56,
+   "complete": 56,
+   "S2": {
+    "n": 56,
+    "max_vds_V": 431.9,
+    "max_off_V": 0.449,
+    "max_vgs_abs_V": 20.0,
+    "max_slew2080_esl10_Vns": 25.07,
+    "max_slew2080_esl1.06_Vns": 24.86,
+    "max_gate_charge_nC": 70.8
+   },
+   "screens_c25_pass": 56,
+   "screens_c25_pass_hot": 56,
+   "not_complete": [],
+   "ratings_check": {
+    "max_off_gate_V": 0.449,
+    "S2_vds_pass_585": true
+   },
+   "device_data_key": "IMW65R026M2H_18"
+  }
+ }
+}

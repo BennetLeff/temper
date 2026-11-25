@@ -1,0 +1,513 @@
+{
+ "schema": "temper.controller-shrink-c60.routability.v1",
+ "ESTIMATE": true,
+ "placement_file": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/output/temper-controller-shrink-c60/results/floorplan-acut.json",
+ "board49": [
+  -38.0,
+  14.0,
+  168.0,
+  90.0
+ ],
+ "board60": [
+  -38.0,
+  14.0,
+  93.0,
+  90.0
+ ],
+ "signal_nets": 181,
+ "plane_nets_excluded": [
+  "selv_gnd",
+  "v3v3"
+ ],
+ "c49_routed_by_layer_mm": {
+  "F.Cu": {
+   "segments": 2149,
+   "length_mm": 6835.8
+  },
+  "B.Cu": {
+   "segments": 941,
+   "length_mm": 2181.2
+  },
+  "In2.Cu": {
+   "segments": 1385,
+   "length_mm": 1592.3
+  }
+ },
+ "c49_routed_total_mm": 10609.4,
+ "c49_plane_net_track_mm": 457.4,
+ "c49_vias": 1112,
+ "mst_total_mm": {
+  "c49": 8487.7,
+  "c60": 4985.2,
+  "ratio": 0.587
+ },
+ "signal_routed_mm": {
+  "c49_measured": 10152.0,
+  "c60_predicted": 6026.7,
+  "detour_median": 1.148
+ },
+ "routable_area_mm2": {
+  "c49": 15354,
+  "c60": 9755,
+  "ratio": 0.635
+ },
+ "wiring_density_layer_equivalents": {
+  "signal_only": {
+   "c49": 0.198,
+   "c60": 0.185,
+   "ratio": 0.934
+  },
+  "incl_plane_stubs": {
+   "c49": 0.207,
+   "c60": 0.199,
+   "ratio": 0.962
+  },
+  "note": "1.0 = one whole layer covered by 0.15/0.15 mm tracks; C49 uses F.Cu, B.Cu and In2 (In2 part-time)"
+ },
+ "per_layer_demand_vs_capacity": {
+  "F.Cu": {
+   "c49": {
+    "obstruction_mm2": 2566,
+    "free_mm2": 12789,
+    "capacity_mm": 42629,
+    "demand_mm": 6836,
+    "demand_over_capacity": 0.16
+   },
+   "c60": {
+    "obstruction_mm2": 2566,
+    "free_mm2": 7189,
+    "capacity_mm": 23964,
+    "demand_mm": 4178,
+    "demand_over_capacity": 0.174
+   },
+   "ratio_c60_over_c49": 1.087
+  },
+  "B.Cu": {
+   "c49": {
+    "obstruction_mm2": 1150,
+    "free_mm2": 14205,
+    "capacity_mm": 47349,
+    "demand_mm": 2181,
+    "demand_over_capacity": 0.046
+   },
+   "c60": {
+    "obstruction_mm2": 1150,
+    "free_mm2": 8605,
+    "capacity_mm": 28684,
+    "demand_mm": 1333,
+    "demand_over_capacity": 0.046
+   },
+   "ratio_c60_over_c49": 1.0
+  },
+  "In2.Cu": {
+   "c49": {
+    "obstruction_mm2": 1150,
+    "free_mm2": 14205,
+    "capacity_mm": 47349,
+    "demand_mm": 1592,
+    "demand_over_capacity": 0.034
+   },
+   "c60": {
+    "obstruction_mm2": 1150,
+    "free_mm2": 8605,
+    "capacity_mm": 28684,
+    "demand_mm": 973,
+    "demand_over_capacity": 0.034
+   },
+   "ratio_c60_over_c49": 1.0
+  }
+ },
+ "pad_area_mm2": {
+  "smd_with_halo": 1416,
+  "tht_with_halo": 249,
+  "via_area_c49_count": 901
+ },
+ "rudy_5mm_mm_per_mm2": {
+  "c49": {
+   "50": 0.446,
+   "90": 1.471,
+   "95": 1.692,
+   "99": 2.083,
+   "max": 2.6
+  },
+  "c60": {
+   "50": 0.429,
+   "90": 1.35,
+   "95": 1.644,
+   "99": 2.291,
+   "max": 2.677
+  },
+  "ratio_p95": 0.972,
+  "ratio_p99": 1.1,
+  "ratio_max": 1.03
+ },
+ "c49_measured_routed_5mm_mm_per_mm2": {
+  "all_layers": {
+   "50": 0.604,
+   "90": 1.324,
+   "95": 1.487,
+   "99": 1.88,
+   "max": 2.548
+  },
+  "F.Cu": {
+   "50": 0.378,
+   "90": 0.946,
+   "95": 1.071,
+   "99": 1.206,
+   "max": 1.408
+  },
+  "B.Cu": {
+   "50": 0.01,
+   "90": 0.405,
+   "95": 0.512,
+   "99": 0.725,
+   "max": 1.308
+  },
+  "In2.Cu": {
+   "50": 0.0,
+   "90": 0.364,
+   "95": 0.474,
+   "99": 0.653,
+   "max": 0.912
+  }
+ },
+ "calibration": {
+  "corr_rudy_vs_routed_c49": 0.749,
+  "scale_routed_per_rudy": 0.891
+ },
+ "c60_predicted_routed_5mm_mm_per_mm2": {
+  "50": 0.382,
+  "90": 1.203,
+  "95": 1.465,
+  "99": 2.041,
+  "max": 2.385
+ },
+ "capacity_mm_per_mm2": {
+  "F+B": 6.67,
+  "F+B+In2": 10.0,
+  "note": "theoretical at 0.30 mm pitch; pads, vias and keep-outs take a share"
+ },
+ "hotspot_cells_pct": {
+  "cells_over_c49_p99_routed_x1.0": 1.8,
+  "cells_over_c49_p99_routed_x1.25": 0.03,
+  "cells_over_c49_p99_routed_x1.5": 0.0,
+  "c49_cells_over_its_own_p99": 1.0
+ },
+ "cut_lines": {
+  "c49": {
+   "X": {
+    "cut_length_mm": 76.0,
+    "max_crossings": 50,
+    "at": 115.0,
+    "max_per_mm": 0.658,
+    "mean_crossings": 35.9
+   },
+   "Y": {
+    "cut_length_mm": 206.0,
+    "max_crossings": 56,
+    "at": 61.0,
+    "max_per_mm": 0.272,
+    "mean_crossings": 33.0
+   }
+  },
+  "c60": {
+   "X": {
+    "cut_length_mm": 76.0,
+    "max_crossings": 48,
+    "at": 17.0,
+    "max_per_mm": 0.632,
+    "mean_crossings": 28.4
+   },
+   "Y": {
+    "cut_length_mm": 131.0,
+    "max_crossings": 60,
+    "at": 39.0,
+    "max_per_mm": 0.458,
+    "mean_crossings": 32.5
+   }
+  },
+  "capacity_tracks_per_mm": {
+   "F+B": 6.67,
+   "F+B+In2": 10.0
+  }
+ },
+ "inter_block_nets": {
+  "count": 96,
+  "mst_c49": 6995.1,
+  "mst_c60": 3766.0,
+  "c49_routed": 8316.7
+ },
+ "long_nets_mm": {
+  "permit": {
+   "routed49": 66.9,
+   "mst49": 58.4,
+   "mst60": 53.5
+  },
+  "PERMIT_LATCH": {
+   "routed49": 50.2,
+   "mst49": 39.1,
+   "mst60": 41.6
+  },
+  "RUN_EN": {
+   "routed49": 218.1,
+   "mst49": 188.7,
+   "mst60": 74.5
+  },
+  "bus_fault": {
+   "routed49": 91.1,
+   "mst49": 80.9,
+   "mst60": 73.1
+  },
+  "all_good": {
+   "routed49": 36.7,
+   "mst49": 35.4,
+   "mst60": 35.4
+  },
+  "reset_clock": {
+   "routed49": 42.1,
+   "mst49": 40.6,
+   "mst60": 40.6
+  },
+  "latched_fault": {
+   "routed49": 56.6,
+   "mst49": 45.9,
+   "mst60": 37.9
+  },
+  "HS_FAULT": {
+   "routed49": 88.5,
+   "mst49": 73.1,
+   "mst60": 65.2
+  },
+  "COIL_FAULT": {
+   "routed49": 95.1,
+   "mst49": 80.6,
+   "mst60": 74.4
+  },
+  "line": {
+   "routed49": 196.4,
+   "mst49": 162.9,
+   "mst60": 100.5
+  },
+  "RUNAWAY_FAULT": {
+   "routed49": 153.1,
+   "mst49": 145.6,
+   "mst60": 94.4
+  },
+  "RAIL_FAULT": {
+   "routed49": 34.5,
+   "mst49": 32.3,
+   "mst60": 31.6
+  },
+  "SENSOR_LIVE": {
+   "routed49": 17.0,
+   "mst49": 16.1,
+   "mst60": 15.7
+  }
+ },
+ "top_nets_by_c60_mst": [
+  {
+   "net": "v15_selv",
+   "pins": 13,
+   "mst49": 136.9,
+   "mst60": 133.6,
+   "routed49": 165.0,
+   "blocks": [
+    "blower_buck",
+    "buck_3v3",
+    "rms",
+    "ui_bus"
+   ],
+   "detour49": 1.2,
+   "pred60": 160.9
+  },
+  {
+   "net": "line",
+   "pins": 5,
+   "mst49": 162.9,
+   "mst60": 100.5,
+   "routed49": 196.4,
+   "blocks": [
+    "interlock",
+    "rtd",
+    "trip_glue"
+   ],
+   "detour49": 1.2,
+   "pred60": 121.2
+  },
+  {
+   "net": "ct_buf_out",
+   "pins": 4,
+   "mst49": 205.1,
+   "mst60": 99.9,
+   "routed49": 221.8,
+   "blocks": [
+    "d11_ctmon",
+    "rms"
+   ],
+   "detour49": 1.1,
+   "pred60": 108.0
+  },
+  {
+   "net": "RUNAWAY_FAULT",
+   "pins": 3,
+   "mst49": 145.6,
+   "mst60": 94.4,
+   "routed49": 153.1,
+   "blocks": [
+    "interlock",
+    "trip_glue"
+   ],
+   "detour49": 1.1,
+   "pred60": 99.3
+  },
+  {
+   "net": "RTD_SDI",
+   "pins": 3,
+   "mst49": 172.4,
+   "mst60": 79.9,
+   "routed49": 193.7,
+   "blocks": [
+    "mcu",
+    "rms",
+    "rtd"
+   ],
+   "detour49": 1.1,
+   "pred60": 89.8
+  },
+  {
+   "net": "RTD_SCK",
+   "pins": 3,
+   "mst49": 187.6,
+   "mst60": 78.8,
+   "routed49": 220.3,
+   "blocks": [
+    "mcu",
+    "rms",
+    "rtd"
+   ],
+   "detour49": 1.2,
+   "pred60": 92.5
+  },
+  {
+   "net": "FAN_PWM",
+   "pins": 3,
+   "mst49": 68.9,
+   "mst60": 77.8,
+   "routed49": 104.3,
+   "blocks": [
+    "blower_buck",
+    "mcu"
+   ],
+   "detour49": 1.5,
+   "pred60": 117.7
+  },
+  {
+   "net": "RUN_EN",
+   "pins": 5,
+   "mst49": 188.7,
+   "mst60": 74.5,
+   "routed49": 218.1,
+   "blocks": [
+    "capmode",
+    "interlock",
+    "mcu"
+   ],
+   "detour49": 1.2,
+   "pred60": 86.1
+  },
+  {
+   "net": "COIL_FAULT",
+   "pins": 4,
+   "mst49": 80.6,
+   "mst60": 74.4,
+   "routed49": 95.1,
+   "blocks": [
+    "interlock",
+    "thermal_sense",
+    "trip_glue"
+   ],
+   "detour49": 1.2,
+   "pred60": 87.8
+  },
+  {
+   "net": "bias_good_j4",
+   "pins": 2,
+   "mst49": 193.1,
+   "mst60": 74.1,
+   "routed49": 216.1,
+   "blocks": [
+    "connectors",
+    "j4_if"
+   ],
+   "detour49": 1.1,
+   "pred60": 82.9
+  },
+  {
+   "net": "RTD_SDO",
+   "pins": 3,
+   "mst49": 169.6,
+   "mst60": 73.4,
+   "routed49": 196.3,
+   "blocks": [
+    "mcu",
+    "rms",
+    "rtd"
+   ],
+   "detour49": 1.2,
+   "pred60": 85.0
+  },
+  {
+   "net": "bus_fault",
+   "pins": 4,
+   "mst49": 80.9,
+   "mst60": 73.1,
+   "routed49": 91.1,
+   "blocks": [
+    "connectors",
+    "interlock",
+    "trip_glue"
+   ],
+   "detour49": 1.1,
+   "pred60": 82.3
+  },
+  {
+   "net": "rx_a_out",
+   "pins": 3,
+   "mst49": 182.4,
+   "mst60": 66.4,
+   "routed49": 199.8,
+   "blocks": [
+    "d11_ctmon"
+   ],
+   "detour49": 1.1,
+   "pred60": 72.7
+  },
+  {
+   "net": "LINE_ZC_MCU",
+   "pins": 2,
+   "mst49": 179.8,
+   "mst60": 65.6,
+   "routed49": 211.6,
+   "blocks": [
+    "j4_if",
+    "mcu"
+   ],
+   "detour49": 1.2,
+   "pred60": 77.2
+  },
+  {
+   "net": "HS_FAULT",
+   "pins": 4,
+   "mst49": 73.1,
+   "mst60": 65.2,
+   "routed49": 88.5,
+   "blocks": [
+    "interlock",
+    "thermal_sense",
+    "trip_glue"
+   ],
+   "detour49": 1.2,
+   "pred60": 79.0
+  }
+ ]
+}

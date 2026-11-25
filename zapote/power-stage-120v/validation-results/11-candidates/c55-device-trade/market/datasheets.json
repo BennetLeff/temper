@@ -1,0 +1,5245 @@
+{
+ "_meta": {
+  "read_date": "2026-10-27 local (2026-10-28 UTC)",
+  "download_root": "/Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl",
+  "method": "PDFs saved outside git; text extracted per page with pdftotext -layout; 'page' = PDF page number (1-based). Values read from figures are marked 'read from figure' in conditions and are approximate.",
+  "missing_fragments": []
+ },
+ "IPW65R018CM8XKSA1": {
+  "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw65r018cm8-datasheet-en.pdf",
+  "local_path": "/Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl/cm8/infineon-ipw65r018cm8-datasheet-en.pdf",
+  "sha256": "426b5d3147287c70318c4d05782bf4704d4e50081aee50c45cc8aae5868d97c7",
+  "bytes": 1146349,
+  "sha256_expected": "426b5d3147287c70318c4d05782bf4704d4e50081aee50c45cc8aae5868d97c7",
+  "sha256_match": true,
+  "document": {
+   "title": "IPW65R018CM8 650V CoolMOS CM8 Power Transistor, Final datasheet",
+   "revision": "2.1",
+   "date": "2025-03-07",
+   "page_count": 15
+  },
+  "values": {
+   "vds_rating": {
+    "value": 650,
+    "unit": "V",
+    "page": 5,
+    "conditions": "V(BR)DSS min, VGS=0V, ID=1mA, Tj=25C; key table also gives VDS @ Tj,max = 700 V (page 1)"
+   },
+   "vds_at_tjmax": {
+    "value": 700,
+    "unit": "V",
+    "page": 1,
+    "conditions": "Table 1 key performance parameters, VDS @ Tj,max"
+   },
+   "vgs_abs_max_static": {
+    "value": {
+     "min": -20,
+     "max": 20
+    },
+    "unit": "V",
+    "page": 3,
+    "conditions": "Gate source voltage (static)"
+   },
+   "vgs_abs_max_transient": {
+    "value": {
+     "min": -30,
+     "max": 30
+    },
+    "unit": "V",
+    "page": 3,
+    "conditions": "Gate source voltage (dynamic), AC (f>1 Hz)"
+   },
+   "vgs_recommended_on": {
+    "value": "not stated",
+    "unit": "V",
+    "page": null,
+    "conditions": "searched whole document; switching times measured at VGS=13V (page 5), gate charge and RDS(on) at VGS=10V (pages 5-6)"
+   },
+   "vgs_recommended_off": {
+    "value": "not stated",
+    "unit": "V",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "vgs_th": {
+    "value": {
+     "min": 3.7,
+     "typ": 4.2,
+     "max": 4.7
+    },
+    "unit": "V",
+    "page": 5,
+    "conditions": "VDS=VGS, ID=1.48mA, Tj=25C"
+   },
+   "vgs_th_high_T": {
+    "value": "not stated",
+    "unit": "V",
+    "page": null,
+    "conditions": "searched whole document (Diagram 9 transfer characteristic at 25/150 C only)"
+   },
+   "rds_on_25C_typ": {
+    "value": 0.015,
+    "unit": "ohm",
+    "page": 5,
+    "conditions": "VGS=10V, ID=55.6A, Tj=25C (10 V is the gate voltage nearest +15 V in the table)"
+   },
+   "rds_on_25C_max": {
+    "value": 0.018,
+    "unit": "ohm",
+    "page": 5,
+    "conditions": "VGS=10V, ID=55.6A, Tj=25C"
+   },
+   "rds_on_150C_typ": {
+    "value": 0.033,
+    "unit": "ohm",
+    "page": 5,
+    "conditions": "VGS=10V, ID=55.6A, Tj=150C; no max given"
+   },
+   "rds_on_150C_max": {
+    "value": "not stated",
+    "unit": "ohm",
+    "page": 5,
+    "conditions": "table gives typ only at Tj=150C"
+   },
+   "rds_on_125C_10V_fig": {
+    "value": 0.0275,
+    "unit": "ohm",
+    "page": 8,
+    "conditions": "read from figure Diagram 7 (typ, Tj=125C, VGS=10V, ID~55 A), approximate"
+   },
+   "rds_on_125C_20V_fig": {
+    "value": 0.0265,
+    "unit": "ohm",
+    "page": 8,
+    "conditions": "read from figure Diagram 7 (typ, Tj=125C, VGS=20V, ID~55 A), approximate"
+   },
+   "rds_on_15V": {
+    "value": "not stated",
+    "unit": "ohm",
+    "page": 8,
+    "conditions": "no 15 V curve in Diagram 5 (output char 25C: 6/7/8/10/20 V), Diagram 6 (125C: 5.5/6/7/8/10/20 V) or Diagram 7 (125C: 5.5-7/10/20 V); 15 V lies between the 10 V and 20 V curves, which differ by only ~1 mohm at ~55 A, 125C (read from figure Diagram 7)"
+   },
+   "rds_on_normalized_vs_Tj": {
+    "value": {
+     "25C": 1.0,
+     "125C": 1.85,
+     "150C": 2.2
+    },
+    "unit": "x RDS(on) at 25C",
+    "page": 8,
+    "conditions": "read from figure Diagram 8, ID=55.6A, VGS=10V, approximate"
+   },
+   "rth_jc": {
+    "value": {
+     "max": 0.24
+    },
+    "unit": "K/W",
+    "page": 4,
+    "conditions": "Thermal resistance junction-case, max only"
+   },
+   "rth_ja": {
+    "value": {
+     "max": 62
+    },
+    "unit": "K/W",
+    "page": 4,
+    "conditions": "leaded"
+   },
+   "tj_max": {
+    "value": 150,
+    "unit": "C",
+    "page": 3,
+    "conditions": "Operating junction temperature -55...150C; extended operating junction temperature 150...175C for <=50 h in the application lifetime"
+   },
+   "tj_extended_max": {
+    "value": 175,
+    "unit": "C",
+    "page": 3,
+    "conditions": "<=50 h in the application lifetime"
+   },
+   "qg_total": {
+    "value": {
+     "typ": 173
+    },
+    "unit": "nC",
+    "page": 6,
+    "conditions": "VDD=400V, ID=29.7A, VGS=0 to 10V"
+   },
+   "qgs": {
+    "value": {
+     "typ": 48
+    },
+    "unit": "nC",
+    "page": 6,
+    "conditions": "VDD=400V, ID=29.7A, VGS=0 to 10V"
+   },
+   "qgd": {
+    "value": {
+     "typ": 54
+    },
+    "unit": "nC",
+    "page": 6,
+    "conditions": "VDD=400V, ID=29.7A, VGS=0 to 10V"
+   },
+   "v_plateau": {
+    "value": {
+     "typ": 5.8
+    },
+    "unit": "V",
+    "page": 6,
+    "conditions": "VDD=400V, ID=29.7A, VGS=0 to 10V"
+   },
+   "ciss": {
+    "value": {
+     "typ": 8290
+    },
+    "unit": "pF",
+    "page": 5,
+    "conditions": "VGS=0V, VDS=400V, f=250kHz"
+   },
+   "coss": {
+    "value": {
+     "typ": 91
+    },
+    "unit": "pF",
+    "page": 5,
+    "conditions": "VGS=0V, VDS=400V, f=250kHz"
+   },
+   "crss": {
+    "value": "not stated",
+    "unit": "pF",
+    "page": 10,
+    "conditions": "not tabulated; only curve in Diagram 14 (C=f(VDS), VGS=0V, f=250kHz), not read"
+   },
+   "co_er": {
+    "value": {
+     "typ": 245
+    },
+    "unit": "pF",
+    "page": 5,
+    "conditions": "VGS=0V, VDS=0...400V"
+   },
+   "co_tr": {
+    "value": {
+     "typ": 2702
+    },
+    "unit": "pF",
+    "page": 5,
+    "conditions": "ID=constant, VGS=0V, VDS=0...400V"
+   },
+   "eoss_400V": {
+    "value": 19.6,
+    "unit": "uJ",
+    "page": 1,
+    "conditions": "Table 1 key performance parameters, Eoss @ 400V (curve in Diagram 15, page 10)"
+   },
+   "switching_times": {
+    "value": {
+     "td_on": 44.5,
+     "tr": 16.1,
+     "td_off": 159.2,
+     "tf": 5.1
+    },
+    "unit": "ns",
+    "page": 5,
+    "conditions": "typ; VDD=400V, VGS=13V, ID=29.7A, RG=1.8 ohm; see table 9 (inductive load)"
+   },
+   "rg_internal": {
+    "value": {
+     "typ": 1
+    },
+    "unit": "ohm",
+    "page": 5,
+    "conditions": "f=1MHz"
+   },
+   "body_diode_vsd": {
+    "value": {
+     "typ": 0.9
+    },
+    "unit": "V",
+    "page": 6,
+    "conditions": "VGS=0V, IF=29.7A, Tj=25C; no max stated"
+   },
+   "trr": {
+    "value": {
+     "typ": 180,
+     "max": 225
+    },
+    "unit": "ns",
+    "page": 6,
+    "conditions": "VR=400V, IF=29.7A, diF/dt=100A/us; see table 8 (Tj=25C table default)"
+   },
+   "qrr": {
+    "value": {
+     "typ": 1.54,
+     "max": 2.31
+    },
+    "unit": "uC",
+    "page": 6,
+    "conditions": "VR=400V, IF=29.7A, diF/dt=100A/us; see table 8 (Tj=25C table default)"
+   },
+   "irrm": {
+    "value": {
+     "typ": 16.4
+    },
+    "unit": "A",
+    "page": 6,
+    "conditions": "VR=400V, IF=29.7A, diF/dt=100A/us; see table 8 (Tj=25C table default)"
+   },
+   "mosfet_dv_dt_rating": {
+    "value": 120,
+    "unit": "V/ns",
+    "page": 3,
+    "conditions": "MOSFET dv/dt ruggedness, VDS=0...400V"
+   },
+   "reverse_diode_dv_dt": {
+    "value": 70,
+    "unit": "V/ns",
+    "page": 3,
+    "conditions": "VDS=0...400V, ISD<=116A, Tj=25C, see table 8; footnote 3: identical low side and high side switch with identical RG"
+   },
+   "diF_dt_rating": {
+    "value": 1300,
+    "unit": "A/us",
+    "page": 3,
+    "conditions": "Maximum diode commutation speed; VDS=0...400V, ISD<=116A, Tj=25C, see table 8 (also Table 1 'Body diode diF/dt 1300 A/us', page 1)"
+   },
+   "short_circuit_tsc": {
+    "value": "not stated",
+    "unit": "us",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "eas": {
+    "value": 297,
+    "unit": "mJ",
+    "page": 3,
+    "conditions": "single pulse, ID=6.7A, VDD=50V; see table 10"
+   },
+   "ear": {
+    "value": 1.48,
+    "unit": "mJ",
+    "page": 3,
+    "conditions": "repetitive; condition cell shared with EAS row: ID=6.7A, VDD=50V; see table 10"
+   },
+   "ias": {
+    "value": 6.7,
+    "unit": "A",
+    "page": 3,
+    "conditions": "single pulse"
+   },
+   "eon_eoff": {
+    "value": "not stated",
+    "unit": "uJ",
+    "page": null,
+    "conditions": "searched whole document; only switching times (page 5) and Eoss given"
+   },
+   "id_cont_25C": {
+    "value": 116,
+    "unit": "A",
+    "page": 3,
+    "conditions": "TC=25C, limited by Tj,max"
+   },
+   "id_cont_100C": {
+    "value": 73,
+    "unit": "A",
+    "page": 3,
+    "conditions": "TC=100C, limited by Tj,max"
+   },
+   "id_pulse": {
+    "value": 505,
+    "unit": "A",
+    "page": 3,
+    "conditions": "TC=25C, pulse width tp limited by Tj,max"
+   },
+   "is_cont_diode": {
+    "value": 116,
+    "unit": "A",
+    "page": 3,
+    "conditions": "Continuous diode forward current, TC=25C"
+   },
+   "is_pulse_diode": {
+    "value": 505,
+    "unit": "A",
+    "page": 3,
+    "conditions": "Diode pulse current, pulse width limited by Tj,max"
+   },
+   "ptot": {
+    "value": 521,
+    "unit": "W",
+    "page": 3,
+    "conditions": "TC=25C"
+   },
+   "idss": {
+    "value": {
+     "25C_max": 2,
+     "150C_typ": 244
+    },
+    "unit": "uA",
+    "page": 5,
+    "conditions": "VDS=650V, VGS=0V"
+   },
+   "igss": {
+    "value": {
+     "max": 0.1
+    },
+    "unit": "uA",
+    "page": 5,
+    "conditions": "VGS=20V, VDS=0V"
+   },
+   "mounting_torque": {
+    "value": 60,
+    "unit": "Ncm",
+    "page": 3,
+    "conditions": "max, M3 and M3.5 screws"
+   },
+   "package": {
+    "value": "PG-TO247-3 (outline group number PG-TO247-3-U06); marking 65R018C8",
+    "unit": "",
+    "page": 12,
+    "conditions": "outline drawing Figure 1 page 12; part/package/marking table page 1"
+   },
+   "pin_order": {
+    "value": "1=Gate, 2=Drain, 3=Source, tab=Drain",
+    "unit": "",
+    "page": 1,
+    "conditions": "pin diagram page 1 (Drain Pin 2, Tab; Gate Pin 1; Source Pin 3); pins numbered 1-2-3 left to right in front view, page 12"
+   },
+   "pin_pitch_e": {
+    "value": 5.44,
+    "unit": "mm",
+    "page": 12,
+    "conditions": "nominal (single value)"
+   },
+   "lead_width_b": {
+    "value": {
+     "min": 1.07,
+     "max": 1.33
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "b"
+   },
+   "lead_width_b1": {
+    "value": {
+     "min": 1.9,
+     "max": 2.41
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "b1 (shoulder of outer leads per drawing)"
+   },
+   "lead_width_b2": {
+    "value": {
+     "min": 2.87,
+     "max": 3.38
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "b2 (shoulder of centre lead per drawing)"
+   },
+   "lead_thickness_c": {
+    "value": {
+     "min": 0.55,
+     "max": 0.68
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "c"
+   },
+   "body_width_E": {
+    "value": {
+     "min": 15.7,
+     "max": 16.13
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "E"
+   },
+   "body_height_D": {
+    "value": {
+     "min": 20.8,
+     "max": 21.1
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "D (body length excl. leads)"
+   },
+   "thickness_A": {
+    "value": {
+     "min": 4.83,
+     "max": 5.21
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "A"
+   },
+   "mounting_hole_P": {
+    "value": {
+     "min": 3.5,
+     "max": 3.7
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "øP"
+   },
+   "lead_length_L": {
+    "value": {
+     "min": 19.8,
+     "max": 20.32
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "L"
+   },
+   "lead_L1": {
+    "value": {
+     "min": 3.95,
+     "max": 4.47
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "L1"
+   },
+   "other_outline_dims": {
+    "value": {
+     "A1": [
+      2.27,
+      2.54
+     ],
+     "A2": [
+      1.85,
+      2.16
+     ],
+     "D1": [
+      16.25,
+      17.65
+     ],
+     "D2": [
+      0.95,
+      1.35
+     ],
+     "E1": [
+      13.1,
+      14.15
+     ],
+     "E2": [
+      3.68,
+      5.1
+     ],
+     "E3": [
+      1.0,
+      2.6
+     ],
+     "Q": [
+      5.49,
+      6.0
+     ],
+     "S": [
+      6.04,
+      6.3
+     ],
+     "N": 3
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "[min, max]; note: dimensions do not include moldflash, protrusion or gate burrs"
+   }
+  },
+  "notes": [
+   "Datasheet names the part IPW65R018CM8; the orderable suffix XKSA1 does not appear in the document.",
+   "Si SJ MOSFET: RDS(on) is tabulated only at VGS=10V (25C typ 15 / max 18 mohm; 150C typ 33 mohm, no max). No 15 V row or curve exists; Diagram 7 (page 8, Tj=125C) shows the 20 V curve only ~1 mohm below the 10 V curve near ID=55 A (read from figure, approximate), so RDS(on) at 15 V is bounded between them.",
+   "RDS(on) normalization Diagram 8 (page 8) reads ~2.2 at 150C (vs 33/15 = 2.2 from the table), approximate.",
+   "Crss is not tabulated; only Diagram 14 (page 10) curve. Not read.",
+   "Recommended gate drive voltages not stated; test conditions use VGS=13V (switching) and 0-10V (gate charge). Page 1 recommends ferrite beads on gate or separate totem poles for paralleling.",
+   "Short-circuit withstand and Eon/Eoff not stated anywhere in the document.",
+   "Reverse recovery parameters are at diF/dt=100A/us (Tj default 25C per section header); the 1300 A/us commutation rating is a maximum, not a Qrr test condition.",
+   "Tj rows: Tstg and Tj share the -55...150C cell on page 3; extended 150-175C allowed for <=50 h lifetime.",
+   "Revision history page 14: Rev 2.0 2024-12-19 release of final version; Rev 2.1 2025-03-07 update of max transient thermal impedance and SOA."
+  ]
+ },
+ "IPW65R018CFD7XKSA1": {
+  "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ipw65r018cfd7-datasheet-en.pdf",
+  "local_path": "/Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl/cfd7/infineon-ipw65r018cfd7-datasheet-en.pdf",
+  "sha256": "c364050a04a434bd173da6486fd51f4baf540ee9e4e1ebbe07aed57e279943f2",
+  "bytes": 1384350,
+  "document": {
+   "title": "IPW65R018CFD7 650V CoolMOS CFD7 SJ Power Device, Final Data Sheet",
+   "revision": "2.0",
+   "date": "2021-04-19",
+   "page_count": 14
+  },
+  "values": {
+   "vds_rating": {
+    "value": 650,
+    "unit": "V",
+    "page": 5,
+    "conditions": "V(BR)DSS min, VGS=0V, ID=1mA, Tj=25C; key table also gives VDS @ Tj,max = 700 V (page 1)"
+   },
+   "vds_at_tjmax": {
+    "value": 700,
+    "unit": "V",
+    "page": 1,
+    "conditions": "Table 1 key performance parameters, VDS @ Tj,max"
+   },
+   "vgs_abs_max_static": {
+    "value": {
+     "min": -20,
+     "max": 20
+    },
+    "unit": "V",
+    "page": 3,
+    "conditions": "Gate source voltage (static)"
+   },
+   "vgs_abs_max_transient": {
+    "value": {
+     "min": -30,
+     "max": 30
+    },
+    "unit": "V",
+    "page": 3,
+    "conditions": "Gate source voltage (dynamic), AC (f>1 Hz)"
+   },
+   "vgs_recommended_on": {
+    "value": "not stated",
+    "unit": "V",
+    "page": null,
+    "conditions": "searched whole document; switching times measured at VGS=13V (page 5), gate charge and RDS(on) at VGS=10V (page 5)"
+   },
+   "vgs_recommended_off": {
+    "value": "not stated",
+    "unit": "V",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "vgs_th": {
+    "value": {
+     "min": 3.5,
+     "typ": 4.0,
+     "max": 4.5
+    },
+    "unit": "V",
+    "page": 5,
+    "conditions": "VDS=VGS, ID=2.91mA, Tj=25C"
+   },
+   "vgs_th_high_T": {
+    "value": "not stated",
+    "unit": "V",
+    "page": null,
+    "conditions": "searched whole document (Diagram 9 transfer characteristic at 25/150 C only)"
+   },
+   "rds_on_25C_typ": {
+    "value": 0.015,
+    "unit": "ohm",
+    "page": 5,
+    "conditions": "VGS=10V, ID=58.2A, Tj=25C (10 V is the gate voltage nearest +15 V in the table)"
+   },
+   "rds_on_25C_max": {
+    "value": 0.018,
+    "unit": "ohm",
+    "page": 5,
+    "conditions": "VGS=10V, ID=58.2A, Tj=25C"
+   },
+   "rds_on_150C_typ": {
+    "value": 0.033,
+    "unit": "ohm",
+    "page": 5,
+    "conditions": "VGS=10V, ID=58.2A, Tj=150C; no max given"
+   },
+   "rds_on_150C_max": {
+    "value": "not stated",
+    "unit": "ohm",
+    "page": 5,
+    "conditions": "table gives typ only at Tj=150C"
+   },
+   "rds_on_125C_10V_fig": {
+    "value": 0.0285,
+    "unit": "ohm",
+    "page": 8,
+    "conditions": "read from figure Diagram 7 (typ, Tj=125C, VGS=10V, ID~58 A), approximate"
+   },
+   "rds_on_125C_20V_fig": {
+    "value": 0.0278,
+    "unit": "ohm",
+    "page": 8,
+    "conditions": "read from figure Diagram 7 (typ, Tj=125C, VGS=20V, ID~58 A), approximate"
+   },
+   "rds_on_15V": {
+    "value": "not stated",
+    "unit": "ohm",
+    "page": 8,
+    "conditions": "no 15 V curve in Diagram 5 (output char 25C: 4.5-8/10/20 V), Diagram 6 (125C: 4.5-8/10/20 V) or Diagram 7 (125C: 5.5-7/10/20 V); 15 V lies between the 10 V and 20 V curves, which differ by <1 mohm at ~58 A, 125C (read from figure Diagram 7)"
+   },
+   "rds_on_normalized_vs_Tj": {
+    "value": {
+     "25C": 1.0,
+     "125C": 1.85,
+     "150C": 2.2
+    },
+    "unit": "x RDS(on) at 25C",
+    "page": 8,
+    "conditions": "read from figure Diagram 8, ID=58.2A, VGS=10V, approximate"
+   },
+   "rth_jc": {
+    "value": {
+     "max": 0.28
+    },
+    "unit": "C/W",
+    "page": 4,
+    "conditions": "Thermal resistance junction-case, max only"
+   },
+   "rth_ja": {
+    "value": {
+     "max": 62
+    },
+    "unit": "C/W",
+    "page": 4,
+    "conditions": "leaded"
+   },
+   "tj_max": {
+    "value": 150,
+    "unit": "C",
+    "page": 3,
+    "conditions": "Operating junction temperature -55...150C (no extended-temperature row)"
+   },
+   "qg_total": {
+    "value": {
+     "typ": 234
+    },
+    "unit": "nC",
+    "page": 5,
+    "conditions": "VDD=400V, ID=58.2A, VGS=0 to 10V"
+   },
+   "qgs": {
+    "value": {
+     "typ": 67
+    },
+    "unit": "nC",
+    "page": 5,
+    "conditions": "VDD=400V, ID=58.2A, VGS=0 to 10V"
+   },
+   "qgd": {
+    "value": {
+     "typ": 71
+    },
+    "unit": "nC",
+    "page": 5,
+    "conditions": "VDD=400V, ID=58.2A, VGS=0 to 10V"
+   },
+   "v_plateau": {
+    "value": {
+     "typ": 5.8
+    },
+    "unit": "V",
+    "page": 5,
+    "conditions": "VDD=400V, ID=58.2A, VGS=0 to 10V"
+   },
+   "ciss": {
+    "value": {
+     "typ": 11659
+    },
+    "unit": "pF",
+    "page": 5,
+    "conditions": "VGS=0V, VDS=400V, f=250kHz"
+   },
+   "coss": {
+    "value": {
+     "typ": 167
+    },
+    "unit": "pF",
+    "page": 5,
+    "conditions": "VGS=0V, VDS=400V, f=250kHz"
+   },
+   "crss": {
+    "value": "not stated",
+    "unit": "pF",
+    "page": 10,
+    "conditions": "not tabulated; only curve in Diagram 14 (C=f(VDS), VGS=0V, f=250kHz), not read"
+   },
+   "co_er": {
+    "value": {
+     "typ": 396
+    },
+    "unit": "pF",
+    "page": 5,
+    "conditions": "VGS=0V, VDS=0...400V"
+   },
+   "co_tr": {
+    "value": {
+     "typ": 4144
+    },
+    "unit": "pF",
+    "page": 5,
+    "conditions": "ID=constant, VGS=0V, VDS=0...400V"
+   },
+   "eoss_400V": {
+    "value": 31.6,
+    "unit": "uJ",
+    "page": 1,
+    "conditions": "Table 1 key performance parameters, Eoss @ 400V (curve in Diagram 15, page 10)"
+   },
+   "switching_times": {
+    "value": {
+     "td_on": 56,
+     "tr": 19,
+     "td_off": 198,
+     "tf": 6
+    },
+    "unit": "ns",
+    "page": 5,
+    "conditions": "typ; VDD=400V, VGS=13V, ID=58.2A, RG=1.8 ohm; see table 9 (inductive load)"
+   },
+   "rg_internal": {
+    "value": {
+     "typ": 2.7
+    },
+    "unit": "ohm",
+    "page": 5,
+    "conditions": "f=1MHz, open drain"
+   },
+   "body_diode_vsd": {
+    "value": {
+     "typ": 1.0
+    },
+    "unit": "V",
+    "page": 6,
+    "conditions": "VGS=0V, IF=58.2A, Tj=25C; no max stated"
+   },
+   "trr": {
+    "value": {
+     "typ": 236,
+     "max": 354
+    },
+    "unit": "ns",
+    "page": 6,
+    "conditions": "VR=400V, IF=58.2A, diF/dt=100A/us; see table 8 (Tj=25C table default)"
+   },
+   "qrr": {
+    "value": {
+     "typ": 2.3,
+     "max": 4.6
+    },
+    "unit": "uC",
+    "page": 6,
+    "conditions": "VR=400V, IF=58.2A, diF/dt=100A/us; see table 8 (Tj=25C table default)"
+   },
+   "irrm": {
+    "value": {
+     "typ": 15.0
+    },
+    "unit": "A",
+    "page": 6,
+    "conditions": "VR=400V, IF=58.2A, diF/dt=100A/us; see table 8 (Tj=25C table default)"
+   },
+   "mosfet_dv_dt_rating": {
+    "value": 120,
+    "unit": "V/ns",
+    "page": 3,
+    "conditions": "MOSFET dv/dt ruggedness, VDS=0...400V"
+   },
+   "reverse_diode_dv_dt": {
+    "value": 70,
+    "unit": "V/ns",
+    "page": 3,
+    "conditions": "VDS=0...400V, ISD<=58A, Tj=25C, see table 8; footnote 3: identical low side and high side switch with identical RG"
+   },
+   "diF_dt_rating": {
+    "value": 1300,
+    "unit": "A/us",
+    "page": 3,
+    "conditions": "Maximum diode commutation speed; VDS=0...400V, ISD<=58A, Tj=25C, see table 8 (also Table 1 'Body diode diF/dt 1300 A/us', page 1)"
+   },
+   "short_circuit_tsc": {
+    "value": "not stated",
+    "unit": "us",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "eas": {
+    "value": 582,
+    "unit": "mJ",
+    "page": 3,
+    "conditions": "single pulse, ID=8.3A, VDD=50V; see table 10"
+   },
+   "ear": {
+    "value": 2.91,
+    "unit": "mJ",
+    "page": 3,
+    "conditions": "repetitive, ID=8.3A, VDD=50V; see table 10"
+   },
+   "ias": {
+    "value": 8.3,
+    "unit": "A",
+    "page": 3,
+    "conditions": "single pulse"
+   },
+   "eon_eoff": {
+    "value": "not stated",
+    "unit": "uJ",
+    "page": null,
+    "conditions": "searched whole document; only switching times (page 5) and Eoss given"
+   },
+   "id_cont_25C": {
+    "value": 106,
+    "unit": "A",
+    "page": 3,
+    "conditions": "TC=25C, limited by Tj max"
+   },
+   "id_cont_100C": {
+    "value": 67,
+    "unit": "A",
+    "page": 3,
+    "conditions": "TC=100C, limited by Tj max"
+   },
+   "id_pulse": {
+    "value": 495,
+    "unit": "A",
+    "page": 3,
+    "conditions": "TC=25C, pulse width tp limited by Tj,max"
+   },
+   "is_cont_diode": {
+    "value": 106,
+    "unit": "A",
+    "page": 3,
+    "conditions": "Continuous diode forward current, TC=25C"
+   },
+   "is_pulse_diode": {
+    "value": 495,
+    "unit": "A",
+    "page": 3,
+    "conditions": "Diode pulse current, TC=25C"
+   },
+   "ptot": {
+    "value": 446,
+    "unit": "W",
+    "page": 3,
+    "conditions": "TC=25C"
+   },
+   "idss": {
+    "value": {
+     "25C_max": 1,
+     "125C_typ": 44,
+     "125C_max": 88
+    },
+    "unit": "uA",
+    "page": 5,
+    "conditions": "VDS=650V, VGS=0V; 125C max is a calculated six-sigma upper confidence bound (footnote 1)"
+   },
+   "igss": {
+    "value": {
+     "max": 100
+    },
+    "unit": "nA",
+    "page": 5,
+    "conditions": "VGS=20V, VDS=0V"
+   },
+   "mounting_torque": {
+    "value": 60,
+    "unit": "Ncm",
+    "page": 3,
+    "conditions": "max, M3 and M3.5 screws"
+   },
+   "package": {
+    "value": "PG-TO247-3 (outline document Z8B00003327 rev 06, issue date 25.07.2018); marking 65R018F7",
+    "unit": "",
+    "page": 12,
+    "conditions": "outline drawing Figure 1 page 12; ordering/package/marking table page 1"
+   },
+   "pin_order": {
+    "value": "1=Gate, 2=Drain, 3=Source, tab=Drain",
+    "unit": "",
+    "page": 1,
+    "conditions": "pin diagram page 1 (Drain Pin 2, Tab; Gate Pin 1; Source Pin 3); pins numbered 1-2-3 left to right in front view, page 12"
+   },
+   "pin_pitch_e": {
+    "value": 5.44,
+    "unit": "mm",
+    "page": 12,
+    "conditions": "nominal (single value)"
+   },
+   "lead_width_b": {
+    "value": {
+     "min": 1.0,
+     "max": 1.4
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "b"
+   },
+   "lead_width_b1": {
+    "value": {
+     "min": 1.6,
+     "max": 2.41
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "b1 (shoulder of outer leads per drawing)"
+   },
+   "lead_width_b2": {
+    "value": {
+     "min": 2.57,
+     "max": 3.43
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "b2 (shoulder of centre lead per drawing)"
+   },
+   "lead_thickness_c": {
+    "value": {
+     "min": 0.38,
+     "max": 0.89
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "c"
+   },
+   "body_width_E": {
+    "value": {
+     "min": 15.5,
+     "max": 16.3
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "E"
+   },
+   "body_height_D": {
+    "value": {
+     "min": 20.7,
+     "max": 21.5
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "D (body length excl. leads)"
+   },
+   "thickness_A": {
+    "value": {
+     "min": 4.7,
+     "max": 5.3
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "A"
+   },
+   "mounting_hole_P": {
+    "value": {
+     "min": 3.5,
+     "max": 3.7
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "P (hole diameter)"
+   },
+   "lead_length_L": {
+    "value": {
+     "min": 19.8,
+     "max": 20.4
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "L"
+   },
+   "lead_L1": {
+    "value": {
+     "min": 3.85,
+     "max": 4.5
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "L1"
+   },
+   "other_outline_dims": {
+    "value": {
+     "A1": [
+      2.2,
+      2.6
+     ],
+     "A2": [
+      1.5,
+      2.5
+     ],
+     "D1": [
+      13.08,
+      17.65
+     ],
+     "D2": [
+      0.51,
+      1.35
+     ],
+     "E1": [
+      12.38,
+      14.15
+     ],
+     "E2": [
+      3.4,
+      5.1
+     ],
+     "E3": [
+      1.0,
+      2.6
+     ],
+     "Q": [
+      5.35,
+      6.25
+     ],
+     "S": [
+      6.04,
+      6.3
+     ]
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "[min, max]"
+   }
+  },
+  "notes": [
+   "Datasheet names the part IPW65R018CFD7; the orderable suffix XKSA1 does not appear in the document.",
+   "Si SJ MOSFET: RDS(on) is tabulated only at VGS=10V (25C typ 15 / max 18 mohm; 150C typ 33 mohm, no max). No 15 V row or curve exists; Diagram 7 (page 8, Tj=125C) shows the 20 V curve <1 mohm below the 10 V curve near ID=58 A (read from figure, approximate), so RDS(on) at 15 V is bounded between them.",
+   "RDS(on) normalization Diagram 8 (page 8) reads ~2.2 at 150C (vs 33/15 = 2.2 from the table), approximate.",
+   "Crss is not tabulated; only Diagram 14 (page 10) curve. Not read.",
+   "Recommended gate drive voltages not stated; test conditions use VGS=13V (switching) and 0-10V (gate charge). Page 1 recommends ferrite beads on gate or separate totem poles for paralleling.",
+   "Short-circuit withstand and Eon/Eoff not stated anywhere in the document.",
+   "Reverse recovery parameters are at diF/dt=100A/us (Tj default 25C per section header); the 1300 A/us commutation rating is a maximum, not a Qrr test condition.",
+   "Tj max 150C only; no extended 175C allowance (unlike CM8). RthJC 0.28 C/W.",
+   "Outline (page 12) uses an older generic PG-TO247-3 drawing with wider tolerances than the CM8 PG-TO247-3-U06 drawing; no explicit N row and no moldflash note on this page.",
+   "Revision history page 14: only Rev 2.0 2021-04-19 release of final version. Page 1 states 'Potential applications: Suitable for Soft Switching topologies; optimized for phase-shift full-bridge (ZVS), LLC'."
+  ]
+ },
+ "IMW65R026M2HXKSA1": {
+  "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-imw65r026m2h-datasheet-en.pdf",
+  "local_path": "/Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl/IMW65R026M2H/infineon-imw65r026m2h-datasheet-en.pdf",
+  "sha256": "7b810f06dbeae3a35f9511c146d7bffca83aee6496d836bef73d58031075316c",
+  "bytes": 1170986,
+  "document": {
+   "title": "IMW65R026M2H Final datasheet - CoolSiC MOSFET 650 V G2 (datasheet type/ordering code printed as IMW65R026M2H; XKSA1 is the distributor packing suffix, not printed in the datasheet)",
+   "revision": "Rev. 2.0 (Release of final)",
+   "date": "2024-09-24",
+   "page_count": 17
+  },
+  "values": {
+   "vds_rating": {
+    "value": 650,
+    "unit": "V",
+    "page": 1,
+    "conditions": "VDSS over full Tj,range (Table 1); Table 5 p6: VDSS min 650 V at VGS = 0 V, ID = 0.7 mA"
+   },
+   "vgs_abs_max_static": {
+    "value": {
+     "min": -7,
+     "max": 23
+    },
+    "unit": "V",
+    "page": 3,
+    "conditions": "Gate source voltage (static), footnote 3: 'The maximum gate-source voltage in the application design should be in accordance to IPC-9592B.' Note on p3: 'for optimum lifetime and reliability, Infineon recommends operating conditions that do not exceed 80% of the maximum ratings'"
+   },
+   "vgs_abs_max_transient": {
+    "value": {
+     "min": -10,
+     "max": 25
+    },
+    "unit": "V",
+    "page": 3,
+    "conditions": "Gate source voltage (transient), tp <= 500 ns, duty cycle <= 1%"
+   },
+   "vgs_recommended_on": {
+    "value": 18,
+    "unit": "V",
+    "page": 5,
+    "conditions": "Table 4 Operating range: Recommended turn-on voltage VGS(on) typ 18 V"
+   },
+   "vgs_recommended_off": {
+    "value": 0,
+    "unit": "V",
+    "page": 5,
+    "conditions": "Table 4 Operating range: Recommended turn-off voltage VGS(off) typ 0 V. Features p1: 'Robust against parasitic turn-on even with 0 V turn-off gate voltage'; 'Flexible driving voltage and compatible with bipolar driving scheme'"
+   },
+   "vgs_th": {
+    "value": {
+     "min": 3.5,
+     "typ": 4.5,
+     "max": 5.6
+    },
+    "unit": "V",
+    "page": 6,
+    "conditions": "VDS = VGS, ID = 7 mA, Tj = 25 C. Footnote 4: 'Tested after 1 ms pulse at VGS = +20 V. \"Linear mode\" operation is not recommended.'"
+   },
+   "vgs_th_high_T": {
+    "value": "not stated",
+    "unit": "V",
+    "page": null,
+    "conditions": "No VGS(th) row at elevated Tj in Table 5 (p6); only Diagram 9 transfer characteristics at 25 C / 175 C (p11). Searched whole document"
+   },
+   "rds_on_25C": {
+    "value": {
+     "min": null,
+     "typ": 34,
+     "max": null
+    },
+    "unit": "mOhm",
+    "page": 6,
+    "conditions": "VGS = 15 V, ID = 34.5 A, Tj = 25 C (typ only, no max at 15 V)"
+   },
+   "rds_on_25C_18V": {
+    "value": {
+     "min": null,
+     "typ": 26,
+     "max": 33
+    },
+    "unit": "mOhm",
+    "page": 6,
+    "conditions": "VGS = 18 V, ID = 34.5 A, Tj = 25 C"
+   },
+   "rds_on_25C_20V": {
+    "value": {
+     "min": null,
+     "typ": 24,
+     "max": null
+    },
+    "unit": "mOhm",
+    "page": 6,
+    "conditions": "VGS = 20 V, ID = 34.5 A, Tj = 25 C"
+   },
+   "rds_on_hot_18V": {
+    "value": {
+     "min": null,
+     "typ": 43,
+     "max": null
+    },
+    "unit": "mOhm",
+    "page": 6,
+    "conditions": "VGS = 18 V, ID = 34.5 A, Tj = 175 C (typ only)"
+   },
+   "rds_on_hot_15V": {
+    "value": {
+     "min": null,
+     "typ": 46,
+     "max": null
+    },
+    "unit": "mOhm",
+    "page": 10,
+    "conditions": "read from figure 6 (Diagram 6, typ. output characteristics, Tj = 175 C, parameter VGS), approximate +/-3 mOhm: 15 V curve at ID ~35 A gives VDS ~1.6 V; same read gives 18 V ~43 mOhm, matching the table value. Not a table value"
+   },
+   "rds_on_125C_15V": {
+    "value": {
+     "min": null,
+     "typ": 39.5,
+     "max": null
+    },
+    "unit": "mOhm",
+    "page": 10,
+    "conditions": "read from figure 7 (Diagram 7, RDS(on)=f(IDS), Tj = 125 C, VGS = 15 V) at IDS = 34.5 A, approximate"
+   },
+   "rds_on_125C_18V": {
+    "value": {
+     "min": null,
+     "typ": 35.5,
+     "max": null
+    },
+    "unit": "mOhm",
+    "page": 10,
+    "conditions": "read from figure 7 (Diagram 7, Tj = 125 C, VGS = 18 V) at IDS = 34.5 A, approximate"
+   },
+   "rds_on_normalized_175C": {
+    "value": 1.64,
+    "unit": "p.u. (vs 25 C)",
+    "page": 10,
+    "conditions": "read from figure 8 (Diagram 8, RDS(on)=f(Tj); ID = 34.5 A; VGS = 18 V), approximate"
+   },
+   "rth_jc": {
+    "value": {
+     "min": null,
+     "typ": null,
+     "max": 0.66
+    },
+    "unit": "K/W",
+    "page": 4,
+    "conditions": "Rth(j-c) max; not subject to production test, verified by design/characterization according to JESD51-14"
+   },
+   "tj_max": {
+    "value": 175,
+    "unit": "C",
+    "page": 3,
+    "conditions": "Operating junction temperature -55...175 C; storage -55...150 C"
+   },
+   "qg_total": {
+    "value": 42,
+    "unit": "nC",
+    "page": 7,
+    "conditions": "VDD = 400 V, ID = 34.5 A, VGS = 0 to 18 V (typ)"
+   },
+   "qgs": {
+    "value": 11.0,
+    "unit": "nC",
+    "page": 7,
+    "conditions": "QGS(pl) plateau gate to source charge, VDD = 400 V, ID = 34.5 A, VGS = 0 to 18 V (typ)"
+   },
+   "qgd": {
+    "value": 7.6,
+    "unit": "nC",
+    "page": 7,
+    "conditions": "VDD = 400 V, ID = 34.5 A, VGS = 0 to 18 V (typ)"
+   },
+   "ciss": {
+    "value": 1499,
+    "unit": "pF",
+    "page": 6,
+    "conditions": "VGS = 0 V, VDS = 400 V, f = 250 kHz (typ)"
+   },
+   "coss": {
+    "value": {
+     "min": null,
+     "typ": 111,
+     "max": 144
+    },
+    "unit": "pF",
+    "page": 6,
+    "conditions": "VGS = 0 V, VDS = 400 V, f = 250 kHz; max defined by calculated six sigma upper confidence bound (fn 5)"
+   },
+   "crss": {
+    "value": 8.6,
+    "unit": "pF",
+    "page": 6,
+    "conditions": "VGS = 0 V, VDS = 400 V, f = 250 kHz (typ)"
+   },
+   "qoss": {
+    "value": {
+     "min": null,
+     "typ": 80,
+     "max": 104
+    },
+    "unit": "nC",
+    "page": 6,
+    "conditions": "calculation based on Coss (Qoss @ 400 V per Table 1 p1)"
+   },
+   "co_er": {
+    "value": 135,
+    "unit": "pF",
+    "page": 6,
+    "conditions": "VGS = 0 V, VDS = 0...400 V (typ)"
+   },
+   "co_tr": {
+    "value": 199,
+    "unit": "pF",
+    "page": 6,
+    "conditions": "ID = constant, VGS = 0 V, VDS = 0...400 V (typ)"
+   },
+   "eoss_400V": {
+    "value": 10.8,
+    "unit": "uJ",
+    "page": 1,
+    "conditions": "Eoss @ 400 V, Table 1 Key Performance Parameters"
+   },
+   "rg_internal": {
+    "value": 2.9,
+    "unit": "Ohm",
+    "page": 6,
+    "conditions": "RG,int typ, f = 1 MHz"
+   },
+   "body_diode_vsd": {
+    "value": {
+     "min": null,
+     "typ": 4.3,
+     "max": null
+    },
+    "unit": "V",
+    "page": 7,
+    "conditions": "VGS = 0 V, IS = 34.5 A, Tj = 25 C (typ only; no 175 C row, see Diagram 11/12 p11)"
+   },
+   "qrr": {
+    "value": 129,
+    "unit": "nC",
+    "page": 7,
+    "conditions": "Named 'MOSFET forward recovery charge' Qfr (fn 9: Qfr includes Qoss); VDD = 400 V, IS = 34.5 A, diS/dt = 1000 A/us; Tj not stated (table header Tj = 25 C)"
+   },
+   "trr": {
+    "value": 33,
+    "unit": "ns",
+    "page": 7,
+    "conditions": "Named 'MOSFET forward recovery time' tfr; VDD = 400 V, IS = 34.5 A, diS/dt = 1000 A/us"
+   },
+   "irrm": {
+    "value": 7.7,
+    "unit": "A",
+    "page": 8,
+    "conditions": "Named 'MOSFET peak forward recovery current' Ifrm; VDD = 400 V, IS = 34.5 A, diS/dt = 1000 A/us"
+   },
+   "mosfet_dv_dt_rating": {
+    "value": 200,
+    "unit": "V/ns",
+    "page": 3,
+    "conditions": "MOSFET dv/dt ruggedness, VDS = 0...400 V"
+   },
+   "reverse_diode_dv_dt": {
+    "value": "not stated",
+    "unit": "V/ns",
+    "page": null,
+    "conditions": "searched whole document (only MOSFET dv/dt ruggedness on p3)"
+   },
+   "reverse_diode_dif_dt": {
+    "value": "not stated",
+    "unit": "A/us",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "short_circuit_tsc": {
+    "value": "not stated",
+    "unit": "us",
+    "page": null,
+    "conditions": "searched whole document; no short-circuit withstand rating"
+   },
+   "eas": {
+    "value": 200,
+    "unit": "mJ",
+    "page": 3,
+    "conditions": "Avalanche energy, single pulse, ID = 7.5 A, VDD = 50 V; see table 11"
+   },
+   "ear": {
+    "value": 1.0,
+    "unit": "mJ",
+    "page": 3,
+    "conditions": "Avalanche energy, repetitive, ID = 7.5 A, VDD = 50 V; see table 11"
+   },
+   "ias": {
+    "value": 7.5,
+    "unit": "A",
+    "page": 3,
+    "conditions": "Avalanche current, single pulse"
+   },
+   "eon": {
+    "value": 314,
+    "unit": "uJ",
+    "page": 7,
+    "conditions": "VDD = 400 V, VGS = 0/18 V, ID = 34.5 A, RG,ext = 1.8 Ohm; fn 8: 'MOSFET used in half-bridge configuration without external diode' (i.e. includes body-diode recovery of the partner device); Tj not stated (table header 'at Tj = 25 C, unless otherwise specified')"
+   },
+   "eoff": {
+    "value": 44,
+    "unit": "uJ",
+    "page": 7,
+    "conditions": "VDD = 400 V, VGS = 0/18 V, ID = 34.5 A, RG,ext = 1.8 Ohm; half-bridge without external diode (fn 8)"
+   },
+   "etot": {
+    "value": 358,
+    "unit": "uJ",
+    "page": 7,
+    "conditions": "VDD = 400 V, VGS = 0/18 V, ID = 34.5 A, RG,ext = 1.8 Ohm; half-bridge without external diode (fn 8)"
+   },
+   "switching_times": {
+    "value": {
+     "td_on": 27,
+     "tr": 13.3,
+     "td_off": 19,
+     "tf": 6.3
+    },
+    "unit": "ns",
+    "page": 6,
+    "conditions": "VDD = 400 V, VGS = 0/18 V, ID = 34.5 A, RG,ext = 1.8 Ohm; see table 10 (td(off), tf on p7)"
+   },
+   "id_cont_25C": {
+    "value": 64,
+    "unit": "A",
+    "page": 3,
+    "conditions": "IDDC, Tc = 25 C, limited by Tj,max"
+   },
+   "id_cont_100C": {
+    "value": 45.3,
+    "unit": "A",
+    "page": 3,
+    "conditions": "IDDC, Tc = 100 C, limited by Tj,max"
+   },
+   "id_pulse": {
+    "value": 215,
+    "unit": "A",
+    "page": 3,
+    "conditions": "IDM, Tc = 25 C, VGS = 18 V; pulse width limited by Tj,max"
+   },
+   "is_cont": {
+    "value": {
+     "VGS_18V": 64,
+     "VGS_0V": 42.0
+    },
+    "unit": "A",
+    "page": 3,
+    "conditions": "Continuous reverse drain current ISDC, Tc = 25 C, at VGS = 18 V and VGS = 0 V"
+   },
+   "ptot": {
+    "value": 227,
+    "unit": "W",
+    "page": 3,
+    "conditions": "Tc = 25 C"
+   },
+   "package": {
+    "value": "PG-TO247-3",
+    "unit": "",
+    "page": 15,
+    "conditions": "Figure 1 Outline PG-TO247-3, dimensions in mm (min/max only, no nominal column)"
+   },
+   "pin_order": {
+    "value": "1=Gate, 2=Drain, 3=Source, Tab=Drain",
+    "unit": "",
+    "page": 1,
+    "conditions": "page 1 pin diagram: Gate Pin 1; Drain Pin 2, Tab; Source Pin 3"
+   },
+   "pin_pitch_e": {
+    "value": 5.44,
+    "unit": "mm",
+    "page": 15,
+    "conditions": "e (single value)"
+   },
+   "lead_width_b": {
+    "value": {
+     "min": 1.0,
+     "nom": null,
+     "max": 1.4
+    },
+    "unit": "mm",
+    "page": 15,
+    "conditions": "b"
+   },
+   "lead_width_b1": {
+    "value": {
+     "min": 1.6,
+     "nom": null,
+     "max": 2.41
+    },
+    "unit": "mm",
+    "page": 15,
+    "conditions": "b1"
+   },
+   "lead_width_b2": {
+    "value": {
+     "min": 2.57,
+     "nom": null,
+     "max": 3.43
+    },
+    "unit": "mm",
+    "page": 15,
+    "conditions": "b2"
+   },
+   "lead_thickness_c": {
+    "value": {
+     "min": 0.38,
+     "nom": null,
+     "max": 0.89
+    },
+    "unit": "mm",
+    "page": 15,
+    "conditions": "c"
+   },
+   "body_width_E": {
+    "value": {
+     "min": 15.5,
+     "nom": null,
+     "max": 16.3
+    },
+    "unit": "mm",
+    "page": 15,
+    "conditions": "E"
+   },
+   "body_height_D": {
+    "value": {
+     "min": 20.7,
+     "nom": null,
+     "max": 21.5
+    },
+    "unit": "mm",
+    "page": 15,
+    "conditions": "D"
+   },
+   "thickness_A": {
+    "value": {
+     "min": 4.7,
+     "nom": null,
+     "max": 5.3
+    },
+    "unit": "mm",
+    "page": 15,
+    "conditions": "A (A1 2.20-2.60, A2 1.50-2.50)"
+   },
+   "mounting_hole_dia_P": {
+    "value": {
+     "min": 3.5,
+     "nom": null,
+     "max": 3.7
+    },
+    "unit": "mm",
+    "page": 15,
+    "conditions": "oP"
+   },
+   "lead_length_L": {
+    "value": {
+     "min": 19.8,
+     "nom": null,
+     "max": 20.4
+    },
+    "unit": "mm",
+    "page": 15,
+    "conditions": "L (L1 3.85-4.50)"
+   },
+   "other_outline_dims": {
+    "value": {
+     "D1": [
+      13.08,
+      17.65
+     ],
+     "D2": [
+      0.51,
+      1.35
+     ],
+     "E1": [
+      12.38,
+      14.15
+     ],
+     "E2": [
+      3.4,
+      5.1
+     ],
+     "E3": [
+      1.0,
+      2.6
+     ],
+     "Q": [
+      5.35,
+      6.25
+     ],
+     "S": [
+      6.04,
+      6.3
+     ],
+     "N": 3
+    },
+    "unit": "mm",
+    "page": 15,
+    "conditions": "[min, max] as printed"
+   },
+   "mounting_torque": {
+    "value": 60,
+    "unit": "Ncm",
+    "page": 3,
+    "conditions": "M3 and M3.5 screws (max)"
+   }
+  },
+  "notes": [
+   "15 V gate drive: table gives only RDS(on) typ 34 mOhm at VGS = 15 V, 25 C, ID = 34.5 A (p6), no max. Scaling the 18 V max/typ ratio (33/26) to 15 V would be an inference, not a datasheet value.",
+   "RDS(on) at 15 V / 175 C is not in the table; ~46 mOhm read from figure 6 (Diagram 6, p10) at ~35 A, approximate (digitised from 300 dpi render, +/-3 mOhm). Diagram 7 (Tj = 125 C) gives 15 V ~39.5 mOhm vs 18 V ~35.5 mOhm at 34.5 A (approximate).",
+   "Off-bias: vendor recommended VGS(off) = 0 V (Table 4 p5) and Features (p1) state 'Robust against parasitic turn-on even with 0 V turn-off gate voltage' and 'Flexible driving voltage and compatible with bipolar driving scheme'. Static minimum is -7 V, so -1.6 V off is within ratings. The datasheet says nothing about VGS(th) drift vs negative off-bias.",
+   "Absolute VGS: static -7/+23 V, transient -10/+25 V (tp <= 500 ns, D <= 1%). +15 V on is below the 18 V recommended turn-on; datasheet characterises 15 V only as a typ RDS row and figure curves.",
+   "Reverse recovery is specified as 'MOSFET forward recovery' (tfr 33 ns, Qfr 129 nC incl. Qoss, Ifrm 7.7 A) at VDD = 400 V, IS = 34.5 A, diS/dt = 1000 A/us; Tj not stated in the row (table header Tj = 25 C). No 175 C recovery data.",
+   "Eon/Eoff (314/44 uJ) are at VGS = 0/18 V, RG,ext = 1.8 Ohm, half-bridge without external diode, Tj not stated (25 C table header). No Eon/Eoff at 15 V or negative off-bias given. Diagram 18/19 (p13) give E vs RG,ext and vs ID at VDD = 400 V, VGS = 0-18 V.",
+   "Body diode VSD typ 4.3 V only at 25 C, VGS = 0 V, IS = 34.5 A; no max stated.",
+   "Insulation withstand voltage VISO printed as 'n.a.' (p3).",
+   "Rth(j-c) only a max (0.66 K/W), no typ. Rth(j-a) not stated.",
+   "Package table gives min/max only (no nominal) except e = 5.44 and N = 3."
+  ]
+ },
+ "C3M0025065D": {
+  "url": "https://assets.wolfspeed.com/uploads/2024/01/Wolfspeed_C3M0025065D_data_sheet.pdf",
+  "local_path": "/Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl/C3M0025065D/Wolfspeed_C3M0025065D_data_sheet.pdf",
+  "sha256": "7ba816685b21fce5f26e2b59df96956d91cbb380277489722b28aadcc8b944f2",
+  "bytes": 913346,
+  "document": {
+   "title": "C3M0025065D Silicon Carbide Power MOSFET, C3M MOSFET Technology, N-Channel Enhancement Mode (Wolfspeed data sheet)",
+   "revision": "Rev. 04",
+   "date": "September 2024",
+   "page_count": 12
+  },
+  "values": {
+   "vds_rating": {
+    "value": 650,
+    "unit": "V",
+    "page": 1,
+    "conditions": "VDS max, TC = 25 C; V(BR)DSS min 650 V at VGS = 0 V, ID = 100 uA (p2)"
+   },
+   "vgs_abs_max_static": {
+    "value": "not stated as a separate absolute maximum",
+    "unit": "V",
+    "page": 1,
+    "conditions": "Key Parameters only lists 'Maximum Gate - Source Voltage VGS(max) -8 / +19 V, Transient' and 'Operational Gate-Source Voltage VGS op -4/15 V, Static, Note 1'. No separate static absolute max row"
+   },
+   "vgs_operational_static": {
+    "value": {
+     "off": -4,
+     "on": 15
+    },
+    "unit": "V",
+    "page": 1,
+    "conditions": "Operational Gate-Source Voltage VGS op = -4/15 V, Static, Note 1: 'Recommended turn-on gate voltage is 15V with +/-5% regulation tolerance, see Application Note PRD-04814 for additional details'"
+   },
+   "vgs_abs_max_transient": {
+    "value": {
+     "min": -8,
+     "max": 19
+    },
+    "unit": "V",
+    "page": 1,
+    "conditions": "Maximum Gate - Source Voltage VGS(max), 'Transient' (no pulse width / duty-cycle condition stated)"
+   },
+   "vgs_recommended_on": {
+    "value": 15,
+    "unit": "V",
+    "page": 2,
+    "conditions": "Gate-Source Recommended Turn-On Voltage VGS(on) typ 15 V, Static, ref 'Fig. 29' (no Fig. 29 exists in this document); p1 Note 1: 15 V with +/-5% regulation tolerance"
+   },
+   "vgs_recommended_off": {
+    "value": -4,
+    "unit": "V",
+    "page": 2,
+    "conditions": "Gate-Source Recommended Turn-Off Voltage VGS(off) typ -4 V, Static, ref 'Fig. 29' (not present)"
+   },
+   "vgs_th": {
+    "value": {
+     "min": 1.8,
+     "typ": 2.3,
+     "max": 3.6
+    },
+    "unit": "V",
+    "page": 2,
+    "conditions": "VDS = VGS, ID = 9.22 mA (TC = 25 C)"
+   },
+   "vgs_th_high_T": {
+    "value": {
+     "min": null,
+     "typ": 1.9,
+     "max": null
+    },
+    "unit": "V",
+    "page": 2,
+    "conditions": "VDS = VGS, ID = 9.22 mA, TJ = 175 C (typ only); Fig. 11 threshold vs temperature p5"
+   },
+   "rds_on_25C": {
+    "value": {
+     "min": null,
+     "typ": 25,
+     "max": 34
+    },
+    "unit": "mOhm",
+    "page": 2,
+    "conditions": "VGS = 15 V, ID = 33.5 A (TC = 25 C)"
+   },
+   "rds_on_hot": {
+    "value": {
+     "min": null,
+     "typ": 33,
+     "max": null
+    },
+    "unit": "mOhm",
+    "page": 2,
+    "conditions": "VGS = 15 V, ID = 33.5 A, TJ = 175 C (typ only)"
+   },
+   "rds_on_18V": {
+    "value": "not stated",
+    "unit": "mOhm",
+    "page": null,
+    "conditions": "No 18 V RDS(on) row or curve: VGS(max) is +19 V transient and recommended on is 15 V; output-characteristic curves (Figs 1-3 p4) go up to VGS = 15 V only. Searched whole document"
+   },
+   "rds_on_normalized_175C": {
+    "value": 1.31,
+    "unit": "p.u. (vs 25 C)",
+    "page": 4,
+    "conditions": "read from figure 4 (normalized on-resistance vs temperature, IDS = 33.5 A, VGS = 15 V), approximate; consistent with table 33/25"
+   },
+   "rth_jc": {
+    "value": {
+     "min": null,
+     "typ": 0.46,
+     "max": null
+    },
+    "unit": "C/W",
+    "page": 3,
+    "conditions": "RthetaJC typ only (no max); Fig. 21"
+   },
+   "rth_ja": {
+    "value": {
+     "min": null,
+     "typ": 40,
+     "max": null
+    },
+    "unit": "C/W",
+    "page": 3,
+    "conditions": "RthetaJA typ"
+   },
+   "tj_max": {
+    "value": 175,
+    "unit": "C",
+    "page": 1,
+    "conditions": "TJ, Tstg -40 to +175 C"
+   },
+   "qg_total": {
+    "value": 108,
+    "unit": "nC",
+    "page": 2,
+    "conditions": "VDS = 400 V, VGS = -4 V/15 V, ID = 33.5 A, per IEC60747-8-4 pg 21 (typ); Fig. 12"
+   },
+   "qgs": {
+    "value": 29,
+    "unit": "nC",
+    "page": 2,
+    "conditions": "VDS = 400 V, VGS = -4 V/15 V, ID = 33.5 A (typ)"
+   },
+   "qgd": {
+    "value": 37,
+    "unit": "nC",
+    "page": 2,
+    "conditions": "VDS = 400 V, VGS = -4 V/15 V, ID = 33.5 A (typ)"
+   },
+   "ciss": {
+    "value": 2980,
+    "unit": "pF",
+    "page": 2,
+    "conditions": "VGS = 0 V, VDS = 0 V to 600 V, f = 1 MHz, VAC = 25 mV (typ; table does not state at which VDS the single value applies); Fig. 17, 18"
+   },
+   "coss": {
+    "value": 178,
+    "unit": "pF",
+    "page": 2,
+    "conditions": "VGS = 0 V, VDS = 0 V to 600 V, f = 1 MHz, VAC = 25 mV (typ; VDS point not stated)"
+   },
+   "crss": {
+    "value": 12,
+    "unit": "pF",
+    "page": 2,
+    "conditions": "VGS = 0 V, VDS = 0 V to 600 V, f = 1 MHz, VAC = 25 mV (typ; VDS point not stated)"
+   },
+   "co_er": {
+    "value": 236,
+    "unit": "pF",
+    "page": 2,
+    "conditions": "VGS = 0 V, VDS = 0 V to 400 V (typ)"
+   },
+   "co_tr": {
+    "value": 340,
+    "unit": "pF",
+    "page": 2,
+    "conditions": "VGS = 0 V, VDS = 0 V to 400 V (typ); footnote 2 wording copies the energy-related definition ('same stored energy') - apparent datasheet typo"
+   },
+   "eoss_600V": {
+    "value": 37,
+    "unit": "uJ",
+    "page": 2,
+    "conditions": "Coss stored energy, VDS = 600 V, f = 1 MHz (typ); Fig. 16"
+   },
+   "eoss_400V": {
+    "value": 19.5,
+    "unit": "uJ",
+    "page": 6,
+    "conditions": "read from figure 16 (Output Capacitor Stored Energy) at VDS = 400 V, approximate; consistent with Co(er) 236 pF -> 18.9 uJ"
+   },
+   "rg_internal": {
+    "value": 1.3,
+    "unit": "Ohm",
+    "page": 2,
+    "conditions": "f = 1 MHz, VAC = 25 mV (typ)"
+   },
+   "body_diode_vsd": {
+    "value": {
+     "25C_typ": 5.0,
+     "175C_typ": 4.5,
+     "max": null
+    },
+    "unit": "V",
+    "page": 3,
+    "conditions": "VGS = -4 V, ISD = 16.8 A, TJ = 25 C / 175 C (typ; no max); Fig. 8, 9, 10"
+   },
+   "qrr": {
+    "value": {
+     "cond_A": 309,
+     "cond_B": 261
+    },
+    "unit": "nC",
+    "page": 3,
+    "conditions": "cond_A: VGS = -4 V, ISD = 33.5 A, VR = 400 V, diF/dt = 745 A/us, TJ = 175 C; cond_B: VGS = -4 V, ISD = 33.5 A, VR = 400 V, diF/dt = 685 A/us, TJ = 175 C (typ)"
+   },
+   "trr": {
+    "value": {
+     "cond_A": 33,
+     "cond_B": 51
+    },
+    "unit": "ns",
+    "page": 3,
+    "conditions": "same two conditions as qrr (diF/dt 745 / 685 A/us, TJ = 175 C)"
+   },
+   "irrm": {
+    "value": {
+     "cond_A": 17,
+     "cond_B": 12
+    },
+    "unit": "A",
+    "page": 3,
+    "conditions": "same two conditions as qrr (diF/dt 745 / 685 A/us, TJ = 175 C)"
+   },
+   "mosfet_dv_dt_rating": {
+    "value": "not stated",
+    "unit": "V/ns",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "reverse_diode_dv_dt": {
+    "value": "not stated",
+    "unit": "V/ns",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "reverse_diode_dif_dt": {
+    "value": "not stated",
+    "unit": "A/us",
+    "page": null,
+    "conditions": "searched whole document (only test conditions 745 / 685 A/us)"
+   },
+   "short_circuit_tsc": {
+    "value": "not stated",
+    "unit": "us",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "eas": {
+    "value": "not stated",
+    "unit": "mJ",
+    "page": null,
+    "conditions": "searched whole document; no avalanche rating"
+   },
+   "ear": {
+    "value": "not stated",
+    "unit": "mJ",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "ias": {
+    "value": "not stated",
+    "unit": "A",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "eon_body_diode": {
+    "value": 578,
+    "unit": "uJ",
+    "page": 2,
+    "conditions": "Turn-On Switching Energy (Body Diode): VDS = 400 V, VGS = -4 V/15 V, ID = 33.5 A, RG(ext) = 2.5 Ohm, L = 59 uH, TJ = 175 C, FWD = Internal Body Diode of MOSFET (includes body-diode recovery); Fig. 25"
+   },
+   "eoff_body_diode": {
+    "value": 214,
+    "unit": "uJ",
+    "page": 2,
+    "conditions": "Turn-Off Switching Energy (Body Diode): same conditions, FWD = Internal Body Diode of MOSFET"
+   },
+   "eon_ext_diode": {
+    "value": 392,
+    "unit": "uJ",
+    "page": 2,
+    "conditions": "Turn-On Switching Energy (External Diode): VDS = 400 V, VGS = -4 V/15 V, ID = 33.5 A, RG(ext) = 2.5 Ohm, L = 59 uH, TJ = 175 C, FWD = External SiC DIODE (Fig. 25 legend: C3D16065A)"
+   },
+   "eoff_ext_diode": {
+    "value": 238,
+    "unit": "uJ",
+    "page": 2,
+    "conditions": "Turn-Off Switching Energy (External Diode): same conditions, FWD = External SiC DIODE"
+   },
+   "switching_times": {
+    "value": {
+     "td_on": 14,
+     "tr": 60,
+     "td_off": 27,
+     "tf": 12
+    },
+    "unit": "ns",
+    "page": 2,
+    "conditions": "VDD = 400 V, VGS = -4 V/15 V, ID = 33.5 A, RG(ext) = 2.5 Ohm, timing relative to VDS, inductive load (typ); Fig. 26"
+   },
+   "gfs": {
+    "value": {
+     "25C": 25,
+     "175C": 24
+    },
+    "unit": "S",
+    "page": 2,
+    "conditions": "printed as 'VGS = 20 V, IDS = 33.5 A' (and TJ = 175 C) - VGS = 20 V exceeds the +19 V max, likely a typo for VDS = 20 V (Fig. 7 transfer curve is at VDS = 20 V)"
+   },
+   "id_cont_25C": {
+    "value": 97,
+    "unit": "A",
+    "page": 1,
+    "conditions": "VGS = 15 V, TC = 25 C, TJ <= 175 C; Fig. 19"
+   },
+   "id_cont_100C": {
+    "value": 70,
+    "unit": "A",
+    "page": 1,
+    "conditions": "VGS = 15 V, TC = 100 C, TJ <= 175 C; Note 2 'Verified by design'"
+   },
+   "id_pulse": {
+    "value": 251,
+    "unit": "A",
+    "page": 1,
+    "conditions": "IDM, tPmax limited by Tjmax, VGS = 15 V, TC = 25 C; Fig. 22"
+   },
+   "is_cont": {
+    "value": 52,
+    "unit": "A",
+    "page": 3,
+    "conditions": "Continuous diode forward current, VGS = -4 V, TC = 25 C; ISM 251 A pulse"
+   },
+   "ptot": {
+    "value": 326,
+    "unit": "W",
+    "page": 1,
+    "conditions": "TC = 25 C, TJ = 175 C; Fig. 20"
+   },
+   "package": {
+    "value": "TO-247-3 (outline drawing title 'TO-247-3L(MOSFET)', PRD 05964 rev 02, dated 3/4/24)",
+    "unit": "",
+    "page": 10,
+    "conditions": "page heading text reads 'Package Dimensions - TO-247-4L' but the drawing/title block is TO-247-3L(MOSFET) with 3 leads; heading appears to be a datasheet typo"
+   },
+   "pin_order": {
+    "value": "1=Gate, 2=Drain, 3=Source, 4 (tab)=Drain",
+    "unit": "",
+    "page": 10,
+    "conditions": "pin table on outline drawing"
+   },
+   "pin_pitch_e": {
+    "value": 5.44,
+    "unit": "mm",
+    "page": 10,
+    "conditions": "e = 5.44 BSC"
+   },
+   "lead_width_b": {
+    "value": {
+     "min": 1.07,
+     "nom": null,
+     "max": 1.33
+    },
+    "unit": "mm",
+    "page": 10,
+    "conditions": "b (3x)"
+   },
+   "lead_width_b1": {
+    "value": {
+     "min": 1.91,
+     "nom": null,
+     "max": 2.41
+    },
+    "unit": "mm",
+    "page": 10,
+    "conditions": "b1 (x2)"
+   },
+   "lead_width_b3": {
+    "value": {
+     "min": 2.87,
+     "nom": null,
+     "max": 3.38
+    },
+    "unit": "mm",
+    "page": 10,
+    "conditions": "b3 (centre lead shoulder)"
+   },
+   "lead_thickness_c": {
+    "value": {
+     "min": 0.55,
+     "nom": null,
+     "max": 0.74
+    },
+    "unit": "mm",
+    "page": 10,
+    "conditions": "c"
+   },
+   "body_width_E": {
+    "value": {
+     "min": 15.75,
+     "nom": null,
+     "max": 16.13
+    },
+    "unit": "mm",
+    "page": 10,
+    "conditions": "E"
+   },
+   "body_height_D": {
+    "value": {
+     "min": 20.75,
+     "nom": null,
+     "max": 21.05
+    },
+    "unit": "mm",
+    "page": 10,
+    "conditions": "D"
+   },
+   "thickness_A": {
+    "value": {
+     "min": 4.83,
+     "nom": null,
+     "max": 5.21
+    },
+    "unit": "mm",
+    "page": 10,
+    "conditions": "A (A1 2.27-2.52, A2 1.91-2.16)"
+   },
+   "mounting_hole_dia_P": {
+    "value": {
+     "min": 3.18,
+     "nom": null,
+     "max": 4.06
+    },
+    "unit": "mm",
+    "page": 10,
+    "conditions": "oP (back-side clearance (o7.18) shown as reference)"
+   },
+   "lead_length_L": {
+    "value": {
+     "min": 19.73,
+     "nom": null,
+     "max": 20.48
+    },
+    "unit": "mm",
+    "page": 10,
+    "conditions": "L (L1 3.97-4.69)"
+   },
+   "other_outline_dims": {
+    "value": {
+     "D1": [
+      16,
+      17.4
+     ],
+     "D2": [
+      2.86,
+      3.26
+     ],
+     "E1": [
+      13.5,
+      14.55
+     ],
+     "E2": [
+      3.68,
+      5.1
+     ],
+     "E3": [
+      1,
+      1.9
+     ],
+     "E4": [
+      12.38,
+      13.43
+     ],
+     "E5": [
+      14.65,
+      15.05
+     ],
+     "Q": [
+      5.42,
+      5.96
+     ],
+     "S": [
+      5.85,
+      6.49
+     ],
+     "T_deg_ref": 17.5,
+     "W_deg_ref": 3.5,
+     "X_deg_ref": 4
+    },
+    "unit": "mm (angles in degrees)",
+    "page": 10,
+    "conditions": "[min, max] as printed; burr/mold flash (0.5 mm) not included"
+   },
+   "mounting_torque": {
+    "value": {
+     "Nm": 1,
+     "lbf_in": 8.8
+    },
+    "unit": "",
+    "page": 1,
+    "conditions": "M3 or 6-32 screw"
+   }
+  },
+  "notes": [
+   "This is a 15 V-native SiC MOSFET: every RDS(on), Eon/Eoff, Qg and timing row is at VGS = 15 V (on) / -4 V (off). RDS(on) at 15 V: 25 typ / 34 max mOhm at 25 C, 33 typ mOhm at 175 C (ID = 33.5 A, p2). No 18 V data (VGS(max) +19 V transient).",
+   "Recommended VGS(on) 15 V (+/-5% regulation per p1 Note 1, App Note PRD-04814), VGS(off) -4 V (p2). Both reference 'Fig. 29', which does not exist in this 12-page Rev 04 document.",
+   "Gate limits: 'Maximum Gate-Source Voltage VGS(max) -8/+19 V Transient' (no pulse condition) and 'Operational VGS op -4/15 V Static'. No separate static absolute-maximum row.",
+   "Off-bias: datasheet says nothing about 0 V or slightly negative turn-off, parasitic turn-on, or VGS(th) drift. VGS(th) is low: min 1.8 V / typ 2.3 V at 25 C and typ 1.9 V at 175 C (p2). The application's -1.6 V off is less negative than the -4 V recommendation; all switching data are at -4 V. Body diode/3rd quadrant curves (Figs 8-10, 13-15) show VGS = 0, -2, -4 V.",
+   "Eon/Eoff conditions verbatim: 'VDS = 400 V, VGS = -4 V/15 V, ID = 33.5 A, RG(ext) = 2.5 Ohm, L=59 uH, TJ = 175 C, FWD = Internal Body Diode of MOSFET' (578/214 uJ) and '... FWD = External SiC DIODE' (392/238 uJ). Note TJ = 175 C for the table values; Fig. 23/24 give 25 C curves.",
+   "Eoss at 400 V (~19.5 uJ) read from figure 16, approximate; table only gives 37 uJ at 600 V.",
+   "Ciss/Coss/Crss table condition is 'VDS = 0 V to 600 V' with a single typ value; the VDS point is not stated.",
+   "Two reverse-recovery condition sets both at TJ = 175 C differ only in diF/dt (745 vs 685 A/us) - the datasheet does not explain the difference.",
+   "No avalanche rating, no short-circuit rating, no dv/dt rating.",
+   "gfs condition 'VGS = 20 V' appears to be a typo (exceeds VGS max)."
+  ]
+ },
+ "NTHL032N065M3S": {
+  "url": "https://www.onsemi.com/download/data-sheet/pdf/nthl032n065m3s-d.pdf",
+  "local_path": "/Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl/NTHL032N065M3S/nthl032n065m3s-d.pdf",
+  "sha256": "9528955794b5939c091b9b94ae5ce23bf63cdbf5eb48948976782981ad830e50",
+  "bytes": 544285,
+  "document": {
+   "title": "Silicon Carbide (SiC) MOSFET - EliteSiC, 32 mohm, 650 V, M3S, TO-247-3L, NTHL032N065M3S (onsemi data sheet, Publication Order Number NTHL032N065M3S/D)",
+   "revision": "Rev. 9 (revision history: 'Updated static gate source voltage ratings in maximum ratings table')",
+   "date": "June, 2026 (revision history date 6/15/2026)",
+   "page_count": 10
+  },
+  "values": {
+   "vds_rating": {
+    "value": 650,
+    "unit": "V",
+    "page": 1,
+    "conditions": "VDSS; V(BR)DSS min 650 V at VGS = 0 V, ID = 1 mA, TJ = 25 C (p2)"
+   },
+   "vgs_abs_max_static": {
+    "value": {
+     "min": -10,
+     "max": 22.6
+    },
+    "unit": "V",
+    "page": 1,
+    "conditions": "Maximum Ratings 'Gate-to-Source Voltage VGS -10/+22.6 V' (not labelled static/transient in the table; Rev 9 history p8 calls these the 'static gate source voltage ratings')"
+   },
+   "vgs_abs_max_transient": {
+    "value": "not stated",
+    "unit": "V",
+    "page": null,
+    "conditions": "No separate transient VGS rating; searched whole document"
+   },
+   "vgs_recommended_on": {
+    "value": 18,
+    "unit": "V",
+    "page": 2,
+    "conditions": "Recommended Operating Conditions: Operation Values of Gate-to-Source Voltage VGSop +18 V"
+   },
+   "vgs_recommended_off": {
+    "value": {
+     "min": -5,
+     "max": -3
+    },
+    "unit": "V",
+    "page": 2,
+    "conditions": "Recommended Operating Conditions: VGSop -5...-3 V"
+   },
+   "vgs_th": {
+    "value": {
+     "min": 2,
+     "typ": 2.7,
+     "max": 4
+    },
+    "unit": "V",
+    "page": 2,
+    "conditions": "VGS = VDS, ID = 7.5 mA, TJ = 25 C"
+   },
+   "vgs_th_high_T": {
+    "value": "not stated",
+    "unit": "V",
+    "page": null,
+    "conditions": "Only 25 C row (p2); Figure 3 transfer characteristics (p4) at -55/25/175 C only. Searched whole document"
+   },
+   "rds_on_25C": {
+    "value": {
+     "min": null,
+     "typ": 41,
+     "max": null
+    },
+    "unit": "mOhm",
+    "page": 2,
+    "conditions": "VGS = 15 V, ID = 15 A, TJ = 25 C (typ only)"
+   },
+   "rds_on_hot": {
+    "value": {
+     "min": null,
+     "typ": 52,
+     "max": null
+    },
+    "unit": "mOhm",
+    "page": 2,
+    "conditions": "VGS = 15 V, ID = 15 A, TJ = 175 C (Note 6: defined by design, not subject to production test)"
+   },
+   "rds_on_25C_18V": {
+    "value": {
+     "min": null,
+     "typ": 32,
+     "max": 44
+    },
+    "unit": "mOhm",
+    "page": 2,
+    "conditions": "VGS = 18 V, ID = 15 A, TJ = 25 C"
+   },
+   "rds_on_hot_18V": {
+    "value": {
+     "min": null,
+     "typ": 49,
+     "max": null
+    },
+    "unit": "mOhm",
+    "page": 2,
+    "conditions": "VGS = 18 V, ID = 15 A, TJ = 175 C (Note 6)"
+   },
+   "rds_on_15V_fig4": {
+    "value": {
+     "25C": 44,
+     "175C": 52
+    },
+    "unit": "mOhm",
+    "page": 4,
+    "conditions": "read from figure 4 (On-Resistance vs Gate Voltage, ID = 15 A) at VGS = 15 V, approximate; 25 C figure reads ~3 mOhm above the table typ 41"
+   },
+   "rds_on_normalized_175C": {
+    "value": 1.46,
+    "unit": "p.u. (vs 25 C)",
+    "page": 4,
+    "conditions": "read from figure 6 (ID = 15 A, VGS = 18 V), approximate"
+   },
+   "rth_jc": {
+    "value": 0.75,
+    "unit": "C/W",
+    "page": 2,
+    "conditions": "RthetaJC (single value, not labelled typ/max; Note 4: application-environment dependent)"
+   },
+   "rth_ja": {
+    "value": 40,
+    "unit": "C/W",
+    "page": 2,
+    "conditions": "RthetaJA (Note 4)"
+   },
+   "tj_max": {
+    "value": 175,
+    "unit": "C",
+    "page": 1,
+    "conditions": "TJ, Tstg -55 to +175 C"
+   },
+   "qg_total": {
+    "value": 55,
+    "unit": "nC",
+    "page": 2,
+    "conditions": "VDD = 400 V, ID = 15 A, VGS = -3/18 V (Note 6) (typ)"
+   },
+   "qgs": {
+    "value": 15,
+    "unit": "nC",
+    "page": 2,
+    "conditions": "VDD = 400 V, ID = 15 A, VGS = -3/18 V (typ)"
+   },
+   "qgd": {
+    "value": 14,
+    "unit": "nC",
+    "page": 2,
+    "conditions": "VDD = 400 V, ID = 15 A, VGS = -3/18 V (typ)"
+   },
+   "ciss": {
+    "value": 1410,
+    "unit": "pF",
+    "page": 2,
+    "conditions": "VDS = 400 V, VGS = 0 V, f = 1 MHz (Note 6) (typ)"
+   },
+   "coss": {
+    "value": 114,
+    "unit": "pF",
+    "page": 2,
+    "conditions": "VDS = 400 V, VGS = 0 V, f = 1 MHz (typ)"
+   },
+   "crss": {
+    "value": 9.6,
+    "unit": "pF",
+    "page": 2,
+    "conditions": "VDS = 400 V, VGS = 0 V, f = 1 MHz (typ)"
+   },
+   "co_er": {
+    "value": "not stated",
+    "unit": "pF",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "co_tr": {
+    "value": "not stated",
+    "unit": "pF",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "eoss_400V": {
+    "value": 11.5,
+    "unit": "uJ",
+    "page": 5,
+    "conditions": "read from figure 8 (Stored Energy vs Drain to Source Voltage, VGS = 0 V, TJ = 25 C, f = 1 MHz) at VDS = 400 V, approximate"
+   },
+   "rg_internal": {
+    "value": 5.0,
+    "unit": "Ohm",
+    "page": 2,
+    "conditions": "RG, f = 1 MHz (typ)"
+   },
+   "body_diode_vsd": {
+    "value": {
+     "25C_typ": 4.5,
+     "25C_max": 6.0,
+     "175C_typ": 4.2
+    },
+    "unit": "V",
+    "page": 3,
+    "conditions": "ISD = 15 A, VGS = -3 V, TJ = 25 C / 175 C (175 C row Note 6)"
+   },
+   "qrr": {
+    "value": 67,
+    "unit": "nC",
+    "page": 3,
+    "conditions": "VGS = -3 V, IS = 15 A, dI/dt = 1000 A/us, VDS = 400 V, TJ = 25 C (Note 6) (typ)"
+   },
+   "trr": {
+    "value": 15.4,
+    "unit": "ns",
+    "page": 3,
+    "conditions": "same as qrr; ta 8.7 ns, tb 6.7 ns"
+   },
+   "irrm": {
+    "value": 8.6,
+    "unit": "A",
+    "page": 3,
+    "conditions": "same as qrr"
+   },
+   "erec": {
+    "value": 3.6,
+    "unit": "uJ",
+    "page": 3,
+    "conditions": "Reverse Recovery Energy, same as qrr"
+   },
+   "mosfet_dv_dt_rating": {
+    "value": "not stated",
+    "unit": "V/ns",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "reverse_diode_dv_dt": {
+    "value": "not stated",
+    "unit": "V/ns",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "reverse_diode_dif_dt": {
+    "value": "not stated",
+    "unit": "A/us",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "short_circuit_tsc": {
+    "value": "not stated",
+    "unit": "us",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "eas": {
+    "value": 139,
+    "unit": "mJ",
+    "page": 1,
+    "conditions": "Single pulse, ILPK = 16.7 A, L = 1 mH; Note 3: starting TJ = 25 C, L = 1 mH, IAS = 16.7 A, VDD = 100 V, VGS = 18 V. Features: '100% Avalanche Tested'"
+   },
+   "ear": {
+    "value": "not stated",
+    "unit": "mJ",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "ias": {
+    "value": 16.7,
+    "unit": "A",
+    "page": 1,
+    "conditions": "IAS in Note 3 (EAS test condition); Figure 13 avalanche current vs pulse time p6"
+   },
+   "eon_25C": {
+    "value": 107,
+    "unit": "uJ",
+    "page": 2,
+    "conditions": "VGS = -3/18 V, VDD = 400 V, ID = 15 A, RG = 4.7 Ohm, TJ = 25 C (Notes 5 and 6); Note 5: 'EON/EOFF result is with body diode.'"
+   },
+   "eoff_25C": {
+    "value": 21,
+    "unit": "uJ",
+    "page": 2,
+    "conditions": "same as eon_25C"
+   },
+   "etot_25C": {
+    "value": 128,
+    "unit": "uJ",
+    "page": 2,
+    "conditions": "same as eon_25C"
+   },
+   "eon_175C": {
+    "value": 113,
+    "unit": "uJ",
+    "page": 3,
+    "conditions": "VGS = -3/18 V, VDD = 400 V, ID = 15 A, RG = 4.7 Ohm, TJ = 175 C (Notes 5 and 6), with body diode"
+   },
+   "eoff_175C": {
+    "value": 31,
+    "unit": "uJ",
+    "page": 3,
+    "conditions": "same as eon_175C"
+   },
+   "etot_175C": {
+    "value": 144,
+    "unit": "uJ",
+    "page": 3,
+    "conditions": "same as eon_175C"
+   },
+   "switching_times_25C": {
+    "value": {
+     "td_on": 10,
+     "td_off": 30,
+     "tr": 24,
+     "tf": 8.8
+    },
+    "unit": "ns",
+    "page": 2,
+    "conditions": "VGS = -3/18 V, VDD = 400 V, ID = 15 A, RG = 4.7 Ohm, TJ = 25 C"
+   },
+   "switching_times_175C": {
+    "value": {
+     "td_on": 8.8,
+     "td_off": 33,
+     "tr": 23,
+     "tf": 10
+    },
+    "unit": "ns",
+    "page": 3,
+    "conditions": "VGS = -3/18 V, VDD = 400 V, ID = 15 A, RG = 4.7 Ohm, TJ = 175 C"
+   },
+   "gfs": {
+    "value": 9.9,
+    "unit": "S",
+    "page": 2,
+    "conditions": "VDS = 10 V, ID = 15 A (Note 6)"
+   },
+   "id_cont_25C": {
+    "value": 51,
+    "unit": "A",
+    "page": 1,
+    "conditions": "TC = 25 C"
+   },
+   "id_cont_100C": {
+    "value": 27,
+    "unit": "A",
+    "page": 1,
+    "conditions": "TC = 100 C; Note 1: '27 A is limited by package. Power chip max drain current is 36 A if limited by max junction temperature.'"
+   },
+   "id_pulse": {
+    "value": 157,
+    "unit": "A",
+    "page": 1,
+    "conditions": "IDM, TC = 25 C, tp = 100 us; single pulse limited by max TJ (Note 2)"
+   },
+   "is_cont": {
+    "value": {
+     "25C": 30,
+     "100C": 17
+    },
+    "unit": "A",
+    "page": 1,
+    "conditions": "Continuous Source-Drain Current, VGS = -3 V, TC = 25 C / 100 C; ISM 132 A at TC = 100 C, VGS = -3 V, tp = 100 us"
+   },
+   "ptot": {
+    "value": {
+     "25C": 200,
+     "100C": 100
+    },
+    "unit": "W",
+    "page": 1,
+    "conditions": "PD at TC = 25 C / TC = 100 C"
+   },
+   "package": {
+    "value": "TO-247-3LD, CASE 340CX, ISSUE A (document 98AON93302G, dated 06 JUL 2020)",
+    "unit": "",
+    "page": 9,
+    "conditions": "Ordering: TO-247-3L, 30 units/tube (p1)"
+   },
+   "pin_order": {
+    "value": "1=Gate, 2=Drain, 3=Source, tab=Drain (pin 2) - see note",
+    "unit": "",
+    "page": 9,
+    "conditions": "Outline (p9) numbers leads 1, 2, 3 and labels the back tab '2'; p1 symbol shows G/D/S without pin numbers. No explicit pin-function table in this datasheet; 1=G/3=S is the TO-247-3LD convention, not printed"
+   },
+   "pin_pitch_e": {
+    "value": {
+     "min": null,
+     "nom": 5.56,
+     "max": null
+    },
+    "unit": "mm",
+    "page": 9,
+    "conditions": "e (2X), nominal only ('~' for min/max) - note 5.56 mm, not 5.44 mm"
+   },
+   "lead_width_b": {
+    "value": {
+     "min": 1.17,
+     "nom": 1.26,
+     "max": 1.35
+    },
+    "unit": "mm",
+    "page": 9,
+    "conditions": "b (3X)"
+   },
+   "lead_width_b2": {
+    "value": {
+     "min": 1.53,
+     "nom": 1.65,
+     "max": 1.77
+    },
+    "unit": "mm",
+    "page": 9,
+    "conditions": "b2 (2X)"
+   },
+   "lead_width_b4": {
+    "value": {
+     "min": 2.42,
+     "nom": 2.54,
+     "max": 2.66
+    },
+    "unit": "mm",
+    "page": 9,
+    "conditions": "b4 (centre lead shoulder)"
+   },
+   "lead_thickness_c": {
+    "value": {
+     "min": 0.51,
+     "nom": 0.61,
+     "max": 0.71
+    },
+    "unit": "mm",
+    "page": 9,
+    "conditions": "c"
+   },
+   "body_width_E": {
+    "value": {
+     "min": 15.37,
+     "nom": 15.62,
+     "max": 15.87
+    },
+    "unit": "mm",
+    "page": 9,
+    "conditions": "E"
+   },
+   "body_height_D": {
+    "value": {
+     "min": 20.32,
+     "nom": 20.57,
+     "max": 20.82
+    },
+    "unit": "mm",
+    "page": 9,
+    "conditions": "D"
+   },
+   "thickness_A": {
+    "value": {
+     "min": 4.58,
+     "nom": 4.7,
+     "max": 4.82
+    },
+    "unit": "mm",
+    "page": 9,
+    "conditions": "A (A1 2.20/2.40/2.60, A2 1.40/1.50/1.60)"
+   },
+   "mounting_hole_dia_P": {
+    "value": {
+     "min": 3.51,
+     "nom": 3.58,
+     "max": 3.65
+    },
+    "unit": "mm",
+    "page": 9,
+    "conditions": "oP (oP1 back-side 6.60/6.80/7.00)"
+   },
+   "lead_length_L": {
+    "value": {
+     "min": 19.75,
+     "nom": 20.0,
+     "max": 20.25
+    },
+    "unit": "mm",
+    "page": 9,
+    "conditions": "L (L1 3.69/3.81/3.93)"
+   },
+   "other_outline_dims": {
+    "value": {
+     "E2": [
+      4.96,
+      5.08,
+      5.2
+     ],
+     "Q": [
+      5.34,
+      5.46,
+      5.58
+     ],
+     "S": [
+      5.34,
+      5.46,
+      5.58
+     ],
+     "D1_min": 13.08,
+     "D2": [
+      0.51,
+      0.93,
+      1.35
+     ],
+     "E1_min": 12.81,
+     "P1": [
+      6.6,
+      6.8,
+      7.0
+     ]
+    },
+    "unit": "mm",
+    "page": 9,
+    "conditions": "[min, nom, max] as printed; dimensions exclusive of burrs, mold flash and tie bar extrusions"
+   },
+   "lead_solder_temp": {
+    "value": 270,
+    "unit": "C",
+    "page": 1,
+    "conditions": "1/8 in from case for 10 seconds"
+   }
+  },
+  "notes": [
+   "15 V gate drive is tabulated: RDS(on) typ 41 mOhm (25 C) and 52 mOhm (175 C) at VGS = 15 V, ID = 15 A (p2); no max at 15 V. 18 V: 32 typ / 44 max (25 C), 49 typ (175 C). Note the RDS test current is only 15 A (vs 33.5-34.5 A for the other parts). Figure 4 (p4) reads ~44 mOhm at 15 V/25 C, ~3 mOhm above the table typ.",
+   "Recommended VGSop: -5...-3 V off, +18 V on (p2). VGS rating -10/+22.6 V (p1), not split static/transient; Rev 9 (6/15/2026) 'Updated static gate source voltage ratings'.",
+   "Off-bias: datasheet says nothing about 0 V turn-off, parasitic turn-on, or VGS(th) drift; VGS(th) min 2 V at 25 C, no hot VGS(th) row. All switching, Qg and diode data use -3 V off. The application's -1.6 V off is outside the recommended -5...-3 V range (still inside the -10 V absolute rating). Reverse-conduction figures 10/11 (p5) include VGS = 0 V curves.",
+   "Eon/Eoff conditions verbatim: 'VGS = -3/18 V, VDD = 400 V, ID = 15 A, RG = 4.7 Ohm, TJ = 25 C (Notes 5 and 6)' and same at TJ = 175 C; Note 5 'EON/EOFF result is with body diode.' Note 6 'Defined by design, not subject to production test.' Units printed as uJ in the PDF (text extract shows 'mJ' due to font substitution; verified visually).",
+   "Text-extract mu->m substitutions verified against the rendered PDF: IDSS in uA, tp = 100 us, dI/dt = 1000 A/us, Eon/Eoff/Erec in uJ, RDS in mOhm.",
+   "Eoss at 400 V (~11.5 uJ) read from figure 8, approximate. Co(er)/Co(tr) not stated.",
+   "Pin pitch e = 5.56 mm nominal on CASE 340CX (Infineon/Wolfspeed TO-247-3 use 5.44 mm) - check footprint compatibility.",
+   "No short-circuit, dv/dt or repetitive avalanche ratings."
+  ]
+ },
+ "IHW40N65R5XKSA1": {
+  "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ihw40n65r5-datasheet-en.pdf",
+  "local_path": "/Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl/IHW40N65R5/infineon-ihw40n65r5-datasheet-en.pdf",
+  "sha256": "f58f5442c631a7cd338842a6c7f107c7a93c43c26925af73a11a37baf690dcae",
+  "bytes": 2180898,
+  "document": {
+   "title": "IHW40N65R5 Resonant Switching Series - Reverse-Conducting IGBT with monolithic body diode, Datasheet (Infineon)",
+   "revision": "Rev. 2.3",
+   "date": "2015-12-22",
+   "page_count": 15
+  },
+  "values": {
+   "integrated_diode_type": {
+    "value": "monolithic reverse-conducting (RC) body diode",
+    "unit": "",
+    "page": 2,
+    "conditions": "'Reverse-Conducting IGBT with monolithic body diode'; feature 'Powerful monolithic reverse-conducting diode with low forward voltage'"
+   },
+   "vces": {
+    "value": 650,
+    "unit": "V",
+    "page": 4,
+    "conditions": "Collector-emitter voltage, Tvj >= 25 C"
+   },
+   "vge_abs_max_static": {
+    "value": "+/-20",
+    "unit": "V",
+    "page": 4,
+    "conditions": "Gate-emitter voltage"
+   },
+   "vge_abs_max_transient": {
+    "value": "not stated",
+    "unit": "V",
+    "page": null,
+    "conditions": "searched whole document; only static +/-20 V on p4"
+   },
+   "vge_recommended_on": {
+    "value": 15,
+    "unit": "V",
+    "page": 5,
+    "conditions": "as used in switching test: VGE=0.0/15.0V; no recommended-operating gate voltage table"
+   },
+   "vge_recommended_off": {
+    "value": 0,
+    "unit": "V",
+    "page": 5,
+    "conditions": "as used in switching test: VGE=0.0/15.0V; no negative-bias recommendation stated"
+   },
+   "vge_th_min": {
+    "value": 3.2,
+    "unit": "V",
+    "page": 5,
+    "conditions": "IC=0.40mA, VCE=VGE, Tvj=25 C"
+   },
+   "vge_th_typ": {
+    "value": 4.0,
+    "unit": "V",
+    "page": 5,
+    "conditions": "IC=0.40mA, VCE=VGE, Tvj=25 C"
+   },
+   "vge_th_max": {
+    "value": 4.8,
+    "unit": "V",
+    "page": 5,
+    "conditions": "IC=0.40mA, VCE=VGE, Tvj=25 C"
+   },
+   "vge_th_150C_typ": {
+    "value": 2.75,
+    "unit": "V",
+    "page": 9,
+    "conditions": "read from figure 11 (IC=0.4mA), approximate; min ~1.95, max ~3.55 at 150 C"
+   },
+   "vce_sat_40A_25C_typ": {
+    "value": 1.35,
+    "unit": "V",
+    "page": 5,
+    "conditions": "VGE=15.0V, IC=40.0A, Tvj=25 C"
+   },
+   "vce_sat_40A_25C_max": {
+    "value": 1.7,
+    "unit": "V",
+    "page": 5,
+    "conditions": "VGE=15.0V, IC=40.0A, Tvj=25 C"
+   },
+   "vce_sat_40A_175C_typ": {
+    "value": 1.6,
+    "unit": "V",
+    "page": 5,
+    "conditions": "VGE=15.0V, IC=40.0A, Tvj=175 C (no max given)"
+   },
+   "vce_sat_10A_25C_typ_fig": {
+    "value": 1.01,
+    "unit": "V",
+    "page": 8,
+    "conditions": "read from figure 7 (VCEsat vs Tvj, VGE=15V, IC=10A), approximate"
+   },
+   "vce_sat_10A_175C_typ_fig": {
+    "value": 0.97,
+    "unit": "V",
+    "page": 8,
+    "conditions": "read from figure 7 (VGE=15V, IC=10A), approximate; slightly negative tempco at 10 A"
+   },
+   "vce_sat_20A_25C_typ_fig": {
+    "value": 1.16,
+    "unit": "V",
+    "page": 8,
+    "conditions": "read from figure 7 (VGE=15V, IC=20A), approximate"
+   },
+   "vce_sat_20A_175C_typ_fig": {
+    "value": 1.22,
+    "unit": "V",
+    "page": 8,
+    "conditions": "read from figure 7 (VGE=15V, IC=20A), approximate"
+   },
+   "vce_sat_80A_25C_typ_fig": {
+    "value": 1.75,
+    "unit": "V",
+    "page": 7,
+    "conditions": "read from figure 4 (output characteristic, Tvj=25C, VGE=15V curve), approximate +/-0.1 V: VGE 13-20 V curves are bunched"
+   },
+   "vce_sat_80A_175C_typ_fig": {
+    "value": 2.1,
+    "unit": "V",
+    "page": 8,
+    "conditions": "read from figure 5 (output characteristic, Tvj=175C, VGE=15V curve), approximate +/-0.1 V: VGE 13-20 V curves are bunched"
+   },
+   "diode_vf_25C_typ": {
+    "value": 1.7,
+    "unit": "V",
+    "page": 5,
+    "conditions": "VGE=0V, IF=40.0A, Tvj=25 C"
+   },
+   "diode_vf_25C_max": {
+    "value": 2.1,
+    "unit": "V",
+    "page": 5,
+    "conditions": "VGE=0V, IF=40.0A, Tvj=25 C"
+   },
+   "diode_vf_175C_typ": {
+    "value": 2.0,
+    "unit": "V",
+    "page": 5,
+    "conditions": "VGE=0V, IF=40.0A, Tvj=175 C"
+   },
+   "eon_25C": {
+    "value": 1.1,
+    "unit": "mJ",
+    "page": 5,
+    "conditions": "Tvj=25C, VCC=400V, IC=40.0A, VGE=0.0/15.0V, RG(on)=10.0ohm, RG(off)=10.0ohm, Lsigma=70nH, Csigma=30pF (Fig. E); 'Energy losses include tail and diode reverse recovery.' Hard-switched"
+   },
+   "eoff_25C": {
+    "value": 0.37,
+    "unit": "mJ",
+    "page": 5,
+    "conditions": "same as eon_25C; hard-switched, no relief capacitor"
+   },
+   "ets_25C": {
+    "value": 1.47,
+    "unit": "mJ",
+    "page": 5,
+    "conditions": "same as eon_25C"
+   },
+   "eon_175C": {
+    "value": 1.3,
+    "unit": "mJ",
+    "page": 6,
+    "conditions": "Tvj=175C, VCC=400V, IC=40.0A, VGE=0.0/15.0V, RG(on)=10.0ohm, RG(off)=10.0ohm, Lsigma=70nH, Csigma=30pF (Fig. E); includes tail and diode reverse recovery"
+   },
+   "eoff_175C": {
+    "value": 0.61,
+    "unit": "mJ",
+    "page": 6,
+    "conditions": "same as eon_175C; hard-switched"
+   },
+   "ets_175C": {
+    "value": 1.91,
+    "unit": "mJ",
+    "page": 6,
+    "conditions": "same as eon_175C"
+   },
+   "eoff_soft_switching": {
+    "value": "not stated",
+    "unit": "mJ",
+    "page": null,
+    "conditions": "searched whole document; Fig. E (p14) lists 'relief capacitor Cr, (only for ZVT switching)' but no ZVT/Cr Eoff value or curve is given"
+   },
+   "eoff_vs_ic_175C_10A_fig": {
+    "value": 0.13,
+    "unit": "mJ",
+    "page": 9,
+    "conditions": "read from figure 12 (hard-switched, Tvj=175C, VCE=400V, VGE=0/15V, RGon=RGoff=10ohm), approximate"
+   },
+   "eoff_vs_ic_175C_20A_fig": {
+    "value": 0.3,
+    "unit": "mJ",
+    "page": 9,
+    "conditions": "read from figure 12, approximate"
+   },
+   "eoff_vs_ic_175C_60A_fig": {
+    "value": 0.95,
+    "unit": "mJ",
+    "page": 9,
+    "conditions": "read from figure 12, approximate"
+   },
+   "td_on_25C": {
+    "value": 34,
+    "unit": "ns",
+    "page": 5,
+    "conditions": "same as eon_25C"
+   },
+   "tr_25C": {
+    "value": 25,
+    "unit": "ns",
+    "page": 5,
+    "conditions": "same as eon_25C"
+   },
+   "td_off_25C": {
+    "value": 260,
+    "unit": "ns",
+    "page": 5,
+    "conditions": "same as eon_25C"
+   },
+   "tf_25C": {
+    "value": 13,
+    "unit": "ns",
+    "page": 5,
+    "conditions": "same as eon_25C"
+   },
+   "td_on_175C": {
+    "value": 31,
+    "unit": "ns",
+    "page": 6,
+    "conditions": "same as eon_175C"
+   },
+   "tr_175C": {
+    "value": 28,
+    "unit": "ns",
+    "page": 6,
+    "conditions": "same as eon_175C"
+   },
+   "td_off_175C": {
+    "value": 300,
+    "unit": "ns",
+    "page": 6,
+    "conditions": "same as eon_175C"
+   },
+   "tf_175C": {
+    "value": 21,
+    "unit": "ns",
+    "page": 6,
+    "conditions": "same as eon_175C"
+   },
+   "turn_off_tail_info": {
+    "value": "Eoff vs IC: figure 12; Eoff vs RG: figure 13; Eoff vs Tvj: figure 14; tf vs IC: figure 8",
+    "unit": "",
+    "page": 9,
+    "conditions": "Eoff definition integrates to 2% IC (Figure B, p14); table Eoff 'include tail'"
+   },
+   "diode_trr_25C": {
+    "value": 115,
+    "unit": "ns",
+    "page": 6,
+    "conditions": "Tvj=25C, VR=400V, IF=40.0A, diF/dt=1000A/us"
+   },
+   "diode_qrr_25C": {
+    "value": 2.75,
+    "unit": "uC",
+    "page": 6,
+    "conditions": "Tvj=25C, VR=400V, IF=40.0A, diF/dt=1000A/us"
+   },
+   "diode_irrm_25C": {
+    "value": 37.2,
+    "unit": "A",
+    "page": 6,
+    "conditions": "Tvj=25C, VR=400V, IF=40.0A, diF/dt=1000A/us"
+   },
+   "diode_dirr_dt_25C": {
+    "value": -1550,
+    "unit": "A/us",
+    "page": 6,
+    "conditions": "Tvj=25C, VR=400V, IF=40.0A, diF/dt=1000A/us"
+   },
+   "diode_trr_175C": {
+    "value": 142,
+    "unit": "ns",
+    "page": 6,
+    "conditions": "Tvj=175C, VR=400V, IF=40.0A, diF/dt=1000A/us"
+   },
+   "diode_qrr_175C": {
+    "value": 3.8,
+    "unit": "uC",
+    "page": 6,
+    "conditions": "Tvj=175C, VR=400V, IF=40.0A, diF/dt=1000A/us"
+   },
+   "diode_irrm_175C": {
+    "value": 45.0,
+    "unit": "A",
+    "page": 6,
+    "conditions": "Tvj=175C, VR=400V, IF=40.0A, diF/dt=1000A/us"
+   },
+   "diode_dirr_dt_175C": {
+    "value": -1550,
+    "unit": "A/us",
+    "page": 6,
+    "conditions": "Tvj=175C, VR=400V, IF=40.0A, diF/dt=1000A/us"
+   },
+   "cies": {
+    "value": 4740,
+    "unit": "pF",
+    "page": 5,
+    "conditions": "VCE=25V, VGE=0V, f=1MHz"
+   },
+   "coes": {
+    "value": 44,
+    "unit": "pF",
+    "page": 5,
+    "conditions": "VCE=25V, VGE=0V, f=1MHz"
+   },
+   "cres": {
+    "value": 19,
+    "unit": "pF",
+    "page": 5,
+    "conditions": "VCE=25V, VGE=0V, f=1MHz"
+   },
+   "qg": {
+    "value": 193.0,
+    "unit": "nC",
+    "page": 5,
+    "conditions": "VCC=520V, IC=40.0A, VGE=15V (0 to 15 V per figure 15)"
+   },
+   "rg_internal": {
+    "value": "none",
+    "unit": "ohm",
+    "page": 5,
+    "conditions": "Integrated gate resistor rG: none"
+   },
+   "le_internal": {
+    "value": 13.0,
+    "unit": "nH",
+    "page": 5,
+    "conditions": "internal emitter inductance measured 5mm from case"
+   },
+   "rth_jc_igbt": {
+    "value": 0.65,
+    "unit": "K/W",
+    "page": 4,
+    "conditions": "max"
+   },
+   "rth_jc_diode": {
+    "value": 2.85,
+    "unit": "K/W",
+    "page": 4,
+    "conditions": "max"
+   },
+   "rth_ja": {
+    "value": 40,
+    "unit": "K/W",
+    "page": 4,
+    "conditions": "max"
+   },
+   "tj_max": {
+    "value": 175,
+    "unit": "C",
+    "page": 4,
+    "conditions": "Operating junction temperature Tvj -40...+175 C"
+   },
+   "tsc": {
+    "value": "not rated",
+    "unit": "us",
+    "page": null,
+    "conditions": "searched whole document; no short-circuit withstand rating or SCSOA given"
+   },
+   "intended_application": {
+    "value": "Resonant Switching Series; Induction cooking, Inverterized microwave ovens, Resonant converters",
+    "unit": "",
+    "page": 2,
+    "conditions": "Applications list"
+   },
+   "max_switching_frequency": {
+    "value": "not stated",
+    "unit": "kHz",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "ic_25C": {
+    "value": 80.0,
+    "unit": "A",
+    "page": 4,
+    "conditions": "DC collector current, limited by Tvjmax, TC=25C"
+   },
+   "ic_100C": {
+    "value": 40.0,
+    "unit": "A",
+    "page": 4,
+    "conditions": "TC=100C"
+   },
+   "icpuls": {
+    "value": 120.0,
+    "unit": "A",
+    "page": 4,
+    "conditions": "tp limited by Tvjmax"
+   },
+   "turn_off_soa": {
+    "value": 120.0,
+    "unit": "A",
+    "page": 4,
+    "conditions": "VCE<=650V, Tvj<=175C, tp=1us"
+   },
+   "diode_if_25C": {
+    "value": 32.0,
+    "unit": "A",
+    "page": 4,
+    "conditions": "Diode forward current limited by Tvjmax, TC=25C"
+   },
+   "diode_if_100C": {
+    "value": 19.0,
+    "unit": "A",
+    "page": 4,
+    "conditions": "TC=100C"
+   },
+   "diode_ifpuls": {
+    "value": 120.0,
+    "unit": "A",
+    "page": 4,
+    "conditions": "tp limited by Tvjmax"
+   },
+   "ptot_25C": {
+    "value": 230.0,
+    "unit": "W",
+    "page": 4,
+    "conditions": "TC=25C"
+   },
+   "ptot_100C": {
+    "value": 115.0,
+    "unit": "W",
+    "page": 4,
+    "conditions": "TC=100C"
+   },
+   "package_code": {
+    "value": "PG-TO247-3",
+    "unit": "",
+    "page": 13,
+    "conditions": "Package Drawing PG-TO247-3, document Z8B00003327 revision 05, issue date 09-07-2010"
+   },
+   "package_outline_page": {
+    "value": 13,
+    "unit": "",
+    "page": 13,
+    "conditions": ""
+   },
+   "pin_order": {
+    "value": "G, C, E left to right (front view, leads down); 1=G 2=C 3=E by position; tab = C not explicitly stated",
+    "unit": "",
+    "page": 2,
+    "conditions": "package photo labels 'G C E' on p2; outline drawing p13 does not number pins"
+   },
+   "pin_pitch_e": {
+    "value": 5.44,
+    "unit": "mm",
+    "page": 13,
+    "conditions": "e = 5.44 (BSC)"
+   },
+   "lead_width_b": {
+    "value": [
+     1.07,
+     null,
+     1.33
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "lead_width_b1": {
+    "value": [
+     1.9,
+     null,
+     2.41
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]; shoulder width of outer leads"
+   },
+   "lead_width_b2": {
+    "value": [
+     1.9,
+     null,
+     2.16
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "lead_width_b3": {
+    "value": [
+     2.87,
+     null,
+     3.38
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]; centre lead shoulder"
+   },
+   "lead_width_b4": {
+    "value": [
+     2.87,
+     null,
+     3.13
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "lead_thickness_c": {
+    "value": [
+     0.55,
+     null,
+     0.68
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "body_width_E": {
+    "value": [
+     15.7,
+     null,
+     16.13
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "body_height_D": {
+    "value": [
+     20.8,
+     null,
+     21.1
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "thickness_A": {
+    "value": [
+     4.83,
+     null,
+     5.21
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "mounting_hole_dP": {
+    "value": [
+     3.5,
+     null,
+     3.7
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "lead_length_L": {
+    "value": [
+     19.8,
+     null,
+     20.32
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "lead_L1": {
+    "value": [
+     4.1,
+     null,
+     4.47
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "mounting_torque": {
+    "value": 0.6,
+    "unit": "Nm",
+    "page": 4,
+    "conditions": "M3 screw; maximum of mounting processes: 3"
+   }
+  },
+  "notes": [
+   "Integrated diode is monolithic reverse-conducting (RC), not co-packed; diode Rth(j-c) 2.85 K/W shares the die.",
+   "No soft-switching / ZVT data: Figure E (p14) mentions 'relief capacitor Cr, (only for ZVT switching)' but no table row or curve uses Cr. All Eon/Eoff values are hard-switched at VCC=400V with Lsigma=70nH, Csigma=30pF.",
+   "Table Eon/Eoff note: 'Energy losses include tail and diode reverse recovery.' (pp5-6).",
+   "VCEsat at 10 A and 20 A read from figure 7 (VCEsat vs Tvj, VGE=15V, curves IC=10/20/40A), approximate; figure 7 at 40 A agrees with the table (1.35 / 1.60 V). 80 A values read from figures 4/5 output characteristics, approximate +/-0.1 V because VGE 13-20 V curves overlap.",
+   "Short-circuit withstand: not rated (no tsc anywhere). Transient VGE: not stated. Max switching frequency: not stated.",
+   "Gate threshold falls with temperature (figure 11): typ ~4.15 V at 0 C to ~2.75 V at 150 C; min ~1.95 V at 150 C (approximate).",
+   "Cies/Coes/Cres at f=1MHz here; R6 datasheet uses f=100kHz, so they are not directly comparable."
+  ]
+ },
+ "IHW40N65R6XKSA1": {
+  "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-ihw40n65r6-datasheet-en.pdf",
+  "local_path": "/Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl/IHW40N65R6/infineon-ihw40n65r6-datasheet-en.pdf",
+  "sha256": "66ee1cfb5a9c0afdc33c968f877604c48887f812fae3997f89782ffbe2e585c9",
+  "bytes": 1838301,
+  "document": {
+   "title": "IHW40N65R6 Reverse-Conducting IGBT with monolithic body diode, Datasheet (Infineon)",
+   "revision": "Revision 1.20",
+   "date": "2021-03-22",
+   "page_count": 16
+  },
+  "values": {
+   "integrated_diode_type": {
+    "value": "monolithic reverse-conducting (RC) body diode",
+    "unit": "",
+    "page": 1,
+    "conditions": "'Reverse-Conducting IGBT with monolithic body diode'; feature 'Powerful monolithic reverse-conducting diode with low forward voltage'"
+   },
+   "vces": {
+    "value": 650,
+    "unit": "V",
+    "page": 3,
+    "conditions": "Collector-emitter voltage, Tvj >= 25 C"
+   },
+   "vge_abs_max_static": {
+    "value": "+/-20",
+    "unit": "V",
+    "page": 3,
+    "conditions": "Gate-emitter voltage"
+   },
+   "vge_abs_max_transient": {
+    "value": "+/-30",
+    "unit": "V",
+    "page": 3,
+    "conditions": "Transient gate-emitter voltage, tp = 10 us, D < 0.010"
+   },
+   "vge_recommended_on": {
+    "value": 15,
+    "unit": "V",
+    "page": 4,
+    "conditions": "as used in switching test: tables say VGE = 15 V; figures (p8-p10) say VGE = 0/15 V; no recommended-operating gate voltage table"
+   },
+   "vge_recommended_off": {
+    "value": 0,
+    "unit": "V",
+    "page": 8,
+    "conditions": "as used in switching figures: VGE = 0/15 V; no negative-bias recommendation stated"
+   },
+   "vge_th_min": {
+    "value": 3.2,
+    "unit": "V",
+    "page": 4,
+    "conditions": "IC = 0.40 mA, VCE = VGE, Tvj = 25 C"
+   },
+   "vge_th_typ": {
+    "value": 4.0,
+    "unit": "V",
+    "page": 4,
+    "conditions": "IC = 0.40 mA, VCE = VGE, Tvj = 25 C"
+   },
+   "vge_th_max": {
+    "value": 4.8,
+    "unit": "V",
+    "page": 4,
+    "conditions": "IC = 0.40 mA, VCE = VGE, Tvj = 25 C"
+   },
+   "vge_th_150C_typ": {
+    "value": 2.35,
+    "unit": "V",
+    "page": 9,
+    "conditions": "read from figure 'Gate-emitter threshold voltage as a function of junction temperature' (IC = 0.40 mA, unnumbered), approximate; min ~1.7 V, max ~3.3 V at 150 C"
+   },
+   "vce_sat_40A_25C_typ": {
+    "value": 1.29,
+    "unit": "V",
+    "page": 3,
+    "conditions": "IC = 40.0 A, VGE = 15 V, Tvj = 25 C"
+   },
+   "vce_sat_40A_25C_max": {
+    "value": 1.6,
+    "unit": "V",
+    "page": 3,
+    "conditions": "IC = 40.0 A, VGE = 15 V, Tvj = 25 C"
+   },
+   "vce_sat_40A_175C_typ": {
+    "value": 1.5,
+    "unit": "V",
+    "page": 3,
+    "conditions": "IC = 40.0 A, VGE = 15 V, Tvj = 175 C (no max given)"
+   },
+   "vce_sat_10A_25C_typ_fig": {
+    "value": 0.97,
+    "unit": "V",
+    "page": 8,
+    "conditions": "read from figure 'Typical collector-emitter saturation voltage as a function of junction temperature' (VGE = 15 V, IC = 10 A, unnumbered), approximate"
+   },
+   "vce_sat_10A_175C_typ_fig": {
+    "value": 0.93,
+    "unit": "V",
+    "page": 8,
+    "conditions": "read from same figure (VGE = 15 V, IC = 10 A), approximate; slightly negative tempco at 10 A"
+   },
+   "vce_sat_20A_25C_typ_fig": {
+    "value": 1.1,
+    "unit": "V",
+    "page": 8,
+    "conditions": "read from same figure (VGE = 15 V, IC = 20 A), approximate"
+   },
+   "vce_sat_20A_175C_typ_fig": {
+    "value": 1.16,
+    "unit": "V",
+    "page": 8,
+    "conditions": "read from same figure (VGE = 15 V, IC = 20 A), approximate"
+   },
+   "vce_sat_80A_25C_typ_fig": {
+    "value": 1.7,
+    "unit": "V",
+    "page": 7,
+    "conditions": "read from figure 'Typical output characteristic, IGBT' Tvj = 25 C (VGE = 15 V curve, unnumbered), approximate +/-0.1 V: VGE 9-20 V curves overlap"
+   },
+   "vce_sat_80A_175C_typ_fig": {
+    "value": 2.0,
+    "unit": "V",
+    "page": 7,
+    "conditions": "read from figure 'Typical output characteristic, IGBT' Tvj = 175 C (VGE = 15 V curve), approximate +/-0.1 V: curves overlap"
+   },
+   "diode_vf_25C_typ": {
+    "value": 1.5,
+    "unit": "V",
+    "page": 5,
+    "conditions": "IF = 40.0 A, Tvj = 25 C"
+   },
+   "diode_vf_25C_max": {
+    "value": 1.9,
+    "unit": "V",
+    "page": 5,
+    "conditions": "IF = 40.0 A, Tvj = 25 C"
+   },
+   "diode_vf_175C_typ": {
+    "value": 1.66,
+    "unit": "V",
+    "page": 5,
+    "conditions": "IF = 40.0 A, Tvj = 175 C"
+   },
+   "eon_25C": {
+    "value": 1.1,
+    "unit": "mJ",
+    "page": 4,
+    "conditions": "VCE = 400 V, VGE = 15 V, RGon = 10.0 ohm, RGoff = 10.0 ohm, Lsigma = 70 nH, Csigma = 30 pF, Tvj = 25 C, IC = 40.0 A; hard-switched (inclusion of diode recovery not stated in R6 table)"
+   },
+   "eon_175C": {
+    "value": 1.27,
+    "unit": "mJ",
+    "page": 4,
+    "conditions": "same, Tvj = 175 C, IC = 40.0 A"
+   },
+   "eoff_25C": {
+    "value": 0.42,
+    "unit": "mJ",
+    "page": 4,
+    "conditions": "VCE = 400 V, VGE = 15 V, RGon = 10.0 ohm, RGoff = 10.0 ohm, Lsigma = 70 nH, Csigma = 30 pF, Tvj = 25 C, IC = 40.0 A; hard-switched"
+   },
+   "eoff_175C": {
+    "value": 0.61,
+    "unit": "mJ",
+    "page": 4,
+    "conditions": "same, Tvj = 175 C, IC = 40.0 A"
+   },
+   "ets_25C": {
+    "value": 1.52,
+    "unit": "mJ",
+    "page": 5,
+    "conditions": "same as eon_25C"
+   },
+   "ets_175C": {
+    "value": 1.88,
+    "unit": "mJ",
+    "page": 5,
+    "conditions": "same as eon_175C"
+   },
+   "eoff_soft_25C": {
+    "value": 0.11,
+    "unit": "mJ",
+    "page": 5,
+    "conditions": "Soft turn-off energy: VCE = 162 V, VGE = 15 V, RGon = 10.0 ohm, RGoff = 10.0 ohm, Cr = 30 nF, Lsigma = 70 nH, Csigma = 30 pF, Tvj = 25 C, IC = 40.0 A"
+   },
+   "eoff_soft_175C": {
+    "value": 0.22,
+    "unit": "mJ",
+    "page": 5,
+    "conditions": "Soft turn-off energy: VCE = 162 V, VGE = 15 V, RGon = 10.0 ohm, RGoff = 10.0 ohm, Cr = 30 nF, Lsigma = 70 nH, Csigma = 30 pF, Tvj = 175 C, IC = 40.0 A"
+   },
+   "eoff_soft_175C_Cr10nF_20A_fig": {
+    "value": 0.1,
+    "unit": "mJ",
+    "page": 10,
+    "conditions": "read from figure 'Typical soft-switching turn-off energy loss as a function of collector current' (RGoff = 10.0 ohm, Tvj = 175 C, VGE = 0/15 V; VCE not printed on figure), approximate"
+   },
+   "eoff_soft_175C_Cr10nF_40A_fig": {
+    "value": 0.28,
+    "unit": "mJ",
+    "page": 10,
+    "conditions": "read from same figure, Cr = 10 nF, approximate"
+   },
+   "eoff_soft_175C_Cr10nF_60A_fig": {
+    "value": 0.58,
+    "unit": "mJ",
+    "page": 10,
+    "conditions": "read from same figure, Cr = 10 nF, approximate"
+   },
+   "eoff_soft_175C_Cr10nF_80A_fig": {
+    "value": 0.96,
+    "unit": "mJ",
+    "page": 10,
+    "conditions": "read from same figure, Cr = 10 nF, approximate"
+   },
+   "eoff_soft_175C_Cr30nF_20A_fig": {
+    "value": 0.085,
+    "unit": "mJ",
+    "page": 10,
+    "conditions": "read from same figure, Cr = 30 nF, approximate"
+   },
+   "eoff_soft_175C_Cr30nF_60A_fig": {
+    "value": 0.47,
+    "unit": "mJ",
+    "page": 10,
+    "conditions": "read from same figure, Cr = 30 nF, approximate (40 A point ~0.22 matches table)"
+   },
+   "eoff_soft_175C_Cr30nF_80A_fig": {
+    "value": 0.78,
+    "unit": "mJ",
+    "page": 10,
+    "conditions": "read from same figure, Cr = 30 nF, approximate"
+   },
+   "eoff_soft_175C_Cr60nF_20A_fig": {
+    "value": 0.075,
+    "unit": "mJ",
+    "page": 10,
+    "conditions": "read from same figure, Cr = 60 nF, approximate"
+   },
+   "eoff_soft_175C_Cr60nF_40A_fig": {
+    "value": 0.2,
+    "unit": "mJ",
+    "page": 10,
+    "conditions": "read from same figure, Cr = 60 nF, approximate"
+   },
+   "eoff_soft_175C_Cr60nF_60A_fig": {
+    "value": 0.42,
+    "unit": "mJ",
+    "page": 10,
+    "conditions": "read from same figure, Cr = 60 nF, approximate"
+   },
+   "eoff_soft_175C_Cr60nF_80A_fig": {
+    "value": 0.71,
+    "unit": "mJ",
+    "page": 10,
+    "conditions": "read from same figure, Cr = 60 nF, approximate"
+   },
+   "eoff_hard_175C_20A_fig": {
+    "value": 0.33,
+    "unit": "mJ",
+    "page": 9,
+    "conditions": "read from figure 'Typical switching energy losses as a function of collector current' (RGoff = RGon = 10.0 ohm, VCE = 400 V, Tvj = 175 C, VGE = 0/15 V), approximate"
+   },
+   "eoff_hard_175C_60A_fig": {
+    "value": 1.15,
+    "unit": "mJ",
+    "page": 9,
+    "conditions": "read from same figure, approximate (figure reads ~0.68 at 40 A vs table 0.61)"
+   },
+   "td_on_25C": {
+    "value": 17,
+    "unit": "ns",
+    "page": 4,
+    "conditions": "same as eon_25C"
+   },
+   "td_on_175C": {
+    "value": 17,
+    "unit": "ns",
+    "page": 4,
+    "conditions": "same as eon_175C"
+   },
+   "tr_25C": {
+    "value": 19,
+    "unit": "ns",
+    "page": 4,
+    "conditions": "same as eon_25C"
+   },
+   "tr_175C": {
+    "value": 19,
+    "unit": "ns",
+    "page": 4,
+    "conditions": "same as eon_175C"
+   },
+   "td_off_25C": {
+    "value": 211,
+    "unit": "ns",
+    "page": 4,
+    "conditions": "same as eon_25C"
+   },
+   "td_off_175C": {
+    "value": 236,
+    "unit": "ns",
+    "page": 4,
+    "conditions": "same as eon_175C"
+   },
+   "tf_25C": {
+    "value": 15,
+    "unit": "ns",
+    "page": 4,
+    "conditions": "same as eon_25C"
+   },
+   "tf_175C": {
+    "value": 20,
+    "unit": "ns",
+    "page": 4,
+    "conditions": "same as eon_175C"
+   },
+   "turn_off_tail_info": {
+    "value": "Hard Eoff vs IC: p9 (unnumbered 'Typical switching energy losses as a function of collector current'); soft-switching Eoff vs IC for Cr = 10/30/60 nF: p10; tf vs IC: p8",
+    "unit": "",
+    "page": 10,
+    "conditions": "Eoff integration to 2% IC per Figure 7 (testing conditions, p14)"
+   },
+   "diode_trr_25C": {
+    "value": 99,
+    "unit": "ns",
+    "page": 6,
+    "conditions": "VR = 400 V, Tvj = 25 C, IF = 40.0 A, -diF/dt = 1000 A/us"
+   },
+   "diode_trr_175C": {
+    "value": 133,
+    "unit": "ns",
+    "page": 6,
+    "conditions": "VR = 400 V, Tvj = 175 C, IF = 40.0 A, -diF/dt = 1000 A/us"
+   },
+   "diode_qrr_25C": {
+    "value": 2.16,
+    "unit": "uC",
+    "page": 6,
+    "conditions": "VR = 400 V, Tvj = 25 C, IF = 40.0 A, -diF/dt = 1000 A/us"
+   },
+   "diode_qrr_175C": {
+    "value": 3.77,
+    "unit": "uC",
+    "page": 6,
+    "conditions": "VR = 400 V, Tvj = 175 C, IF = 40.0 A, -diF/dt = 1000 A/us"
+   },
+   "diode_irrm_25C": {
+    "value": 35.0,
+    "unit": "A",
+    "page": 6,
+    "conditions": "VR = 400 V, Tvj = 25 C, IF = 40.0 A, -diF/dt = 1000 A/us"
+   },
+   "diode_irrm_175C": {
+    "value": 46.0,
+    "unit": "A",
+    "page": 6,
+    "conditions": "VR = 400 V, Tvj = 175 C, IF = 40.0 A, -diF/dt = 1000 A/us"
+   },
+   "diode_dirr_dt_25C": {
+    "value": -926,
+    "unit": "A/us",
+    "page": 6,
+    "conditions": "VR = 400 V, Tvj = 25 C, IF = 40.0 A, -diF/dt = 1000 A/us"
+   },
+   "diode_dirr_dt_175C": {
+    "value": -901,
+    "unit": "A/us",
+    "page": 6,
+    "conditions": "VR = 400 V, Tvj = 175 C, IF = 40.0 A, -diF/dt = 1000 A/us"
+   },
+   "cies": {
+    "value": 4029,
+    "unit": "pF",
+    "page": 4,
+    "conditions": "VCE = 25 V, VGE = 0 V, f = 100 kHz"
+   },
+   "coes": {
+    "value": 42,
+    "unit": "pF",
+    "page": 4,
+    "conditions": "VCE = 25 V, VGE = 0 V, f = 100 kHz"
+   },
+   "cres": {
+    "value": 16,
+    "unit": "pF",
+    "page": 4,
+    "conditions": "VCE = 25 V, VGE = 0 V, f = 100 kHz"
+   },
+   "qg": {
+    "value": 159,
+    "unit": "nC",
+    "page": 4,
+    "conditions": "IC = 40.0 A, VGE = 15 V, VCE = 520 V"
+   },
+   "rg_internal": {
+    "value": "not stated",
+    "unit": "ohm",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "le_internal": {
+    "value": 13.0,
+    "unit": "nH",
+    "page": 3,
+    "conditions": "internal emitter inductance measured 5mm (0.197in) from case"
+   },
+   "rth_jc_igbt": {
+    "value": 0.71,
+    "unit": "K/W",
+    "page": 5,
+    "conditions": "max"
+   },
+   "rth_jc_diode": {
+    "value": 2.77,
+    "unit": "K/W",
+    "page": 6,
+    "conditions": "max"
+   },
+   "rth_ja": {
+    "value": 40,
+    "unit": "K/W",
+    "page": 3,
+    "conditions": "max"
+   },
+   "tj_max": {
+    "value": 175,
+    "unit": "C",
+    "page": 5,
+    "conditions": "Operating junction temperature Tvj -40 to 175 C"
+   },
+   "tsc": {
+    "value": "not rated",
+    "unit": "us",
+    "page": null,
+    "conditions": "searched whole document; no short-circuit withstand rating"
+   },
+   "intended_application": {
+    "value": "Potential applications: Induction Cooking; Microwave Ovens",
+    "unit": "",
+    "page": 1,
+    "conditions": ""
+   },
+   "max_switching_frequency": {
+    "value": "not stated",
+    "unit": "kHz",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "ic_25C": {
+    "value": 83,
+    "unit": "A",
+    "page": 3,
+    "conditions": "DC collector current, limited by Tvjmax, TC = 25 C"
+   },
+   "ic_100C": {
+    "value": 54,
+    "unit": "A",
+    "page": 3,
+    "conditions": "TC = 100 C"
+   },
+   "icpuls": {
+    "value": 120,
+    "unit": "A",
+    "page": 3,
+    "conditions": "tp limited by Tvjmax"
+   },
+   "turn_off_soa": {
+    "value": 120,
+    "unit": "A",
+    "page": 3,
+    "conditions": "VCE <= 650 V, tP <= 1 us, Tvj <= 175 C"
+   },
+   "diode_vrrm": {
+    "value": 650,
+    "unit": "V",
+    "page": 5,
+    "conditions": "Tvj >= 25 C"
+   },
+   "diode_if_25C": {
+    "value": 35,
+    "unit": "A",
+    "page": 5,
+    "conditions": "limited by Tvjmax, TC = 25 C"
+   },
+   "diode_if_100C": {
+    "value": 21,
+    "unit": "A",
+    "page": 5,
+    "conditions": "TC = 100 C"
+   },
+   "diode_ifpuls": {
+    "value": 120,
+    "unit": "A",
+    "page": 5,
+    "conditions": "limited by Tvjmax"
+   },
+   "ptot_25C": {
+    "value": 210,
+    "unit": "W",
+    "page": 3,
+    "conditions": "IGBT, TC = 25 C"
+   },
+   "ptot_100C": {
+    "value": 105,
+    "unit": "W",
+    "page": 3,
+    "conditions": "IGBT, TC = 100 C"
+   },
+   "diode_ptot_25C": {
+    "value": 54,
+    "unit": "W",
+    "page": 5,
+    "conditions": "TC = 25 C"
+   },
+   "package_code": {
+    "value": "PG-TO247-3",
+    "unit": "",
+    "page": 13,
+    "conditions": "Package Drawing PG-TO247-3, document Z8B00003327 revision 06, issue date 25.07.2018 (Figure 6)"
+   },
+   "package_outline_page": {
+    "value": 13,
+    "unit": "",
+    "page": 13,
+    "conditions": ""
+   },
+   "pin_order": {
+    "value": "1=G 2=C 3=E (front view pins 1,2,3 left to right); tab = C not explicitly stated",
+    "unit": "",
+    "page": 13,
+    "conditions": "outline numbers pins 1/2/3 (p13); package photo on p1 labels them G, C, E left to right"
+   },
+   "pin_pitch_e": {
+    "value": 5.44,
+    "unit": "mm",
+    "page": 13,
+    "conditions": "e = 5.44 (single value)"
+   },
+   "lead_width_b": {
+    "value": [
+     1.0,
+     null,
+     1.4
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "lead_width_b1": {
+    "value": [
+     1.6,
+     null,
+     2.41
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]; outer-lead shoulder"
+   },
+   "lead_width_b2": {
+    "value": [
+     2.57,
+     null,
+     3.43
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]; centre-lead shoulder"
+   },
+   "lead_thickness_c": {
+    "value": [
+     0.38,
+     null,
+     0.89
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "body_width_E": {
+    "value": [
+     15.5,
+     null,
+     16.3
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "body_height_D": {
+    "value": [
+     20.7,
+     null,
+     21.5
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "thickness_A": {
+    "value": [
+     4.7,
+     null,
+     5.3
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "mounting_hole_dP": {
+    "value": [
+     3.5,
+     null,
+     3.7
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]; dimension labelled P"
+   },
+   "lead_length_L": {
+    "value": [
+     19.8,
+     null,
+     20.4
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "lead_L1": {
+    "value": [
+     3.85,
+     null,
+     4.5
+    ],
+    "unit": "mm",
+    "page": 13,
+    "conditions": "[min,nom,max]"
+   },
+   "mounting_torque": {
+    "value": 0.6,
+    "unit": "Nm",
+    "page": 3,
+    "conditions": "M3 screw; maximum of mounting process: 3"
+   }
+  },
+  "notes": [
+   "Integrated diode is monolithic reverse-conducting (RC), not co-packed.",
+   "Soft-switching row (p5), verbatim: 'Soft turn-off energy Eoff VCE = 162 V, VGE = 15 V, RGon = 10.0 ohm, RGoff = 10.0 ohm, Cr = 30 nF, Lsigma = 70 nH, Csigma = 30 pF; Tvj = 25 C, IC = 40.0 A: 0.11 mJ; Tvj = 175 C, IC = 40.0 A: 0.22 mJ'. 162 V is close to a ~170 V peak bus. Figure E (p14) lists 'relief capacitor Cr, (only for ZVT switching)'.",
+   "Soft-switching Eoff vs IC figure (p10) covers Cr = 10/30/60 nF at Tvj = 175 C, RGoff = 10 ohm, VGE = 0/15 V; its caption does not print VCE (presumably 162 V like the table row, not stated). All figure readings approximate.",
+   "R6 diagrams have no figure numbers (only the package outline 'Figure 6' and testing conditions 'Figure 7'); figure readings are labelled by title and page.",
+   "VCEsat 10 A / 20 A read from the VCEsat-vs-Tvj figure (VGE = 15 V, IC = 10/20/40 A, p8), approximate; that figure at 40 A agrees with the table (1.29 / 1.50 V). 80 A values from output characteristics (p7), approximate +/-0.1 V.",
+   "Hard-switched Eon/Eoff table rows do not say whether diode recovery is included (R5 table says it is).",
+   "Revision-history table dates Rev 1.20 '2021.03.21'; page footer says 2021-03-22. Rev 1.10 note: 'Soft turn-off energy data changed.' Rev 1.20 note: capacitance test frequency changed from 1000 kHz to 100 kHz.",
+   "Short-circuit withstand: not rated. Max switching frequency: not stated. Internal gate resistor: not stated (R5 explicitly says 'none').",
+   "Gate threshold typ falls to ~2.35 V and min to ~1.7 V at 150 C (figure, p9, approximate)."
+  ]
+ },
+ "STGWA50IH65DF": {
+  "url": "https://www.st.com/resource/en/datasheet/stgwa50ih65df.pdf",
+  "local_path": "/Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl/STGWA50IH65DF/stgwa50ih65df.pdf",
+  "sha256": "cdaac099bfb5328523f221a1b296e173270a920141e841bce963b712b1915a71",
+  "bytes": 585621,
+  "document": {
+   "title": "STGWA50IH65DF Datasheet - Trench gate field-stop 650 V, 50 A, soft switching IH series IGBT in a TO-247 long leads package (STMicroelectronics DS11796)",
+   "revision": "DS11796 Rev 4",
+   "date": "2024-12-10 (footer: December 2024)",
+   "page_count": 14
+  },
+  "values": {
+   "integrated_diode_type": {
+    "value": "co-packaged freewheeling diode (not monolithic RC)",
+    "unit": "",
+    "page": 1,
+    "conditions": "feature 'Low voltage drop freewheeling co-packaged diode'; separate diode RthJC 1.47 C/W (p2)"
+   },
+   "vces": {
+    "value": 650,
+    "unit": "V",
+    "page": 2,
+    "conditions": "Collector-emitter voltage (VGE = 0 V)"
+   },
+   "vge_abs_max_static": {
+    "value": "+/-20",
+    "unit": "V",
+    "page": 2,
+    "conditions": "Gate-emitter voltage"
+   },
+   "vge_abs_max_transient": {
+    "value": "not stated",
+    "unit": "V",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "vge_recommended_on": {
+    "value": 15,
+    "unit": "V",
+    "page": 3,
+    "conditions": "as used in switching tests: VGE = 15 V; no recommended-operating table"
+   },
+   "vge_recommended_off": {
+    "value": "not stated",
+    "unit": "V",
+    "page": null,
+    "conditions": "switching tests give only 'VGE = 15 V'; off level not stated; gate-charge test VGE = 0 to 15 V (p3)"
+   },
+   "vge_th_min": {
+    "value": 5,
+    "unit": "V",
+    "page": 3,
+    "conditions": "VCE = VGE, IC = 1 mA, TC = 25 C"
+   },
+   "vge_th_typ": {
+    "value": 6,
+    "unit": "V",
+    "page": 3,
+    "conditions": "VCE = VGE, IC = 1 mA, TC = 25 C"
+   },
+   "vge_th_max": {
+    "value": 7,
+    "unit": "V",
+    "page": 3,
+    "conditions": "VCE = VGE, IC = 1 mA, TC = 25 C"
+   },
+   "vge_th_high_T": {
+    "value": "normalized curve only",
+    "unit": "",
+    "page": 6,
+    "conditions": "Figure 10 'Normalized VGE(th) vs junction temperature' (VCE = VGE, IC = 1 mA); no absolute hot value in tables"
+   },
+   "vce_sat_50A_25C_typ": {
+    "value": 1.5,
+    "unit": "V",
+    "page": 3,
+    "conditions": "VGE = 15 V, IC = 50 A, TC = 25 C"
+   },
+   "vce_sat_50A_25C_max": {
+    "value": 2.0,
+    "unit": "V",
+    "page": 3,
+    "conditions": "VGE = 15 V, IC = 50 A, TC = 25 C"
+   },
+   "vce_sat_50A_125C_typ": {
+    "value": 1.75,
+    "unit": "V",
+    "page": 3,
+    "conditions": "VGE = 15 V, IC = 50 A, TJ = 125 C"
+   },
+   "vce_sat_50A_175C_typ": {
+    "value": 1.9,
+    "unit": "V",
+    "page": 3,
+    "conditions": "VGE = 15 V, IC = 50 A, TJ = 175 C (no max given)"
+   },
+   "vce_sat_10A_25C_typ_fig": {
+    "value": 1.05,
+    "unit": "V",
+    "page": 5,
+    "conditions": "read from figure 6 (VCE(sat) vs IC, VGE = 15 V), approximate; Tj curves cross near 10 A"
+   },
+   "vce_sat_10A_175C_typ_fig": {
+    "value": 1.05,
+    "unit": "V",
+    "page": 5,
+    "conditions": "read from figure 6 (VGE = 15 V), approximate; curves cross near 10 A"
+   },
+   "vce_sat_25A_25C_typ_fig": {
+    "value": 1.23,
+    "unit": "V",
+    "page": 5,
+    "conditions": "read from figure 5 (VCE(sat) vs TJ, VGE = 15 V, IC = 25 A), approximate"
+   },
+   "vce_sat_25A_175C_typ_fig": {
+    "value": 1.4,
+    "unit": "V",
+    "page": 5,
+    "conditions": "read from figure 5 (VGE = 15 V, IC = 25 A), approximate"
+   },
+   "vce_sat_100A_25C_typ_fig": {
+    "value": 1.94,
+    "unit": "V",
+    "page": 5,
+    "conditions": "read from figure 5 (VGE = 15 V, IC = 100 A), approximate; figure 6 gives ~1.92"
+   },
+   "vce_sat_100A_175C_typ_fig": {
+    "value": 2.6,
+    "unit": "V",
+    "page": 5,
+    "conditions": "read from figure 5 (VGE = 15 V, IC = 100 A), approximate"
+   },
+   "diode_vf_25A_25C_typ": {
+    "value": 1.75,
+    "unit": "V",
+    "page": 3,
+    "conditions": "IF = 25 A, TC = 25 C"
+   },
+   "diode_vf_25A_25C_max": {
+    "value": 2.5,
+    "unit": "V",
+    "page": 3,
+    "conditions": "IF = 25 A, TC = 25 C"
+   },
+   "diode_vf_25A_125C_typ": {
+    "value": 1.5,
+    "unit": "V",
+    "page": 3,
+    "conditions": "IF = 25 A, TJ = 125 C"
+   },
+   "diode_vf_25A_175C_typ": {
+    "value": 1.4,
+    "unit": "V",
+    "page": 3,
+    "conditions": "IF = 25 A, TJ = 175 C (negative tempco)"
+   },
+   "diode_vf_50A_25C_typ": {
+    "value": 2.15,
+    "unit": "V",
+    "page": 3,
+    "conditions": "IF = 50 A, TC = 25 C"
+   },
+   "eon": {
+    "value": "not stated",
+    "unit": "mJ",
+    "page": null,
+    "conditions": "searched whole document; device 'Designed for soft-commutation only'; no turn-on energy, td(on) or tr given"
+   },
+   "eoff_snubbed_25C": {
+    "value": 284,
+    "unit": "uJ",
+    "page": 4,
+    "conditions": "Table 6 (snubbed inductive load): L = 100 uH, Csnub = 22 nF, VCC = 320 V, RG = 10 ohm, IC = 50 A (TC = 25 C); 'Including the tail of the collector current'; Figure 22 test circuit"
+   },
+   "eoff_snubbed_175C": {
+    "value": 469,
+    "unit": "uJ",
+    "page": 4,
+    "conditions": "Table 6: L = 100 uH, Csnub = 22 nF, VCC = 320 V, RG = 10 ohm, IC = 50 A, TJ = 175 C; including tail; Figure 22"
+   },
+   "eoff_snubbed_vs_csnub_25C_10nF_fig": {
+    "value": 0.33,
+    "unit": "mJ",
+    "page": 7,
+    "conditions": "read from figure 18 (VCC = 320 V, RG = 10 ohm, VGE = 15 V, IC = 50 A, L = 100 uH), approximate"
+   },
+   "eoff_snubbed_vs_csnub_25C_60nF_fig": {
+    "value": 0.235,
+    "unit": "mJ",
+    "page": 7,
+    "conditions": "read from figure 18, approximate"
+   },
+   "eoff_snubbed_vs_csnub_25C_100nF_fig": {
+    "value": 0.225,
+    "unit": "mJ",
+    "page": 7,
+    "conditions": "read from figure 18, approximate"
+   },
+   "eoff_snubbed_vs_csnub_175C_10nF_fig": {
+    "value": 0.58,
+    "unit": "mJ",
+    "page": 7,
+    "conditions": "read from figure 18, approximate"
+   },
+   "eoff_snubbed_vs_csnub_175C_60nF_fig": {
+    "value": 0.375,
+    "unit": "mJ",
+    "page": 7,
+    "conditions": "read from figure 18, approximate"
+   },
+   "eoff_snubbed_vs_csnub_175C_100nF_fig": {
+    "value": 0.31,
+    "unit": "mJ",
+    "page": 7,
+    "conditions": "read from figure 18, approximate"
+   },
+   "eoff_hard_175C_30A_fig": {
+    "value": 0.6,
+    "unit": "mJ",
+    "page": 7,
+    "conditions": "read from figure 14 (unsnubbed, VCC = 400 V, RG = 22 ohm, VGE = 15 V, Tj = 175 C), approximate"
+   },
+   "eoff_hard_175C_50A_fig": {
+    "value": 1.05,
+    "unit": "mJ",
+    "page": 7,
+    "conditions": "read from figure 14, approximate; figure 15 gives ~1.13 at 175 C"
+   },
+   "eoff_hard_175C_90A_fig": {
+    "value": 2.1,
+    "unit": "mJ",
+    "page": 7,
+    "conditions": "read from figure 14, approximate"
+   },
+   "eoff_hard_50A_25C_fig": {
+    "value": 0.87,
+    "unit": "mJ",
+    "page": 7,
+    "conditions": "read from figure 15 (VCC = 400 V, IC = 50 A, RG = 22 ohm, VGE = 15 V), approximate"
+   },
+   "eoff_hard_vs_vce_fig": {
+    "value": "~0.62 mJ at ~200 V rising to ~1.48 mJ at ~520 V",
+    "unit": "mJ",
+    "page": 7,
+    "conditions": "read from figure 16 (VGE = 15 V, Tj = 175 C, IC = 50 A, RG = 22 ohm), approximate"
+   },
+   "ets": {
+    "value": "not stated",
+    "unit": "mJ",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "td_on": {
+    "value": "not stated",
+    "unit": "ns",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "tr": {
+    "value": "not stated",
+    "unit": "ns",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "td_off_25C": {
+    "value": 260,
+    "unit": "ns",
+    "page": 3,
+    "conditions": "VCC = 400 V, IC = 50 A, VGE = 15 V, RG = 22 ohm (Figure 21 inductive load)"
+   },
+   "tf_25C": {
+    "value": 17,
+    "unit": "ns",
+    "page": 3,
+    "conditions": "VCC = 400 V, IC = 50 A, VGE = 15 V, RG = 22 ohm"
+   },
+   "td_off_175C": {
+    "value": 270,
+    "unit": "ns",
+    "page": 3,
+    "conditions": "VCC = 400 V, IC = 50 A, VGE = 15 V, RG = 22 ohm, TJ = 175 C"
+   },
+   "tf_175C": {
+    "value": 24,
+    "unit": "ns",
+    "page": 3,
+    "conditions": "VCC = 400 V, IC = 50 A, VGE = 15 V, RG = 22 ohm, TJ = 175 C"
+   },
+   "turn_off_tail_info": {
+    "value": "Eoff vs IC: figure 14; Eoff vs TJ: figure 15; Eoff vs VCE: figure 16; switching times vs IC: figure 17; Eoff vs Csnub: figure 18",
+    "unit": "",
+    "page": 7,
+    "conditions": "Table 6 Eoff 'Including the tail of the collector current'"
+   },
+   "diode_qrr": {
+    "value": "not stated",
+    "unit": "uC",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "diode_trr": {
+    "value": "not stated",
+    "unit": "ns",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "diode_irrm": {
+    "value": "not stated",
+    "unit": "A",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "cies": {
+    "value": 2980,
+    "unit": "pF",
+    "page": 3,
+    "conditions": "VCE = 25 V, f = 1 MHz, VGE = 0 V"
+   },
+   "coes": {
+    "value": 150,
+    "unit": "pF",
+    "page": 3,
+    "conditions": "VCE = 25 V, f = 1 MHz, VGE = 0 V"
+   },
+   "cres": {
+    "value": 81,
+    "unit": "pF",
+    "page": 3,
+    "conditions": "VCE = 25 V, f = 1 MHz, VGE = 0 V"
+   },
+   "qg": {
+    "value": 158,
+    "unit": "nC",
+    "page": 3,
+    "conditions": "VCC = 520 V, IC = 50 A, VGE = 0 to 15 V (Figure 23)"
+   },
+   "qge": {
+    "value": 25,
+    "unit": "nC",
+    "page": 3,
+    "conditions": "VCC = 520 V, IC = 50 A, VGE = 0 to 15 V"
+   },
+   "qgc": {
+    "value": 72,
+    "unit": "nC",
+    "page": 3,
+    "conditions": "VCC = 520 V, IC = 50 A, VGE = 0 to 15 V"
+   },
+   "rg_internal": {
+    "value": "not stated",
+    "unit": "ohm",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "iges": {
+    "value": "+/-250 max",
+    "unit": "nA",
+    "page": 3,
+    "conditions": "VCE = 0 V, VGE = +/-20 V"
+   },
+   "ices": {
+    "value": 25,
+    "unit": "uA",
+    "page": 3,
+    "conditions": "max, VGE = 0 V, VCE = 650 V"
+   },
+   "rth_jc_igbt": {
+    "value": 0.5,
+    "unit": "C/W",
+    "page": 2,
+    "conditions": "Thermal resistance junction-case IGBT (min/typ/max not indicated)"
+   },
+   "rth_jc_diode": {
+    "value": 1.47,
+    "unit": "C/W",
+    "page": 2,
+    "conditions": "Thermal resistance junction-case diode"
+   },
+   "rth_ja": {
+    "value": 50,
+    "unit": "C/W",
+    "page": 2,
+    "conditions": "Thermal resistance junction-ambient"
+   },
+   "tj_max": {
+    "value": 175,
+    "unit": "C",
+    "page": 2,
+    "conditions": "Operating junction temperature range -55 to 175 C"
+   },
+   "tsc": {
+    "value": "not rated",
+    "unit": "us",
+    "page": null,
+    "conditions": "searched whole document; no short-circuit withstand rating"
+   },
+   "intended_application": {
+    "value": "Designed for soft-commutation only; induction cooking, resonant converter, microwave ovens",
+    "unit": "",
+    "page": 1,
+    "conditions": "Features and Applications"
+   },
+   "max_switching_frequency": {
+    "value": "not stated",
+    "unit": "kHz",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "ic_25C": {
+    "value": 100,
+    "unit": "A",
+    "page": 2,
+    "conditions": "Continuous collector current at TC = 25 C"
+   },
+   "ic_100C": {
+    "value": 50,
+    "unit": "A",
+    "page": 2,
+    "conditions": "Continuous collector current at TC = 100 C"
+   },
+   "icpuls": {
+    "value": 150,
+    "unit": "A",
+    "page": 2,
+    "conditions": "ICP, pulse width limited by maximum junction temperature"
+   },
+   "diode_if_25C": {
+    "value": 50,
+    "unit": "A",
+    "page": 2,
+    "conditions": "Continuous forward current at TC = 25 C"
+   },
+   "diode_if_100C": {
+    "value": 25,
+    "unit": "A",
+    "page": 2,
+    "conditions": "Continuous forward current at TC = 100 C"
+   },
+   "diode_ifp": {
+    "value": 150,
+    "unit": "A",
+    "page": 2,
+    "conditions": "pulse width limited by maximum junction temperature"
+   },
+   "ptot_25C": {
+    "value": 300,
+    "unit": "W",
+    "page": 2,
+    "conditions": "Total power dissipation at TC = 25 C"
+   },
+   "package_code": {
+    "value": "TO-247 long leads",
+    "unit": "",
+    "page": 10,
+    "conditions": "Figure 25, drawing 8463846_5; mechanical data Table 7 p11"
+   },
+   "package_outline_page": {
+    "value": 10,
+    "unit": "",
+    "page": 10,
+    "conditions": "dimensions table on p11"
+   },
+   "pin_order": {
+    "value": "1=G 2=C 3=E; tab = C",
+    "unit": "",
+    "page": 1,
+    "conditions": "'G(1)', 'C(2, TAB)', 'E(3)'; outline p10 numbers pins 3 2 1 in BACK VIEW"
+   },
+   "pin_pitch_e": {
+    "value": [
+     5.34,
+     5.44,
+     5.54
+    ],
+    "unit": "mm",
+    "page": 11,
+    "conditions": "[min,typ,max]"
+   },
+   "lead_width_b": {
+    "value": [
+     1.16,
+     null,
+     1.26
+    ],
+    "unit": "mm",
+    "page": 11,
+    "conditions": "[min,typ,max]"
+   },
+   "lead_width_b2": {
+    "value": [
+     null,
+     null,
+     3.25
+    ],
+    "unit": "mm",
+    "page": 11,
+    "conditions": "[min,typ,max]; b2 drawn at centre-lead shoulder"
+   },
+   "lead_width_b3": {
+    "value": [
+     null,
+     null,
+     2.25
+    ],
+    "unit": "mm",
+    "page": 11,
+    "conditions": "[min,typ,max]; b3 drawn at outer-lead shoulder"
+   },
+   "lead_thickness_c": {
+    "value": [
+     0.59,
+     null,
+     0.66
+    ],
+    "unit": "mm",
+    "page": 11,
+    "conditions": "[min,typ,max]"
+   },
+   "body_width_E": {
+    "value": [
+     15.7,
+     15.8,
+     15.9
+    ],
+    "unit": "mm",
+    "page": 11,
+    "conditions": "[min,typ,max]"
+   },
+   "body_height_D": {
+    "value": [
+     20.9,
+     21.0,
+     21.1
+    ],
+    "unit": "mm",
+    "page": 11,
+    "conditions": "[min,typ,max]"
+   },
+   "thickness_A": {
+    "value": [
+     4.9,
+     5.0,
+     5.1
+    ],
+    "unit": "mm",
+    "page": 11,
+    "conditions": "[min,typ,max]"
+   },
+   "mounting_hole_dP": {
+    "value": [
+     3.5,
+     3.6,
+     3.7
+    ],
+    "unit": "mm",
+    "page": 11,
+    "conditions": "[min,typ,max]"
+   },
+   "lead_length_L": {
+    "value": [
+     19.8,
+     19.92,
+     20.1
+    ],
+    "unit": "mm",
+    "page": 11,
+    "conditions": "[min,typ,max]"
+   },
+   "lead_L1": {
+    "value": [
+     null,
+     null,
+     4.3
+    ],
+    "unit": "mm",
+    "page": 11,
+    "conditions": "[min,typ,max]"
+   }
+  },
+  "notes": [
+   "Integrated diode is CO-PACKAGED ('Low voltage drop freewheeling co-packaged diode'), not monolithic RC. Diode VF has negative tempco (1.75 V at 25 C -> 1.40 V at 175 C, IF = 25 A). Diode Qrr/trr/Irrm not stated.",
+   "Soft-switching conditions verbatim (Table 6, p4, 'IGBT switching characteristics (snubbed inductive load)'): 'L = 100 uH, Csnub = 22 nF, VCC = 320 V, RG = 10 ohm, IC = 50 A' -> Eoff 284 uJ typ; same with TJ = 175 C -> 469 uJ typ; note '(1) Including the tail of the collector current.' Test circuit Figure 22 (p9) shows L = 100 uH and 3.3 uF / 1000 uF bus capacitors.",
+   "VCC for the snubbed Eoff is 320 V, about 2x the ~170 V target bus; no lower-VCC snubbed data. Figure 18 (p7) gives snubbed Eoff vs Csnub (approx 10-100 nF) at 25 and 175 C.",
+   "Only turn-off is characterised: no Eon, Ets, td(on), tr anywhere ('Designed for soft-commutation only').",
+   "Hard-switched Eoff given only as figures 14-16 (VCC = 400 V, RG = 22 ohm), approximate readings; figure 14 (~1.05 mJ at 50 A) and figure 15 (~1.13 mJ at 175 C) disagree slightly, both are approximate.",
+   "VCE(sat) figure readings: 25 A and 100 A from figure 5 (VCE(sat) vs TJ, VGE = 15 V, IC = 25/50/100 A; 50 A curve agrees with table 1.50/1.90 V); 10 A from figure 6 where Tj curves cross (~1.05 V). All approximate.",
+   "Gate threshold 5/6/7 V (min/typ/max at IC = 1 mA) is higher than the Infineon RC parts (3.2/4.0/4.8 V at 0.4 mA).",
+   "Coes 150 pF / Cres 81 pF at 25 V (f = 1 MHz) are much higher than the Infineon RC parts; Cres/Cies ratio is relevant for Miller turn-on with a -1.6 V off bias.",
+   "Short-circuit withstand: not rated. Transient VGE: not stated. Max switching frequency: not stated. Internal gate resistance: not stated.",
+   "Package is TO-247 LONG LEADS (L 19.80-20.10 mm, D 21.00 typ); two extra ejector-pin circles drawn on front face (p10)."
+  ]
+ },
+ "TP65H035G4WS": {
+  "url": "https://www.renesas.com/en/document/dst/tp65h035g4ws-datasheet",
+  "local_path": "/Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl/TP65H035G4WS/tp65h035g4ws-datasheet.pdf",
+  "sha256": "6cd26bbd035c7907ba359abcb8ec1a429863d9b07a20d1bd52b4547f562a91fc",
+  "bytes": 1263705,
+  "document": {
+   "title": "TP65H035G4WS 650V SuperGaN FET in TO-247 (source tab) Datasheet (Renesas; 'Specifications in this document are tentative and subject to change')",
+   "revision": "v3.6",
+   "date": "2024-01-08",
+   "page_count": 13
+  },
+  "values": {
+   "vds_rating": {
+    "value": 650,
+    "unit": "V",
+    "page": 2,
+    "conditions": "VDSS, TJ = -55 to 150 C"
+   },
+   "vds_transient": {
+    "value": "800 non-repetitive (off-state, spike < 30 ms); 750 repetitive (off-state, spike < 5 us)",
+    "unit": "V",
+    "page": 2,
+    "conditions": "VDSS(TR) notes a, b"
+   },
+   "vgs_abs_max_static": {
+    "value": {
+     "pos": 20,
+     "neg": -20
+    },
+    "unit": "V",
+    "page": 2,
+    "conditions": "VGSS +/-20 V (single row; no separate transient rating)"
+   },
+   "vgs_abs_max_transient": {
+    "value": "not stated",
+    "unit": "",
+    "page": null,
+    "conditions": "searched whole document; only VGSS +/-20 V on p2"
+   },
+   "vgs_recommended_on": {
+    "value": "no explicit recommendation; datasheet characterizes at 10 V (RDS(on), Qg) and switching at 0 V to 12 V",
+    "unit": "V",
+    "page": 4,
+    "conditions": "Electrical Parameters table test conditions. p3 names Si823x/Si827x drivers 'or similar'"
+   },
+   "vgs_recommended_off": {
+    "value": "0 V (all switching tests use VGS = 0 V to 12 V); no negative turn-off bias specified",
+    "unit": "V",
+    "page": 4,
+    "conditions": "tD(on)/tR/Eon/Eoff test conditions"
+   },
+   "recommended_gate_circuit": {
+    "value": "single RG(OFF) 30 Ohm; or dual RG(ON)/RG(OFF) 15/30 Ohm (effective 10/30 Ohm) with Schottky steering diode; gate ferrite bead 180-270 Ohm at 100 MHz; R1/R2 G-S 10 kOhm; DC-link RC [4.7 nF + 5 Ohm] x2 or [10 nF + 2.3 Ohm]; Fsw < 100 kHz",
+    "unit": "",
+    "page": 3,
+    "conditions": "Circuit Implementation table (hard-switching half-bridge)"
+   },
+   "vgs_th": {
+    "value": {
+     "min": 3.3,
+     "typ": 4,
+     "max": 4.8
+    },
+    "unit": "V",
+    "page": 4,
+    "conditions": "VDS = VGS, ID = 1 mA; tempco -6.5 mV/C typ"
+   },
+   "rds_on_25C_typ": {
+    "value": 35,
+    "unit": "mOhm",
+    "page": 4,
+    "conditions": "RDS(on)eff (dynamic, 100% tested), VGS = 10 V, ID = 30 A, TJ = 25 C"
+   },
+   "rds_on_25C_max": {
+    "value": 41,
+    "unit": "mOhm",
+    "page": 4,
+    "conditions": "RDS(on)eff, VGS = 10 V, ID = 30 A, TJ = 25 C"
+   },
+   "rds_on_150C_typ": {
+    "value": 72,
+    "unit": "mOhm",
+    "page": 4,
+    "conditions": "RDS(on)eff, VGS = 10 V, ID = 30 A, TJ = 150 C"
+   },
+   "rds_on_150C_max": {
+    "value": "not stated",
+    "unit": "",
+    "page": 4,
+    "conditions": "no max printed for the 150 C row"
+   },
+   "rds_on_normalized_150C": {
+    "value": 2.05,
+    "unit": "x (rel. 25 C)",
+    "page": 6,
+    "conditions": "read from figure 4 (Normalized On-resistance, ID = 30 A, VGS = 8 V), approximate"
+   },
+   "qg_total": {
+    "value": 22,
+    "unit": "nC",
+    "page": 4,
+    "conditions": "VDS = 400 V, VGS = 0 V to 10 V, ID = 32 A (typ)"
+   },
+   "qgs": {
+    "value": 8.4,
+    "unit": "nC",
+    "page": 4,
+    "conditions": "same as Qg"
+   },
+   "qgd": {
+    "value": 6.6,
+    "unit": "nC",
+    "page": 4,
+    "conditions": "same as Qg"
+   },
+   "ciss": {
+    "value": 1500,
+    "unit": "pF",
+    "page": 4,
+    "conditions": "VGS = 0 V, VDS = 400 V, f = 1 MHz"
+   },
+   "coss": {
+    "value": 147,
+    "unit": "pF",
+    "page": 4,
+    "conditions": "VGS = 0 V, VDS = 400 V, f = 1 MHz"
+   },
+   "crss": {
+    "value": 5,
+    "unit": "pF",
+    "page": 4,
+    "conditions": "VGS = 0 V, VDS = 400 V, f = 1 MHz"
+   },
+   "co_er": {
+    "value": 220,
+    "unit": "pF",
+    "page": 4,
+    "conditions": "VGS = 0 V, VDS = 0 V to 400 V (energy related)"
+   },
+   "co_tr": {
+    "value": 380,
+    "unit": "pF",
+    "page": 4,
+    "conditions": "VGS = 0 V, VDS = 0 V to 400 V (time related)"
+   },
+   "qoss": {
+    "value": 150,
+    "unit": "nC",
+    "page": 4,
+    "conditions": "VGS = 0 V, VDS = 0 V to 400 V"
+   },
+   "eoss_400V": {
+    "value": 17,
+    "unit": "uJ",
+    "page": 7,
+    "conditions": "read from figure 6 (Typical Coss Stored Energy) at VDS = 400 V, approximate; cross-check 0.5 x Co(er) x 400^2 = 17.6 uJ"
+   },
+   "body_diode_vsd": {
+    "value": "1.8 typ at IS = 32 A; 1.3 typ at IS = 16 A",
+    "unit": "V",
+    "page": 5,
+    "conditions": "VGS = 0 V; includes dynamic RDS(on) effect (third-quadrant cascode conduction)"
+   },
+   "is_reverse_cont": {
+    "value": 29.5,
+    "unit": "A",
+    "page": 5,
+    "conditions": "max, VGS = 0 V, TC = 100 C, <= 25% duty cycle"
+   },
+   "qrr": {
+    "value": 0,
+    "unit": "nC",
+    "page": 5,
+    "conditions": "typ, IS = 32 A, VDD = 400 V, di/dt = 1000 A/us; note j: excludes Qoss"
+   },
+   "trr": {
+    "value": 59,
+    "unit": "ns",
+    "page": 5,
+    "conditions": "typ, IS = 32 A, VDD = 400 V, di/dt = 1000 A/us"
+   },
+   "irrm": {
+    "value": "not stated",
+    "unit": "",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "eon": {
+    "value": 175,
+    "unit": "uJ",
+    "page": 4,
+    "conditions": "typ, VDS = 400 V, VGS = 0 V to 12 V, RG = 30 Ohm, ID = 32 A, ZFB = 180 Ohm at 100 MHz"
+   },
+   "eoff": {
+    "value": 63,
+    "unit": "uJ",
+    "page": 4,
+    "conditions": "typ, same conditions as Eon"
+   },
+   "switching_times": {
+    "value": "td(on) 60, tr 10, td(off) 94, tf 10",
+    "unit": "ns",
+    "page": 4,
+    "conditions": "VDS = 400 V, VGS = 0 V to 12 V, RG = 30 Ohm, ID = 32 A, ZFB = 240 Ohm at 100 MHz"
+   },
+   "rth_jc": {
+    "value": 0.8,
+    "unit": "C/W",
+    "page": 2,
+    "conditions": "typical (no max given); RthJA 40 C/W typ"
+   },
+   "tj_max": {
+    "value": 150,
+    "unit": "C",
+    "page": 2,
+    "conditions": "operating junction -55 to +150 C"
+   },
+   "id_cont_25C": {
+    "value": 46,
+    "unit": "A",
+    "page": 2,
+    "conditions": "TC = 25 C"
+   },
+   "id_cont_100C": {
+    "value": 29,
+    "unit": "A",
+    "page": 2,
+    "conditions": "TC = 100 C"
+   },
+   "id_pulse": {
+    "value": 240,
+    "unit": "A",
+    "page": 2,
+    "conditions": "pulse width 10 us"
+   },
+   "ptot": {
+    "value": 156,
+    "unit": "W",
+    "page": 2,
+    "conditions": "TC = 25 C"
+   },
+   "idss": {
+    "value": "3 typ / 30 max at 25 C; 20 typ at 150 C",
+    "unit": "uA",
+    "page": 4,
+    "conditions": "VDS = 650 V, VGS = 0 V"
+   },
+   "rg_internal": {
+    "value": "not stated",
+    "unit": "",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "short_circuit_tsc": {
+    "value": "not stated",
+    "unit": "",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "avalanche": {
+    "value": "not stated",
+    "unit": "",
+    "page": null,
+    "conditions": "searched whole document; transient overvoltage handled by VDSS(TR) rating p2 instead"
+   },
+   "dv_dt_rating": {
+    "value": "not stated",
+    "unit": "",
+    "page": null,
+    "conditions": "searched whole document"
+   },
+   "package": {
+    "value": "3 lead TO-247 (JEDEC TO-247AD, transphorm drawing 200019 ver 3), source tab",
+    "unit": "",
+    "page": 12,
+    "conditions": "Mechanical page"
+   },
+   "pin_order": {
+    "value": "1 = G, 2 = S, 3 = D (left to right, front view); tab = S",
+    "unit": "",
+    "page": 1,
+    "conditions": "TO-247 top-view drawing labels G S D; 'Package Configuration: Source'; feature 'GSD pin layout'. NOT the usual Si GDS order"
+   },
+   "pkg_e_pitch": {
+    "value": 5.46,
+    "unit": "mm",
+    "page": 12,
+    "conditions": "e BSC"
+   },
+   "pkg_b": {
+    "value": {
+     "min": 1.09,
+     "nom": 1.19,
+     "max": 1.35
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "lead width b; b2 1.87/2.03/2.31; b4 2.94/3.05/3.22"
+   },
+   "pkg_c": {
+    "value": {
+     "min": 0.5,
+     "nom": 0.58,
+     "max": 0.68
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "lead thickness c"
+   },
+   "pkg_E": {
+    "value": {
+     "min": 15.72,
+     "nom": 15.9,
+     "max": 16.15
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "body width E"
+   },
+   "pkg_D": {
+    "value": {
+     "min": 20.67,
+     "nom": 20.85,
+     "max": 21.11
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "body length D excl. leads"
+   },
+   "pkg_A": {
+    "value": {
+     "min": 4.82,
+     "nom": 5.0,
+     "max": 5.19
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "thickness A"
+   },
+   "pkg_phiP": {
+    "value": {
+     "min": 3.5,
+     "nom": 3.61,
+     "max": 3.69
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "mounting hole diameter"
+   },
+   "pkg_L": {
+    "value": {
+     "min": 19.55,
+     "nom": 19.94,
+     "max": 20.38
+    },
+    "unit": "mm",
+    "page": 12,
+    "conditions": "lead length L; L1 3.93/4.11/4.48"
+   }
+  },
+  "notes": [
+   "GaN cascode (normally-off; LV Si MOSFET + HV GaN HEMT, p1). The gate is a Si MOSFET gate, so +/-20 V VGSS and 0/10-12 V drive apply. There is no negative-bias requirement and none is specified.",
+   "RDS(on) is given only at VGS = 10 V (p4). No 15 V row exists. Figure 1 (p6) shows the 12 V and 8 V output curves almost together at 25 C, so RDS(on) is near saturation by 8-10 V (read from figure 1, approximate).",
+   "Text extraction dropped the 'u' in the Eon/Eoff units. The PDF image of p4 shows uJ.",
+   "Qrr = 0 nC typ excludes Qoss (note j, p5). Reverse-recovery charge in hard switching is effectively Qoss = 150 nC at 400 V.",
+   "Datasheet is marked 'Specifications in this document are tentative and subject to change' (p1).",
+   "Circuit Implementation (p3) recommends Fsw < 100 kHz for the reference hard-switching half-bridge, a gate ferrite bead and RG(OFF) 30 Ohm. It also says an RC switching-node snubber (100 pF + 10 Ohm) is needed if RG is below the recommended value, the layout is not optimized, or the design runs at high current."
+  ]
+ },
+ "2EDR8259X": {
+  "url": "https://www.infineon.com/assets/row/public/documents/24/49/infineon-eicedriver-2edr8259h-2edrx259x-2edrx258x-datasheet-en.pdf",
+  "local_path": "/Users/bennet/Desktop/temper/worktrees/runs-native21/c55-dl/gatedriver/infineon-eicedriver-2edr8259h-2edrx259x-2edrx258x-datasheet-en.pdf",
+  "sha256": "f49391ca00e15397076dfc7482f56b0a1ea794a5249f1d14a1a60bb5ef33ae33",
+  "bytes": 4753738,
+  "sha256_expected": "f49391ca00e15397076dfc7482f56b0a1ea794a5249f1d14a1a60bb5ef33ae33",
+  "sha256_match": true,
+  "document": {
+   "title": "EiceDRIVER 2EDR8259H, 2EDRx259X, 2EDRx258X - Dual-channel isolated gate driver ICs in 300 mil DSO package (Datasheet)",
+   "revision": "Rev. 1.7",
+   "date": "2026-04-09",
+   "page_count": 36
+  },
+  "values": {
+   "variant_decode_portfolio_row": {
+    "value": "2EDR8259X | UVLO 8V | DIS | DSO14-300mil",
+    "unit": "",
+    "page": 1,
+    "conditions": "Table 1 Portfolio (columns: Part number, UVLO, EN/DIS, Package). Other rows: 2EDR8259H 8V DIS DSO16-300mil; 2EDR7259X 4V DIS DSO14; 2EDR9259X 15 V DIS DSO14; 2EDR8258X 8V EN DSO14; 2EDR6258X 12 V EN DSO14; 2EDR9258X 15 V EN DSO14"
+   },
+   "variant_decode_uvlo_digit": {
+    "value": "digit after 2EDR = output UVLO class: 7 = 4 V, 8 = 8 V, 6 = 12 V, 9 = 15 V. For 2EDR8259X the '8' = 8 V UVLO option",
+    "unit": "",
+    "page": 1,
+    "conditions": "Derived from Table 1 portfolio rows (p1); confirmed by Table 3 p6 '2EDR825x (8 V UVLO)'. The datasheet does not print an explicit ordering-code key"
+   },
+   "variant_decode_259_258": {
+    "value": "259 = DIS pin (active-high disable); 258 = EN pin (active-high enable)",
+    "unit": "",
+    "page": 1,
+    "conditions": "Derived from Table 1 EN/DIS column (p1) and Table 2 pin 5 'DIS/EN' description (p3)"
+   },
+   "variant_decode_suffix": {
+    "value": "X = DSO14-300mil (14-pin, increased channel-to-channel creepage); H = DSO16-300mil (16-pin)",
+    "unit": "",
+    "page": 1,
+    "conditions": "Derived from Table 1 Package column and p1 description '2EDRx259X and 2EDRx258X variants in a 14-pin DSO package offer increased channel-to-channel creepage'"
+   },
+   "orderable_part_number": {
+    "value": "2EDR8259XXUMA1, marking 2R8259B",
+    "unit": "",
+    "page": 31,
+    "conditions": "Table 27 Device numbers and markings"
+   },
+   "vdda_vddb_recommended_min": {
+    "value": 8.5,
+    "unit": "V",
+    "page": 12,
+    "conditions": "Table 11 Operating range, 'Output supply voltage at pin VDDA and VDDB', 8 V UVLO option"
+   },
+   "vdda_vddb_recommended_max": {
+    "value": 21,
+    "unit": "V",
+    "page": 12,
+    "conditions": "Table 11, all UVLO options; footnote 1) 'Maximum positive supply voltage already complies with derating guidelines.' (Rev 1.7 raised this from 20 V; pin table p3/p4 still says 'operating range: UVLO to 20 V')"
+   },
+   "vdda_vddb_abs_max": {
+    "value": {
+     "min": -0.3,
+     "max": 22
+    },
+    "unit": "V",
+    "page": 10,
+    "conditions": "Table 9 Absolute maximum ratings, 'Output supply voltage at pins VDDA, VDDB'; footnote 1) max already complies with derating guidelines"
+   },
+   "uvlo_vddab_on_8V_class": {
+    "value": {
+     "min": null,
+     "typ": 8.0,
+     "max": 8.5
+    },
+    "unit": "V",
+    "page": 13,
+    "conditions": "Table 15 Undervoltage Lockout VDDA, VDDB for 8 V UVLO option: UVLOVDDA,on / UVLOVDDB,on turn-on threshold (min not specified)"
+   },
+   "uvlo_vddab_off_8V_class": {
+    "value": {
+     "min": 6.6,
+     "typ": 7.0,
+     "max": null
+    },
+    "unit": "V",
+    "page": 13,
+    "conditions": "Table 15, UVLOVDDA,off / UVLOVDDB,off turn-off threshold (max not specified)"
+   },
+   "uvlo_vddab_hys_8V_class": {
+    "value": {
+     "min": 0.7,
+     "typ": 1,
+     "max": 1.3
+    },
+    "unit": "V",
+    "page": 13,
+    "conditions": "Table 15, UVLOVDDA,hys / UVLOVDDB,hys"
+   },
+   "uvlo_vddab_other_classes_for_reference": {
+    "value": "4 V: on typ 4.2/max 4.4, off min 3.7/typ 3.9, hys 0.2/0.3/0.4 (Table 14 p13); 12 V: on 12.2/12.8, off 10.8/11.5, hys 0.5/0.7/0.9 (Table 16 p14); 15 V: on 14.9/15.5, off 13.7/14.4, hys 0.3/0.5/0.7 (Table 17 p14)",
+    "unit": "V",
+    "page": 13,
+    "conditions": "Not applicable to 2EDR8259X; listed so the 8 V row is not confused with neighbours"
+   },
+   "vddi_range": {
+    "value": {
+     "min": 3,
+     "max": 17
+    },
+    "unit": "V",
+    "page": 12,
+    "conditions": "Table 11, 'Min. defined by UVLOVDDI'; abs max -0.3 to 18 V (Table 9 p10)"
+   },
+   "uvlo_vddi_on": {
+    "value": {
+     "min": null,
+     "typ": 2.85,
+     "max": 2.95
+    },
+    "unit": "V",
+    "page": 13,
+    "conditions": "Table 13"
+   },
+   "uvlo_vddi_off": {
+    "value": {
+     "min": 2.55,
+     "typ": 2.7,
+     "max": null
+    },
+    "unit": "V",
+    "page": 13,
+    "conditions": "Table 13"
+   },
+   "uvlo_vddi_hys": {
+    "value": {
+     "min": 0.1,
+     "typ": 0.15,
+     "max": 0.2
+    },
+    "unit": "V",
+    "page": 13,
+    "conditions": "Table 13"
+   },
+   "ron_source": {
+    "value": {
+     "min": 0.6,
+     "typ": 0.95,
+     "max": 1.5
+    },
+    "unit": "Ohm",
+    "page": 15,
+    "conditions": "Table 20 High-level (sourcing) output resistance Ron_SRC, ISRC = 50 mA; VDDI = 3.3 V, VDDA/B = 12 V (p12 default conditions)"
+   },
+   "ron_sink": {
+    "value": {
+     "min": 0.24,
+     "typ": 0.39,
+     "max": 0.62
+    },
+    "unit": "Ohm",
+    "page": 15,
+    "conditions": "Table 20 Low-level (sinking) output resistance Ron_SNK, ISNK = 50 mA"
+   },
+   "i_source_peak_typ": {
+    "value": 5,
+    "unit": "A",
+    "page": 15,
+    "conditions": "Table 20 ISRC_pk, CLOAD = 22 nF; not subject to production test"
+   },
+   "i_sink_peak_typ": {
+    "value": -9,
+    "unit": "A",
+    "page": 15,
+    "conditions": "Table 20 ISNK_pk, CLOAD = 22 nF; not subject to production test (sign as printed)"
+   },
+   "active_output_clamp": {
+    "value": {
+     "min": 0.79,
+     "typ": 1.16,
+     "max": 1.45
+    },
+    "unit": "V",
+    "page": 15,
+    "conditions": "Table 20 Vclamp, ISNK = 10 mA, VDDx floating and unpowered"
+   },
+   "cmti_static_min": {
+    "value": 150,
+    "unit": "V/ns",
+    "page": 17,
+    "conditions": "Table 23 |CMStatic,H| and |CMStatic,L|, VCM = 1500 V, inputs tied high / tied low. Only static CMTI is specified; no dynamic CMTI row"
+   },
+   "cmti_dynamic": {
+    "value": "not stated",
+    "unit": "",
+    "page": null,
+    "conditions": "searched whole document; Table 23 p17 gives static CMTI only"
+   },
+   "t_pd_on": {
+    "value": {
+     "min": 33,
+     "typ": 38,
+     "max": 47
+    },
+    "unit": "ns",
+    "page": 16,
+    "conditions": "Table 21 tPDon,INx"
+   },
+   "t_pd_off": {
+    "value": {
+     "min": 30,
+     "typ": 36,
+     "max": 46
+    },
+    "unit": "ns",
+    "page": 16,
+    "conditions": "Table 21 tPDoff,INx"
+   },
+   "delay_mismatch_ch_ch_on": {
+    "value": {
+     "min": -4,
+     "typ": 0,
+     "max": 4
+    },
+    "unit": "ns",
+    "page": 16,
+    "conditions": "Table 21 tPDon,ChA-ChB"
+   },
+   "delay_mismatch_ch_ch_off": {
+    "value": {
+     "min": -5.5,
+     "typ": -1,
+     "max": 3
+    },
+    "unit": "ns",
+    "page": 16,
+    "conditions": "Table 21 dtPDoff,ChA-ChB"
+   },
+   "delay_mismatch_part_part": {
+    "value": "on max 6, off max 8",
+    "unit": "ns",
+    "page": 16,
+    "conditions": "Table 21 dtPDon,p-p / dtPDoff,p-p"
+   },
+   "pulse_width_distortion": {
+    "value": {
+     "min": -5,
+     "typ": 2,
+     "max": 5.5
+    },
+    "unit": "ns",
+    "page": 16,
+    "conditions": "Table 21 tPWD"
+   },
+   "rise_fall_time": {
+    "value": "trise typ 7.5 / max 14; tfall typ 6 / max 11",
+    "unit": "ns",
+    "page": 16,
+    "conditions": "Table 21, CLOAD = 1.8 nF"
+   },
+   "output_rail_to_rail_statement": {
+    "value": "\"The rail-to-rail output stage realized with complementary MOS transistors ... The p-channel sourcing transistor enables real rail-to-rail behavior without suffering from the voltage drop unavoidably associated with nMOS source follower stages.\" Outputs clamped to \"low\" level (GNDA, GNDB) in UVLO.",
+    "unit": "",
+    "page": 9,
+    "conditions": "Section 2.5 Gate driver outputs. OUTA swings VDDA..GNDA, OUTB VDDB..GNDB (via Ron_SRC / Ron_SNK)"
+   },
+   "voh_vol": {
+    "value": "not stated",
+    "unit": "",
+    "page": null,
+    "conditions": "searched whole document; no VOH/VOL rows in Tables 12-23 (p12-17); output levels specified only as Ron_SRC/Ron_SNK at 50 mA (Table 20 p15)"
+   },
+   "vout_abs_max": {
+    "value": "DC -0.3 to VDDA/B + 0.3; transient -2 to VDDA/B + 1.5 (200 ns)",
+    "unit": "V",
+    "page": 10,
+    "conditions": "Table 9 'Voltage at pins OUTA, OUTB'; transient not subject to production test"
+   },
+   "negative_supply_pin": {
+    "value": "none: output side has only VDDA/GNDA (pins 14/12) and VDDB/GNDB (pins 11/9) on DSO14; no VEE/VSS pin",
+    "unit": "",
+    "page": 3,
+    "conditions": "Figure 2 pin configuration and Table 2 pin description (p3-4); block diagram Figure 3 p5"
+   },
+   "negative_supply_guidance": {
+    "value": "Only mention: Table 3 recommends for 650 V CoolGaN '2EDR7259 (4 V UVLO for unipolar driving)' and '2EDR825x (8 V UVLO for bipolar driving)'. No circuit for bipolar drive (GNDx to negative rail, Zener split, or split rails) is given",
+    "unit": "",
+    "page": 6,
+    "conditions": "Table 3 Recommended UVLO levels for typical use-cases; whole document searched for 'negative', 'bipolar', 'Zener', 'VEE'"
+   },
+   "isolation": {
+    "value": "reinforced; VISO 5700 VRMS (UL1577); VIOTM 8000 Vpk; VIORM 1767 Vpk; VIOWM 1767 VDC / 1250 VRMS; VIOSM 11000 Vpk (IEC 60747-17)",
+    "unit": "",
+    "page": 18,
+    "conditions": "Table 24; creepage/clearance in-out 8 mm / 8 mm, CTI > 400 V (p17)"
+   },
+   "channel_to_channel_creepage_14pin": {
+    "value": 3.3,
+    "unit": "mm",
+    "page": 19,
+    "conditions": "Table 25 CRPCh-Ch,14pin (16-pin: 2.5 mm); functional ch-ch isolation"
+   },
+   "tj_max": {
+    "value": 150,
+    "unit": "C",
+    "page": 12,
+    "conditions": "Table 11 operating range TJ -40..150 C (footnote: continuous operation above 125 C may reduce lifetime); TA -40..125 C"
+   },
+   "rth_ja": {
+    "value": 69,
+    "unit": "K/W",
+    "page": 11,
+    "conditions": "Table 10 RthJA25, 2s2p high-K board (107 K/W on 1s0p)"
+   },
+   "package": {
+    "value": "DSO14-300mil (PG-DSO-14 300 mil); body 7.5 mm x 10.3 mm, lead span 10.3 mm, pitch 1.27 mm, height 2.65 max",
+    "unit": "mm",
+    "page": 33,
+    "conditions": "Figure 25 outline (read from drawing); pinout p3: 1 INA, 2 INB, 3 VDDI, 4 GNDI, 5 DIS, 6 STP/DTC, 7 N.C., 8 VDDI, 9 GNDB, 10 OUTB, 11 VDDB, 12 GNDA, 13 OUTA, 14 VDDA"
+   }
+  },
+  "notes": [
+   "Document revision/date confirmed: Rev. 1.7, 2026-04-09 (p1 footer and revision history p35).",
+   "The '8' in 2EDR8259X is the 8 V output UVLO class (Table 1 p1). Its UVLO table is Table 15 p13: on typ 8.0 / max 8.5 V, off min 6.6 / typ 7.0 V, hysteresis 0.7/1/1.3 V. Recommended VDDA/B is 8.5 to 21 V (Table 11 p12).",
+   "Pin-description text (Table 2 p3-4) still says VDDA/VDDB 'operating range: UVLO to 20 V', and section 2.2.2 p5 says 'up to 20 V'. Table 11 (p12) says 21 V max after the Rev 1.7 change. Treat 21 V (Table 11) as the governing value and 20 V as stale text.",
+   "Device marking 2R8259B is printed for both 2EDR8259H and 2EDR8259X (Table 27 p31). The package (DSO16 or DSO14) is what tells them apart.",
+   "Section 2.5 p9 gives typical Ron as about 1 Ohm source and about 0.5 Ohm sink (prose). The table values are 0.95 and 0.39 Ohm typ (Table 20 p15).",
+   "Negative-supply inference (not stated in datasheet): VDDA/B and UVLO are referenced to GNDA/B. So bipolar drive means GNDx goes to the negative rail and the source is offset, and the 8 V UVLO then applies to the total VDDx-GNDx swing. The datasheet does not describe this.",
+   "Default test conditions for Table 12-23: VDDI = 3.3 V, VDDA/B = 12 V, no load; typ at TJ = 25 C, min/max over full operating range (p12).",
+   "Thermal shutdown typ 172 C rising / 149 C falling (Table 22 p17; characterization only)."
+  ]
+ }
+}

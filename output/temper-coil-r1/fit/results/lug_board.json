@@ -1,0 +1,403 @@
+{
+ "about": "J2/J5 lug against the native-21 board parts around it: exact distances, replacing R43's 25 mm lug envelope.\n\nBoard solids: fit/inputs/board_c53int_near_J2J5.step (extract_board_near_lugs.py; the stage-53 integration board the\npower stage's R43 real-pose gate measured, posed the same way). The tightest R43 pair was CT T1's provisional maximum\nenvelope body to the J2 lug envelope at 0.5 mm (r43-expected-hits.json), under the gate's 1.0 mm.\nMeasured here, for each lug model in lug.LUGS and for R43's own envelope (re-measured as the control):\n  - lug solid (ring, neck, bend, barrel, PEEK sleeve if any, heat-shrink envelope) to every board solid;\n  - washer, spring washer and screw head (exposed metal) to every board solid;\n  - J2 lug to J5 lug and the exposed-metal gap J2-J5 (ring-to-ring rule: >= 5.0 mm at any rotation, ASSEMBLY.md).\nRun: .venv/bin/python -B fit/lug_board.py  -> fit/results/lug_board.json",
+ "board": "/Users/bennet/Desktop/temper/worktrees/runs-native21/s53/c53int/board.step",
+ "board_sha256": "1300b1b278f7033d4637952ccaf0ee7b650430233f284495fbc396397c7f7561",
+ "gate_mm": 1.0,
+ "terminal": {
+  "part": "Wurth 7466004R (WP-SMBU REDCUBE SMT, M4 through thread)",
+  "body_d": 7.0,
+  "body_h": 5.0,
+  "thread": "M4",
+  "thread_len": 6.0,
+  "torque_Nm": 1.2
+ },
+ "seat_z": 32.6,
+ "screw": {
+  "part": "ISO 7045 M4 x 8 A2 pan head + DIN 125-A M4 washer (\u00d89 x 0.8) + DIN 127-B M4 spring washer",
+  "head_d": 8.0,
+  "head_h": 3.1,
+  "washer_d": 9.0,
+  "washer_t": 0.8,
+  "spring_t": 0.9,
+  "length": 8.0
+ },
+ "screw_stack": {
+  "stack_mm": 2.5,
+  "thread_engaged_mm": 5.5,
+  "tip_below_board_top_mm": 0.5,
+  "tip_inside_board_mm": 1.133,
+  "board_thickness_nominal_mm": 1.633,
+  "head_top_z": 38.2
+ },
+ "cases": {
+  "R43_envelope (control)": {
+   "J2": {
+    "to_T1_mm": 0.5,
+    "nearest": [
+     {
+      "distance_mm": 0.5,
+      "board_solid_world_bbox": [
+       -17.0,
+       116.5,
+       30.11,
+       5.0,
+       138.5,
+       42.81
+      ],
+      "T1": true
+     },
+     {
+      "distance_mm": 1.187,
+      "board_solid_world_bbox": [
+       -17.5,
+       111.0,
+       27.61,
+       5.5,
+       141.0,
+       30.11
+      ],
+      "T1": false
+     },
+     {
+      "distance_mm": 2.787,
+      "board_solid_world_bbox": [
+       -13.98,
+       133.05,
+       27.61,
+       -9.18,
+       142.05,
+       28.51
+      ],
+      "T1": false
+     }
+    ]
+   },
+   "J5": {
+    "to_T1_mm": 22.75,
+    "nearest": [
+     {
+      "distance_mm": 7.397,
+      "board_solid_world_bbox": [
+       -20.1,
+       173.3,
+       27.61,
+       -19.3,
+       174.9,
+       28.41
+      ],
+      "T1": false
+     },
+     {
+      "distance_mm": 8.16,
+      "board_solid_world_bbox": [
+       -23.7,
+       158.59,
+       27.61,
+       -20.5,
+       161.09,
+       30.11
+      ],
+      "T1": false
+     },
+     {
+      "distance_mm": 8.483,
+      "board_solid_world_bbox": [
+       -22.68,
+       164.56,
+       27.61,
+       -21.07,
+       165.35,
+       28.06
+      ],
+      "T1": false
+     }
+    ]
+   },
+   "J2_to_J5_lug_mm": 6.5
+  },
+  "Panduit_P14-8RHT6-C": {
+   "J2": {
+    "to_T1_mm": 1.9,
+    "nearest": [
+     {
+      "distance_mm": 1.9,
+      "board_solid_world_bbox": [
+       -17.0,
+       116.5,
+       30.11,
+       5.0,
+       138.5,
+       42.81
+      ],
+      "T1": true
+     },
+     {
+      "distance_mm": 3.671,
+      "board_solid_world_bbox": [
+       -17.5,
+       111.0,
+       27.61,
+       5.5,
+       141.0,
+       30.11
+      ],
+      "T1": false
+     },
+     {
+      "distance_mm": 4.408,
+      "board_solid_world_bbox": [
+       -13.98,
+       133.05,
+       27.61,
+       -9.18,
+       142.05,
+       28.51
+      ],
+      "T1": false
+     }
+    ]
+   },
+   "J5": {
+    "to_T1_mm": 23.05,
+    "nearest": [
+     {
+      "distance_mm": 8.529,
+      "board_solid_world_bbox": [
+       -20.1,
+       173.3,
+       27.61,
+       -19.3,
+       174.9,
+       28.41
+      ],
+      "T1": false
+     },
+     {
+      "distance_mm": 8.737,
+      "board_solid_world_bbox": [
+       -23.7,
+       158.59,
+       27.61,
+       -20.5,
+       161.09,
+       30.11
+      ],
+      "T1": false
+     },
+     {
+      "distance_mm": 9.323,
+      "board_solid_world_bbox": [
+       -22.68,
+       164.56,
+       27.61,
+       -21.07,
+       165.35,
+       28.06
+      ],
+      "T1": false
+     }
+    ]
+   },
+   "J2_to_J5_lug_mm": 7.1,
+   "axis_offset_mm": 7.9,
+   "barrel_top_z": 41.8,
+   "drops_world": {
+    "J2": [
+     -9.0,
+     142.6
+    ],
+    "J5": [
+     -9.0,
+     173.4
+    ]
+   }
+  },
+  "TE_1577639-1": {
+   "J2": {
+    "to_T1_mm": 0.0,
+    "nearest": [
+     {
+      "distance_mm": 0.0,
+      "board_solid_world_bbox": [
+       -17.0,
+       116.5,
+       30.11,
+       5.0,
+       138.5,
+       42.81
+      ],
+      "T1": true
+     },
+     {
+      "distance_mm": 3.384,
+      "board_solid_world_bbox": [
+       -17.5,
+       111.0,
+       27.61,
+       5.5,
+       141.0,
+       30.11
+      ],
+      "T1": false
+     },
+     {
+      "distance_mm": 4.272,
+      "board_solid_world_bbox": [
+       -13.98,
+       133.05,
+       27.61,
+       -9.18,
+       142.05,
+       28.51
+      ],
+      "T1": false
+     }
+    ]
+   },
+   "J5": {
+    "to_T1_mm": 22.645,
+    "nearest": [
+     {
+      "distance_mm": 8.35,
+      "board_solid_world_bbox": [
+       -23.7,
+       158.59,
+       27.61,
+       -20.5,
+       161.09,
+       30.11
+      ],
+      "T1": false
+     },
+     {
+      "distance_mm": 8.491,
+      "board_solid_world_bbox": [
+       -20.1,
+       173.3,
+       27.61,
+       -19.3,
+       174.9,
+       28.41
+      ],
+      "T1": false
+     },
+     {
+      "distance_mm": 8.972,
+      "board_solid_world_bbox": [
+       -22.68,
+       164.56,
+       27.61,
+       -21.07,
+       165.35,
+       28.06
+      ],
+      "T1": false
+     }
+    ]
+   },
+   "J2_to_J5_lug_mm": 6.29,
+   "axis_offset_mm": 8.655000000000001,
+   "barrel_top_z": 51.47,
+   "drops_world": {
+    "J2": [
+     -9.0,
+     141.84
+    ],
+    "J5": [
+     -9.0,
+     174.16
+    ]
+   }
+  }
+ },
+ "hardware": {
+  "J2": {
+   "to_T1_mm": 7.5,
+   "nearest": [
+    {
+     "distance_mm": 5.984,
+     "board_solid_world_bbox": [
+      -17.5,
+      111.0,
+      27.61,
+      5.5,
+      141.0,
+      30.11
+     ],
+     "T1": false
+    },
+    {
+     "distance_mm": 6.285,
+     "board_solid_world_bbox": [
+      -13.98,
+      133.05,
+      27.61,
+      -9.18,
+      142.05,
+      28.51
+     ],
+     "T1": false
+    },
+    {
+     "distance_mm": 7.5,
+     "board_solid_world_bbox": [
+      -17.0,
+      116.5,
+      30.11,
+      5.0,
+      138.5,
+      42.81
+     ],
+     "T1": true
+    }
+   ]
+  },
+  "J5": {
+   "to_T1_mm": 22.5,
+   "nearest": [
+    {
+     "distance_mm": 8.49,
+     "board_solid_world_bbox": [
+      -23.7,
+      158.59,
+      27.61,
+      -20.5,
+      161.09,
+      30.11
+     ],
+     "T1": false
+    },
+    {
+     "distance_mm": 9.285,
+     "board_solid_world_bbox": [
+      -22.68,
+      164.56,
+      27.61,
+      -21.07,
+      165.35,
+      28.06
+     ],
+     "T1": false
+    },
+    {
+     "distance_mm": 9.382,
+     "board_solid_world_bbox": [
+      -22.68,
+      167.21,
+      27.61,
+      -21.07,
+      168.0,
+      28.06
+     ],
+     "T1": false
+    }
+   ]
+  }
+ },
+ "exposed_metal_J2_J5_mm": 6.0,
+ "ring_to_ring_any_rotation_mm": {
+  "rings": 7.1,
+  "washers": 6.0,
+  "rule": "bare ring <= 10.0 mm and >= 5.0 mm between exposed metal at any rotation (ASSEMBLY.md, DECISIONS M6); the bend and barrel are insulated, so the exposed metal is ring + washer + head"
+ }
+}

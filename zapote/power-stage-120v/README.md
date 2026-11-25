@@ -8,7 +8,7 @@ Design basis and justification: `docs/hardware/power-section-120v/` (POWER-SECTI
 LOSS-REFACTOR.md, COIL-MC.md). Front-end decision: `docs/adr/2026-09-25-front-end-architecture-brief.md`.
 
 One board carries the mains entry, EMI filter, bridge rectifier and film bus, the full
-bridge with both UCC21550 drivers next to the MOSFETs, the resonant capacitor bank and tank
+bridge with both 2EDR8259X drivers next to the MOSFETs, the resonant capacitor bank and tank
 current transformer, the DC-bus shoot-through OCP, isolated bus-voltage sense, the
 thermal-cutoff-gated gate supply, and the SELV 15 V supply. The SELV controller (ESP32 plus the
 integrated interlock, thermal-sense and RTD front end) connects through one SELV header (J4). Tank
@@ -62,7 +62,7 @@ from `archive/rev38-power-entry-2026-09-25`.
 ## Fault interface
 
 J4.10 now provides **BUS_FAULT**, low when both comparators are healthy and
-high on either trip. U8 is a NAND; U9 is the non-F, default-high ISO7710.
+high on either trip. U8 is a NAND; U9 is the default-high CA-IS3720HW.
 This matches [the interlock's](../interlock/INTERFACES.md) active-high fault
 contract without a polarity adapter. Input-side power loss defaults high
 only with the output supply valid. HOT5 brownout, controller-supply loss,
@@ -74,15 +74,16 @@ return-wire faults and complete shutdown timing remain unqualified; see
 | Pin | Net | Direction / meaning |
 | ---: | --- | --- |
 | 1 | BIAS_GOOD_J4 | Out: BIAS_GOOD (U40) through R146 220 k, high while the bias monitors are good and the heartbeat runs (stage 48, OPEN-ITEMS B13 H2). The controller must read it high-Z (≥ 1 MΩ pull-down). Was V15_SELV (PS1) until stage 38; the controller is powered through its J13 |
-| 2, 4, 15, 16 | SELV_GND | Return |
+| 2, 4, 15 | SELV_GND | Return |
 | 3 | V3V3 | In: controller 3.135–3.465 V rail matching the interlock contract; powers the SELV sides of U1, U2, U4, U9 |
 | 5 / 6 | PWM_HA / PWM_LA | In: leg A high / low gate commands |
 | 7 / 8 | PWM_HB / PWM_LB | In: leg B high / low (four independent signals allow phase-shift control) |
 | 9 | PERMIT | In: active high. Low, floating or unpowered holds both drivers' DIS high (outputs off) |
-| 10 | BUS_FAULT | Out: healthy low; high on shunt OCP (≈61 A), bus OVP (≈280 V) or tank-CT over-current either polarity (≈55 A; DC corner band 50.9–59.5 A). U13 ORs the isolated bus fault with the tank-CT comparators on the SELV side. Fully unpowered HOT side defaults high while the controller supply is valid. |
+| 10 | BUS_FAULT | Out: healthy low; high on shunt OCP (92.59 A nominal; 71.59–114.57 A at the release basis before the Kelvin shift, COMMISSIONING B2 / B3), bus OVP (272.64–287.45 V) or tank-CT over-current either polarity (73.19 A nominal, band 67.36–79.32 A, B9). U13 ORs the isolated bus fault with the tank-CT comparators on the SELV side. Fully unpowered HOT side defaults high while the controller supply is valid. |
 | 11 / 12 | VBUS_P / VBUS_N | Out: AMC1311 differential output. V(P) − V(N) ≈ bus voltage / 120 (unity-gain amplifier; 198 V → 1.65 V; confirm gain and common-mode on the datasheet) |
 | 13 | CT_ZC | Out: tank-current zero crossing (TLV3201 push-pull, 3.3 V logic). Undefined with no tank current: the controller must ignore it when idle |
-| 14 | CT_MON | Out: biased tank-current waveform through 1 kΩ: 1.65 V + I_tank × 15 mV/A (1:100 into 1.5 Ω). The host input must be high impedance (≥ 10 MΩ assumed by the model) |
+| 14 | CT_MON | Out: biased tank-current waveform through 1 kΩ: 1.65 V + I_tank × 15 mV/A (1:200 into 3 Ω). The host input must be high impedance (≥ 10 MΩ assumed by the model) |
+| 16 | LINE_ZC | Out: line zero crossing (U36 opto → U24 buffer, 3.3 V logic). Controller C49 reads it through 1 kΩ. Was SELV_GND in early stages. |
 
 Required on the controller side (not on this board):
 - the active-high-fault latch that drops PERMIT on BUS_FAULT high, tank OCP, over-temperature or a watchdog timeout
@@ -96,9 +97,11 @@ Only these parts may cross HOT↔SELV, and the audit enforces each pin's side:
 
 - Infineon 2EDR8259X (U1, U2; UCC21550 until stage 28, DECISIONS 31)
 - AMC1311 (U4)
-- ISO7710 (U9)
-- CST3015 (T1)
-- IRM-20-15 (PS1)
+- CA-IS3720HW (U9, U32)
+- VOL628A-2X001T (U36, line zero-cross; mains to SELV)
+- CST3015-200ED (T1)
+
+PS1 (IRM-20-15) was deleted at stage 38. U41 / U42 (R24C2T25) and U43 / U44 (ISO6721FB) are HOT-to-HOT.
 
 The controller return has one removable functional 0 Ω PE link. It is not
 a protective-earth path and does not waive HOT-to-controller insulation.
@@ -113,8 +116,8 @@ tank peak is not a sufficient basis for selecting creepage bands. See
 | Fault | Path |
 | --- | --- |
 | Hard short or bridge failure | F1 25 A time-delay ceramic (Eaton Bussmann MDA-25-R: 10 kA @ 125 Vac, 1.5 kA @ 250 Vac) in 30 A 01220088Z clips |
-| Shoot-through / MOSFET short | 1 mΩ DC-return shunt → TLV3201 (nominal ≈61 A) → NAND gate → ISO7710 → BUS_FAULT high → interlock latch → PERMIT low → DIS |
-| Elevated DC bus | Bus divider → TLV3201 (nominal ≈280 V) → NAND gate → ISO7710 → BUS_FAULT high → interlock latch → PERMIT low → DIS; this inhibits restart but does not clamp bus voltage |
+| Shoot-through / MOSFET short | 1 mΩ DC-return shunt → TLV3201 (nominal 92.59 A) → NAND gate → CA-IS3720HW → BUS_FAULT high → interlock latch → PERMIT low → DIS |
+| Elevated DC bus | Bus divider → TLV3201 (272.64–287.45 V) → NAND gate → CA-IS3720HW → BUS_FAULT high → interlock latch → PERMIT low → DIS; this inhibits restart but does not clamp bus voltage |
 | Tank over-current / pan fault | CT (T1) → on-board comparators U10/U11, ORed with the bus fault in U13 → bus_fault → controller interlock latch |
 | Heatsink or glass over-temperature | Off-board Microtemp cutoffs in the J3 loop open the IRM-05-15 input: gate drive and HOT 5 V drop; BUS_FAULT defaults high if controller 3.3 V remains valid. No electronics or firmware involved |
 | Controller hang / reset | Interlock-board watchdog; PERMIT floating = disabled |

@@ -1,0 +1,4001 @@
+{
+ "board": "s53",
+ "cases": {
+  "c17.5_h10": {
+   "case": "c17.5_h10",
+   "bay_c": 61.0,
+   "h": 10,
+   "i_t_a": 18.375,
+   "jet": false,
+   "worst_margin_k": 1.3,
+   "binding": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "next": [
+    [
+     "laminate: 1 mm-block copper peak",
+     3.8
+    ],
+    [
+     "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     4.2
+    ],
+    [
+     "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     4.2
+    ],
+    [
+     "U26: TJ max (TI SBVS204G p.4)",
+     4.4
+    ],
+    [
+     "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     5.3
+    ]
+   ],
+   "worst_margin_k_ron2w": 3.8,
+   "binding_ron2w": "laminate: 1 mm-block copper peak",
+   "worst_board_margin_k": 1.3,
+   "binding_board": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "worst_board_margin_k_ron2w": 3.8,
+   "binding_board_ron2w": "laminate: 1 mm-block copper peak",
+   "laminate_1mm_block_c": 126.2,
+   "source_w": 16.631,
+   "face_convection_w": 13.325,
+   "body_air_w": 2.259,
+   "lead_sink_w": 1.047,
+   "board_area_m2": 0.04515,
+   "mean_face_rise_k": 14.76,
+   "copper_loss_hot_w": 7.748,
+   "copper_loss_20c_w": 5.94,
+   "advisory": [
+    {
+     "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 82.4,
+     "margin_k": 42.6
+    },
+    {
+     "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 80.6,
+     "margin_k": 44.4
+    },
+    {
+     "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 79.0,
+     "margin_k": 46.0
+    },
+    {
+     "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 77.6,
+     "margin_k": 47.4
+    },
+    {
+     "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 76.8,
+     "margin_k": 48.2
+    },
+    {
+     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 80.8,
+     "margin_k": 24.2
+    },
+    {
+     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 78.2,
+     "margin_k": 26.8
+    }
+   ],
+   "rows": [
+    {
+     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 130.6,
+     "margin_k": 1.3
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 126.2,
+     "at": [
+      45.5,
+      15.5,
+      "F.Cu"
+     ],
+     "margin_k": 3.8
+    },
+    {
+     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 127.7,
+     "margin_k": 4.2
+    },
+    {
+     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "gated": true,
+     "limit_c": 80.19299039780522,
+     "est_c": 76.0,
+     "air_rule_k": 15.0,
+     "air_layer_k": 2.71,
+     "limit_curve_c": 82.9,
+     "p_out_w": 7.078,
+     "loss_w": 1.3482,
+     "pins_w": 0.3554,
+     "case_c": 95.2,
+     "pad_max_c": 91.1,
+     "env_upper_c": 83.9,
+     "margin_k": 4.2
+    },
+    {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 120.6,
+     "margin_k": 4.4
+    },
+    {
+     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 126.7,
+     "margin_k": 5.3
+    },
+    {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 126.5,
+     "margin_k": 5.4
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 124.0,
+     "margin_k": 6.0
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 103.5,
+     "margin_k": 6.5
+    },
+    {
+     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 100.9,
+     "margin_k": 9.1
+    },
+    {
+     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 99.7,
+     "margin_k": 10.3
+    },
+    {
+     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 117.3,
+     "margin_k": 10.9
+    },
+    {
+     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 96.7,
+     "margin_k": 13.3
+    },
+    {
+     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 112.9,
+     "margin_k": 15.3
+    },
+    {
+     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 109.00174480924085,
+     "self_heat_k": 6.51,
+     "margin_k": 16.0
+    },
+    {
+     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 111.5,
+     "margin_k": 16.7
+    },
+    {
+     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 133.2,
+     "margin_k": 16.8
+    },
+    {
+     "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 134.5,
+     "margin_k": 20.5
+    },
+    {
+     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 129.5,
+     "margin_k": 20.5
+    },
+    {
+     "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 103.54910610623482,
+     "self_heat_k": 3.14,
+     "margin_k": 21.5
+    },
+    {
+     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 132.5,
+     "margin_k": 22.5
+    },
+    {
+     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 131.9,
+     "margin_k": 23.1
+    },
+    {
+     "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 101.33179511510289,
+     "self_heat_k": 3.14,
+     "margin_k": 23.7
+    },
+    {
+     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 131.1,
+     "margin_k": 23.9
+    },
+    {
+     "item": "U16: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 101.08060453640581,
+     "self_heat_k": 1.29,
+     "margin_k": 23.9
+    },
+    {
+     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 103.3,
+     "margin_k": 24.9
+    },
+    {
+     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 96.47802754044625,
+     "self_heat_k": 3.14,
+     "margin_k": 28.5
+    },
+    {
+     "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 93.7436880370639,
+     "self_heat_k": 3.44,
+     "margin_k": 31.3
+    },
+    {
+     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 91.19915204301493,
+     "self_heat_k": 0.2,
+     "margin_k": 33.8
+    },
+    {
+     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 118.9,
+     "margin_k": 36.1
+    },
+    {
+     "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 85.31764302736596,
+     "self_heat_k": 3.44,
+     "margin_k": 39.7
+    },
+    {
+     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 114.1,
+     "margin_k": 40.9
+    },
+    {
+     "item": "R5: terminal derating at 0.338 W (20 % margin)",
+     "gated": true,
+     "limit_c": 161.6,
+     "est_c": 120.1,
+     "margin_k": 41.4
+    },
+    {
+     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 83.40036546257521,
+     "self_heat_k": 1.29,
+     "margin_k": 41.6
+    },
+    {
+     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 112.7,
+     "margin_k": 42.3
+    },
+    {
+     "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 81.94863682535701,
+     "self_heat_k": 3.44,
+     "margin_k": 43.1
+    },
+    {
+     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 80.17713917842849,
+     "self_heat_k": 1.29,
+     "margin_k": 44.8
+    },
+    {
+     "item": "R5: element max (Bourns CSS2H p.1)",
+     "gated": true,
+     "limit_c": 170.0,
+     "est_c": 124.1,
+     "margin_k": 45.9
+    },
+    {
+     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 105.0,
+     "margin_k": 50.0
+    }
+   ]
+  },
+  "c17.5_h12": {
+   "case": "c17.5_h12",
+   "bay_c": 61.0,
+   "h": 12,
+   "i_t_a": 18.375,
+   "jet": false,
+   "worst_margin_k": 4.2,
+   "binding": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "next": [
+    [
+     "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     6.3
+    ],
+    [
+     "laminate: 1 mm-block copper peak",
+     8.9
+    ],
+    [
+     "U26: TJ max (TI SBVS204G p.4)",
+     8.9
+    ],
+    [
+     "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     9.0
+    ],
+    [
+     "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     10.0
+    ]
+   ],
+   "worst_margin_k_ron2w": 4.2,
+   "binding_ron2w": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "worst_board_margin_k": 6.3,
+   "binding_board": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "worst_board_margin_k_ron2w": 8.9,
+   "binding_board_ron2w": "laminate: 1 mm-block copper peak",
+   "laminate_1mm_block_c": 121.1,
+   "source_w": 16.54,
+   "face_convection_w": 13.455,
+   "body_air_w": 2.261,
+   "lead_sink_w": 0.824,
+   "board_area_m2": 0.04515,
+   "mean_face_rise_k": 12.42,
+   "copper_loss_hot_w": 7.658,
+   "copper_loss_20c_w": 5.94,
+   "advisory": [
+    {
+     "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 79.4,
+     "margin_k": 45.6
+    },
+    {
+     "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 77.8,
+     "margin_k": 47.2
+    },
+    {
+     "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 76.5,
+     "margin_k": 48.5
+    },
+    {
+     "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 75.2,
+     "margin_k": 49.8
+    },
+    {
+     "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 74.6,
+     "margin_k": 50.4
+    },
+    {
+     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 78.6,
+     "margin_k": 26.4
+    },
+    {
+     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 76.3,
+     "margin_k": 28.7
+    }
+   ],
+   "rows": [
+    {
+     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "gated": true,
+     "limit_c": 80.19299039780522,
+     "est_c": 76.0,
+     "air_rule_k": 15.0,
+     "air_layer_k": 2.21,
+     "limit_curve_c": 82.9,
+     "p_out_w": 7.078,
+     "loss_w": 1.3482,
+     "pins_w": 0.3538,
+     "case_c": 92.0,
+     "pad_max_c": 88.0,
+     "env_upper_c": 81.6,
+     "margin_k": 4.2
+    },
+    {
+     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 125.7,
+     "margin_k": 6.3
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 121.1,
+     "at": [
+      45.5,
+      15.5,
+      "F.Cu"
+     ],
+     "margin_k": 8.9
+    },
+    {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 116.1,
+     "margin_k": 8.9
+    },
+    {
+     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 122.9,
+     "margin_k": 9.0
+    },
+    {
+     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 122.0,
+     "margin_k": 10.0
+    },
+    {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 121.5,
+     "margin_k": 10.5
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 118.9,
+     "margin_k": 11.1
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 98.9,
+     "margin_k": 11.1
+    },
+    {
+     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 96.4,
+     "margin_k": 13.6
+    },
+    {
+     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 95.3,
+     "margin_k": 14.7
+    },
+    {
+     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 112.4,
+     "margin_k": 15.8
+    },
+    {
+     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 92.5,
+     "margin_k": 17.5
+    },
+    {
+     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 108.2,
+     "margin_k": 20.0
+    },
+    {
+     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 104.50512018074963,
+     "self_heat_k": 6.51,
+     "margin_k": 20.5
+    },
+    {
+     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 107.0,
+     "margin_k": 21.3
+    },
+    {
+     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 128.0,
+     "margin_k": 22.0
+    },
+    {
+     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 125.0,
+     "margin_k": 25.0
+    },
+    {
+     "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 129.7,
+     "margin_k": 25.3
+    },
+    {
+     "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 99.08619317302086,
+     "self_heat_k": 3.14,
+     "margin_k": 25.9
+    },
+    {
+     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 127.6,
+     "margin_k": 27.4
+    },
+    {
+     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 126.9,
+     "margin_k": 28.1
+    },
+    {
+     "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 96.81344000950149,
+     "self_heat_k": 3.14,
+     "margin_k": 28.2
+    },
+    {
+     "item": "U16: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 96.6439222785767,
+     "self_heat_k": 1.29,
+     "margin_k": 28.4
+    },
+    {
+     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 126.4,
+     "margin_k": 28.6
+    },
+    {
+     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 98.7,
+     "margin_k": 29.5
+    },
+    {
+     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 92.67247822795785,
+     "self_heat_k": 3.14,
+     "margin_k": 32.3
+    },
+    {
+     "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 89.53480270535718,
+     "self_heat_k": 3.44,
+     "margin_k": 35.5
+    },
+    {
+     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 86.73460455490194,
+     "self_heat_k": 0.2,
+     "margin_k": 38.3
+    },
+    {
+     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 114.0,
+     "margin_k": 41.0
+    },
+    {
+     "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 81.67810021214353,
+     "self_heat_k": 3.44,
+     "margin_k": 43.3
+    },
+    {
+     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 79.72272118673473,
+     "self_heat_k": 1.29,
+     "margin_k": 45.3
+    },
+    {
+     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 109.3,
+     "margin_k": 45.7
+    },
+    {
+     "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 78.90492769722785,
+     "self_heat_k": 3.44,
+     "margin_k": 46.1
+    },
+    {
+     "item": "R5: terminal derating at 0.338 W (20 % margin)",
+     "gated": true,
+     "limit_c": 161.6,
+     "est_c": 115.1,
+     "margin_k": 46.4
+    },
+    {
+     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 108.1,
+     "margin_k": 46.9
+    },
+    {
+     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 77.09816530334723,
+     "self_heat_k": 1.29,
+     "margin_k": 47.9
+    },
+    {
+     "item": "R5: element max (Bourns CSS2H p.1)",
+     "gated": true,
+     "limit_c": 170.0,
+     "est_c": 119.0,
+     "margin_k": 51.0
+    },
+    {
+     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 100.4,
+     "margin_k": 54.6
+    }
+   ]
+  },
+  "c17.5_h16": {
+   "case": "c17.5_h16",
+   "bay_c": 61.0,
+   "h": 16,
+   "i_t_a": 18.375,
+   "jet": false,
+   "worst_margin_k": 4.2,
+   "binding": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "next": [
+    [
+     "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     13.3
+    ],
+    [
+     "U26: TJ max (TI SBVS204G p.4)",
+     15.0
+    ],
+    [
+     "laminate: 1 mm-block copper peak",
+     16.1
+    ],
+    [
+     "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     16.1
+    ],
+    [
+     "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     16.8
+    ]
+   ],
+   "worst_margin_k_ron2w": 4.2,
+   "binding_ron2w": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "worst_board_margin_k": 13.3,
+   "binding_board": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "worst_board_margin_k_ron2w": 15.0,
+   "binding_board_ron2w": "U26: TJ max (TI SBVS204G p.4)",
+   "laminate_1mm_block_c": 113.9,
+   "source_w": 16.416,
+   "face_convection_w": 13.662,
+   "body_air_w": 2.258,
+   "lead_sink_w": 0.497,
+   "board_area_m2": 0.04515,
+   "mean_face_rise_k": 9.46,
+   "copper_loss_hot_w": 7.534,
+   "copper_loss_20c_w": 5.94,
+   "advisory": [
+    {
+     "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 75.8,
+     "margin_k": 49.2
+    },
+    {
+     "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 74.5,
+     "margin_k": 50.5
+    },
+    {
+     "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 73.4,
+     "margin_k": 51.6
+    },
+    {
+     "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 72.4,
+     "margin_k": 52.6
+    },
+    {
+     "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 72.0,
+     "margin_k": 53.0
+    },
+    {
+     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 75.9,
+     "margin_k": 29.1
+    },
+    {
+     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 74.0,
+     "margin_k": 31.0
+    }
+   ],
+   "rows": [
+    {
+     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "gated": true,
+     "limit_c": 80.19299039780522,
+     "est_c": 76.0,
+     "air_rule_k": 15.0,
+     "air_layer_k": 1.59,
+     "limit_curve_c": 82.9,
+     "p_out_w": 7.078,
+     "loss_w": 1.3482,
+     "pins_w": 0.3528,
+     "case_c": 88.1,
+     "pad_max_c": 84.1,
+     "env_upper_c": 79.1,
+     "margin_k": 4.2
+    },
+    {
+     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 118.6,
+     "margin_k": 13.3
+    },
+    {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 110.0,
+     "margin_k": 15.0
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 113.9,
+     "at": [
+      45.5,
+      15.5,
+      "F.Cu"
+     ],
+     "margin_k": 16.1
+    },
+    {
+     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 115.8,
+     "margin_k": 16.1
+    },
+    {
+     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 115.1,
+     "margin_k": 16.8
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 92.6,
+     "margin_k": 17.4
+    },
+    {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 114.2,
+     "margin_k": 17.8
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 111.7,
+     "margin_k": 18.3
+    },
+    {
+     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 90.2,
+     "margin_k": 19.8
+    },
+    {
+     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 89.2,
+     "margin_k": 20.8
+    },
+    {
+     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 105.4,
+     "margin_k": 22.8
+    },
+    {
+     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 86.8,
+     "margin_k": 23.2
+    },
+    {
+     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 98.58600491934297,
+     "self_heat_k": 6.51,
+     "margin_k": 26.4
+    },
+    {
+     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 101.5,
+     "margin_k": 26.7
+    },
+    {
+     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 100.4,
+     "margin_k": 27.8
+    },
+    {
+     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 120.8,
+     "margin_k": 29.2
+    },
+    {
+     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 118.7,
+     "margin_k": 31.3
+    },
+    {
+     "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 93.15579221210255,
+     "self_heat_k": 3.14,
+     "margin_k": 31.8
+    },
+    {
+     "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 122.7,
+     "margin_k": 32.3
+    },
+    {
+     "item": "U16: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 90.75315778316082,
+     "self_heat_k": 1.29,
+     "margin_k": 34.2
+    },
+    {
+     "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 90.73816643944723,
+     "self_heat_k": 3.14,
+     "margin_k": 34.3
+    },
+    {
+     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 120.5,
+     "margin_k": 34.5
+    },
+    {
+     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 119.5,
+     "margin_k": 35.5
+    },
+    {
+     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 119.4,
+     "margin_k": 35.6
+    },
+    {
+     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 92.4,
+     "margin_k": 35.8
+    },
+    {
+     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 87.57092601058956,
+     "self_heat_k": 3.14,
+     "margin_k": 37.4
+    },
+    {
+     "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 84.020216822498,
+     "self_heat_k": 3.44,
+     "margin_k": 41.0
+    },
+    {
+     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 80.87813686621291,
+     "self_heat_k": 0.2,
+     "margin_k": 44.1
+    },
+    {
+     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 107.0,
+     "margin_k": 48.0
+    },
+    {
+     "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 77.01552100257369,
+     "self_heat_k": 3.44,
+     "margin_k": 48.0
+    },
+    {
+     "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 75.0322380248483,
+     "self_heat_k": 3.44,
+     "margin_k": 50.0
+    },
+    {
+     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 75.03619395917146,
+     "self_heat_k": 1.29,
+     "margin_k": 50.0
+    },
+    {
+     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 73.17122387753,
+     "self_heat_k": 1.29,
+     "margin_k": 51.8
+    },
+    {
+     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 102.7,
+     "margin_k": 52.3
+    },
+    {
+     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 101.5,
+     "margin_k": 53.5
+    },
+    {
+     "item": "R5: terminal derating at 0.338 W (20 % margin)",
+     "gated": true,
+     "limit_c": 161.6,
+     "est_c": 108.0,
+     "margin_k": 53.6
+    },
+    {
+     "item": "R5: element max (Bourns CSS2H p.1)",
+     "gated": true,
+     "limit_c": 170.0,
+     "est_c": 111.8,
+     "margin_k": 58.2
+    },
+    {
+     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 94.1,
+     "margin_k": 60.9
+    }
+   ]
+  },
+  "c17.5_h19": {
+   "case": "c17.5_h19",
+   "bay_c": 61.0,
+   "h": 19,
+   "i_t_a": 18.375,
+   "jet": false,
+   "worst_margin_k": 4.2,
+   "binding": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "next": [
+    [
+     "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     17.1
+    ],
+    [
+     "U26: TJ max (TI SBVS204G p.4)",
+     18.1
+    ],
+    [
+     "laminate: 1 mm-block copper peak",
+     19.3
+    ],
+    [
+     "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     20.0
+    ],
+    [
+     "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     20.6
+    ]
+   ],
+   "worst_margin_k_ron2w": 4.2,
+   "binding_ron2w": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "worst_board_margin_k": 17.1,
+   "binding_board": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+   "worst_board_margin_k_ron2w": 18.1,
+   "binding_board_ron2w": "U26: TJ max (TI SBVS204G p.4)",
+   "laminate_1mm_block_c": 110.7,
+   "source_w": 16.353,
+   "face_convection_w": 13.783,
+   "body_air_w": 2.254,
+   "lead_sink_w": 0.315,
+   "board_area_m2": 0.04515,
+   "mean_face_rise_k": 8.03,
+   "copper_loss_hot_w": 7.47,
+   "copper_loss_20c_w": 5.94,
+   "advisory": [
+    {
+     "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 74.0,
+     "margin_k": 51.0
+    },
+    {
+     "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 72.9,
+     "margin_k": 52.1
+    },
+    {
+     "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 72.0,
+     "margin_k": 53.0
+    },
+    {
+     "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 71.2,
+     "margin_k": 53.8
+    },
+    {
+     "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 70.9,
+     "margin_k": 54.1
+    },
+    {
+     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 74.6,
+     "margin_k": 30.4
+    },
+    {
+     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 73.0,
+     "margin_k": 32.0
+    }
+   ],
+   "rows": [
+    {
+     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "gated": true,
+     "limit_c": 80.19299039780522,
+     "est_c": 76.0,
+     "air_rule_k": 15.0,
+     "air_layer_k": 1.3,
+     "limit_curve_c": 82.9,
+     "p_out_w": 7.078,
+     "loss_w": 1.3482,
+     "pins_w": 0.353,
+     "case_c": 86.2,
+     "pad_max_c": 82.3,
+     "env_upper_c": 78.1,
+     "margin_k": 4.2
+    },
+    {
+     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 114.8,
+     "margin_k": 17.1
+    },
+    {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 106.9,
+     "margin_k": 18.1
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 110.7,
+     "at": [
+      63.5,
+      15.5,
+      "F.Cu"
+     ],
+     "margin_k": 19.3
+    },
+    {
+     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 112.0,
+     "margin_k": 20.0
+    },
+    {
+     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 111.3,
+     "margin_k": 20.6
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 89.3,
+     "margin_k": 20.7
+    },
+    {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 110.2,
+     "margin_k": 21.7
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 107.7,
+     "margin_k": 22.3
+    },
+    {
+     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 87.0,
+     "margin_k": 23.0
+    },
+    {
+     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 86.1,
+     "margin_k": 23.9
+    },
+    {
+     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 83.9,
+     "margin_k": 26.1
+    },
+    {
+     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 101.6,
+     "margin_k": 26.6
+    },
+    {
+     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 95.63744316648872,
+     "self_heat_k": 6.51,
+     "margin_k": 29.4
+    },
+    {
+     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 98.0,
+     "margin_k": 30.2
+    },
+    {
+     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 96.8,
+     "margin_k": 31.4
+    },
+    {
+     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 117.0,
+     "margin_k": 33.0
+    },
+    {
+     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 115.4,
+     "margin_k": 34.6
+    },
+    {
+     "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 90.16043664339296,
+     "self_heat_k": 3.14,
+     "margin_k": 34.8
+    },
+    {
+     "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 119.0,
+     "margin_k": 36.0
+    },
+    {
+     "item": "U16: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 87.78035849271333,
+     "self_heat_k": 1.29,
+     "margin_k": 37.2
+    },
+    {
+     "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 87.6477478045416,
+     "self_heat_k": 3.14,
+     "margin_k": 37.4
+    },
+    {
+     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 116.5,
+     "margin_k": 38.5
+    },
+    {
+     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 89.1,
+     "margin_k": 39.1
+    },
+    {
+     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 115.6,
+     "margin_k": 39.4
+    },
+    {
+     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 115.4,
+     "margin_k": 39.6
+    },
+    {
+     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 84.97254705694168,
+     "self_heat_k": 3.14,
+     "margin_k": 40.0
+    },
+    {
+     "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 81.28367956054103,
+     "self_heat_k": 3.44,
+     "margin_k": 43.7
+    },
+    {
+     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 77.9761420850697,
+     "self_heat_k": 0.2,
+     "margin_k": 47.0
+    },
+    {
+     "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 74.77740731480922,
+     "self_heat_k": 3.44,
+     "margin_k": 50.2
+    },
+    {
+     "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 73.17778658115948,
+     "self_heat_k": 3.44,
+     "margin_k": 51.8
+    },
+    {
+     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 103.1,
+     "margin_k": 51.9
+    },
+    {
+     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 72.79468806153653,
+     "self_heat_k": 1.29,
+     "margin_k": 52.2
+    },
+    {
+     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 71.28553106324784,
+     "self_heat_k": 1.29,
+     "margin_k": 53.7
+    },
+    {
+     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 99.1,
+     "margin_k": 55.9
+    },
+    {
+     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 98.0,
+     "margin_k": 57.0
+    },
+    {
+     "item": "R5: terminal derating at 0.338 W (20 % margin)",
+     "gated": true,
+     "limit_c": 161.6,
+     "est_c": 104.1,
+     "margin_k": 57.5
+    },
+    {
+     "item": "R5: element max (Bourns CSS2H p.1)",
+     "gated": true,
+     "limit_c": 170.0,
+     "est_c": 107.9,
+     "margin_k": 62.1
+    },
+    {
+     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 90.8,
+     "margin_k": 64.2
+    }
+   ]
+  },
+  "c17.5_h25": {
+   "case": "c17.5_h25",
+   "bay_c": 61.0,
+   "h": 25,
+   "i_t_a": 18.375,
+   "jet": false,
+   "worst_margin_k": 4.2,
+   "binding": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "next": [
+    [
+     "U26: TJ max (TI SBVS204G p.4)",
+     22.3
+    ],
+    [
+     "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     22.6
+    ],
+    [
+     "laminate: 1 mm-block copper peak",
+     23.2
+    ],
+    [
+     "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     25.2
+    ],
+    [
+     "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     25.7
+    ]
+   ],
+   "worst_margin_k_ron2w": 4.2,
+   "binding_ron2w": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "worst_board_margin_k": 22.3,
+   "binding_board": "U26: TJ max (TI SBVS204G p.4)",
+   "worst_board_margin_k_ron2w": 22.3,
+   "binding_board_ron2w": "U26: TJ max (TI SBVS204G p.4)",
+   "laminate_1mm_block_c": 106.8,
+   "source_w": 16.264,
+   "face_convection_w": 13.972,
+   "body_air_w": 2.251,
+   "lead_sink_w": 0.042,
+   "board_area_m2": 0.04515,
+   "mean_face_rise_k": 6.19,
+   "copper_loss_hot_w": 7.382,
+   "copper_loss_20c_w": 5.94,
+   "advisory": [
+    {
+     "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 71.9,
+     "margin_k": 53.1
+    },
+    {
+     "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 71.0,
+     "margin_k": 54.0
+    },
+    {
+     "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 70.2,
+     "margin_k": 54.8
+    },
+    {
+     "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 69.6,
+     "margin_k": 55.4
+    },
+    {
+     "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 69.4,
+     "margin_k": 55.6
+    },
+    {
+     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 73.1,
+     "margin_k": 31.9
+    },
+    {
+     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 71.7,
+     "margin_k": 33.3
+    }
+   ],
+   "rows": [
+    {
+     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "gated": true,
+     "limit_c": 80.19299039780522,
+     "est_c": 76.0,
+     "air_rule_k": 15.0,
+     "air_layer_k": 0.94,
+     "limit_curve_c": 82.9,
+     "p_out_w": 7.078,
+     "loss_w": 1.3482,
+     "pins_w": 0.3549,
+     "case_c": 83.7,
+     "pad_max_c": 79.9,
+     "env_upper_c": 76.9,
+     "margin_k": 4.2
+    },
+    {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 102.7,
+     "margin_k": 22.3
+    },
+    {
+     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 109.3,
+     "margin_k": 22.6
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 106.8,
+     "at": [
+      63.5,
+      15.5,
+      "F.Cu"
+     ],
+     "margin_k": 23.2
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 84.8,
+     "margin_k": 25.2
+    },
+    {
+     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 106.2,
+     "margin_k": 25.7
+    },
+    {
+     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 105.8,
+     "margin_k": 26.2
+    },
+    {
+     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 82.7,
+     "margin_k": 27.3
+    },
+    {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 104.5,
+     "margin_k": 27.5
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 101.9,
+     "margin_k": 28.1
+    },
+    {
+     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 81.7,
+     "margin_k": 28.3
+    },
+    {
+     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 80.1,
+     "margin_k": 29.9
+    },
+    {
+     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 96.1,
+     "margin_k": 32.1
+    },
+    {
+     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 91.68665015204817,
+     "self_heat_k": 6.51,
+     "margin_k": 33.3
+    },
+    {
+     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 92.8,
+     "margin_k": 35.4
+    },
+    {
+     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 91.7,
+     "margin_k": 36.5
+    },
+    {
+     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 111.5,
+     "margin_k": 38.5
+    },
+    {
+     "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 86.07237338264733,
+     "self_heat_k": 3.14,
+     "margin_k": 38.9
+    },
+    {
+     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 110.5,
+     "margin_k": 39.5
+    },
+    {
+     "item": "U16: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 83.72656495702653,
+     "self_heat_k": 1.29,
+     "margin_k": 41.3
+    },
+    {
+     "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 113.4,
+     "margin_k": 41.6
+    },
+    {
+     "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 83.42330401219799,
+     "self_heat_k": 3.14,
+     "margin_k": 41.6
+    },
+    {
+     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 81.40144210427975,
+     "self_heat_k": 3.14,
+     "margin_k": 43.6
+    },
+    {
+     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 84.5,
+     "margin_k": 43.7
+    },
+    {
+     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 110.7,
+     "margin_k": 44.3
+    },
+    {
+     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 110.0,
+     "margin_k": 45.0
+    },
+    {
+     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 109.4,
+     "margin_k": 45.6
+    },
+    {
+     "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 77.62829547430722,
+     "self_heat_k": 3.44,
+     "margin_k": 47.4
+    },
+    {
+     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 74.11766562160436,
+     "self_heat_k": 0.2,
+     "margin_k": 50.9
+    },
+    {
+     "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 71.9099328513591,
+     "self_heat_k": 3.44,
+     "margin_k": 53.1
+    },
+    {
+     "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 70.79864365322717,
+     "self_heat_k": 3.44,
+     "margin_k": 54.2
+    },
+    {
+     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 69.92750096899306,
+     "self_heat_k": 1.29,
+     "margin_k": 55.1
+    },
+    {
+     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 68.85899848006596,
+     "self_heat_k": 1.29,
+     "margin_k": 56.1
+    },
+    {
+     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 97.6,
+     "margin_k": 57.4
+    },
+    {
+     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 93.9,
+     "margin_k": 61.1
+    },
+    {
+     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 92.8,
+     "margin_k": 62.2
+    },
+    {
+     "item": "R5: terminal derating at 0.338 W (20 % margin)",
+     "gated": true,
+     "limit_c": 161.6,
+     "est_c": 98.4,
+     "margin_k": 63.1
+    },
+    {
+     "item": "R5: element max (Bourns CSS2H p.1)",
+     "gated": true,
+     "limit_c": 170.0,
+     "est_c": 102.1,
+     "margin_k": 67.9
+    },
+    {
+     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 86.3,
+     "margin_k": 68.7
+    }
+   ]
+  },
+  "c28_h10_jet100": {
+   "case": "c28_h10_jet100",
+   "bay_c": 61.0,
+   "h": 10,
+   "i_t_a": 29.4,
+   "jet": true,
+   "worst_margin_k": -9.8,
+   "binding": "laminate: FET-row copper",
+   "next": [
+    [
+     "laminate: 1 mm-block copper peak",
+     -9.1
+    ],
+    [
+     "U26: TJ max (TI SBVS204G p.4)",
+     -3.5
+    ],
+    [
+     "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     -0.0
+    ],
+    [
+     "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     0.7
+    ],
+    [
+     "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     1.2
+    ]
+   ],
+   "worst_margin_k_ron2w": -9.8,
+   "binding_ron2w": "laminate: FET-row copper",
+   "worst_board_margin_k": -9.8,
+   "binding_board": "laminate: FET-row copper",
+   "worst_board_margin_k_ron2w": -9.8,
+   "binding_board_ron2w": "laminate: FET-row copper",
+   "laminate_1mm_block_c": 139.1,
+   "source_w": 30.495,
+   "face_convection_w": 25.556,
+   "body_air_w": 3.229,
+   "lead_sink_w": 1.71,
+   "board_area_m2": 0.04515,
+   "mean_face_rise_k": null,
+   "copper_loss_hot_w": 19.85,
+   "copper_loss_20c_w": 14.401,
+   "advisory": [
+    {
+     "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 108.8,
+     "margin_k": 16.2
+    },
+    {
+     "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 106.3,
+     "margin_k": 18.7
+    },
+    {
+     "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 103.8,
+     "margin_k": 21.2
+    },
+    {
+     "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 101.1,
+     "margin_k": 23.9
+    },
+    {
+     "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 99.6,
+     "margin_k": 25.4
+    },
+    {
+     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 102.4,
+     "margin_k": 2.6
+    },
+    {
+     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 96.6,
+     "margin_k": 8.4
+    }
+   ],
+   "rows": [
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 139.8,
+     "margin_k": -9.8
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 139.1,
+     "at": [
+      73.5,
+      4.5,
+      "In2.Cu"
+     ],
+     "margin_k": -9.1
+    },
+    {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 128.5,
+     "margin_k": -3.5
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 110.0,
+     "margin_k": -0.0
+    },
+    {
+     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 109.3,
+     "margin_k": 0.7
+    },
+    {
+     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 108.8,
+     "margin_k": 1.2
+    },
+    {
+     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "gated": true,
+     "limit_c": 80.19299039780522,
+     "est_c": 76.0,
+     "air_rule_k": 15.0,
+     "air_layer_k": 4.68,
+     "limit_curve_c": 82.9,
+     "p_out_w": 7.078,
+     "loss_w": 1.3482,
+     "pins_w": 0.2133,
+     "case_c": 97.9,
+     "pad_max_c": 97.2,
+     "env_upper_c": 86.6,
+     "margin_k": 4.2
+    },
+    {
+     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 120.65320365536095,
+     "self_heat_k": 6.51,
+     "margin_k": 4.3
+    },
+    {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 121.8,
+     "margin_k": 10.1
+    },
+    {
+     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 99.6,
+     "margin_k": 10.4
+    },
+    {
+     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 116.9,
+     "margin_k": 11.3
+    },
+    {
+     "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 110.7185754243077,
+     "self_heat_k": 3.14,
+     "margin_k": 14.3
+    },
+    {
+     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 112.9,
+     "margin_k": 15.3
+    },
+    {
+     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 134.0,
+     "margin_k": 16.0
+    },
+    {
+     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 111.8,
+     "margin_k": 16.4
+    },
+    {
+     "item": "U16: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 108.37050435584936,
+     "self_heat_k": 1.29,
+     "margin_k": 16.6
+    },
+    {
+     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 114.9,
+     "margin_k": 17.1
+    },
+    {
+     "item": "R5: terminal derating at 0.864 W (20 % margin)",
+     "gated": true,
+     "limit_c": 148.4,
+     "est_c": 129.0,
+     "margin_k": 19.4
+    },
+    {
+     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 130.5,
+     "margin_k": 19.5
+    },
+    {
+     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 103.13667672137763,
+     "self_heat_k": 0.2,
+     "margin_k": 21.9
+    },
+    {
+     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 108.8,
+     "margin_k": 23.1
+    },
+    {
+     "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 101.91047787470269,
+     "self_heat_k": 3.14,
+     "margin_k": 23.1
+    },
+    {
+     "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 99.8917256232367,
+     "self_heat_k": 3.44,
+     "margin_k": 25.1
+    },
+    {
+     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 100.8,
+     "margin_k": 27.4
+    },
+    {
+     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 104.1,
+     "margin_k": 27.8
+    },
+    {
+     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 97.16877784044935,
+     "self_heat_k": 3.14,
+     "margin_k": 27.8
+    },
+    {
+     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 124.6,
+     "margin_k": 30.4
+    },
+    {
+     "item": "R5: element max (Bourns CSS2H p.1)",
+     "gated": true,
+     "limit_c": 170.0,
+     "est_c": 137.4,
+     "margin_k": 32.6
+    },
+    {
+     "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 118.6,
+     "margin_k": 36.4
+    },
+    {
+     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 115.8,
+     "margin_k": 39.2
+    },
+    {
+     "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 85.7637641786299,
+     "self_heat_k": 3.44,
+     "margin_k": 39.2
+    },
+    {
+     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 83.74419186031605,
+     "self_heat_k": 1.29,
+     "margin_k": 41.3
+    },
+    {
+     "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 82.96917048514561,
+     "self_heat_k": 3.44,
+     "margin_k": 42.0
+    },
+    {
+     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 112.9,
+     "margin_k": 42.1
+    },
+    {
+     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 112.7,
+     "margin_k": 42.3
+    },
+    {
+     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 112.0,
+     "margin_k": 43.0
+    },
+    {
+     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 81.13183231317856,
+     "self_heat_k": 1.29,
+     "margin_k": 43.9
+    },
+    {
+     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 106.5,
+     "margin_k": 48.5
+    },
+    {
+     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 101.7,
+     "margin_k": 53.3
+    }
+   ]
+  },
+  "c28_h12_jet100": {
+   "case": "c28_h12_jet100",
+   "bay_c": 61.0,
+   "h": 12,
+   "i_t_a": 29.4,
+   "jet": true,
+   "worst_margin_k": -5.5,
+   "binding": "laminate: FET-row copper",
+   "next": [
+    [
+     "laminate: 1 mm-block copper peak",
+     -4.8
+    ],
+    [
+     "U26: TJ max (TI SBVS204G p.4)",
+     2.9
+    ],
+    [
+     "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     3.4
+    ],
+    [
+     "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     4.2
+    ],
+    [
+     "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     5.0
+    ]
+   ],
+   "worst_margin_k_ron2w": -5.5,
+   "binding_ron2w": "laminate: FET-row copper",
+   "worst_board_margin_k": -5.5,
+   "binding_board": "laminate: FET-row copper",
+   "worst_board_margin_k_ron2w": -5.5,
+   "binding_board_ron2w": "laminate: FET-row copper",
+   "laminate_1mm_block_c": 134.8,
+   "source_w": 30.23,
+   "face_convection_w": 25.466,
+   "body_air_w": 3.212,
+   "lead_sink_w": 1.552,
+   "board_area_m2": 0.04515,
+   "mean_face_rise_k": null,
+   "copper_loss_hot_w": 19.585,
+   "copper_loss_20c_w": 14.401,
+   "advisory": [
+    {
+     "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 103.0,
+     "margin_k": 22.0
+    },
+    {
+     "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 100.7,
+     "margin_k": 24.3
+    },
+    {
+     "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 98.4,
+     "margin_k": 26.6
+    },
+    {
+     "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 96.0,
+     "margin_k": 29.0
+    },
+    {
+     "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 94.8,
+     "margin_k": 30.2
+    },
+    {
+     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 98.6,
+     "margin_k": 6.4
+    },
+    {
+     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 93.5,
+     "margin_k": 11.5
+    }
+   ],
+   "rows": [
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 135.5,
+     "margin_k": -5.5
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 134.8,
+     "at": [
+      73.5,
+      4.5,
+      "In2.Cu"
+     ],
+     "margin_k": -4.8
+    },
+    {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 122.1,
+     "margin_k": 2.9
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 106.6,
+     "margin_k": 3.4
+    },
+    {
+     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "gated": true,
+     "limit_c": 80.19299039780522,
+     "est_c": 76.0,
+     "air_rule_k": 15.0,
+     "air_layer_k": 3.85,
+     "limit_curve_c": 82.9,
+     "p_out_w": 7.078,
+     "loss_w": 1.3482,
+     "pins_w": 0.2296,
+     "case_c": 94.0,
+     "pad_max_c": 91.9,
+     "env_upper_c": 83.6,
+     "margin_k": 4.2
+    },
+    {
+     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 105.0,
+     "margin_k": 5.0
+    },
+    {
+     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 104.3,
+     "margin_k": 5.7
+    },
+    {
+     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 114.0496638617808,
+     "self_heat_k": 6.51,
+     "margin_k": 11.0
+    },
+    {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 119.5,
+     "margin_k": 12.4
+    },
+    {
+     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 96.6,
+     "margin_k": 13.4
+    },
+    {
+     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 114.5,
+     "margin_k": 13.8
+    },
+    {
+     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 109.1,
+     "margin_k": 19.1
+    },
+    {
+     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 109.0,
+     "margin_k": 19.2
+    },
+    {
+     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 112.5,
+     "margin_k": 19.5
+    },
+    {
+     "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 104.54415493525734,
+     "self_heat_k": 3.14,
+     "margin_k": 20.5
+    },
+    {
+     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 129.0,
+     "margin_k": 21.0
+    },
+    {
+     "item": "R5: terminal derating at 0.864 W (20 % margin)",
+     "gated": true,
+     "limit_c": 148.4,
+     "est_c": 126.4,
+     "margin_k": 22.0
+    },
+    {
+     "item": "U16: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 102.19491647511245,
+     "self_heat_k": 1.29,
+     "margin_k": 22.8
+    },
+    {
+     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 125.8,
+     "margin_k": 24.2
+    },
+    {
+     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 107.1,
+     "margin_k": 24.8
+    },
+    {
+     "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 97.52482144463082,
+     "self_heat_k": 3.14,
+     "margin_k": 27.5
+    },
+    {
+     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 96.61435157246325,
+     "self_heat_k": 0.2,
+     "margin_k": 28.4
+    },
+    {
+     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 102.7,
+     "margin_k": 29.3
+    },
+    {
+     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 98.8,
+     "margin_k": 29.4
+    },
+    {
+     "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 94.13290162851175,
+     "self_heat_k": 3.44,
+     "margin_k": 30.9
+    },
+    {
+     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 93.22725430555289,
+     "self_heat_k": 3.14,
+     "margin_k": 31.8
+    },
+    {
+     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 122.4,
+     "margin_k": 32.6
+    },
+    {
+     "item": "R5: element max (Bourns CSS2H p.1)",
+     "gated": true,
+     "limit_c": 170.0,
+     "est_c": 134.9,
+     "margin_k": 35.1
+    },
+    {
+     "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 116.4,
+     "margin_k": 38.6
+    },
+    {
+     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 113.3,
+     "margin_k": 41.7
+    },
+    {
+     "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 82.17859464077705,
+     "self_heat_k": 3.44,
+     "margin_k": 42.8
+    },
+    {
+     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 110.4,
+     "margin_k": 44.6
+    },
+    {
+     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 80.11533853568673,
+     "self_heat_k": 1.29,
+     "margin_k": 44.9
+    },
+    {
+     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 110.0,
+     "margin_k": 45.0
+    },
+    {
+     "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 79.74337295798637,
+     "self_heat_k": 3.44,
+     "margin_k": 45.3
+    },
+    {
+     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 109.1,
+     "margin_k": 45.9
+    },
+    {
+     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 77.88680716752883,
+     "self_heat_k": 1.29,
+     "margin_k": 47.1
+    },
+    {
+     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 105.2,
+     "margin_k": 49.8
+    },
+    {
+     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 99.8,
+     "margin_k": 55.2
+    }
+   ]
+  },
+  "c28_h16_jet100": {
+   "case": "c28_h16_jet100",
+   "bay_c": 61.0,
+   "h": 16,
+   "i_t_a": 29.4,
+   "jet": true,
+   "worst_margin_k": 0.9,
+   "binding": "laminate: FET-row copper",
+   "next": [
+    [
+     "laminate: 1 mm-block copper peak",
+     1.6
+    ],
+    [
+     "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     4.2
+    ],
+    [
+     "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     8.6
+    ],
+    [
+     "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     10.6
+    ],
+    [
+     "U26: TJ max (TI SBVS204G p.4)",
+     11.1
+    ]
+   ],
+   "worst_margin_k_ron2w": 0.9,
+   "binding_ron2w": "laminate: FET-row copper",
+   "worst_board_margin_k": 0.9,
+   "binding_board": "laminate: FET-row copper",
+   "worst_board_margin_k_ron2w": 0.9,
+   "binding_board_ron2w": "laminate: FET-row copper",
+   "laminate_1mm_block_c": 128.4,
+   "source_w": 29.861,
+   "face_convection_w": 25.384,
+   "body_air_w": 3.175,
+   "lead_sink_w": 1.303,
+   "board_area_m2": 0.04515,
+   "mean_face_rise_k": null,
+   "copper_loss_hot_w": 19.216,
+   "copper_loss_20c_w": 14.401,
+   "advisory": [
+    {
+     "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 95.6,
+     "margin_k": 29.4
+    },
+    {
+     "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 93.5,
+     "margin_k": 31.5
+    },
+    {
+     "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 91.6,
+     "margin_k": 33.4
+    },
+    {
+     "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 89.6,
+     "margin_k": 35.4
+    },
+    {
+     "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 88.7,
+     "margin_k": 36.3
+    },
+    {
+     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 93.9,
+     "margin_k": 11.1
+    },
+    {
+     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 89.8,
+     "margin_k": 15.2
+    }
+   ],
+   "rows": [
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 129.1,
+     "margin_k": 0.9
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 128.4,
+     "at": [
+      73.5,
+      4.5,
+      "In2.Cu"
+     ],
+     "margin_k": 1.6
+    },
+    {
+     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "gated": true,
+     "limit_c": 80.19299039780522,
+     "est_c": 76.0,
+     "air_rule_k": 15.0,
+     "air_layer_k": 2.81,
+     "limit_curve_c": 82.9,
+     "p_out_w": 7.078,
+     "loss_w": 1.3482,
+     "pins_w": 0.2544,
+     "case_c": 89.2,
+     "pad_max_c": 85.6,
+     "env_upper_c": 80.3,
+     "margin_k": 4.2
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 101.4,
+     "margin_k": 8.6
+    },
+    {
+     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 99.4,
+     "margin_k": 10.6
+    },
+    {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 113.9,
+     "margin_k": 11.1
+    },
+    {
+     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 97.5,
+     "margin_k": 12.5
+    },
+    {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 116.2,
+     "margin_k": 15.8
+    },
+    {
+     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 110.7,
+     "margin_k": 17.5
+    },
+    {
+     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 92.1,
+     "margin_k": 17.9
+    },
+    {
+     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 105.42465166888257,
+     "self_heat_k": 6.51,
+     "margin_k": 19.6
+    },
+    {
+     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 108.9,
+     "margin_k": 23.1
+    },
+    {
+     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 105.0,
+     "margin_k": 23.2
+    },
+    {
+     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 103.5,
+     "margin_k": 24.7
+    },
+    {
+     "item": "R5: terminal derating at 0.864 W (20 % margin)",
+     "gated": true,
+     "limit_c": 148.4,
+     "est_c": 122.4,
+     "margin_k": 26.0
+    },
+    {
+     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 104.5,
+     "margin_k": 27.5
+    },
+    {
+     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 121.9,
+     "margin_k": 28.1
+    },
+    {
+     "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 96.59712464281736,
+     "self_heat_k": 3.14,
+     "margin_k": 28.4
+    },
+    {
+     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 119.3,
+     "margin_k": 30.7
+    },
+    {
+     "item": "U16: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 94.25965815188871,
+     "self_heat_k": 1.29,
+     "margin_k": 30.7
+    },
+    {
+     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 100.5,
+     "margin_k": 31.5
+    },
+    {
+     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 95.8,
+     "margin_k": 32.4
+    },
+    {
+     "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 91.47960911161768,
+     "self_heat_k": 3.14,
+     "margin_k": 33.5
+    },
+    {
+     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 119.0,
+     "margin_k": 36.0
+    },
+    {
+     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 88.09523262451049,
+     "self_heat_k": 0.2,
+     "margin_k": 36.9
+    },
+    {
+     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 87.92858152983412,
+     "self_heat_k": 3.14,
+     "margin_k": 37.1
+    },
+    {
+     "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 86.83059577485882,
+     "self_heat_k": 3.44,
+     "margin_k": 38.2
+    },
+    {
+     "item": "R5: element max (Bourns CSS2H p.1)",
+     "gated": true,
+     "limit_c": 170.0,
+     "est_c": 131.0,
+     "margin_k": 39.0
+    },
+    {
+     "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 113.2,
+     "margin_k": 41.8
+    },
+    {
+     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 109.7,
+     "margin_k": 45.3
+    },
+    {
+     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 107.9,
+     "margin_k": 47.1
+    },
+    {
+     "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 77.48402699181467,
+     "self_heat_k": 3.44,
+     "margin_k": 47.5
+    },
+    {
+     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 105.9,
+     "margin_k": 49.1
+    },
+    {
+     "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 75.60456935708577,
+     "self_heat_k": 3.44,
+     "margin_k": 49.4
+    },
+    {
+     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 75.40172618094573,
+     "self_heat_k": 1.29,
+     "margin_k": 49.6
+    },
+    {
+     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 103.8,
+     "margin_k": 51.2
+    },
+    {
+     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 73.71589799061452,
+     "self_heat_k": 1.29,
+     "margin_k": 51.3
+    },
+    {
+     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 103.1,
+     "margin_k": 51.9
+    },
+    {
+     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 96.7,
+     "margin_k": 58.3
+    }
+   ]
+  },
+  "c28_h19_jet100": {
+   "case": "c28_h19_jet100",
+   "bay_c": 61.0,
+   "h": 19,
+   "i_t_a": 29.4,
+   "jet": true,
+   "worst_margin_k": 4.2,
+   "binding": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "next": [
+    [
+     "laminate: FET-row copper",
+     4.5
+    ],
+    [
+     "laminate: 1 mm-block copper peak",
+     5.3
+    ],
+    [
+     "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     11.5
+    ],
+    [
+     "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     13.7
+    ],
+    [
+     "U26: TJ max (TI SBVS204G p.4)",
+     15.2
+    ]
+   ],
+   "worst_margin_k_ron2w": 4.2,
+   "binding_ron2w": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "worst_board_margin_k": 4.5,
+   "binding_board": "laminate: FET-row copper",
+   "worst_board_margin_k_ron2w": 4.5,
+   "binding_board_ron2w": "laminate: FET-row copper",
+   "laminate_1mm_block_c": 124.7,
+   "source_w": 29.666,
+   "face_convection_w": 25.366,
+   "body_air_w": 3.147,
+   "lead_sink_w": 1.153,
+   "board_area_m2": 0.04515,
+   "mean_face_rise_k": null,
+   "copper_loss_hot_w": 19.021,
+   "copper_loss_20c_w": 14.401,
+   "advisory": [
+    {
+     "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 92.0,
+     "margin_k": 33.0
+    },
+    {
+     "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 90.1,
+     "margin_k": 34.9
+    },
+    {
+     "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 88.3,
+     "margin_k": 36.7
+    },
+    {
+     "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 86.6,
+     "margin_k": 38.4
+    },
+    {
+     "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 85.9,
+     "margin_k": 39.1
+    },
+    {
+     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 91.7,
+     "margin_k": 13.3
+    },
+    {
+     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 88.1,
+     "margin_k": 16.9
+    }
+   ],
+   "rows": [
+    {
+     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "gated": true,
+     "limit_c": 80.19299039780522,
+     "est_c": 76.0,
+     "air_rule_k": 15.0,
+     "air_layer_k": 2.31,
+     "limit_curve_c": 82.9,
+     "p_out_w": 7.078,
+     "loss_w": 1.3482,
+     "pins_w": 0.2685,
+     "case_c": 87.0,
+     "pad_max_c": 83.5,
+     "env_upper_c": 78.9,
+     "margin_k": 4.2
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 125.5,
+     "margin_k": 4.5
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 124.7,
+     "at": [
+      73.5,
+      4.5,
+      "In2.Cu"
+     ],
+     "margin_k": 5.3
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 98.5,
+     "margin_k": 11.5
+    },
+    {
+     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 96.3,
+     "margin_k": 13.7
+    },
+    {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 109.8,
+     "margin_k": 15.2
+    },
+    {
+     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 93.9,
+     "margin_k": 16.1
+    },
+    {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 114.3,
+     "margin_k": 17.7
+    },
+    {
+     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 108.5,
+     "margin_k": 19.7
+    },
+    {
+     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 89.7,
+     "margin_k": 20.3
+    },
+    {
+     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 101.17694618796972,
+     "self_heat_k": 6.51,
+     "margin_k": 23.8
+    },
+    {
+     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 106.8,
+     "margin_k": 25.1
+    },
+    {
+     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 102.6,
+     "margin_k": 25.6
+    },
+    {
+     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 100.4,
+     "margin_k": 27.8
+    },
+    {
+     "item": "R5: terminal derating at 0.864 W (20 % margin)",
+     "gated": true,
+     "limit_c": 148.4,
+     "est_c": 120.0,
+     "margin_k": 28.3
+    },
+    {
+     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 102.9,
+     "margin_k": 29.0
+    },
+    {
+     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 118.0,
+     "margin_k": 32.0
+    },
+    {
+     "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 92.72369014670383,
+     "self_heat_k": 3.14,
+     "margin_k": 32.3
+    },
+    {
+     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 99.2,
+     "margin_k": 32.8
+    },
+    {
+     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 94.0,
+     "margin_k": 34.2
+    },
+    {
+     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 115.8,
+     "margin_k": 34.2
+    },
+    {
+     "item": "U16: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 90.39829915847281,
+     "self_heat_k": 1.29,
+     "margin_k": 34.6
+    },
+    {
+     "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 88.34100664732371,
+     "self_heat_k": 3.14,
+     "margin_k": 36.7
+    },
+    {
+     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 117.0,
+     "margin_k": 38.0
+    },
+    {
+     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 85.2310596298059,
+     "self_heat_k": 3.14,
+     "margin_k": 39.8
+    },
+    {
+     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 83.90434010982834,
+     "self_heat_k": 0.2,
+     "margin_k": 41.1
+    },
+    {
+     "item": "R5: element max (Bourns CSS2H p.1)",
+     "gated": true,
+     "limit_c": 170.0,
+     "est_c": 128.6,
+     "margin_k": 41.4
+    },
+    {
+     "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 83.33484749900354,
+     "self_heat_k": 3.44,
+     "margin_k": 41.7
+    },
+    {
+     "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 111.3,
+     "margin_k": 43.7
+    },
+    {
+     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 107.6,
+     "margin_k": 47.4
+    },
+    {
+     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 106.4,
+     "margin_k": 48.6
+    },
+    {
+     "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 75.1898044634343,
+     "self_heat_k": 3.44,
+     "margin_k": 49.8
+    },
+    {
+     "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 73.61662029264379,
+     "self_heat_k": 3.44,
+     "margin_k": 51.4
+    },
+    {
+     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 103.5,
+     "margin_k": 51.5
+    },
+    {
+     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 73.11331081541326,
+     "self_heat_k": 1.29,
+     "margin_k": 51.9
+    },
+    {
+     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 101.8,
+     "margin_k": 53.2
+    },
+    {
+     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 71.70820933367298,
+     "self_heat_k": 1.29,
+     "margin_k": 53.3
+    },
+    {
+     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 100.9,
+     "margin_k": 54.1
+    },
+    {
+     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 95.0,
+     "margin_k": 60.0
+    }
+   ]
+  },
+  "c28_h25_jet100": {
+   "case": "c28_h25_jet100",
+   "bay_c": 61.0,
+   "h": 25,
+   "i_t_a": 29.4,
+   "jet": true,
+   "worst_margin_k": 4.2,
+   "binding": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "next": [
+    [
+     "laminate: FET-row copper",
+     10.1
+    ],
+    [
+     "laminate: 1 mm-block copper peak",
+     10.8
+    ],
+    [
+     "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     15.7
+    ],
+    [
+     "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     18.1
+    ],
+    [
+     "U26: TJ max (TI SBVS204G p.4)",
+     20.5
+    ]
+   ],
+   "worst_margin_k_ron2w": 4.2,
+   "binding_ron2w": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+   "worst_board_margin_k": 10.1,
+   "binding_board": "laminate: FET-row copper",
+   "worst_board_margin_k_ron2w": 10.1,
+   "binding_board_ron2w": "laminate: FET-row copper",
+   "laminate_1mm_block_c": 119.2,
+   "source_w": 29.387,
+   "face_convection_w": 25.378,
+   "body_air_w": 3.098,
+   "lead_sink_w": 0.911,
+   "board_area_m2": 0.04515,
+   "mean_face_rise_k": null,
+   "copper_loss_hot_w": 18.742,
+   "copper_loss_20c_w": 14.401,
+   "advisory": [
+    {
+     "item": "C21: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 87.4,
+     "margin_k": 37.6
+    },
+    {
+     "item": "C22: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 85.7,
+     "margin_k": 39.3
+    },
+    {
+     "item": "C23: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 84.2,
+     "margin_k": 40.8
+    },
+    {
+     "item": "C151: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 82.7,
+     "margin_k": 42.3
+    },
+    {
+     "item": "C152: MMKP Top,max 125 C case (TDK B3264*H June 2026 p.2, p.15)",
+     "gated": false,
+     "limit_c": 125.0,
+     "est_c": 82.4,
+     "margin_k": 42.6
+    },
+    {
+     "item": "C5: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 89.0,
+     "margin_k": 16.0
+    },
+    {
+     "item": "C6: MKP Top,max 105 C case (TDK B3267* June 2026 p.13)",
+     "gated": false,
+     "limit_c": 105.0,
+     "est_c": 86.0,
+     "margin_k": 19.0
+    }
+   ],
+   "rows": [
+    {
+     "item": "PS2: MPM-20-24 local air <= p.3 derating ambient (MEAN WELL MPM-20-SPEC 2024-10-30 p.2 WORKING TEMP., p.3 curve 'AMBIENT TEMPERATURE'; ledger 90 % rule) at 7.08 W (32.8 %)",
+     "gated": true,
+     "limit_c": 80.19299039780522,
+     "est_c": 76.0,
+     "air_rule_k": 15.0,
+     "air_layer_k": 1.69,
+     "limit_curve_c": 82.9,
+     "p_out_w": 7.078,
+     "loss_w": 1.3482,
+     "pins_w": 0.2897,
+     "case_c": 84.2,
+     "pad_max_c": 80.4,
+     "env_upper_c": 77.4,
+     "margin_k": 4.2
+    },
+    {
+     "item": "laminate: FET-row copper",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 119.9,
+     "margin_k": 10.1
+    },
+    {
+     "item": "laminate: 1 mm-block copper peak",
+     "gated": true,
+     "limit_c": 130.0,
+     "est_c": 119.2,
+     "at": [
+      73.5,
+      4.5,
+      "In2.Cu"
+     ],
+     "margin_k": 10.8
+    },
+    {
+     "item": "C40: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 94.3,
+     "margin_k": 15.7
+    },
+    {
+     "item": "C38: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 91.9,
+     "margin_k": 18.1
+    },
+    {
+     "item": "U26: TJ max (TI SBVS204G p.4)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 104.5,
+     "margin_k": 20.5
+    },
+    {
+     "item": "R12: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 111.4,
+     "margin_k": 20.6
+    },
+    {
+     "item": "C39: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 88.9,
+     "margin_k": 21.1
+    },
+    {
+     "item": "R58: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 105.1,
+     "margin_k": 23.1
+    },
+    {
+     "item": "C41: MKP Top,max 110 C (TDK B3265* June 2026 p.35)",
+     "gated": true,
+     "limit_c": 110.0,
+     "est_c": 86.0,
+     "margin_k": 24.0
+    },
+    {
+     "item": "R10: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 103.8,
+     "margin_k": 28.1
+    },
+    {
+     "item": "R54: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 99.1,
+     "margin_k": 29.1
+    },
+    {
+     "item": "U3: TPS70950QDBVRQ1 TJ max 125 C (TI SLVSCE6D 5.3 p.4, recommended operating; abs max 150 C 5.1 p.3)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 95.56960897850544,
+     "self_heat_k": 6.51,
+     "margin_k": 29.4
+    },
+    {
+     "item": "R20: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 100.5,
+     "margin_k": 31.4
+    },
+    {
+     "item": "R5: terminal derating at 0.864 W (20 % margin)",
+     "gated": true,
+     "limit_c": 148.4,
+     "est_c": 116.4,
+     "margin_k": 32.0
+    },
+    {
+     "item": "R53: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 96.0,
+     "margin_k": 32.2
+    },
+    {
+     "item": "R18: 2512 terminal derating at 0.217 W (20 % margin)",
+     "gated": true,
+     "limit_c": 131.9,
+     "est_c": 97.1,
+     "margin_k": 34.8
+    },
+    {
+     "item": "R57: 1206 terminal derating at 0.063 W (20 % margin)",
+     "gated": true,
+     "limit_c": 128.2,
+     "est_c": 91.3,
+     "margin_k": 36.9
+    },
+    {
+     "item": "U29: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 87.62403164460211,
+     "self_heat_k": 3.14,
+     "margin_k": 37.4
+    },
+    {
+     "item": "U42: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 112.4,
+     "margin_k": 37.6
+    },
+    {
+     "item": "U41: Tj abs max (RECOM Rev.1-2024 p.2)",
+     "gated": true,
+     "limit_c": 150.0,
+     "est_c": 110.7,
+     "margin_k": 39.3
+    },
+    {
+     "item": "U16: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 85.32177858720556,
+     "self_heat_k": 1.29,
+     "margin_k": 39.7
+    },
+    {
+     "item": "U31: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 83.98936750755537,
+     "self_heat_k": 3.14,
+     "margin_k": 41.0
+    },
+    {
+     "item": "R12: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 113.8,
+     "margin_k": 41.2
+    },
+    {
+     "item": "U30: LM2901BIDR TA max 125 C (TI SLCS006Z 6.4 p.6, LM2901B)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 81.53675373214197,
+     "self_heat_k": 3.14,
+     "margin_k": 43.5
+    },
+    {
+     "item": "R5: element max (Bourns CSS2H p.1)",
+     "gated": true,
+     "limit_c": 170.0,
+     "est_c": 125.0,
+     "margin_k": 45.0
+    },
+    {
+     "item": "U17: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 78.82740331956003,
+     "self_heat_k": 3.44,
+     "margin_k": 46.2
+    },
+    {
+     "item": "R10: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 108.6,
+     "margin_k": 46.4
+    },
+    {
+     "item": "U5: LM4050AEM3-2.5/NOPB TA = TJ max 125 C (TI SNOS455H 5.3 p.5, extended range; addendum p.25)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 78.40082018661913,
+     "self_heat_k": 0.2,
+     "margin_k": 46.6
+    },
+    {
+     "item": "R58: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 104.4,
+     "margin_k": 50.6
+    },
+    {
+     "item": "R20: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 104.0,
+     "margin_k": 51.0
+    },
+    {
+     "item": "U21: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 72.21471146508755,
+     "self_heat_k": 3.44,
+     "margin_k": 52.8
+    },
+    {
+     "item": "U19: TL431BQDBZR TA max 125 C (TI SLVS543S 6.4 p.5, TL43xxQ)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 71.07189824007126,
+     "self_heat_k": 3.44,
+     "margin_k": 53.9
+    },
+    {
+     "item": "U20: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 70.15865754608748,
+     "self_heat_k": 1.29,
+     "margin_k": 54.8
+    },
+    {
+     "item": "R54: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 100.0,
+     "margin_k": 55.0
+    },
+    {
+     "item": "R18: 2512 element 155 C (UniRoyal 25121WF V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 99.9,
+     "margin_k": 55.1
+    },
+    {
+     "item": "U18: TLVH431BQDBZR TA max 125 C (TI SLVS555N 5.3 p.5, TLVH43x_Q)",
+     "gated": true,
+     "limit_c": 125.0,
+     "est_c": 69.13193587009562,
+     "self_heat_k": 1.29,
+     "margin_k": 55.9
+    },
+    {
+     "item": "R53: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 96.6,
+     "margin_k": 58.4
+    },
+    {
+     "item": "R57: 1206 element 155 C (UniRoyal 1206W4F V.3 p.5/9)",
+     "gated": true,
+     "limit_c": 155.0,
+     "est_c": 92.3,
+     "margin_k": 62.7
+    }
+   ]
+  }
+ },
+ "s53_control": {
+  "0p25": {
+   "source_w": [
+    16.63078708395421,
+    16.63078708395421
+   ],
+   "peak_1mm_block_c": [
+    108.94611657226207,
+    108.94611657226207
+   ],
+   "max_abs_part_pad_diff_k": 0.0,
+   "committed_board": "82af7bd93e62"
+  },
+  "0p5": {
+   "source_w": [
+    16.627194045459582,
+    16.627194045459582
+   ],
+   "peak_1mm_block_c": [
+    106.86606200174207,
+    106.86606200174207
+   ],
+   "max_abs_part_pad_diff_k": 0.0,
+   "committed_board": "82af7bd93e62"
+  }
+ }
+}

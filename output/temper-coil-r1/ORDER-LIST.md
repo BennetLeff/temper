@@ -4,11 +4,12 @@ Reads are dated **2026-10-18** unless stated otherwise. "Snapshot" means a searc
 
 ## 1. Litz wire
 
-Per coil: 9.27 m of winding, plus 0.4 m of leads, plus 0.73 m for the spare turn, about **10.4 m** (`coil_geometry.Winding.length_m`). The modelled R values are on R1 (`model/results/free_air.json` `litz_alternatives_80uH`, in mΩ).
+Per coil (fit study 2026-10-21, `fit/litz_order.py`): 9.25 m of winding, plus 0.73 m for the spare turn, plus 0.46 m of bench leads (J2 160 mm, J5 305 mm), plus 0.11 m for strip, one re-termination per lead and handling: **10.56 m**. **Order** for 2 coils + 3 × 1 m W9 qualification samples + a practice start: **25.2 m**. The modelled R values are on R1 (`model/results/free_air.json` `litz_alternatives_80uH`, in mΩ).
 
 | Use | Item | Read | R_dc 25 °C / R_ac 40 kHz 25 °C / R_ac 40 kHz 100 °C | Qty | Lead time |
 |---|---|---|---|---|---|
 | **First coils (recommended)** | **RM Cybernetics 12 A Litz, 1000 × 0.05 mm, OD 2.55 mm**. Solderable enamel strands (strip ~400 °C), USTC polyester-silk serve. Datasheet max 8.9 Ω/km. [shop](https://www.rmcybernetics.com/shop/litz-wire/litz-wire), [datasheet](https://www.rmcybernetics.com/files/pdf/Litz-Wire-Datasheet.pdf) | Size table read live. The per-size price is not shown: the range across sizes is £1.89–17.89/m, with 10 % off over 10 m. Stock and temperature class are not stated, so **ask for both** | 89.8 / 90.6 / 116.1, passes rows 4 and 5 | 30 m | stock size; ship UK *est.* 1 week |
+| **First coils, US source (recommended for a US order)** | **Remington Industries 260/38LITZ** (14 AWG, 5 × 52 × 38 AWG = 260 × 0.1007 mm, unserved, solderable polyurethane + polyamide, NEMA MW 80-C, 155 °C; OD 0.090 in = 2.29 mm; max 0.00281 Ω/ft at 20 °C). [product page](https://www.remingtonindustries.com/magnet-wire/litz-wire-14-awg-unserved-single-build-5x52-38-stranding-ideal-for-100-khz-applications-7-spool-sizes/), sales@remingtonindustries.com, +1 815 385 1987 | Read 2026-10-21: spools 2 oz/9 ft … 1 lb/76 ft, 2.5 lb/189 ft …; per-spool price not shown (range $33.25–1,434.06); listed in stock. Unserved: handle the bundle gently on the comb. **Re-cut the former for the measured OD** (`cad/former.py --bundle <OD>`), since the notches follow the bundle | 85.2 / 88.6 / 112.1, passes rows 4 and 5 (`run_free_air.py`, added 2026-10-21) | **2.5 lb (189 ft = 57.6 m, $455.20, read 2026-10-21)**: the order + 3 more coils, one lot. 1 lb (76 ft = 23.2 m, $187.65) does **not** cover 2 coils + qualification (`fit/litz_order.py`). Cheapest that covers it: 1 lb + 8 oz (34.7 m, $290.51, maybe two lots) | US stock *est.* days |
 | First coils (alternative) | **Elecify 1050/44 (1050 × 0.05 mm)**, sold per 1 m piece; multiples ship as one length. [Elecify](https://www.elecify.com/products/litz-wire-200-38awg-200-strands-x-0-1mm) ("we also recommend" list) | $3.82 per 1 m. OD and temperature class not listed: **ask before buying**, because the former notch follows the OD | 85.6 / 86.4 / 110.6, passes | 30 m | US *est.* 1–2 weeks |
 | Do not use | Elecify 200/38 (200 × 0.10, OD 2.05, polyester yarn serve, $1.69/m) | read live | 112.0 / 114.5 / 146.0, **fails row 4 (≤ 0.100 Ω)** | — | — |
 | Do not use | NEWT NELC270/40SPSN | earlier read | 0.08 mm strands, polyurethane strand insulation, nylon serve: too little copper, too low a class | — | — |
@@ -32,7 +33,7 @@ Cutting MnZn ferrite makes conductive dust: cut wet, wear a mask, and wash the b
 | Route | Item | Qty | Lead time |
 |---|---|---|---|
 | A CNC | G11/FR5, 10 mm plate, 2.5D both sides, from `cad/out/former_R1_cnc.step` (regenerate with `--bundle <measured OD>` first). Any online CNC service that machines G10/G11 | 3 | 1–3 weeks *est.* (not quoted) |
-| B print | `cad/out/former_R1_print_seg1..5.stl` in **PC, PA-CF or ASA** (not PLA or PETG: winding heat). About 70 cm³ (~90 g) per former. Pins: 3 mm G10 or bamboo rod × 5 per former | 2–3 | days |
+| B print | `cad/out/former_R1_print_seg1..5.stl` (regenerated 2026-10-21 at bundle 2.29), resin-printed: **Formlabs Rigid 10K, UV + thermal post-cure** (HDT 218 °C at 0.45 MPa / 110 °C at 1.8 MPa, 10 GPa; TDS Rev 04), or High Temp. Not PLA or PETG. About 70 cm³ per former. Pins per former: **3 mm G10 rod × 5 (rim) and 2 mm G10 or glass-fibre rod × 5 (hub)**, ~10 mm each; structural two-part epoxy for the joints (`fit/README.md` §5). Print one spare segment 5 | 2–3 | days |
 | C no printer | **FR4/G10 unclad sheet, 1.0 mm, ≥ 270 × 270 mm**, cut to `cad/out/roof_sheet_R1.dxf`. Template `cad/out/template_R1_1to1.pdf` printed on A3 at 100 %. Monofilament spacer cord, **(3.815 − OD) and (3.311 − OD) mm** | 2 sheets | days |
 
 ## 4. Jig (`cad/out/jig_cutlist.csv`; no metal above the top plate)
@@ -56,8 +57,10 @@ Lead time: hardware store, days.
 | High-temperature silicone RTV (bars, turn bonding) | rated ≥ 200 °C continuous, e.g. a 315 °C heat-resistant RTV sealant class (DOWSIL 736 or equal). Product not price-checked | 2 tubes |
 | Potting silicone (coil-NTC pad, route A/B) | as R43: ≥ 200 °C, vacuum-degassed | 1 kit |
 | Polyimide (Kapton) tape, 10 mm | temporary hold of turns and crossover | 1 roll |
-| Braided fibreglass sleeving, ≥ 200 °C, ID 3 mm | leads | 2 m |
-| Ring terminals | **non-insulated, tinned copper, M4 stud, barrel for 1.5–2.5 mm²**, plus the matching ratchet crimper for non-insulated terminals. Barrel sized for 1.96–2.12 mm² of copper, not R26's 12–10 AWG | 10 (6 + scrap qualification) |
+| Lead sleeving | **Varflex Varglas Silicone Rubber, Grade C-1, size No. 9** (ID 2.90–3.15 mm, wall ≥ 0.20, 200 °C, 2500 V min avg / 1500 V min indiv.; read 2026-10-21). Sleeved OD ≤ 3.55 is what the fit used. Part number for No. 9 to confirm at order (the No. 10 listings read were VARSHC1RU.10, out of stock; in stock at No. 10: Suflex Flexicone 200 Grade C APHC1.10, $130 per 250 ft). No. 10 (ID 2.59 min) is the fallback: tighter to slide on, 0.3 mm thinner at the crossing | 2 m (0.47 m per coil + spare) |
+| Lug insulation | **Alpha Wire FIT-350 PVDF heat-shrink**, UL 224 150 °C / 600 V, −55 to 175 °C: **3/16 in** (inner layer: barrel + 10 mm of sleeve) and **1/4 in** (outer layer: sleeve, barrel, bend to the ring edge) | 0.5 m each |
+| J2/J5 hardware | ISO 7045 M4 × 8 A2 pan head + DIN 125-A M4 washer + DIN 127-B M4 spring washer; 1.2 N·m (7466004R) | 4 sets + spares |
+| Ring terminals | **Panduit P14-8RHT6-C** (Pan-Term high-temperature, non-insulated: 18–14 AWG, #8/M4, ring OD 7.9, tongue 0.8, barrel ID 2.3, brazed, nickel-plated copper, 343 °C, cULus; pack of 100; DigiKey 0 in stock on 2026-10-21, $0.90). Formed 90° up at W9 and insulated with the FIT-350 above (`fit/README.md` §3). Crimp tool: Panduit's tool for this barrel, confirm the number at order. **If unobtainable:** Würth WA-CLUG 55804025 (2.5 mm², ID 2.3, W 7.5, 125 °C tin; DigiKey 1,199 in stock, $0.96). Not TE 1577639-1 on J2 (its PEEK sleeve touches CT T1, `fit/results/lug_board.json`) | 1 pack (4 per coil + scrap qualification + forming trials) |
 | Solder pot | small, to ≥ 420 °C, for stripping solderable enamel | 1 |
 | Coil NTC (route A/B) | Semitec 104GT-2 plus R43's PTFE micro-tube and silicone-glass sleeve | 3 |
 

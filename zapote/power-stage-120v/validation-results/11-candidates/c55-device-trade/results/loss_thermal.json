@@ -1,0 +1,771 @@
+{
+ "controls": {
+  "C1_S8_DS_thermal_json_basisD_max_abs_dC": 0.0,
+  "C2_bench_thermal_json_basisD_max_abs_dC": 0.0,
+  "C2_rows": 6,
+  "C3_generic_long_vs_DS_vendor_S8_max_abs_dC": 0.084,
+  "pass": true
+ },
+ "assumptions": {
+  "phi_deg": 60,
+  "S8": "DS thermal.solve, 13 CFM, 50 C inlet, Rcs 0.634, 120 V",
+  "bench": "bench_thermal.solve, Wakefield-Vette 511-3M, SIL PAD 2000 0.254 mm, 30 C, 132 V",
+  "I_t": "1.05 x ceiling (18.375 / 29.4 A)",
+  "freqs_Hz": [
+   35000.0,
+   50000.0,
+   60000.0
+  ]
+ },
+ "devices": {
+  "IPW65R018CFD7": {
+   "35-60|17.5": {
+    "I_t": 18.375,
+    "tj_limit_C": 150,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 68.4,
+     "worst": "Q2",
+     "psink": 39.2,
+     "ts": 62.0,
+     "p_worst_W": 4.7,
+     "p_total_4_W": 18.7,
+     "breakdown_at_worst_tj": {
+      "cond_W": 4.3,
+      "sw_dead_W_legA": 0.4,
+      "sw_dead_W_legB": 0.41
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 88.5,
+     "ts": 73.5,
+     "p_worst_W": 5.3,
+     "psink": 46.7,
+     "breakdown_at_worst_tj": {
+      "cond_W": 4.89,
+      "sw_dead_W_legA": 0.39,
+      "sw_dead_W_legB": 0.41
+     }
+    }
+   },
+   "35-60|28": {
+    "I_t": 29.4,
+    "tj_limit_C": 150,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 91.2,
+     "worst": "Q2",
+     "psink": 74.4,
+     "ts": 72.8,
+     "p_worst_W": 13.66,
+     "p_total_4_W": 53.8,
+     "breakdown_at_worst_tj": {
+      "cond_W": 12.73,
+      "sw_dead_W_legA": 0.94,
+      "sw_dead_W_legB": 1.0
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 187.2,
+     "ts": 127.9,
+     "p_worst_W": 20.87,
+     "psink": 108.8,
+     "breakdown_at_worst_tj": {
+      "cond_W": 19.89,
+      "sw_dead_W_legA": 0.91,
+      "sw_dead_W_legB": 0.98
+     }
+    }
+   }
+  },
+  "IPW65R018CM8": {
+   "35-60|17.5": {
+    "I_t": 18.375,
+    "tj_limit_C": 150,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 68.4,
+     "worst": "Q2",
+     "psink": 39.5,
+     "ts": 62.1,
+     "p_worst_W": 4.77,
+     "p_total_4_W": 19.0,
+     "breakdown_at_worst_tj": {
+      "cond_W": 4.3,
+      "sw_dead_W_legA": 0.47,
+      "sw_dead_W_legB": 0.47
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 88.7,
+     "ts": 73.7,
+     "p_worst_W": 5.36,
+     "psink": 47.0,
+     "breakdown_at_worst_tj": {
+      "cond_W": 4.9,
+      "sw_dead_W_legA": 0.46,
+      "sw_dead_W_legB": 0.47
+     }
+    }
+   },
+   "35-60|28": {
+    "I_t": 29.4,
+    "tj_limit_C": 150,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 90.0,
+     "worst": "Q2",
+     "psink": 73.2,
+     "ts": 72.4,
+     "p_worst_W": 13.41,
+     "p_total_4_W": 52.7,
+     "breakdown_at_worst_tj": {
+      "cond_W": 12.63,
+      "sw_dead_W_legA": 0.78,
+      "sw_dead_W_legB": 0.76
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 181.2,
+     "ts": 125.1,
+     "p_worst_W": 20.04,
+     "psink": 105.6,
+     "breakdown_at_worst_tj": {
+      "cond_W": 19.44,
+      "sw_dead_W_legA": 0.6,
+      "sw_dead_W_legB": 0.59
+     }
+    }
+   }
+  },
+  "IMW65R026M2H_18": {
+   "35-60|17.5": {
+    "I_t": 18.375,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 82.5,
+     "worst": "Q2",
+     "psink": 55.9,
+     "ts": 67.1,
+     "p_worst_W": 8.87,
+     "p_total_4_W": 35.3,
+     "breakdown_at_worst_tj": {
+      "cond_W": 6.74,
+      "sw_dead_W_legA": 2.13,
+      "sw_dead_W_legB": 2.13
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 117.8,
+     "ts": 87.2,
+     "p_worst_W": 9.51,
+     "psink": 63.5,
+     "breakdown_at_worst_tj": {
+      "cond_W": 7.46,
+      "sw_dead_W_legA": 2.05,
+      "sw_dead_W_legB": 2.05
+     }
+    }
+   },
+   "35-60|28": {
+    "I_t": 29.4,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 123.7,
+     "worst": "Q2",
+     "psink": 111.2,
+     "ts": 84.0,
+     "p_worst_W": 22.89,
+     "p_total_4_W": 90.6,
+     "breakdown_at_worst_tj": {
+      "cond_W": 19.4,
+      "sw_dead_W_legA": 3.49,
+      "sw_dead_W_legB": 3.49
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 314.3,
+     "ts": 190.9,
+     "p_worst_W": 38.32,
+     "psink": 178.8,
+     "breakdown_at_worst_tj": {
+      "cond_W": 35.07,
+      "sw_dead_W_legA": 3.25,
+      "sw_dead_W_legB": 3.25
+     }
+    }
+   }
+  },
+  "IMW65R026M2H_15": {
+   "35-60|17.5": {
+    "I_t": 18.375,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 86.3,
+     "worst": "Q2",
+     "psink": 61.0,
+     "ts": 68.7,
+     "p_worst_W": 10.14,
+     "p_total_4_W": 40.5,
+     "breakdown_at_worst_tj": {
+      "cond_W": 8.02,
+      "sw_dead_W_legA": 2.13,
+      "sw_dead_W_legB": 2.13
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 124.6,
+     "ts": 90.8,
+     "p_worst_W": 10.5,
+     "psink": 67.5,
+     "breakdown_at_worst_tj": {
+      "cond_W": 8.47,
+      "sw_dead_W_legA": 2.03,
+      "sw_dead_W_legB": 2.03
+     }
+    }
+   },
+   "35-60|28": {
+    "I_t": 29.4,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 131.6,
+     "worst": "Q2",
+     "psink": 121.7,
+     "ts": 87.3,
+     "p_worst_W": 25.6,
+     "p_total_4_W": 101.2,
+     "breakdown_at_worst_tj": {
+      "cond_W": 22.17,
+      "sw_dead_W_legA": 3.43,
+      "sw_dead_W_legB": 3.43
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 316.4,
+     "ts": 192.0,
+     "p_worst_W": 38.63,
+     "psink": 180.0,
+     "breakdown_at_worst_tj": {
+      "cond_W": 35.35,
+      "sw_dead_W_legA": 3.29,
+      "sw_dead_W_legB": 3.29
+     }
+    }
+   }
+  },
+  "C3M0025065D": {
+   "35-60|17.5": {
+    "I_t": 18.375,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 79.8,
+     "worst": "Q2",
+     "psink": 54.5,
+     "ts": 66.7,
+     "p_worst_W": 8.52,
+     "p_total_4_W": 34.0,
+     "breakdown_at_worst_tj": {
+      "cond_W": 6.39,
+      "sw_dead_W_legA": 2.13,
+      "sw_dead_W_legB": 2.13
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 111.6,
+     "ts": 84.8,
+     "p_worst_W": 8.86,
+     "psink": 60.9,
+     "breakdown_at_worst_tj": {
+      "cond_W": 6.77,
+      "sw_dead_W_legA": 2.09,
+      "sw_dead_W_legB": 2.09
+     }
+    }
+   },
+   "35-60|28": {
+    "I_t": 29.4,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 114.1,
+     "worst": "Q2",
+     "psink": 104.1,
+     "ts": 81.9,
+     "p_worst_W": 20.99,
+     "p_total_4_W": 83.6,
+     "breakdown_at_worst_tj": {
+      "cond_W": 17.4,
+      "sw_dead_W_legA": 3.59,
+      "sw_dead_W_legB": 3.59
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 209.0,
+     "ts": 137.8,
+     "p_worst_W": 23.57,
+     "psink": 119.8,
+     "breakdown_at_worst_tj": {
+      "cond_W": 20.28,
+      "sw_dead_W_legA": 3.29,
+      "sw_dead_W_legB": 3.29
+     }
+    }
+   }
+  },
+  "NTHL032N065M3S": {
+   "35-60|17.5": {
+    "I_t": 18.375,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 95.4,
+     "worst": "Q2",
+     "psink": 71.7,
+     "ts": 72.0,
+     "p_worst_W": 12.85,
+     "p_total_4_W": 51.2,
+     "breakdown_at_worst_tj": {
+      "cond_W": 10.72,
+      "sw_dead_W_legA": 2.13,
+      "sw_dead_W_legB": 2.13
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 146.4,
+     "ts": 101.6,
+     "p_worst_W": 13.52,
+     "psink": 79.6,
+     "breakdown_at_worst_tj": {
+      "cond_W": 11.59,
+      "sw_dead_W_legA": 1.94,
+      "sw_dead_W_legB": 1.94
+     }
+    }
+   },
+   "35-60|28": {
+    "I_t": 29.4,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 157.8,
+     "worst": "Q2",
+     "psink": 153.0,
+     "ts": 96.8,
+     "p_worst_W": 33.43,
+     "p_total_4_W": 132.4,
+     "breakdown_at_worst_tj": {
+      "cond_W": 30.16,
+      "sw_dead_W_legA": 3.27,
+      "sw_dead_W_legB": 3.27
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 338.4,
+     "ts": 201.7,
+     "p_worst_W": 41.31,
+     "psink": 190.8,
+     "breakdown_at_worst_tj": {
+      "cond_W": 38.02,
+      "sw_dead_W_legA": 3.29,
+      "sw_dead_W_legB": 3.29
+     }
+    }
+   }
+  },
+  "IHW40N65R6": {
+   "35-60 (4a drop-in)|17.5": {
+    "I_t": 18.375,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 98.4,
+     "worst": "Q2",
+     "psink": 76.4,
+     "ts": 73.4,
+     "p_worst_W": 13.99,
+     "p_total_4_W": 55.9,
+     "breakdown_at_worst_tj": {
+      "cond_W": 11.05,
+      "sw_dead_W_legA": 2.94,
+      "sw_dead_W_legB": 2.94
+     },
+     "diode_region_extra_K_est": 5.83
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 159.3,
+     "ts": 108.7,
+     "p_worst_W": 15.48,
+     "psink": 87.4,
+     "breakdown_at_worst_tj": {
+      "cond_W": 11.38,
+      "sw_dead_W_legA": 4.11,
+      "sw_dead_W_legB": 4.11
+     }
+    }
+   },
+   "35-60 (4a drop-in)|28": {
+    "I_t": 29.4,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 136.4,
+     "worst": "Q2",
+     "psink": 126.4,
+     "ts": 88.7,
+     "p_worst_W": 26.7,
+     "p_total_4_W": 105.9,
+     "breakdown_at_worst_tj": {
+      "cond_W": 21.16,
+      "sw_dead_W_legA": 5.53,
+      "sw_dead_W_legB": 5.53
+     },
+     "diode_region_extra_K_est": 10.96
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 257.1,
+     "ts": 159.9,
+     "p_worst_W": 29.72,
+     "psink": 144.4,
+     "breakdown_at_worst_tj": {
+      "cond_W": 23.31,
+      "sw_dead_W_legA": 6.4,
+      "sw_dead_W_legB": 6.4
+     }
+    }
+   },
+   "20-30 (4b retune)|17.5": {
+    "I_t": 18.375,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 30000.0,
+     "tj_max": 93.9,
+     "worst": "Q2",
+     "psink": 70.5,
+     "ts": 71.6,
+     "p_worst_W": 12.5,
+     "p_total_4_W": 49.9,
+     "breakdown_at_worst_tj": {
+      "cond_W": 11.03,
+      "sw_dead_W_legA": 1.47,
+      "sw_dead_W_legB": 1.47
+     },
+     "diode_region_extra_K_est": 5.82
+    },
+    "bench": {
+     "f": 30000.0,
+     "tj_max": 144.3,
+     "ts": 100.8,
+     "p_worst_W": 13.3,
+     "psink": 78.7,
+     "breakdown_at_worst_tj": {
+      "cond_W": 11.3,
+      "sw_dead_W_legA": 2.0,
+      "sw_dead_W_legB": 2.0
+     }
+    }
+   },
+   "20-30 (4b retune)|28": {
+    "I_t": 29.4,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 30000.0,
+     "tj_max": 127.4,
+     "worst": "Q2",
+     "psink": 114.7,
+     "ts": 85.1,
+     "p_worst_W": 23.68,
+     "p_total_4_W": 94.1,
+     "breakdown_at_worst_tj": {
+      "cond_W": 21.01,
+      "sw_dead_W_legA": 2.68,
+      "sw_dead_W_legB": 2.68
+     },
+     "diode_region_extra_K_est": 10.91
+    },
+    "bench": {
+     "f": 30000.0,
+     "tj_max": 232.0,
+     "ts": 146.8,
+     "p_worst_W": 26.07,
+     "psink": 129.8,
+     "breakdown_at_worst_tj": {
+      "cond_W": 22.87,
+      "sw_dead_W_legA": 3.2,
+      "sw_dead_W_legB": 3.2
+     }
+    }
+   }
+  },
+  "IHW40N65R5": {
+   "missing_energy_grid": "sims/rch5_r8p2/eAs/results.json"
+  },
+  "IMW65R026M2H_15_dt200": {
+   "35-60|17.5": {
+    "I_t": 18.375,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 82.5,
+     "worst": "Q2",
+     "psink": 55.8,
+     "ts": 67.1,
+     "p_worst_W": 8.84,
+     "p_total_4_W": 35.3,
+     "breakdown_at_worst_tj": {
+      "cond_W": 7.97,
+      "sw_dead_W_legA": 0.87,
+      "sw_dead_W_legB": 0.87
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 115.8,
+     "ts": 86.1,
+     "p_worst_W": 9.21,
+     "psink": 62.4,
+     "breakdown_at_worst_tj": {
+      "cond_W": 8.37,
+      "sw_dead_W_legA": 0.85,
+      "sw_dead_W_legB": 0.85
+     }
+    }
+   },
+   "35-60|28": {
+    "I_t": 29.4,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 125.6,
+     "worst": "Q2",
+     "psink": 113.8,
+     "ts": 84.8,
+     "p_worst_W": 23.48,
+     "p_total_4_W": 93.3,
+     "breakdown_at_worst_tj": {
+      "cond_W": 21.74,
+      "sw_dead_W_legA": 1.74,
+      "sw_dead_W_legB": 1.74
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 294.6,
+     "ts": 180.5,
+     "p_worst_W": 35.44,
+     "psink": 167.3,
+     "breakdown_at_worst_tj": {
+      "cond_W": 33.79,
+      "sw_dead_W_legA": 1.65,
+      "sw_dead_W_legB": 1.65
+     }
+    }
+   }
+  },
+  "IMW65R026M2H_18_dt200": {
+   "35-60|17.5": {
+    "I_t": 18.375,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 78.3,
+     "worst": "Q2",
+     "psink": 50.2,
+     "ts": 65.4,
+     "p_worst_W": 7.46,
+     "p_total_4_W": 29.7,
+     "breakdown_at_worst_tj": {
+      "cond_W": 6.66,
+      "sw_dead_W_legA": 0.8,
+      "sw_dead_W_legB": 0.8
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 107.8,
+     "ts": 81.9,
+     "p_worst_W": 8.04,
+     "psink": 57.7,
+     "breakdown_at_worst_tj": {
+      "cond_W": 7.25,
+      "sw_dead_W_legA": 0.79,
+      "sw_dead_W_legB": 0.79
+     }
+    }
+   },
+   "35-60|28": {
+    "I_t": 29.4,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 117.0,
+     "worst": "Q2",
+     "psink": 102.1,
+     "ts": 81.3,
+     "p_worst_W": 20.62,
+     "p_total_4_W": 81.6,
+     "breakdown_at_worst_tj": {
+      "cond_W": 19.05,
+      "sw_dead_W_legA": 1.57,
+      "sw_dead_W_legB": 1.57
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 286.3,
+     "ts": 176.2,
+     "p_worst_W": 34.22,
+     "psink": 162.4,
+     "breakdown_at_worst_tj": {
+      "cond_W": 32.76,
+      "sw_dead_W_legA": 1.46,
+      "sw_dead_W_legB": 1.46
+     }
+    }
+   }
+  },
+  "IMW65R026M2H_15_s42_dt200": {
+   "35-60|17.5": {
+    "I_t": 18.375,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 86.7,
+     "worst": "Q2",
+     "psink": 61.5,
+     "ts": 68.8,
+     "p_worst_W": 10.27,
+     "p_total_4_W": 41.0,
+     "breakdown_at_worst_tj": {
+      "cond_W": 8.02,
+      "sw_dead_W_legA": 2.25,
+      "sw_dead_W_legB": 2.25
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 124.8,
+     "ts": 90.9,
+     "p_worst_W": 10.53,
+     "psink": 67.7,
+     "breakdown_at_worst_tj": {
+      "cond_W": 8.47,
+      "sw_dead_W_legA": 2.06,
+      "sw_dead_W_legB": 2.06
+     }
+    }
+   },
+   "35-60|28": {
+    "I_t": 29.4,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 133.4,
+     "worst": "Q2",
+     "psink": 124.1,
+     "ts": 88.0,
+     "p_worst_W": 26.18,
+     "p_total_4_W": 103.5,
+     "breakdown_at_worst_tj": {
+      "cond_W": 22.29,
+      "sw_dead_W_legA": 3.89,
+      "sw_dead_W_legB": 3.89
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 320.9,
+     "ts": 194.4,
+     "p_worst_W": 39.29,
+     "psink": 182.7,
+     "breakdown_at_worst_tj": {
+      "cond_W": 35.67,
+      "sw_dead_W_legA": 3.63,
+      "sw_dead_W_legB": 3.63
+     }
+    }
+   }
+  },
+  "IMW65R026M2H_15_s42": {
+   "35-60|17.5": {
+    "I_t": 18.375,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 90.6,
+     "worst": "Q2",
+     "psink": 66.8,
+     "ts": 70.5,
+     "p_worst_W": 11.6,
+     "p_total_4_W": 46.3,
+     "breakdown_at_worst_tj": {
+      "cond_W": 8.07,
+      "sw_dead_W_legA": 3.54,
+      "sw_dead_W_legB": 3.54
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 134.0,
+     "ts": 95.8,
+     "p_worst_W": 11.89,
+     "psink": 73.1,
+     "breakdown_at_worst_tj": {
+      "cond_W": 8.73,
+      "sw_dead_W_legA": 3.16,
+      "sw_dead_W_legB": 3.16
+     }
+    }
+   },
+   "35-60|28": {
+    "I_t": 29.4,
+    "tj_limit_C": 175,
+    "S8": {
+     "f": 60000.0,
+     "tj_max": 139.4,
+     "worst": "Q2",
+     "psink": 132.2,
+     "ts": 90.5,
+     "p_worst_W": 28.23,
+     "p_total_4_W": 111.7,
+     "breakdown_at_worst_tj": {
+      "cond_W": 22.72,
+      "sw_dead_W_legA": 5.51,
+      "sw_dead_W_legB": 5.51
+     }
+    },
+    "bench": {
+     "f": 60000.0,
+     "tj_max": 342.9,
+     "ts": 206.0,
+     "p_worst_W": 42.52,
+     "psink": 195.6,
+     "breakdown_at_worst_tj": {
+      "cond_W": 37.24,
+      "sw_dead_W_legA": 5.29,
+      "sw_dead_W_legB": 5.29
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,304 @@
+{
+ "schema": "temper.board-shrink-r1.shrink-options.v1",
+ "ESTIMATE": true,
+ "packing_u": [
+  0.35,
+  0.4,
+  0.45
+ ],
+ "crtyd_total_mm2": 4005.6,
+ "hole_keepout_each_mm2": 50.3,
+ "small_board_holes": 4,
+ "library_crtyd_mm2": {
+  "C_0402": 1.674,
+  "R_0402": 1.748,
+  "CP_Elec_6.3x5.8": 53.918,
+  "ESP32-S3-MINI-1U (body+0.25)": 252.8
+ },
+ "part_swaps_D": {
+  "0603_to_0402": {
+   "count": 111,
+   "saved_mm2": 289.5,
+   "kept_locked": 71,
+   "kept_precision": 20
+  },
+  "wroom1u_to_mini1u": {
+   "saved_mm2": 115.5,
+   "from_mm2": 368.28000000000003,
+   "to_mm2": 252.81
+  },
+  "cp8x6p2_to_6p3x5p8": {
+   "count": 2,
+   "saved_mm2": 55.2,
+   "note": "needs a 100 uF / 25 V part in the 6.3 mm can with the same ripple rating [UNVERIFIED]"
+  }
+ },
+ "part_swaps_D_total_saved_mm2": 460.2,
+ "double_sided_split": {
+  "top_mm2": 2638.2,
+  "bottom_mm2": 1367.4,
+  "bottom_parts": 217,
+  "top_parts": 72
+ },
+ "double_sided_split_with_D": {
+  "top_mm2": 2467.5,
+  "bottom_mm2": 1077.9
+ },
+ "options": {
+  "A_single_sided_harnessed": {
+   "u=0.35": {
+    "area_mm2": 11646,
+    "at_76mm_depth": [
+     153.2,
+     76.0
+    ],
+    "at_4_3": [
+     124.6,
+     93.5
+    ]
+   },
+   "u=0.40": {
+    "area_mm2": 10215,
+    "at_76mm_depth": [
+     134.4,
+     76.0
+    ],
+    "at_4_3": [
+     116.7,
+     87.5
+    ]
+   },
+   "u=0.45": {
+    "area_mm2": 9103,
+    "at_76mm_depth": [
+     119.8,
+     76.0
+    ],
+    "at_4_3": [
+     110.2,
+     82.6
+    ]
+   }
+  },
+  "A+D_single_sided_part_swaps": {
+   "u=0.35": {
+    "area_mm2": 10331,
+    "at_76mm_depth": [
+     135.9,
+     76.0
+    ],
+    "at_4_3": [
+     117.4,
+     88.0
+    ]
+   },
+   "u=0.40": {
+    "area_mm2": 9065,
+    "at_76mm_depth": [
+     119.3,
+     76.0
+    ],
+    "at_4_3": [
+     109.9,
+     82.5
+    ]
+   },
+   "u=0.45": {
+    "area_mm2": 8080,
+    "at_76mm_depth": [
+     106.3,
+     76.0
+    ],
+    "at_4_3": [
+     103.8,
+     77.8
+    ]
+   }
+  },
+  "B_double_sided": {
+   "u=0.35": {
+    "area_mm2": 7739,
+    "at_76mm_depth": [
+     101.8,
+     76.0
+    ],
+    "at_4_3": [
+     101.6,
+     76.2
+    ]
+   },
+   "u=0.40": {
+    "area_mm2": 6797,
+    "at_76mm_depth": [
+     89.4,
+     76.0
+    ],
+    "at_4_3": [
+     95.2,
+     71.4
+    ]
+   },
+   "u=0.45": {
+    "area_mm2": 6064,
+    "at_76mm_depth": [
+     79.8,
+     76.0
+    ],
+    "at_4_3": [
+     89.9,
+     67.4
+    ]
+   }
+  },
+  "B+D_double_sided_part_swaps": {
+   "u=0.35": {
+    "area_mm2": 7251,
+    "at_76mm_depth": [
+     95.4,
+     76.0
+    ],
+    "at_4_3": [
+     98.3,
+     73.7
+    ]
+   },
+   "u=0.40": {
+    "area_mm2": 6370,
+    "at_76mm_depth": [
+     83.8,
+     76.0
+    ],
+    "at_4_3": [
+     92.2,
+     69.1
+    ]
+   },
+   "u=0.45": {
+    "area_mm2": 5684,
+    "at_76mm_depth": [
+     74.8,
+     76.0
+    ],
+    "at_4_3": [
+     87.1,
+     65.3
+    ]
+   }
+  }
+ },
+ "hypothesis_80x60": {
+  "area_mm2": 4800,
+  "usable_after_4_holes_mm2": 4598.9,
+  "u_needed_single_sided": 0.871,
+  "u_needed_single_sided_with_D": 0.771,
+  "u_needed_double_sided": 0.574,
+  "u_needed_double_sided_with_D": 0.537
+ },
+ "recommended_left_cut": {
+  "world_x": [
+   -38.0,
+   93.0
+  ],
+  "world_y": [
+   14.0,
+   90.0
+  ],
+  "outline_mm": [
+   131.0,
+   76.0
+  ],
+  "area_mm2": 9956.0,
+  "holes_kept": [
+   [
+    -34.0,
+    18.0
+   ],
+   [
+    -26.0,
+    74.0
+   ],
+   [
+    65.0,
+    18.0
+   ],
+   [
+    75.0,
+    86.0
+   ]
+  ],
+  "landings_kept": [
+   "J1",
+   "J13",
+   "J2",
+   "J4",
+   "J7",
+   "J9"
+  ],
+  "landings_moved": [
+   "J10",
+   "J11",
+   "J12",
+   "J3",
+   "U4 (WROOM box X141-159)"
+  ],
+  "u_needed_as_is": 0.411,
+  "u_needed_with_0402": 0.381,
+  "u_needed_with_all_D": 0.363
+ },
+ "option_C_native21": {
+  "controller_crtyd_without_J4_mm2": 3622.6,
+  "island_outline_mm2": 8800.5,
+  "island_occupied_mm2_range": [
+   774.3,
+   2173.6
+  ],
+  "island_utilisation_if_merged_pct_range": [
+   50.0,
+   65.9
+  ],
+  "island_needed_mm2_u=0.35": [
+   12563,
+   16561
+  ],
+  "island_growth_mm2_u=0.35": [
+   3762,
+   7760
+  ],
+  "native21_area_growth_pct_u=0.35": [
+   8.3,
+   17.2
+  ],
+  "island_needed_mm2_u=0.40": [
+   10992,
+   14490
+  ],
+  "island_growth_mm2_u=0.40": [
+   2192,
+   5690
+  ],
+  "native21_area_growth_pct_u=0.40": [
+   4.9,
+   12.6
+  ],
+  "island_needed_mm2_u=0.45": [
+   9771,
+   12880
+  ],
+  "island_growth_mm2_u=0.45": [
+   970,
+   4080
+  ],
+  "native21_area_growth_pct_u=0.45": [
+   2.1,
+   9.0
+  ]
+ },
+ "current": {
+  "area_mm2": 15656.0,
+  "outline_mm": [
+   206.0,
+   76.0
+  ],
+  "utilisation_pct": 25.6
+ }
+}

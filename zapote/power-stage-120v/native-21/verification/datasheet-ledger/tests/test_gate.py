@@ -195,7 +195,7 @@ def main():
         for e in d["entries"].values():
             for st in e["stresses"]:
                 for c in st["evidence"] if isinstance(st.get("evidence"), list) else []:
-                    if isinstance(c, dict):
+                    if isinstance(c, dict) and "b3_row" in c:   # s4_grid citations point at switching grids
                         c["file"] = str(mp)   # absolute path: root / abs == abs
                         n += 1
         rc, out, rep = run(write(td, d))

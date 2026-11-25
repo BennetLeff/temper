@@ -1,0 +1,311 @@
+{
+ "tile_mm": 5.0,
+ "legend": {
+  "bridge_fets_gate_drive": "Q",
+  "rectifier_bus": "B",
+  "mains_emi_fuse_mov": "M",
+  "blower_ac_tap": "A",
+  "tank_bank_studs_ct": "T",
+  "ps2_isolated_bias": "P",
+  "sensing_protection_isolators": "S",
+  "connectors_selv_tco": "J",
+  "mech_test": "h"
+ },
+ "map_rows_y_down": [
+  "qQQQQQQqqQQQQQQqBBBBBB.....hhh..PPPPPPPPPPPJJMMMMMMMMMMMMM",
+  "QQQqQQQqQQQqQQQqBBBBBb.....hhh..PPPPPPPPPPPJJMMMMMMMMMMMMM",
+  "QqqqQqqQQqqqQqq.................PPPPPPPPPPPJJMMMMMMMMMMMMM",
+  "qQQqqQQqqQQqqQQq................PPPPPPPPPPP.mm.MMMMMMMMMMM",
+  "qQqqqqqqqQqqqqqqq...............PPPPPPPPPPP.mm.MMMMMMMMMMM",
+  "QQQQQQQQqQQQQQQQQ...............PPPPPPPPPPpmmmmmMMMMmMMMMM",
+  "QQQQQQQQQQQQQQQQQqqqq.....................mMMMMMMMMMmMMMMM",
+  "hhqQQqqqQQQ.QQQqhQQQq..........tttttttt...mMMMMMMMMMmMMMMM",
+  "PpqQQQQQQQQ.QQQQQQQQq..........tttttttt...mMMMMMMMMMmmmmmm",
+  "PpppqQQQq.sshhhQQqq.............TTTTTTT...mMMMMMMMMMMMMMMM",
+  "PPPP.QQQ.qSshhqQQqqQSSSSshh.....TTTTTTT...mMMMMMMMMMMMMMMM",
+  "pPPPpqQq.pPPPpqQqq.sSSSSshh.....TTTTTTT.bbbMMMMMMMMMmmmmmm",
+  "pPPPpqqhpPPPPp.Qh.ssSssSs.......TTTTTTT.BBBBBBBBBb........",
+  "PPPp.qQhpPPPPp.Qq.sssSsssTTt....TTTTTTT.BBBBBBBBBBBBBBBBBb",
+  "PPPphhs..PPPP..q..ssSSSSsTTt....TTTTTTT.BBBBBBBBBBBBBBBBBB",
+  "Pp..hh..pPPpp.....spPPpPpttt....TTTTTTT.BBBBBBBBBBBBBBBBBB",
+  ".........PP.......ssPPPPpTTt....TTTTTTT.BBBBBBBBBBBBBBBBBB",
+  "PP................sspPPp.TTt....TTTTTTT.BBBBBBBBBBBBBBBBBB",
+  "Pppp.....PP.......ssPPp.tttttt..TTTTTTT.bBBBBBBBBBBBBBBBBB",
+  ".hpP.....Pppp...hhhsSPhpTTTTTt..TTTTTTT...sSSssssBBBBBBBBB",
+  "pppp.......PP...hhh.SppptTTTTt..TTTTTTT...mMMmSssbBBBBBBBB",
+  "PPpp..s..pPpP......spPPPtTTTTt..TTTTTTT...mMMm...bBBBBBBBb",
+  "PPPp.hh..pPPP......spPPPtTTTTt..TTTTTTT...mmmm....bbbbbaAa",
+  "hpPp.hs..pppp....sSSSSSStTTTTthhTTTTTTT.............AAAAAA",
+  ".....hhh......ss.sSSSSSStTTTTThhttttttt.............AAAaaa",
+  ".ssSSSSSs..s.s.ssssSsSSssTtTtthh......hh............AAAh..",
+  "sSsSSSSss...sssSssSssssssssssMMMMMM...hh...hhh......aaa.hh",
+  "....h.ss....h.sS..ss.........mMMMMm........hhh..........hh",
+  "............Sh....                                        ",
+  "..................                                        ",
+  "........ss........                                        ",
+  "...........s......                                        ",
+  "..................                                        ",
+  "..................                                        ",
+  "......Sh...s......                                        ",
+  "hh....JJJJJJ....hh                                        ",
+  "hh....JJJJJJ....hh                                        ",
+  "hh....jjjjjj......                                        "
+ ],
+ "tiles_by_block": {
+  "bridge_fets_gate_drive": 187,
+  "rectifier_bus": 165,
+  "empty": 610,
+  "mech_test": 75,
+  "ps2_isolated_bias": 198,
+  "connectors_selv_tco": 24,
+  "mains_emi_fuse_mov": 199,
+  "tank_bank_studs_ct": 190,
+  "sensing_protection_isolators": 135,
+  "blower_ac_tap": 21
+ },
+ "columns_x": [
+  {
+   "from_mm": 0,
+   "to_mm": 10,
+   "cover_pct": 38.2
+  },
+  {
+   "from_mm": 10,
+   "to_mm": 20,
+   "cover_pct": 31.6
+  },
+  {
+   "from_mm": 20,
+   "to_mm": 30,
+   "cover_pct": 25.1
+  },
+  {
+   "from_mm": 30,
+   "to_mm": 40,
+   "cover_pct": 32.8
+  },
+  {
+   "from_mm": 40,
+   "to_mm": 50,
+   "cover_pct": 30.3
+  },
+  {
+   "from_mm": 50,
+   "to_mm": 60,
+   "cover_pct": 39.3
+  },
+  {
+   "from_mm": 60,
+   "to_mm": 70,
+   "cover_pct": 27.4
+  },
+  {
+   "from_mm": 70,
+   "to_mm": 80,
+   "cover_pct": 22.8
+  },
+  {
+   "from_mm": 80,
+   "to_mm": 90,
+   "cover_pct": 19.8
+  },
+  {
+   "from_mm": 90,
+   "to_mm": 100,
+   "cover_pct": 29.3
+  },
+  {
+   "from_mm": 100,
+   "to_mm": 110,
+   "cover_pct": 43.9
+  },
+  {
+   "from_mm": 110,
+   "to_mm": 120,
+   "cover_pct": 34.0
+  },
+  {
+   "from_mm": 120,
+   "to_mm": 130,
+   "cover_pct": 28.4
+  },
+  {
+   "from_mm": 130,
+   "to_mm": 140,
+   "cover_pct": 36.8
+  },
+  {
+   "from_mm": 140,
+   "to_mm": 150,
+   "cover_pct": 22.0
+  },
+  {
+   "from_mm": 150,
+   "to_mm": 160,
+   "cover_pct": 8.0
+  },
+  {
+   "from_mm": 160,
+   "to_mm": 170,
+   "cover_pct": 79.3
+  },
+  {
+   "from_mm": 170,
+   "to_mm": 180,
+   "cover_pct": 76.7
+  },
+  {
+   "from_mm": 180,
+   "to_mm": 190,
+   "cover_pct": 75.0
+  },
+  {
+   "from_mm": 190,
+   "to_mm": 200,
+   "cover_pct": 42.5
+  },
+  {
+   "from_mm": 200,
+   "to_mm": 210,
+   "cover_pct": 38.2
+  },
+  {
+   "from_mm": 210,
+   "to_mm": 220,
+   "cover_pct": 57.9
+  },
+  {
+   "from_mm": 220,
+   "to_mm": 230,
+   "cover_pct": 68.2
+  },
+  {
+   "from_mm": 230,
+   "to_mm": 240,
+   "cover_pct": 61.6
+  },
+  {
+   "from_mm": 240,
+   "to_mm": 250,
+   "cover_pct": 66.4
+  },
+  {
+   "from_mm": 250,
+   "to_mm": 260,
+   "cover_pct": 70.4
+  },
+  {
+   "from_mm": 260,
+   "to_mm": 270,
+   "cover_pct": 74.0
+  },
+  {
+   "from_mm": 270,
+   "to_mm": 280,
+   "cover_pct": 75.3
+  },
+  {
+   "from_mm": 280,
+   "to_mm": 290,
+   "cover_pct": 67.1
+  }
+ ],
+ "rows_y": [
+  {
+   "from_mm": 0,
+   "to_mm": 10,
+   "cover_pct": 66.3
+  },
+  {
+   "from_mm": 10,
+   "to_mm": 20,
+   "cover_pct": 51.1
+  },
+  {
+   "from_mm": 20,
+   "to_mm": 30,
+   "cover_pct": 50.9
+  },
+  {
+   "from_mm": 30,
+   "to_mm": 40,
+   "cover_pct": 46.2
+  },
+  {
+   "from_mm": 40,
+   "to_mm": 50,
+   "cover_pct": 47.6
+  },
+  {
+   "from_mm": 50,
+   "to_mm": 60,
+   "cover_pct": 55.1
+  },
+  {
+   "from_mm": 60,
+   "to_mm": 70,
+   "cover_pct": 51.9
+  },
+  {
+   "from_mm": 70,
+   "to_mm": 80,
+   "cover_pct": 59.6
+  },
+  {
+   "from_mm": 80,
+   "to_mm": 90,
+   "cover_pct": 51.7
+  },
+  {
+   "from_mm": 90,
+   "to_mm": 100,
+   "cover_pct": 48.1
+  },
+  {
+   "from_mm": 100,
+   "to_mm": 110,
+   "cover_pct": 48.2
+  },
+  {
+   "from_mm": 110,
+   "to_mm": 120,
+   "cover_pct": 43.1
+  },
+  {
+   "from_mm": 120,
+   "to_mm": 130,
+   "cover_pct": 28.5
+  },
+  {
+   "from_mm": 130,
+   "to_mm": 140,
+   "cover_pct": 20.1
+  },
+  {
+   "from_mm": 140,
+   "to_mm": 150,
+   "cover_pct": 1.7
+  },
+  {
+   "from_mm": 150,
+   "to_mm": 160,
+   "cover_pct": 1.5
+  },
+  {
+   "from_mm": 160,
+   "to_mm": 170,
+   "cover_pct": 0.0
+  },
+  {
+   "from_mm": 170,
+   "to_mm": 180,
+   "cover_pct": 19.3
+  },
+  {
+   "from_mm": 180,
+   "to_mm": 190,
+   "cover_pct": 30.2
+  }
+ ],
+ "note": "bbox-based cover (courtyard rectangles), approximate; the exact union is in power_area.json"
+}

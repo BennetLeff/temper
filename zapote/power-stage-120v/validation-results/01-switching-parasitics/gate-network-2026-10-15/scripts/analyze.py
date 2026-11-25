@@ -5,6 +5,7 @@ python3 -I analyze.py
 """
 from __future__ import annotations
 
+import importlib.util
 import json
 import math
 from pathlib import Path
@@ -15,6 +16,10 @@ OUT = HERE.parent / "results"
 PS = Path("/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v")
 DS = PS / "validation-results/01-switching-parasitics/device-study-2026-10-15"
 NAN = float("nan")
+# shared no-edge rule (../../s4_edges.py): a grid's S4 / S5 slew is refused when any complete row has no edge in the window
+_spec = importlib.util.spec_from_file_location("s4_edges", HERE.parents[1] / "s4_edges.py")
+s4_edges = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(s4_edges)
 
 
 def load(cfg, grid):
@@ -51,10 +56,12 @@ def summarize(cfg, grid):
         e = {"n": len(c), "pass": sum(bool(r.get("pass")) for r in c), "pass_hot": sum(bool(r.get("pass_hot")) for r in c),
              "max_vds": rnd(mx(c, "vds_pk")), "max_off_V": rnd(mx(c, "off_V"), 3), "max_vgs_abs": rnd(mx(c, "vgs_abs"), 2),
              "max_q_gate_inc_nC": rnd(mx(c, "q_gate_inc_nC"))}
+        if case in s4_edges.EDGE_CASES:
+            e.update(s4_edges.grid_report(c, case))
         for esl in (10, 1.06):
             ce = [r for r in c if r["esl_nH"] == esl]
             if ce:
-                e[f"max_slew2080_esl{esl:g}"] = rnd(mx(ce, "slew2080_Vns"), 2)
+                e[f"max_slew2080_esl{esl:g}"] = None if e.get("slew_refused") else rnd(mx(ce, "slew2080_Vns"), 2)
                 e[f"max_slew1090_esl{esl:g}"] = rnd(mx(ce, "slew1090_Vns"), 2)
         if case == "S4":
             e["max_difdt_75_25"] = rnd(mx(c, "difdt_75_25_Apus"), 0)
@@ -195,6 +202,11 @@ def pareto(items, keys):
     return nd
 
 
+def slew_cell(e):
+    return (f"refused ({e['no_edge_rows']} rows without an edge)" if e.get("slew_refused") else
+            f"{e.get('max_slew2080_esl10')} / {e.get('max_slew2080_esl1.06')}")
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     cfgs = sorted(p.name for p in SIMS.iterdir() if p.is_dir())
@@ -219,7 +231,7 @@ def main():
             continue
         e, sp = s["S4"], s["spec"]
         lines.append(f"| {c} | {sp['model']} | {sp['topo']} | {sp['ron']} | {sp['roff'] if sp['topo'] != 'sym' else '-'} | "
-                     f"{sp['cgs']*1e9:g} | {e.get('max_slew2080_esl10')} / {e.get('max_slew2080_esl1.06')} | "
+                     f"{sp['cgs']*1e9:g} | {slew_cell(e)} | "
                      f"{e['max_difdt_75_25']} / {e['max_difdt_50_0']} | {e['max_irr_A']} | {e['max_vds']} | {e['max_off_V']} | "
                      f"{e['pass']}/{e['n']} ({e['pass_hot']}) | {e['max_turn_on_delay_gate4_ns']} |")
     (OUT / "s4screen.md").write_text("\n".join(lines) + "\n")
@@ -230,7 +242,7 @@ def main():
             continue
         e, sp = s["S4"], s["spec"]
         lb.append(f"| {c} | {sp.get('tt', '50e-9 (vendor)')} | {sp['model']} | {sp['topo']} | {sp['ron']} | {sp['roff']} | {sp['cgs']*1e9:g} | "
-                  f"{e.get('max_slew2080_esl10')} / {e.get('max_slew2080_esl1.06')} | {e['max_difdt_75_25']} / {e['max_difdt_50_0']} | "
+                  f"{slew_cell(e)} | {e['max_difdt_75_25']} / {e['max_difdt_50_0']} | "
                   f"{e['max_irr_A']} | {e['max_vds']} | {e['max_off_V']} | {e['pass']}/{e['n']} ({e['pass_hot']}) | "
                   f"{e['max_turn_on_delay_gate4_ns']} |")
     (OUT / "s4b.md").write_text("\n".join(lb) + "\n")
@@ -239,7 +251,7 @@ def main():
           "S4 slew ESL10 / 1.06 | S4 diF/dt 75-25 max | S4 Irr | S4 VDS max | S4 off-gate | S5 slew ESL10 / 1.06 | S5 VDS | S5 off-gate | "
           "max off-gate all | Q gate on max nC | all pass / hot | E_off S1 37 A uJ | E_extra S1 37 A uJ | E_extra S4 280 V uJ |",
           "|" + "---|" * 20]
-    items = []
+    items, refused = [], []
     for c in cfgs:
         s = summ[c].get("full")
         if not s or not all(k in s for k in ("S1", "S2", "S4", "S5")):
@@ -251,12 +263,14 @@ def main():
         offall = max(a["max_off_V"], b["max_off_V"], f4["max_off_V"], f5["max_off_V"])
         qmax = max(x["max_q_gate_inc_nC"] for x in (a, b, f4, f5) if x["max_q_gate_inc_nC"] is not None)
         fl.append(f"| {c} | {a['worst_t_trans_ns']} ({a['margin_340_ns']} / {a['margin_408_ns']}) | {a['zvs']} | {a['max_off_V']} | "
-                  f"{b['max_vds']} | {b['max_off_V']} | {f4.get('max_slew2080_esl10')} / {f4.get('max_slew2080_esl1.06')} | "
+                  f"{b['max_vds']} | {b['max_off_V']} | {slew_cell(f4)} | "
                   f"{f4['max_difdt_75_25']} | {f4['max_irr_A']} | {f4['max_vds']} | {f4['max_off_V']} | "
-                  f"{f5.get('max_slew2080_esl10')} / {f5.get('max_slew2080_esl1.06')} | {f5['max_vds']} | {f5['max_off_V']} | "
+                  f"{slew_cell(f5)} | {f5['max_vds']} | {f5['max_off_V']} | "
                   f"{rnd(offall, 3)} | {qmax} | {s['pass']}/{s['complete']} of {s['runs']} ({s['pass_hot']}) | "
                   f"{e37.get('max_e_off_edge_uJ')} | {e37.get('max_e_extra_uJ')} | {e4.get('max_e_extra_uJ')} |")
-        if e37:
+        if e37 and f4.get("slew_refused"):
+            refused.append(c)          # a missing slew must not read as 0 V/ns in the Pareto set or the 56 V/ns filter
+        elif e37:
             items.append({"cfg": c, "s4": max(f4.get("max_slew2080_esl10") or 0, f4.get("max_slew2080_esl1.06") or 0),
                           "difdt": f4["max_difdt_75_25"], "ttrans": a["worst_t_trans_ns"], "off": offall,
                           "eoff": e37["max_e_off_edge_uJ"], "model": s["spec"]["model"]})
@@ -295,7 +309,7 @@ def main():
                   f"{a.get('min_vgs_inc_1us_V')} / {a.get('min_vgs_inc_2us_V')} / {a.get('min_vgs_inc_3us_V')} |")
     (OUT / "ron_power.md").write_text("\n".join(pw) + "\n")
     (OUT / "ron_power.json").write_text(json.dumps(powers, indent=1) + "\n")
-    (OUT / "pareto.json").write_text(json.dumps({"items": items, "pareto": par}, indent=1) + "\n")
+    (OUT / "pareto.json").write_text(json.dumps({"items": items, "pareto": par, "refused_no_edge": refused}, indent=1) + "\n")
     print("\n".join(lines))
     print("\n".join(fl))
     print(json.dumps(par, indent=1))

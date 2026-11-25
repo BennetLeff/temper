@@ -1,0 +1,138 @@
+{
+ "about": "Result files whose complete S4/S5 rows include rows with no 20-80 % edge in the measurement window (s4_edges.py). Their slew figures are short-window figures and must not be cited as bounds. New entries need a reason; counts may only fall.",
+ "files": {
+  "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/s51-matrices/full-tt125-n21.json": {
+   "counts": {
+    "S4": 17
+   },
+   "why": "gate-network study s51-matrix grid, 0.75 us window. Typical Qrr: the long window gives the same 49.70 V/ns (c55 cfd7_c39_tt125/s4L), so the typical figure stands."
+  },
+  "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/s51-matrices/full-tt125-s51.json": {
+   "counts": {
+    "S4": 25
+   },
+   "why": "gate-network study s51-matrix grid, 0.75 us window. Typical Qrr: the long window gives the same 49.70 V/ns (c55 cfd7_c39_tt125/s4L), so the typical figure stands."
+  },
+  "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/s51-matrices/full-tt260-n21.json": {
+   "counts": {
+    "S4": 144
+   },
+   "why": "gate-network study s51-matrix grid at maximum Qrr, 0.75 us window: its 68.16 (n21) / 67.43 (s51) V/ns are short-window figures. The n21 bound is superseded by c55 cfd7_c39_tt260/s4L (68.58); the s51-matrix grid has not been re-run in the long window."
+  },
+  "validation-results/01-switching-parasitics/gate-network-2026-10-15/results/s51-matrices/full-tt260-s51.json": {
+   "counts": {
+    "S4": 144
+   },
+   "why": "gate-network study s51-matrix grid at maximum Qrr, 0.75 us window: its 68.16 (n21) / 67.43 (s51) V/ns are short-window figures. The n21 bound is superseded by c55 cfd7_c39_tt260/s4L (68.58); the s51-matrix grid has not been re-run in the long window."
+  },
+  "validation-results/11-candidates/b15-proto-alternates/results/c39-sims/split68_1_cgs4p7_tt125_Dcjhi/full/results.json": {
+   "counts": {
+    "S4": 3
+   },
+   "why": "b15 diode-alternate grids, 0.75 us window; their S4/S5 slews are short-window figures and have not been re-run in the long window (open)."
+  },
+  "validation-results/11-candidates/b15-proto-alternates/results/c39-sims/split68_1_cgs4p7_tt125_Dpmeg/full/results.json": {
+   "counts": {
+    "S4": 17
+   },
+   "why": "b15 diode-alternate grids, 0.75 us window; their S4/S5 slews are short-window figures and have not been re-run in the long window (open)."
+  },
+  "validation-results/11-candidates/b15-proto-alternates/results/c39-sims/split68_1_cgs4p7_tt125_Dvfhi/full/results.json": {
+   "counts": {
+    "S4": 24,
+    "S5": 4
+   },
+   "why": "b15 diode-alternate grids, 0.75 us window; their S4/S5 slews are short-window figures and have not been re-run in the long window (open)."
+  },
+  "validation-results/11-candidates/c25-driver/results/repro/results.json": {
+   "counts": {
+    "S4": 1
+   },
+   "why": "c25 two-row reproduction fixture, not a slew result."
+  },
+  "validation-results/11-candidates/c55-device-trade/sims/cfd7_c39_tt260/full/results.json": {
+   "counts": {
+    "S4": 144
+   },
+   "why": "c55 short-window grid; the c55 README takes every S4 slew from a long-window (L) grid with 0 such rows."
+  },
+  "validation-results/11-candidates/c55-device-trade/sims/cfd7_r68c6p8_tt260/s4b/results.json": {
+   "counts": {
+    "S4": 42
+   },
+   "why": "c55 short-window grid; the c55 README takes every S4 slew from a long-window (L) grid with 0 such rows."
+  },
+  "validation-results/11-candidates/c55-device-trade/sims/cm8_r100_tt180/s4b/results.json": {
+   "counts": {
+    "S4": 2
+   },
+   "why": "c55 short-window grid; the c55 README takes every S4 slew from a long-window (L) grid with 0 such rows."
+  },
+  "validation-results/11-candidates/c55-device-trade/sims/cm8_r100c4p7_tt180/s4b/results.json": {
+   "counts": {
+    "S4": 42
+   },
+   "why": "c55 short-window grid; the c55 README takes every S4 slew from a long-window (L) grid with 0 such rows."
+  },
+  "validation-results/11-candidates/c55-device-trade/sims/cm8_r150_tt180/s4b/results.json": {
+   "counts": {
+    "S4": 42
+   },
+   "why": "c55 short-window grid; the c55 README takes every S4 slew from a long-window (L) grid with 0 such rows."
+  },
+  "validation-results/11-candidates/c55-device-trade/sims/cm8_r68c10_tt180/s4b/results.json": {
+   "counts": {
+    "S4": 42
+   },
+   "why": "c55 short-window grid; the c55 README takes every S4 slew from a long-window (L) grid with 0 such rows."
+  },
+  "validation-results/11-candidates/c55-device-trade/sims/cm8_r82c2p2_tt180/s4b/results.json": {
+   "counts": {
+    "S4": 4
+   },
+   "why": "c55 short-window grid; the c55 README takes every S4 slew from a long-window (L) grid with 0 such rows."
+  },
+  "validation-results/11-candidates/c55-device-trade/sims/cm8_r82c4p7_tt180/s4b/results.json": {
+   "counts": {
+    "S4": 6
+   },
+   "why": "c55 short-window grid; the c55 README takes every S4 slew from a long-window (L) grid with 0 such rows."
+  },
+  "validation-results/11-candidates/c55-device-trade/sims/cm8_r82c6p8_tt180/s4b/results.json": {
+   "counts": {
+    "S4": 42
+   },
+   "why": "c55 short-window grid; the c55 README takes every S4 slew from a long-window (L) grid with 0 such rows."
+  },
+  "validation-results/11-candidates/c55-device-trade/sims/control/gn_split68_1_cgs4p7_tt125_full/results.json": {
+   "counts": {
+    "S4": 17
+   },
+   "why": "c55 control K7: reproduces the gate-network study's own short-window grid on purpose."
+  },
+  "validation-results/11-candidates/s6-cmti-2026-10-16/sims/split100_1_tt260/s4b/results.json": {
+   "counts": {
+    "S4": 24
+   },
+   "why": "S6 study, 0.75 us window: source of the former 68.16 V/ns bound, superseded by c55 cfd7_c39_tt260/s4L (68.58; DECISIONS 83)."
+  },
+  "validation-results/11-candidates/s6-cmti-2026-10-16/sims/split68_1_cgs4p7_tt260/full/results.json": {
+   "counts": {
+    "S4": 144
+   },
+   "why": "S6 study, 0.75 us window: source of the former 68.16 V/ns bound, superseded by c55 cfd7_c39_tt260/s4L (68.58; DECISIONS 83)."
+  },
+  "validation-results/11-candidates/s6-cmti-2026-10-16/sims/split68_1_cgs4p7_tt260/s4b/results.json": {
+   "counts": {
+    "S4": 18
+   },
+   "why": "S6 study, 0.75 us window: source of the former 68.16 V/ns bound, superseded by c55 cfd7_c39_tt260/s4L (68.58; DECISIONS 83)."
+  },
+  "validation-results/11-candidates/s6-cmti-2026-10-16/sims/split68_1_cgs4p7_tt260/s4screen/results.json": {
+   "counts": {
+    "S4": 24
+   },
+   "why": "S6 study, 0.75 us window: source of the former 68.16 V/ns bound, superseded by c55 cfd7_c39_tt260/s4L (68.58; DECISIONS 83)."
+  }
+ }
+}

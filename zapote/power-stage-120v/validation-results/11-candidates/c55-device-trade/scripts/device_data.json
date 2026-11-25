@@ -1,0 +1,556 @@
+{
+ "note": "Datasheet values for the loss / thermal model (c50). Each value cites its document and page; the documents are listed in ../README.md (Datasheets) with URL and sha256. energy_grid = the candidate's deck energy grid (trade.py energy) and the key used. configs = name prefixes of the switching configurations (devices.py / wrappers.py) that use the part.",
+ "devices": {
+  "_ctrl_cfd7_ds": {
+   "class": "SJ",
+   "rds_max25": 0.018,
+   "rds_typ_ratio_vs_T": [
+    [
+     25,
+     1.0
+    ],
+    [
+     150,
+     2.2
+    ]
+   ],
+   "rjc": 0.28,
+   "energy_grid": {
+    "path": "../../01-switching-parasitics/device-study-2026-10-15/sims/IPW65R018CFD7_L1/energy/results.json",
+    "key": "e_extra_J"
+   },
+   "cite": "control only: the device study's CFD7 row (devices.json) and its committed energy grid (vendor heat channels, 0.75 us window)"
+  },
+  "IPW65R018CFD7": {
+   "class": "SJ",
+   "configs": [
+    "cfd7_"
+   ],
+   "rds_max25": 0.018,
+   "rds_typ_ratio_vs_T": [
+    [
+     25,
+     1.0
+    ],
+    [
+     150,
+     2.2
+    ]
+   ],
+   "rjc": 0.28,
+   "energy_grid": {
+    "path": "sims/cfd7_c39/energy/results.json",
+    "key": "eg_extra_J"
+   },
+   "ratings": {
+    "vds_V": 650,
+    "diode_dvdt_Vns": 70,
+    "diode_difdt_Apus": 1300,
+    "mosfet_dvdt_Vns": 120,
+    "vgs_static_V": [
+     -20,
+     20
+    ],
+    "tj_max_C": 150,
+    "vth_min_25C_V": 3.5
+   },
+   "cite": "Infineon IPW65R018CFD7 Rev 2.0 2021-04-19 (repo copy validation-results/03-loss-thermal-budget/round3/sources/ipw65r018cfd7.pdf): p.3 Table 2 dv/dt 120 V/ns, reverse-diode dv/dt 70 V/ns, diF/dt 1300 A/us; p.4 RthJC 0.28; p.5 RDS(on) 15/18 mOhm typ/max 25 C, 33 typ 150 C (device-study devices.json)"
+  },
+  "IPW65R018CM8": {
+   "class": "SJ",
+   "configs": [
+    "cm8_",
+    "c8p_"
+   ],
+   "rds_max25": 0.018,
+   "rds_typ_ratio_vs_T": [
+    [
+     25,
+     1.0
+    ],
+    [
+     150,
+     2.2
+    ]
+   ],
+   "rjc": 0.24,
+   "energy_grid": {
+    "path": "sims/cm8_r100/energy/results.json",
+    "key": "eg_extra_J"
+   },
+   "ratings": {
+    "vds_V": 650,
+    "diode_dvdt_Vns": 70,
+    "diode_difdt_Apus": 1300,
+    "mosfet_dvdt_Vns": 120,
+    "vgs_static_V": [
+     -20,
+     20
+    ],
+    "tj_max_C": 150,
+    "vth_min_25C_V": 3.7
+   },
+   "cite": "Infineon IPW65R018CM8 Rev 2.1 2025-03-07 (sha256 426b5d31...): p.3 dv/dt 120 V/ns, reverse-diode dv/dt 70 V/ns, diF/dt 1300 A/us, Tj 150 C (175 C <= 50 h); p.4 RthJC 0.24 max; p.5 RDS(on) 15/18 mOhm typ/max 25 C, 33 typ 150 C, VGS(th) 3.7 min; p.6 Qrr 1.54/2.31 uC typ/max; p.8 Diagram 8 RDS(Tj) 2.2 at 150 C (read from figure)"
+  },
+  "IMW65R026M2H_18": {
+   "class": "SiC",
+   "configs": [
+    "sic26_18_"
+   ],
+   "rds_max25": 0.033,
+   "rds_typ_ratio_vs_T": [
+    [
+     25,
+     1.0
+    ],
+    [
+     125,
+     1.365
+    ],
+    [
+     175,
+     1.654
+    ]
+   ],
+   "rjc": 0.66,
+   "energy_grid": {
+    "path": "sims/sic26_18_r8p2/eA/results.json",
+    "key": "eg_extra_J"
+   },
+   "ratings": {
+    "vds_V": 650,
+    "diode_dvdt_Vns": null,
+    "mosfet_dvdt_Vns": 200,
+    "vgs_static_V": [
+     -7,
+     23
+    ],
+    "tj_max_C": 175,
+    "vth_min_25C_V": 3.5
+   },
+   "cite": "Infineon IMW65R026M2H Rev 2.0 2024-09-24 (sha256 7b810f06...): p.6 RDS(on) 26/33 mOhm typ/max at 18 V 25 C, 43 typ 175 C; p.10 Diagram 7 35.5 mOhm 125 C 18 V (read from figure); p.4 RthJC 0.66 max; p.3 MOSFET dv/dt 200 V/ns, VGS -7/+23 V (static rec. 0/18), Tj 175 C, no reverse-diode dv/dt or SC rating, EAS 200 mJ; p.6 VGS(th) 3.5 min 25 C; p.7 VSD 4.3 V typ, Qfr 129 nC"
+  },
+  "IMW65R026M2H_15": {
+   "class": "SiC",
+   "configs": [
+    "sic26_15_"
+   ],
+   "rds_max25": 0.0432,
+   "rds_typ_ratio_vs_T": [
+    [
+     25,
+     1.0
+    ],
+    [
+     125,
+     1.162
+    ],
+    [
+     175,
+     1.353
+    ]
+   ],
+   "rjc": 0.66,
+   "energy_grid": {
+    "path": "sims/sic26_15_r8p2/eA/results.json",
+    "key": "eg_extra_J"
+   },
+   "ratings": {
+    "vds_V": 650,
+    "diode_dvdt_Vns": null,
+    "mosfet_dvdt_Vns": 200,
+    "vgs_static_V": [
+     -7,
+     23
+    ],
+    "tj_max_C": 175,
+    "vth_min_25C_V": 3.5
+   },
+   "cite": "as IMW65R026M2H_18; at 15 V the datasheet gives typ only (34 mOhm 25 C p.6; 39.5 at 125 C p.10 Diagram 7, 46 at 175 C p.10 Diagram 6, read from figure). rds_max25 = 34 x (33/26) = 43.2 mOhm [EST: the 18 V max/typ ratio applied at 15 V]"
+  },
+  "C3M0025065D": {
+   "class": "SiC",
+   "configs": [],
+   "rds_max25": 0.034,
+   "rds_typ_ratio_vs_T": [
+    [
+     25,
+     1.0
+    ],
+    [
+     175,
+     1.31
+    ]
+   ],
+   "rjc": 0.46,
+   "energy_grid": {
+    "path": "sims/sic26_15_r8p2/eA/results.json",
+    "key": "eg_extra_J"
+   },
+   "proxy_switching": "IMW65R026M2H at 15 V [EST: no usable model; Wolfspeed model behind terms of use not accepted]",
+   "ratings": {
+    "vds_V": 650,
+    "diode_dvdt_Vns": null,
+    "mosfet_dvdt_Vns": null,
+    "vgs_static_V": [
+     -8,
+     19
+    ],
+    "tj_max_C": 175,
+    "vth_min_25C_V": 1.8,
+    "vth_typ_175C_V": 1.9,
+    "vgs_note": "-8/+19 V is the only gate rating (transient); recommended -4/+15 V"
+   },
+   "cite": "Wolfspeed C3M0025065D Rev 04 2024-09 (sha256 7ba81668...): p.2 RDS(on) 25/34 mOhm typ/max 15 V 25 C, 33 typ 175 C; p.4 Fig.4 1.31 at 175 C; p.3 RthJC 0.46 typ (no max); p.1 VGS -8/+19, recommended -4/+15, Tj 175 C; p.2 VGS(th) 1.8 min, 1.9 typ 175 C; p.3 VSD 5.0 V typ; no dv/dt, SC or avalanche rating"
+  },
+  "NTHL032N065M3S": {
+   "class": "SiC",
+   "configs": [],
+   "rds_max25": 0.0564,
+   "rds_typ_ratio_vs_T": [
+    [
+     25,
+     1.0
+    ],
+    [
+     175,
+     1.268
+    ]
+   ],
+   "rjc": 0.75,
+   "energy_grid": {
+    "path": "sims/sic26_15_r8p2/eA/results.json",
+    "key": "eg_extra_J"
+   },
+   "proxy_switching": "IMW65R026M2H at 15 V [EST: onsemi M3S 650 V model not published]",
+   "ratings": {
+    "vds_V": 650,
+    "diode_dvdt_Vns": null,
+    "mosfet_dvdt_Vns": null,
+    "vgs_static_V": [
+     -10,
+     22.6
+    ],
+    "tj_max_C": 175,
+    "vth_min_25C_V": 2.0
+   },
+   "cite": "onsemi NTHL032N065M3S Rev 9 2026-06 (sha256 95289557...): p.2 RDS(on) 41 typ 15 V 25 C, 52 typ 175 C; 32/44 typ/max 18 V; p.2 RthJC 0.75; p.2 VGS(th) 2.0 min; p.3 VSD 4.5 V typ; p.1 VGS -10/+22.6 V, p.2 recommended +18 / -5..-3 V; EAS 139 mJ, Tj 175 C; no dv/dt or SC rating. rds_max25 at 15 V = 41 x 44/32 = 56.4 mOhm [EST]; 5.56 mm lead pitch (not the 5.44 mm footprint)"
+  },
+  "IHW40N65R6": {
+   "class": "IGBT",
+   "configs": [
+    "rch6_"
+   ],
+   "vce_V0_vs_T": [
+    [
+     25,
+     1.1287
+    ],
+    [
+     175,
+     1.0171
+    ]
+   ],
+   "vce_r_vs_T": [
+    [
+     25,
+     0.01178
+    ],
+    [
+     175,
+     0.02109
+    ]
+   ],
+   "vf_V0_vs_T": [
+    [
+     25,
+     1.14
+    ],
+    [
+     175,
+     1.14
+    ]
+   ],
+   "vf_r_vs_T": [
+    [
+     25,
+     0.019
+    ],
+    [
+     175,
+     0.02407
+    ]
+   ],
+   "rjc": 0.71,
+   "rjc_diode": 2.77,
+   "energy_grid": {
+    "path": "sims/rch6_r8p2/eAs/results.json",
+    "key": "eg_extra_J"
+   },
+   "ratings": {
+    "vds_V": 650,
+    "diode_dvdt_Vns": null,
+    "mosfet_dvdt_Vns": null,
+    "vgs_static_V": [
+     -20,
+     20
+    ],
+    "tj_max_C": 175
+   },
+   "fit_note": "typical V0 + r*I through the 20 A and 40 A points, scaled by the 25 C max/typ ratio at 40 A (worst-case basis like RDS max); diode V0 0.9 V [EST, no low-current VF point in the datasheet], r through the 40 A point",
+   "cite": "Infineon IHW40N65R6 Rev 1.20 2021-03-22 (sha256 66ee1cfb...): p.3 VCEsat 1.29/1.6 typ/max 40 A 25 C, 1.5 typ 175 C; p.8 VCEsat(Tj) at 20 A 1.10 / 1.16 (read from figure); p.5 VF 1.5/1.9 typ/max 40 A 25 C, 1.66 175 C; RthJC IGBT 0.71 / diode 2.77; p.5 soft Eoff 0.11/0.22 mJ (162 V, Cr 30 nF); Qrr 3.77 uC 175 C; Tj 175 C; no SC rating",
+   "freq_sets": {
+    "35-60 (4a drop-in)": [
+     35000.0,
+     50000.0,
+     60000.0
+    ],
+    "20-30 (4b retune)": [
+     20000.0,
+     25000.0,
+     30000.0
+    ]
+   }
+  },
+  "IHW40N65R5": {
+   "class": "IGBT",
+   "configs": [
+    "rch5_"
+   ],
+   "vce_V0_vs_T": [
+    [
+     25,
+     1.2215
+    ],
+    [
+     175,
+     1.0578
+    ]
+   ],
+   "vce_r_vs_T": [
+    [
+     25,
+     0.01196
+    ],
+    [
+     175,
+     0.02393
+    ]
+   ],
+   "vf_V0_vs_T": [
+    [
+     25,
+     1.1118
+    ],
+    [
+     175,
+     1.1118
+    ]
+   ],
+   "vf_r_vs_T": [
+    [
+     25,
+     0.02471
+    ],
+    [
+     175,
+     0.03397
+    ]
+   ],
+   "rjc": 0.65,
+   "rjc_diode": 2.85,
+   "energy_grid": {
+    "path": "sims/rch5_r8p2/eAs/results.json",
+    "key": "eg_extra_J"
+   },
+   "ratings": {
+    "vds_V": 650,
+    "diode_dvdt_Vns": null,
+    "mosfet_dvdt_Vns": null,
+    "vgs_static_V": [
+     -20,
+     20
+    ],
+    "tj_max_C": 175
+   },
+   "fit_note": "typical V0 + r*I through the 20 A and 40 A points, scaled by the 25 C max/typ ratio at 40 A (worst-case basis like RDS max); diode V0 0.9 V [EST, no low-current VF point in the datasheet], r through the 40 A point",
+   "cite": "Infineon IHW40N65R5 Rev 2.3 2015-12-22 (sha256 f58f5442...): p.5 VCEsat 1.35/1.7 typ/max 40 A 25 C, 1.6 typ 175 C; p.8 Fig.7 20 A 1.16/1.22 (read from figure); p.5 VF 1.7/2.1 typ/max 40 A 25 C, 2.0 175 C; p.4 RthJC IGBT 0.65 / diode 2.85; p.6 Qrr 3.8 uC 175 C; Tj 175 C; no SC rating",
+   "freq_sets": {
+    "35-60 (4a drop-in)": [
+     35000.0,
+     50000.0,
+     60000.0
+    ],
+    "20-30 (4b retune)": [
+     20000.0,
+     25000.0,
+     30000.0
+    ]
+   }
+  },
+  "_ctrl_cfd7_8p2_generic": {
+   "class": "SJ",
+   "rds_max25": 0.018,
+   "rds_typ_ratio_vs_T": [
+    [
+     25,
+     1.0
+    ],
+    [
+     150,
+     2.2
+    ]
+   ],
+   "rjc": 0.28,
+   "energy_grid": {
+    "path": "sims/cfd7_8p2/energy/results.json",
+    "key": "eg_extra_J"
+   },
+   "cite": "control only: the as-built CFD7 deck (8.2 ohm) through this study's generic die-energy measure and long window; must match _ctrl_cfd7_ds (vendor heat channels, device-study grid) within the C3 tolerance"
+  },
+  "IMW65R026M2H_15_dt200": {
+   "class": "SiC",
+   "configs": [],
+   "rds_max25": 0.0432,
+   "rds_typ_ratio_vs_T": [
+    [
+     25,
+     1.0
+    ],
+    [
+     125,
+     1.162
+    ],
+    [
+     175,
+     1.353
+    ]
+   ],
+   "rjc": 0.66,
+   "energy_grid": {
+    "path": "sims/sic26_15_r8p2/eA200/results.json",
+    "key": "eg_extra_J"
+   },
+   "ratings": {
+    "vds_V": 650,
+    "diode_dvdt_Vns": null,
+    "mosfet_dvdt_Vns": 200,
+    "vgs_static_V": [
+     -7,
+     23
+    ],
+    "tj_max_C": 175,
+    "vth_min_25C_V": 3.5
+   },
+   "cite": "as IMW65R026M2H_18; at 15 V the datasheet gives typ only (34 mOhm 25 C p.6; 39.5 at 125 C p.10 Diagram 7, 46 at 175 C p.10 Diagram 6, read from figure). rds_max25 = 34 x (33/26) = 43.2 mOhm [EST: the 18 V max/typ ratio applied at 15 V] | dead time 200 ns: R9 / R17 = 20 kohm (2EDR8259X t_dt = 10 ns x R_DTC[kohm], datasheet Rev 1.7 p.3 / p.8, sha256 f49391ca...)"
+  },
+  "IMW65R026M2H_18_dt200": {
+   "class": "SiC",
+   "configs": [],
+   "rds_max25": 0.033,
+   "rds_typ_ratio_vs_T": [
+    [
+     25,
+     1.0
+    ],
+    [
+     125,
+     1.365
+    ],
+    [
+     175,
+     1.654
+    ]
+   ],
+   "rjc": 0.66,
+   "energy_grid": {
+    "path": "sims/sic26_18_r8p2/eA200/results.json",
+    "key": "eg_extra_J"
+   },
+   "ratings": {
+    "vds_V": 650,
+    "diode_dvdt_Vns": null,
+    "mosfet_dvdt_Vns": 200,
+    "vgs_static_V": [
+     -7,
+     23
+    ],
+    "tj_max_C": 175,
+    "vth_min_25C_V": 3.5
+   },
+   "cite": "Infineon IMW65R026M2H Rev 2.0 2024-09-24 (sha256 7b810f06...): p.6 RDS(on) 26/33 mOhm typ/max at 18 V 25 C, 43 typ 175 C; p.10 Diagram 7 35.5 mOhm 125 C 18 V (read from figure); p.4 RthJC 0.66 max; p.3 MOSFET dv/dt 200 V/ns, VGS -7/+23 V (static rec. 0/18), Tj 175 C, no reverse-diode dv/dt or SC rating, EAS 200 mJ; p.6 VGS(th) 3.5 min 25 C; p.7 VSD 4.3 V typ, Qfr 129 nC | dead time 200 ns: R9 / R17 = 20 kohm (2EDR8259X t_dt = 10 ns x R_DTC[kohm], datasheet Rev 1.7 p.3 / p.8, sha256 f49391ca...)"
+  },
+  "IMW65R026M2H_15_s42_dt200": {
+   "class": "SiC",
+   "configs": [],
+   "rds_max25": 0.0432,
+   "rds_typ_ratio_vs_T": [
+    [
+     25,
+     1.0
+    ],
+    [
+     125,
+     1.162
+    ],
+    [
+     175,
+     1.353
+    ]
+   ],
+   "rjc": 0.66,
+   "energy_grid": {
+    "path": "sims/sic26_15_r68c4p7/eA200/results.json",
+    "key": "eg_extra_J"
+   },
+   "ratings": {
+    "vds_V": 650,
+    "diode_dvdt_Vns": null,
+    "mosfet_dvdt_Vns": 200,
+    "vgs_static_V": [
+     -7,
+     23
+    ],
+    "tj_max_C": 175,
+    "vth_min_25C_V": 3.5
+   },
+   "cite": "as IMW65R026M2H_18; at 15 V the datasheet gives typ only (34 mOhm 25 C p.6; 39.5 at 125 C p.10 Diagram 7, 46 at 175 C p.10 Diagram 6, read from figure). rds_max25 = 34 x (33/26) = 43.2 mOhm [EST: the 18 V max/typ ratio applied at 15 V] | dead time 200 ns: R9 / R17 = 20 kohm (2EDR8259X t_dt = 10 ns x R_DTC[kohm], datasheet Rev 1.7 p.3 / p.8, sha256 f49391ca...) | on the s42 gate network unchanged (68 ohm / 4.7 nF)"
+  },
+  "IMW65R026M2H_15_s42": {
+   "class": "SiC",
+   "configs": [],
+   "rds_max25": 0.0432,
+   "rds_typ_ratio_vs_T": [
+    [
+     25,
+     1.0
+    ],
+    [
+     125,
+     1.162
+    ],
+    [
+     175,
+     1.353
+    ]
+   ],
+   "rjc": 0.66,
+   "energy_grid": {
+    "path": "sims/sic26_15_r68c4p7/eA/results.json",
+    "key": "eg_extra_J"
+   },
+   "ratings": {
+    "vds_V": 650,
+    "diode_dvdt_Vns": null,
+    "mosfet_dvdt_Vns": 200,
+    "vgs_static_V": [
+     -7,
+     23
+    ],
+    "tj_max_C": 175,
+    "vth_min_25C_V": 3.5
+   },
+   "cite": "as IMW65R026M2H_18; at 15 V the datasheet gives typ only (34 mOhm 25 C p.6; 39.5 at 125 C p.10 Diagram 7, 46 at 175 C p.10 Diagram 6, read from figure). rds_max25 = 34 x (33/26) = 43.2 mOhm [EST: the 18 V max/typ ratio applied at 15 V] | on the s42 gate network unchanged (68 ohm / 4.7 nF), dead time unchanged (R9 / R17 49.9 k): the FET-only swap"
+  }
+ }
+}

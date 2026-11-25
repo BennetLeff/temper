@@ -143,7 +143,7 @@ def main():
     # alternative Litz constructions on the R1 (~81 uH) layout (stock sizes; see ORDER-LIST.md)
     out["litz_alternatives_80uH"] = {}
     for label, n, d in (("270x0.10 (design, custom class 200)", 270, 0.100e-3), ("1000x0.05 (RMCybernetics 12 A stock, class 155)", 1000, 0.050e-3),
-                        ("1050x0.05 (Elecify 1050/44 stock)", 1050, 0.050e-3), ("200x0.10 (Elecify 200/38 stock)", 200, 0.100e-3)):
+                        ("1050x0.05 (Elecify 1050/44 stock)", 1050, 0.050e-3), ("200x0.10 (Elecify 200/38 stock)", 200, 0.100e-3), ("260x0.1007 (Remington 260/38LITZ, MW80-C 155 C)", 260, 0.1007e-3)):
         out["litz_alternatives_80uH"][label] = [r for r in rac_rows(cands["R1"], dict(), corr, n, d) if r["f_kHz"] in (40.0, 60.0)]
     (HERE / "results" / "free_air.json").write_text(json.dumps(out, indent=1) + "\n")
     for k, v in out["candidates"].items():

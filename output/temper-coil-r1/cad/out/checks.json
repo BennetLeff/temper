@@ -13,9 +13,13 @@
   "r_max": 118.022,
   "on_comb": true
  },
- "spare_notch_outer_edge_mm": 119.322,
+ "spare_notch_outer_edge_mm": 119.31700000000001,
  "rim_inner_r_mm": 120.0,
  "teeth_mm": {
+  "cnc_bundle2.29": {
+   "inner": 1.324,
+   "outer": 0.821
+  },
   "cnc_bundle2.4": {
    "inner": 1.214,
    "outer": 0.711
@@ -23,6 +27,10 @@
   "cnc_bundle2.55": {
    "inner": 1.064,
    "outer": 0.561
+  },
+  "print_bundle2.29": {
+   "inner": 1.224,
+   "outer": 0.721
   },
   "print_bundle2.4": {
    "inner": 1.114,
@@ -35,7 +43,7 @@
  },
  "ntc": {
   "last_inner_turn_r": 81.37097888675623,
-  "bead_centre_r": 86.32602924507042,
+  "bead_centre_r": 86.27102924507041,
   "wall_mm": 2.0
  },
  "print_segments_mm": [

@@ -8,7 +8,8 @@ Every number is either (a) quoted from a cited datasheet / repo document (DATA b
 with page + URL) or (b) computed here.  The crossing list is cross-checked against
 elec/src/*.ato (instance counts and the time-filter R/C are read from the source).
 
-dv/dt basis (stage 42, S6 study 11-candidates/s6-cmti-2026-10-16): 49.70 V/ns typical Qrr, 68.16 V/ns maximum Qrr
+dv/dt basis (stage 42, S6 study 11-candidates/s6-cmti-2026-10-16): 49.70 V/ns typical Qrr; maximum Qrr 68.58 V/ns from the c55
+device trade's 3.75 us window (11-candidates/c55-device-trade section 1.3; the S6 study's 0.75 us window read 68.16)
 (20-80 % chord, adopted 68 ohm + 4.7 nF gate network); the old 95 V/ns ALT-BIAS R10 edge is superseded.  The "seen" column is
 the dv/dt each barrier actually sees (F6 step 1): the chord on switch-node barriers, the cm_barrier.json divider result on
 the HOT-return barriers U32 / U9 / U4.
@@ -35,26 +36,28 @@ COMMISSIONING = PS.parents[1] / "firmware" / "components" / "power" / "COMMISSIO
 
 MARGIN = 1.5                              # F6 pass margin
 # Stage-42 basis (S6 study, validation-results/11-candidates/s6-cmti-2026-10-16/README.md section 2a): the adopted gate
-# network (R_on 68 ohm 2512 + Cgs 4.7 nF), S4 leg A HS turn-on, 280 V, strong driver, 150 C, ESL 10 nH, full 640/640 grid,
-# 20-80 % chord.  Replaces the pre-stage-42 ALT-BIAS R10 model edge of 95 V/ns (and the 106.21 V/ns 47 ohm / 1 nF stand-in).
+# network (R_on 68 ohm 2512 + Cgs 4.7 nF), 20-80 % chord.  Maximum Qrr: c55 device trade (11-candidates/c55-device-trade, section
+# 1.3), all 336 S4 rows in a 3.75 us window, worst S4 leg A HS turn-on, 280 V, strong driver, 27 C, ESL 10 nH; the S6 study's
+# 0.75 us window missed 144 of those edges and read 68.16 (150 C row).  Replaces the pre-stage-42 ALT-BIAS R10 model edge of 95 V/ns (and the 106.21 V/ns 47 ohm / 1 nF stand-in).
 DVDT_TYP = 49.70                          # V/ns, typical Qrr (TT 125 ns)
-DVDT_HARD = 68.16                         # V/ns, maximum Qrr (TT 260 ns, 4.60 uC): the basis for every ratio below
+DVDT_HARD = 68.58                         # V/ns, maximum Qrr (TT 260 ns, 4.60 uC): the basis for every ratio below
 DVDT_ZVS = 10.0                           # V/ns, ZVS edges        (ALT-BIAS.md R10)
 V_SW_PEAK = 520.0                         # V, <=520 V transient target (ALT-BIAS.md R9)
 # 1 V/ns == 1 kV/us, so a "V/ns" CMTI and a "kV/us" CMTI compare directly.
 
 DV_SRC = ("S6 study 11-candidates/s6-cmti-2026-10-16 (README s.2a, results/s6_verdict.stdout.txt): S4 hard turn-on on the adopted "
-          "68 ohm + 4.7 nF network, 20-80 % chord, 49.70 V/ns typical Qrr / 68.16 V/ns maximum Qrr; 10 V/ns ZVS (ALT-BIAS.md R10); "
-          "HOT-return barriers: results/cm_barrier.json")
+          "68 ohm + 4.7 nF network, 20-80 % chord, 49.70 V/ns typical Qrr / 68.58 V/ns maximum Qrr (c55 device trade, 3.75 us window); "
+          "10 V/ns ZVS (ALT-BIAS.md R10); HOT-return barriers: cmti/results-68p58/cm_barrier.json")
 
 # dv/dt the crossing actually sees (RESOLUTION-PLAN F6 step 1).  Switch-node barriers see the S4 chord itself.  The HOT-return
-# barriers (U32, U9, U4) see only the parasitic-divider fraction on HV_RET relative to PE (SELV_GND): cm_barrier.json at the
-# 68.16 V/ns max-Qrr chord, 1 ns chord, one 287.6 V leg-A ramp, leg B static.
-SEEN_COND, SEEN_BLOCK, SEEN_WORST1 = 0.74, 6.59, 22.6     # V/ns: nominal rectifier conducting / blocking / worst single parasitic
+# barriers (U32, U9, U4) see only the parasitic-divider fraction on HV_RET relative to PE (SELV_GND): the S6 study's cm_barrier.py
+# re-run at the 68.58 V/ns max-Qrr chord (cm_barrier_68p58.py -> results-68p58/cm_barrier.json; its 68.16 rows reproduce the S6
+# study exactly), 1 ns chord, one 287.6 V leg-A ramp, leg B static.
+SEEN_COND, SEEN_BLOCK, SEEN_WORST1 = 0.75, 6.56, 22.7     # V/ns: nominal rectifier conducting / blocking / worst single parasitic
 SEEN_BLOCK_TYP = 5.22                                     # V/ns: nominal blocking at the typical-Qrr chord (s6_verdict.stdout.txt)
-CM_SRC = ("cm_barrier.json (S6 study): HV_RET to PE at the 68.16 V/ns chord = 0.74 V/ns rectifier conducting, 6.59 V/ns all four "
-          "diodes blocking (nominal), 22.6 V/ns worst single parasitic (100 pF coil-to-PE all on the SW_A end, blocking); the "
-          "stacked-pessimistic corner (86.7 V/ns) is a stack of assumed corners and a bench item")
+CM_SRC = ("results-68p58/cm_barrier.json (S6 study's cm_barrier.py): HV_RET to PE at the 68.58 V/ns chord = 0.75 V/ns rectifier conducting, 6.56 V/ns all four "
+          "diodes blocking (nominal), 22.7 V/ns worst single parasitic (100 pF coil-to-PE all on the SW_A end, blocking); the "
+          "stacked-pessimistic corner (87.4 V/ns) is a stack of assumed corners and a bench item")
 SEEN_SW = dict(seen_typ=DVDT_TYP, seen_max=DVDT_HARD, seen_note="switch-node edge itself (S4 chord)")
 SEEN_HOT = dict(seen_typ=SEEN_BLOCK_TYP, seen_max=SEEN_BLOCK,
                 seen_note=f"HOT return to SELV/PE divider: {SEEN_COND:g} conducting, {SEEN_BLOCK:g} blocking (nominal), {SEEN_WORST1:g} worst single parasitic")
@@ -263,7 +266,7 @@ def build_rows(f):
             cite="RECOM R24C2T25/R Rev.1-2024 p.7 'Common Mode Transient Immunity +/-150 V/ns'; p.8 'Isolation Capacitance input to output 3.5 pF'; also ALT-BIAS.md:144,160 (1.58x)",
             url=URL_REC, filter="reservoir + rail monitor (above); regulation ms-scale", **SEEN_SW,
             effect="Not a logic path: an upset is a regulation / injected-charge event (Cio x dv/dt into the LS split), held by the "
-                   "2x10uF+220uF reservoirs; ALT-BIAS.md section 2 ran 95 V/ns at 3.5 pF (369 mA / 0.98 nC / 192 mV at LS VSS), a superseded edge; at 68.16 V/ns the injected peak is 3.5 pF x 68.16 = 239 mA.")
+                   "2x10uF+220uF reservoirs; ALT-BIAS.md section 2 ran 95 V/ns at 3.5 pF (369 mA / 0.98 nC / 192 mV at LS VSS), a superseded edge; at 68.58 V/ns the injected peak is 3.5 pF x 68.58 = 240 mA.")
     # ------------------------------------------------------------------ transformer / mains supplies
     row(ref="T1", mpn=f["ct_mpn"], role="Current transformer, tank CT (P1 on SW_A -> CT_S1/S2 -> OCP comparators -> BUS_FAULT)", cls="OPEN",
         node="SW_A (primary P1 = SW_A)", cmti_static=None,
@@ -418,7 +421,7 @@ def main():
     n = lambda v: sum(1 for r in real if r["verdict"] == v)
     print(f"\nSUMMARY: {n('PASS')} PASS, {n('FAIL')} FAIL, {n('OPEN')} OPEN (control excluded); wrote {HERE/'cmti.csv'}")
     fails = [r["ref"] for r in real if r["verdict"] == "FAIL"]
-    print("OVERALL: " + ("FAIL - gate-command crossing(s) below 1.5x at the 68.16 V/ns maximum-Qrr chord: " + ", ".join(fails) if fails else "no FAIL rows"))
+    print("OVERALL: " + ("FAIL - gate-command crossing(s) below 1.5x at the %g V/ns maximum-Qrr chord: " % DVDT_HARD + ", ".join(fails) if fails else "no FAIL rows"))
     return 1 if bad else 0
 
 
