@@ -567,10 +567,12 @@ static bool hw_read_ext_adc(void *ctx, unsigned ch, uint16_t *code)
     uint8_t tx[3], rx[3] = {0};
     n21_mcp3202_frame(ch, tx);
     spi_transaction_t t = {.length = 24, .tx_buffer = tx, .rx_buffer = rx};
-    /* Bus lock: the MAX31865 transaction in the control task waits for this one. */
-    if (spi_device_acquire_bus(hw.ext_adc, pdMS_TO_TICKS(2)) != ESP_OK) return false;
+    /* spi_device_polling_transmit() takes the SPI2 bus lock for this one transaction (portMAX_DELAY,
+     * the only wait ESP-IDF 5.3 accepts: a finite spi_device_acquire_bus() returned ESP_ERR_INVALID_ARG on
+     * every call, so every read failed; gate: tools/check_idf_waits.py). The wait is bounded by the other
+     * holders' transactions: the pan MAX31865 (one register access) and, on C51, the food-probe
+     * transaction, which must keep its bus hold short. */
     esp_err_t e = spi_device_polling_transmit(hw.ext_adc, &t);
-    spi_device_release_bus(hw.ext_adc);
     return e == ESP_OK && n21_mcp3202_decode(rx, code);
 }
 
