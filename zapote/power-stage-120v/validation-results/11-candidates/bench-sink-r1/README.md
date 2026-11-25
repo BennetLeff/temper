@@ -1,5 +1,7 @@
 # Bench heatsink r1: thermal mount for the first native-21 boards
 
+**2026-11-24 (DECISIONS 86): the owner, not JLC, solders Q2 / Q3 / Q5 / Q6, on the M11 seating fixture.** Read "JLC-soldered" below as "soldered before the sink is fitted", and drop §2's FET remark. The gauge-and-shim procedure is kept: it closes every tab whatever the seating.
+
 Study, 2026-10-18. Branch `study/bench-sink-r1`, from `codex/power-stage-integration` @ f9d945326.
 
 **Purpose.** A bench sink and mount that let the owner run COMMISSIONING steps 3–8 and 9a ("heat a pan"):

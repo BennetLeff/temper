@@ -88,7 +88,7 @@ reservation, and a Global Sourcing line is only secured once the part is in JLC'
 | F2 | 3403.0279.23 | 20 | 0 (C3163739) | DigiKey 7,183 (browser read) | **JLC Global Sourcing**; JLC places |
 | J2, J5 | 7466004R | 40 | 0 (C6708126) | DigiKey 8,856 | **JLC Global Sourcing**; JLC places (THR, paste in hole) |
 | J6 | 1704004 | 20 | 0 (C5481600) | Amar Radio 48 (Octopart; MOQ not shown) | **JLC Global Sourcing if offered**; else Do Not Place and the owner hand-solders |
-| Q2, Q3, Q5, Q6 | IPW65R018CFD7 | 80 | 6 | DigiKey 459 (2026-10-17) / Mouser 470 | **Buy 120 from DigiKey in one recorded lot; consign 84 to JLC**, JLC hand-solders on the lead shoulders. Pricing below |
+| Q2, Q3, Q5, Q6 | IPW65R018CFD7 | 80 | 6 | DigiKey 459 (2026-10-17) / Mouser 470 | **Buy 120 from DigiKey in one recorded lot; none to JLC** (DNP, DECISIONS 86); the owner solders them on the M11 seating fixture. Pricing below |
 | C1, C2 | R463N410050N1K | 40 | 46 (C3299886) | Newark 1,298 | **JLC pre-order reserve**; JLC hand-solders |
 | T1 | CST3015-200ED | 20 | 64 (C50132500) | JLC (Coilcraft direct has no distributor listing) | **JLC pre-order reserve** |
 | U5 | LM4050AEM3-2.5/NOPB | 20 | 50 (C2156518; 2026-10-15) | JLC | **JLC pre-order reserve**; 500 boards need the owner pre-order |

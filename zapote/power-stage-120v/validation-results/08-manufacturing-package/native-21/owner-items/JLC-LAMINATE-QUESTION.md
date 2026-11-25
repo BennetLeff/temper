@@ -1,6 +1,6 @@
 # JLC laminate UL scope question (OPEN-ITEMS S12), 2026-10-18
 
-Status: **send-ready, not sent.** The owner sends it. It replaces the CTI-only drafts `../sourcing/inquiries/CTI-JLC.md` and
+Status: **sent 2026-11-24** to support@jlcpcb.com (owner-approved; text as below, signed, no customer ID). Reply pending. It replaces the CTI-only drafts `../sourcing/inquiries/CTI-JLC.md` and
 `CTI-JLC-6L.md`, which were never sent (DECISIONS 41 settled CTI from public records). This one asks about UL scope for
 2 oz inner copper, which public records do not settle. Certifier side of the same question: `CERTIFIER-PACKET.md` A3 #25.
 

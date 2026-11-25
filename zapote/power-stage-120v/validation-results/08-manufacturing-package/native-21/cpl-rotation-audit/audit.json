@@ -1,11 +1,11 @@
 {
  "meta": {
   "lines_in_cpl": 374,
-  "lines_placed_by_jlc": 364,
-  "lines_excluded_not_placed": 10,
+  "lines_placed_by_jlc": 360,
+  "lines_excluded_not_placed": 14,
   "counts": {
    "NEEDS-PREVIEW": 31,
-   "OK": 300,
+   "OK": 296,
    "CORRECTED": 33
   },
   "controls": {
@@ -3585,82 +3585,6 @@
    "reason": "no DB rule and no EasyEDA footprint for this LCSC number"
   },
   {
-   "designator": "Q2",
-   "footprint": "TO-247-3_Vertical",
-   "lcsc": "C3289047",
-   "mount": "THT",
-   "kicad_rot": 0,
-   "proposed_jlc_rot": 0,
-   "class": "OK",
-   "db_rule": "",
-   "db_offset": "",
-   "easyeda_package": "TO-247S-3L_L15.6-W5.0-P5.44-L",
-   "easyeda_offset": "0",
-   "easyeda_rot": "0",
-   "db_rot": "",
-   "fit_method": "pad number",
-   "fit_rms_mm": 0.008,
-   "pin1_evidence": "KiCad pad 1 at (-5.45,+0.00) mm = left of centre at board rotation 0; EasyEDA pad 1 left of centre at JLC rot 0",
-   "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
-  },
-  {
-   "designator": "Q3",
-   "footprint": "TO-247-3_Vertical",
-   "lcsc": "C3289047",
-   "mount": "THT",
-   "kicad_rot": 0,
-   "proposed_jlc_rot": 0,
-   "class": "OK",
-   "db_rule": "",
-   "db_offset": "",
-   "easyeda_package": "TO-247S-3L_L15.6-W5.0-P5.44-L",
-   "easyeda_offset": "0",
-   "easyeda_rot": "0",
-   "db_rot": "",
-   "fit_method": "pad number",
-   "fit_rms_mm": 0.008,
-   "pin1_evidence": "KiCad pad 1 at (-5.45,+0.00) mm = left of centre at board rotation 0; EasyEDA pad 1 left of centre at JLC rot 0",
-   "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
-  },
-  {
-   "designator": "Q5",
-   "footprint": "TO-247-3_Vertical",
-   "lcsc": "C3289047",
-   "mount": "THT",
-   "kicad_rot": 0,
-   "proposed_jlc_rot": 0,
-   "class": "OK",
-   "db_rule": "",
-   "db_offset": "",
-   "easyeda_package": "TO-247S-3L_L15.6-W5.0-P5.44-L",
-   "easyeda_offset": "0",
-   "easyeda_rot": "0",
-   "db_rot": "",
-   "fit_method": "pad number",
-   "fit_rms_mm": 0.008,
-   "pin1_evidence": "KiCad pad 1 at (-5.45,+0.00) mm = left of centre at board rotation 0; EasyEDA pad 1 left of centre at JLC rot 0",
-   "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
-  },
-  {
-   "designator": "Q6",
-   "footprint": "TO-247-3_Vertical",
-   "lcsc": "C3289047",
-   "mount": "THT",
-   "kicad_rot": 0,
-   "proposed_jlc_rot": 0,
-   "class": "OK",
-   "db_rule": "",
-   "db_offset": "",
-   "easyeda_package": "TO-247S-3L_L15.6-W5.0-P5.44-L",
-   "easyeda_offset": "0",
-   "easyeda_rot": "0",
-   "db_rot": "",
-   "fit_method": "pad number",
-   "fit_rms_mm": 0.008,
-   "pin1_evidence": "KiCad pad 1 at (-5.45,+0.00) mm = left of centre at board rotation 0; EasyEDA pad 1 left of centre at JLC rot 0",
-   "reason": "EasyEDA footprint fits the KiCad footprint unrotated"
-  },
-  {
    "designator": "R1",
    "footprint": "R_1206_3216Metric",
    "lcsc": "C17900",
@@ -7077,6 +7001,38 @@
    "lcsc": "",
    "kicad_rot": 0,
    "reason": "not soldered: the owner inserts the F1 cartridge into the hand-soldered clips after cleaning"
+  },
+  {
+   "designator": "Q2",
+   "footprint": "TO-247-3_Vertical",
+   "mount": "THT",
+   "lcsc": "",
+   "kicad_rot": 0,
+   "reason": "DNP at JLC: the owner hand-solders Q2 / Q3 / Q5 / Q6 from the single 120-piece DigiKey lot, held coplanar on the M11 seating fixture (bottom preheat >= 100 C)"
+  },
+  {
+   "designator": "Q3",
+   "footprint": "TO-247-3_Vertical",
+   "mount": "THT",
+   "lcsc": "",
+   "kicad_rot": 0,
+   "reason": "DNP at JLC: the owner hand-solders Q2 / Q3 / Q5 / Q6 from the single 120-piece DigiKey lot, held coplanar on the M11 seating fixture (bottom preheat >= 100 C)"
+  },
+  {
+   "designator": "Q5",
+   "footprint": "TO-247-3_Vertical",
+   "mount": "THT",
+   "lcsc": "",
+   "kicad_rot": 0,
+   "reason": "DNP at JLC: the owner hand-solders Q2 / Q3 / Q5 / Q6 from the single 120-piece DigiKey lot, held coplanar on the M11 seating fixture (bottom preheat >= 100 C)"
+  },
+  {
+   "designator": "Q6",
+   "footprint": "TO-247-3_Vertical",
+   "mount": "THT",
+   "lcsc": "",
+   "kicad_rot": 0,
+   "reason": "DNP at JLC: the owner hand-solders Q2 / Q3 / Q5 / Q6 from the single 120-piece DigiKey lot, held coplanar on the M11 seating fixture (bottom preheat >= 100 C)"
   },
   {
    "designator": "RV1",

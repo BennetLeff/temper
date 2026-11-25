@@ -29,13 +29,12 @@ firmware and Kconfig symbol names, and every COMMISSIONING step named here exist
 - Stop at the first unexpected reading and write it down. Do not "try once more".
 
 ## What the owner fits, and what JLC does
-- **Owner, through-hole:** BR1 (step 4b), RV1 and the two F1 clips. The owner also inserts the F1 cartridge (no
+- **Owner, through-hole:** the four FETs Q2, Q3, Q5 and Q6 on the M11 seating fixture (DECISIONS 86), BR1 (step 4b), RV1 and the two F1 clips. The owner also inserts the F1 cartridge (no
   soldering). This is consign-r1's list (`11-candidates/consign-r1/README.md`, answer 4).
-- **JLC:** everything else, including U41 / U42 (SSOP-36, placed from Global Sourcing; consign-r1 answer 2) and the four
-  FETs Q2, Q3, Q5 and Q6, consigned from one lot and soldered by JLC. No hot-air gear is needed.
+- **JLC:** everything else, including U41 / U42 (SSOP-36, placed from Global Sourcing; consign-r1 answer 2). It leaves the FETs out (DECISIONS 86).
 - **Bench heatsink:** `11-candidates/bench-sink-r1/README.md`, revision 3. It is one common sink, with a shim selected per
-  FET from feeler-gauge gaps (`scripts/shim_select.py`) and a clamp pad chosen per device. It is fitted to the JLC-soldered
-  FETs (§6.2). BR1's fit and preheat are in §6.3, and the TCO is in the J3 loop (D5).
+  FET from feeler-gauge gaps (`scripts/shim_select.py`) and a clamp pad chosen per device. It is fitted to the soldered
+  FETs (§6.2); gauge the gaps after fixture soldering too, since its shims do not rely on the seating. BR1's fit and preheat are in §6.3, and the TCO is in the J3 loop (D5).
 
 ## Order of work
 | Phase | What | Where |
