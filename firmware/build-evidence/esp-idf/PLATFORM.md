@@ -61,7 +61,10 @@ hardware shunt comparator (BUS_FAULT, which drops PERMIT on its own) and by the 
 
 > **Superseded in part, 2026-11-24.** The controller's CR-1 sense filter (C37) makes the automatic fault cycle invalid: it
 > flags a healthy probe (sensor-r3 D-FCYC). Now: one **manual** cycle at power-up (CONFIG 0x80, 0x88, 0x8C; 5.5 ms per
-> step and 12.5 ms to restart, on the microsecond clock), no cycle while converting, and any fault stays terminal. A
+> step and 12.5 ms to restart, on the microsecond clock) and no cycle while converting. A flagged conversion no longer
+> ends the service: the probe fault stays a probe fault (no RUNAWAY escalation) and a reset is verified by another
+> manual cycle. RUN_EN is still killed until MCU reset on every latched fault, so the state machine refuses that reset
+> ("POWER CYCLE TO RESET") until the owner decides whether a probe fault may re-arm RUN_EN. A
 > manual cycle plus the first conversion (52-55 ms) does not fit the 100 ms word age, so the 1 s repeat is gone. Opens
 > and shorts are still caught on every conversion; RTDIN- shorted to ground in service is seen only at power-up.
 > Thresholds are C46's 12844 / 35544 (R(-40 C) / R(360 C)) and the pan temperature carries CR-7's loading and

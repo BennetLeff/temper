@@ -13,6 +13,7 @@
 
 #include "hal.h"
 #include "max31865.h"
+#include "rtd_convert.h"
 #include "state_machine.h"
 #include "controller_pins.h"
 
@@ -44,6 +45,21 @@ static bool s_drdy_armed;             /* DRDY seen high (released) since the las
 static uint16_t s_rtd_word;
 static bool s_rtd_word_valid;
 static uint8_t s_rtd_word_age_ticks;
+
+/* Converted sample and the reset verification (sensor-r3 D-RESET). */
+typedef enum {
+    RTD_VERIFY_NONE = 0,
+    RTD_VERIFY_REQUESTED,    /* starts on the next converting tick */
+    RTD_VERIFY_RUNNING,
+    RTD_VERIFY_CYCLE_CLEAN,  /* 07h read 0: waiting for an unflagged conversion */
+    RTD_VERIFY_CLEAN,
+} rtd_verify_t;
+static rtd_verify_t s_verify;
+static bool s_power_up;               /* the running fault cycle is the power-up one */
+static rtd_convert_params_t s_conv;
+static rtd_sample_t s_sample;
+static bool s_have_sample;
+static uint16_t s_same_code;
 
 void rtd_service_set_drdy_source(rtd_drdy_level_fn level, void *context)
 {
@@ -98,6 +114,13 @@ hal_status_t rtd_service_bootstrap(void)
     s_rtd_word = 0u;
     s_rtd_word_valid = false;
     s_rtd_word_age_ticks = 0u;
+    s_verify = RTD_VERIFY_NONE;
+    s_power_up = true;
+    rtd_convert_default_params(&s_conv);
+    s_conv.loading_correction = true; /* CR-1 is fitted (controller C37) */
+    s_sample = (rtd_sample_t){0};
+    s_have_sample = false;
+    s_same_code = 0u;
 
     if (hal_spi == NULL || hal_timer == NULL || s_drdy_level == NULL) {
         s_bootstrap_failed = true;
@@ -170,6 +193,7 @@ static void start_converting(void)
         return;
     }
     enter(RTD_PHASE_CONVERTING);
+    s_power_up = false;
 }
 
 static void tick_fault_cycle(void)
@@ -202,9 +226,13 @@ static void tick_fault_cycle(void)
             return;
         }
         if (max31865_check_fault_status(&s_max31865, state_machine_report_rtd_device_fault, NULL,
-                                        &reported) != HAL_OK || reported) {
+                                        &reported) != HAL_OK || (reported && s_power_up)) {
             fail_closed(false); /* the driver has reported */
             return;
+        }
+        if (!s_power_up) {
+            /* Reset verification. Flagged: refuse the reset, keep converting. */
+            s_verify = reported ? RTD_VERIFY_NONE : RTD_VERIFY_CYCLE_CLEAN;
         }
         enter(RTD_PHASE_RESTART);
         /* fall through */
@@ -221,11 +249,57 @@ static void tick_fault_cycle(void)
     }
 }
 
+/* Convert one data word. A flagged word is reported and kept: the converter stays up so the probe can
+ * be verified for a reset, and a flagged over-temperature stays a temperature (D-OPEN). False when
+ * the service has stopped. */
+static bool take_sample(uint16_t word)
+{
+    const bool flagged = (word & MAX31865_RTD_WORD_FAULT) != 0u;
+    rtd_sample_t smp = {.code = (uint16_t)(word >> 1), .spi_ok = true, .seq = s_sample.seq + 1u};
+
+    if (flagged && (max31865_read_fault_status(&s_max31865, &smp.fault_status) != HAL_OK ||
+                    smp.fault_status == 0u)) {
+        fail_closed(true); /* flagged, with no readable reason */
+        return false;
+    }
+    smp.r_ohm = rtd_convert_code_to_ohm(&s_conv, smp.code);
+    smp.t_c = rtd_convert_code_to_c(&s_conv, smp.code);
+    s_same_code = s_sample.seq != 0u && smp.code == s_sample.code ? (uint16_t)(s_same_code + 1u) : 1u;
+    s_sample = smp;
+    s_have_sample = true;
+
+    if (flagged) {
+        s_verify = RTD_VERIFY_NONE;
+        max31865_report_status(state_machine_report_rtd_device_fault, smp.fault_status, NULL);
+    } else if (s_verify == RTD_VERIFY_CYCLE_CLEAN) {
+        s_verify = RTD_VERIFY_CLEAN;
+    }
+    if (s_same_code >= RTD_FROZEN_CONVERSIONS) {
+        fail_closed(false);
+        state_machine_report_rtd_frozen();
+        return false;
+    }
+    return true;
+}
+
 static void tick_converting(void)
 {
     bool low = false;
     bool sampled = drdy_sample(false, &low);
     bool completed = false;
+
+    if (s_verify == RTD_VERIFY_REQUESTED) {
+        /* VBIAS has been on throughout, so step 1 follows the clear at once. */
+        if (max31865_bias_on_clear(&s_max31865) != HAL_OK ||
+            max31865_manual_fault_step1(&s_max31865) != HAL_OK) {
+            fail_closed(true);
+            return;
+        }
+        s_verify = RTD_VERIFY_RUNNING;
+        s_phase_t0_us = hal_timer->get_time_us();
+        enter(RTD_PHASE_STEP1);
+        return;
+    }
 
     if (sampled && !low) {
         s_drdy_armed = true;
@@ -236,12 +310,10 @@ static void tick_converting(void)
         s_rtd_word = word;
         s_rtd_word_age_ticks = 0u;
         s_wait_ticks = 0u;
-        if (s_rtd_word_valid && (word & MAX31865_RTD_WORD_FAULT) != 0u) {
-            /* Threshold (or other) fault detected during this conversion. */
-            (void)max31865_report_conversion_fault(&s_max31865,
-                                                   state_machine_report_rtd_device_fault,
-                                                   NULL);
-            fail_closed(false);
+        if (!s_rtd_word_valid) {
+            s_sample.spi_ok = false;
+            s_have_sample = false;
+        } else if (!take_sample(word)) {
             return;
         }
     }
@@ -316,4 +388,29 @@ bool rtd_service_latest_word(uint16_t *rtd_word, uint8_t *age_ticks)
         *age_ticks = s_rtd_word_age_ticks;
     }
     return true;
+}
+
+bool rtd_service_latest_sample(rtd_sample_t *out)
+{
+    if (out == NULL || !s_ready || !s_have_sample ||
+        s_rtd_word_age_ticks > RTD_DRDY_TIMEOUT_CONTROL_TICKS) {
+        return false;
+    }
+    *out = s_sample;
+    return true;
+}
+
+bool rtd_service_fault_status_clean(void)
+{
+    if (!s_ready) {
+        return false;
+    }
+    if (s_verify == RTD_VERIFY_CLEAN) {
+        s_verify = RTD_VERIFY_NONE; /* consumed by the reset it allows */
+        return true;
+    }
+    if (s_verify == RTD_VERIFY_NONE) {
+        s_verify = RTD_VERIFY_REQUESTED;
+    }
+    return false;
 }

@@ -10,6 +10,7 @@
 #include "../components/hal/include/hal.h"
 #include "../components/hal/include/controller_pins.h"
 #include "../components/sensors/include/max31865.h"
+#include "../components/sensors/include/rtd_convert.h"
 #include "../components/sensors/include/rtd_service.h"
 #include "../config.h"
 #include "../main/state_machine.h"
@@ -20,11 +21,13 @@ extern void mock_spi_set_register(hal_spi_device_t device, uint8_t reg,
 extern uint8_t mock_spi_get_register(hal_spi_device_t device, uint8_t reg);
 extern void mock_spi_fail_next_read(hal_status_t status);
 extern void mock_spi_fail_next_write(hal_status_t status);
+extern uint8_t mock_spi_previous_write(void);
 extern bool mock_gpio_is_initialized(hal_pin_t pin);
 extern void mock_timer_set_time(hal_time_us_t time_us);
 extern void mock_timer_advance(hal_time_us_t delta_us);
 extern void mock_sm_reset(void);
 extern void mock_sm_set_pan_temperature(float temp);
+extern void mock_sm_set_pan_sensor_failure(rtd_sensor_fail_t failure);
 extern uint32_t mock_sm_get_trigger_shutdown_count(void);
 
 static max31865_device_t sensor;
@@ -424,12 +427,17 @@ void test_rtd_startup_runs_to_first_word(void)
     TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
 }
 
-/* Why startup exists: one state-machine tick without a pan temperature latches the runaway fault. */
-void test_state_machine_tick_without_reading_latches_runaway(void)
+/* Why startup exists: a state-machine tick without a reading is a latched probe fault. */
+void test_state_machine_tick_without_reading_is_a_probe_fault(void)
 {
     mock_sm_set_pan_temperature(NAN);
+    mock_sm_set_pan_sensor_failure(RTD_SENSOR_FAIL_OPEN);
     state_machine_update();
-    TEST_ASSERT_EQUAL(STATE_RUNAWAY_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+    state_machine_update(); /* and it does not escalate */
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
 }
 
 void test_rtd_startup_reports_power_up_fault(void)
@@ -500,9 +508,9 @@ void test_rtd_service_word_ages_out_when_conversions_stop(void)
     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
 }
 
-/* A threshold fault detected during a conversion: the word carries the fault bit, the latched
- * status is read and reported at once (short preferred), and the service ends. */
-void test_rtd_service_fault_mid_conversion_reports_and_stops(void)
+/* A threshold fault during a conversion is reported (short preferred) and the converter keeps
+ * running, so a reset can verify the probe. The latched code stays the first one. */
+void test_rtd_service_fault_mid_conversion_reports_and_keeps_converting(void)
 {
     bootstrap_to_converting();
     conversion(0x4000u);
@@ -511,12 +519,149 @@ void test_rtd_service_fault_mid_conversion_reports_and_stops(void)
     conversion((uint16_t)(0x0010u | MAX31865_RTD_WORD_FAULT));
     TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
     TEST_ASSERT_EQUAL(FAULT_PROBE_SHORT, state_machine_get_fault());
+    TEST_ASSERT_TRUE(rtd_service_is_ready());
+    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, MAX31865_FAULT_HIGH_THRESHOLD);
+    conversion((uint16_t)(0xFFFEu | MAX31865_RTD_WORD_FAULT));
+    TEST_ASSERT_EQUAL(FAULT_PROBE_SHORT, state_machine_get_fault());
+    TEST_ASSERT_EQUAL_UINT32(2, mock_sm_get_trigger_shutdown_count()); /* the cut is re-asserted */
+}
+
+/* Short bits: RTD low, REFIN- low and RTDIN- low (sensor-r3 D-SM). */
+void test_rtd_service_input_low_bits_are_short(void)
+{
+    bootstrap_to_converting();
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, 0x08u);
+    conversion((uint16_t)(0x4000u | MAX31865_RTD_WORD_FAULT));
+    TEST_ASSERT_EQUAL(FAULT_PROBE_SHORT, state_machine_get_fault());
+}
+
+/* ---------------------------------------------------------------- samples */
+void test_rtd_service_sample_is_converted_with_cr7(void)
+{
+    rtd_sample_t s;
+    bootstrap_to_converting();
+    TEST_ASSERT_FALSE(rtd_service_latest_sample(&s));
+    conversion(0x4000u);  /* code 8192 = 107.5 ohm measured */
+    TEST_ASSERT_TRUE(rtd_service_latest_sample(&s));
+    TEST_ASSERT_EQUAL_UINT16(8192u, s.code);
+    TEST_ASSERT_FLOAT_WITHIN(0.002f, 107.4486f, s.r_ohm); /* - (7.86e-4 x 107.5 - 0.0331) */
+    TEST_ASSERT_FLOAT_WITHIN(0.02f, 19.11f - 0.061f, s.t_c);
+    TEST_ASSERT_EQUAL_UINT32(1u, s.seq);
+    TEST_ASSERT_TRUE(s.spi_ok);
+    TEST_ASSERT_EQUAL_HEX8(0u, s.fault_status);
+    conversion(0x4002u);
+    TEST_ASSERT_TRUE(rtd_service_latest_sample(&s));
+    TEST_ASSERT_EQUAL_UINT32(2u, s.seq);
+}
+
+/* The flagged sample keeps its code and status: a real over-temperature above 360 degC must stay a
+ * temperature (D-OPEN), while an open element (full scale) is a failure. */
+void test_rtd_service_flagged_sample_keeps_code_and_status(void)
+{
+    rtd_sample_t s;
+    bootstrap_to_converting();
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, MAX31865_FAULT_HIGH_THRESHOLD);
+    conversion((uint16_t)((18200u << 1) | MAX31865_RTD_WORD_FAULT)); /* about 375 degC */
+    TEST_ASSERT_TRUE(rtd_service_latest_sample(&s));
+    TEST_ASSERT_EQUAL_UINT16(18200u, s.code);
+    TEST_ASSERT_EQUAL_HEX8(MAX31865_FAULT_HIGH_THRESHOLD, s.fault_status);
+    TEST_ASSERT_TRUE(s.t_c > 360.0f && s.t_c < 390.0f);
+    TEST_ASSERT_EQUAL(RTD_SENSOR_OK, rtd_convert_classify_failure(s.code, s.fault_status));
+    conversion((uint16_t)((32767u << 1) | MAX31865_RTD_WORD_FAULT));
+    TEST_ASSERT_TRUE(rtd_service_latest_sample(&s));
+    TEST_ASSERT_EQUAL(RTD_SENSOR_FAIL_OPEN, rtd_convert_classify_failure(s.code, s.fault_status));
+}
+
+void test_rtd_service_frozen_code_is_adc_stuck(void)
+{
+    unsigned n;
+    bootstrap_to_converting();
+    for (n = 1u; n < RTD_FROZEN_CONVERSIONS; n++) {
+        conversion(0x4000u);
+        TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+    }
+    conversion(0x4000u);
+    TEST_ASSERT_EQUAL(FAULT_ADC_STUCK, state_machine_get_fault());
     TEST_ASSERT_FALSE(rtd_service_is_ready());
-    TEST_ASSERT_FALSE(rtd_service_latest_word(NULL, NULL));
-    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
-    /* Terminal: later conversions do not report again. */
+}
+
+/* ---------------------------------------------------------------- reset verification (D-RESET) */
+static void flag_and_heal(void)
+{
+    bootstrap_to_converting();
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, MAX31865_FAULT_HIGH_THRESHOLD);
+    conversion((uint16_t)((32767u << 1) | MAX31865_RTD_WORD_FAULT));
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, 0u);
+    conversion(0x4000u);
+}
+
+/* From the request to the restart: 0x82 (clears 07h), step 1, step 2, 07h, 0xC0. */
+static void run_verification(uint8_t cycle_status)
+{
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean());
+    tick();
+    TEST_ASSERT_EQUAL_HEX8(CFG_STEP1, config_reg());
+    TEST_ASSERT_EQUAL_HEX8(0x82u, mock_spi_previous_write()); /* 07h cleared, conversions off */
+    tick();
+    TEST_ASSERT_EQUAL_HEX8(CFG_STEP2, config_reg());
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, cycle_status);
+    mock_fault_cycle_finishes();
+    tick();
+    tick();
+    TEST_ASSERT_TRUE(rtd_service_converting());
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean()); /* no conversion since the cycle */
+}
+
+void test_rtd_reset_needs_a_clean_cycle_and_a_clean_conversion(void)
+{
+    flag_and_heal();
+    run_verification(0u);
+    conversion(0x4002u);
+    TEST_ASSERT_TRUE(rtd_service_fault_status_clean());
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean()); /* used once */
+}
+
+/* RTDIN- shorted to ground converts inside the window: only the cycle sees it. */
+void test_rtd_reset_refused_by_a_flagged_cycle(void)
+{
+    flag_and_heal();
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean());
+    tick();
+    tick();
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, 0x08u);
+    mock_fault_cycle_finishes();
+    tick();
+    tick();
+    TEST_ASSERT_TRUE(rtd_service_converting()); /* not terminal after power-up */
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, 0u);
+    conversion(0x4002u);
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault()); /* first code kept */
+}
+
+void test_rtd_reset_refused_by_a_flagged_conversion_after_the_cycle(void)
+{
+    flag_and_heal();
+    run_verification(0u);
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, MAX31865_FAULT_LOW_THRESHOLD);
     conversion((uint16_t)(0x0010u | MAX31865_RTD_WORD_FAULT));
-    TEST_ASSERT_EQUAL_UINT32(1, mock_sm_get_trigger_shutdown_count());
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, 0u);
+    conversion(0x4002u);
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean());
+}
+
+void test_rtd_reset_refused_after_a_power_up_fault(void)
+{
+    bootstrap_to_step2();
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, 0x28u);
+    mock_fault_cycle_finishes();
+    tick();
+    mock_spi_set_register(RTD_DEV, MAX31865_REG_FAULT_STATUS, 0u);
+    tick();
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean());
+    tick();
+    TEST_ASSERT_FALSE(rtd_service_fault_status_clean());
 }
 
 void test_rtd_service_fault_bit_with_clean_status_fails_closed_open(void)
@@ -586,13 +731,21 @@ void run_max31865_tests(void)
     RUN_TEST(test_rtd_service_restart_write_failure_fails_closed);
     RUN_TEST(test_rtd_service_no_cycle_while_converting);
     RUN_TEST(test_rtd_startup_runs_to_first_word);
-    RUN_TEST(test_state_machine_tick_without_reading_latches_runaway);
+    RUN_TEST(test_state_machine_tick_without_reading_is_a_probe_fault);
     RUN_TEST(test_rtd_startup_reports_power_up_fault);
     RUN_TEST(test_rtd_startup_silent_converter_is_bounded);
     RUN_TEST(test_rtd_startup_failed_bootstrap_reports);
     RUN_TEST(test_rtd_service_conversion_reads_word_and_releases_drdy);
     RUN_TEST(test_rtd_service_word_ages_out_when_conversions_stop);
-    RUN_TEST(test_rtd_service_fault_mid_conversion_reports_and_stops);
+    RUN_TEST(test_rtd_service_fault_mid_conversion_reports_and_keeps_converting);
+    RUN_TEST(test_rtd_service_input_low_bits_are_short);
+    RUN_TEST(test_rtd_service_sample_is_converted_with_cr7);
+    RUN_TEST(test_rtd_service_flagged_sample_keeps_code_and_status);
+    RUN_TEST(test_rtd_service_frozen_code_is_adc_stuck);
+    RUN_TEST(test_rtd_reset_needs_a_clean_cycle_and_a_clean_conversion);
+    RUN_TEST(test_rtd_reset_refused_by_a_flagged_cycle);
+    RUN_TEST(test_rtd_reset_refused_by_a_flagged_conversion_after_the_cycle);
+    RUN_TEST(test_rtd_reset_refused_after_a_power_up_fault);
     RUN_TEST(test_rtd_service_fault_bit_with_clean_status_fails_closed_open);
     RUN_TEST(test_rtd_service_drdy_stuck_low_is_one_conversion);
     RUN_TEST(test_rtd_service_failed_data_read_invalidates_word);

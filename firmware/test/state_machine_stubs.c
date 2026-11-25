@@ -19,6 +19,7 @@
 #include "../main/state_machine.h"
 #include "../main/state_handlers.h"
 #include "../config.h"
+#include "../components/sensors/include/rtd_convert.h"
 
 /* Pan detection result type (matches state_machine.c local typedef) */
 typedef enum { PAN_ABSENT, PAN_PRESENT } pan_status_t;
@@ -33,6 +34,9 @@ static struct {
     
     /* Sensor readings */
     float pan_temperature;
+    rtd_sensor_fail_t pan_sensor_failure;
+    bool rtd_reset_refused;
+    bool power_path_killed;
     float heatsink_temperature;
     float dc_bus_current;
     float rtd_resistance;
@@ -156,6 +160,9 @@ static struct {
 void mock_sm_reset(void) {
     memset(&mock_sm_state, 0, sizeof(mock_sm_state));
     mock_sm_state.pan_temperature = 25.0f;
+    mock_sm_state.pan_sensor_failure = RTD_SENSOR_OK;
+    mock_sm_state.rtd_reset_refused = false;
+    mock_sm_state.power_path_killed = false;
     mock_sm_state.heatsink_temperature = 25.0f;
     mock_sm_state.rtd_resistance = 100.0f;
     mock_sm_state.pan_impedance = 5.0f;
@@ -217,6 +224,18 @@ void mock_sm_advance_time(uint32_t ms) {
 
 void mock_sm_set_time(uint32_t ms) {
     mock_sm_state.current_time_ms = ms;
+}
+
+void mock_sm_set_pan_sensor_failure(rtd_sensor_fail_t failure) {
+    mock_sm_state.pan_sensor_failure = failure;
+}
+
+void mock_sm_set_rtd_reset_verified(bool verified) {
+    mock_sm_state.rtd_reset_refused = !verified;
+}
+
+void mock_sm_set_power_path_killed(bool killed) {
+    mock_sm_state.power_path_killed = killed;
 }
 
 void mock_sm_set_pan_temperature(float temp_c) {
@@ -439,6 +458,18 @@ bool is_fan_running(void) {
 }
 
 /* Sensors */
+rtd_sensor_fail_t read_pan_sensor_failure(void) {
+    return mock_sm_state.pan_sensor_failure;
+}
+
+bool rtd_reset_verified(void) {
+    return !mock_sm_state.rtd_reset_refused;
+}
+
+bool power_path_rearmable(void) {
+    return !mock_sm_state.power_path_killed;
+}
+
 float read_pan_temperature(void) {
     return mock_sm_state.pan_temperature;
 }

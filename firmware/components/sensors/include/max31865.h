@@ -31,6 +31,7 @@ extern "C" {
 #define MAX31865_CONFIG_VBIAS                 0x80u /* D7 bias on */
 #define MAX31865_CONFIG_CONVERSION_AUTO       0x40u /* D6 continuous conversions */
 #define MAX31865_CONFIG_3WIRE                 0x10u /* D4: 1 = 3-wire, 0 = 2- or 4-wire */
+#define MAX31865_CONFIG_FAULT_CLEAR           0x02u /* D1: clears 07h, self-clears */
 #define MAX31865_CONFIG_FAULT_CYCLE_STEP1     0x08u /* D3:D2 = 10: manual cycle, first step */
 #define MAX31865_CONFIG_FAULT_CYCLE_STEP2     0x0Cu /* D3:D2 = 11: manual cycle, second step */
 #define MAX31865_CONFIG_FAULT_CYCLE_MASK      0x0Cu /* D3:D2 read back 00 once a cycle is done */
@@ -49,6 +50,7 @@ extern "C" {
  * (D3:D2 = 01, or 11 without a prior 10) is invalid on the controller: the CR-1 input filter is far
  * above the 100 us it allows and it flags a healthy probe (controller C37; sensor-r3 D-FCYC). */
 #define MAX31865_CONFIG_BIAS_ON      (MAX31865_CONFIG_VBIAS | MAX31865_CONFIG_WIRING_FILTER)
+#define MAX31865_CONFIG_BIAS_CLEAR   (MAX31865_CONFIG_BIAS_ON | MAX31865_CONFIG_FAULT_CLEAR)
 #define MAX31865_CONFIG_MANUAL_STEP1 (MAX31865_CONFIG_BIAS_ON | MAX31865_CONFIG_FAULT_CYCLE_STEP1)
 #define MAX31865_CONFIG_MANUAL_STEP2 (MAX31865_CONFIG_BIAS_ON | MAX31865_CONFIG_FAULT_CYCLE_STEP2)
 #define MAX31865_CONFIG_CONVERTING   (MAX31865_CONFIG_BIAS_ON | MAX31865_CONFIG_CONVERSION_AUTO)
@@ -56,6 +58,9 @@ extern "C" {
 /* Fault-status bits from register 07h. */
 #define MAX31865_FAULT_HIGH_THRESHOLD 0x80u
 #define MAX31865_FAULT_LOW_THRESHOLD  0x40u
+#define MAX31865_FAULT_REFIN_HIGH     0x20u /* D5: REFIN- > 0.85 VBIAS */
+#define MAX31865_FAULT_REFIN_LOW      0x10u /* D4: REFIN- < 0.85 VBIAS, FORCE- open */
+#define MAX31865_FAULT_RTDIN_LOW      0x08u /* D3: RTDIN- < 0.85 VBIAS, FORCE- open */
 
 /* Reference resistor of the pan RTD channel: RTDSensing.r_ref = 430 ohm +/- 0.05 %
  * (zapote/controller/elec/src/modules.ato:1823 on branch controller-layout, 4-wire network,
@@ -114,14 +119,12 @@ hal_status_t max31865_check_fault_status(const max31865_device_t *device,
                                          max31865_fault_sink_t fault_sink,
                                          void *context, bool *fault_reported);
 
-/**
- * A conversion's data word carried the fault bit: read the latched fault
- * status and report it. A failed read, or a clean status despite the bit, is
- * reported as open/out-of-range (fail closed). The sink is always called.
- */
-hal_status_t max31865_report_conversion_fault(const max31865_device_t *device,
-                                              max31865_fault_sink_t fault_sink,
-                                              void *context);
+/** Report a non-zero fault status: short for the RTD-low, REFIN- low and RTDIN- low bits (preferred),
+ * otherwise open/out-of-range. */
+void max31865_report_status(max31865_fault_sink_t fault_sink, uint8_t fault_status, void *context);
+
+/** VBIAS on, conversions off, 07h cleared (D1): the start of a reset verification only. */
+hal_status_t max31865_bias_on_clear(const max31865_device_t *device);
 
 /** Read the 16-bit RTD data word (registers 01h/02h, MSB first). Reading it also releases DRDY
  * (datasheet: DRDY returns high when the RTD data registers are read). */

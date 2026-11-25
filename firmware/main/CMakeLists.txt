@@ -25,6 +25,7 @@ idf_component_register(
         "../components/safety/pwm_guard.c"
         "../components/sensors/max31865.c"
         "../components/sensors/rtd_service.c"
+        "../components/sensors/rtd_convert.c"
         # Platform layer (ESP-IDF only; host doubles in test/state_machine_stubs.c)
         "platform/platform_esp32.c"
         "platform/ui_esp32.c"

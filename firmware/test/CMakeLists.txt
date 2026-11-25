@@ -186,6 +186,7 @@ add_executable(test_max31865_only
     ${MOCK_HAL_SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/max31865.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_service.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/sensors/rtd_convert.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_machine.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../main/state_handlers.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../components/control/thermal_mgmt.c
@@ -587,7 +588,8 @@ add_test(NAME thermal_mgmt_tests COMMAND test_thermal_mgmt)
 # ESP32 platform layer, pure part (components/platform): MAX31865 word -> ohm -> PT100 with the
 # fail-safe sentinels, blower full-speed floor, NVS fault-log ring, display text, UI-board inputs.
 add_executable(test_platform_logic test_platform_logic.c ../components/platform/platform_logic.c
-    ../components/sensors/max31865.c ../components/hal/mock/hal_init_mock.c ../components/hal/mock/mock_gpio.c
+    ../components/sensors/max31865.c ../components/sensors/rtd_convert.c
+    ../components/hal/mock/hal_init_mock.c ../components/hal/mock/mock_gpio.c
     ../components/hal/mock/mock_adc.c ../components/hal/mock/mock_pwm.c ../components/hal/mock/mock_spi.c
     ../components/hal/mock/mock_timer.c)
 target_include_directories(test_platform_logic PRIVATE ../components/platform/include

@@ -7,6 +7,7 @@
  */
 
 #include "state_machine.h"
+#include "../components/sensors/include/rtd_convert.h"
 #include "state_handlers.h"
 #include "config.h"
 #include "../components/control/thermal_mgmt.h"
@@ -95,6 +96,12 @@ extern bool power_tank_overcurrent_tripped(void);
  * input on the controller both stay false. Check 2 is the binding's start sequence. */
 extern void power_bias_step(bool *stuck, bool *lost);
 extern float read_rtd_resistance(void);
+/* Class of the latest conversion (rtd_convert.h); no usable conversion is OPEN. */
+extern rtd_sensor_fail_t read_pan_sensor_failure(void);
+/* One-shot: the manual fault cycle and a later conversion read clean (rtd_service.h). */
+extern bool rtd_reset_verified(void);
+/* False once RUN_EN has been killed (ctrl_board_run_en_kill(): until MCU reset). */
+extern bool power_path_rearmable(void);
 extern bool is_fan_running(void);
 extern void delay_ms(uint32_t ms);
 extern void eeprom_log_fault(fault_code_t code, uint32_t timestamp);
@@ -147,10 +154,25 @@ void enter_hardware_latched_fault(fault_code_t fault) {
     transition_to(STATE_FAULT);
 }
 
+/* The converter runs in every state. A report while a fault is already latched re-asserts the cut and
+ * keeps the first code: the code decides fault_cleared() and is what the user sees (sensor-r3
+ * D-LATCH). Escalation to RUNAWAY_FAULT is separate (check_runaway_boundary). */
+static bool fault_already_latched(void) {
+    return sm_ctx.current_state == STATE_FAULT ||
+           sm_ctx.current_state == STATE_RUNAWAY_FAULT;
+}
+
 void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
                                            void *context) {
     (void)context;
 
+    if (!short_fault && !open_fault) {
+        return;
+    }
+    if (fault_already_latched()) {
+        assert_hardware_fault_cut();
+        return;
+    }
     /* Both decoded MAX31865 threshold bits still represent a terminal RTD
      * safety failure. Prefer the short diagnosis when both are reported. */
     if (short_fault) {
@@ -158,6 +180,14 @@ void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
     } else if (open_fault) {
         enter_hardware_latched_fault(FAULT_PROBE_OPEN);
     }
+}
+
+void state_machine_report_rtd_frozen(void) {
+    if (fault_already_latched()) {
+        assert_hardware_fault_cut();
+        return;
+    }
+    enter_hardware_latched_fault(FAULT_ADC_STUCK);
 }
 
 /* Self-test stubs */
@@ -504,6 +534,17 @@ static void check_runaway_boundary(void) {
     /* If already latched, nothing to check */
     if (sm_ctx.runaway_latched) return;
 
+    /* A conversion that is evidently a sensor failure, or no conversion at all, is not a
+     * temperature: an open element converts to 988.7 degC. It latches the probe fault with the
+     * same hardware cut, not the RUNAWAY lockout (sensor-r3 D-OPEN; owner 2026-11-24). A plausible
+     * reading above the limit still latches below, flagged by the 360 degC threshold or not. */
+    rtd_sensor_fail_t sensor = read_pan_sensor_failure();
+    if (sensor != RTD_SENSOR_OK) {
+        state_machine_report_rtd_device_fault(sensor == RTD_SENSOR_FAIL_SHORT,
+                                              sensor == RTD_SENSOR_FAIL_OPEN, NULL);
+        return;
+    }
+
     float temp = read_pan_temperature();
     uint32_t now = get_time_ms();
 
@@ -581,8 +622,17 @@ bool fault_cleared(void) {
             rtd_resistance = read_rtd_resistance();
             /* Do not permit reset while the inclusive MAX31865 guard window
              * still reports a short or open/out-of-range PT100 condition. */
-            return (rtd_resistance > RTD_SHORT_FAULT_OHM &&
-                    rtd_resistance < RTD_OPEN_FAULT_OHM);
+            if (!(rtd_resistance > RTD_SHORT_FAULT_OHM &&
+                  rtd_resistance < RTD_OPEN_FAULT_OHM) ||
+                read_pan_sensor_failure() != RTD_SENSOR_OK) {
+                return false;
+            }
+            /* RUN_EN killed until MCU reset: a reset would reach IDLE with a stage that cannot
+             * start, so it is refused and the display says why (state_fault_update). */
+            if (!power_path_rearmable()) {
+                return false;
+            }
+            return rtd_reset_verified();
 
         case FAULT_SELF_TEST_FAILED:
             return run_self_test();

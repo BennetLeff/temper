@@ -275,6 +275,7 @@ void state_machine_set_intensity(uint8_t level);
  * caller and is ignored here. A short takes diagnostic priority if both bits
  * are asserted; either condition immediately asserts hardware shutdown.
  */
+void state_machine_report_rtd_frozen(void);
 void state_machine_report_rtd_device_fault(bool short_fault, bool open_fault,
                                            void *context);
 

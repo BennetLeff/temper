@@ -694,7 +694,28 @@ void state_cooldown_update(void) {
  * STATE_FAULT Implementation
  * ============================================================================ */
 
+/* A probe-fault reset is verified by a manual MAX31865 fault cycle (sensor-r3 D-RESET), about 0.1 s:
+ * longer than a short press, so a press stays armed this long with the coil off. Other faults still
+ * need the button held. */
+#define RESET_PROBE_ARM_MS 1000u
+static uint32_t s_reset_armed_at_ms;
+static bool s_reset_armed;
+
+extern bool power_path_rearmable(void);
+
+static bool is_probe_fault(fault_code_t f) {
+    return f == FAULT_PROBE_OPEN || f == FAULT_PROBE_SHORT;
+}
+
+static void accept_fault_reset(void) {
+    s_reset_armed = false;
+    sm_get_context()->fault_code = FAULT_NONE;
+    buzzer_stop();
+    transition_to(STATE_INIT);
+}
+
 void state_fault_entry(void) {
+    s_reset_armed = false;
     /* EMERGENCY SHUTDOWN */
     power_set_level(0);
     pwm_disable_all();
@@ -726,14 +747,21 @@ void state_fault_update(void) {
     if (button_is_pressed(BUTTON_BACK)) {
         if (fault_cleared()) {
             /* Fault condition has cleared: reinitialize */
-            sm_get_context()->fault_code = FAULT_NONE;
-            buzzer_stop();
-            transition_to(STATE_INIT);
+            accept_fault_reset();
             return;
-        } else {
-            /* Fault persists */
-            display_show_message("FAULT PERSISTS");
-            buzzer_beep(BEEP_FAULT_PERSISTS_MS);
+        }
+        display_show_message(is_probe_fault(sm_get_context()->fault_code) && !power_path_rearmable()
+                                 ? "POWER CYCLE TO RESET" : "FAULT PERSISTS");
+        buzzer_beep(BEEP_FAULT_PERSISTS_MS);
+        s_reset_armed = true;
+        s_reset_armed_at_ms = get_time_ms();
+    } else if (s_reset_armed) {
+        if (!is_probe_fault(sm_get_context()->fault_code) ||
+            (uint32_t)(get_time_ms() - s_reset_armed_at_ms) > RESET_PROBE_ARM_MS) {
+            s_reset_armed = false;
+        } else if (fault_cleared()) {
+            accept_fault_reset();
+            return;
         }
     }
 

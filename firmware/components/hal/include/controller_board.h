@@ -173,6 +173,7 @@ ctrl_blw_pg_t ctrl_exp_blw_pg(const ctrl_exp_cache_t *c, uint64_t now_us, uint64
 bool ctrl_board_init(void);                       /* pins, I2C + expander, UI SPI3 bus */
 bool ctrl_board_set_run_en(bool on);              /* GPIO14; "on" refused after a kill */
 bool ctrl_board_run_en_kill(void);                /* latched until MCU reset */
+bool ctrl_board_run_en_killed(void);
 bool ctrl_board_poll_expander(void);              /* control task, every tick; debounces BLW_PG */
 bool ctrl_board_expander(ctrl_exp_cache_t *out);  /* copy of the cache (any task) */
 /* L3 blower on J10 (DECISIONS C28). The decisions are blower_ctrl_step() (thermal_mgmt.c); these

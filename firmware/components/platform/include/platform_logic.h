@@ -21,28 +21,6 @@
 extern "C" {
 #endif
 
-/* ---------------------------------------------------------------- pan RTD (PT100, MAX31865) */
-/* IEC 60751 Callendar-Van Dusen coefficients for a PT100 (R0 = 100 ohm). */
-#define PT100_R0_OHM   100.0f
-#define PT100_CVD_A    3.9083e-3f
-#define PT100_CVD_B   (-5.775e-7f)
-/* The standard's range, -200..850 C (pt100_r_at(): 19.5..390.5 ohm). Outside it: no temperature. */
-#define PT100_T_MIN_C (-200.0f)
-#define PT100_T_MAX_C  850.0f
-
-/* PT100 resistance at t_c (the standard's T >= 0 C form; used by the tests and for t < 0 too). */
-float pt100_r_at(float t_c);
-/* Inverse of pt100_r_at() (the quadratic): exact for t >= 0 C; below 0 C it ignores the C term
- * (the error is bounded by test_pt100_below_zero_error). NaN for a non-finite resistance or one
- * outside PT100_T_MIN_C..PT100_T_MAX_C. */
-float pt100_ohm_to_c(float ohm);
-
-/* read_rtd_resistance(): have_word = rtd_service_latest_word() succeeded. No usable word, or a word
- * with the MAX31865 fault bit, is +INFINITY. */
-float platform_rtd_resistance(bool have_word, uint16_t rtd_word, float rref_ohm);
-/* read_pan_temperature(): NaN whenever platform_rtd_resistance() is not finite or out of range. */
-float platform_pan_temperature(bool have_word, uint16_t rtd_word, float rref_ohm);
-
 /* ---------------------------------------------------------------- native-21 over-current sources */
 /* Design lead decision 2026-10-12: DC bus current is not measured on this hardware; the state
  * machine's over-current interlocks read these instead.

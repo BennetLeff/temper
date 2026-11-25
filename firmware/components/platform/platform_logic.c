@@ -7,43 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "max31865.h"
 #include "n21_binding.h"
-
-/* ---------------------------------------------------------------- pan RTD */
-float pt100_r_at(float t_c)
-{
-    return PT100_R0_OHM * (1.0f + PT100_CVD_A * t_c + PT100_CVD_B * t_c * t_c);
-}
-
-float pt100_ohm_to_c(float ohm)
-{
-    if (!isfinite(ohm)) return NAN;
-    if (ohm < pt100_r_at(PT100_T_MIN_C) || ohm > pt100_r_at(PT100_T_MAX_C)) return NAN;
-    /* B t^2 + A t + (1 - R/R0) = 0, the root that is continuous through 0 C. */
-    double a = PT100_CVD_A, b = PT100_CVD_B;
-    double disc = a * a - 4.0 * b * (1.0 - (double)ohm / PT100_R0_OHM);
-    if (disc < 0.0) return NAN;
-    return (float)((-a + sqrt(disc)) / (2.0 * b));
-}
-
-/* Sensor-r3 pcb/CHANGE-REQUEST.md CR-7, for the C1 cartridge on the CR-1 front end. */
-#define RTD_LOADING_K1     7.86e-4f
-#define RTD_LOADING_K0_OHM (-0.0331f)
-#define RTD_SELF_HEATING_K 0.061f
-
-float platform_rtd_resistance(bool have_word, uint16_t rtd_word, float rref_ohm)
-{
-    if (!have_word) return INFINITY;
-    /* CR-7: loading of the CR-1 sense filter (controller C37 fits it). +inf stays +inf. */
-    float r = max31865_rtd_word_to_ohm(rtd_word, rref_ohm);
-    return isfinite(r) ? r - (RTD_LOADING_K1 * r + RTD_LOADING_K0_OHM) : r;
-}
-
-float platform_pan_temperature(bool have_word, uint16_t rtd_word, float rref_ohm)
-{
-    return pt100_ohm_to_c(platform_rtd_resistance(have_word, rtd_word, rref_ohm)) - RTD_SELF_HEATING_K;
-}
 
 /* ---------------------------------------------------------------- native-21 over-current sources */
 bool platform_power_bus_trip(bool status_known, bool bus_fault, bool permit, bool bridge_running)

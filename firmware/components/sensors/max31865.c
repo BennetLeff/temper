@@ -17,20 +17,20 @@ static bool device_ready(const max31865_device_t *device)
     return device != NULL;
 }
 
-static void report_fault(max31865_fault_sink_t fault_sink, uint8_t status,
-                         void *context)
+void max31865_report_status(max31865_fault_sink_t fault_sink, uint8_t status, void *context)
 {
+    bool is_short;
+
     if (fault_sink == NULL || status == 0u) {
         return;
     }
-
-    /* The low threshold is the explicit short detector. Any remaining
-     * MAX31865 status is an unsafe open/out-of-range or analogue-path fault.
-     * When both thresholds are present, preserve the low-threshold diagnosis
-     * while still causing the same terminal hardware shutdown. */
-    fault_sink((status & MAX31865_FAULT_LOW_THRESHOLD) != 0u,
-               (status & (uint8_t)~MAX31865_FAULT_LOW_THRESHOLD) != 0u,
-               context);
+    /* Diagnosis only: both outcomes take the same hardware shutdown. RTD-low is a short. RTDIN- /
+     * REFIN- low are a short to ground (07h 0x18) unless REFIN- is also high: an open element or
+     * open FORCE+ reads 0x28 and an open FORCE- 0x20 (sensor-r3 fault-cycle.json). */
+    is_short = (status & MAX31865_FAULT_LOW_THRESHOLD) != 0u ||
+               ((status & (MAX31865_FAULT_REFIN_LOW | MAX31865_FAULT_RTDIN_LOW)) != 0u &&
+                (status & MAX31865_FAULT_REFIN_HIGH) == 0u);
+    fault_sink(is_short, !is_short, context);
 }
 
 static hal_status_t write_config(const max31865_device_t *device, uint8_t config)
@@ -38,8 +38,13 @@ static hal_status_t write_config(const max31865_device_t *device, uint8_t config
     if (!device_ready(device)) {
         return HAL_ERROR_INVALID_ARG;
     }
-    /* CONFIG.D1 is never set: fault status stays latched until a power cycle. */
+    /* D1 (fault clear) is set only by max31865_bias_on_clear(), for a reset verification. */
     return HAL_SPI_WRITE_REG(device->spi_device, MAX31865_REG_CONFIG, &config, 1u);
+}
+
+hal_status_t max31865_bias_on_clear(const max31865_device_t *device)
+{
+    return write_config(device, MAX31865_CONFIG_BIAS_CLEAR);
 }
 
 hal_status_t max31865_manual_fault_step1(const max31865_device_t *device)
@@ -137,29 +142,11 @@ hal_status_t max31865_check_fault_status(const max31865_device_t *device,
             /* A transport failure cannot be told from an open RTD path: same terminal path. */
             fault_sink(false, true, context);
         } else {
-            report_fault(fault_sink, fault_status, context);
+            max31865_report_status(fault_sink, fault_status, context);
         }
         if (fault_reported != NULL) {
             *fault_reported = true;
         }
-    }
-    return status;
-}
-
-hal_status_t max31865_report_conversion_fault(const max31865_device_t *device,
-                                              max31865_fault_sink_t fault_sink,
-                                              void *context)
-{
-    uint8_t fault_status = 0u;
-    hal_status_t status = max31865_read_fault_status(device, &fault_status);
-
-    if (fault_sink == NULL) {
-        return status;
-    }
-    if (status != HAL_OK || fault_status == 0u) {
-        fault_sink(false, true, context);
-    } else {
-        report_fault(fault_sink, fault_status, context);
     }
     return status;
 }

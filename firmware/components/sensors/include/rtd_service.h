@@ -15,9 +15,10 @@
  * conversion still checks the input against the thresholds: open element, shorted element and open
  * RTDIN- are caught within a conversion (D-FCYC). RTDIN- shorted to ground in service can convert
  * inside the window and is seen only by the power-up cycle.
- * Any reported fault ends the service (terminal; the state machine has latched the cut).
- * `rtd_service_control_tick()` is called by the control task and is the sole owner of MAX31865
- * SPI transfers and state-machine fault delivery.
+ * Faults. A flagged conversion is reported and the converter keeps running, so a reset can verify the
+ * probe (rtd_service_fault_status_clean()). Terminal until a power cycle: a flagged power-up cycle, a
+ * cycle that does not finish, no conversion for RTD_DRDY_TIMEOUT_CONTROL_TICKS, a frozen code, a
+ * flagged word with no readable status, an SPI failure in a cycle.
  */
 
 #ifndef RTD_SERVICE_H
@@ -60,6 +61,32 @@ typedef bool (*rtd_drdy_level_fn)(void *context, bool refresh, bool *drdy_low);
 
 /** Install the DRDY source; required before rtd_service_bootstrap(). */
 void rtd_service_set_drdy_source(rtd_drdy_level_fn level, void *context);
+
+/* Identical codes in a row that count as a frozen converter: 5 s at 50 Hz (sensor-r3 D-STALE). A few
+ * are normal at 15 bits. */
+#define RTD_FROZEN_CONVERSIONS 250u
+
+typedef struct {
+    uint16_t code;         /* 15-bit ratiometric code */
+    float r_ohm;           /* CR-7 loading-corrected */
+    float t_c;             /* self-heating removed */
+    uint8_t fault_status;  /* register 07h when the word carried the fault bit, else 0 */
+    bool spi_ok;
+    uint32_t seq;          /* increments on every conversion */
+} rtd_sample_t;
+
+/** Latest conversion, flagged or not (rtd_convert_classify_failure() judges it). False before the
+ * first one, once it is older than RTD_DRDY_TIMEOUT_CONTROL_TICKS, or when the service has stopped. */
+bool rtd_service_latest_sample(rtd_sample_t *out);
+
+/**
+ * Safety-reset hook for a probe fault (sensor-r3 D-RESET). The first call asks for a verification and
+ * returns false: 07h clear, manual fault cycle, restart (about 0.1 s). True, once, after that cycle
+ * read 07h = 0 and a later conversion came back unflagged. A flagged cycle or conversion cancels it.
+ * Always false when the service has stopped (power-up cycle fault, no conversions, stuck cycle, SPI
+ * on the cycle, frozen code): those need a power cycle.
+ */
+bool rtd_service_fault_status_clean(void);
 
 /** Configure SPI2 and the MAX31865 chip-select, write the thresholds and switch VBIAS on.
  * Fails (and the control task then fails closed) without a DRDY source. */

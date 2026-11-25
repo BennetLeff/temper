@@ -26,6 +26,7 @@
 #include "max31865.h"
 #include "platform_esp32.h"
 #include "platform_logic.h"
+#include "rtd_convert.h"
 #include "rtd_service.h"
 #include "state_machine.h"
 #include "../components/control/thermal_mgmt.h"
@@ -54,17 +55,26 @@ uint32_t get_time_ms(void)
  * DRDY completion in the control task (the only caller of these two functions). */
 float read_rtd_resistance(void)
 {
-    uint16_t w = 0;
-    bool ok = rtd_service_latest_word(&w, NULL);
-    return platform_rtd_resistance(ok, w, MAX31865_RREF_OHM);
+    rtd_sample_t s;
+    return rtd_service_latest_sample(&s) ? s.r_ohm : INFINITY;
 }
 
 float read_pan_temperature(void)
 {
-    uint16_t w = 0;
-    bool ok = rtd_service_latest_word(&w, NULL);
-    return platform_pan_temperature(ok, w, MAX31865_RREF_OHM);
+    rtd_sample_t s;
+    return rtd_service_latest_sample(&s) ? s.t_c : NAN;
 }
+
+rtd_sensor_fail_t read_pan_sensor_failure(void)
+{
+    rtd_sample_t s;
+    return rtd_service_latest_sample(&s) ? rtd_convert_classify_failure(s.code, s.fault_status)
+                                         : RTD_SENSOR_FAIL_OPEN;
+}
+
+bool rtd_reset_verified(void) { return rtd_service_fault_status_clean(); }
+
+bool power_path_rearmable(void) { return !ctrl_board_run_en_killed(); }
 
 /* DC bus current: this hardware has no DC-bus current measurement. Native-21's 1 mOhm DC-return
  * shunt feeds only a comparator (~61 A) whose output is ORed into BUS_FAULT (J4.10 -> GPIO21 and the
@@ -392,13 +402,10 @@ bool test_rtd_sensor(void)
         ESP_LOGE(TAG, "POST rtd: MAX31865 service not ready");
         return false;
     }
-    uint16_t w = 0;
-    if (rtd_service_latest_word(&w, NULL)) {
-        float r = platform_rtd_resistance(true, w, MAX31865_RREF_OHM);
-        if (!(r > RTD_SHORT_FAULT_OHM && r < RTD_OPEN_FAULT_OHM)) {
-            ESP_LOGE(TAG, "POST rtd: %.2f ohm outside the guard window", (double)r);
-            return false;
-        }
+    rtd_sample_t s;
+    if (rtd_service_latest_sample(&s) && !(s.r_ohm > RTD_SHORT_FAULT_OHM && s.r_ohm < RTD_OPEN_FAULT_OHM)) {
+        ESP_LOGE(TAG, "POST rtd: %.2f ohm outside the guard window", (double)s.r_ohm);
+        return false;
     }
     return true;
 }

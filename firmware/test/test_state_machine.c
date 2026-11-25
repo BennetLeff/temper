@@ -20,6 +20,12 @@
 #include "../components/control/thermal_mgmt.h"
 #include <string.h>
 #include <math.h>
+#include <math.h>
+#include "../components/sensors/include/rtd_convert.h"
+extern void mock_sm_set_pan_sensor_failure(rtd_sensor_fail_t failure);
+extern void mock_sm_set_rtd_reset_verified(bool verified);
+extern void mock_sm_set_power_path_killed(bool killed);
+extern void enter_hardware_latched_fault(fault_code_t fault);
 
 /* Forward declare mock control functions from state_machine_stubs.c */
 extern void mock_sm_reset(void);
@@ -1757,6 +1763,151 @@ void test_sm_reset_rejected_while_rtd_open_guard_active(void) {
     TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
 }
 
+/* ---- Probe faults stay probe faults (sensor-r3 D-OPEN / D-LATCH / D-RESET; owner 2026-11-24) */
+static void heat_then_fail_probe(rtd_sensor_fail_t failure) {
+    setup_test();
+    state_machine_force_state(STATE_HEATING);
+    state_machine_reset_temp_baseline();
+    mock_sm_set_pan_temperature(NAN);
+    mock_sm_set_pan_sensor_failure(failure);
+    mock_sm_advance_time(10);
+    state_machine_update();
+}
+
+void test_sm_broken_probe_is_a_probe_fault_not_runaway(void) {
+    heat_then_fail_probe(RTD_SENSOR_FAIL_OPEN);
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+    uint32_t cuts = mock_sm_get_trigger_shutdown_count();
+    TEST_ASSERT_TRUE(cuts >= 1u);
+    for (int i = 0; i < 50; i++) { /* it does not escalate, and the cut stays asserted */
+        mock_sm_advance_time(10);
+        state_machine_update();
+    }
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+    TEST_ASSERT_TRUE(mock_sm_get_trigger_shutdown_count() > cuts);
+}
+
+void test_sm_shorted_probe_is_probe_short(void) {
+    heat_then_fail_probe(RTD_SENSOR_FAIL_SHORT);
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_SHORT, state_machine_get_fault());
+}
+
+/* The interlock itself is unchanged: a hot reading from a working probe latches RUNAWAY, also
+ * after a probe fault, and so does a non-finite temperature nothing classed as a sensor failure. */
+void test_sm_plausible_over_temperature_still_latches_runaway_from_fault(void) {
+    heat_then_fail_probe(RTD_SENSOR_FAIL_OPEN);
+    mock_sm_set_pan_sensor_failure(RTD_SENSOR_OK);
+    mock_sm_set_pan_temperature(380.0f);
+    mock_sm_advance_time(10);
+    state_machine_update();
+    TEST_ASSERT_EQUAL(STATE_RUNAWAY_FAULT, state_machine_get_state());
+}
+
+void test_sm_unclassified_non_finite_temperature_still_latches_runaway(void) {
+    heat_then_fail_probe(RTD_SENSOR_OK);
+    TEST_ASSERT_EQUAL(STATE_RUNAWAY_FAULT, state_machine_get_state());
+}
+
+void test_sm_probe_report_never_overwrites_a_latched_fault(void) {
+    setup_test();
+    state_machine_force_state(STATE_HEATING);
+    enter_hardware_latched_fault(FAULT_OVER_TEMP);
+    state_machine_report_rtd_device_fault(false, true, NULL);
+    TEST_ASSERT_EQUAL(FAULT_OVER_TEMP, state_machine_get_fault());
+    state_machine_report_rtd_frozen();
+    TEST_ASSERT_EQUAL(FAULT_OVER_TEMP, state_machine_get_fault());
+}
+
+static void heal_probe(void) {
+    mock_sm_set_pan_sensor_failure(RTD_SENSOR_OK);
+    mock_sm_set_pan_temperature(25.0f);
+    mock_sm_set_rtd_resistance(109.7f);
+}
+
+static void reset_tick(void) {
+    mock_sm_advance_time(10);
+    state_machine_update();
+}
+
+void test_sm_probe_reset_needs_the_verified_cycle(void) {
+    heat_then_fail_probe(RTD_SENSOR_FAIL_OPEN);
+    heal_probe();
+    mock_sm_set_rtd_reset_verified(false);
+    mock_sm_press_button(BUTTON_BACK);
+    reset_tick();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    mock_sm_set_rtd_reset_verified(true);
+    reset_tick();
+    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_NONE, state_machine_get_fault());
+}
+
+/* The verification takes about 0.1 s, longer than a short press: the press stays armed for 1 s. */
+void test_sm_probe_reset_press_stays_armed_one_second(void) {
+    heat_then_fail_probe(RTD_SENSOR_FAIL_OPEN);
+    heal_probe();
+    mock_sm_set_rtd_reset_verified(false);
+    mock_sm_press_button(BUTTON_BACK);
+    reset_tick();
+    mock_sm_release_button(BUTTON_BACK);
+    for (int i = 0; i < 20; i++) reset_tick();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    mock_sm_set_rtd_reset_verified(true);
+    reset_tick();
+    TEST_ASSERT_EQUAL(STATE_INIT, state_machine_get_state());
+}
+
+void test_sm_probe_reset_arming_expires(void) {
+    heat_then_fail_probe(RTD_SENSOR_FAIL_OPEN);
+    heal_probe();
+    mock_sm_set_rtd_reset_verified(false);
+    mock_sm_press_button(BUTTON_BACK);
+    reset_tick();
+    mock_sm_release_button(BUTTON_BACK);
+    for (int i = 0; i < 101; i++) reset_tick();
+    mock_sm_set_rtd_reset_verified(true);
+    for (int i = 0; i < 10; i++) reset_tick();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+}
+
+/* Only a probe fault stays armed: any other fault needs the button held when it clears. */
+void test_sm_reset_press_does_not_arm_other_faults(void) {
+    setup_test();
+    state_machine_force_state(STATE_HEATING);
+    state_machine_reset_temp_baseline();
+    mock_sm_set_heatsink_temperature(90.0f);
+    enter_hardware_latched_fault(FAULT_OVER_TEMP);
+    mock_sm_press_button(BUTTON_BACK);
+    reset_tick();
+    mock_sm_release_button(BUTTON_BACK);
+    mock_sm_set_heatsink_temperature(25.0f);
+    for (int i = 0; i < 10; i++) reset_tick();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_OVER_TEMP, state_machine_get_fault());
+}
+
+void test_sm_probe_reset_refused_while_the_reading_still_fails(void) {
+    heat_then_fail_probe(RTD_SENSOR_FAIL_OPEN);
+    mock_sm_set_rtd_resistance(109.7f); /* in the window, but the conversion is a failure */
+    mock_sm_press_button(BUTTON_BACK);
+    reset_tick();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+}
+
+/* RUN_EN is killed until MCU reset: never return to IDLE with a power path that cannot start. */
+void test_sm_probe_reset_refused_while_run_en_is_killed(void) {
+    heat_then_fail_probe(RTD_SENSOR_FAIL_OPEN);
+    heal_probe();
+    mock_sm_set_power_path_killed(true);
+    mock_sm_press_button(BUTTON_BACK);
+    reset_tick();
+    TEST_ASSERT_EQUAL(STATE_FAULT, state_machine_get_state());
+    TEST_ASSERT_EQUAL(FAULT_PROBE_OPEN, state_machine_get_fault());
+}
+
 /**
  * Test: Reset button after fault cleared returns to INIT
  */
@@ -2313,6 +2464,17 @@ void run_state_machine_tests(void) {
     RUN_TEST(test_sm_invalid_coil_reading_trips);
     RUN_TEST(test_sm_fault_on_over_current);
     RUN_TEST(test_sm_fault_on_fan_failure);
+    RUN_TEST(test_sm_broken_probe_is_a_probe_fault_not_runaway);
+    RUN_TEST(test_sm_shorted_probe_is_probe_short);
+    RUN_TEST(test_sm_plausible_over_temperature_still_latches_runaway_from_fault);
+    RUN_TEST(test_sm_unclassified_non_finite_temperature_still_latches_runaway);
+    RUN_TEST(test_sm_probe_report_never_overwrites_a_latched_fault);
+    RUN_TEST(test_sm_probe_reset_needs_the_verified_cycle);
+    RUN_TEST(test_sm_probe_reset_press_stays_armed_one_second);
+    RUN_TEST(test_sm_probe_reset_arming_expires);
+    RUN_TEST(test_sm_reset_press_does_not_arm_other_faults);
+    RUN_TEST(test_sm_probe_reset_refused_while_the_reading_still_fails);
+    RUN_TEST(test_sm_probe_reset_refused_while_run_en_is_killed);
     RUN_TEST(test_sm_fault_on_probe_open);
     RUN_TEST(test_sm_fault_on_probe_open_at_max31865_guard_boundary);
     RUN_TEST(test_sm_fault_on_probe_short);

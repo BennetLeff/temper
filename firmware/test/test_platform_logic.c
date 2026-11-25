@@ -4,6 +4,7 @@
  * UI-board input decoding. Assertions are the oracle (built with -UNDEBUG). */
 #include "platform_logic.h"
 #include "max31865.h"
+#include "rtd_convert.h"
 #include "n21_binding.h"
 #include "../config.h"
 #include "main/platform/ui_board_map.h"
@@ -20,13 +21,6 @@ static unsigned tests;
 static uint16_t word_for(float ohm)
 {
     return (uint16_t)(((uint16_t)floorf(32768.0f * ohm / MAX31865_RREF_OHM)) << 1);
-}
-
-/* The word the MAX31865 returns for an element of r ohm behind the CR-1 filter: the inverse of CR-7's
- * R_true = R_meas - (7.86e-4 R_meas - 0.0331). */
-static uint16_t word_for_element(float r)
-{
-    return word_for((float)(((double)r - 0.0331) / (1.0 - 7.86e-4)));
 }
 
 /* ---------------------------------------------------------------- MAX31865 / PT100 */
@@ -58,67 +52,59 @@ static void test_rref_matches_threshold_words(void)
     assert(NEAR(hi, RTD_OPEN_FAULT_OHM, lsb));
 }
 
-static void test_pt100_round_trip_and_table(void)
+/* Sentinel semantics: NaN would slip through the state machine's ordered comparisons, +inf does not.
+ * This is why read_rtd_resistance() is +inf without a sample. */
+static void test_rtd_sentinel_semantics(void)
 {
-    /* IEC 60751 table values (T >= 0 C form). */
-    assert(NEAR(pt100_r_at(0.0f), 100.000, 1e-3));
-    assert(NEAR(pt100_r_at(100.0f), 138.506, 2e-3));
-    assert(NEAR(pt100_r_at(250.0f), 194.098, 2e-3));
-    assert(NEAR(pt100_r_at(300.0f), 212.052, 2e-3));
-    for (float t = 0.0f; t <= 850.0f; t += 5.0f) assert(NEAR(pt100_ohm_to_c(pt100_r_at(t)), t, 0.01));
-    /* Through the MAX31865 quantisation: within 1 LSB (0.013 ohm, ~0.035 K). */
-    for (float t = 0.0f; t <= 300.0f; t += 10.0f)
-        assert(NEAR(platform_pan_temperature(true, word_for_element(pt100_r_at(t + 0.061f)), MAX31865_RREF_OHM), t, 0.05));
-}
-
-/* Below 0 C the quadratic ignores the CVD C term. Bound the error against the full equation. */
-static void test_pt100_below_zero_error(void)
-{
-    const double C = -4.183e-12;
-    for (double t = -50.0; t < 0.0; t += 1.0) {
-        double r = 100.0 * (1.0 + 3.9083e-3 * t - 5.775e-7 * t * t + C * (t - 100.0) * t * t * t);
-        float back = pt100_ohm_to_c((float)r);
-        assert(NEAR(back, t, 0.03)); /* < 0.03 K down to -50 C */
-    }
-}
-
-/* CR-7: filter loading and self-heating, as numbers. 138.506 ohm measured is 138.430 ohm true: 99.80 C,
- * less 0.061 K. Uncorrected the pan would read 0.26 K hot here. */
-static void test_cr7_corrections(void)
-{
-    assert(NEAR(platform_rtd_resistance(true, word_for(138.506f), MAX31865_RREF_OHM), 138.430, 0.014));
-    assert(NEAR(platform_pan_temperature(true, word_for(138.506f), MAX31865_RREF_OHM), 99.74, 0.05));
-    /* The correction never hides the hardware window: at either threshold word the software guard
-     * sees a value within 0.16 ohm of the hardware's. */
-    assert(NEAR(platform_rtd_resistance(true, MAX31865_HIGH_THRESHOLD_WORD, MAX31865_RREF_OHM), RTD_OPEN_FAULT_OHM, 0.16));
-    assert(NEAR(platform_rtd_resistance(true, MAX31865_LOW_THRESHOLD_WORD, MAX31865_RREF_OHM), RTD_SHORT_FAULT_OHM, 0.06));
-}
-
-static void test_pan_and_rtd_sentinels(void)
-{
-    /* No usable word: resistance +inf (state machine: FAULT_PROBE_OPEN; safety.c: !isfinite),
-     * temperature NaN (runaway boundary: immediate breach). Never a plausible value. */
-    float r = platform_rtd_resistance(false, word_for(110.0f), MAX31865_RREF_OHM);
-    assert(isinf(r) && r > 0.0f);
-    assert(r > RTD_GROSS_OPEN_DIAGNOSTIC_OHM && r >= RTD_OPEN_FAULT_OHM);
-    assert(isnan(platform_pan_temperature(false, word_for(110.0f), MAX31865_RREF_OHM)));
-    /* Fault bit set: same. */
-    uint16_t w = word_for(110.0f) | MAX31865_RTD_WORD_FAULT;
-    assert(isinf(platform_rtd_resistance(true, w, MAX31865_RREF_OHM)));
-    assert(isnan(platform_pan_temperature(true, w, MAX31865_RREF_OHM)));
-    /* A shorted or never-converted register (0 ohm) is outside the PT100 range: no temperature,
-     * and the resistance is at or below the short threshold. */
-    assert(isnan(platform_pan_temperature(true, 0x0000u, MAX31865_RREF_OHM)));
-    assert(platform_rtd_resistance(true, 0x0000u, MAX31865_RREF_OHM) <= RTD_SHORT_FAULT_OHM);
-    /* Healthy word: finite and inside the guard window. */
-    r = platform_rtd_resistance(true, word_for(110.0f), MAX31865_RREF_OHM);
-    assert(r > RTD_SHORT_FAULT_OHM && r < RTD_OPEN_FAULT_OHM);
-    /* Sentinel semantics: NaN would slip through the state machine's ordered comparisons, +inf
-     * does not. This is why the resistance sentinel is +inf. */
     float nan = NAN;
     assert(!(nan > RTD_GROSS_OPEN_DIAGNOSTIC_OHM) && !(nan >= RTD_OPEN_FAULT_OHM) && !(nan <= RTD_SHORT_FAULT_OHM));
+    assert(INFINITY > RTD_GROSS_OPEN_DIAGNOSTIC_OHM && INFINITY >= RTD_OPEN_FAULT_OHM);
     assert(INFINITY > IGBT_SHORT_CURRENT_THRESHOLD && !isfinite(INFINITY));
-    assert(isnan(pt100_ohm_to_c(INFINITY)) && isnan(pt100_ohm_to_c(NAN)) && isnan(pt100_ohm_to_c(-1.0f)));
+}
+
+/* rtd_convert, with the CR-7 terms the service applies. */
+static rtd_convert_params_t cr7(void)
+{
+    rtd_convert_params_t p;
+    rtd_convert_default_params(&p);
+    p.loading_correction = true;
+    return p;
+}
+
+static void test_cr7_corrections(void)
+{
+    const rtd_convert_params_t p = cr7();
+    const uint16_t code = (uint16_t)(word_for(138.506f) >> 1);
+    /* 138.506 ohm measured is 138.430 ohm true: 99.80 C, less 0.061 K of self-heating. */
+    assert(NEAR(rtd_convert_code_to_ohm(&p, code), 138.430, 0.014));
+    assert(NEAR(rtd_convert_code_to_c(&p, code), 99.74, 0.05));
+    /* The correction never hides the hardware window: at either threshold word the software guard
+     * sees a value within 0.16 ohm of the hardware's. */
+    assert(NEAR(rtd_convert_code_to_ohm(&p, MAX31865_HIGH_THRESHOLD_WORD >> 1), RTD_OPEN_FAULT_OHM, 0.16));
+    assert(NEAR(rtd_convert_code_to_ohm(&p, MAX31865_LOW_THRESHOLD_WORD >> 1), RTD_SHORT_FAULT_OHM, 0.06));
+    assert(p.r_ref_ohm == MAX31865_RREF_OHM);
+}
+
+/* IEC 60751 table, both branches. */
+static void test_iec60751_table(void)
+{
+    static const struct { float t, r; } pts[] = {{-50, 80.306f}, {-20, 92.160f}, {0, 100.0f}, {100, 138.506f},
+                                                 {250, 194.098f}, {300, 212.052f}, {850, 390.481f}};
+    for (unsigned k = 0; k < sizeof pts / sizeof pts[0]; k++)
+        assert(NEAR(rtd_convert_ohm_to_c(pts[k].r, 100.0f), pts[k].t, 0.02));
+    assert(isnan(rtd_convert_ohm_to_c(0.0f, 100.0f)) && isnan(rtd_convert_ohm_to_c(NAN, 100.0f)));
+}
+
+/* D-OPEN: what is a sensor failure and what is a hot pan. */
+static void test_sensor_failure_classes(void)
+{
+    assert(rtd_convert_classify_failure(32767u, 0x80u) == RTD_SENSOR_FAIL_OPEN);
+    assert(rtd_convert_classify_failure(29757u, 0u) == RTD_SENSOR_FAIL_OPEN);
+    assert(rtd_convert_classify_failure(29756u, 0x80u) == RTD_SENSOR_OK); /* R1: just under 850 C */
+    assert(rtd_convert_classify_failure(1411u, 0u) == RTD_SENSOR_FAIL_SHORT);
+    assert(rtd_convert_classify_failure(1412u, 0x40u) == RTD_SENSOR_OK);
+    for (unsigned bit = 2; bit <= 5; bit++)
+        assert(rtd_convert_classify_failure(8192u, (uint8_t)(1u << bit)) == RTD_SENSOR_FAIL_OPEN);
 }
 
 /* ---------------------------------------------------------------- native-21 over-current sources */
@@ -709,10 +695,10 @@ int main(void)
     TEST(test_word_to_ohm);
     TEST(test_fault_bit_and_bad_rref_are_infinite);
     TEST(test_rref_matches_threshold_words);
-    TEST(test_pt100_round_trip_and_table);
-    TEST(test_pt100_below_zero_error);
     TEST(test_cr7_corrections);
-    TEST(test_pan_and_rtd_sentinels);
+    TEST(test_rtd_sentinel_semantics);
+    TEST(test_iec60751_table);
+    TEST(test_sensor_failure_classes);
     TEST(test_power_bus_trip);
     TEST(test_power_tank_trip);
     TEST(test_bias_config_values);

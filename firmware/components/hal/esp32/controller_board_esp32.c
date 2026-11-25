@@ -174,6 +174,14 @@ bool ctrl_board_run_en_kill(void)
     return ok;
 }
 
+bool ctrl_board_run_en_killed(void)
+{
+    portENTER_CRITICAL(&s_run_en_mux);
+    bool killed = s_run_en.killed;
+    portEXIT_CRITICAL(&s_run_en_mux);
+    return killed;
+}
+
 bool ctrl_board_poll_expander(void)
 {
     uint8_t reg = TCA9555_REG_INPUT0, rx[2] = {0};

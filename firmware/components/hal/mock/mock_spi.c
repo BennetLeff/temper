@@ -56,6 +56,13 @@ void mock_spi_fail_next_read(hal_status_t status)
     s_next_read_status = status;
 }
 
+/* First data byte of the last write and of the one before it (register writes that succeeded). */
+static uint8_t s_last_write[2];
+uint8_t mock_spi_previous_write(void)
+{
+    return s_last_write[1];
+}
+
 void mock_spi_fail_next_write(hal_status_t status)
 {
     s_next_write_status = status;
@@ -197,6 +204,8 @@ static hal_status_t mock_spi_write_reg(hal_spi_device_t device, uint8_t reg,
     if (idx < 0 || idx >= MOCK_SPI_MAX_DEVICES || !data) {
         return HAL_ERROR_INVALID_ARG;
     }
+    s_last_write[1] = s_last_write[0];
+    s_last_write[0] = len > 0 ? data[0] : 0u;
     
     if (!s_devices[idx].in_use) {
         return HAL_ERROR_NOT_READY;
