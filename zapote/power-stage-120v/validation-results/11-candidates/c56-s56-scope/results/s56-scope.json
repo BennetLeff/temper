@@ -1,0 +1,55 @@
+{
+ "board": {
+  "c17.5_h10": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d",
+  "c22_h10": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d",
+  "c28_h10": "d9ee93a860cc3dd82416c4ce4250f9f91c4732a70466d6b7580f7cffb5908a8d"
+ },
+ "ctrl_divider": {
+  "27k fitted (0603WAF2702T5E)": {
+   "V_min_at_rail_min": 4.6918,
+   "V_max_at_rail_max": 5.3063,
+   "V_max_at_PS2_clamp": 6.9973,
+   "inside_recommended_5V5_in_the_fault": false,
+   "headroom_to_abs_max_V": 0.0027,
+   "over_enable_threshold_V": 2.5918
+  },
+  "16k (RT0603BRD0716KL, R34's line)": {
+   "V_min_at_rail_min": 3.0633,
+   "V_max_at_rail_max": 3.4214,
+   "V_max_at_PS2_clamp": 4.5117,
+   "inside_recommended_5V5_in_the_fault": true,
+   "headroom_to_abs_max_V": 2.4883,
+   "over_enable_threshold_V": 0.9633
+  }
+ },
+ "series_diodes": {
+  "input_margin_now_V": 2.43,
+  "input_margin_with_two_diodes_V": 0.23,
+  "over_abs_max_at_PS2_clamp_now_V": 0.4,
+  "drop_needed_in_the_fault_V": 0.4,
+  "drop_guaranteed_in_the_fault_V": 0.0,
+  "note": "no datasheet guarantees a minimum VF at the fault current (modules off on OVLO: <= 0.7 mA standby each)"
+ },
+ "u26_dropper": {
+  "R_ohm": 20,
+  "moved_W": 0.3328,
+  "release_margin_K": 3.8,
+  "release_bound_by": "laminate: 1 mm-block copper peak",
+  "gated_rows_at_or_below_U26": [
+   "laminate: 1 mm-block copper peak",
+   "PS2: MPM-20-24 local air <= p.3 derating",
+   "U26: TJ max (TI SBVS204G p.4)"
+  ],
+  "U26_margin_K": {
+   "c17.5_h10": 4.4,
+   "c22_h10": 6.9,
+   "c28_h10": 0.1
+  },
+  "V_in_U26_min": 20.85
+ },
+ "r5_trip": {
+  "low_corner_over_highest_hold_pct": 1.5556,
+  "worst_case_high_corner_under_15A_cap": false,
+  "rss_high_corner_under_15A_cap": true
+ }
+}

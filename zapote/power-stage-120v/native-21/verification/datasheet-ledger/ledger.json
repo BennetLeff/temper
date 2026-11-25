@@ -5383,7 +5383,7 @@
      "enforced_by": "libraries/temper.pretty/Wuerth_REDCUBE-SMT_WP-SMBU_7466004R.kicad_mod"
     },
     {
-     "item": "terminal current into the inner and B.Cu layers through 20 land vias (0.85 / 0.3 mm) per terminal round the \u00d88.5 land (design guide p.7 / p.11: 0.3-0.4 mm drills)",
+     "item": "terminal current into the inner and B.Cu layers through 20 land vias (0.85 / 0.3 mm) per terminal round the Ø8.5 land (design guide p.7 / p.11: 0.3-0.4 mm drills)",
      "enforced_by": "native-21/layout/patches21.py"
     },
     {
@@ -7907,10 +7907,12 @@
   "RT0603BRD0716KL": {
    "mpn": "RT0603BRD0716KL",
    "designators": [
-    "R34"
+    "R34",
+    "R127",
+    "R129"
    ],
    "class": "SIGNAL",
-   "function": "16 k 0.1 % OCP threshold top (REF25 to ocp_thresh; S23 B'-1.02 V)",
+   "function": "16 k 0.1 %: R34 OCP threshold top (REF25 to ocp_thresh; S23 B'-1.02 V); R127 / R129 R24C2T25 CTRL divider bottoms (stage 56, S22)",
    "status": "PARTIAL",
    "datasheet": {
     "url": "https://www.yageogroup.com/component-documentation/download/specsheet/RT0603BRD0710KL",
@@ -7937,40 +7939,40 @@
     },
     {
      "parameter": "Terminal temperature limit at P (derating line, 20 % margin)",
-     "datasheet_limit": 154.9,
+     "datasheet_limit": 153.6,
      "unit": "C",
-     "basis": "155 - (155 - 70) x 0.000139 W / (0.8 x 0.1 W): operating -55..+155 C and the Fig. 6 derating line with the G6 20 % power margin",
+     "basis": "155 - (155 - 70) x 0.001273 W / (0.8 x 0.1 W): operating -55..+155 C and the Fig. 6 derating line with the G6 20 % power margin (R127 / R129 at the PS2 clamp, the worst of the line)",
      "source": "Yageo RT series V.16 (May 06, 2025) p.5 Table 2, p.6 Fig. 6 (sha 0a729d144519a702)"
     }
    ],
    "stresses": [
     {
-     "parameter": "V across R34",
-     "worst_case_value": 1.491,
+     "parameter": "V across (worst ref)",
+     "worst_case_value": 4.5117,
      "unit": "V",
-     "condition": "REF25 max 2.5162 V x 16 / 27 k",
-     "evidence": "elec/src/power_stage_120v.ato; audit.rs"
+     "condition": "R127 / R129: CTRL at PS2's 32.4 V clamp (R34 1.491 V)",
+     "evidence": "validation-results/11-candidates/c56-s56-scope/results/s56-scope.json; elec/src/f6_bias.ato; audit.rs stage56"
     },
     {
-     "parameter": "P in R34",
-     "worst_case_value": 0.000139,
+     "parameter": "P (worst ref)",
+     "worst_case_value": 0.0012735,
      "unit": "W",
-     "condition": "V^2 / 16 k",
-     "evidence": "elec/src/power_stage_120v.ato; audit.rs"
+     "condition": "V^2 / 15.984 k at the PS2 clamp (R34 0.139 mW)",
+     "evidence": "validation-results/11-candidates/c56-s56-scope/results/s56-scope.json; elec/src/f6_bias.ato; audit.rs stage56"
     },
     {
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
-     "worst_case_value": 97.29,
+     "worst_case_value": 97.9,
      "unit": "C",
-     "condition": "R34: pad estimate (B3 gate estimator Q(0.25) + 3 |Q(0.25) - Q(0.5)| + bay - 50 on the run files' pad-copper probe), c17.5_h10 still air at bay 61 C; board s49",
-     "evidence": "validation-results/11-candidates/c49-c34-bank/results/bands-s49.json"
+     "condition": "R129: terminal (pad), B3 hot-copper estimate, c17.5_h10 still air at bay 61 C; board s52 rows, pads unmoved since (R34 97.29 C, board s49)",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/11-candidates/c49-c34-bank/results/bands-s49.json"
     },
     {
      "parameter": "Local temperature, c28_h10 @ 55 C",
-     "worst_case_value": 103.65,
+     "worst_case_value": 109.7,
      "unit": "C",
-     "condition": "R34: same estimator, c28_h10 still air at bay 55 C; board s49",
-     "evidence": "validation-results/11-candidates/c49-c34-bank/results/bands-s49.json"
+     "condition": "R127: terminal (pad), B3 hot-copper estimate, c28_h10 still air at bay 55 C; board s52 rows, pads unmoved since (R34 103.65 C, board s49)",
+     "evidence": "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/11-candidates/c49-c34-bank/results/bands-s49.json"
     }
    ],
    "derating_rule": "V and P <= half the RT0603 ratings; pad <= the derating line at P with the G6 20 % margin at the release case (c28 reported)",
@@ -7978,20 +7980,20 @@
     {
      "id": "V",
      "rating": "Working voltage",
-     "stress": "V across R34",
+     "stress": "V across (worst ref)",
      "max_ratio": 0.5,
      "severity": "violation",
-     "rule": "1.491 V <= half the 75 V working voltage",
-     "ratio": 0.0199
+     "rule": "4.5117 V <= half the 75 V working voltage",
+     "ratio": 0.0602
     },
     {
      "id": "P",
      "rating": "Rated power at 70 C",
-     "stress": "P in R34",
+     "stress": "P (worst ref)",
      "max_ratio": 0.5,
      "severity": "violation",
-     "rule": "0.139 mW <= half of 0.1 W",
-     "ratio": 0.0014
+     "rule": "1.273 mW <= half of 0.1 W",
+     "ratio": 0.0127
     },
     {
      "id": "temperature, release case",
@@ -7999,8 +8001,8 @@
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "97.29 C <= 154.9 C (R34)",
-     "ratio": 0.6281
+     "rule": "97.9 C <= 153.6 C (R129)",
+     "ratio": 0.6374
     },
     {
      "id": "temperature, c28",
@@ -8008,8 +8010,8 @@
      "stress": "Local temperature, c28_h10 @ 55 C",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "103.65 C <= 154.9 C (R34); an overrun is the airflow-route (c22/c28) owner gap",
-     "ratio": 0.6691
+     "rule": "109.7 C <= 153.6 C (R127); an overrun is the airflow-route (c22/c28) owner gap",
+     "ratio": 0.7142
     }
    ],
    "layout_guidance": [],
@@ -8017,7 +8019,7 @@
     "the local temperature is the B3 body-model pad estimate (hot copper, still air at the BASIS bays), not a measurement; it is the S21 estimator on this board's run files (results/bands-s49.json), so the s49 re-base (temps_snap49.py) counts this line as rated and leaves it"
    ],
    "finding": null,
-   "notes": "S49 (2026-10-16, validation-results/11-candidates/c49-c34-bank/README.md): S23 B'-1.02 V divider (U6 VCM 1.0185 V, nominal 92.593 A). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): the stale 'Not audited' gap is dropped; this line's V / P checks were already in place."
+   "notes": "S49 (2026-10-16, validation-results/11-candidates/c49-c34-bank/README.md): S23 B'-1.02 V divider (U6 VCM 1.0185 V, nominal 92.593 A). c54 (2026-10-18, validation-results/11-candidates/c54-ledger-desk): the stale 'Not audited' gap is dropped; this line's V / P checks were already in place. S56 (2026-11-24, 11-candidates/c56-s56-scope): R127 / R129 join this line (CTRL dividers, S22)."
   },
   "TNPW060311K7BEEA": {
    "mpn": "TNPW060311K7BEEA",
@@ -13338,15 +13340,13 @@
   "0603WAF2702T5E": {
    "mpn": "0603WAF2702T5E",
    "designators": [
-    "R127",
-    "R129",
     "R137",
     "R139",
     "R141",
     "R143"
    ],
    "class": "SIGNAL",
-   "function": "27 k; stage 48: R137 / R139 / R141 / R143 are the LDO EN divider bottoms (EN to GND)",
+   "function": "27 k: the TPS70950 LDO EN divider bottoms (stage 48); the R24C2T25 CTRL pair R127 / R129 went to 16 k at stage 56",
    "status": "PARTIAL",
    "datasheet": {
     "url": "https://datasheet.lcsc.com/datasheet/pdf/0a975aaa49b7c97f38a963127be4a823.pdf",
@@ -13372,10 +13372,10 @@
      "source": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019) p.5 ratings table + sect. 9 derating, p.4 power (sha 11cd644d5d8a34a6)"
     },
     {
-     "parameter": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R127",
-     "datasheet_limit": 153.9,
+     "parameter": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R137",
+     "datasheet_limit": 154.5,
      "unit": "C",
-     "basis": "same line at 0.001063 W (EN divider bottom: 5.36 V over 27 k)",
+     "basis": "same line at 0.0004657 W (U3 EN divider bottom)",
      "source": "UniRoyal Thick Film Chip Resistors data sheet V.3 (Feb.12, 2019) p.5 ratings table + sect. 9 derating, p.4 power (sha 11cd644d5d8a34a6)"
     },
     {
@@ -13398,38 +13398,36 @@
      "parameter": "Local temperature, release case (c17.5_h10 @ 61 C)",
      "worst_case_value": 98.7,
      "unit": "C",
-     "condition": "R137: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 6 ref(s); board s52 5e7c12c1 (S18 B3 model)",
+     "condition": "R137: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c17.5_h10 still air at bay 61 C; worst of 4 ref(s); board s52 5e7c12c1 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
     },
     {
      "parameter": "Local temperature, c28_h10 @ 55 C",
-     "worst_case_value": 109.7,
+     "worst_case_value": 109.4,
      "unit": "C",
-     "condition": "R127: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 6 ref(s); board s52 5e7c12c1 (S18 B3 model)",
+     "condition": "R137: terminal (pad) vs derating line at P, 20 % margin; B3 hot-copper estimate (gate estimator, pad-copper probe), c28_h10 still air at bay 55 C; worst of 4 ref(s); board s52 5e7c12c1 (S18 B3 model)",
      "evidence": [
       "validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.json; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/results.md; validation-results/04-board-current-thermal/round5-native21/b3-ratings/temp-ratings-2026-10-15/scripts/temp_ratings.py"
      ]
     },
     {
      "parameter": "Voltage across (worst ref)",
-     "worst_case_value": 6.9973,
+     "worst_case_value": 3.7632,
      "unit": "V",
-     "condition": "R127: static worst case over the registry rail ranges (fault envelopes included)",
+     "condition": "R139: static worst case over the registry rail ranges (fault envelopes included)",
      "evidence": [
-      "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:10",
-      "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:29"
+      "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:32"
      ]
     },
     {
      "parameter": "Power (worst ref)",
-     "worst_case_value": 0.001832,
+     "worst_case_value": 0.0005298,
      "unit": "W",
-     "condition": "R127: static worst case over the registry rail ranges (fault envelopes included)",
+     "condition": "R139: static worst case over the registry rail ranges (fault envelopes included)",
      "evidence": [
-      "validation-results/11-candidates/c54-ledger-desk/results/signal_audit.md:11",
-      "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:29"
+      "validation-results/11-candidates/c54-ledger-desk/results/net_stress.md:32"
      ]
     }
    ],
@@ -13446,12 +13444,12 @@
     },
     {
      "id": "temperature, c28 (temp-ratings 2026-10-15)",
-     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R127",
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R137",
      "stress": "Local temperature, c28_h10 @ 55 C",
      "max_ratio": 1.0,
      "severity": "gap",
-     "rule": "109.7 C <= 153.9 C (R127); an overrun is the airflow-route (c22/c28) owner gap",
-     "ratio": 0.7128
+     "rule": "109.4 C <= 154.5 C (R137); an overrun is the airflow-route (c22/c28) owner gap",
+     "ratio": 0.7081
     },
     {
      "id": "V working",
@@ -13459,8 +13457,8 @@
      "stress": "Voltage across (worst ref)",
      "max_ratio": 1.0,
      "severity": "violation",
-     "rule": "7 V <= 51.9615 V (R127)",
-     "ratio": 0.1347
+     "rule": "3.7632 V <= 51.9615 V (R139)",
+     "ratio": 0.0724
     },
     {
      "id": "P <= 50 % P70",
@@ -13468,8 +13466,8 @@
      "stress": "Power (worst ref)",
      "max_ratio": 0.5,
      "severity": "violation",
-     "rule": "1.83 mW <= 50 % of 100 mW (R127)",
-     "ratio": 0.0183
+     "rule": "0.53 mW <= 50 % of 100 mW (R139)",
+     "ratio": 0.0053
     }
    ],
    "layout_guidance": [],

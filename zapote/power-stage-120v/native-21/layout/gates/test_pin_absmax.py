@@ -191,6 +191,12 @@ fw = [x for x in real["warnings"] if x["status"] == "WARN-FAULT"]
 check(sorted(f"{x['part']}.{x['pin']}" for x in fw) == ["U41.6", "U41.7", "U42.6", "U42.7"], "real tree: only the R24C2T25 VIN pins exceed abs max under the PS2 OVP clamp envelope",
       [f"{x['part']}.{x['pin']}" for x in fw])
 
+# stage 56 (S22): the module CTRL pins stay inside 0-5.5 V operating at the same clamp, not just inside 7 V abs max
+for ref in ("U41", "U42"):
+    row = [x for x in real["rows"] if x["part"] == ref and x["function"] == "CTRL"][0]
+    fh = row.get("fault_headroom_V")
+    check(row["status"] == "OK" and fh is not None and fh > 7.0 - 5.5, f"real {ref}.CTRL keeps > 1.5 V to its 7 V abs max under the PS2 clamp", (row["status"], fh))
+
 # ---- 6. rail registry vs the committed S16 rail model (rerunnable evidence for the rail figures)
 S16 = UNIT / "validation-results/11-candidates/s16-monitor-2026-10-15/scripts"
 sys.dont_write_bytecode = True

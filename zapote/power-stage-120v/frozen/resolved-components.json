@@ -1,14 +1,14 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "0a7bdc732730c9aa8f075d1b991d36a8cf1488f9869ded5eb1a0cbacd0d9c6a4",
+    "build/default.csv": "ba6f96f3aad7b8a78fc2e4443c5a9fe479381dbcaf9260bc4cc885be46d7f888",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "1a277794bf6ea236811f4dfd139af36b55dbd37742134f385085c1a0c515ffb1",
+    "build/default.net": "c1b5222b4a26ebb5f6ef093c2c0062c7f01b0bc11469c3acd47ecb46b5bcbd55",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_mains",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_mains",
       "attributes": {
         "designator": "J1",
         "designator_prefix": "J",
@@ -18,7 +18,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::f1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::f1",
       "attributes": {
         "designator": "F1",
         "designator_prefix": "F",
@@ -28,7 +28,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::rv1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::rv1",
       "attributes": {
         "designator": "RV1",
         "designator_prefix": "RV",
@@ -38,7 +38,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cx1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cx1",
       "attributes": {
         "designator": "C1",
         "designator_prefix": "C",
@@ -48,7 +48,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::rb1a",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::rb1a",
       "attributes": {
         "designator": "R1",
         "designator_prefix": "R",
@@ -59,7 +59,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::rb1b",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::rb1b",
       "attributes": {
         "designator": "R2",
         "designator_prefix": "R",
@@ -70,7 +70,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::l1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::l1",
       "attributes": {
         "designator": "L1",
         "designator_prefix": "L",
@@ -80,7 +80,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cx2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cx2",
       "attributes": {
         "designator": "C2",
         "designator_prefix": "C",
@@ -90,7 +90,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cy1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cy1",
       "attributes": {
         "designator": "C3",
         "designator_prefix": "C",
@@ -100,7 +100,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cy2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::cy2",
       "attributes": {
         "designator": "C4",
         "designator_prefix": "C",
@@ -110,7 +110,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::br1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::br1",
       "attributes": {
         "designator": "BR1",
         "designator_prefix": "BR",
@@ -120,7 +120,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bus1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bus1",
       "attributes": {
         "designator": "C5",
         "designator_prefix": "C",
@@ -130,7 +130,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bus2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bus2",
       "attributes": {
         "designator": "C6",
         "designator_prefix": "C",
@@ -140,7 +140,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_bus1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_bus1",
       "attributes": {
         "designator": "R3",
         "designator_prefix": "R",
@@ -151,7 +151,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_bus2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_bus2",
       "attributes": {
         "designator": "R4",
         "designator_prefix": "R",
@@ -162,7 +162,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_shunt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_shunt",
       "attributes": {
         "designator": "R5",
         "designator_prefix": "R",
@@ -172,7 +172,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.driver",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.driver",
       "attributes": {
         "designator": "U1",
         "designator_prefix": "U",
@@ -182,7 +182,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_vcci",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_vcci",
       "attributes": {
         "designator": "C7",
         "designator_prefix": "C",
@@ -193,7 +193,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_permit",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_permit",
       "attributes": {
         "designator": "R6",
         "designator_prefix": "R",
@@ -204,7 +204,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_permit_pd",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_permit_pd",
       "attributes": {
         "designator": "R7",
         "designator_prefix": "R",
@@ -215,7 +215,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_dt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_dt",
       "attributes": {
         "designator": "R9",
         "designator_prefix": "R",
@@ -226,7 +226,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_ls",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_ls",
       "attributes": {
         "designator": "C8",
         "designator_prefix": "C",
@@ -237,7 +237,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_ls_1u",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_ls_1u",
       "attributes": {
         "designator": "C146",
         "designator_prefix": "C",
@@ -248,7 +248,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_ls_bulk",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_ls_bulk",
       "attributes": {
         "designator": "C9",
         "designator_prefix": "C",
@@ -259,7 +259,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_hs",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_hs",
       "attributes": {
         "designator": "C10",
         "designator_prefix": "C",
@@ -270,7 +270,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_hs_1u",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_hs_1u",
       "attributes": {
         "designator": "C145",
         "designator_prefix": "C",
@@ -281,7 +281,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_hs_bulk",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_hs_bulk",
       "attributes": {
         "designator": "C11",
         "designator_prefix": "C",
@@ -292,7 +292,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.clocal1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.clocal1",
       "attributes": {
         "designator": "C90",
         "designator_prefix": "C",
@@ -303,7 +303,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.clocal2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.clocal2",
       "attributes": {
         "designator": "C91",
         "designator_prefix": "C",
@@ -314,7 +314,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.cmid1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.cmid1",
       "attributes": {
         "designator": "C50",
         "designator_prefix": "C",
@@ -325,7 +325,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.cmid2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.cmid2",
       "attributes": {
         "designator": "C51",
         "designator_prefix": "C",
@@ -336,7 +336,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.chf1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.chf1",
       "attributes": {
         "designator": "C110",
         "designator_prefix": "C",
@@ -347,7 +347,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.chf2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.chf2",
       "attributes": {
         "designator": "C111",
         "designator_prefix": "C",
@@ -358,7 +358,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.chf3",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.chf3",
       "attributes": {
         "designator": "C112",
         "designator_prefix": "C",
@@ -369,7 +369,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.chf4",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.chf4",
       "attributes": {
         "designator": "C113",
         "designator_prefix": "C",
@@ -380,7 +380,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.rdamp",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.rdamp",
       "attributes": {
         "designator": "R51",
         "designator_prefix": "R",
@@ -391,7 +391,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.cbulk",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.cbulk",
       "attributes": {
         "designator": "C126",
         "designator_prefix": "C",
@@ -402,7 +402,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.rbleed",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_h.rbleed",
       "attributes": {
         "designator": "R71",
         "designator_prefix": "R",
@@ -413,7 +413,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.clocal1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.clocal1",
       "attributes": {
         "designator": "C92",
         "designator_prefix": "C",
@@ -424,7 +424,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.clocal2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.clocal2",
       "attributes": {
         "designator": "C93",
         "designator_prefix": "C",
@@ -435,7 +435,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.cmid1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.cmid1",
       "attributes": {
         "designator": "C52",
         "designator_prefix": "C",
@@ -446,7 +446,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.cmid2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.cmid2",
       "attributes": {
         "designator": "C53",
         "designator_prefix": "C",
@@ -457,7 +457,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.chf1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.chf1",
       "attributes": {
         "designator": "C114",
         "designator_prefix": "C",
@@ -468,7 +468,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.chf2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.chf2",
       "attributes": {
         "designator": "C115",
         "designator_prefix": "C",
@@ -479,7 +479,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.chf3",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.chf3",
       "attributes": {
         "designator": "C116",
         "designator_prefix": "C",
@@ -490,7 +490,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.chf4",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.chf4",
       "attributes": {
         "designator": "C117",
         "designator_prefix": "C",
@@ -501,7 +501,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.rdamp",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.rdamp",
       "attributes": {
         "designator": "R52",
         "designator_prefix": "R",
@@ -512,7 +512,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.cbulk",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.cbulk",
       "attributes": {
         "designator": "C127",
         "designator_prefix": "C",
@@ -523,7 +523,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.rbleed",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.bias_l.rbleed",
       "attributes": {
         "designator": "R72",
         "designator_prefix": "R",
@@ -534,7 +534,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.dis_or",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.dis_or",
       "attributes": {
         "designator": "U22",
         "designator_prefix": "U",
@@ -544,7 +544,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_dis_or",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_dis_or",
       "attributes": {
         "designator": "C54",
         "designator_prefix": "C",
@@ -555,7 +555,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_driver_dis",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_driver_dis",
       "attributes": {
         "designator": "R73",
         "designator_prefix": "R",
@@ -566,7 +566,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gh",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gh",
       "attributes": {
         "designator": "R10",
         "designator_prefix": "R",
@@ -577,7 +577,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gh_pd",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gh_pd",
       "attributes": {
         "designator": "R11",
         "designator_prefix": "R",
@@ -588,7 +588,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gl",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gl",
       "attributes": {
         "designator": "R12",
         "designator_prefix": "R",
@@ -599,7 +599,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gl_pd",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.r_gl_pd",
       "attributes": {
         "designator": "R13",
         "designator_prefix": "R",
@@ -610,7 +610,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.cgs_h",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.cgs_h",
       "attributes": {
         "designator": "C55",
         "designator_prefix": "C",
@@ -621,7 +621,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.doff_h",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.doff_h",
       "attributes": {
         "designator": "D6",
         "designator_prefix": "D",
@@ -631,7 +631,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.roff_h",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.roff_h",
       "attributes": {
         "designator": "R53",
         "designator_prefix": "R",
@@ -642,7 +642,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.cgs_l",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.cgs_l",
       "attributes": {
         "designator": "C56",
         "designator_prefix": "C",
@@ -653,7 +653,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.doff_l",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.doff_l",
       "attributes": {
         "designator": "D7",
         "designator_prefix": "D",
@@ -663,7 +663,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.roff_l",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.roff_l",
       "attributes": {
         "designator": "R54",
         "designator_prefix": "R",
@@ -674,7 +674,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.q_high",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.q_high",
       "attributes": {
         "designator": "Q2",
         "designator_prefix": "Q",
@@ -684,7 +684,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.q_low",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.q_low",
       "attributes": {
         "designator": "Q3",
         "designator_prefix": "Q",
@@ -694,7 +694,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_snub_h",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_snub_h",
       "attributes": {
         "designator": "C12",
         "designator_prefix": "C",
@@ -704,7 +704,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_snub_l",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_a.c_snub_l",
       "attributes": {
         "designator": "C13",
         "designator_prefix": "C",
@@ -714,7 +714,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.driver",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.driver",
       "attributes": {
         "designator": "U2",
         "designator_prefix": "U",
@@ -724,7 +724,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_vcci",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_vcci",
       "attributes": {
         "designator": "C14",
         "designator_prefix": "C",
@@ -735,7 +735,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_permit",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_permit",
       "attributes": {
         "designator": "R14",
         "designator_prefix": "R",
@@ -746,7 +746,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_permit_pd",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_permit_pd",
       "attributes": {
         "designator": "R15",
         "designator_prefix": "R",
@@ -757,7 +757,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_dt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_dt",
       "attributes": {
         "designator": "R17",
         "designator_prefix": "R",
@@ -768,7 +768,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_ls",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_ls",
       "attributes": {
         "designator": "C15",
         "designator_prefix": "C",
@@ -779,7 +779,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_ls_1u",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_ls_1u",
       "attributes": {
         "designator": "C148",
         "designator_prefix": "C",
@@ -790,7 +790,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_ls_bulk",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_ls_bulk",
       "attributes": {
         "designator": "C16",
         "designator_prefix": "C",
@@ -801,7 +801,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_hs",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_hs",
       "attributes": {
         "designator": "C17",
         "designator_prefix": "C",
@@ -812,7 +812,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_hs_1u",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_hs_1u",
       "attributes": {
         "designator": "C147",
         "designator_prefix": "C",
@@ -823,7 +823,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_hs_bulk",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_hs_bulk",
       "attributes": {
         "designator": "C18",
         "designator_prefix": "C",
@@ -834,7 +834,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.clocal1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.clocal1",
       "attributes": {
         "designator": "C94",
         "designator_prefix": "C",
@@ -845,7 +845,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.clocal2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.clocal2",
       "attributes": {
         "designator": "C95",
         "designator_prefix": "C",
@@ -856,7 +856,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.cmid1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.cmid1",
       "attributes": {
         "designator": "C57",
         "designator_prefix": "C",
@@ -867,7 +867,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.cmid2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.cmid2",
       "attributes": {
         "designator": "C58",
         "designator_prefix": "C",
@@ -878,7 +878,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.chf1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.chf1",
       "attributes": {
         "designator": "C118",
         "designator_prefix": "C",
@@ -889,7 +889,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.chf2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.chf2",
       "attributes": {
         "designator": "C119",
         "designator_prefix": "C",
@@ -900,7 +900,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.chf3",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.chf3",
       "attributes": {
         "designator": "C120",
         "designator_prefix": "C",
@@ -911,7 +911,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.chf4",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.chf4",
       "attributes": {
         "designator": "C121",
         "designator_prefix": "C",
@@ -922,7 +922,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.rdamp",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.rdamp",
       "attributes": {
         "designator": "R55",
         "designator_prefix": "R",
@@ -933,7 +933,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.cbulk",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.cbulk",
       "attributes": {
         "designator": "C128",
         "designator_prefix": "C",
@@ -944,7 +944,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.rbleed",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_h.rbleed",
       "attributes": {
         "designator": "R74",
         "designator_prefix": "R",
@@ -955,7 +955,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.clocal1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.clocal1",
       "attributes": {
         "designator": "C96",
         "designator_prefix": "C",
@@ -966,7 +966,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.clocal2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.clocal2",
       "attributes": {
         "designator": "C97",
         "designator_prefix": "C",
@@ -977,7 +977,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.cmid1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.cmid1",
       "attributes": {
         "designator": "C59",
         "designator_prefix": "C",
@@ -988,7 +988,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.cmid2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.cmid2",
       "attributes": {
         "designator": "C60",
         "designator_prefix": "C",
@@ -999,7 +999,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.chf1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.chf1",
       "attributes": {
         "designator": "C122",
         "designator_prefix": "C",
@@ -1010,7 +1010,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.chf2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.chf2",
       "attributes": {
         "designator": "C123",
         "designator_prefix": "C",
@@ -1021,7 +1021,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.chf3",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.chf3",
       "attributes": {
         "designator": "C124",
         "designator_prefix": "C",
@@ -1032,7 +1032,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.chf4",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.chf4",
       "attributes": {
         "designator": "C125",
         "designator_prefix": "C",
@@ -1043,7 +1043,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.rdamp",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.rdamp",
       "attributes": {
         "designator": "R56",
         "designator_prefix": "R",
@@ -1054,7 +1054,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.cbulk",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.cbulk",
       "attributes": {
         "designator": "C129",
         "designator_prefix": "C",
@@ -1065,7 +1065,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.rbleed",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.bias_l.rbleed",
       "attributes": {
         "designator": "R75",
         "designator_prefix": "R",
@@ -1076,7 +1076,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.dis_or",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.dis_or",
       "attributes": {
         "designator": "U23",
         "designator_prefix": "U",
@@ -1086,7 +1086,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_dis_or",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_dis_or",
       "attributes": {
         "designator": "C61",
         "designator_prefix": "C",
@@ -1097,7 +1097,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_driver_dis",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_driver_dis",
       "attributes": {
         "designator": "R76",
         "designator_prefix": "R",
@@ -1108,7 +1108,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gh",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gh",
       "attributes": {
         "designator": "R18",
         "designator_prefix": "R",
@@ -1119,7 +1119,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gh_pd",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gh_pd",
       "attributes": {
         "designator": "R19",
         "designator_prefix": "R",
@@ -1130,7 +1130,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gl",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gl",
       "attributes": {
         "designator": "R20",
         "designator_prefix": "R",
@@ -1141,7 +1141,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gl_pd",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.r_gl_pd",
       "attributes": {
         "designator": "R21",
         "designator_prefix": "R",
@@ -1152,7 +1152,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.cgs_h",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.cgs_h",
       "attributes": {
         "designator": "C62",
         "designator_prefix": "C",
@@ -1163,7 +1163,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.doff_h",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.doff_h",
       "attributes": {
         "designator": "D8",
         "designator_prefix": "D",
@@ -1173,7 +1173,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.roff_h",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.roff_h",
       "attributes": {
         "designator": "R57",
         "designator_prefix": "R",
@@ -1184,7 +1184,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.cgs_l",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.cgs_l",
       "attributes": {
         "designator": "C63",
         "designator_prefix": "C",
@@ -1195,7 +1195,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.doff_l",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.doff_l",
       "attributes": {
         "designator": "D9",
         "designator_prefix": "D",
@@ -1205,7 +1205,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.roff_l",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.roff_l",
       "attributes": {
         "designator": "R58",
         "designator_prefix": "R",
@@ -1216,7 +1216,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.q_high",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.q_high",
       "attributes": {
         "designator": "Q5",
         "designator_prefix": "Q",
@@ -1226,7 +1226,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.q_low",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.q_low",
       "attributes": {
         "designator": "Q6",
         "designator_prefix": "Q",
@@ -1236,7 +1236,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_snub_h",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_snub_h",
       "attributes": {
         "designator": "C19",
         "designator_prefix": "C",
@@ -1246,7 +1246,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_snub_l",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::leg_b.c_snub_l",
       "attributes": {
         "designator": "C20",
         "designator_prefix": "C",
@@ -1256,7 +1256,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::t_ct",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::t_ct",
       "attributes": {
         "designator": "T1",
         "designator_prefix": "T",
@@ -1266,7 +1266,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_coil",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_coil",
       "attributes": {
         "designator": "J2",
         "designator_prefix": "J",
@@ -1276,7 +1276,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res1",
       "attributes": {
         "designator": "C21",
         "designator_prefix": "C",
@@ -1286,7 +1286,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res2",
       "attributes": {
         "designator": "C22",
         "designator_prefix": "C",
@@ -1296,7 +1296,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res3",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res3",
       "attributes": {
         "designator": "C23",
         "designator_prefix": "C",
@@ -1306,7 +1306,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res4",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res4",
       "attributes": {
         "designator": "C151",
         "designator_prefix": "C",
@@ -1316,7 +1316,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res5",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_res5",
       "attributes": {
         "designator": "C152",
         "designator_prefix": "C",
@@ -1326,7 +1326,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_crb1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_crb1",
       "attributes": {
         "designator": "R22",
         "designator_prefix": "R",
@@ -1337,7 +1337,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_crb2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_crb2",
       "attributes": {
         "designator": "R23",
         "designator_prefix": "R",
@@ -1348,7 +1348,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_crb3",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_crb3",
       "attributes": {
         "designator": "R24",
         "designator_prefix": "R",
@@ -1359,7 +1359,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_crb4",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_crb4",
       "attributes": {
         "designator": "R25",
         "designator_prefix": "R",
@@ -1370,7 +1370,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_tco",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_tco",
       "attributes": {
         "designator": "J3",
         "designator_prefix": "J",
@@ -1380,7 +1380,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::f_blw",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::f_blw",
       "attributes": {
         "designator": "F2",
         "designator_prefix": "F",
@@ -1390,7 +1390,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_blw",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_blw",
       "attributes": {
         "designator": "R130",
         "designator_prefix": "R",
@@ -1400,7 +1400,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_blw_ac",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_blw_ac",
       "attributes": {
         "designator": "J11",
         "designator_prefix": "J",
@@ -1410,7 +1410,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::ps_gate",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::ps_gate",
       "attributes": {
         "designator": "PS2",
         "designator_prefix": "PS",
@@ -1420,7 +1420,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_v15",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_v15",
       "attributes": {
         "designator": "C24",
         "designator_prefix": "C",
@@ -1431,7 +1431,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ldo",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ldo",
       "attributes": {
         "designator": "U3",
         "designator_prefix": "U",
@@ -1441,7 +1441,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ldo_en_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ldo_en_top",
       "attributes": {
         "designator": "R136",
         "designator_prefix": "R",
@@ -1452,7 +1452,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ldo_en_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ldo_en_bot",
       "attributes": {
         "designator": "R137",
         "designator_prefix": "R",
@@ -1463,7 +1463,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ldo_in",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ldo_in",
       "attributes": {
         "designator": "C25",
         "designator_prefix": "C",
@@ -1474,7 +1474,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ldo_out",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ldo_out",
       "attributes": {
         "designator": "C26",
         "designator_prefix": "C",
@@ -1485,7 +1485,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div1",
       "attributes": {
         "designator": "R26",
         "designator_prefix": "R",
@@ -1496,7 +1496,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div2",
       "attributes": {
         "designator": "R27",
         "designator_prefix": "R",
@@ -1507,7 +1507,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div3",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div3",
       "attributes": {
         "designator": "R28",
         "designator_prefix": "R",
@@ -1518,7 +1518,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div4",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div4",
       "attributes": {
         "designator": "R29",
         "designator_prefix": "R",
@@ -1529,7 +1529,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_div_bot",
       "attributes": {
         "designator": "R30",
         "designator_prefix": "R",
@@ -1540,7 +1540,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_div",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_div",
       "attributes": {
         "designator": "C27",
         "designator_prefix": "C",
@@ -1551,7 +1551,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_vsense",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_vsense",
       "attributes": {
         "designator": "U4",
         "designator_prefix": "U",
@@ -1561,7 +1561,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_vs1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_vs1",
       "attributes": {
         "designator": "C28",
         "designator_prefix": "C",
@@ -1572,7 +1572,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_vs2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_vs2",
       "attributes": {
         "designator": "C29",
         "designator_prefix": "C",
@@ -1583,7 +1583,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_vs1_1u",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_vs1_1u",
       "attributes": {
         "designator": "C149",
         "designator_prefix": "C",
@@ -1594,7 +1594,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_vs2_1u",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_vs2_1u",
       "attributes": {
         "designator": "C150",
         "designator_prefix": "C",
@@ -1605,7 +1605,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ref_bias",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ref_bias",
       "attributes": {
         "designator": "R31",
         "designator_prefix": "R",
@@ -1616,7 +1616,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ref",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ref",
       "attributes": {
         "designator": "U5",
         "designator_prefix": "U",
@@ -1626,7 +1626,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ocp_ref",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ocp_ref",
       "attributes": {
         "designator": "R32",
         "designator_prefix": "R",
@@ -1637,7 +1637,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ocp_sense",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ocp_sense",
       "attributes": {
         "designator": "R33",
         "designator_prefix": "R",
@@ -1648,7 +1648,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ocp_node",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ocp_node",
       "attributes": {
         "designator": "C30",
         "designator_prefix": "C",
@@ -1659,7 +1659,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_th_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_th_top",
       "attributes": {
         "designator": "R34",
         "designator_prefix": "R",
@@ -1670,7 +1670,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_th_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_th_bot",
       "attributes": {
         "designator": "R35",
         "designator_prefix": "R",
@@ -1681,7 +1681,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_th",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_th",
       "attributes": {
         "designator": "C31",
         "designator_prefix": "C",
@@ -1692,7 +1692,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ocp",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ocp",
       "attributes": {
         "designator": "U6",
         "designator_prefix": "U",
@@ -1702,7 +1702,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ocp_vcc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ocp_vcc",
       "attributes": {
         "designator": "C32",
         "designator_prefix": "C",
@@ -1713,7 +1713,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ovp_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ovp_top",
       "attributes": {
         "designator": "R36",
         "designator_prefix": "R",
@@ -1724,7 +1724,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ovp_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ovp_bot",
       "attributes": {
         "designator": "R37",
         "designator_prefix": "R",
@@ -1735,7 +1735,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ovp_th",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ovp_th",
       "attributes": {
         "designator": "C33",
         "designator_prefix": "C",
@@ -1746,7 +1746,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ovp",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ovp",
       "attributes": {
         "designator": "U7",
         "designator_prefix": "U",
@@ -1756,7 +1756,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ovp_vcc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ovp_vcc",
       "attributes": {
         "designator": "C34",
         "designator_prefix": "C",
@@ -1767,7 +1767,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_nand",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_nand",
       "attributes": {
         "designator": "U8",
         "designator_prefix": "U",
@@ -1777,7 +1777,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_nand_vcc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_nand_vcc",
       "attributes": {
         "designator": "C35",
         "designator_prefix": "C",
@@ -1788,7 +1788,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_iso",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_iso",
       "attributes": {
         "designator": "U9",
         "designator_prefix": "U",
@@ -1798,7 +1798,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_iso1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_iso1",
       "attributes": {
         "designator": "C36",
         "designator_prefix": "C",
@@ -1809,7 +1809,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_iso2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_iso2",
       "attributes": {
         "designator": "C37",
         "designator_prefix": "C",
@@ -1820,7 +1820,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_selv",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_selv",
       "attributes": {
         "designator": "J4",
         "designator_prefix": "J",
@@ -1830,7 +1830,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_fe",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_fe",
       "attributes": {
         "designator": "R38",
         "designator_prefix": "R",
@@ -1841,7 +1841,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::tvs_bus",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::tvs_bus",
       "attributes": {
         "designator": "D3",
         "designator_prefix": "D",
@@ -1851,7 +1851,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::tvs_bus_b",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::tvs_bus_b",
       "attributes": {
         "designator": "D17",
         "designator_prefix": "D",
@@ -1861,7 +1861,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_coil_return",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_coil_return",
       "attributes": {
         "designator": "J5",
         "designator_prefix": "J",
@@ -1871,7 +1871,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_pe",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::j_pe",
       "attributes": {
         "designator": "J6",
         "designator_prefix": "J",
@@ -1881,7 +1881,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_hf_a1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_hf_a1",
       "attributes": {
         "designator": "C38",
         "designator_prefix": "C",
@@ -1891,7 +1891,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_hf_a2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_hf_a2",
       "attributes": {
         "designator": "C39",
         "designator_prefix": "C",
@@ -1901,7 +1901,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_hf_b1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_hf_b1",
       "attributes": {
         "designator": "C40",
         "designator_prefix": "C",
@@ -1911,7 +1911,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_hf_b2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_hf_b2",
       "attributes": {
         "designator": "C41",
         "designator_prefix": "C",
@@ -1921,7 +1921,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_burden",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_burden",
       "attributes": {
         "designator": "R39",
         "designator_prefix": "R",
@@ -1932,7 +1932,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ct_burden",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ct_burden",
       "attributes": {
         "designator": "C42",
         "designator_prefix": "C",
@@ -1943,7 +1943,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_bias_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_bias_top",
       "attributes": {
         "designator": "R40",
         "designator_prefix": "R",
@@ -1954,7 +1954,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_bias_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_bias_bot",
       "attributes": {
         "designator": "R41",
         "designator_prefix": "R",
@@ -1965,7 +1965,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ct_bias",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ct_bias",
       "attributes": {
         "designator": "C43",
         "designator_prefix": "C",
@@ -1976,7 +1976,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_series",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_series",
       "attributes": {
         "designator": "R42",
         "designator_prefix": "R",
@@ -1987,7 +1987,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::d_ct_hi",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::d_ct_hi",
       "attributes": {
         "designator": "D4",
         "designator_prefix": "D",
@@ -1997,7 +1997,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::d_ct_lo",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::d_ct_lo",
       "attributes": {
         "designator": "D5",
         "designator_prefix": "D",
@@ -2007,7 +2007,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_hi_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_hi_top",
       "attributes": {
         "designator": "R43",
         "designator_prefix": "R",
@@ -2018,7 +2018,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_hi_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_hi_bot",
       "attributes": {
         "designator": "R44",
         "designator_prefix": "R",
@@ -2029,7 +2029,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_lo_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_lo_top",
       "attributes": {
         "designator": "R45",
         "designator_prefix": "R",
@@ -2040,7 +2040,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_lo_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_lo_bot",
       "attributes": {
         "designator": "R46",
         "designator_prefix": "R",
@@ -2051,7 +2051,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ct_pos",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ct_pos",
       "attributes": {
         "designator": "U10",
         "designator_prefix": "U",
@@ -2061,7 +2061,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ct_pos",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ct_pos",
       "attributes": {
         "designator": "C44",
         "designator_prefix": "C",
@@ -2072,7 +2072,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ct_neg",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ct_neg",
       "attributes": {
         "designator": "U11",
         "designator_prefix": "U",
@@ -2082,7 +2082,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ct_neg",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ct_neg",
       "attributes": {
         "designator": "C45",
         "designator_prefix": "C",
@@ -2093,7 +2093,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ct_zc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_ct_zc",
       "attributes": {
         "designator": "U12",
         "designator_prefix": "U",
@@ -2103,7 +2103,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ct_zc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ct_zc",
       "attributes": {
         "designator": "C46",
         "designator_prefix": "C",
@@ -2114,7 +2114,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_fault_or",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_fault_or",
       "attributes": {
         "designator": "U13",
         "designator_prefix": "U",
@@ -2124,7 +2124,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_bf",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_bf",
       "attributes": {
         "designator": "R134",
         "designator_prefix": "R",
@@ -2135,7 +2135,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bf",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bf",
       "attributes": {
         "designator": "C167",
         "designator_prefix": "C",
@@ -2146,7 +2146,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_bf_st",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_bf_st",
       "attributes": {
         "designator": "U47",
         "designator_prefix": "U",
@@ -2156,7 +2156,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bf_st_vcc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bf_st_vcc",
       "attributes": {
         "designator": "C179",
         "designator_prefix": "C",
@@ -2167,7 +2167,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_fault_or",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_fault_or",
       "attributes": {
         "designator": "C47",
         "designator_prefix": "C",
@@ -2178,7 +2178,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_1",
       "attributes": {
         "designator": "C153",
         "designator_prefix": "C",
@@ -2189,7 +2189,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_2",
       "attributes": {
         "designator": "C154",
         "designator_prefix": "C",
@@ -2200,7 +2200,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_3",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_3",
       "attributes": {
         "designator": "C155",
         "designator_prefix": "C",
@@ -2211,7 +2211,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_4",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_4",
       "attributes": {
         "designator": "C156",
         "designator_prefix": "C",
@@ -2222,7 +2222,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_5",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_5",
       "attributes": {
         "designator": "C168",
         "designator_prefix": "C",
@@ -2233,7 +2233,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_6",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_6",
       "attributes": {
         "designator": "C169",
         "designator_prefix": "C",
@@ -2244,7 +2244,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_7",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_7",
       "attributes": {
         "designator": "C170",
         "designator_prefix": "C",
@@ -2255,7 +2255,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_8",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_8",
       "attributes": {
         "designator": "C171",
         "designator_prefix": "C",
@@ -2266,7 +2266,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_9",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_9",
       "attributes": {
         "designator": "C172",
         "designator_prefix": "C",
@@ -2277,7 +2277,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_10",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_10",
       "attributes": {
         "designator": "C173",
         "designator_prefix": "C",
@@ -2288,7 +2288,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_11",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_11",
       "attributes": {
         "designator": "C174",
         "designator_prefix": "C",
@@ -2299,7 +2299,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_12",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_12",
       "attributes": {
         "designator": "C175",
         "designator_prefix": "C",
@@ -2310,7 +2310,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_13",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_13",
       "attributes": {
         "designator": "C176",
         "designator_prefix": "C",
@@ -2321,7 +2321,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_14",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_14",
       "attributes": {
         "designator": "C177",
         "designator_prefix": "C",
@@ -2332,7 +2332,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_15",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_ref_xfer_15",
       "attributes": {
         "designator": "C178",
         "designator_prefix": "C",
@@ -2343,7 +2343,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_mon",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ct_mon",
       "attributes": {
         "designator": "R47",
         "designator_prefix": "R",
@@ -2354,7 +2354,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_hot5_uv",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_hot5_uv",
       "attributes": {
         "designator": "U14",
         "designator_prefix": "U",
@@ -2364,7 +2364,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ref_wd_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ref_wd_top",
       "attributes": {
         "designator": "R144",
         "designator_prefix": "R",
@@ -2375,7 +2375,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ref_wd_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_ref_wd_bot",
       "attributes": {
         "designator": "R145",
         "designator_prefix": "R",
@@ -2386,7 +2386,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_hot5_uv_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_hot5_uv_top",
       "attributes": {
         "designator": "R48",
         "designator_prefix": "R",
@@ -2397,7 +2397,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_hot5_uv_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_hot5_uv_bot",
       "attributes": {
         "designator": "R49",
         "designator_prefix": "R",
@@ -2408,7 +2408,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_hot5_uv_pull",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_hot5_uv_pull",
       "attributes": {
         "designator": "R50",
         "designator_prefix": "R",
@@ -2419,7 +2419,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_hot5_uv",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_hot5_uv",
       "attributes": {
         "designator": "C48",
         "designator_prefix": "C",
@@ -2430,7 +2430,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_hot5_schmitt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_hot5_schmitt",
       "attributes": {
         "designator": "U15",
         "designator_prefix": "U",
@@ -2440,7 +2440,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_hot5_schmitt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_hot5_schmitt",
       "attributes": {
         "designator": "C49",
         "designator_prefix": "C",
@@ -2451,7 +2451,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.ldo",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.ldo",
       "attributes": {
         "designator": "U26",
         "designator_prefix": "U",
@@ -2461,7 +2461,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.cnr",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.cnr",
       "attributes": {
         "designator": "C64",
         "designator_prefix": "C",
@@ -2472,7 +2472,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.cin",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.cin",
       "attributes": {
         "designator": "C98",
         "designator_prefix": "C",
@@ -2483,7 +2483,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.cout1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.cout1",
       "attributes": {
         "designator": "C99",
         "designator_prefix": "C",
@@ -2494,7 +2494,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.cout2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.cout2",
       "attributes": {
         "designator": "C100",
         "designator_prefix": "C",
@@ -2505,7 +2505,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.chf",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.chf",
       "attributes": {
         "designator": "C65",
         "designator_prefix": "C",
@@ -2516,7 +2516,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.shunt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.shunt",
       "attributes": {
         "designator": "U16",
         "designator_prefix": "U",
@@ -2526,7 +2526,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.rtop",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.rtop",
       "attributes": {
         "designator": "R77",
         "designator_prefix": "R",
@@ -2537,7 +2537,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.rbot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ls.rbot",
       "attributes": {
         "designator": "R78",
         "designator_prefix": "R",
@@ -2548,7 +2548,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.reference",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.reference",
       "attributes": {
         "designator": "U17",
         "designator_prefix": "U",
@@ -2558,7 +2558,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rref",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rref",
       "attributes": {
         "designator": "R59",
         "designator_prefix": "R",
@@ -2569,7 +2569,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rhalf_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rhalf_top",
       "attributes": {
         "designator": "R79",
         "designator_prefix": "R",
@@ -2580,7 +2580,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rhalf_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rhalf_bot",
       "attributes": {
         "designator": "R80",
         "designator_prefix": "R",
@@ -2591,7 +2591,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.ruv_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.ruv_top",
       "attributes": {
         "designator": "R81",
         "designator_prefix": "R",
@@ -2602,7 +2602,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.ruv_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.ruv_bot",
       "attributes": {
         "designator": "R82",
         "designator_prefix": "R",
@@ -2613,7 +2613,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rov_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rov_top",
       "attributes": {
         "designator": "R83",
         "designator_prefix": "R",
@@ -2624,7 +2624,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rov_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rov_bot",
       "attributes": {
         "designator": "R84",
         "designator_prefix": "R",
@@ -2635,7 +2635,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rspanuv_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rspanuv_top",
       "attributes": {
         "designator": "R85",
         "designator_prefix": "R",
@@ -2646,7 +2646,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rspanuv_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rspanuv_bot",
       "attributes": {
         "designator": "R86",
         "designator_prefix": "R",
@@ -2657,7 +2657,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rspanov_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rspanov_top",
       "attributes": {
         "designator": "R87",
         "designator_prefix": "R",
@@ -2668,7 +2668,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rspanov_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rspanov_bot",
       "attributes": {
         "designator": "R88",
         "designator_prefix": "R",
@@ -2679,7 +2679,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.monitor",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.monitor",
       "attributes": {
         "designator": "U29",
         "designator_prefix": "U",
@@ -2689,7 +2689,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.ldo5",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.ldo5",
       "attributes": {
         "designator": "U37",
         "designator_prefix": "U",
@@ -2699,7 +2699,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rldo_en_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rldo_en_top",
       "attributes": {
         "designator": "R138",
         "designator_prefix": "R",
@@ -2710,7 +2710,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rldo_en_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rldo_en_bot",
       "attributes": {
         "designator": "R139",
         "designator_prefix": "R",
@@ -2721,7 +2721,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cldo_in",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cldo_in",
       "attributes": {
         "designator": "C131",
         "designator_prefix": "C",
@@ -2732,7 +2732,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cldo_out",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cldo_out",
       "attributes": {
         "designator": "C132",
         "designator_prefix": "C",
@@ -2743,7 +2743,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rpull",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.rpull",
       "attributes": {
         "designator": "R91",
         "designator_prefix": "R",
@@ -2754,7 +2754,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cuv",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cuv",
       "attributes": {
         "designator": "C66",
         "designator_prefix": "C",
@@ -2765,7 +2765,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cov",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cov",
       "attributes": {
         "designator": "C67",
         "designator_prefix": "C",
@@ -2776,7 +2776,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cspanuv",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cspanuv",
       "attributes": {
         "designator": "C68",
         "designator_prefix": "C",
@@ -2787,7 +2787,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cspanov",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cspanov",
       "attributes": {
         "designator": "C69",
         "designator_prefix": "C",
@@ -2798,7 +2798,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cmonitor",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::monitor_ls.cmonitor",
       "attributes": {
         "designator": "C70",
         "designator_prefix": "C",
@@ -2809,7 +2809,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.iso",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.iso",
       "attributes": {
         "designator": "U41",
         "designator_prefix": "U",
@@ -2819,7 +2819,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.ren_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.ren_top",
       "attributes": {
         "designator": "R62",
         "designator_prefix": "R",
@@ -2830,18 +2830,18 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.ren_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.ren_bot",
       "attributes": {
         "designator": "R127",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "0603WAF2702T5E",
-        "value": "27kohm"
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD0716KL",
+        "value": "16kohm"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.cin1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.cin1",
       "attributes": {
         "designator": "C102",
         "designator_prefix": "C",
@@ -2852,7 +2852,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.cin2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.cin2",
       "attributes": {
         "designator": "C103",
         "designator_prefix": "C",
@@ -2863,7 +2863,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.cinhf",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.cinhf",
       "attributes": {
         "designator": "C74",
         "designator_prefix": "C",
@@ -2874,7 +2874,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.cavin",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.cavin",
       "attributes": {
         "designator": "C105",
         "designator_prefix": "C",
@@ -2885,7 +2885,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.rfbt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.rfbt",
       "attributes": {
         "designator": "R92",
         "designator_prefix": "R",
@@ -2896,7 +2896,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.rfbb",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.rfbb",
       "attributes": {
         "designator": "R93",
         "designator_prefix": "R",
@@ -2907,7 +2907,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.cfb",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.cfb",
       "attributes": {
         "designator": "C71",
         "designator_prefix": "C",
@@ -2918,7 +2918,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.split.cout1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.split.cout1",
       "attributes": {
         "designator": "C104",
         "designator_prefix": "C",
@@ -2929,7 +2929,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.split.chf",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.split.chf",
       "attributes": {
         "designator": "C75",
         "designator_prefix": "C",
@@ -2940,7 +2940,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.split.shunt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.split.shunt",
       "attributes": {
         "designator": "U18",
         "designator_prefix": "U",
@@ -2950,7 +2950,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.split.rtop",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.split.rtop",
       "attributes": {
         "designator": "R95",
         "designator_prefix": "R",
@@ -2961,7 +2961,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.split.rbot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.split.rbot",
       "attributes": {
         "designator": "R96",
         "designator_prefix": "R",
@@ -2972,7 +2972,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.reference",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.reference",
       "attributes": {
         "designator": "U19",
         "designator_prefix": "U",
@@ -2982,7 +2982,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rref",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rref",
       "attributes": {
         "designator": "R63",
         "designator_prefix": "R",
@@ -2993,7 +2993,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rhalf_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rhalf_top",
       "attributes": {
         "designator": "R97",
         "designator_prefix": "R",
@@ -3004,7 +3004,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rhalf_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rhalf_bot",
       "attributes": {
         "designator": "R98",
         "designator_prefix": "R",
@@ -3015,7 +3015,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.ruv_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.ruv_top",
       "attributes": {
         "designator": "R99",
         "designator_prefix": "R",
@@ -3026,7 +3026,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.ruv_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.ruv_bot",
       "attributes": {
         "designator": "R100",
         "designator_prefix": "R",
@@ -3037,7 +3037,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rov_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rov_top",
       "attributes": {
         "designator": "R101",
         "designator_prefix": "R",
@@ -3048,7 +3048,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rov_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rov_bot",
       "attributes": {
         "designator": "R102",
         "designator_prefix": "R",
@@ -3059,7 +3059,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rspanuv_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rspanuv_top",
       "attributes": {
         "designator": "R103",
         "designator_prefix": "R",
@@ -3070,7 +3070,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rspanuv_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rspanuv_bot",
       "attributes": {
         "designator": "R104",
         "designator_prefix": "R",
@@ -3081,7 +3081,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rspanov_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rspanov_top",
       "attributes": {
         "designator": "R105",
         "designator_prefix": "R",
@@ -3092,7 +3092,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rspanov_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rspanov_bot",
       "attributes": {
         "designator": "R106",
         "designator_prefix": "R",
@@ -3103,7 +3103,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.monitor",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.monitor",
       "attributes": {
         "designator": "U30",
         "designator_prefix": "U",
@@ -3113,7 +3113,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.ldo5",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.ldo5",
       "attributes": {
         "designator": "U38",
         "designator_prefix": "U",
@@ -3123,7 +3123,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rldo_en_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rldo_en_top",
       "attributes": {
         "designator": "R140",
         "designator_prefix": "R",
@@ -3134,7 +3134,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rldo_en_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rldo_en_bot",
       "attributes": {
         "designator": "R141",
         "designator_prefix": "R",
@@ -3145,7 +3145,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cldo_in",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cldo_in",
       "attributes": {
         "designator": "C135",
         "designator_prefix": "C",
@@ -3156,7 +3156,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cldo_out",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cldo_out",
       "attributes": {
         "designator": "C136",
         "designator_prefix": "C",
@@ -3167,7 +3167,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rpull",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.rpull",
       "attributes": {
         "designator": "R109",
         "designator_prefix": "R",
@@ -3178,7 +3178,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cuv",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cuv",
       "attributes": {
         "designator": "C76",
         "designator_prefix": "C",
@@ -3189,7 +3189,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cov",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cov",
       "attributes": {
         "designator": "C77",
         "designator_prefix": "C",
@@ -3200,7 +3200,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cspanuv",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cspanuv",
       "attributes": {
         "designator": "C78",
         "designator_prefix": "C",
@@ -3211,7 +3211,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cspanov",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cspanov",
       "attributes": {
         "designator": "C79",
         "designator_prefix": "C",
@@ -3222,7 +3222,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cmonitor",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.monitor.cmonitor",
       "attributes": {
         "designator": "C80",
         "designator_prefix": "C",
@@ -3233,7 +3233,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.link",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.link",
       "attributes": {
         "designator": "U43",
         "designator_prefix": "U",
@@ -3243,7 +3243,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.clink1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.clink1",
       "attributes": {
         "designator": "C157",
         "designator_prefix": "C",
@@ -3254,7 +3254,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.clink2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_ha.clink2",
       "attributes": {
         "designator": "C158",
         "designator_prefix": "C",
@@ -3265,7 +3265,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.iso",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.iso",
       "attributes": {
         "designator": "U42",
         "designator_prefix": "U",
@@ -3275,7 +3275,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.ren_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.ren_top",
       "attributes": {
         "designator": "R128",
         "designator_prefix": "R",
@@ -3286,18 +3286,18 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.ren_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.ren_bot",
       "attributes": {
         "designator": "R129",
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "manufacturer": "UNI-ROYAL(Uniroyal Elec)",
-        "mpn": "0603WAF2702T5E",
-        "value": "27kohm"
+        "manufacturer": "Yageo",
+        "mpn": "RT0603BRD0716KL",
+        "value": "16kohm"
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.cin1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.cin1",
       "attributes": {
         "designator": "C106",
         "designator_prefix": "C",
@@ -3308,7 +3308,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.cin2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.cin2",
       "attributes": {
         "designator": "C107",
         "designator_prefix": "C",
@@ -3319,7 +3319,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.cinhf",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.cinhf",
       "attributes": {
         "designator": "C81",
         "designator_prefix": "C",
@@ -3330,7 +3330,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.cavin",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.cavin",
       "attributes": {
         "designator": "C109",
         "designator_prefix": "C",
@@ -3341,7 +3341,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.rfbt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.rfbt",
       "attributes": {
         "designator": "R94",
         "designator_prefix": "R",
@@ -3352,7 +3352,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.rfbb",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.rfbb",
       "attributes": {
         "designator": "R61",
         "designator_prefix": "R",
@@ -3363,7 +3363,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.cfb",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.cfb",
       "attributes": {
         "designator": "C72",
         "designator_prefix": "C",
@@ -3374,7 +3374,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.split.cout1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.split.cout1",
       "attributes": {
         "designator": "C108",
         "designator_prefix": "C",
@@ -3385,7 +3385,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.split.chf",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.split.chf",
       "attributes": {
         "designator": "C82",
         "designator_prefix": "C",
@@ -3396,7 +3396,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.split.shunt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.split.shunt",
       "attributes": {
         "designator": "U20",
         "designator_prefix": "U",
@@ -3406,7 +3406,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.split.rtop",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.split.rtop",
       "attributes": {
         "designator": "R110",
         "designator_prefix": "R",
@@ -3417,7 +3417,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.split.rbot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.split.rbot",
       "attributes": {
         "designator": "R111",
         "designator_prefix": "R",
@@ -3428,7 +3428,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.reference",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.reference",
       "attributes": {
         "designator": "U21",
         "designator_prefix": "U",
@@ -3438,7 +3438,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rref",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rref",
       "attributes": {
         "designator": "R65",
         "designator_prefix": "R",
@@ -3449,7 +3449,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rhalf_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rhalf_top",
       "attributes": {
         "designator": "R112",
         "designator_prefix": "R",
@@ -3460,7 +3460,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rhalf_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rhalf_bot",
       "attributes": {
         "designator": "R113",
         "designator_prefix": "R",
@@ -3471,7 +3471,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.ruv_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.ruv_top",
       "attributes": {
         "designator": "R114",
         "designator_prefix": "R",
@@ -3482,7 +3482,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.ruv_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.ruv_bot",
       "attributes": {
         "designator": "R115",
         "designator_prefix": "R",
@@ -3493,7 +3493,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rov_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rov_top",
       "attributes": {
         "designator": "R116",
         "designator_prefix": "R",
@@ -3504,7 +3504,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rov_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rov_bot",
       "attributes": {
         "designator": "R117",
         "designator_prefix": "R",
@@ -3515,7 +3515,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rspanuv_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rspanuv_top",
       "attributes": {
         "designator": "R118",
         "designator_prefix": "R",
@@ -3526,7 +3526,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rspanuv_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rspanuv_bot",
       "attributes": {
         "designator": "R119",
         "designator_prefix": "R",
@@ -3537,7 +3537,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rspanov_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rspanov_top",
       "attributes": {
         "designator": "R120",
         "designator_prefix": "R",
@@ -3548,7 +3548,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rspanov_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rspanov_bot",
       "attributes": {
         "designator": "R121",
         "designator_prefix": "R",
@@ -3559,7 +3559,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.monitor",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.monitor",
       "attributes": {
         "designator": "U31",
         "designator_prefix": "U",
@@ -3569,7 +3569,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.ldo5",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.ldo5",
       "attributes": {
         "designator": "U39",
         "designator_prefix": "U",
@@ -3579,7 +3579,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rldo_en_top",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rldo_en_top",
       "attributes": {
         "designator": "R142",
         "designator_prefix": "R",
@@ -3590,7 +3590,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rldo_en_bot",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rldo_en_bot",
       "attributes": {
         "designator": "R143",
         "designator_prefix": "R",
@@ -3601,7 +3601,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cldo_in",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cldo_in",
       "attributes": {
         "designator": "C139",
         "designator_prefix": "C",
@@ -3612,7 +3612,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cldo_out",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cldo_out",
       "attributes": {
         "designator": "C140",
         "designator_prefix": "C",
@@ -3623,7 +3623,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rpull",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.rpull",
       "attributes": {
         "designator": "R124",
         "designator_prefix": "R",
@@ -3634,7 +3634,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cuv",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cuv",
       "attributes": {
         "designator": "C83",
         "designator_prefix": "C",
@@ -3645,7 +3645,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cov",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cov",
       "attributes": {
         "designator": "C84",
         "designator_prefix": "C",
@@ -3656,7 +3656,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cspanuv",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cspanuv",
       "attributes": {
         "designator": "C85",
         "designator_prefix": "C",
@@ -3667,7 +3667,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cspanov",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cspanov",
       "attributes": {
         "designator": "C86",
         "designator_prefix": "C",
@@ -3678,7 +3678,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cmonitor",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.monitor.cmonitor",
       "attributes": {
         "designator": "C87",
         "designator_prefix": "C",
@@ -3689,7 +3689,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.link",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.link",
       "attributes": {
         "designator": "U44",
         "designator_prefix": "U",
@@ -3699,7 +3699,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.clink1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.clink1",
       "attributes": {
         "designator": "C159",
         "designator_prefix": "C",
@@ -3710,7 +3710,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.clink2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::bias_hb.clink2",
       "attributes": {
         "designator": "C160",
         "designator_prefix": "C",
@@ -3721,7 +3721,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.vote",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.vote",
       "attributes": {
         "designator": "D18",
         "designator_prefix": "D",
@@ -3731,7 +3731,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.vote_b",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.vote_b",
       "attributes": {
         "designator": "D20",
         "designator_prefix": "D",
@@ -3741,7 +3741,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.osc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.osc",
       "attributes": {
         "designator": "U45",
         "designator_prefix": "U",
@@ -3751,7 +3751,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.rosc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.rosc",
       "attributes": {
         "designator": "R131",
         "designator_prefix": "R",
@@ -3762,7 +3762,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.cosc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.cosc",
       "attributes": {
         "designator": "C162",
         "designator_prefix": "C",
@@ -3773,7 +3773,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.cosc_vcc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.cosc_vcc",
       "attributes": {
         "designator": "C161",
         "designator_prefix": "C",
@@ -3784,7 +3784,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.iso",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.iso",
       "attributes": {
         "designator": "U32",
         "designator_prefix": "U",
@@ -3794,7 +3794,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.civcc1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.civcc1",
       "attributes": {
         "designator": "C133",
         "designator_prefix": "C",
@@ -3805,7 +3805,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.civcc2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.civcc2",
       "attributes": {
         "designator": "C134",
         "designator_prefix": "C",
@@ -3816,7 +3816,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.buf",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.buf",
       "attributes": {
         "designator": "U46",
         "designator_prefix": "U",
@@ -3826,7 +3826,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.rgate",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.rgate",
       "attributes": {
         "designator": "R135",
         "designator_prefix": "R",
@@ -3837,7 +3837,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.cbuf",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.cbuf",
       "attributes": {
         "designator": "C163",
         "designator_prefix": "C",
@@ -3848,7 +3848,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.rs",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.rs",
       "attributes": {
         "designator": "R132",
         "designator_prefix": "R",
@@ -3859,7 +3859,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.cp1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.cp1",
       "attributes": {
         "designator": "C164",
         "designator_prefix": "C",
@@ -3870,7 +3870,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.cp2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.cp2",
       "attributes": {
         "designator": "C165",
         "designator_prefix": "C",
@@ -3881,7 +3881,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.pump",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.pump",
       "attributes": {
         "designator": "D19",
         "designator_prefix": "D",
@@ -3891,7 +3891,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.chold",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.chold",
       "attributes": {
         "designator": "C166",
         "designator_prefix": "C",
@@ -3902,7 +3902,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.rbleed",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::hb.rbleed",
       "attributes": {
         "designator": "R133",
         "designator_prefix": "R",
@@ -3913,7 +3913,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_bias_flt",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::u_bias_flt",
       "attributes": {
         "designator": "U40",
         "designator_prefix": "U",
@@ -3923,7 +3923,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_bias_good_j4",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::r_bias_good_j4",
       "attributes": {
         "designator": "R146",
         "designator_prefix": "R",
@@ -3934,7 +3934,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bias_flt_vcc",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::c_bias_flt_vcc",
       "attributes": {
         "designator": "C144",
         "designator_prefix": "C",
@@ -3945,7 +3945,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.r1",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.r1",
       "attributes": {
         "designator": "R67",
         "designator_prefix": "R",
@@ -3956,7 +3956,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.r2",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.r2",
       "attributes": {
         "designator": "R68",
         "designator_prefix": "R",
@@ -3967,7 +3967,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.opto",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.opto",
       "attributes": {
         "designator": "U36",
         "designator_prefix": "U",
@@ -3977,7 +3977,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.r3",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.r3",
       "attributes": {
         "designator": "R69",
         "designator_prefix": "R",
@@ -3988,7 +3988,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.r4",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.r4",
       "attributes": {
         "designator": "R70",
         "designator_prefix": "R",
@@ -3999,7 +3999,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.pullup",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.pullup",
       "attributes": {
         "designator": "R125",
         "designator_prefix": "R",
@@ -4010,7 +4010,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.buffer",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.buffer",
       "attributes": {
         "designator": "U24",
         "designator_prefix": "U",
@@ -4020,7 +4020,7 @@
       }
     },
     {
-      "address": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.cbuffer",
+      "address": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V::line_zc.cbuffer",
       "attributes": {
         "designator": "C89",
         "designator_prefix": "C",
@@ -4031,13 +4031,18 @@
       }
     }
   ],
-  "entry": "/Users/bennet/Desktop/temper/worktrees/ps-integrate/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V",
+  "entry": "/Users/bennet/Desktop/temper/worktrees/ps-unified/zapote/power-stage-120v/elec/src/power_stage_120v.ato:PowerStage120V",
   "schema": "temper.circuit-export.v1",
   "source_sha256": {
-    "elec/src/f6_bias.ato": "8996f6daa5ec90f8c359e3effbe0af55dc646f20730e27dbefc74885b080960d",
+    "elec/src/f6_bias.ato": "6a72329e7d4d88c35a0b4aa1acec1eaabeed7bc13373b3cf80b4f804874179a7",
     "elec/src/f6_parts.ato": "9942dbf3afdcb74a8269661ebe7b719f763881c3d4ed13c7b71c709a63bc9018",
     "elec/src/parts.ato": "0324ec34f83003f654dcca91b928bff464e59bd8d1cebad13dbde845a1c1c056",
     "elec/src/power_stage_120v.ato": "6c5177e99ce241c3fb0f6a70031a883f8b742630a5ce3de32462e3041ac86016",
-    "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
+    "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3",
+    "validation-results/11-candidates/c49-bias-race/ctrl/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
+    "validation-results/11-candidates/c49-bias-race/ctrl/controller.ato": "ceaeda65df16eae3985969850bfc3f1350e7ca9dd27bb10318d1a90f8041dcdc",
+    "validation-results/11-candidates/c49-bias-race/ctrl/controller_parts.ato": "1a04cbf032289e422b3d85a4acf6a86e5ae1843eb5f978933bbc420a0b30ec6a",
+    "validation-results/11-candidates/c49-bias-race/ctrl/interlock_block.ato": "b55ff14f0d64af3492ed05e03d35c6ec031eb9c9fd1301105009bc76ccad1c9f",
+    "validation-results/11-candidates/c49-bias-race/ctrl/modules.ato": "1f9acff6493bad71bdb145ca6a42f7567d70f3c0b30f6bc6c22d082aec01ba0d"
   }
 }

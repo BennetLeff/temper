@@ -62,7 +62,8 @@ DIVIDER = {"native21s13": (12.4e3, 11.7e3), "native21s13b": (12.4e3, 11.7e3), "n
            "native21s53": (16e3, 11e3, 10e3, 7.5e3),
            # stage 54 (c54 remediation): divider unchanged; the copper edits are the J1 ac_n_in strip and track cleanup
            "native21s54": (16e3, 11e3, 10e3, 7.5e3),
-           "native21s55": (16e3, 11e3, 10e3, 7.5e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
+           "native21s55": (16e3, 11e3, 10e3, 7.5e3),
+           "native21s56": (16e3, 11e3, 10e3, 7.5e3)}   # stage 15, 28 A hardware (DECISIONS 2026-10-10)
 PLATING_UM, PITCH, TEMP = 18.0, 0.1, 125.0
 
 

@@ -123,6 +123,9 @@ def main() -> None:
         assert parts[ldo]['mpn'] == 'TPS70950QDBVRQ1' and parts[ldo]['footprint'] == 'Package_TO_SOT_SMD:SOT-23-5'
         assert (parts[top]['mpn'], parts[top]['value']) == ('0603WAF1003T5E', '100kohm'), top
         assert (parts[bot]['mpn'], parts[bot]['value']) == ('0603WAF2702T5E', '27kohm'), bot
+    # stage 56 (OPEN-ITEMS S22; c56-s56-scope): the R24C2T25 CTRL dividers 100 k / 16 k (was 27 k)
+    for side in ('bias_ha', 'bias_hb'):
+        assert (parts[f'{side}.ren_bot']['mpn'], parts[f'{side}.ren_bot']['value']) == ('RT0603BRD0716KL', '16kohm'), side
     assert (parts['r_ref_wd_top']['mpn'], parts['r_ref_wd_bot']['mpn']) == ('RT0603BRD0763K4L', 'TNPW060311K7BEEA')
     assert parts['r_bias_good_j4']['mpn'] == 'RC1206FR-07220KL' and parts['r_bias_good_j4']['value'] == '220kohm'
     assert not any(part.get('mpn') == 'TPS70950DBVR' for part in parts.values())

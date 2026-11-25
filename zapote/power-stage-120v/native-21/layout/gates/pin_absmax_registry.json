@@ -1075,7 +1075,7 @@
     "R127"
    ],
    "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
-   "derive": "R62 100 k from V24_RAW, R127 27 k to N_LS: the U41 CTRL divider"
+   "derive": "R62 100 k from V24_RAW, R127 16 k to N_LS (stage 56, S22; 27 k before): the U41 CTRL divider"
   },
   "bias_hb-en": {
    "kind": "divider",
@@ -1088,7 +1088,7 @@
     "R129"
    ],
    "cite": "frozen/default.net + resolved-components.json resistor values; tolerances: resistor_tolerance table",
-   "derive": "R128 100 k from V24_RAW, R129 27 k to N_LS: the U42 CTRL divider"
+   "derive": "R128 100 k from V24_RAW, R129 16 k to N_LS (stage 56, S22; 27 k before): the U42 CTRL divider"
   },
   "bias_ha-fbm": {
    "kind": "divider",

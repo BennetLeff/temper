@@ -7,10 +7,15 @@
   "no_bootstrap": true,
   "monitor_crossing_single_ISO7710_heartbeat": true,
   "source_sha256": {
-    "elec/src/f6_bias.ato": "8996f6daa5ec90f8c359e3effbe0af55dc646f20730e27dbefc74885b080960d",
+    "elec/src/f6_bias.ato": "6a72329e7d4d88c35a0b4aa1acec1eaabeed7bc13373b3cf80b4f804874179a7",
     "elec/src/f6_parts.ato": "9942dbf3afdcb74a8269661ebe7b719f763881c3d4ed13c7b71c709a63bc9018",
     "elec/src/parts.ato": "0324ec34f83003f654dcca91b928bff464e59bd8d1cebad13dbde845a1c1c056",
     "elec/src/power_stage_120v.ato": "6c5177e99ce241c3fb0f6a70031a883f8b742630a5ce3de32462e3041ac86016",
-    "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3"
+    "prototype-closure/round4/supervisor/generated/supervisor.ato": "1d6674935534a46c6c82f61c4f18890de7fa7cbf81f89c1cb63efb7bfed1b7e3",
+    "validation-results/11-candidates/c49-bias-race/ctrl/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
+    "validation-results/11-candidates/c49-bias-race/ctrl/controller.ato": "ceaeda65df16eae3985969850bfc3f1350e7ca9dd27bb10318d1a90f8041dcdc",
+    "validation-results/11-candidates/c49-bias-race/ctrl/controller_parts.ato": "1a04cbf032289e422b3d85a4acf6a86e5ae1843eb5f978933bbc420a0b30ec6a",
+    "validation-results/11-candidates/c49-bias-race/ctrl/interlock_block.ato": "b55ff14f0d64af3492ed05e03d35c6ec031eb9c9fd1301105009bc76ccad1c9f",
+    "validation-results/11-candidates/c49-bias-race/ctrl/modules.ato": "1f9acff6493bad71bdb145ca6a42f7567d70f3c0b30f6bc6c22d082aec01ba0d"
   }
 }

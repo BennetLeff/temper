@@ -335,9 +335,9 @@ const IDENTITY: &[(&str, &str)] = &[
     ("tvs_bus", "30KPA150CA"),
     ("tvs_bus_b", "30KPA150CA"),
     ("bias_ha.ren_top", "0603WAF1003T5E"),
-    ("bias_ha.ren_bot", "0603WAF2702T5E"),
+    ("bias_ha.ren_bot", "RT0603BRD0716KL"),
     ("bias_hb.ren_top", "0603WAF1003T5E"),
-    ("bias_hb.ren_bot", "0603WAF2702T5E"),
+    ("bias_hb.ren_bot", "RT0603BRD0716KL"),
     ("r_shunt", "CSS2H-2512R-1L00F"),   // stage 17: replaces WSK25121L000FEA (derating, DECISIONS 17)
     // DECISIONS.md 2026-10-03: dead-time resistors (native-18 onward).
     // stage 29: 8.2 ohm gate resistors set the edge the 2EDR8259X's CMTI ratio (1.58) is computed at.
@@ -937,6 +937,40 @@ fn stage54_checks(m: &Model, e: &mut Vec<String>) {
     }
 }
 
+// Stage 56 (OPEN-ITEMS S22, 11-candidates/c56-s56-scope): each R24C2T25 CTRL divider keeps CTRL inside the module's 0-5.5 V
+// operating range (RECOM Rev. 1-2024 p.7; abs max 7 V p.2) up to PS2's 32.4 V over-voltage clamp, and above the 2.1 V
+// enable threshold at the 23.43 V rail minimum with the 10 uA pin current drawn. (MPN, ohm, tolerance).
+const S56_CTRL_RESISTORS: &[(&str, f64, f64)] = &[
+    ("0603WAF1003T5E", 100_000.0, 0.01), ("0603WAF2702T5E", 27_000.0, 0.01), ("RT0603BRD0716KL", 16_000.0, 0.001),
+    ("RT0603BRD0710KL", 10_000.0, 0.001),
+];
+const S56_V24_MIN: f64 = 23.43;
+const S56_V24_CLAMP: f64 = 32.4;
+
+fn stage56_checks(m: &Model, e: &mut Vec<String>) {
+    for side in ["bias_ha", "bias_hb"] {
+        let find = |p: String| {
+            let mpn = m.resolved.get(&p).cloned().unwrap_or_default();
+            S56_CTRL_RESISTORS.iter().find(|r| r.0 == mpn).map(|r| (r.1, r.2)).ok_or(format!("stage56: {p} ({mpn}) has no resistor data"))
+        };
+        match (find(format!("{side}.ren_top")), find(format!("{side}.ren_bot"))) {
+            (Ok((rt, tt)), Ok((rb, tb))) => {
+                let (t_lo, b_hi) = (rt * (1.0 - tt), rb * (1.0 + tb));
+                let hi = S56_V24_CLAMP * b_hi / (t_lo + b_hi);
+                let (t_hi, b_lo) = (rt * (1.0 + tt), rb * (1.0 - tb));
+                let lo = (S56_V24_MIN / t_hi - 10e-6) * t_hi * b_lo / (t_hi + b_lo);
+                if hi > 5.5 {
+                    e.push(format!("stage56: {side} CTRL reaches {hi:.3} V at the PS2 clamp, over the 5.5 V operating maximum"));
+                }
+                if lo < 2.1 {
+                    e.push(format!("stage56: {side} CTRL is {lo:.3} V at the rail minimum, under the 2.1 V enable threshold"));
+                }
+            }
+            (a, b) => e.extend([a.err(), b.err()].into_iter().flatten()),
+        }
+    }
+}
+
 fn stage48_checks(m: &Model, e: &mut Vec<String>) {
     // S19: every TPS70950(Q)'s EN on its own divider tap, inside VEN(HI) .. 6.5 V across its IN range
     for (ldo, base, vin_min, vin_max, vin_corner) in S48_LDO_IN {
@@ -1512,6 +1546,7 @@ fn audit(m: &Model) -> Vec<String> {
     stage51_checks(m, &mut e);
     stage52_checks(m, &mut e);
     stage54_checks(m, &mut e);
+    stage56_checks(m, &mut e);
 
     // 11. Tank CT: the secondary is terminated on this board, at the CT, and
     //     never reaches the connector (an open secondary spikes to hundreds of
@@ -2369,6 +2404,24 @@ mod tests {
         let mut m = built();
         m.rewire("c_bf_st_vcc", "1", "bus_fault_st");
         fails(&m, "c_bf_st_vcc.1 on bus_fault_st");
+    }
+
+    #[test]
+    fn stage56_ctrl_divider_inside_the_operating_range() {
+        // OPEN-ITEMS S22: the s55 27 k bottom fails by arithmetic (6.997 V at the clamp), 16 k passes, 10 k is too low
+        let m = built();
+        assert!(audit(&m).is_empty(), "{:#?}", audit(&m));
+        for side in ["bias_ha", "bias_hb"] {
+            let mut m = built();
+            m.set_part(&format!("{side}.ren_bot"), "0603WAF2702T5E");
+            fails(&m, &format!("stage56: {side} CTRL reaches 6.997 V"));
+            let mut m = built();
+            m.set_part(&format!("{side}.ren_bot"), "RT0603BRD0710KL");
+            fails(&m, &format!("stage56: {side} CTRL is 2.018 V"));
+            let mut m = built();
+            m.set_part(&format!("{side}.ren_top"), "RC1206FR-07220KL");
+            fails(&m, &format!("stage56: {side}.ren_top (RC1206FR-07220KL) has no resistor data"));
+        }
     }
 
     #[test]

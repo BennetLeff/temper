@@ -1,5 +1,5 @@
 from "f6_parts.ato" import Bias10u, BiasComparator, BiasReference, BiasOpto, BiasNpn, BiasSilicon, GateDischarge, Bias4k42, Bias750R, Bias2k94, Bias90k9, Bias104k, Bias2k2, Bias2k7, Gate1R, Bias6k2, Bias4k99, Bias18k, Bias30k, BiasDamping, Bias680, Line16k5, Line33k, Bias1u, Bias100n, Bias220u, Bias4u7, HotSupply24, NegativeShunt, SpanRegulator, HotLdo, DisOr, LineOpto, IsoBiasModule, BiasFb63k4, BiasFb11k, C330pC0G0603, Bias27k
-from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, IsoReinfH, C10u1210, R100k0603
+from "parts.ato" import C100n0603, C1nC0G0603, R10kThin, R1k0603, R10k0603, C100pC0G0603, Hot5SchmittBuffer, IsoReinfH, C10u1210, R100k0603, R16kThin
 from "parts.ato" import Iso6721Fb, SchottkyPairSeries, SchmittNand132, SchmittBuf17, R220R0603, R49k9Dt
 
 module BiasReservoir:
@@ -316,13 +316,15 @@ module HighBias:
     iso.p34 ~ fbm
     iso.p35 ~ n
     # PG (3) and COM (32) are left open (single-output configuration; PG unused).
-    # Own enable divider per module: CTRL = 24 V x 27/127 = 5.10 V (4.97-5.23 V; abs max 5.5 V).
+    # Own enable divider per module, 100 k / 16 k (stage 56, OPEN-ITEMS S22; 27 k before): CTRL 3.06-3.42 V over V24_RAW
+    # 23.43-24.57 V (on >= 2.1 V, 10 uA pin current) and 4.51 V at PS2's 32.4 V over-voltage clamp, inside the 0-5.5 V operating
+    # range (RECOM Rev. 1-2024 p.7; abs max 7 V p.2). 11-candidates/c56-s56-scope.
     ren_top = new R100k0603
     ren_top.value = 100kohm
     ren_top.p1 ~ raw24
     ren_top.p2 ~ en
-    ren_bot = new Bias27k
-    ren_bot.value = 27kohm
+    ren_bot = new R16kThin
+    ren_bot.value = 16kohm
     ren_bot.p1 ~ en
     ren_bot.p2 ~ nls
     cin1 = new Bias10u

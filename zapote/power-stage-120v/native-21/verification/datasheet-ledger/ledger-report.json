@@ -405,8 +405,8 @@
      "id": "temperature, c28 (temp-ratings 2026-10-15)",
      "max_ratio": 1.0,
      "ok": true,
-     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R127",
-     "ratio": 0.7128,
+     "rating": "Terminal temperature limit at P (derating line, 20 % margin), c28 worst ref R137",
+     "ratio": 0.7081,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     },
@@ -415,7 +415,7 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Max working voltage",
-     "ratio": 0.1347,
+     "ratio": 0.0724,
      "severity": "violation",
      "stress": "Voltage across (worst ref)"
     },
@@ -424,22 +424,20 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "Rated power P70",
-     "ratio": 0.0183,
+     "ratio": 0.0053,
      "severity": "violation",
      "stress": "Power (worst ref)"
     }
    ],
    "class": "SIGNAL",
    "designators": [
-    "R127",
-    "R129",
     "R137",
     "R139",
     "R141",
     "R143"
    ],
    "finding": null,
-   "function": "27 k; stage 48: R137 / R139 / R141 / R143 are the LDO EN divider bottoms (EN to GND)",
+   "function": "27 k: the TPS70950 LDO EN divider bottoms (stage 48); the R24C2T25 CTRL pair R127 / R129 went to 16 k at stage 56",
    "gaps": [
     "[temp-ratings 2026-10-15] the local temperature is the B3 body-model estimate (pad copper as the local-ambient / die proxy, hot copper, still air at the BASIS bays), not a measurement"
    ],
@@ -4891,25 +4889,25 @@
      "max_ratio": 0.5,
      "ok": true,
      "rating": "Working voltage",
-     "ratio": 0.0199,
+     "ratio": 0.0602,
      "severity": "violation",
-     "stress": "V across R34"
+     "stress": "V across (worst ref)"
     },
     {
      "id": "P",
      "max_ratio": 0.5,
      "ok": true,
      "rating": "Rated power at 70 C",
-     "ratio": 0.0014,
+     "ratio": 0.0127,
      "severity": "violation",
-     "stress": "P in R34"
+     "stress": "P (worst ref)"
     },
     {
      "id": "temperature, release case",
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin)",
-     "ratio": 0.6281,
+     "ratio": 0.6374,
      "severity": "violation",
      "stress": "Local temperature, release case (c17.5_h10 @ 61 C)"
     },
@@ -4918,17 +4916,19 @@
      "max_ratio": 1.0,
      "ok": true,
      "rating": "Terminal temperature limit at P (derating line, 20 % margin)",
-     "ratio": 0.6691,
+     "ratio": 0.7142,
      "severity": "gap",
      "stress": "Local temperature, c28_h10 @ 55 C"
     }
    ],
    "class": "SIGNAL",
    "designators": [
+    "R127",
+    "R129",
     "R34"
    ],
    "finding": null,
-   "function": "16 k 0.1 % OCP threshold top (REF25 to ocp_thresh; S23 B'-1.02 V)",
+   "function": "16 k 0.1 %: R34 OCP threshold top (REF25 to ocp_thresh; S23 B'-1.02 V); R127 / R129 R24C2T25 CTRL divider bottoms (stage 56, S22)",
    "gaps": [
     "the local temperature is the B3 body-model pad estimate (hot copper, still air at the BASIS bays), not a measurement; it is the S21 estimator on this board's run files (results/bands-s49.json), so the s49 re-base (temps_snap49.py) counts this line as rated and leaves it"
    ],
