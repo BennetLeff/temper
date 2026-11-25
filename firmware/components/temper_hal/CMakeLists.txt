@@ -22,6 +22,7 @@ if(ESP_PLATFORM)
         "${HAL_IMPL_DIR}/hal_timer_esp32.c"
         "${HAL_IMPL_DIR}/controller_board_esp32.c"
         "${TEMPER_HAL_DIR}/controller_board.c"
+        "${TEMPER_HAL_DIR}/emc2301.c"
     )
     set(HAL_REQUIRES driver esp_timer esp_adc)
 else()
@@ -35,6 +36,7 @@ else()
         "${HAL_IMPL_DIR}/mock_spi.c"
         "${HAL_IMPL_DIR}/mock_timer.c"
         "${TEMPER_HAL_DIR}/controller_board.c"
+        "${TEMPER_HAL_DIR}/emc2301.c"
     )
     set(HAL_REQUIRES "")
 endif()

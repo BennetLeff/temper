@@ -13,6 +13,7 @@
  * The ESP-IDF glue is components/hal/esp32/controller_board_esp32.c.
  */
 #include "controller_pins.h"
+#include "emc2301.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -185,6 +186,10 @@ bool ctrl_board_expander(ctrl_exp_cache_t *out);  /* copy of the cache (any task
  *  - ctrl_board_blower_tach_count(): GPIO3 PCNT rising edges, as a free-running 16-bit count. */
 bool ctrl_board_blower_apply(bool on, uint32_t ledc_counts);
 bool ctrl_board_blower_tach_count(uint16_t *count);
+/* C51 face fan (J15, EMC2301 U52 at 0x2F, emc2301.h). Monitor task, at most EMC2301_SERVICE_PERIOD_MS
+ * apart: (re)initialises the part until it answers, then services it. If this is not called, or the bus
+ * fails, the part's continuous watchdog drives the fan to 100 % within 4 s. */
+bool ctrl_board_face_fan_service(uint8_t drive, emc2301_poll_t *out);
 #endif
 
 #endif

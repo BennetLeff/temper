@@ -146,11 +146,20 @@ static void monitor_task(void *arg) {
     
     TickType_t xLastWakeTime = xTaskGetTickCount();
     const TickType_t xFrequency = pdMS_TO_TICKS(MONITOR_LOOP_PERIOD_MS);
+    unsigned face_fan_ticks = 0;
     
     while (1) {
         /* L3 blower (DECISIONS C28): fan law, GPIO46 duty, FG tach, stall derate, coil derate
          * (thermal_io.c / thermal_mgmt.c blower_ctrl_step()). 100 ms = its BLOWER_TICK_S. */
         thermal_blower_tick();
+
+        /* C51 face fan (J15): full drive until the bay-NTC fan law exists. Serviced once a second; the
+         * EMC2301 watchdog takes it to 100 % if this task stops for 4 s. */
+        if (++face_fan_ticks >= EMC2301_SERVICE_PERIOD_MS / MONITOR_LOOP_PERIOD_MS) {
+            face_fan_ticks = 0;
+            emc2301_poll_t fan2;
+            (void)ctrl_board_face_fan_service(EMC2301_DRIVE_FULL, &fan2);
+        }
 
         /* Run safety checks */
         /* safety_monitor_update(); */

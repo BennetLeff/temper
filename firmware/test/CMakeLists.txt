@@ -203,6 +203,15 @@ target_include_directories(test_max31865_only PRIVATE ${INCLUDE_DIRS}
 target_link_libraries(test_max31865_only m)
 add_dependencies(test_max31865_only gen_config gen_fault_list gen_transition_table)
 
+# EMC2301 face-fan driver (controller C51) against a register model of its watchdog.
+add_executable(test_emc2301_only
+    ${UNITY_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../components/hal/emc2301.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_emc2301.c
+)
+target_include_directories(test_emc2301_only PRIVATE ${INCLUDE_DIRS})
+add_test(NAME emc2301_tests COMMAND test_emc2301_only)
+
 # Fault list codegen verification tests
 add_executable(test_fault_list_only
     ${UNITY_SOURCES}

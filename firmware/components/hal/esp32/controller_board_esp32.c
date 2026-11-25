@@ -21,6 +21,8 @@
  *    duty 0 and every failure stops it at idle level 0), PCNT on GPIO3 (FG rising edges), and
  *    expander P15 FAN_OFF (latch written 0 = on before the pin becomes an output). The speed and
  *    on/off decisions are blower_ctrl_step() in components/control/thermal_mgmt.c.
+ *  - C51 face fan: EMC2301 at 0x2F on the same bus (emc2301.c does the work). Its absence or a bus
+ *    failure is logged, never fatal: the part's own watchdog then runs the fan at 100 %.
  */
 #include "controller_board.h"
 #include "driver/gpio.h"
@@ -36,6 +38,8 @@ static const char *TAG = "ctrl_board";
 
 static i2c_master_bus_handle_t s_i2c_bus;
 static i2c_master_dev_handle_t s_exp;
+static i2c_master_dev_handle_t s_fan2;  /* C51 EMC2301 face fan, 0x2F */
+static bool s_fan2_ready;               /* emc2301_init() succeeded since the last error */
 static portMUX_TYPE s_exp_mux = portMUX_INITIALIZER_UNLOCKED;
 static ctrl_exp_cache_t s_exp_cache;
 static ctrl_blw_pg_debounce_t s_blw_pg; /* zero = UNKNOWN; owned by the polling (control) task */
@@ -103,6 +107,40 @@ static bool i2c_create(void)
     s_fan_off_written = true;
     s_fan_off_last = false;
     return true;
+}
+
+static bool fan2_read(void *ctx, uint8_t reg, uint8_t *value)
+{
+    (void)ctx;
+    return s_fan2 && i2c_master_transmit_receive(s_fan2, &reg, 1, value, 1, 5) == ESP_OK;
+}
+
+static bool fan2_write(void *ctx, uint8_t reg, uint8_t value)
+{
+    (void)ctx;
+    uint8_t b[2] = {reg, value};
+    return s_fan2 && i2c_master_transmit(s_fan2, b, sizeof b, 5) == ESP_OK;
+}
+
+static const emc2301_ops_t s_fan2_ops = {.read = fan2_read, .write = fan2_write, .ctx = NULL};
+
+bool ctrl_board_face_fan_service(uint8_t drive, emc2301_poll_t *out)
+{
+    if (!s_fan2 && s_i2c_bus) {
+        i2c_device_config_t dc = {.dev_addr_length = I2C_ADDR_BIT_LEN_7,
+                                  .device_address = EMC2301_I2C_ADDR, .scl_speed_hz = CTRL_I2C_HZ};
+        if (i2c_master_bus_add_device(s_i2c_bus, &dc, &s_fan2) != ESP_OK) s_fan2 = NULL;
+    }
+    emc2301_status_t st = s_fan2_ready ? emc2301_service(&s_fan2_ops, drive, out)
+                                       : emc2301_init(&s_fan2_ops, drive);
+    bool was = s_fan2_ready;
+    s_fan2_ready = st == EMC2301_OK;
+    if (was != s_fan2_ready)
+        ESP_LOGW(TAG, "face fan %s (EMC2301 status %d)", s_fan2_ready ? "programmed" : "lost: watchdog runs it at 100 %",
+                 (int)st);
+    if (s_fan2_ready && out && out->watchdog_expired)
+        ESP_LOGW(TAG, "face fan watchdog expired (fan ran at 100 %%); drive re-written");
+    return s_fan2_ready;
 }
 
 static bool ui_bus_create(void)
