@@ -42,6 +42,7 @@ idf_component_register(
         "../components/sensors/max31865.c"
         "../components/sensors/rtd_service.c"
         "../components/sensors/rtd_convert.c"
+        "../components/sensors/rtd_food.c"
         "../components/sensors/rim_ntc.c"
         "../components/sensors/hs_ntc.c"
         # Platform layer (ESP-IDF only; host doubles in test/state_machine_stubs.c)
