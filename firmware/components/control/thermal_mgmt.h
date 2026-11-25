@@ -120,6 +120,10 @@ extern const ntc_channel_t THERMAL_NTC_SINK;
 /* Coil (C32): Semitec 104GT-2 class, 100 k / 300 C glass NTC, on the same 10.0 k pull-up. The lug
  * NTC's 150 C rating does not cover the coil band. Self-heating ~0.08 mW at 170 C: negligible. */
 extern const ntc_channel_t THERMAL_NTC_COIL;
+/* Bay (controller C51, J14, R45-BAY-NTC): Semitec 104GT-2 on a 47.0 k 0.1 % pull-up (RT0603BRD0747KL), 10 k / 100 nF
+ * filter, U7B unity buffer, GPIO8. 27 mV/K at 61 C; an open lead reads v3v3, above the ADC range (never a
+ * temperature). No hardware open detect: its consumers treat "no reading" as a hot bay. */
+extern const ntc_channel_t THERMAL_NTC_BAY;
 
 typedef enum {
     NTC_OK = 0,

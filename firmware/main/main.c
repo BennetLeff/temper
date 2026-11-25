@@ -22,6 +22,7 @@
 
 #include "state_machine.h"
 #include "hal.h"
+#include <math.h>
 #include "controller_board.h"
 #include "esp_timer.h"
 #include "rtd_service.h"
@@ -141,12 +142,14 @@ static void ui_task(void *arg) {
  */
 extern void thermal_blower_tick(void); /* thermal_io.c */
 
+extern bool read_bay_temperature(float *temp_c); /* thermal_io.c */
+
 static void monitor_task(void *arg) {
     ESP_LOGI(TAG, "Monitor task started");
     
     TickType_t xLastWakeTime = xTaskGetTickCount();
     const TickType_t xFrequency = pdMS_TO_TICKS(MONITOR_LOOP_PERIOD_MS);
-    unsigned face_fan_ticks = 0;
+    unsigned face_fan_ticks = 0, face_fan_logs = 0;
     
     while (1) {
         /* L3 blower (DECISIONS C28): fan law, GPIO46 duty, FG tach, stall derate, coil derate
@@ -157,8 +160,16 @@ static void monitor_task(void *arg) {
          * EMC2301 watchdog takes it to 100 % if this task stops for 4 s. */
         if (++face_fan_ticks >= EMC2301_SERVICE_PERIOD_MS / MONITOR_LOOP_PERIOD_MS) {
             face_fan_ticks = 0;
-            emc2301_poll_t fan2;
-            (void)ctrl_board_face_fan_service(EMC2301_DRIVE_FULL, &fan2);
+            emc2301_poll_t fan2 = {0};
+            bool fan_ok = ctrl_board_face_fan_service(EMC2301_DRIVE_FULL, &fan2);
+            /* Bench record for the bay fan law (none yet): bay temperature and fan TACH every 10 s. */
+            if (++face_fan_logs >= 10u) {
+                face_fan_logs = 0;
+                float bay_c = NAN;
+                bool bay_ok = read_bay_temperature(&bay_c);
+                ESP_LOGI(TAG, "bay %s %.1f C, face fan %s drive %u tach %u", bay_ok ? "ok" : "no reading", (double)bay_c,
+                         fan_ok ? "ok" : "unserviced", (unsigned)fan2.drive, (unsigned)fan2.tach_count);
+            }
         }
 
         /* Run safety checks */

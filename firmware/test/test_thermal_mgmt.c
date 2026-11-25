@@ -18,8 +18,8 @@ static unsigned tests;
 /* ---------------------------------------------------------------- NTC conversion */
 static void test_ntc_round_trip(void)
 {
-    const ntc_channel_t *ch[] = {&THERMAL_NTC_RIM, &THERMAL_NTC_COIL, &THERMAL_NTC_SINK};
-    for (unsigned i = 0; i < 3; i++)
+    const ntc_channel_t *ch[] = {&THERMAL_NTC_RIM, &THERMAL_NTC_COIL, &THERMAL_NTC_SINK, &THERMAL_NTC_BAY};
+    for (unsigned i = 0; i < 4; i++)
         for (float t = 0.0f; t <= 300.0f; t += 5.0f) {
             float mv = ntc_channel_mv_at(ch[i], t), back = -999.0f;
             if (t <= ch[i]->t_open_c || t >= ch[i]->t_short_c) continue;
@@ -31,6 +31,28 @@ static void test_ntc_round_trip(void)
             assert(ntc_channel_temp_c(ch[i], mv, &back) == NTC_OK);
             assert(NEAR(back, t, 0.05));
         }
+}
+
+/* C51 bay NTC (J14): Semitec 104GT-2 on a 47.0 k pull-up, U7B unity buffer, GPIO8. Oracle: the controller's
+ * own controller_calcs.py bay_ntc() on branch controller-c51 (node V at 3.304 V). It interpolates 25-100 C
+ * from two table points, so between them it differs from the full table (1.1 % in R at 85 C, stated there);
+ * the table points agree to 1 mV. */
+static void test_bay_ntc_matches_the_controller(void)
+{
+    static const struct { float t_c, mv, tol; } oracle[] = {
+        {0.0f, 2916.5f, 1.0f}, {10.0f, 2696.5f, 1.0f}, {20.0f, 2410.5f, 1.0f}, {25.0f, 2247.6f, 1.0f},
+        {100.0f, 349.3f, 1.0f}, {61.0f, 1028.4f, 15.0f}};
+    for (unsigned i = 0; i < sizeof oracle / sizeof oracle[0]; i++) {
+        float mv = ntc_channel_mv_at(&THERMAL_NTC_BAY, oracle[i].t_c), back = -999.0f;
+        printf("  bay %5.1f C: %.1f mV (controller %.1f)\n", oracle[i].t_c, mv, oracle[i].mv);
+        assert(NEAR(mv, oracle[i].mv, oracle[i].tol));
+        assert(ntc_channel_temp_c(&THERMAL_NTC_BAY, mv, &back) == NTC_OK && NEAR(back, oracle[i].t_c, 0.05));
+    }
+    /* An open lead pulls the node to v3v3 (3.30 V): never a temperature. */
+    float t = 0.0f;
+    assert(ntc_channel_temp_c(&THERMAL_NTC_BAY, 3300.0f, &t) != NTC_OK);
+    /* A shorted lead reads 0 V: never a temperature either. */
+    assert(ntc_channel_temp_c(&THERMAL_NTC_BAY, 0.0f, &t) != NTC_OK);
 }
 
 /* Vishay NTCLE100E3104 R-T table (doc 29049, rev. 07-May-2025, p. 12), the 100 k / 4190 K
@@ -805,6 +827,7 @@ static void test_coil_plausibility(void)
 int main(void)
 {
     TEST(test_ntc_round_trip);
+    TEST(test_bay_ntc_matches_the_controller);
     TEST(test_vishay_curve_against_rt_table);
     TEST(test_semitec_104gt2_conversion);
     TEST(test_sink_cr8_divider);

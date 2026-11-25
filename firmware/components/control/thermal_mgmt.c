@@ -53,6 +53,14 @@ const ntc_channel_t THERMAL_NTC_COIL = {
     .beta_tol = 0.02f, .dissipation_mw_per_k = 0.6f, .filt_r_ohm = 10000.0f, .filt_c_f = 100e-9f,
     .node_c_f = 100e-9f,
 };
+/* Bay: short above 150 C (the bay never gets there), open below -20 C. No capacitor at the node itself. */
+const ntc_channel_t THERMAL_NTC_BAY = {
+    .r_pullup_ohm = 47000.0f, .r25_ohm = 100000.0f, .beta_k = 4267.0f,
+    .curve = NULL, .table = &NTC_TABLE_SEMITEC_104GT2, .adc_gain = 1.0f, .v_ref_mv = 3304.0f, .t_open_c = -20.0f,
+    .t_short_c = 150.0f, .v_meas_max_mv = THERMAL_ADC_MEAS_MAX_MV, .r25_tol = 0.03f,
+    .beta_tol = 0.02f, .dissipation_mw_per_k = 0.6f, .filt_r_ohm = 10000.0f, .filt_c_f = 100e-9f,
+    .node_c_f = 0.0f,
+};
 /* Vishay NTCALUG01A104GA: 100 k +/- 2 %, B 4190 K +/- 1.5 % (doc 29092 p. 2); dissipation
  * constant ~1.5 mW/K is not used for a correction (0.1 mW at most on a 10 k pull-up). */
 const ntc_channel_t THERMAL_NTC_SINK = {

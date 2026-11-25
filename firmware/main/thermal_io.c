@@ -88,10 +88,12 @@ static bool read_ntc(unsigned idx, const ntc_channel_t *ch, bool below_range_ok,
 #define IDX_HS   N21_THERMAL_HS
 #define IDX_COIL N21_THERMAL_COIL
 #define IDX_RIM  N21_THERMAL_RIM
+#define IDX_BAY  N21_THERMAL_BAY
 #else
 #define IDX_HS   0u
 #define IDX_COIL 0u
 #define IDX_RIM  0u
+#define IDX_BAY  0u
 #endif
 
 /* The rim has no hardware open detect: below range (cold, or open) is "no rim reading", and the
@@ -119,6 +121,13 @@ static float read_coil(bool *below_range)
     float t;
     (void)read_ntc(IDX_COIL, &THERMAL_NTC_COIL, true, &t, below_range);
     return t;
+}
+
+/* C51 bay NTC (J14). No hardware open detect: false (open, shorted, below range or no ADC frame) is
+ * "no bay reading", which a consumer must treat as a hot bay. */
+bool read_bay_temperature(float *temp_c)
+{
+    return read_ntc(IDX_BAY, &THERMAL_NTC_BAY, false, temp_c, NULL);
 }
 
 float read_heatsink_temperature(void) { return read_sink(NULL); }
