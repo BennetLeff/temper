@@ -41,6 +41,7 @@ SUPPLY_MAX = {
     "IRM-60-15ST": (0.25, 277.0, "MEAN WELL IRM-60-SPEC 2025-11-21 p.2 (< 0.25mA/277Vac)"),
     "MPM-20-24": (0.080, 264.0, "MEAN WELL MPM-20-SPEC 2024-10-30 p.2 (Touch current <80uA/264VAC, Note 7)"),
     "MPM-65-15ST": (0.100, 264.0, "MEAN WELL MPM-65-SPEC 2024-10-30 p.2 (Touch current <100uA/264VAC, Note 6)"),
+    "MPM-90-15ST": (0.100, 264.0, "MEAN WELL MPM-90-SPEC 2024-10-30 p.2 (Touch current <100uA/264VAC, Note 6)"),
 }
 # The system as built.  s38 (stage 38): PS1 deleted (the controller logic runs from PS3 over J13), PS2 = MPM-20-24 on
 # the board, PS3 = MPM-65-15ST in the chassis (controller request, addendum item 6), and the D-22 inlet module's four Y
@@ -49,6 +50,8 @@ SUPPLY_MAX = {
 SYSTEMS = {
     "s38": dict(module_y_nF=0.0, supplies=(("PS2", "MPM-20-24"), ("PS3", "MPM-65-15ST")),
                 note="stage 38: PS1 deleted, PS2 MPM-20-24, PS3 MPM-65-15ST, D-22 module Y removed (DECISIONS 47)"),
+    "c51": dict(module_y_nF=0.0, supplies=(("PS2", "MPM-20-24"), ("PS3", "MPM-90-15ST")),
+                note="controller C51: PS3 MPM-90-15ST (the MPM-65 does not fit at 61 C); same published limit"),
     "s35": dict(module_y_nF=6.9, supplies=(("PS1", "IRM-20-15"), ("PS2", "IRM-20-24"), ("PS3", "IRM-60-15ST")),
                 note="stage 35 / before stage 38: three IRM supplies, D-22 module Y 4.7 + 2.2 nF per conductor"),
 }
@@ -108,17 +111,18 @@ def main():
     # Regression anchor: the stage-35 system must reproduce the committed pre-stage-38 DESIGN row and FAIL.
     s35 = evaluate("REFERENCE s35 (three IRM supplies, D-22 module Y; must reproduce 0.9741 mA and FAIL)", build(system="s35"))
     # Max total C per line allowed at the 50 % budget, 132 V, 60 Hz (including +20 % on Y):
+    c51 = evaluate("C51 (PS3 MPM-90-15ST)", build(system="c51"))
     c_budget_nF = PASS_FRACTION * LIMIT_MA * 1e-3 / (W * V_LINE) * 1e9
     out = dict(V=V_LINE, f=F_LINE, limit_mA=LIMIT_MA, pass_fraction=PASS_FRACTION,
                budget_mA=PASS_FRACTION * LIMIT_MA, max_total_C_per_line_nF_at_budget=c_budget_nF,
-               system=SYSTEMS["s38"]["note"], results=[design, control, control2, s35])
+               system=SYSTEMS["s38"]["note"], results=[design, control, control2, s35, c51])
     here = os.path.dirname(os.path.abspath(__file__))
     with open(os.path.join(here, "result.json"), "w") as f:
         json.dump(out, f, indent=2, sort_keys=True)
     print(f"Limit {LIMIT_MA} mA (UL 1026 grounded portable; IEC 60335-1 ref {LIMIT_IEC_MA} mA); "
           f"budget = {PASS_FRACTION:.0%} = {PASS_FRACTION*LIMIT_MA:.3f} mA; {V_LINE} V {F_LINE} Hz")
     print(f"Max total C-to-PE per line at budget: {c_budget_nF:.2f} nF (incl. tolerance)")
-    for r in (design, control, control2, s35):
+    for r in (design, control, control2, s35, c51):
         print(f"\n== {r['label']}")
         for i in r["items"]:
             print(f"   {i['name']:<36s} {i['mA']:7.4f} mA   [{i['src']}]")
@@ -134,7 +138,9 @@ def main():
     print(f"\nCONTROL check (both controls FAIL, the s35 reference reproduces {S35_DESIGN_MA:.4f} mA and FAILs): "
           f"{'OK' if ok_control else 'BROKEN'}")
     print(f"F5 DESIGN VERDICT: {design['verdict']}")
-    return 0 if (design["verdict"] == "PASS" and ok_control) else 1
+    ok_c51 = c51["verdict"] == "PASS" and abs(c51["governing_touch_mA"] - design["governing_touch_mA"]) < 1e-12
+    print(f"C51 (MPM-90) matches the design row: {'OK' if ok_c51 else 'CHANGED'}")
+    return 0 if (design["verdict"] == "PASS" and ok_control and ok_c51) else 1
 
 if __name__ == "__main__":
     sys.exit(main())

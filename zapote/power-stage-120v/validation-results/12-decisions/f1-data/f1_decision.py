@@ -9,9 +9,9 @@ Method
   G2 carrying: In x 0.75 x derate(50 C) >= 15 A (the repo rule, F1-FUSE-DECISION.md).
   G3 nuisance: inrush <= 22 % and surge <= 38 % of melting / pre-arc I2t (Littelfuse pulse-cycle factors for
      100,000 and 1,000 pulses; inrush <= 1.0 A2s and the 1 kA 8/20 surge 12.2 A2s, F1-RECOMMENDATION.md 3.4).
-  G4 board copper survives: total clearing I2t <= the governing series neck on the CURRENT board
-     (02-protection-timing/shoot-through-f1/s29_necks.json via s21_necks.py's lim(); copper at 105 C), i.e. the
-     scorecard's fuse_copper_fusing_ratio >= 1.
+  G4 board copper survives: total clearing I2t <= the governing neck on the CURRENT board, measured to the hole
+     (02-protection-timing/shoot-through-f1/s57_necks_hole.json, DECISIONS 88), i.e. fuse_copper_hole_ratio >= 1.
+     The terminal-buffered necks (s29, ratio 0.993) buffered the drain corridor away; they remain as a reproduction control.
   G5 F2 selectivity: F1 melting I2t >= 2 x F2's clearing (upstream melt > downstream total clearing, x2 because
      F2's clearing is an estimate) (F2 UMT-H 3.15 A, 67 A2s current-limiting estimate,
      11-candidates/c28-f2/bounds.py).
@@ -48,9 +48,11 @@ def lim(s):   # governing I2t per row, exactly as s21_necks.py lim() (conductor 
     return min(v)
 
 
-worst = min(necks["segments"], key=lim)
-neck_min = lim(worst)
-NECK_SRC = f"s29_necks.json governing I2t (s21_necks.py lim()), worst row '{worst['segment']}' {neck_min:.1f} A2s"
+worst_old = min(necks["segments"], key=lim)
+neck_old = lim(worst_old)               # superseded method, kept only to reproduce the old committed ratio
+hole = json.loads((VR / "02-protection-timing/shoot-through-f1/s57_necks_hole.json").read_text())
+neck_min = hole["min_ratio_single_layer"] * hole["F1_clearing_I2t"]
+NECK_SRC = f"s57_necks_hole.json (board {hole['board_sha256'][:12]}) ratio {hole['min_ratio_single_layer']} x {hole['F1_clearing_I2t']}"
 
 # name: AIR A, AIR V, melt/pre-arc I2t, total clearing I2t, derate at 50 C, agency, $ fuse at 500, $ clips (2) at 500, stock
 C = {
@@ -60,6 +62,8 @@ C = {
                                       fuse=16.407, clips=2 * 2.057, stock=15),
     "CCMR025.TXP (Class CC TD)": dict(air=200e3, v=600, melt=None, clear=None, der=0.90, listed=True,
                                       fuse=18.826, clips=2 * 2.057, stock=320),
+    "CCMR020.TXP (Class CC TD, 20 A)": dict(air=200e3, v=600, melt=None, clear=918, der=0.90, listed=True, amps=20,
+                                      fuse=13.97, clips=2 * 2.057, stock=None),   # DigiKey 100+ web listing 2026-11-25, not a 500 price; stock conflicts
     "0505025.MXP (6.3x32 fast)": dict(air=30e3, v=500, melt=210, clear=None, der=0.98, listed=False,
                                       fuse=3.571, clips=2 * 0.505, stock=3112),
     "Bel 0ADEC9250-BE (6.3x32 fast)": dict(air=30e3, v=500, melt=200, clear=470, der=0.96, listed=False,
@@ -75,7 +79,7 @@ rows = {}
 for n, c in C.items():
     g = {}
     g["G1_interrupting"] = gate(c["air"] >= I_PROSP and c["v"] >= V_MIN)
-    g["G2_carrying"] = gate(None if c["der"] is None else 25 * 0.75 * c["der"] >= I_CONT)
+    g["G2_carrying"] = gate(None if c["der"] is None else c.get("amps", 25) * 0.75 * c["der"] >= I_CONT)
     g["G3_nuisance"] = gate(None if c["melt"] is None else (INRUSH <= 0.22 * c["melt"] and SURGE <= 0.38 * c["melt"]))
     g["G4_copper"] = gate(None if c["clear"] is None else c["clear"] <= neck_min)
     g["G5_F2_selectivity"] = gate(None if c["melt"] is None else c["melt"] >= 2 * F2_CLEAR)
@@ -94,10 +98,12 @@ ref = choice or INCUMBENT
 voi = {n: dict(saving_usd_per_board=round(rows[ref]["cost_usd_500"] - r["cost_usd_500"], 2), blocked_by=r["unknowns"])
        for n, r in rows.items() if n != ref and not r["fails"] and r["unknowns"]}
 
-# controls: the s29 board's committed ratio is reproduced for KLDR, and a FAIL path exists
+# controls: the old method reproduces s29's committed ratio, the corrected one DECISIONS 88's, and a FAIL path exists
 fails = []
-if abs(rows["KLDR025.TXP (Class CC TD, today)"]["copper_ratio"] - necks["min_ratio_all"]) > 0.005:
-    fails.append("KLDR copper ratio does not reproduce s29_necks.json min_ratio_all")
+if abs(neck_old / 1710 - necks["min_ratio_all"]) > 0.005:
+    fails.append("old neck does not reproduce s29_necks.json min_ratio_all")
+if abs(rows["KLDR025.TXP (Class CC TD, today)"]["copper_ratio"] - 0.64) > 0.005:
+    fails.append("KLDR copper ratio does not reproduce DECISIONS 88")
 if gate(1e3 >= I_PROSP) != "FAIL":
     fails.append("G1 negative control")
 

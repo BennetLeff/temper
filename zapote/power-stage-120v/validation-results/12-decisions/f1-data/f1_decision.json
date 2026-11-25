@@ -5,8 +5,8 @@
   "i_cont": 15.0,
   "inrush_A2s": 1.0,
   "surge_A2s": 12.2,
-  "neck_min_A2s": 1697.7,
-  "neck_source": "s29_necks.json governing I2t (s21_necks.py lim()), worst row 'BR1 + -> Q2 drain (leg A)' 1697.7 A2s",
+  "neck_min_A2s": 1089.3,
+  "neck_source": "s57_necks_hole.json (board 25596d8eff46) ratio 0.637 x 1710.0",
   "f2_clearing_A2s": 67.0,
   "br1_A2s": 510.0
  },
@@ -22,7 +22,7 @@
    },
    "cost_usd_500": 22.63,
    "stock": 88,
-   "copper_ratio": 0.99,
+   "copper_ratio": 0.64,
    "br1_survives": false,
    "unknowns": [],
    "fails": [
@@ -70,6 +70,27 @@
    ],
    "fails": []
   },
+  "CCMR020.TXP (Class CC TD, 20 A)": {
+   "gates": {
+    "G1_interrupting": "PASS",
+    "G2_carrying": "FAIL",
+    "G3_nuisance": "UNKNOWN",
+    "G4_copper": "PASS",
+    "G5_F2_selectivity": "UNKNOWN",
+    "G6_agency": "PASS"
+   },
+   "cost_usd_500": 18.08,
+   "stock": null,
+   "copper_ratio": 1.19,
+   "br1_survives": false,
+   "unknowns": [
+    "G3_nuisance",
+    "G5_F2_selectivity"
+   ],
+   "fails": [
+    "G2_carrying"
+   ]
+  },
   "0505025.MXP (6.3x32 fast)": {
    "gates": {
     "G1_interrupting": "PASS",
@@ -100,7 +121,7 @@
    },
    "cost_usd_500": 3.77,
    "stock": 1313,
-   "copper_ratio": 3.61,
+   "copper_ratio": 2.32,
    "br1_survives": false,
    "unknowns": [
     "G6_agency"

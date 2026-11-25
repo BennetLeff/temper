@@ -1,6 +1,6 @@
-# Certifier pre-review checklist: Temper 120 V induction cooktop power board (native-21, board of record s53)
+# Certifier pre-review checklist: Temper 120 V induction cooktop power board (native-21, board of record s57)
 
-Date 2026-10-16; refreshed to s53 on 2026-10-18 (board `82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27`, DECISIONS 75; BOM = s52's, DECISIONS 74).
+Date 2026-10-16; refreshed to s53 on 2026-10-18 (board `82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27`, DECISIONS 75; BOM = s52's, DECISIONS 74). **Header to s57 on 2026-11-25** (board `25596d8e…`, DECISIONS 87): entries below are s53's except where marked; the s57 card differs only in `cmti_gate_ratio_min` 2.187 and copper (entry F1) among the values quoted here.
 Desk compilation from the repo, read-only. Nothing was sent, no one was contacted, no calculation was rerun.
 PS = `zapote/power-stage-120v` in the ps-integrate worktree. FW = `firmware/` at the ps-integrate worktree root.
 CTRL = `zapote/controller`. "Clause to confirm" means the repo does not cite a clause number for that point.
@@ -255,7 +255,7 @@ The packet now reads "UL 858 / UL 1026, to be confirmed"; S15 cites UL 858 25.3.
 - **Topic / clause:** UL 1577 (component isolation, "single protection" vs reinforced), VDE 0884-17 / IEC 60747-17; CMTI rule 1.5 x dv/dt (the repo's own, `06-controller-interface/cmti/README.md`);
   no standard cited for CMTI itself. Clause to confirm.
 - **Design now:**
-  - 2EDR8259X U1/U2 (SELV-to-HOT, reinforced): VIORM 1767 V, cert 40055138, UL 1577 E311313 5700 Vrms; CMTI 150 V/ns (characterisation, not production-tested); card `cmti_gate_ratio_min` 2.201 on s53; **no channel-to-channel rating** (3.3 mm creepage).
+  - 2EDR8259X U1/U2 (SELV-to-HOT, reinforced): VIORM 1767 V, cert 40055138, UL 1577 E311313 5700 Vrms; CMTI 150 V/ns (characterisation, not production-tested); card `cmti_gate_ratio_min` 2.187 on s57; **no channel-to-channel rating** (3.3 mm creepage).
   - CA-IS3720HW U9/U32 (reinforced, VIORM 1414, UL 1577 E511334, VDE 40057278, TUV CB; **no CSA certificate listed**; single source Chipanalog).
   - ISO6721FBDR U43/U44: basic only, VIORM 637 V, UL 1577 E181974 single protection, CSA 220991; used as the HS-LS functional crossing. 100 V/ns min = 2.0x.
   - AMC1311B U4: reinforced (VDE 40040142), UL 1577 single protection E181974, 100 V/ns min = 2.0x. VOL628A U36: CTI 275, UL 1577 E76222 (Rev. 1.8; Rev. 1.9 prints no number), no published CMTI.
@@ -271,7 +271,7 @@ The packet now reads "UL 858 / UL 1026, to be confirmed"; S15 cites UL 858 25.3.
 ### 17. Supply module approvals: UL, not IEC-only (A3 items 14-15)
 - **Topic / clause:** UL 62368-1 / IEC 61558 / IEC 60601-1 modules in a UL 1026 end product: acceptance as components. Clause to confirm.
 - **Design now:** PS2 (on board, TCO-switched) MPM-20-24: approvals verbatim "IEC 60601-1:2005+A1, TUV EN 60601-1, ANSI/AAMI ES60601-1, CAN/CSA C22.2 No. 60601-1 and IEC 60335-1 (Dekra)";
-  2 x MOPP; **prints no UL/CSA file**. PS3 (off-board, controller side, J13) MPM-65-15ST: IEC / ES / CSA 60601-1 per DECISIONS 1526; no UL file (S1 row: "no UL file"). The old
+  2 x MOPP; **prints no UL/CSA file**. PS3 (off-board, controller side, J13) MPM-90-15ST (C51; MPM-65-15ST before): IEC / ES / CSA 60601-1 per DECISIONS 1526; no UL file (S1 row: "no UL file"). The old
   IRM-20 / IRM-60 carried UL 62368-1 (OVC II). Datasheet leakage maxima, not measurements (A1 item 2). UL files quoted from datasheets, none read in UL Product iQ: Chipanalog E511334 (U9/U32), RECOM E542996 (U41/U42), Infineon E311313 (U1/U2), TI E181974 (U4, U43/U44),
   Vishay E76222 (U36); T1 (Coilcraft CST3015-200ED) has no working-voltage figure or approval file (packet A3 #15).
   PS2 ledger gap: an older distributor copy lists a UL mark (truncated in the ledger); verify on a primary sheet. Product surge: the module is tested alone to 1 kV L-L; a 2 kV product test
@@ -284,7 +284,7 @@ The packet now reads "UL 858 / UL 1026, to be confirmed"; S15 cites UL 858 25.3.
 ### 18. PS1 / PS3 SELV controller powered from a chassis Class II module through a 292 mm harness (A3 item 16)
 - **Topic / clause:** SELV classification and double / reinforced insulation of the supply chain; clause to confirm. D5-BASIS.md calls the domain "earthed ELV, final classification by the lab".
 - **Design now:** PS1 deleted at s38; the controller merges J13 into its logic rail (CONTROLLER-REQUEST addendum 2), built on branch `controller-j13-merge` (C49: logic 15 V
-  from V15_BLW through an SS14; DECISIONS 79). PS3 is off-board (MPM-65-15ST, Class II).
+  from V15_BLW through an SS14; DECISIONS 79). PS3 is off-board (MPM-90-15ST, Class II).
 - **Assumed:** acceptable (RELIANT).
 - **If the lab disagrees:** supply relocation: controller board and enclosure; the power board is unaffected apart from J4.1.
 - **Priority:** MED.
@@ -305,7 +305,7 @@ The packet now reads "UL 858 / UL 1026, to be confirmed"; S15 cites UL 858 25.3.
 
 1. **Stuck-on / 25.3.1 (entries 14, 15):** is the TCO alone an acceptable independent cut, or is a second independent means required? Biggest architecture risk, no margin today, and a "no" adds parts and an inlet-area layout change.
 2. **Software in safety functions (entry 13):** does the lab consider the firmware-only protections (15 A line-current estimate, 22 A tank ceiling) safety-related, and does UL 60730-1 Annex H / UL 1998 Class B apply to the controller? A "yes" drives the MCU and the firmware process.
-3. **Supply module acceptance (entry 17):** are IEC 60601-1-approved MPM-20-24 / MPM-65-15ST acceptable as components with no UL file? A "no" returns the leakage budget to over-limit and re-opens the S1 fix.
+3. **Supply module acceptance (entry 17):** are IEC 60601-1-approved MPM-20-24 / MPM-90-15ST acceptable as components with no UL file? A "no" returns the leakage budget to over-limit and re-opens the S1 fix.
 4. **Touch-current basis (entry 6):** limit class (portable 0.5 vs stationary 0.75 mA), test voltage and meter network, datasheet-max vs measured module leakage, PS2 in the PE path. The design has an 8.8 uA margin to its own budget.
 5. **Working voltage on the coil lanes and RES_A (entries 1, 3):** line-cycle RMS vs carrier-crest RMS, PD2 for the potted winding; a crest-RMS answer is a board-wide re-layout.
 6. **PEC status and dormant faults (entry 12):** is the F6 monitor plus DIS path a PEC; is one-fault-at-a-time enough; may the ISO6721FB barrier short be excluded; is shoot-through ending at F1 / BR1 acceptable (19.13)?

@@ -197,6 +197,48 @@
       },
       "verdict": "FAIL",
       "vs_iec_0p75_pct": 129.88561618197224
+    },
+    {
+      "budget_mA": 0.25,
+      "governing_touch_mA": 0.241225042138699,
+      "items": [
+        {
+          "c_nom_nF": 2.1999999999999997,
+          "mA": 0.1313738649507565,
+          "name": "C3/C4 board Y (2.2 nF, +20 %)",
+          "src": "power_stage_120v.ato (cy1 / cy2 CapY1_2n2); parts.ato CapY1_2n2"
+        },
+        {
+          "c_nom_nF": 0.031000000000000003,
+          "mA": 0.0018511771879424787,
+          "name": "coil-to-PE 31 pF (+20 %)",
+          "src": "DECISIONS.md item 20"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.048,
+          "name": "PS2 MPM-20-24 leakage",
+          "src": "MEAN WELL MPM-20-SPEC 2024-10-30 p.2 (Touch current <80uA/264VAC, Note 7)"
+        },
+        {
+          "c_nom_nF": null,
+          "mA": 0.06,
+          "name": "PS3 MPM-90-15ST leakage",
+          "src": "MEAN WELL MPM-90-SPEC 2024-10-30 p.2 (Touch current <100uA/264VAC, Note 6)"
+        }
+      ],
+      "label": "C51 (PS3 MPM-90-15ST)",
+      "limit_mA": 0.5,
+      "margin_mA": 0.008774957861301003,
+      "margin_pct_of_budget": 3.509983144520401,
+      "pct_of_limit": 48.2450084277398,
+      "scenarios": {
+        "normal_PE_intact_PE_conductor_mA": 0.482450084277398,
+        "open_N_PE_intact_PE_conductor_mA": 0.482450084277398,
+        "open_PE_touch_per_polarity_mA": 0.241225042138699
+      },
+      "verdict": "PASS",
+      "vs_iec_0p75_pct": 32.16333895182653
     }
   ],
   "system": "stage 38: PS1 deleted, PS2 MPM-20-24, PS3 MPM-65-15ST, D-22 module Y removed (DECISIONS 47)"
