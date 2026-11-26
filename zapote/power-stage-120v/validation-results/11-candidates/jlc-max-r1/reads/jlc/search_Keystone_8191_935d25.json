@@ -1,0 +1,1269 @@
+{
+ "code": 200,
+ "data": {
+  "componentPageInfo": {
+   "total": 8,
+   "list": [
+    {
+     "componentId": 237423,
+     "componentLibraryType": "expand",
+     "stockCount": 69,
+     "componentTypeEn": "PCB Welding Terminal",
+     "erpComponentName": "俩件套 PC 螺丝端子",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/cold-pressed-terminals_keystone-8191_C238175.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7283
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.5892
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.5188
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4501
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.4092
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3879
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3942
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 0.4998
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7016
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3737
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.4336
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.5676
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "19ccc2e66a4b44b295465fed6363e8fe",
+     "canPresaleNumber": -2,
+     "componentProductType": 0,
+     "mergedComponentCode": "",
+     "urlSuffix": "Keystone-8191/C238175",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": "",
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 500,
+     "shopCostPrice": 1.96633,
+     "preMinPurchaseNum": 16,
+     "minPurchaseNum": 16,
+     "initialPrice": 0.5892,
+     "componentCode": "C238175",
+     "componentBrandEn": "Keystone",
+     "componentModelEn": "8191",
+     "componentImageUrl": "",
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8584756533380435968-C238175/C238175-%E6%AD%A3%E9%9D%A2.jpg?x-oss-date=20261126T041806Z&x-oss-expires=1800&x-oss-security-token=CAIShQN1q6Ft5B2yfSjIr5r4H9DkpZdx4oSERBHLs1cbf%2FZhhJD8pzz2IHhMdHJsAOodtv0%2FmmhT6PkclqRLcbhpcmfjV%2BZHzLB8qbQMjVEI557b16cNrbH4M4b6aXeirie7AYjQSNfaZY3iCTTtnTNyxr3XbCirW0ffX7SClZ9gaKZwPGy%2FdiEUK9pKAQFgpcQGT12zU8ygKRn3mGHdIVN1sw5n8wNF5L%2B439eX52iE7gXzwfRHoJ%2FqcNr2LZtuOJw6S82y0Kltc7aGyytMwB9P7KBwgapY2DLOsdyzAl1cpFekS7OOq4UycVAiNvBjSvEY86jG%2BKcm6rCJpePe0A1QOOxZaSPbSb27zdHMcOHTbY5hJe2nYi6WionfaMGu7Vx6exQBPQZNYMEmLHthExElRiFUukYafacxCO3KaN9msMleufIdpz1jLW2fMc2lOPxvbRyttiPolYmEQys9nA2HPOZPOGcveBhcDI2%2BdqYIFzsV8sDL0GOfKGsOhx84sZWUAqMl5ch3ARqAAZG%2BKYXCp0ULbejy1B6GqD5rqLD8jUe5N%2BdXGwjSlc24vAD4mT4jixnxnKdJTBbgMOXfZhQsAuFXNibj75Po8Q1J3sl2aHyWEf4aAgYZD8XtSmkjgzIgGBUdPxG%2FYzQJaQqCD3L57FqZej7RmBQnrw3IIy8XOMqAZqueWzlCEXxKIAA%3D&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=STS.NYMTjPHHPUFoF7zWWNsyMkUWE%2F20261126%2Feu-central-1%2Foss%2Faliyun_v4_request&x-oss-signature=aed148791e386ef46c39278d19e0febdc3064cb7b6bb524008762a4f366cae47",
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2211281000_Keystone-8191_C238175.pdf",
+     "dataManualFileAccessId": null,
+     "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8590222311828578304-C238175.pdf?response-content-disposition=attachment%3B%20filename%3DC238175.pdf%3B%20filename%2A%3DUTF-8%27%27C238175.pdf&x-oss-date=20261126T041806Z&x-oss-expires=1800&x-oss-security-token=CAISgAN1q6Ft5B2yfSjIr5r5GdfNr4528Li6cmjmj2kPbv5dhvDarzz2IHhMdHJsAOodtv0%2FmmhT6PkclqRLcbhpcmfjV%2BZHzLB8qbkl7lAI557b16cNrbH4M4H6aXeirtuwDsz9SNTCALjPD3nPii50x5bjaDymRCbLGJaViJlhHLN1Ow6jdmhpCctxLAlvo9NgFxm3D%2Fu2NQPwiWf9FVdhvhEG6Vly8qOi2MaRmFy8yFTx0b0SvJ%2BjYMrmPctoN9JnSdC5mfdzau3a1TJ84gRD0a5wkaVA1zbDs5bfISEIuUzebreLqY03dV4mOvdqIcMe8qigz88fk%2FfIioH6xyxKOexoSCnFTOiiupCcQLPyao9jLu6iayqViY7QaIOTqQohZmkAMwVOasAsI3Ngh4zF97Qt0cVNkXO9gWfLI8DtuMleWkqpzuB6EJSgc5lCkRRYwGs1287ugXlSQzo890KPDAEovaKCnZ2ZSfh7Y4sNknI6i%2Bfc2Se2MIkIv3SUt6KWD5sagAFZKqNFl48MqCM%2FZYCHW%2FjE7UCkIyCMhUqGFIiouCINXGaw6l%2Bf2PcXn2KH12lvKqc0uaxz%2Bv6RfaoVDQexCaD9JI50kyzYS3oqixM47X%2BY4vG%2BozBuHyXWCSePbBIEgFgwfOk5z3oz3efVinG%2BM7NiLdI1EQ%2FKik6Tyuv0iL6JZCAA&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=STS.NYLRmyBQWGzQpNWkiZbqqi5qM%2F20261126%2Feu-central-1%2Foss%2Faliyun_v4_request&x-oss-signature=3dd2344d818ab39f151ce9a372e80790e5f25bdb797dcf2b6711dfee77357c42",
+     "dataManualOfficialLink": "",
+     "componentName": "Keystone 8191",
+     "minImage": "",
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8584756534626144256-C238175/C238175-%E6%AD%A3%E9%9D%A2.jpg?x-oss-date=20261126T041806Z&x-oss-expires=1800&x-oss-security-token=CAIShQN1q6Ft5B2yfSjIr5r4H9DkpZdx4oSERBHLs1cbf%2FZhhJD8pzz2IHhMdHJsAOodtv0%2FmmhT6PkclqRLcbhpcmfjV%2BZHzLB8qbQMjVEI557b16cNrbH4M4b6aXeirie7AYjQSNfaZY3iCTTtnTNyxr3XbCirW0ffX7SClZ9gaKZwPGy%2FdiEUK9pKAQFgpcQGT12zU8ygKRn3mGHdIVN1sw5n8wNF5L%2B439eX52iE7gXzwfRHoJ%2FqcNr2LZtuOJw6S82y0Kltc7aGyytMwB9P7KBwgapY2DLOsdyzAl1cpFekS7OOq4UycVAiNvBjSvEY86jG%2BKcm6rCJpePe0A1QOOxZaSPbSb27zdHMcOHTbY5hJe2nYi6WionfaMGu7Vx6exQBPQZNYMEmLHthExElRiFUukYafacxCO3KaN9msMleufIdpz1jLW2fMc2lOPxvbRyttiPolYmEQys9nA2HPOZPOGcveBhcDI2%2BdqYIFzsV8sDL0GOfKGsOhx84sZWUAqMl5ch3ARqAAZG%2BKYXCp0ULbejy1B6GqD5rqLD8jUe5N%2BdXGwjSlc24vAD4mT4jixnxnKdJTBbgMOXfZhQsAuFXNibj75Po8Q1J3sl2aHyWEf4aAgYZD8XtSmkjgzIgGBUdPxG%2FYzQJaQqCD3L57FqZej7RmBQnrw3IIy8XOMqAZqueWzlCEXxKIAA%3D&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=STS.NYMTjPHHPUFoF7zWWNsyMkUWE%2F20261126%2Feu-central-1%2Foss%2Faliyun_v4_request&x-oss-signature=f6c9f238f09eae64daf10e1bb898eb77315aa6a705473bc725ec3c4922381df1",
+     "imageList": [
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      },
+      {
+       "productImage": null,
+       "productImageAccessId": null,
+       "productBigImage": null,
+       "productBigImageAccessId": null,
+       "fileType": null
+      }
+     ],
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "插件 PCB Welding Terminal ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Leg",
+       "attribute_value_name": "4"
+      },
+      {
+       "attribute_name_en": "appearance and shape",
+       "attribute_value_name": "Plug-in type (with screw)"
+      },
+      {
+       "attribute_name_en": "Body Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Terminal Type",
+       "attribute_value_name": "Top"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "15A"
+      },
+      {
+       "attribute_name_en": "Pin Spacing(Adjacent)",
+       "attribute_value_name": "5mm"
+      },
+      {
+       "attribute_name_en": "Ontology Coating",
+       "attribute_value_name": "Tin"
+      },
+      {
+       "attribute_name_en": "Height Above Board",
+       "attribute_value_name": "11.2mm"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "PCB Welding Terminal",
+     "secondSortName": "Terminal",
+     "componentBrandHigh": "<span class='lucene_highlight_class'>Keystone</span>",
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>8191</span>",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6445376,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "PCB Welding Terminal",
+     "erpComponentName": "8191-6",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pcb-welding-terminal_keystone-8191-6_C5529202.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7872
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7872
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.7872
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3143
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3045
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2995
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2886
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3027
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7583
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.7583
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7583
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2933
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "06ca4cbd33da4a96b892a0f2ca951a3f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Keystone-81916/C5529202",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 12,
+     "minPurchaseNum": 12,
+     "initialPrice": 0.7872,
+     "componentCode": "C5529202",
+     "componentBrandEn": "Keystone",
+     "componentModelEn": "8191-6",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311282250_Keystone-8191-6_C5529202.pdf",
+     "dataManualFileAccessId": null,
+     "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8600383229065113600-C5529202.pdf?response-content-disposition=attachment%3B%20filename%3DC5529202.pdf%3B%20filename%2A%3DUTF-8%27%27C5529202.pdf&x-oss-date=20261126T041806Z&x-oss-expires=1800&x-oss-security-token=CAISgAN1q6Ft5B2yfSjIr5r5GdfNr4528Li6cmjmj2kPbv5dhvDarzz2IHhMdHJsAOodtv0%2FmmhT6PkclqRLcbhpcmfjV%2BZHzLB8qbkl7lAI557b16cNrbH4M4H6aXeirtuwDsz9SNTCALjPD3nPii50x5bjaDymRCbLGJaViJlhHLN1Ow6jdmhpCctxLAlvo9NgFxm3D%2Fu2NQPwiWf9FVdhvhEG6Vly8qOi2MaRmFy8yFTx0b0SvJ%2BjYMrmPctoN9JnSdC5mfdzau3a1TJ84gRD0a5wkaVA1zbDs5bfISEIuUzebreLqY03dV4mOvdqIcMe8qigz88fk%2FfIioH6xyxKOexoSCnFTOiiupCcQLPyao9jLu6iayqViY7QaIOTqQohZmkAMwVOasAsI3Ngh4zF97Qt0cVNkXO9gWfLI8DtuMleWkqpzuB6EJSgc5lCkRRYwGs1287ugXlSQzo890KPDAEovaKCnZ2ZSfh7Y4sNknI6i%2Bfc2Se2MIkIv3SUt6KWD5sagAFZKqNFl48MqCM%2FZYCHW%2FjE7UCkIyCMhUqGFIiouCINXGaw6l%2Bf2PcXn2KH12lvKqc0uaxz%2Bv6RfaoVDQexCaD9JI50kyzYS3oqixM47X%2BY4vG%2BozBuHyXWCSePbBIEgFgwfOk5z3oz3efVinG%2BM7NiLdI1EQ%2FKik6Tyuv0iL6JZCAA&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=STS.NYLRmyBQWGzQpNWkiZbqqi5qM%2F20261126%2Feu-central-1%2Foss%2Faliyun_v4_request&x-oss-signature=e8b5f3582b64e894e061bac0f861c92370508f18bc18667ed1ffabe10c507432",
+     "dataManualOfficialLink": "",
+     "componentName": "Keystone 8191-6",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "15A 4 Brass Tin 插件 PCB Welding Terminal ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Leg",
+       "attribute_value_name": "4"
+      },
+      {
+       "attribute_name_en": "Body Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "15A"
+      },
+      {
+       "attribute_name_en": "Ontology Coating",
+       "attribute_value_name": "Tin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "PCB Welding Terminal",
+     "secondSortName": "Terminal",
+     "componentBrandHigh": "<span class='lucene_highlight_class'>Keystone</span>",
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>8191</span>-6",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6446363,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "PCB Welding Terminal",
+     "erpComponentName": "PC 螺丝端子",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pcb-welding-terminal_keystone-8191-5_C5530188.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.5188
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.2684
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.1309
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.9754
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.9067
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8756
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.8435
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 1.2218
+      },
+      {
+       "startNumber": 100,
+       "endNumber": 499,
+       "productPrice": 0.9396
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 99,
+       "productPrice": 1.0894
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 1.463
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.8734
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "06ca4cbd33da4a96b892a0f2ca951a3f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Keystone-81915/C5530188",
+     "leastPatchNumber": 0,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 6,
+     "minPurchaseNum": 6,
+     "initialPrice": 1.5188,
+     "componentCode": "C5530188",
+     "componentBrandEn": "Keystone",
+     "componentModelEn": "8191-5",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2311282255_Keystone-8191-5_C5530188.pdf",
+     "dataManualFileAccessId": null,
+     "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8600388225983143936-C5530188.pdf?response-content-disposition=attachment%3B%20filename%3DC5530188.pdf%3B%20filename%2A%3DUTF-8%27%27C5530188.pdf&x-oss-date=20261126T041806Z&x-oss-expires=1800&x-oss-security-token=CAISgAN1q6Ft5B2yfSjIr5r5GdfNr4528Li6cmjmj2kPbv5dhvDarzz2IHhMdHJsAOodtv0%2FmmhT6PkclqRLcbhpcmfjV%2BZHzLB8qbkl7lAI557b16cNrbH4M4H6aXeirtuwDsz9SNTCALjPD3nPii50x5bjaDymRCbLGJaViJlhHLN1Ow6jdmhpCctxLAlvo9NgFxm3D%2Fu2NQPwiWf9FVdhvhEG6Vly8qOi2MaRmFy8yFTx0b0SvJ%2BjYMrmPctoN9JnSdC5mfdzau3a1TJ84gRD0a5wkaVA1zbDs5bfISEIuUzebreLqY03dV4mOvdqIcMe8qigz88fk%2FfIioH6xyxKOexoSCnFTOiiupCcQLPyao9jLu6iayqViY7QaIOTqQohZmkAMwVOasAsI3Ngh4zF97Qt0cVNkXO9gWfLI8DtuMleWkqpzuB6EJSgc5lCkRRYwGs1287ugXlSQzo890KPDAEovaKCnZ2ZSfh7Y4sNknI6i%2Bfc2Se2MIkIv3SUt6KWD5sagAFZKqNFl48MqCM%2FZYCHW%2FjE7UCkIyCMhUqGFIiouCINXGaw6l%2Bf2PcXn2KH12lvKqc0uaxz%2Bv6RfaoVDQexCaD9JI50kyzYS3oqixM47X%2BY4vG%2BozBuHyXWCSePbBIEgFgwfOk5z3oz3efVinG%2BM7NiLdI1EQ%2FKik6Tyuv0iL6JZCAA&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=STS.NYLRmyBQWGzQpNWkiZbqqi5qM%2F20261126%2Feu-central-1%2Foss%2Faliyun_v4_request&x-oss-signature=706dd6b9723a149ec593a7d85f441f1a71f042c6c2827059537a3842d44de85b",
+     "dataManualOfficialLink": "",
+     "componentName": "Keystone 8191-5",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "15A 4 Brass Tin 插件 PCB Welding Terminal ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Leg",
+       "attribute_value_name": "4"
+      },
+      {
+       "attribute_name_en": "Body Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "15A"
+      },
+      {
+       "attribute_name_en": "Ontology Coating",
+       "attribute_value_name": "Tin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "PCB Welding Terminal",
+     "secondSortName": "Terminal",
+     "componentBrandHigh": "<span class='lucene_highlight_class'>Keystone</span>",
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>8191</span>-5",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 6859001,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "PCB Welding Terminal",
+     "erpComponentName": "8191-2",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pcb-welding-terminal_keystone-8191-2_C5921834.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7872
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7872
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.7872
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3143
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3045
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2995
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2886
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3027
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7583
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.7583
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7583
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2933
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "06ca4cbd33da4a96b892a0f2ca951a3f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Keystone-81912/C5921834",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 12,
+     "minPurchaseNum": 12,
+     "initialPrice": 0.7872,
+     "componentCode": "C5921834",
+     "componentBrandEn": "Keystone",
+     "componentModelEn": "8191-2",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2312040311_Keystone-8191-2_C5921834.pdf",
+     "dataManualFileAccessId": null,
+     "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8602765505560801280-C5921834.pdf?response-content-disposition=attachment%3B%20filename%3DC5921834.pdf%3B%20filename%2A%3DUTF-8%27%27C5921834.pdf&x-oss-date=20261126T041806Z&x-oss-expires=1800&x-oss-security-token=CAISgAN1q6Ft5B2yfSjIr5r5GdfNr4528Li6cmjmj2kPbv5dhvDarzz2IHhMdHJsAOodtv0%2FmmhT6PkclqRLcbhpcmfjV%2BZHzLB8qbkl7lAI557b16cNrbH4M4H6aXeirtuwDsz9SNTCALjPD3nPii50x5bjaDymRCbLGJaViJlhHLN1Ow6jdmhpCctxLAlvo9NgFxm3D%2Fu2NQPwiWf9FVdhvhEG6Vly8qOi2MaRmFy8yFTx0b0SvJ%2BjYMrmPctoN9JnSdC5mfdzau3a1TJ84gRD0a5wkaVA1zbDs5bfISEIuUzebreLqY03dV4mOvdqIcMe8qigz88fk%2FfIioH6xyxKOexoSCnFTOiiupCcQLPyao9jLu6iayqViY7QaIOTqQohZmkAMwVOasAsI3Ngh4zF97Qt0cVNkXO9gWfLI8DtuMleWkqpzuB6EJSgc5lCkRRYwGs1287ugXlSQzo890KPDAEovaKCnZ2ZSfh7Y4sNknI6i%2Bfc2Se2MIkIv3SUt6KWD5sagAFZKqNFl48MqCM%2FZYCHW%2FjE7UCkIyCMhUqGFIiouCINXGaw6l%2Bf2PcXn2KH12lvKqc0uaxz%2Bv6RfaoVDQexCaD9JI50kyzYS3oqixM47X%2BY4vG%2BozBuHyXWCSePbBIEgFgwfOk5z3oz3efVinG%2BM7NiLdI1EQ%2FKik6Tyuv0iL6JZCAA&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=STS.NYLRmyBQWGzQpNWkiZbqqi5qM%2F20261126%2Feu-central-1%2Foss%2Faliyun_v4_request&x-oss-signature=460df5eb9797176d037e48584a9155ae9e305e0ef781e62caa4773861ca8ce5b",
+     "dataManualOfficialLink": "",
+     "componentName": "Keystone 8191-2",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "15A 4 Brass Tin Plugin PCB Welding Terminal ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Leg",
+       "attribute_value_name": "4"
+      },
+      {
+       "attribute_name_en": "Body Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "15A"
+      },
+      {
+       "attribute_name_en": "Ontology Coating",
+       "attribute_value_name": "Tin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "PCB Welding Terminal",
+     "secondSortName": "Terminal",
+     "componentBrandHigh": "<span class='lucene_highlight_class'>Keystone</span>",
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>8191</span>-2",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7423023,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "PCB Welding Terminal",
+     "erpComponentName": "8191-3",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pcb-welding-terminal_keystone-8191-3_C6469828.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7872
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7872
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.7872
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3143
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3045
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2995
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2886
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3027
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7583
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.7583
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7583
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2933
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "06ca4cbd33da4a96b892a0f2ca951a3f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Keystone-81913/C6469828",
+     "leastPatchNumber": 5,
+     "lossNumber": 5,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 12,
+     "minPurchaseNum": 12,
+     "initialPrice": 0.7872,
+     "componentCode": "C6469828",
+     "componentBrandEn": "Keystone",
+     "componentModelEn": "8191-3",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2312120437_Keystone-8191-3_C6469828.pdf",
+     "dataManualFileAccessId": null,
+     "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8603220886019592192-C6469828.pdf?response-content-disposition=attachment%3B%20filename%3DC6469828.pdf%3B%20filename%2A%3DUTF-8%27%27C6469828.pdf&x-oss-date=20261126T041806Z&x-oss-expires=1800&x-oss-security-token=CAISgAN1q6Ft5B2yfSjIr5r5GdfNr4528Li6cmjmj2kPbv5dhvDarzz2IHhMdHJsAOodtv0%2FmmhT6PkclqRLcbhpcmfjV%2BZHzLB8qbkl7lAI557b16cNrbH4M4H6aXeirtuwDsz9SNTCALjPD3nPii50x5bjaDymRCbLGJaViJlhHLN1Ow6jdmhpCctxLAlvo9NgFxm3D%2Fu2NQPwiWf9FVdhvhEG6Vly8qOi2MaRmFy8yFTx0b0SvJ%2BjYMrmPctoN9JnSdC5mfdzau3a1TJ84gRD0a5wkaVA1zbDs5bfISEIuUzebreLqY03dV4mOvdqIcMe8qigz88fk%2FfIioH6xyxKOexoSCnFTOiiupCcQLPyao9jLu6iayqViY7QaIOTqQohZmkAMwVOasAsI3Ngh4zF97Qt0cVNkXO9gWfLI8DtuMleWkqpzuB6EJSgc5lCkRRYwGs1287ugXlSQzo890KPDAEovaKCnZ2ZSfh7Y4sNknI6i%2Bfc2Se2MIkIv3SUt6KWD5sagAFZKqNFl48MqCM%2FZYCHW%2FjE7UCkIyCMhUqGFIiouCINXGaw6l%2Bf2PcXn2KH12lvKqc0uaxz%2Bv6RfaoVDQexCaD9JI50kyzYS3oqixM47X%2BY4vG%2BozBuHyXWCSePbBIEgFgwfOk5z3oz3efVinG%2BM7NiLdI1EQ%2FKik6Tyuv0iL6JZCAA&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=STS.NYLRmyBQWGzQpNWkiZbqqi5qM%2F20261126%2Feu-central-1%2Foss%2Faliyun_v4_request&x-oss-signature=70ff65d8ea30e30ecd601ea8792b5bd9f442ecd893a20a9ac84253637343ed2a",
+     "dataManualOfficialLink": "",
+     "componentName": "Keystone 8191-3",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "15A 4 Brass Tin Plugin PCB Welding Terminal ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Leg",
+       "attribute_value_name": "4"
+      },
+      {
+       "attribute_name_en": "Body Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "15A"
+      },
+      {
+       "attribute_name_en": "Ontology Coating",
+       "attribute_value_name": "Tin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "PCB Welding Terminal",
+     "secondSortName": "Terminal",
+     "componentBrandHigh": "<span class='lucene_highlight_class'>Keystone</span>",
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>8191</span>-3",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 7670698,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "PCB Welding Terminal",
+     "erpComponentName": "易于安装的多功能螺丝型PC端子，适用于高密度封装",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pcb-welding-terminal_keystone-8191-7_C6713317.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.8052
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.8052
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.8052
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3208
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.311
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.3061
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2949
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.309
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7757
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.7757
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7757
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2996
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "06ca4cbd33da4a96b892a0f2ca951a3f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Keystone-81917/C6713317",
+     "leastPatchNumber": 2,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 12,
+     "minPurchaseNum": 12,
+     "initialPrice": 0.8052,
+     "componentCode": "C6713317",
+     "componentBrandEn": "Keystone",
+     "componentModelEn": "8191-7",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2312260633_Keystone-8191-7_C6713317.pdf",
+     "dataManualFileAccessId": null,
+     "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8603316693091295232-C6713317.pdf?response-content-disposition=attachment%3B%20filename%3DC6713317.pdf%3B%20filename%2A%3DUTF-8%27%27C6713317.pdf&x-oss-date=20261126T041806Z&x-oss-expires=1800&x-oss-security-token=CAISgAN1q6Ft5B2yfSjIr5r5GdfNr4528Li6cmjmj2kPbv5dhvDarzz2IHhMdHJsAOodtv0%2FmmhT6PkclqRLcbhpcmfjV%2BZHzLB8qbkl7lAI557b16cNrbH4M4H6aXeirtuwDsz9SNTCALjPD3nPii50x5bjaDymRCbLGJaViJlhHLN1Ow6jdmhpCctxLAlvo9NgFxm3D%2Fu2NQPwiWf9FVdhvhEG6Vly8qOi2MaRmFy8yFTx0b0SvJ%2BjYMrmPctoN9JnSdC5mfdzau3a1TJ84gRD0a5wkaVA1zbDs5bfISEIuUzebreLqY03dV4mOvdqIcMe8qigz88fk%2FfIioH6xyxKOexoSCnFTOiiupCcQLPyao9jLu6iayqViY7QaIOTqQohZmkAMwVOasAsI3Ngh4zF97Qt0cVNkXO9gWfLI8DtuMleWkqpzuB6EJSgc5lCkRRYwGs1287ugXlSQzo890KPDAEovaKCnZ2ZSfh7Y4sNknI6i%2Bfc2Se2MIkIv3SUt6KWD5sagAFZKqNFl48MqCM%2FZYCHW%2FjE7UCkIyCMhUqGFIiouCINXGaw6l%2Bf2PcXn2KH12lvKqc0uaxz%2Bv6RfaoVDQexCaD9JI50kyzYS3oqixM47X%2BY4vG%2BozBuHyXWCSePbBIEgFgwfOk5z3oz3efVinG%2BM7NiLdI1EQ%2FKik6Tyuv0iL6JZCAA&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=STS.NYLRmyBQWGzQpNWkiZbqqi5qM%2F20261126%2Feu-central-1%2Foss%2Faliyun_v4_request&x-oss-signature=052706609674e58cc4cb1247efafffb4012aa284c1f492c52f93047c0acf0a79",
+     "dataManualOfficialLink": "",
+     "componentName": "Keystone 8191-7",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "15A 4 Brass Tin 插件 PCB Welding Terminal ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Leg",
+       "attribute_value_name": "4"
+      },
+      {
+       "attribute_name_en": "Body Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "15A"
+      },
+      {
+       "attribute_name_en": "Ontology Coating",
+       "attribute_value_name": "Tin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "PCB Welding Terminal",
+     "secondSortName": "Terminal",
+     "componentBrandHigh": "<span class='lucene_highlight_class'>Keystone</span>",
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>8191</span>-7",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 8166514,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "PCB Welding Terminal",
+     "erpComponentName": "8191-4",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pcb-welding-terminal_keystone-8191-4_C7198741.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7872
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7872
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.7872
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3143
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.3045
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2995
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.2886
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.3027
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 11,
+       "productPrice": 0.7583
+      },
+      {
+       "startNumber": 12,
+       "endNumber": 199,
+       "productPrice": 0.7583
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.7583
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.2933
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "06ca4cbd33da4a96b892a0f2ca951a3f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Keystone-81914/C7198741",
+     "leastPatchNumber": 5,
+     "lossNumber": 5,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 12,
+     "minPurchaseNum": 12,
+     "initialPrice": 0.7872,
+     "componentCode": "C7198741",
+     "componentBrandEn": "Keystone",
+     "componentModelEn": "8191-4",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2312271856_Keystone-8191-4_C7198741.pdf",
+     "dataManualFileAccessId": null,
+     "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8603235630638395392-C7198741.pdf?response-content-disposition=attachment%3B%20filename%3DC7198741.pdf%3B%20filename%2A%3DUTF-8%27%27C7198741.pdf&x-oss-date=20261126T041806Z&x-oss-expires=1799&x-oss-security-token=CAISgAN1q6Ft5B2yfSjIr5r5GdfNr4528Li6cmjmj2kPbv5dhvDarzz2IHhMdHJsAOodtv0%2FmmhT6PkclqRLcbhpcmfjV%2BZHzLB8qbkl7lAI557b16cNrbH4M4H6aXeirtuwDsz9SNTCALjPD3nPii50x5bjaDymRCbLGJaViJlhHLN1Ow6jdmhpCctxLAlvo9NgFxm3D%2Fu2NQPwiWf9FVdhvhEG6Vly8qOi2MaRmFy8yFTx0b0SvJ%2BjYMrmPctoN9JnSdC5mfdzau3a1TJ84gRD0a5wkaVA1zbDs5bfISEIuUzebreLqY03dV4mOvdqIcMe8qigz88fk%2FfIioH6xyxKOexoSCnFTOiiupCcQLPyao9jLu6iayqViY7QaIOTqQohZmkAMwVOasAsI3Ngh4zF97Qt0cVNkXO9gWfLI8DtuMleWkqpzuB6EJSgc5lCkRRYwGs1287ugXlSQzo890KPDAEovaKCnZ2ZSfh7Y4sNknI6i%2Bfc2Se2MIkIv3SUt6KWD5sagAFZKqNFl48MqCM%2FZYCHW%2FjE7UCkIyCMhUqGFIiouCINXGaw6l%2Bf2PcXn2KH12lvKqc0uaxz%2Bv6RfaoVDQexCaD9JI50kyzYS3oqixM47X%2BY4vG%2BozBuHyXWCSePbBIEgFgwfOk5z3oz3efVinG%2BM7NiLdI1EQ%2FKik6Tyuv0iL6JZCAA&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=STS.NYLRmyBQWGzQpNWkiZbqqi5qM%2F20261126%2Feu-central-1%2Foss%2Faliyun_v4_request&x-oss-signature=bcee20b238f72e495c103b90320816d219dab55f8b0d074cda0a02ebb3f2d25f",
+     "dataManualOfficialLink": "",
+     "componentName": "Keystone 8191-4",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "15A 4 Brass Tin Plugin PCB Welding Terminal ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Leg",
+       "attribute_value_name": "4"
+      },
+      {
+       "attribute_name_en": "Body Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "15A"
+      },
+      {
+       "attribute_name_en": "Ontology Coating",
+       "attribute_value_name": "Tin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "PCB Welding Terminal",
+     "secondSortName": "Terminal",
+     "componentBrandHigh": "<span class='lucene_highlight_class'>Keystone</span>",
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>8191</span>-4",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    },
+    {
+     "componentId": 3780357,
+     "componentLibraryType": "expand",
+     "stockCount": 0,
+     "componentTypeEn": "PCB Welding Terminal",
+     "erpComponentName": "8191-SEMS",
+     "componentSource": "shop",
+     "lcscGoodsUrl": "https://www.lcsc.com/product-detail/pcb-welding-terminal_keystone-8191-sems_C3217339.html",
+     "componentPrices": [
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3282
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3282
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.3282
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.127
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1226
+      },
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1203
+      }
+     ],
+     "buyComponentPrices": [
+      {
+       "startNumber": 1000,
+       "endNumber": -1,
+       "productPrice": 0.1159
+      },
+      {
+       "startNumber": 200,
+       "endNumber": 499,
+       "productPrice": 0.1224
+      },
+      {
+       "startNumber": 30,
+       "endNumber": 199,
+       "productPrice": 0.3162
+      },
+      {
+       "startNumber": 1,
+       "endNumber": 9,
+       "productPrice": 0.3162
+      },
+      {
+       "startNumber": 500,
+       "endNumber": 999,
+       "productPrice": 0.1181
+      },
+      {
+       "startNumber": 10,
+       "endNumber": 29,
+       "productPrice": 0.3162
+      }
+     ],
+     "firstSortAccessId": "248c42d1f2d246498d91d5c9cad9dd16",
+     "secondSortAccessId": "06ca4cbd33da4a96b892a0f2ca951a3f",
+     "canPresaleNumber": 0,
+     "componentProductType": 0,
+     "mergedComponentCode": null,
+     "urlSuffix": "Keystone-8191SEMS/C3217339",
+     "leastPatchNumber": 5,
+     "lossNumber": 0,
+     "isBuyComponent": "1",
+     "noBuyReason": null,
+     "componentAlternativesCode": null,
+     "replaceUrlSuffix": null,
+     "preferredComponentFlag": false,
+     "allowPostFlag": true,
+     "score": null,
+     "idleFlag": null,
+     "estimateDate": null,
+     "fullReelPrice": null,
+     "encapsulationNumber": 100,
+     "shopCostPrice": 0.0,
+     "preMinPurchaseNum": 28,
+     "minPurchaseNum": 28,
+     "initialPrice": 0.3282,
+     "componentCode": "C3217339",
+     "componentBrandEn": "Keystone",
+     "componentModelEn": "8191-SEMS",
+     "componentImageUrl": null,
+     "productBigImageAccessId": null,
+     "productBigImageAccessIdUrl": null,
+     "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2401291542_Keystone-8191-SEMS_C3217339.pdf",
+     "dataManualFileAccessId": null,
+     "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8590235293459505152-C3217339.pdf?response-content-disposition=attachment%3B%20filename%3DC3217339.pdf%3B%20filename%2A%3DUTF-8%27%27C3217339.pdf&x-oss-date=20261126T041806Z&x-oss-expires=1800&x-oss-security-token=CAISgAN1q6Ft5B2yfSjIr5r5GdfNr4528Li6cmjmj2kPbv5dhvDarzz2IHhMdHJsAOodtv0%2FmmhT6PkclqRLcbhpcmfjV%2BZHzLB8qbkl7lAI557b16cNrbH4M4H6aXeirtuwDsz9SNTCALjPD3nPii50x5bjaDymRCbLGJaViJlhHLN1Ow6jdmhpCctxLAlvo9NgFxm3D%2Fu2NQPwiWf9FVdhvhEG6Vly8qOi2MaRmFy8yFTx0b0SvJ%2BjYMrmPctoN9JnSdC5mfdzau3a1TJ84gRD0a5wkaVA1zbDs5bfISEIuUzebreLqY03dV4mOvdqIcMe8qigz88fk%2FfIioH6xyxKOexoSCnFTOiiupCcQLPyao9jLu6iayqViY7QaIOTqQohZmkAMwVOasAsI3Ngh4zF97Qt0cVNkXO9gWfLI8DtuMleWkqpzuB6EJSgc5lCkRRYwGs1287ugXlSQzo890KPDAEovaKCnZ2ZSfh7Y4sNknI6i%2Bfc2Se2MIkIv3SUt6KWD5sagAFZKqNFl48MqCM%2FZYCHW%2FjE7UCkIyCMhUqGFIiouCINXGaw6l%2Bf2PcXn2KH12lvKqc0uaxz%2Bv6RfaoVDQexCaD9JI50kyzYS3oqixM47X%2BY4vG%2BozBuHyXWCSePbBIEgFgwfOk5z3oz3efVinG%2BM7NiLdI1EQ%2FKik6Tyuv0iL6JZCAA&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=STS.NYLRmyBQWGzQpNWkiZbqqi5qM%2F20261126%2Feu-central-1%2Foss%2Faliyun_v4_request&x-oss-signature=9c011ef4f4373a533b5ca66236b8007f6ca7c8836cabe6878d64b88656ab3e76",
+     "dataManualOfficialLink": "",
+     "componentName": "Keystone 8191-SEMS",
+     "minImage": null,
+     "minImageAccessId": null,
+     "minImageAccessIdUrl": null,
+     "imageList": null,
+     "manufacturerBlackFlag": null,
+     "componentNameEn": null,
+     "componentSpecificationEn": "Plugin",
+     "describe": "15A 4 Brass Tin 插件 PCB Welding Terminal ROHS",
+     "attributes": [
+      {
+       "attribute_name_en": "Number of Leg",
+       "attribute_value_name": "4"
+      },
+      {
+       "attribute_name_en": "Body Material",
+       "attribute_value_name": "Brass"
+      },
+      {
+       "attribute_name_en": "Current Rating",
+       "attribute_value_name": "15A"
+      },
+      {
+       "attribute_name_en": "Ontology Coating",
+       "attribute_value_name": "Tin"
+      }
+     ],
+     "rankScore": null,
+     "firstSortName": "PCB Welding Terminal",
+     "secondSortName": "Terminal",
+     "componentBrandHigh": "<span class='lucene_highlight_class'>Keystone</span>",
+     "remarkHigh": null,
+     "componentModelHigh": "<span class='lucene_highlight_class'>8191</span>-SEMS",
+     "componentCodeHigh": null,
+     "componentSpecificationHigh": null,
+     "rohsFlag": 1,
+     "shopShowPriceFlag": true,
+     "shopShowForeignPriceFlag": true,
+     "shopRealPriceFlag": true,
+     "assemblyComponentFlag": false,
+     "rohsFileId": null,
+     "rohsUrl": null
+    }
+   ],
+   "pageNum": 1,
+   "pageSize": 12,
+   "size": 0,
+   "startRow": 0,
+   "endRow": 0,
+   "pages": 1,
+   "prePage": 0,
+   "nextPage": 0,
+   "isFirstPage": false,
+   "isLastPage": false,
+   "hasPreviousPage": false,
+   "hasNextPage": false,
+   "navigatePages": 0,
+   "navigatepageNums": null,
+   "navigateFirstPage": 0,
+   "navigateLastPage": 0
+  },
+  "sortAndCountVoList": null,
+  "presaleTypeList": [],
+  "brandList": [],
+  "basePart": null,
+  "preferredPart": null,
+  "economicPart": null,
+  "standardPart": null,
+  "dataSheetPart": null,
+  "photo": null,
+  "queryString": "Keystone 8191"
+ },
+ "message": null,
+ "_fetched_utc": "2026-11-26T04:18:06Z",
+ "_request": {
+  "url": "https://jlcpcb.com/api/overseas-pcb-order/v1/shoppingCart/smtGood/selectSmtComponentList",
+  "body": {
+   "keyword": "Keystone 8191",
+   "currentPage": 1,
+   "pageSize": 12,
+   "searchSource": "search"
+  }
+ }
+}

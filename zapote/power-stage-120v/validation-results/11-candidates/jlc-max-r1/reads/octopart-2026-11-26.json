@@ -1,0 +1,2601 @@
+{
+ "R24C2T25/R-R": {
+  "mpn": "R24C2T25/R-R",
+  "parts_matched": 1,
+  "offers": [
+   {
+    "seller": "TME",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Recom Power",
+    "stock": 0,
+    "moq": 750,
+    "sku": "R24C2T25/R-R",
+    "updated": "2026-11-25T10:49:44Z",
+    "usd_ladder": [
+     [
+      750,
+      5.73
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Sager Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Recom Power",
+    "stock": 0,
+    "moq": 750,
+    "sku": "R24C2T25/R-R",
+    "updated": "2026-11-25T13:16:41Z",
+    "usd_ladder": [
+     [
+      750,
+      6.24
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Recom Power",
+    "stock": 0,
+    "moq": 750,
+    "sku": "R24C2T25/R-R",
+    "updated": "2026-11-25T15:05:11Z",
+    "usd_ladder": [
+     [
+      750,
+      8.36
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Mouser",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Recom Power",
+    "stock": 988,
+    "moq": 1,
+    "sku": "919-R24C2T25/R-R",
+    "updated": "2026-11-26T01:30:33Z",
+    "usd_ladder": [
+     [
+      1,
+      8.34
+     ],
+     [
+      10,
+      7.96
+     ],
+     [
+      100,
+      7.47
+     ],
+     [
+      1000,
+      6.24
+     ],
+     [
+      10000,
+      6.24
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Onlinecomponents.com",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Recom Power",
+    "stock": 0,
+    "moq": 50,
+    "sku": "R24C2T25/R-R",
+    "updated": "2026-11-25T09:11:33Z",
+    "usd_ladder": [
+     [
+      100,
+      6.99
+     ],
+     [
+      750,
+      6.24
+     ],
+     [
+      3000,
+      6
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Richardson RFPD",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Recom Power",
+    "stock": -3,
+    "moq": 750,
+    "sku": "R24C2T25/R-R",
+    "updated": "2026-11-26T03:30:21Z",
+    "usd_ladder": [
+     [
+      750,
+      5.89
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:14:32Z",
+  "url": "https://octopart.com/search?q=R24C2T25/R-R"
+ },
+ "B32643H8104J000": {
+  "mpn": "B32643H8104J000",
+  "parts_matched": 1,
+  "offers": [
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TDK",
+    "stock": 241,
+    "moq": 1,
+    "sku": "B32643H8104J000",
+    "updated": "2026-11-25T15:15:51Z",
+    "usd_ladder": [
+     [
+      1,
+      3.34
+     ],
+     [
+      100,
+      1.78
+     ],
+     [
+      1000,
+      1.75
+     ],
+     [
+      5000,
+      1.52
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Mouser",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TDK",
+    "stock": 1726,
+    "moq": 1,
+    "sku": "871-B32643H8104J000",
+    "updated": "2026-11-26T01:30:33Z",
+    "usd_ladder": [
+     [
+      1,
+      3.02
+     ],
+     [
+      10,
+      2.1
+     ],
+     [
+      100,
+      1.5
+     ],
+     [
+      1000,
+      1.49
+     ],
+     [
+      10000,
+      1.28
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "DigiKey",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TDK",
+    "stock": 1336,
+    "moq": 1,
+    "sku": "495-B32643H8104J000-ND",
+    "updated": "2026-11-25T13:46:49Z",
+    "usd_ladder": [
+     [
+      1,
+      3.02
+     ],
+     [
+      10,
+      2.1
+     ],
+     [
+      50,
+      1.7334
+     ],
+     [
+      520,
+      1.42492
+     ],
+     [
+      5200,
+      1.2669
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "UnikeyIC",
+    "authorized": false,
+    "broker": false,
+    "mfr": "TDK",
+    "stock": 1726,
+    "moq": 11,
+    "sku": "B32643H8104J000",
+    "updated": "2026-11-25T08:51:20Z",
+    "usd_ladder": [
+     [
+      100,
+      1.695
+     ],
+     [
+      520,
+      1.6837
+     ],
+     [
+      1040,
+      1.6724
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:14:37Z",
+  "url": "https://octopart.com/search?q=B32643H8104J000"
+ },
+ "B32676G1905K000": {
+  "mpn": "B32676G1905K000",
+  "parts_matched": 1,
+  "offers": [
+   {
+    "seller": "DigiKey",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TDK",
+    "stock": 547,
+    "moq": 1,
+    "sku": "495-3024-ND",
+    "updated": "2026-11-25T13:46:49Z",
+    "usd_ladder": [
+     [
+      1,
+      10.53
+     ],
+     [
+      10,
+      8.015
+     ],
+     [
+      100,
+      6.698
+     ],
+     [
+      1000,
+      6.00734
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "TIST Technology Co., Limited",
+    "authorized": false,
+    "broker": false,
+    "mfr": "TDK",
+    "stock": 19730,
+    "moq": null,
+    "sku": "B32676G1905K000",
+    "updated": "2026-10-28T14:21:35Z",
+    "usd_ladder": [
+     [
+      1,
+      12.15
+     ],
+     [
+      10,
+      11.5425
+     ],
+     [
+      100,
+      10.935
+     ],
+     [
+      1000,
+      9.963
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Fmall Co., Limited",
+    "authorized": false,
+    "broker": false,
+    "mfr": "TDK",
+    "stock": 11600,
+    "moq": null,
+    "sku": "B32676G1905K000",
+    "updated": "2026-10-13T17:20:00Z",
+    "usd_ladder": [
+     [
+      1,
+      5.7829
+     ],
+     [
+      10,
+      5.49376
+     ],
+     [
+      100,
+      5.20461
+     ],
+     [
+      1000,
+      4.74198
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "UnikeyIC",
+    "authorized": false,
+    "broker": false,
+    "mfr": "TDK",
+    "stock": 547,
+    "moq": 14,
+    "sku": "B32676G1905K000",
+    "updated": "2026-11-25T08:51:20Z",
+    "usd_ladder": [
+     [
+      100,
+      8.3335
+     ],
+     [
+      500,
+      7.6774
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Ansinor",
+    "authorized": false,
+    "broker": false,
+    "mfr": "TDK",
+    "stock": 948,
+    "moq": null,
+    "sku": "B32676G1905K000",
+    "updated": "2026-11-25T18:45:26Z",
+    "usd_ladder": [
+     [
+      1,
+      7.67445
+     ],
+     [
+      10,
+      7.67445
+     ],
+     [
+      100,
+      6.88291
+     ],
+     [
+      1000,
+      6.01232
+     ],
+     [
+      10000,
+      5.56078
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Bettlink",
+    "authorized": false,
+    "broker": false,
+    "mfr": "TDK",
+    "stock": 570,
+    "moq": null,
+    "sku": "B32676G1905K000",
+    "updated": "2026-11-26T03:45:31Z",
+    "usd_ladder": [
+     [
+      1,
+      9.26644
+     ],
+     [
+      10,
+      8.16426
+     ],
+     [
+      100,
+      7.42205
+     ],
+     [
+      1000,
+      6.54386
+     ],
+     [
+      10000,
+      6.17346
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:14:42Z",
+  "url": "https://octopart.com/search?q=B32676G1905K000"
+ },
+ "B82726S2243A020": {
+  "mpn": "B82726S2243A020",
+  "parts_matched": 1,
+  "offers": [
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "EPCOS",
+    "stock": 84,
+    "moq": 1,
+    "sku": "B82726S2243A020",
+    "updated": "2026-11-25T15:15:51Z",
+    "usd_ladder": [
+     [
+      1,
+      16.35
+     ],
+     [
+      10,
+      13.88
+     ],
+     [
+      100,
+      11.44
+     ],
+     [
+      500,
+      11.13
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "TTI Europe",
+    "authorized": true,
+    "broker": false,
+    "mfr": "EPCOS",
+    "stock": 0,
+    "moq": 168,
+    "sku": "B82726S2243A020",
+    "updated": "2026-11-25T06:45:36Z",
+    "usd_ladder": [
+     [
+      840,
+      13.36218
+     ],
+     [
+      2520,
+      13.21968
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "TIST Technology Co., Limited",
+    "authorized": false,
+    "broker": false,
+    "mfr": "EPCOS",
+    "stock": 3400,
+    "moq": null,
+    "sku": "B82726S2243A020",
+    "updated": "2026-10-28T14:21:35Z",
+    "usd_ladder": [
+     [
+      1,
+      14.5
+     ],
+     [
+      10,
+      13.775
+     ],
+     [
+      100,
+      13.05
+     ],
+     [
+      1000,
+      11.89
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "UnikeyIC",
+    "authorized": false,
+    "broker": false,
+    "mfr": "EPCOS",
+    "stock": 79,
+    "moq": 2,
+    "sku": "B82726S2243A020",
+    "updated": "2026-11-25T08:51:20Z",
+    "usd_ladder": [
+     [
+      10,
+      10.8531
+     ],
+     [
+      50,
+      10.4655
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Ansinor",
+    "authorized": false,
+    "broker": false,
+    "mfr": "EPCOS",
+    "stock": 2327,
+    "moq": null,
+    "sku": "B82726S2243A020",
+    "updated": "2026-11-25T18:45:26Z",
+    "usd_ladder": [
+     [
+      1,
+      11.3388
+     ],
+     [
+      10,
+      11.3388
+     ],
+     [
+      100,
+      10.12393
+     ],
+     [
+      1000,
+      8.76075
+     ],
+     [
+      10000,
+      8.26486
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Bettlink",
+    "authorized": false,
+    "broker": false,
+    "mfr": "EPCOS",
+    "stock": 1900,
+    "moq": null,
+    "sku": "B82726S2243A020",
+    "updated": "2026-11-26T03:45:31Z",
+    "usd_ladder": [
+     [
+      1,
+      12.52245
+     ],
+     [
+      10,
+      11.03299
+     ],
+     [
+      100,
+      10.02999
+     ],
+     [
+      1000,
+      8.84324
+     ],
+     [
+      10000,
+      8.34267
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:14:47Z",
+  "url": "https://octopart.com/search?q=B82726S2243A020"
+ },
+ "30KPA150CA": {
+  "mpn": "30KPA150CA",
+  "parts_matched": 4,
+  "offers": [
+   {
+    "seller": "TME",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 0,
+    "moq": 800,
+    "sku": "30KPA150CA-LF",
+    "updated": "2026-11-25T10:49:44Z",
+    "usd_ladder": [
+     [
+      800,
+      15.2
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 0,
+    "moq": 800,
+    "sku": "30KPA150CA",
+    "updated": "2026-11-25T15:05:11Z",
+    "usd_ladder": [
+     [
+      800,
+      21.42
+     ],
+     [
+      8000,
+      19.71
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Onlinecomponents.com",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 0,
+    "moq": 200,
+    "sku": "30KPA150CA",
+    "updated": "2026-11-25T09:11:33Z",
+    "usd_ladder": [
+     [
+      800,
+      13.13
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "RS (Formerly Allied Electronics)",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 0,
+    "moq": 800,
+    "sku": "75573124",
+    "updated": "2026-11-25T20:15:29Z",
+    "usd_ladder": [
+     [
+      800,
+      33.28
+     ],
+     [
+      8000,
+      31.61
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Future Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 0,
+    "moq": 800,
+    "sku": "30KPA150CA",
+    "updated": "2026-11-26T01:15:28Z",
+    "usd_ladder": [
+     [
+      800,
+      16.25
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Master Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 0,
+    "moq": 200,
+    "sku": "30KPA150CA",
+    "updated": "2026-11-25T08:46:06Z",
+    "usd_ladder": [
+     [
+      800,
+      13.13
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Quest",
+    "authorized": false,
+    "broker": false,
+    "mfr": "NJS",
+    "stock": 506,
+    "moq": null,
+    "sku": "30KPA150CA",
+    "updated": "2026-11-25T11:17:52Z",
+    "usd_ladder": [
+     [
+      1,
+      16.9
+     ],
+     [
+      63,
+      15.6
+     ],
+     [
+      269,
+      14.3
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Kruse",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Good-Ark",
+    "stock": 0,
+    "moq": 1,
+    "sku": "30KPA150CA",
+    "updated": "2026-11-25T23:15:21Z",
+    "usd_ladder": [
+     [
+      1,
+      10.76429
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "New Yorker Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Good-Ark",
+    "stock": 0,
+    "moq": 250,
+    "sku": "30KPA150CA",
+    "updated": "2026-11-26T02:00:45Z",
+    "usd_ladder": [],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Arrow Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Good-Ark",
+    "stock": 0,
+    "moq": 250,
+    "sku": "30KPA150CA",
+    "updated": "2026-11-25T15:45:24Z",
+    "usd_ladder": [
+     [
+      250,
+      4.938
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "DigiKey",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Good-Ark",
+    "stock": 1911,
+    "moq": 1,
+    "sku": "4786-30KPA150CACT-ND",
+    "updated": "2026-11-25T13:46:49Z",
+    "usd_ladder": [
+     [
+      1,
+      9.82
+     ],
+     [
+      10,
+      6.727
+     ],
+     [
+      100,
+      4.9751
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "DigiKey",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Good-Ark",
+    "stock": 1750,
+    "moq": 250,
+    "sku": "4786-30KPA150CATB-ND",
+    "updated": "2026-11-25T13:46:49Z",
+    "usd_ladder": [
+     [
+      750,
+      4.08447
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Ansinor",
+    "authorized": false,
+    "broker": false,
+    "mfr": "Good-Ark",
+    "stock": 1918,
+    "moq": null,
+    "sku": "30KPA150CA",
+    "updated": "2026-11-25T18:45:26Z",
+    "usd_ladder": [
+     [
+      1,
+      6.97953
+     ],
+     [
+      10,
+      6.97953
+     ],
+     [
+      100,
+      6.23173
+     ],
+     [
+      1000,
+      5.39264
+     ],
+     [
+      10000,
+      4.96331
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Bettlink",
+    "authorized": false,
+    "broker": false,
+    "mfr": "Good-Ark",
+    "stock": 1400,
+    "moq": null,
+    "sku": "30KPA150CA",
+    "updated": "2026-11-26T03:45:31Z",
+    "usd_ladder": [
+     [
+      1,
+      4.98149
+     ],
+     [
+      10,
+      4.36973
+     ],
+     [
+      100,
+      3.97248
+     ],
+     [
+      1000,
+      3.50245
+     ],
+     [
+      10000,
+      3.3042
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:14:52Z",
+  "url": "https://octopart.com/search?q=30KPA150CA"
+ },
+ "3403.0279.23": {
+  "mpn": "3403.0279.23",
+  "parts_matched": 1,
+  "offers": [
+   {
+    "seller": "Master Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Schurter",
+    "stock": 1450,
+    "moq": 25,
+    "sku": "3403.0279.23",
+    "updated": "2026-11-26T04:03:04Z",
+    "usd_ladder": [
+     [
+      100,
+      1.83
+     ],
+     [
+      500,
+      1.54
+     ],
+     [
+      7500,
+      1.35
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Rutronik",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Schurter",
+    "stock": 4500,
+    "moq": 1500,
+    "sku": "FUSE11533",
+    "updated": "2026-11-26T02:49:52Z",
+    "usd_ladder": [
+     [
+      3000,
+      1.0049
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Future Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Schurter",
+    "stock": 1500,
+    "moq": 1500,
+    "sku": "3403.0279.23",
+    "updated": "2026-11-26T01:15:28Z",
+    "usd_ladder": [
+     [
+      1500,
+      1.39
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Future Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Schurter",
+    "stock": 0,
+    "moq": 1500,
+    "sku": "3403.0279.23",
+    "updated": "2026-11-26T01:15:28Z",
+    "usd_ladder": [
+     [
+      1500,
+      1.39
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Onlinecomponents.com",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Schurter",
+    "stock": 1450,
+    "moq": 25,
+    "sku": "3403.0279.23",
+    "updated": "2026-11-25T23:44:19Z",
+    "usd_ladder": [
+     [
+      100,
+      1.83
+     ],
+     [
+      500,
+      1.54
+     ],
+     [
+      7500,
+      1.35
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "TME",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Schurter",
+    "stock": 0,
+    "moq": 3000,
+    "sku": "3403.0279.23",
+    "updated": "2026-11-25T10:49:44Z",
+    "usd_ladder": [
+     [
+      3000,
+      0.9
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Sager Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Schurter",
+    "stock": 0,
+    "moq": 1,
+    "sku": "3403.0279.23",
+    "updated": "2026-11-26T04:03:04Z",
+    "usd_ladder": [
+     [
+      1,
+      1.45
+     ],
+     [
+      508,
+      1.31
+     ],
+     [
+      5643,
+      1.09
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:14:57Z",
+  "url": "https://octopart.com/search?q=3403.0279.23"
+ },
+ "7466004R": {
+  "mpn": "7466004R",
+  "parts_matched": 1,
+  "offers": [
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Wurth Elektronik",
+    "stock": 247,
+    "moq": 1,
+    "sku": "7466004R",
+    "updated": "2026-11-25T15:15:51Z",
+    "usd_ladder": [
+     [
+      1,
+      3.06
+     ],
+     [
+      10,
+      2.92
+     ],
+     [
+      100,
+      2.43
+     ],
+     [
+      500,
+      2.22
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Mouser",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Wurth Elektronik",
+    "stock": 2800,
+    "moq": 1,
+    "sku": "710-7466004R",
+    "updated": "2026-11-26T01:30:33Z",
+    "usd_ladder": [
+     [
+      1,
+      2.63
+     ],
+     [
+      10,
+      2.5
+     ],
+     [
+      100,
+      2.03
+     ],
+     [
+      1000,
+      1.83
+     ],
+     [
+      10000,
+      1.83
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "RS (Formerly Allied Electronics)",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Wurth Elektronik",
+    "stock": 0,
+    "moq": 500,
+    "sku": "74945277",
+    "updated": "2026-11-25T20:15:29Z",
+    "usd_ladder": [
+     [
+      500,
+      2.36
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "DigiKey",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Wurth Elektronik",
+    "stock": 8773,
+    "moq": 1,
+    "sku": "732-5648-1-ND",
+    "updated": "2026-11-25T13:46:49Z",
+    "usd_ladder": [
+     [
+      1,
+      2.64
+     ],
+     [
+      10,
+      2.507
+     ],
+     [
+      100,
+      2.03
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "DigiKey",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Wurth Elektronik",
+    "stock": 8856,
+    "moq": 1,
+    "sku": "732-5648-6-ND",
+    "updated": "2026-11-25T13:46:49Z",
+    "usd_ladder": [
+     [
+      1,
+      2.64
+     ],
+     [
+      10,
+      2.507
+     ],
+     [
+      100,
+      2.03
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "DigiKey",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Wurth Elektronik",
+    "stock": 8000,
+    "moq": 500,
+    "sku": "732-5648-2-ND",
+    "updated": "2026-11-25T13:46:49Z",
+    "usd_ladder": [
+     [
+      500,
+      1.914
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Easev",
+    "authorized": false,
+    "broker": false,
+    "mfr": "Wurth Elektronik",
+    "stock": 7083,
+    "moq": null,
+    "sku": "7466004R",
+    "updated": "2026-10-13T17:16:51Z",
+    "usd_ladder": [
+     [
+      1,
+      0.63077
+     ],
+     [
+      100,
+      0.59923
+     ],
+     [
+      1000,
+      0.54877
+     ],
+     [
+      10000,
+      0.45415
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "UnikeyIC",
+    "authorized": false,
+    "broker": false,
+    "mfr": "Wurth Elektronik",
+    "stock": 8273,
+    "moq": 8,
+    "sku": "7466004R",
+    "updated": "2026-11-25T08:51:20Z",
+    "usd_ladder": [
+     [
+      10,
+      2.7076
+     ],
+     [
+      100,
+      2.1924
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:15:03Z",
+  "url": "https://octopart.com/search?q=7466004R"
+ },
+ "1704004": {
+  "mpn": "1704004",
+  "parts_matched": 1,
+  "offers": [
+   {
+    "seller": "Amar Radio Corporation",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Phoenix Contact",
+    "stock": 48,
+    "moq": null,
+    "sku": "ITM08248",
+    "updated": "2026-11-02T12:45:26Z",
+    "usd_ladder": [],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Amar Radio Corporation",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Phoenix Contact",
+    "stock": 43,
+    "moq": null,
+    "sku": "ITM16329",
+    "updated": "2026-11-02T12:45:26Z",
+    "usd_ladder": [],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "TME",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Phoenix Contact",
+    "stock": 0,
+    "moq": 50,
+    "sku": "KDS3",
+    "updated": "2026-11-25T10:49:44Z",
+    "usd_ladder": [
+     [
+      100,
+      2.24
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Sager Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Phoenix Contact",
+    "stock": 0,
+    "moq": 50,
+    "sku": "1704004",
+    "updated": "2026-11-25T13:16:41Z",
+    "usd_ladder": [
+     [
+      50,
+      3.33
+     ],
+     [
+      550,
+      2.97
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Omnical",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Phoenix Contact",
+    "stock": 0,
+    "moq": 50,
+    "sku": "2192850",
+    "updated": "2026-11-17T06:00:28Z",
+    "usd_ladder": [
+     [
+      50,
+      2.08
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Shortec Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Phoenix Contact",
+    "stock": -3,
+    "moq": null,
+    "sku": "KDS 3",
+    "updated": "2026-11-24T10:00:36Z",
+    "usd_ladder": [],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "RS (Formerly Allied Electronics)",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Phoenix Contact",
+    "stock": 0,
+    "moq": 50,
+    "sku": "71272078",
+    "updated": "2026-11-25T20:15:29Z",
+    "usd_ladder": [
+     [
+      50,
+      2.92
+     ],
+     [
+      250,
+      2.69
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:15:08Z",
+  "url": "https://octopart.com/search?q=1704004"
+ },
+ "01250003H": {
+  "mpn": "01250003H",
+  "parts_matched": 3,
+  "offers": [
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 1233,
+    "moq": 1,
+    "sku": "01250003H",
+    "updated": "2026-11-25T15:15:51Z",
+    "usd_ladder": [
+     [
+      1,
+      4.52
+     ],
+     [
+      10,
+      3.54
+     ],
+     [
+      100,
+      2.8
+     ],
+     [
+      1000,
+      2.22
+     ],
+     [
+      2500,
+      2.18
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 46,
+    "moq": 1,
+    "sku": "01250003H",
+    "updated": "2026-11-25T15:15:51Z",
+    "usd_ladder": [
+     [
+      1,
+      4.77
+     ],
+     [
+      10,
+      3.73
+     ],
+     [
+      100,
+      2.95
+     ],
+     [
+      1000,
+      2.33
+     ],
+     [
+      2500,
+      2.29
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Future Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 3868,
+    "moq": 10,
+    "sku": "01250003H",
+    "updated": "2026-11-26T01:15:28Z",
+    "usd_ladder": [
+     [
+      10,
+      2
+     ],
+     [
+      30,
+      1.98
+     ],
+     [
+      300,
+      1.92
+     ],
+     [
+      1250,
+      1.87
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Future Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 100,
+    "moq": 100,
+    "sku": "01250003H",
+    "updated": "2026-11-26T01:15:28Z",
+    "usd_ladder": [
+     [
+      100,
+      1.95
+     ],
+     [
+      1000,
+      1.9
+     ],
+     [
+      2000,
+      1.87
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "CoreStaff",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 100,
+    "moq": 1,
+    "sku": "ST72436462",
+    "updated": "2026-11-25T15:00:27Z",
+    "usd_ladder": [
+     [
+      1,
+      3.3618
+     ],
+     [
+      10,
+      2.683
+     ],
+     [
+      100,
+      2.122
+     ],
+     [
+      300,
+      2.08
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "CoreStaff",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 4,
+    "moq": 1,
+    "sku": "ST63652103",
+    "updated": "2026-11-25T15:00:27Z",
+    "usd_ladder": [
+     [
+      1,
+      3.3618
+     ],
+     [
+      10,
+      2.683
+     ],
+     [
+      100,
+      2.122
+     ],
+     [
+      300,
+      2.08
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Verical",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 99,
+    "moq": 1,
+    "sku": "01250003H",
+    "updated": "2026-11-25T19:30:24Z",
+    "usd_ladder": [
+     [
+      1,
+      4.0196
+     ],
+     [
+      10,
+      2.7475
+     ],
+     [
+      100,
+      2.1776
+     ],
+     [
+      1000,
+      1.809
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Verical",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 600,
+    "moq": 100,
+    "sku": "01250003H",
+    "updated": "2026-11-25T19:30:24Z",
+    "usd_ladder": [
+     [
+      100,
+      2.2265
+     ],
+     [
+      1000,
+      1.8394
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Verical",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 300,
+    "moq": 100,
+    "sku": "01250003H",
+    "updated": "2026-11-25T19:30:24Z",
+    "usd_ladder": [
+     [
+      100,
+      2.9176
+     ],
+     [
+      300,
+      2.8706
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Verical",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 100,
+    "moq": 23,
+    "sku": "01250003H",
+    "updated": "2026-11-25T19:30:24Z",
+    "usd_ladder": [
+     [
+      23,
+      3.184
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Verical",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 4,
+    "moq": 4,
+    "sku": "01250003H",
+    "updated": "2026-11-25T19:30:24Z",
+    "usd_ladder": [
+     [
+      4,
+      17.2193
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Arrow Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 99,
+    "moq": 1,
+    "sku": "01250003H",
+    "updated": "2026-11-25T15:45:24Z",
+    "usd_ladder": [
+     [
+      1,
+      3.99
+     ],
+     [
+      10,
+      2.7265
+     ],
+     [
+      50,
+      2.3764
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Arrow Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 600,
+    "moq": 100,
+    "sku": "01250003H",
+    "updated": "2026-11-25T15:45:24Z",
+    "usd_ladder": [
+     [
+      100,
+      2.1791
+     ],
+     [
+      500,
+      1.8313
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Master Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 300,
+    "moq": 100,
+    "sku": "01250003H",
+    "updated": "2026-11-25T08:46:06Z",
+    "usd_ladder": [
+     [
+      100,
+      2.48
+     ],
+     [
+      1000,
+      1.85
+     ],
+     [
+      10000,
+      1.81
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Quest",
+    "authorized": false,
+    "broker": false,
+    "mfr": "Misc",
+    "stock": 8,
+    "moq": null,
+    "sku": "01250003H",
+    "updated": "2026-11-25T11:17:52Z",
+    "usd_ladder": [
+     [
+      1,
+      3.2625
+     ],
+     [
+      4,
+      2.175
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:15:13Z",
+  "url": "https://octopart.com/search?q=01250003H"
+ },
+ "TMOV20RP175E": {
+  "mpn": "TMOV20RP175E",
+  "parts_matched": 2,
+  "offers": [
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 1200,
+    "moq": 1,
+    "sku": "TMOV20RP175E",
+    "updated": "2026-11-25T15:15:51Z",
+    "usd_ladder": [
+     [
+      1,
+      2.6
+     ],
+     [
+      10,
+      2.05
+     ],
+     [
+      100,
+      1.75
+     ],
+     [
+      1000,
+      1.61
+     ],
+     [
+      5000,
+      1.56
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Verical",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 800,
+    "moq": 7,
+    "sku": "TMOV20RP175E",
+    "updated": "2026-11-25T19:30:24Z",
+    "usd_ladder": [
+     [
+      10,
+      1.4165
+     ],
+     [
+      100,
+      1.1702
+     ],
+     [
+      800,
+      1.0409
+     ],
+     [
+      2800,
+      1.0202
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Verical",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 399,
+    "moq": 6,
+    "sku": "TMOV20RP175E",
+    "updated": "2026-11-25T19:30:24Z",
+    "usd_ladder": [
+     [
+      6,
+      1.0441
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Verical",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 1200,
+    "moq": 50,
+    "sku": "TMOV20RP175E",
+    "updated": "2026-11-25T19:30:24Z",
+    "usd_ladder": [
+     [
+      50,
+      1.9294
+     ],
+     [
+      800,
+      1.4353
+     ],
+     [
+      1200,
+      1.4235
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Master Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 1200,
+    "moq": 25,
+    "sku": "TMOV20RP175E",
+    "updated": "2026-11-25T08:46:06Z",
+    "usd_ladder": [
+     [
+      25,
+      1.64
+     ],
+     [
+      800,
+      1.22
+     ],
+     [
+      10000,
+      1.17
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Arrow Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 800,
+    "moq": 1,
+    "sku": "TMOV20RP175E",
+    "updated": "2026-11-25T15:45:24Z",
+    "usd_ladder": [
+     [
+      1,
+      1.7985
+     ],
+     [
+      10,
+      1.4165
+     ],
+     [
+      100,
+      1.1702
+     ],
+     [
+      800,
+      1.0409
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Arrow Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 1,
+    "moq": 1,
+    "sku": "TMOV20RP175E",
+    "updated": "2026-11-25T15:45:24Z",
+    "usd_ladder": [
+     [
+      1,
+      0.5605
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Onlinecomponents.com",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 1200,
+    "moq": 25,
+    "sku": "TMOV20RP175E",
+    "updated": "2026-11-25T09:11:33Z",
+    "usd_ladder": [
+     [
+      25,
+      1.64
+     ],
+     [
+      800,
+      1.22
+     ],
+     [
+      10000,
+      1.17
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "TME",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Littelfuse",
+    "stock": 0,
+    "moq": 1200,
+    "sku": "TMOV20RP175E",
+    "updated": "2026-11-25T10:49:44Z",
+    "usd_ladder": [
+     [
+      1200,
+      1.02
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:15:18Z",
+  "url": "https://octopart.com/search?q=TMOV20RP175E"
+ },
+ "GBJ2510-F": {
+  "mpn": "GBJ2510-F",
+  "parts_matched": 2,
+  "offers": [
+   {
+    "seller": "Avnet",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Diodes Inc.",
+    "stock": 15,
+    "moq": 15,
+    "sku": "GBJ2510-F",
+    "updated": "2026-11-25T07:15:38Z",
+    "usd_ladder": [
+     [
+      60,
+      1.1155
+     ],
+     [
+      240,
+      0.92188
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Avnet",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Diodes Inc.",
+    "stock": 0,
+    "moq": 15,
+    "sku": "GBJ2510F",
+    "updated": "2026-11-25T07:15:38Z",
+    "usd_ladder": [],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Future Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Diodes Inc.",
+    "stock": 150,
+    "moq": 20,
+    "sku": "GBJ2510-F",
+    "updated": "2026-11-26T01:15:28Z",
+    "usd_ladder": [
+     [
+      50,
+      1.15
+     ],
+     [
+      1000,
+      1.1
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Future Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Diodes Inc.",
+    "stock": 0,
+    "moq": 20,
+    "sku": "GBJ2510-F",
+    "updated": "2026-11-26T01:15:28Z",
+    "usd_ladder": [
+     [
+      50,
+      1.15
+     ],
+     [
+      1000,
+      1.1
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Verical",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Diodes Inc.",
+    "stock": 3600,
+    "moq": 105,
+    "sku": "GBJ2510-F",
+    "updated": "2026-11-25T19:30:24Z",
+    "usd_ladder": [
+     [
+      105,
+      0.7082
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Verical",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Diodes Inc.",
+    "stock": 14,
+    "moq": 14,
+    "sku": "GBJ2510-F",
+    "updated": "2026-11-25T19:30:24Z",
+    "usd_ladder": [
+     [
+      14,
+      1.7242
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "TME",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Diodes Inc.",
+    "stock": 109,
+    "moq": 1,
+    "sku": "GBJ2510-F",
+    "updated": "2026-11-25T10:49:44Z",
+    "usd_ladder": [
+     [
+      1,
+      2.92
+     ],
+     [
+      10,
+      1.94
+     ],
+     [
+      75,
+      1.57
+     ],
+     [
+      510,
+      1.28
+     ],
+     [
+      2010,
+      1.15
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Mouser",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Diodes Inc.",
+    "stock": 821,
+    "moq": 1,
+    "sku": "621-GBJ2510-F",
+    "updated": "2026-11-26T01:30:33Z",
+    "usd_ladder": [
+     [
+      1,
+      3.86
+     ],
+     [
+      10,
+      1.98
+     ],
+     [
+      100,
+      1.98
+     ],
+     [
+      1000,
+      1.53
+     ],
+     [
+      10000,
+      1.3
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "RS (Formerly Allied Electronics)",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Diodes Inc.",
+    "stock": 0,
+    "moq": 15,
+    "sku": "70438294",
+    "updated": "2026-11-25T20:15:29Z",
+    "usd_ladder": [
+     [
+      75,
+      3.55
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "UnikeyIC",
+    "authorized": true,
+    "broker": false,
+    "mfr": "HXY MOSFET",
+    "stock": 360000,
+    "moq": 250,
+    "sku": "GBJ2510-F",
+    "updated": "2026-11-25T08:51:20Z",
+    "usd_ladder": [
+     [
+      750,
+      0.5697
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:15:23Z",
+  "url": "https://octopart.com/search?q=GBJ2510-F"
+ },
+ "IPW65R018CFD7XKSA1": {
+  "mpn": "IPW65R018CFD7XKSA1",
+  "parts_matched": 1,
+  "offers": [
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Infineon",
+    "stock": 222,
+    "moq": 1,
+    "sku": "IPW65R018CFD7XKSA1",
+    "updated": "2026-11-25T15:15:51Z",
+    "usd_ladder": [
+     [
+      1,
+      24.97
+     ],
+     [
+      10,
+      20.57
+     ],
+     [
+      100,
+      16.18
+     ],
+     [
+      1000,
+      14.86
+     ],
+     [
+      10000,
+      14.27
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Rochester Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Infineon",
+    "stock": 19,
+    "moq": null,
+    "sku": "IPW65R018CFD7XKSA1",
+    "updated": "2026-11-25T10:24:17Z",
+    "usd_ladder": [
+     [
+      100,
+      10.17
+     ],
+     [
+      1000,
+      9.1
+     ],
+     [
+      10000,
+      8.57
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Arrow Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Infineon",
+    "stock": 100,
+    "moq": 1,
+    "sku": "IPW65R018CFD7XKSA1",
+    "updated": "2026-11-25T15:45:24Z",
+    "usd_ladder": [
+     [
+      1,
+      14.9944
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Mouser",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Infineon",
+    "stock": 470,
+    "moq": 1,
+    "sku": "726-IPW65R018CFD7XKS",
+    "updated": "2026-11-26T01:30:33Z",
+    "usd_ladder": [
+     [
+      1,
+      19.72
+     ],
+     [
+      10,
+      11.79
+     ],
+     [
+      100,
+      11.79
+     ],
+     [
+      1000,
+      11.79
+     ],
+     [
+      10000,
+      11.79
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Future Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Infineon",
+    "stock": 0,
+    "moq": 30,
+    "sku": "IPW65R018CFD7XKSA1",
+    "updated": "2026-11-26T01:15:28Z",
+    "usd_ladder": [
+     [
+      90,
+      11.83
+     ],
+     [
+      600,
+      11.63
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Future Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Infineon",
+    "stock": 0,
+    "moq": 30,
+    "sku": "IPW65R018CFD7XKSA1",
+    "updated": "2026-11-26T01:15:28Z",
+    "usd_ladder": [
+     [
+      90,
+      11.83
+     ],
+     [
+      600,
+      11.63
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Avnet",
+    "authorized": true,
+    "broker": false,
+    "mfr": "Infineon",
+    "stock": 0,
+    "moq": 240,
+    "sku": "IPW65R018CFD7XKSA1",
+    "updated": "2026-11-25T07:15:38Z",
+    "usd_ladder": [
+     [
+      960,
+      10.71171
+     ],
+     [
+      3840,
+      10.17613
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:15:28Z",
+  "url": "https://octopart.com/search?q=IPW65R018CFD7XKSA1"
+ },
+ "63824-1": {
+  "mpn": "63824-1",
+  "parts_matched": 1,
+  "offers": [
+   {
+    "seller": "TE Store",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TE Connectivity",
+    "stock": 609508,
+    "moq": 1,
+    "sku": "63824-1",
+    "updated": "2026-11-26T00:15:34Z",
+    "usd_ladder": [
+     [
+      1,
+      0.13
+     ],
+     [
+      10,
+      0.1
+     ],
+     [
+      100,
+      0.08
+     ],
+     [
+      1000,
+      0.06
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Master Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TE Connectivity",
+    "stock": 360000,
+    "moq": 10000,
+    "sku": "63824-1",
+    "updated": "2026-11-25T19:57:13Z",
+    "usd_ladder": [
+     [
+      10000,
+      0.0362
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Future Electronics",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TE Connectivity",
+    "stock": 1240000,
+    "moq": 10000,
+    "sku": "63824-1",
+    "updated": "2026-11-26T01:15:28Z",
+    "usd_ladder": [
+     [
+      10000,
+      0.0369
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Onlinecomponents.com",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TE Connectivity",
+    "stock": 360000,
+    "moq": 10000,
+    "sku": "63824-1",
+    "updated": "2026-11-25T16:23:50Z",
+    "usd_ladder": [
+     [
+      10000,
+      0.0362
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TE Connectivity",
+    "stock": 25021,
+    "moq": 100,
+    "sku": "63824-1",
+    "updated": "2026-11-25T19:57:13Z",
+    "usd_ladder": [
+     [
+      100,
+      0.05
+     ],
+     [
+      1000,
+      0.045
+     ],
+     [
+      10000,
+      0.036
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TE Connectivity",
+    "stock": 0,
+    "moq": 1,
+    "sku": "63824-1",
+    "updated": "2026-11-25T19:57:13Z",
+    "usd_ladder": [
+     [
+      1,
+      0.138
+     ],
+     [
+      100,
+      0.094
+     ],
+     [
+      1000,
+      0.076
+     ],
+     [
+      10000,
+      0.064
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TE Connectivity",
+    "stock": 0,
+    "moq": 10000,
+    "sku": "63824-1",
+    "updated": "2026-11-25T19:57:13Z",
+    "usd_ladder": [
+     [
+      10000,
+      0.048
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TE Connectivity",
+    "stock": 0,
+    "moq": 10000,
+    "sku": "63824-1.",
+    "updated": "2026-11-25T19:57:13Z",
+    "usd_ladder": [
+     [
+      10000,
+      0.033
+     ]
+    ],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Newark",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TE Connectivity",
+    "stock": 0,
+    "moq": 30000,
+    "sku": "63824-1",
+    "updated": "2026-11-25T19:57:13Z",
+    "usd_ladder": [],
+    "factory_lead_days": null
+   },
+   {
+    "seller": "Avnet",
+    "authorized": true,
+    "broker": false,
+    "mfr": "TE Connectivity",
+    "stock": 280000,
+    "moq": 10000,
+    "sku": "63824-1",
+    "updated": "2026-11-25T07:15:38Z",
+    "usd_ladder": [
+     [
+      10000,
+      0.04447
+     ]
+    ],
+    "factory_lead_days": null
+   }
+  ],
+  "fetched_utc": "2026-11-26T04:15:34Z",
+  "url": "https://octopart.com/search?q=63824-1"
+ }
+}
