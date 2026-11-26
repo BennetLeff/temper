@@ -1,0 +1,94 @@
+{
+ "pairs": [
+  {
+   "pair": "Q5|Q6",
+   "nets": [
+    "bus_p",
+    "sw_b"
+   ],
+   "pitch_mm": 18.0,
+   "centred_gap_mm": 3.85,
+   "worst_gap_flat_play_mm": 2.77,
+   "worst_gap_corner_play_mm": 2.808,
+   "worst_gap_mm": 2.77,
+   "floor_mm": 3.2,
+   "status": "FAIL"
+  },
+  {
+   "pair": "Q6|Q3",
+   "nets": [
+    "sw_b",
+    "sw_a"
+   ],
+   "pitch_mm": 22.1,
+   "centred_gap_mm": 7.95,
+   "worst_gap_flat_play_mm": 6.87,
+   "worst_gap_corner_play_mm": 6.908,
+   "worst_gap_mm": 6.87,
+   "floor_mm": 3.2,
+   "status": "PASS"
+  },
+  {
+   "pair": "Q3|Q2",
+   "nets": [
+    "sw_a",
+    "bus_p"
+   ],
+   "pitch_mm": 18.0,
+   "centred_gap_mm": 3.85,
+   "worst_gap_flat_play_mm": 2.77,
+   "worst_gap_corner_play_mm": 2.808,
+   "worst_gap_mm": 2.77,
+   "floor_mm": 3.2,
+   "status": "FAIL"
+  }
+ ],
+ "e1_max_mm": 14.15,
+ "floor_mm": 3.2,
+ "x_play_flat_mm": 0.54,
+ "x_play_corner_mm": 0.5211,
+ "e1_limit_mm": 13.72,
+ "board": "validation-results/08-manufacturing-package/native-21/board-of-record-s57/section.kicad_pcb",
+ "board_sha256": "25596d8eff460eabab3c538c83daea0d88eb1135fd7ae1519d8cc30a4f32421a",
+ "e1_source": "datasheet max",
+ "fets": [
+  {
+   "ref": "Q6",
+   "x": 27.95,
+   "y": 4.215,
+   "rot": 0.0,
+   "tab_net": "sw_b"
+  },
+  {
+   "ref": "Q3",
+   "x": 50.05,
+   "y": 4.215,
+   "rot": 0.0,
+   "tab_net": "sw_a"
+  },
+  {
+   "ref": "Q2",
+   "x": 68.05,
+   "y": 4.215,
+   "rot": 0.0,
+   "tab_net": "bus_p"
+  },
+  {
+   "ref": "Q5",
+   "x": 9.95,
+   "y": 4.215,
+   "rot": 0.0,
+   "tab_net": "bus_p"
+  }
+ ],
+ "ratchet": {
+  "new_failures": [],
+  "worse": [],
+  "fet_set": [],
+  "nets": [],
+  "pair_set": [],
+  "stale": [],
+  "ok": true
+ },
+ "expected_cross_check_errors": []
+}

@@ -1,0 +1,11 @@
+{
+ "open_item": "OPEN-ITEMS S34",
+ "note": "Known-open failing pairs. The gate exits 0 only if its failing set is a subset of known_open, no pair is worse than its worst_gap_mm by > 0.001 mm, and fets / pairs_checked equal the board's. Remove an entry when the pair passes (lot E1 measured, barrier fitted, or certifier route accepted); never add one without an OPEN-ITEMS row.",
+ "board_of_record": "board-of-record-s57/section.kicad_pcb",
+ "fets": {"Q2": "bus_p", "Q3": "sw_a", "Q5": "bus_p", "Q6": "sw_b"},
+ "pairs_checked": ["Q5|Q6", "Q6|Q3", "Q3|Q2"],
+ "known_open": {
+  "Q5|Q6": {"nets": ["bus_p", "sw_b"], "worst_gap_mm": 2.77, "open_item": "S34"},
+  "Q3|Q2": {"nets": ["sw_a", "bus_p"], "worst_gap_mm": 2.77, "open_item": "S34"}
+ }
+}
