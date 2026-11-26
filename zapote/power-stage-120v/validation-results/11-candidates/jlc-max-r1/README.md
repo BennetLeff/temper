@@ -19,7 +19,8 @@ Lot sizes used: 5, 10, 20 assembled boards (PROTOTYPE-LOT: stock gate sized at 2
 
 1. **F1 clips can go to JLC with no copper change at all.** Add two CPL rows (F1A, F1B) at the clip centres and one BOM line
    (01250003H, C223911). The Gerbers and board file stay byte-identical, because the slots are already in F1's footprint and
-   JLC's own C223911 model has the same 2 pads, 10.80 mm apart on the same axis. **Stock has fallen to 32 (101 on 10-18)**, so
+   JLC's own C223911 model has the same 2 pads, 10.80 mm apart on the same axis. The clip is the ear (end-stop) type, so
+   F1A is rotated 180 and F1B 0, which puts the ears outboard (§1, corrected 2026-11-26). **Stock has fallen to 32 (101 on 10-18)**, so
    JLC stock covers up to 15 boards. A 20-board lot needs Global Sourcing for all 42 (Future 3,868, Newark 1,233), and you can't
    top up JLC's 32 from another source in the same order.
 2. **RV1: no JLC-stocked alternative exists.** TMOV20RP175E (C1527834, 109) is the only 175 V thermally protected MOV JLC
@@ -51,13 +52,14 @@ Lot sizes used: 5, 10, 20 assembled boards (PROTOTYPE-LOT: stock gate sized at 2
 | Distributors | Future 3,868 (MOQ 10, $2.00), Newark 1,233 (MOQ 1), Arrow/Verical 600, Master 300 | `reads/octopart-2026-11-26.json` |
 | Board pads (s57) | F1 at (246.35, 7.25), rot 0. Pads `1` at x +10.08 / +20.88, pads `2` at −10.08 / −20.88; each is an oval 2.4 × 3.7 with a 1.2 × 2.5 oval drill (long axis ⟂ fuse axis) | `board-of-record-s57/section.kicad_pcb` |
 | JLC's model | `BAT-TH_01250003H`: 2 OVAL pads 1.9 × 3.2, **10.80 mm apart along x**, long axis y, round 1.2 mm hole (EasyEDA draws the slot as a round hole; our Gerber slot governs) | `cpl-rotation-audit/sources/easyeda-footprints.json` |
-| Clip centres | **F1A** (pads 1) = (261.83, 7.25); **F1B** (pads 2) = (230.87, 7.25); rotation 0. In `cpl-jlcpcb-order.csv` (y negated): (261.830, −7.250) and (230.870, −7.250) | derived: 246.35 ± 15.48 |
-| Orientation | The clip is a symmetric ear-style clip (F1-RECOMMENDATION: "ear style"; pin 0.70 × 2.00 in the 1.2 × 2.5 slot), so 0° and 180° fit the same. Confirm in JLC's 3D preview that the ears face the fuse (inward) | — |
+| Clip centres | **F1A** (pads 1, +x clip) = (261.83, 7.25), **rotation 180**; **F1B** (pads 2, −x clip) = (230.87, 7.25), **rotation 0**. In `cpl-jlcpcb-order.csv` (y negated): F1A (261.830, −7.250, 180) and F1B (230.870, −7.250, 0) | derived: 246.35 ± 15.48 |
+| Orientation (**corrected 2026-11-26**; the first version wrongly called the clip symmetric) | 01250003H is Littelfuse's **ear-style clip, and the ears are the fuse stops**. The stops must sit at the **outer** ends of the 38.1 mm cartridge, so F1A and F1B point opposite ways (180° apart). 0° and 180° are **not** equivalent, even though the two slots of one clip are the same. Evidence: (1) Littelfuse 105/106/125 sheet (Rev 03/12/13, `reads/datasheets/rs-105-106-125.pdf`, sha256 `58666b2c…`): ordering table "Style: Ear"; the top view shows the ear tabs at one end of the 11.10 mm body only. Littelfuse's rivet/eyelet clip sheet names the style "Ear Clip Type (with fuse stops)". (2) JLC's footprint `BAT-TH_01250003H` (`reads/easyeda/footprint_C223911.json`): pads `1` at x −5.4 and `2` at +5.4 mm, 2.5 × 1.2 slots. The silkscreen and assembly layers carry two 2 × 2 mm squares at x −3.0…−5.0, y ±3.0…5.0 mm, i.e. on the **pad-1 (−x) end only**. (3) JLC's 3D model (`reads/easyeda/model3d_C223911.obj`): mirrored in x, 146 vertices at the −x end have no partner against 69 at the +x end, so the one-sided feature is at −x. **So at JLC rotation 0 the ears sit at −x.** The +x clip (F1A) needs 180° and the −x clip (F1B) needs 0°. `scripts/clip_orientation.py` reproduces (2) and (3) into `reads/easyeda/clip-orientation.json`. Steps (2) and (3) are inferred from geometry, not from a labelled drawing, so **JLC's 3D preview is the gate**: both clips must show ears at the outboard ends. If both show inboard, swap to F1A 0 / F1B 180 | see cell |
 | JLC rules | THT marked wave soldering is "assembled manually"; $3.5 labour + $0.0173 per joint (4 joints per board). Plated slots are fabricated now: they are already in the s57 Gerbers and pass DFM | consign-r1 pages |
 
 **How to land it (no copper):**
 - `bom_cpl_jlc.py` emits two extra CPL rows (F1A, F1B) from F1's placement and the footprint's pad pairs, so they move if F1
-  moves.
+  moves. Rotation = F1's rotation + 180 for the clip on F1's +x side and + 0 for the −x side, so the ears end up outboard.
+  Add the pair to `CPL-PREVIEW-CHECKLIST.md` as a NEEDS-PREVIEW item: "ears at the outer ends of the cartridge".
 - `apply_lcsc.py` replaces the `F1-CLIP` hand-assembly row with a BOM line `01250003H, "F1A,F1B", C223911`. Its assembly
   note: "JLC hand-solders; 2 oz/2 oz slots: bottom preheat; fill barrel".
 - `hand-assembly-extras.csv` keeps the F1 cartridge note only.
@@ -66,8 +68,9 @@ Lot sizes used: 5, 10, 20 assembled boards (PROTOTYPE-LOT: stock gate sized at 2
   - `check_order_docs.py` counts 93 JLC lines;
   - the scorecard's consign/owner-line counts drop by 1.
 - Board, Gerbers and `section.kicad_pcb` hashes do not change.
-- The order remark gains: "F1A/F1B fuse clips: solder both slots per clip with bottom preheat (2 oz inner/outer); ears face the
-  fuse; leave the F1 cartridge out."
+- The order remark gains: "F1A/F1B fuse clips (end-stop ear type): the end-stop ears face OUTWARD, at the two outer ends of
+  the 38 mm fuse; F1A and F1B point opposite ways (180° apart), as in the CPL. Solder both slots per clip with bottom preheat
+  (2 oz inner/outer). Leave the F1 cartridge out."
 
 Why not the full footprint split (three components in ato)? It would change the board file hash and the netlist, which means a
 chain re-run and a new board of record. That is worth doing only when copper changes anyway; fold it into the next copper
@@ -194,5 +197,10 @@ same JLC message).
 >    active and Mouser stocks it. Can it be Global Sourced or consigned?
 > 3. Global Sourcing supplier coverage: are Newark, Master Electronics and Amar Radio among your suppliers?
 > 4. Do consigned fuses and connectors attract the $20 commodity inspection fee that Global Sourcing charges?
+> 5. Our board has one through-hole footprint "F1" that carries the plated slots for two fuse clips (C223911, Littelfuse
+>    01250003H): 4 slots of 1.2 × 2.5 mm, in two pairs 10.80 mm apart. Can the PCBA order place two clips from it, with two CPL
+>    rows (F1A and F1B, both C223911, centres 30.96 mm apart, rotations 180 and 0 so the end-stop ears face outward) and one
+>    BOM line "F1A,F1B", without splitting the footprint in the PCB / Gerbers? The designators F1A / F1B would not appear on the
+>    silkscreen.
 
 If JLC says yes to 1, the only parts left on the owner's bench are BR1 on board #1 (by design) and inserting the F1 cartridge.

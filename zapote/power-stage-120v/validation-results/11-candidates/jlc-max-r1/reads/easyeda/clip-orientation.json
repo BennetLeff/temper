@@ -1,0 +1,76 @@
+{
+ "pads": [
+  {
+   "num": "1",
+   "x_mm": -5.4,
+   "y_mm": 0.0
+  },
+  {
+   "num": "2",
+   "x_mm": 5.4,
+   "y_mm": 0.0
+  }
+ ],
+ "filled_marks": [
+  {
+   "layer": 13,
+   "x_mm": [
+    -5.0,
+    -3.0
+   ],
+   "y_mm": [
+    3.0,
+    5.0
+   ]
+  },
+  {
+   "layer": 13,
+   "x_mm": [
+    -5.0,
+    -3.0
+   ],
+   "y_mm": [
+    -5.0,
+    -3.0
+   ]
+  },
+  {
+   "layer": 50,
+   "x_mm": [
+    5.05,
+    5.75
+   ],
+   "y_mm": [
+    -1.0,
+    1.0
+   ]
+  },
+  {
+   "layer": 50,
+   "x_mm": [
+    -5.75,
+    -5.05
+   ],
+   "y_mm": [
+    -1.0,
+    1.0
+   ]
+  }
+ ],
+ "model": {
+  "vertices": 1699,
+  "pin_x_mm": [
+   -5.8,
+   -5.1,
+   5.1,
+   5.8
+  ],
+  "unpaired_end_minus_x (x<-4)": 146,
+  "unpaired_end_plus_x (x>4)": 69
+ },
+ "ear_end_at_rotation_0": "-x (pad 1)",
+ "rotation_for_ears_outboard": {
+  "clip on F1's +x side (F1A)": 180,
+  "clip on F1's -x side (F1B)": 0
+ }
+}
