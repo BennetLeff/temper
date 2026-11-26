@@ -30,7 +30,7 @@ import world
 
 PLACE = {
     # ---- connectors, J4 and the module: from the parameter table
-    **{ref: (x, y, 0, "fab") for ref, (x, y) in world.CONNECTORS.items()},
+    **{ref: (x, y, world.CONNECTOR_ROT.get(ref, 0), "fab") for ref, (x, y) in world.CONNECTORS.items()},
     "J4": ((world.J4_BODY[0] + world.J4_BODY[2]) / 2, (world.J4_BODY[1] + world.J4_BODY[3]) / 2,
            90 if world.J4_MATING == "-X" else -90, "crtyd"),
     # WROOM-1U: antenna/U.FL end (footprint -y) toward world +Y, body top edge on the R33 box's rear edge
@@ -92,7 +92,7 @@ PLACE = {
     "r_fb12_top": (88.9, 80.05, 0),
     "r_fan_inj": (92.1, 80.05, 0),
     # ---- RTD front end (rtd_pan) and the runaway comparator, between the module and J3
-    "rtd_pan.adc": (149.0, 76.5, 90),
+    "rtd_pan.adc": (149.0, 75.2, 90),       # C53: 1.3 mm forward; the 5.3 mm SSOP land (C51 U30 fix) reached the J3 strip
     "rtd_pan.reference": (140.0, 78.5, 0),
     "rtd_pan.low_window": (138.0, 70.5, 0),
     "rtd_pan.high_window": (131.0, 70.5, 0),
@@ -102,7 +102,7 @@ PLACE = {
     "u_runaway": (118.0, 74.0, 0),
     # C34: the 1 nF differential filter across the MAX31865's RTDIN+ (pin 10) / RTDIN- (pin 11) end,
     # pad 1 (rtd_sense_p) toward pin 10; the RTD unit's locality rule is <= 3 mm pad to pin
-    "rtd_pan.c_rtd_input": (155.6, 76.5, 90),   # C37: now the 100 nF C0G 1206 (sensor-r3 CR-1)
+    "rtd_pan.c_rtd_input": (155.6, 75.2, 90),   # C53: follows U30 forward   # C37: now the 100 nF C0G 1206 (sensor-r3 CR-1)
     # ---- C37 (sensor-r3 CR-1) J3 protection and the two-stage sense filter. J3's XH body reaches
     #      3.4 mm in front of its pin row and the MAX31865 sits 2.6 mm in front of that, so the 220 nF /
     #      TVS pairs take the strip between them (TVS upright, caps flat), the force-line pair for
@@ -154,6 +154,51 @@ PLACE = {
     "u_cm_inv_la": (89.6, 21.5, 0),
     "u_cm_pol": (76.4, 26.5, 0),
     "u_cm_or": (76.4, 21.0, 0),
+    # ---- C53: food-probe RTD channel (C51 U50) in front of J9 (43.5, 86, rotated 180: pins 4..1 = F-, S-, S+, F+ at
+    #      X 39.75, 42.25, 44.75, 47.25). C51 layout rule: the 100 nF entry capacitors sit at the pins, between J9 and
+    #      the BAV199 clamps (they take the ESD impulse first). U50 rotated 180 puts pins 11 (S-) / 10 (S+) at its rear
+    #      end, left / right, under the matching J9 pins.
+    "rtd_food.c_fn": (39.75, 81.0, 90),
+    "rtd_food.c_sn": (42.25, 81.0, 90),
+    "rtd_food.c_sp": (44.75, 81.0, 90),
+    "rtd_food.c_fp": (47.25, 81.0, 90),
+    # clamp row: the BAV199s (SOT-23 rotated so pin 3, the line, faces its capacitor) outside, and the first filter
+    #      stage between the sense clamps: R1n, C1 (1206 across the mid nodes, pad 1 = S+ mid on the right), R1p, each
+    #      resistor's pad 1 (the J9 side) to the rear
+    "rtd_food.d_fn": (34.43, 76.6, 90),
+    "rtd_food.d_sn": (37.98, 76.6, 90),
+    "rtd_food.r_s1n": (40.58, 76.6, -90),
+    "rtd_food.c_s1": (43.8, 76.6, 180),
+    "rtd_food.r_s1p": (47.0, 76.6, -90),
+    "rtd_food.d_sp": (49.62, 76.6, 90),
+    "rtd_food.d_fp": (53.17, 76.6, 90),
+    "rtd_food.adc": (46.0, 68.3, 180),
+    # second filter stage in the 2.5 mm row between U50's pin 10/11 end (Y 71.2) and the clamps: R2n, C2 (1206 across
+    # the sense pair, pad 1 = S+ on the right), R2p; the common-mode caps beside pins 11 (left) and 10 (right)
+    "rtd_food.r_s2n": (42.0, 73.41, 0),
+    "rtd_food.c_s2": (46.0, 73.41, 180),
+    "rtd_food.r_s2p": (50.0, 73.41, 180),
+    "rtd_food.c_cm_n": (39.0, 71.4, 0),
+    "rtd_food.c_cm_p": (52.4, 71.0, 90),
+    # open-lead 1 M pull-ups (sense ext nodes to rtd2_bias) at the ends of that row
+    "rtd_food.r_bias_n": (38.5, 73.41, 0),
+    "rtd_food.r_bias_p": (53.5, 73.41, 0),
+    # ---- C53: face-fan 12 V buck (U51, L3) in the free field in front of the blower buck, > 10 mm from both RTD
+    #      channels; EMC2301 (U52) and the PWM cascode / tach parts at J15 (104.5, 86; pins 1..5 at X 99.5..109.5)
+    "bay_fan.u_buck": (82.0, 54.0, 0),
+    "bay_fan.l": (89.0, 54.0, 0),
+    "bay_fan.u_fan": (106.0, 76.0, 90),
+    "bay_fan.q_pwm": (110.4, 79.6, 0),
+    "bay_fan.d_tach": (104.5, 81.2, 90),
+    "bay_fan.d_pwm": (107.0, 81.2, 90),
+    # tach pull-up and series R left of D15 (anchored, the keep-apart band pushed them into the RTD block); the PWM
+    # pull-up beside Q2
+    "bay_fan.r_tach_pu": (102.1, 81.6, 0),
+    "bay_fan.r_tach": (102.1, 79.9, 0),
+    "bay_fan.r_pwm": (110.6, 75.6, 90),
+    # CLK and ALERT# resistors in the strip between L2 and U52 (anchored, they took the blower buck's SS / EN spots)
+    "bay_fan.r_alert": (103.3, 77.0, 90),
+    "bay_fan.r_clk": (103.3, 73.8, 90),
 }
 
 # Board text (world mm, size): ID and SELV mark on F.Silkscreen in the free front-middle area
@@ -204,10 +249,25 @@ ANCHOR = {
     "rs_ui_sck": "J7", "rs_ui_mosi": "J7", "rs_ui_miso": "J7", "rs_ui_cs_oled": "J7", "rs_ui_cs_exp": "J7",
     "rs_ui_dc": "J7", "r_cs_oled_pu": "U4", "r_cs_exp_pu": "U4",
     # RTD SPI 33 ohm series resistors belong to the RTD block (at the MAX31865)
+    "rtd_pan.r_ref": "rtd_pan.adc",        # C53: Rref at its converter (C49 left it 24 mm away, unanchored)
     "rtd_pan.r_sclk": "rtd_pan.adc", "rtd_pan.r_mosi": "rtd_pan.adc", "rtd_pan.r_cs": "rtd_pan.adc",
     "rtd_pan.r_miso": "rtd_pan.adc",
     # ADC anti-kick RC at the ESP32 pad
-    "r_vbus_adc": "U4", "r_hs_adc": "U4", "r_coil_adc": "U4", "r_m12_adc": "U4",
+    "r_vbus_adc": "U4", "r_hs_adc": "U4", "r_coil_adc": "U4", "r_bay_adc": "U4",
+    # C51 bay NTC (J14): TVS and pull-up at the connector, the 159 Hz RC at its buffer (u_buf2 B), ADC RC at the module
+    "d_bay": "J14", "r_bay_pu": "J14", "r_bay_filt": "u_buf2", "c_bay_filt": "u_buf2", "c_bay_adc": "r_bay_adc",
+    # C53 food RTD (U50): supply, Rref, SPI 1 k series (C51: every SPI line has 1 k at U50) and the second filter stage
+    # at the converter; the open-lead pull-ups and the first filter stage at J9
+    "rtd_food.c_vdd": "rtd_food.adc", "rtd_food.c_dvdd": "rtd_food.adc", "rtd_food.c_avdd_bulk": "rtd_food.adc",
+    "rtd_food.fb": "rtd_food.adc", "rtd_food.r_ref": "rtd_food.adc",
+    "rtd_food.r_sck": "rtd_food.adc", "rtd_food.r_sdi": "rtd_food.adc", "rtd_food.r_sdo": "rtd_food.adc",
+    "rtd_food.r_cs": "rtd_food.adc", "rtd_food.r_cs_pu": "rtd_food.adc",
+    # C53 face fan: buck parts at U51 / L3, EMC2301 parts at U52, tach pull-up and series R at J15
+    "bay_fan.c_ss": "bay_fan.u_buck", "bay_fan.c_bst": "bay_fan.u_buck", "bay_fan.c_in_a": "bay_fan.u_buck",
+    "bay_fan.c_in_b": "bay_fan.u_buck", "bay_fan.r_en_top": "bay_fan.u_buck", "bay_fan.r_en_bot": "bay_fan.u_buck",
+    "bay_fan.r_fb_top": "bay_fan.u_buck", "bay_fan.r_fb_bot": "bay_fan.u_buck",
+    "bay_fan.c_out_a": "bay_fan.l", "bay_fan.c_out_b": "bay_fan.l",
+    "bay_fan.c_fan": "bay_fan.u_fan", "bay_fan.c_tach": "bay_fan.u_fan", 
     "r_hs_adc_bot": "U4",            # C45 (CR-8): the divider's bottom R at the ADC pad, beside c_hs_adc
     # interlock pull-ups / pull-downs in the interlock region
     "interlock.ocp_pullup": "interlock.fault_inv", "interlock.ovp_pullup": "interlock.fault_inv",
@@ -272,12 +332,16 @@ BLW_FEED: list[tuple[float, float, float, float]] = [(82.6, 74.6, 84.3, 84.6),  
 RTD_ANALOG_NETS = ["rtd_sense_p", "rtd_sense_n", "rtd_force_p", "rtd_force_n", "p1", "refin_n",
                    "rtd_pan.low_window-inp", "vbias",
                    # C37: the connector-side and mid-filter sense nodes (sensor-r3 CR-1)
-                   "rtd_sense_p_ext", "rtd_sense_n_ext", "rtd_sense_p_mid", "rtd_sense_n_mid"]
+                   "rtd_sense_p_ext", "rtd_sense_n_ext", "rtd_sense_p_mid", "rtd_sense_n_mid",
+                   # C53: the food-probe channel (U50) under the same layer and return rule
+                   "rtd2_force_p", "rtd2_force_n", "rtd2_sense_p", "rtd2_sense_n", "rtd2_sense_p_ext",
+                   "rtd2_sense_n_ext", "rtd2_sense_p_mid", "rtd2_sense_n_mid", "rtd2_bias", "rtd2_refin_n"]
 RTD_RETURN_VIA_MM = 2.5          # the unit's required_locality_mm is 3.0
 # C34: selv_gnd stitching vias on a pitch grid over the RTD analog region (world rects), where no plane
 # via sits within half a pitch already: every point of the region then has a return via within reach
 # of RTD_RETURN_VIA_MM, so the analog nets can change layer next to one (the module body is skipped)
-RTD_STITCH: list[tuple[float, float, float, float]] = [(115.0, 55.0, 167.0, 89.0)]
+RTD_STITCH: list[tuple[float, float, float, float]] = [(115.0, 55.0, 167.0, 89.0),
+                                                       (35.0, 63.5, 56.0, 89.0)]     # C53: food channel, J9 to U50
 RTD_STITCH_PITCH = 3.0
 
 # C34: net-pair clearances above the net classes (KiCad custom rules, pcb/controller.kicad_dru, and the

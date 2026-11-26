@@ -19,6 +19,8 @@ Layout rules (brief):
   decoupling  every IC supply pin (the 'vcc' pins of verify_controller's part models) has a capacitor to
               selv_gnd on the same net within 5 mm (pad to pad)
   rtd_j3_protection  each J3 pin has its 220 nF and TVS (C37); pad distances reported
+  rtd_j9_protection  each J9 line's 100 nF is nearer the pin than its BAV199 clamp (C51 layout rule)
+  partition   both bucks (blower L2/U2, face fan L3/U51) >= 10 mm courtyard to courtyard from both RTD channels
   interlock   no track of an MCU (U4) net crosses the interlock region; PERMIT path latch->J4.9 length
   thermal_relief  every through-hole pad that a pour reaches is thermal-relieved (zone setting)
   power_widths  V_BLOWER routed >= 0.8 mm; V15_BLW's J13.1, bulk and input-cap pads in one F.Cu pour region
@@ -280,7 +282,7 @@ def main():
 
     # ---- C37 (sensor-r3 CR-1): J3 protection distances, reported (the CR's 3 mm cannot be met: the XH
     # body courtyard reaches 3.44 mm in front of the pin row). Pad centre to pad centre, and pad-edge gap.
-    j3 = next((f for f in fps.values() if f.GetFieldText("MPN").startswith("B4B-XH")), None)
+    j3 = fps.get("J3")      # C53: by designator; C51's J9 is also a B4B-XH, so the MPN no longer identifies J3
     prot = []
     if j3 is not None:
         for jp in j3.Pads():
@@ -301,6 +303,30 @@ def main():
         sorted({r["j3_pin"] for r in prot if r["part"].startswith("C")}) == ["1", "2", "3", "4"]
     put("rtd_j3_protection", four, rule="sensor-r3 CR-1 asks <= 3 mm; reported, set by the XH body (DECISIONS C37)",
         rows=sorted(prot, key=lambda r: (r["j3_pin"], r["part"])))
+
+    # ---- C51 / C53: J9 food probe. Layout rule (DECISIONS C51): each line's 100 nF sits between its J9 pin and its
+    # BAV199, so the capacitor takes the ESD impulse ahead of the clamp (BAV199 has no IEC 61000-4-2 rating). Gate:
+    # all four lines have both parts, and the capacitor's line pad is nearer the pin than the clamp's line pad.
+    j9 = fps.get("J9")
+    j9rows = []
+    if j9 is not None:
+        for jp in j9.Pads():
+            n = jp.GetNetname()
+            row = {"j9_pin": jp.GetNumber(), "net": n}
+            for f in fps.values():
+                if f is j9 or not f.GetReference().startswith(("C", "D")):
+                    continue
+                pads = {q.GetNetname(): q for q in f.Pads()}
+                if n in pads and "selv_gnd" in pads:
+                    q = pads[n]
+                    d = math.hypot(mm(q.GetPosition().x - jp.GetPosition().x), mm(q.GetPosition().y - jp.GetPosition().y))
+                    kind = "clamp" if f.GetFieldText("MPN").startswith("BAV199") else "cap" if f.GetReference()[0] == "C" else None
+                    if kind and (kind + "_mm" not in row or d < row[kind + "_mm"]):
+                        row[kind], row[kind + "_mm"] = f.GetReference(), round(d, 2)
+            row["cap_first"] = "cap_mm" in row and "clamp_mm" in row and row["cap_mm"] < row["clamp_mm"]
+            j9rows.append(row)
+    put("rtd_j9_protection", len(j9rows) == 4 and all(r["cap_first"] for r in j9rows),
+        rule="each J9 line: 100 nF nearer the pin than its BAV199 (DECISIONS C51 layout rule)", rows=j9rows)
 
     # ---- interlock regions: no MCU-net track through them. Two regions: the latch block
     # (U20-U25 and their pull-ups/bypasses) and the PERMIT gate at J4.9 (U37 with its parts).
@@ -419,20 +445,25 @@ def main():
     rtd_analog = [r for r in fps if fps[r].GetFieldText("SourceInstance").startswith("rtd_pan.")
                   and not r.startswith("J")] + [path_ref[p_] for p_ in ("u_runaway", "r_runaway_top", "r_runaway_bot",
                                                                          "c_runaway_th")]
+    food = [r for r in fps if fps[r].GetFieldText("SourceInstance").startswith("rtd_food.") and not r.startswith("J")]
     thermal = [r for r in fps if fps[r].GetFieldText("SourceInstance").startswith("thermal.") and not r.startswith("J")]
     analog_j4 = [path_ref[p_] for p_ in ("u_rx", "u_buf1", "u_buf2", "u_ref", "u_rms", "u_adc", "r_rx_n", "r_rx_p",
                                          "r_rx_f", "r_rx_b", "r_bias_top", "r_bias_bot", "r_ct_mon_def", "r_rms_bias",
                                          "r_rms_gf", "r_rms_gg", "c_rms_in", "c_rms_core", "c_rms_avg", "c_rms_ignd",
                                          "c_rms_lpf")]
     sw = {"L2/U2 (12 V fan buck)": [path_ref["l_12"], path_ref["u_12"]],     # now the blower buck (C28)
-          "L1/U1 (3.3 V buck)": [path_ref["l_3v3"], path_ref["u_3v3"]]}
+          "L1/U1 (3.3 V buck)": [path_ref["l_3v3"], path_ref["u_3v3"]],
+          "L3/U51 (face-fan buck)": [path_ref["bay_fan.l"], path_ref["bay_fan.u_buck"]]}     # C51
     sep = {}
     for name, parts in sw.items():
-        for grp_name, grp in (("RTD front end", rtd_analog), ("thermal-sense", thermal), ("J4 analog", analog_j4)):
+        for grp_name, grp in (("RTD front end", rtd_analog), ("food RTD", food), ("thermal-sense", thermal),
+                              ("J4 analog", analog_j4)):
             d, pair = min((gap(a, b), (a, b)) for a in parts for b in grp)
             sep[f"{name} -> {grp_name}"] = {"mm": round(d, 1), "nearest": pair}
-    put("partition", sep["L2/U2 (12 V fan buck) -> RTD front end"]["mm"] >= 10.0, rule="L2 >= 10 mm from the RTD "
-        "analog section (ENCLOSURE-HANDOFF item 6); others reported", separations_mm=sep)
+    gated = [f"{s} -> {g}" for s in ("L2/U2 (12 V fan buck)", "L3/U51 (face-fan buck)") for g in ("RTD front end", "food RTD")]
+    put("partition", all(sep[k]["mm"] >= 10.0 for k in gated), rule="the blower buck (L2/U2) and the face-fan buck (L3/U51, "
+        "C53) >= 10 mm from both RTD channels (ENCLOSURE-HANDOFF item 6); others reported", gated=gated,
+        separations_mm=sep)
 
     # ---- stranded vias (agentic-PCB tip #13; layout/via_hygiene.py): a via with copper of its net on fewer than two layers
     import via_hygiene

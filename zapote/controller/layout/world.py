@@ -62,8 +62,13 @@ CONNECTORS = {
     "J2": (-20.0, 84.0),    # sink NTC, JST B2B-XH-A
     "J3": (152.0, 86.0),    # pan RTD, JST B4B-XH-A
     "J7": (46.0, 60.0),     # UI bus, JST B12B-XH-A (R33)
-    "J9": (-33.0, 86.0),    # M12 probe, JST B3B-XH-A
+    # C53 (R45 request, revised): J9 food probe, JST B4B-XH-A, moved from X-31.5 (C51 request) to X43.5 so the
+    # MAX31865 channel sits in the free field in front of it; rotated 180 (CONNECTOR_ROT) so its pin order
+    # F-/S-/S+/F+ (left to right) meets U50's pin 10/11 end without crossing the sense pair
+    "J9": (43.5, 86.0),
     "J10": (139.0, 86.0),   # fan, JST B3B-XH-A
+    "J14": (66.0, 86.0),    # C51 bay NTC, JST B2B-PH-K (R45 request)
+    "J15": (104.5, 86.0),   # C51 face fan, JST B5B-XH-A (R45 request)
     "J12": (126.0, 86.0),   # rim NTC, JST B2B-XH-A (R36; accepted R38)
     # J13 PS3 blower feed, JST B2P-VH top entry, posts along X (stage 16, C33). Enclosure R41
     # approved body centre (88, 86); the VH body is 8.5 mm deep (JST eVH p.3), so at Y86 it would
@@ -71,6 +76,8 @@ CONNECTORS = {
     # forward to sit flush with Y90.
     "J13": (88.0, 85.65),
 }
+# Connector rotations other than 0 (KiCad orientation, degrees)
+CONNECTOR_ROT = {"J9": 180}
 # Enclosure-approved spot for J13 (R41) and its local height allowance (below).
 J13_R41 = (88.0, 86.0)
 
