@@ -104,3 +104,22 @@ Heights above the board's top surface (bottom Z23, top Z24.6 since R30; Z40 leav
   43 dB(A), -20..70 C, pulse sensor, PWM. The page does not give PWM or sensor limits, and the duty of the 3.12 W is not stated. No h or flow study
   exists for a face fan: S24 must show flow reaching U26 and the board's hot spots, and the fan's 20 mm depth replaces the plan's 25.
 - **Controller board envelope:** the outline is unchanged.
+
+### Board-level check of the request against R43 (2026-11-25)
+`evidence/c51/check_r45_connector_corridors.py` (output `r45-connector-corridors.json`) intersects a prism over each body (+1 mm a side, board top to
++30 mm) with every saved R43 part. Three negative controls (probes at J13, J1 and J12) must FAIL, or the run exits non-zero; they do.
+
+| Connector | Free above the board | Needed (mated + 3 OD bend + OD) | Plug body to the native-21 HOT block J13 was judged against |
+|---|---|---|---|
+| J9 B4B-XH-A | ≥ 30 mm (probe height) | 19.0 | 91.4 mm |
+| J14 B2B-PH-K-S | ≥ 30 mm | 14.0 (JST ePH.pdf, PDF of 2026-01-27: top-entry mounting height 8 mm, insulation ≤ 1.5 mm) | **8.15 mm** |
+| J15 B5B-XH-A | ≥ 30 mm | 21.8 | **7.53 mm** |
+
+- **Positions: free.** Nothing in R43 occupies any of the three columns. J9 replaces the old B3B J9 and keeps the M12 lead's landing (1.5 mm shift).
+- **The s57 board does not move this.** native-21's Edge.Cuts are identical in the R43 snapshot and in board-of-record-s57 (six segments, the same L),
+  so the strip in front of the controller (Y90–96.4) is unchanged. s57's moved parts are inside the board, not in these columns.
+- **Not a full sign-off: J14 and J15 sit in front of the same HOT block as J13**, inside the X60–124 run of the R43 J13 barrier, and closer than J13.
+  J13 needed the barrier and a tie 1 mm above its plug (R43, `evidence/ps3/check_ps3_retention.py`). So R45 must route both cables with the
+  same rule: a tie close to each plug, and that retention test (a loose end ≥ 8 mm from HOT, measured round the barrier) on each route.
+  The routes do not exist yet. J14's runs to the bay bead across the power board, and J15's goes to a fan that is not placed.
+- What R45 still owes for these three: J14 and J15 routes with ties, the retention test on both, and the J9 M12 lead redrawn at 4 cores.
