@@ -155,9 +155,11 @@ ORDER_PLAN = {
     "3403.0279.23": ("C3163739", GS + " (DigiKey 7,183, MOQ 1, read 2026-10-18); JLC places"),
     "7466004R": ("C6708126", GS + " (DigiKey 8,856); JLC places"),
     "1704004": ("C5481600", GS + " if JLC lists a supplier (Amar Radio 48); if not, Do Not Place and the owner hand-solders J6"),
-    # DECISIONS 86 (owner, 2026-11-24): M11 Option A. No LCSC number, so JLC neither places nor matches the line.
-    "IPW65R018CFD7": ("", "DNP at JLC: the owner hand-solders Q2 / Q3 / Q5 / Q6 from the single 120-piece DigiKey lot, held "
-                      "coplanar on the M11 seating fixture (bottom preheat >= 100 C)"),
+    # DECISIONS 91 (owner, 2026-11-25): reverses DECISIONS 86, restoring JLC-first assembly. Consigned from one recorded
+    # DigiKey lot sized to the assembled board count (4/board + spares: e.g. 24 for 5 boards, 44 for 10, 84 of 120 for 20).
+    "IPW65R018CFD7": ("C3289047", "JLC (Extended), consigned: one recorded DigiKey lot (ship 4 per assembled board + 4 spare; "
+                      "all placements from consigned stock, none from JLC's own); JLC hand-solders, upright on center drain "
+                      "shoulder, pushed toward rear edge"),
     "R463N410050N1K": ("C3299886", "JLC (Extended); reserve by pre-order (JLC 46 against 40 on 2026-10-18); JLC hand-solders"),
     "CST3015-200ED": ("C50132500", "JLC (Extended); reserve by pre-order (JLC 64 against 20 on 2026-10-18)"),
     "LM4050AEM3-2.5/NOPB": ("C2156518", "JLC (Extended); reserve by pre-order (JLC 50 against 20)"),

@@ -23,7 +23,7 @@ disagree, this section wins.
   - The C2 X2 ripple rating was re-read from KEMET's graph: 1.97 A for 1 µF, not 1.5 A.
 
 - **Stage 56** (item 85, `VR/11-candidates/c56-s56-scope/README.md`): R127 / R129, the U41 / U42 CTRL dividers, 27 k → 16 k. BOM only;
-  copper is s55's, so the s55 column below holds. Item 86: Q2 / Q3 / Q5 / Q6 are not placed by JLC.
+  copper is s55's, so the s55 column below holds. Item 86 (Q2 / Q3 / Q5 / Q6 DNP at JLC) was reversed by item 91: JLC hand-solders consigned Q2 / Q3 / Q5 / Q6.
 
 | Section 5 row | s53 (below) | s55 / s56 | Source |
 |---|---|---|---|

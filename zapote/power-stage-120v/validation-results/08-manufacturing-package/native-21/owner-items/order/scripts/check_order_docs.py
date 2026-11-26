@@ -73,11 +73,11 @@ def selftest(root):
     """Each mutation must be caught."""
     P, O = "PROTOTYPE-LOT.md", "owner-items/order/ORDER-PACKAGE.md"
     board = re.search(r"`([0-9a-f]{64})`", (root / "fab/FAB-NOTE.md").read_text()).group(1)
-    muts = [("lot: old board", P, board[:12], "82af7bd93e62"), ("lot: old remark", P, "Do Not Place: leave their holes open", "seat the package"),
+    muts = [("lot: old board", P, board[:12], "82af7bd93e62"), ("lot: old remark", P, "BR1 is Do Not Place: leave its holes open", "BR1 is fitted by JLC"),
             ("package: old board", O, board, "82af7bd93e62d1f2e6c7c2c2b971a4830bf6e09078bae3f269d8bead9a31fd27"),
-            ("lot: FETs consigned", P, "## Parts to buy", "- Consigned: Q2 / Q3 from the lot.\n\n## Parts to buy"),
-            ("package: FETs consigned", O, "> - **order remarks", "> - consigned: Q5 / Q6;\n> - **order remarks"),
-            ("bom: FETs back at JLC", "fab/bom-jlcpcb.csv", '"DNP at JLC: the owner hand-solders Q2', '"JLC (Extended): Q2'),
+            ("lot: BR1 consigned", P, "## Parts to buy", "- Consigned: BR1 from the lot.\n\n## Parts to buy"),
+            ("package: BR1 consigned", O, "> - **order remarks", "> - consigned: BR1;\n> - **order remarks"),
+            ("bom: FETs moved to DNP", "fab/bom-jlcpcb.csv", '"JLC (Extended), consigned: one recorded DigiKey lot', '"DNP at JLC: Q2'),
             ("zip changed", "fab/native-21-gerbers.zip", None, None)]
     bad = 0
     for name, f, o, n in muts:

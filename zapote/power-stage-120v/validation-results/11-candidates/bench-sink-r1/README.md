@@ -2,7 +2,7 @@
 
 **2026-11-25 (stage 57, DECISIONS 87): the FET holes are 1.8 mm.** Lead play grows 0.15 mm, so the thickest FET shim is 2.2 mm (was 2.0). Every verdict in `results/` is unchanged; re-run with `scripts/bench_*.py`. The bracket slots need ± 1.05 mm in y (was ± 0.90; they have ± 2.0).
 
-**2026-11-24 (DECISIONS 86): the owner, not JLC, solders Q2 / Q3 / Q5 / Q6, on the M11 seating fixture.** Read "JLC-soldered" below as "soldered before the sink is fitted", and drop §2's FET remark. The gauge-and-shim procedure is kept: it closes every tab whatever the seating.
+**2026-11-25 (DECISIONS 91): reversed DECISIONS 86 — JLC again solders Q2 / Q3 / Q5 / Q6 (consigned).** §2's FET remark and the JLC-soldered gauge-and-shim procedure below apply again (with the stage-57 1.8 mm hole caveat above: only the center drain shoulder seats, and the thickest shim is 2.2 mm).
 
 Study, 2026-10-18. Branch `study/bench-sink-r1`, from `codex/power-stage-integration` @ f9d945326.
 
