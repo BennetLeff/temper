@@ -1,0 +1,192 @@
+{
+ "source": "sensor-r3 checks.py (as built) with R39 substituted; controller_calcs.max31865_thresholds",
+ "board_dT_K_in_gate": 60.0,
+ "variants": [
+  {
+   "part": "RG2012V-431-W-T1 (fitted, consigned)",
+   "lcsc": "C4260028",
+   "rref_ohm": 430.0,
+   "tol": 0.0005,
+   "tcr_per_K": 5e-06,
+   "package": "0805",
+   "1a_pass": true,
+   "R320_over_Rref_min": 0.511,
+   "worst_LSB_K": 0.0371,
+   "1b_pass": true,
+   "1b_worst_board_terms_K": 0.257,
+   "1b_worst_rss_K": 0.298,
+   "1b_worst_linear_K": 0.575,
+   "Rref_tempco_K_at_250C": 0.1609,
+   "Rref_tempco_K_at_100C": 0.1096,
+   "no_gain_cal_tolerance_K_at_250C": 0.268,
+   "no_gain_cal_tolerance_plus_tempco_K_at_250C": 0.429,
+   "8_pass": true,
+   "runaway_band_C": [
+    299.2,
+    321.9
+   ],
+   "threshold_words": {
+    "high": 35544,
+    "low": 12844,
+    "high_trip_C": 359.999,
+    "low_trip_C": -39.994
+   },
+   "1b_max_board_dT_K": 60
+  },
+  {
+   "part": "PTFR0805B430RN9",
+   "lcsc": "C351565",
+   "rref_ohm": 430.0,
+   "tol": 0.001,
+   "tcr_per_K": 1e-05,
+   "package": "0805",
+   "1a_pass": true,
+   "R320_over_Rref_min": 0.511,
+   "worst_LSB_K": 0.0371,
+   "1b_pass": false,
+   "1b_worst_board_terms_K": 0.418,
+   "1b_worst_rss_K": 0.408,
+   "1b_worst_linear_K": 0.736,
+   "Rref_tempco_K_at_250C": 0.3217,
+   "Rref_tempco_K_at_100C": 0.2191,
+   "no_gain_cal_tolerance_K_at_250C": 0.536,
+   "no_gain_cal_tolerance_plus_tempco_K_at_250C": 0.858,
+   "8_pass": true,
+   "runaway_band_C": [
+    298.7,
+    322.4
+   ],
+   "threshold_words": {
+    "high": 35544,
+    "low": 12844,
+    "high_trip_C": 359.999,
+    "low_trip_C": -39.994
+   },
+   "1b_max_board_dT_K": 31
+  },
+  {
+   "part": "PTFR0603B430RN9",
+   "lcsc": "C2692824",
+   "rref_ohm": 430.0,
+   "tol": 0.001,
+   "tcr_per_K": 1e-05,
+   "package": "0603",
+   "1a_pass": true,
+   "R320_over_Rref_min": 0.511,
+   "worst_LSB_K": 0.0371,
+   "1b_pass": false,
+   "1b_worst_board_terms_K": 0.418,
+   "1b_worst_rss_K": 0.408,
+   "1b_worst_linear_K": 0.736,
+   "Rref_tempco_K_at_250C": 0.3217,
+   "Rref_tempco_K_at_100C": 0.2191,
+   "no_gain_cal_tolerance_K_at_250C": 0.536,
+   "no_gain_cal_tolerance_plus_tempco_K_at_250C": 0.858,
+   "8_pass": true,
+   "runaway_band_C": [
+    298.7,
+    322.4
+   ],
+   "threshold_words": {
+    "high": 35544,
+    "low": 12844,
+    "high_trip_C": 359.999,
+    "low_trip_C": -39.994
+   },
+   "1b_max_board_dT_K": 31
+  },
+  {
+   "part": "RT0805BRD07430RL (C35 swap, reverted by C37)",
+   "lcsc": "C865488",
+   "rref_ohm": 430.0,
+   "tol": 0.001,
+   "tcr_per_K": 2.5e-05,
+   "package": "0805",
+   "1a_pass": true,
+   "R320_over_Rref_min": 0.511,
+   "worst_LSB_K": 0.0371,
+   "1b_pass": false,
+   "1b_worst_board_terms_K": 0.901,
+   "1b_worst_rss_K": 0.842,
+   "1b_worst_linear_K": 1.219,
+   "Rref_tempco_K_at_250C": 0.8044,
+   "Rref_tempco_K_at_100C": 0.5478,
+   "no_gain_cal_tolerance_K_at_250C": 0.536,
+   "no_gain_cal_tolerance_plus_tempco_K_at_250C": 1.341,
+   "8_pass": true,
+   "runaway_band_C": [
+    298.2,
+    323.0
+   ],
+   "threshold_words": {
+    "high": 35544,
+    "low": 12844,
+    "high_trip_C": 359.999,
+    "low_trip_C": -39.994
+   },
+   "1b_max_board_dT_K": 12
+  },
+  {
+   "part": "PTFR0402B402RN9",
+   "lcsc": "C2692962",
+   "rref_ohm": 402.0,
+   "tol": 0.001,
+   "tcr_per_K": 1e-05,
+   "package": "0402",
+   "1a_pass": true,
+   "R320_over_Rref_min": 0.547,
+   "worst_LSB_K": 0.0347,
+   "1b_pass": false,
+   "1b_worst_board_terms_K": 0.415,
+   "1b_worst_rss_K": 0.398,
+   "1b_worst_linear_K": 0.713,
+   "Rref_tempco_K_at_250C": 0.3217,
+   "Rref_tempco_K_at_100C": 0.2191,
+   "no_gain_cal_tolerance_K_at_250C": 0.536,
+   "no_gain_cal_tolerance_plus_tempco_K_at_250C": 0.858,
+   "8_pass": false,
+   "runaway_band_C": [
+    260.4,
+    282.4
+   ],
+   "threshold_words": {
+    "high": 38018,
+    "low": 13740,
+    "high_trip_C": 359.969,
+    "low_trip_C": -39.972
+   },
+   "1b_max_board_dT_K": 35
+  },
+  {
+   "part": "RN73C2A402RBTDF",
+   "lcsc": "C4093972",
+   "rref_ohm": 402.0,
+   "tol": 0.001,
+   "tcr_per_K": 1e-05,
+   "package": "0805",
+   "1a_pass": true,
+   "R320_over_Rref_min": 0.547,
+   "worst_LSB_K": 0.0347,
+   "1b_pass": false,
+   "1b_worst_board_terms_K": 0.415,
+   "1b_worst_rss_K": 0.398,
+   "1b_worst_linear_K": 0.713,
+   "Rref_tempco_K_at_250C": 0.3217,
+   "Rref_tempco_K_at_100C": 0.2191,
+   "no_gain_cal_tolerance_K_at_250C": 0.536,
+   "no_gain_cal_tolerance_plus_tempco_K_at_250C": 0.858,
+   "8_pass": false,
+   "runaway_band_C": [
+    260.4,
+    282.4
+   ],
+   "threshold_words": {
+    "high": 38018,
+    "low": 13740,
+    "high_trip_C": 359.969,
+    "low_trip_C": -39.972
+   },
+   "1b_max_board_dT_K": 35
+  }
+ ]
+}

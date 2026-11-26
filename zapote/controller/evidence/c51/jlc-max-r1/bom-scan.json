@@ -1,0 +1,3342 @@
+{
+ "bom": "frozen/default.csv (C51 circuit)",
+ "lines": 97,
+ "lots": [
+  5,
+  10,
+  20
+ ],
+ "rule": "stock >= 2 x qty/board x boards",
+ "flagged": [
+  "0430451600",
+  "EEE-FK1E101P",
+  "B2P-VH(LF)(SN)",
+  "RT0603BRD07140KL",
+  "B3B-XH-A(LF)(SN)",
+  "B2B-XH-A(LF)(SN)",
+  "RT0603BRD078K06L",
+  "RC0603FR-0734K8L",
+  "RG2012V-431-W-T1",
+  "ERA-3AEB6192V",
+  "SN74LVC1G08DBVR",
+  "B4B-XH-A(LF)(SN)",
+  "B2B-PH-K-S(LF)(SN)",
+  "AD8436ARQZ-R7",
+  "MCP3202-CI/SN",
+  "B5B-XH-A(LF)(SN)",
+  "B12B-XH-A(LF)(SN)",
+  "TC2050-IDC-NL-LAND"
+ ],
+ "rows": [
+  {
+   "mpn": "RC0603FR-071ML",
+   "refs": [
+    "R123",
+    "R137",
+    "R138"
+   ],
+   "qty": 3,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C105578",
+   "c51_new_refs": [
+    "R137",
+    "R138"
+   ],
+   "need_x2": {
+    "5": 30,
+    "10": 60,
+    "20": 120
+   },
+   "stock_2026_10_18": [
+    365192,
+    "2026-10-19T00:35:29Z"
+   ],
+   "stock_2026_11_25_c51_read": [
+    3468262,
+    "2026-11-25T14:54:58Z"
+   ],
+   "fetched_utc": "2026-11-26T04:24:58Z",
+   "jlc_model": "RC0603FR-071ML",
+   "stock": 3460077,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 1MΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.002,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603FR-0710KL",
+   "refs": [
+    "R124",
+    "R5",
+    "R6",
+    "R7",
+    "R8",
+    "R19",
+    "R25",
+    "R28",
+    "R29",
+    "R33",
+    "R55",
+    "R56",
+    "R61",
+    "R62",
+    "R63",
+    "R64",
+    "R65",
+    "R66",
+    "R67",
+    "R68",
+    "R70",
+    "R71",
+    "R103",
+    "R74",
+    "R75",
+    "R88",
+    "R91",
+    "R94",
+    "R97",
+    "R108",
+    "R109",
+    "R136",
+    "R154",
+    "R155",
+    "R156",
+    "R157",
+    "R119",
+    "R120"
+   ],
+   "qty": 38,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C98220",
+   "c51_new_refs": [
+    "R136",
+    "R154",
+    "R155",
+    "R156",
+    "R157"
+   ],
+   "need_x2": {
+    "5": 380,
+    "10": 760,
+    "20": 1520
+   },
+   "stock_2026_10_18": [
+    7555653,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:24:59Z",
+   "jlc_model": "RC0603FR-0710KL",
+   "stock": 7824738,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 10kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0023,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "CL10C102JB8NNNC",
+   "refs": [
+    "C97",
+    "C18",
+    "C64",
+    "C118",
+    "C119",
+    "C127"
+   ],
+   "qty": 6,
+   "footprint": "C_0603_1608Metric",
+   "lcsc": "C163508",
+   "c51_new_refs": [
+    "C118",
+    "C119",
+    "C127"
+   ],
+   "need_x2": {
+    "5": 60,
+    "10": 120,
+    "20": 240
+   },
+   "stock_2026_10_18": [
+    534794,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:00Z",
+   "jlc_model": "CL10C102JB8NNNC",
+   "stock": 178786,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "1nF 50V C0G ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "price_qty1": 0.009,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "0430451600",
+   "refs": [
+    "J4"
+   ],
+   "qty": 1,
+   "footprint": "Molex_Micro-Fit_3.0_43045-1600_2x08_P3.00mm_Horizontal",
+   "lcsc": "C277731",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    709,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:01Z",
+   "jlc_model": "430451600",
+   "stock": 900,
+   "library": "expand",
+   "assembly": "manualWeld",
+   "describe": "-40℃~+105℃ 12.24mm 16P 2 27.65mm 2x8P 3mm 3mm 600V 8 8.5A 8.77mm Black Brass Harpoon Contact (Plastic) Micro-Fit(MX 3.0) Right Angle Tin UL94V-0 弯插,P=3mm Wire To Board Connector ROHS",
+   "price_qty1": 1.342,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": [
+    "JLC hand-solders (THT)"
+   ]
+  },
+  {
+   "mpn": "RC0603FR-0733RL",
+   "refs": [
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+    "R42",
+    "R43",
+    "R44",
+    "R45",
+    "R107"
+   ],
+   "qty": 9,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C108661",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 90,
+    "10": 180,
+    "20": 360
+   },
+   "stock_2026_10_18": [
+    621011,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:02Z",
+   "jlc_model": "RC0603FR-0733RL",
+   "stock": 2634556,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 33Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0025,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603FR-071KL",
+   "refs": [
+    "R9",
+    "R10",
+    "R26",
+    "R27",
+    "R69",
+    "R82",
+    "R106",
+    "R132",
+    "R133",
+    "R134",
+    "R135",
+    "R158"
+   ],
+   "qty": 12,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C22548",
+   "c51_new_refs": [
+    "R132",
+    "R133",
+    "R134",
+    "R135",
+    "R158"
+   ],
+   "need_x2": {
+    "5": 120,
+    "10": 240,
+    "20": 480
+   },
+   "stock_2026_10_18": [
+    11773230,
+    "2026-10-19T00:35:29Z"
+   ],
+   "stock_2026_11_25_c51_read": [
+    12404122,
+    "2026-11-25T14:54:59Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:03Z",
+   "jlc_model": "RC0603FR-071KL",
+   "stock": 12303076,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 1kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0036,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "EEE-FK1E101P",
+   "refs": [
+    "C1",
+    "C9"
+   ],
+   "qty": 2,
+   "footprint": "CP_Elec_8x6.2",
+   "lcsc": "C178539",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    663,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:04Z",
+   "jlc_model": "EEEFK1E101P",
+   "stock": 0,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+105℃ 100uF 2000hrs@105℃ 225mA@120Hz 25V 6.5mm 8mm Polarized ±20% SMD,D8xL6.2mm Aluminum Electrolytic Capacitors - SMD ROHS",
+   "price_qty1": 0.3092,
+   "cover_5": false,
+   "cover_10": false,
+   "cover_20": false,
+   "issue": [
+    "stock < 2 x need at 5/10/20 boards",
+    "Extended, stock down from 663 to 0"
+   ]
+  },
+  {
+   "mpn": "TPS62933FDRLR",
+   "refs": [
+    "U1"
+   ],
+   "qty": 1,
+   "footprint": "SOT-583-8",
+   "lcsc": "C5219272",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    1145,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:05Z",
+   "jlc_model": "TPS62933FDRLR",
+   "stock": 2537,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+150℃@(TJ) 1 125uA 2.2MHz 3.8V~30V 3A 800mV~22V Adjustable Buck Buck Built-in Yes SOT-583 DC-DC Converters ROHS",
+   "price_qty1": 1.1244,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603FR-07100KL",
+   "refs": [
+    "R11",
+    "R17",
+    "R20",
+    "R38",
+    "R51",
+    "R52",
+    "R73",
+    "R110",
+    "R150"
+   ],
+   "qty": 9,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C14675",
+   "c51_new_refs": [
+    "R150"
+   ],
+   "need_x2": {
+    "5": 90,
+    "10": 180,
+    "20": 360
+   },
+   "stock_2026_10_18": [
+    8949879,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:06Z",
+   "jlc_model": "RC0603FR-07100KL",
+   "stock": 9654821,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100kΩ 100mW 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0019,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603FR-0712K1L",
+   "refs": [
+    "R12",
+    "R18",
+    "R21",
+    "R151"
+   ],
+   "qty": 4,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C123417",
+   "c51_new_refs": [
+    "R151"
+   ],
+   "need_x2": {
+    "5": 40,
+    "10": 80,
+    "20": 160
+   },
+   "stock_2026_10_18": [
+    111577,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:08Z",
+   "jlc_model": "RC0603FR-0712K1L",
+   "stock": 200574,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 12.1kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0028,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "CL10B103KB8NNNC",
+   "refs": [
+    "C2",
+    "C11",
+    "C120"
+   ],
+   "qty": 3,
+   "footprint": "C_0603_1608Metric",
+   "lcsc": "C1589",
+   "c51_new_refs": [
+    "C120"
+   ],
+   "need_x2": {
+    "5": 30,
+    "10": 60,
+    "20": 120
+   },
+   "stock_2026_10_18": [
+    1408773,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:09Z",
+   "jlc_model": "CL10B103KB8NNNC",
+   "stock": 1532344,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "10nF 50V X7R ±10% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "price_qty1": 0.0069,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "CC0603KRX7R9BB104",
+   "refs": [
+    "C3",
+    "C5",
+    "C12",
+    "C14",
+    "C20",
+    "C70",
+    "C52",
+    "C53",
+    "C54",
+    "C55",
+    "C56",
+    "C57",
+    "C58",
+    "C59",
+    "C60",
+    "C61",
+    "C62",
+    "C63",
+    "C65",
+    "C66",
+    "C67",
+    "C68",
+    "C69",
+    "C71",
+    "C72",
+    "C73",
+    "C74",
+    "C75",
+    "C76",
+    "C77",
+    "C78",
+    "C79",
+    "C85",
+    "C90",
+    "C110",
+    "C111",
+    "C112",
+    "C113",
+    "C114",
+    "C115",
+    "C121",
+    "C123",
+    "C126",
+    "C92",
+    "C93",
+    "C94"
+   ],
+   "qty": 46,
+   "footprint": "C_0603_1608Metric",
+   "lcsc": "C14663",
+   "c51_new_refs": [
+    "C110",
+    "C111",
+    "C112",
+    "C113",
+    "C114",
+    "C115",
+    "C121",
+    "C123",
+    "C126"
+   ],
+   "need_x2": {
+    "5": 460,
+    "10": 920,
+    "20": 1840
+   },
+   "stock_2026_10_18": [
+    32270069,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:10Z",
+   "jlc_model": "CC0603KRX7R9BB104",
+   "stock": 43364895,
+   "library": "base",
+   "assembly": "smtWeld",
+   "describe": "100nF 50V X7R ±10% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "price_qty1": 0.0047,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "SWPA6045S100MT",
+   "refs": [
+    "L1",
+    "L3"
+   ],
+   "qty": 2,
+   "footprint": "L_Sunlord_SWPA6045S",
+   "lcsc": "C79272",
+   "c51_new_refs": [
+    "L3"
+   ],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    12115,
+    "2026-10-19T00:35:29Z"
+   ],
+   "stock_2026_11_25_c51_read": [
+    11590,
+    "2026-11-25T14:54:55Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:11Z",
+   "jlc_model": "SWPA6045S100MT",
+   "stock": 11293,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "10uH 2.45A 3.5A 48mΩ ±20% SMD,6x6mm Power Inductors ROHS",
+   "price_qty1": 0.0842,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RT0603BRD0722K1L",
+   "refs": [
+    "R13"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C723484",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    26263,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:12Z",
+   "jlc_model": "RT0603BRD0722K1L",
+   "stock": 17434,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 22.1kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0586,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RT0603BRD077K06L",
+   "refs": [
+    "R14",
+    "R35"
+   ],
+   "qty": 2,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C861561",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    11879,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:13Z",
+   "jlc_model": "RT0603BRD077K06L",
+   "stock": 10777,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 7.06kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0457,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "CL31A106KAHNNNE",
+   "refs": [
+    "C4",
+    "C13",
+    "C15",
+    "C143",
+    "C122"
+   ],
+   "qty": 5,
+   "footprint": "C_1206_3216Metric",
+   "lcsc": "C9807",
+   "c51_new_refs": [
+    "C143",
+    "C122"
+   ],
+   "need_x2": {
+    "5": 50,
+    "10": 100,
+    "20": 200
+   },
+   "stock_2026_10_18": [
+    806943,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:14Z",
+   "jlc_model": "CL31A106KAHNNNE",
+   "stock": 704498,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "10uF 25V X5R ±10% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "price_qty1": 0.0311,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "CL21A226MAQNNNE",
+   "refs": [
+    "C6",
+    "C7",
+    "C8",
+    "C89"
+   ],
+   "qty": 4,
+   "footprint": "C_0805_2012Metric",
+   "lcsc": "C45783",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 40,
+    "10": 80,
+    "20": 160
+   },
+   "stock_2026_10_18": [
+    3752622,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:15Z",
+   "jlc_model": "CL21A226MAQNNNE",
+   "stock": 4485976,
+   "library": "base",
+   "assembly": "smtWeld",
+   "describe": "22uF 25V X5R ±20% 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "price_qty1": 0.0914,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "B2P-VH(LF)(SN)",
+   "refs": [
+    "J13"
+   ],
+   "qty": 1,
+   "footprint": "JST_VH_B2P-VH_1x02_P3.96mm_Vertical",
+   "lcsc": "C160315",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    273148,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:16Z",
+   "jlc_model": "B2P-VH(LF)(SN)",
+   "stock": 142526,
+   "library": "expand",
+   "assembly": "manualWeld",
+   "describe": "-25℃~+85℃ 1 10A 1x2P 2 250V 2P 3.96mm 7.86mm 8.5mm 9.4mm Brass PA66 Through Hole Tin UL94V-0 VH White 插件,P=3.96mm Wire To Board Connector ROHS",
+   "price_qty1": 0.056,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": [
+    "JLC hand-solders (THT)"
+   ]
+  },
+  {
+   "mpn": "SS14",
+   "refs": [
+    "D9"
+   ],
+   "qty": 1,
+   "footprint": "D_SMA",
+   "lcsc": "C2480",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    1399921,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:17Z",
+   "jlc_model": "SS14",
+   "stock": 1075066,
+   "library": "base",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+150℃ 1A 25A 300uA@40V 40V 550mV@1A Independent SMA(DO-214AC) Schottky Diodes ROHS",
+   "price_qty1": 0.0192,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603FR-0720KL",
+   "refs": [
+    "R15"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C105575",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    3365401,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:18Z",
+   "jlc_model": "RC0603FR-0720KL",
+   "stock": 5076077,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 20kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0024,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603FR-074K7L",
+   "refs": [
+    "R16",
+    "R102",
+    "R111",
+    "R112"
+   ],
+   "qty": 4,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C99782",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 40,
+    "10": 80,
+    "20": 160
+   },
+   "stock_2026_10_18": [
+    9917267,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:19Z",
+   "jlc_model": "RC0603FR-074K7L",
+   "stock": 8025309,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 4.7kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0032,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "TPS62933DRLR",
+   "refs": [
+    "U2",
+    "U51"
+   ],
+   "qty": 2,
+   "footprint": "SOT-583-8",
+   "lcsc": "C3200405",
+   "c51_new_refs": [
+    "U51"
+   ],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    20131,
+    "2026-10-19T00:35:29Z"
+   ],
+   "stock_2026_11_25_c51_read": [
+    36754,
+    "2026-11-25T14:54:36Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:20Z",
+   "jlc_model": "TPS62933DRLR",
+   "stock": 36772,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+150℃@(TJ) 1 12uA 2.2MHz 3.8V~30V 3A 800mV~22V Adjustable Buck Buck Built-in Yes SOT-583 DC-DC Converters ROHS",
+   "price_qty1": 0.4697,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "2N7002",
+   "refs": [
+    "Q1"
+   ],
+   "qty": 1,
+   "footprint": "SOT-23",
+   "lcsc": "C8545",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    2597030,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:21Z",
+   "jlc_model": "2N7002",
+   "stock": 5983044,
+   "library": "base",
+   "assembly": "smtWeld",
+   "describe": "1 N-channel 115mA 2.5V 225mW 25pF 50pF 5pF 5Ω@10V 60V N-Channel ±20V SOT-23 MOSFETs ROHS",
+   "price_qty1": 0.0151,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "CL10A105KB8NNNC",
+   "refs": [
+    "C10",
+    "C19",
+    "C83",
+    "C86",
+    "C88",
+    "C91",
+    "C95",
+    "C96"
+   ],
+   "qty": 8,
+   "footprint": "C_0603_1608Metric",
+   "lcsc": "C15849",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 80,
+    "10": 160,
+    "20": 320
+   },
+   "stock_2026_10_18": [
+    9212982,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:22Z",
+   "jlc_model": "CL10A105KB8NNNC",
+   "stock": 11503513,
+   "library": "base",
+   "assembly": "smtWeld",
+   "describe": "1uF 50V X5R ±10% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "price_qty1": 0.0086,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603FR-0756K2L",
+   "refs": [
+    "R22"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C482887",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    133,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:23Z",
+   "jlc_model": "RC0603FR-0756K2L",
+   "stock": 3684,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 56.2kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0013,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "SWRB1205S-100MT",
+   "refs": [
+    "L2"
+   ],
+   "qty": 1,
+   "footprint": "L_Sunlord_SWRB1205S",
+   "lcsc": "C169383",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    612,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:24Z",
+   "jlc_model": "SWRB1205S-100MT",
+   "stock": 454,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "10uH 25mΩ 4A Magnetic Shielded Inductor ±20% SMD,12.5x12.5mm Power Inductors ROHS",
+   "price_qty1": 0.3953,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RT0603BRD07140KL",
+   "refs": [
+    "R23",
+    "R36",
+    "R152"
+   ],
+   "qty": 3,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C861125",
+   "c51_new_refs": [
+    "R152"
+   ],
+   "need_x2": {
+    "5": 30,
+    "10": 60,
+    "20": 120
+   },
+   "stock_2026_10_18": [
+    7880,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:25Z",
+   "jlc_model": "RT0603BRD07140KL",
+   "stock": 454,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 140kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0359,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": [
+    "Extended, stock down from 7880 to 454"
+   ]
+  },
+  {
+   "mpn": "RT0603BRD0711K5L",
+   "refs": [
+    "R24"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C705719",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    8291,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:26Z",
+   "jlc_model": "RT0603BRD0711K5L",
+   "stock": 471,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 11.5kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.046,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "CL31A226KAHNNNE",
+   "refs": [
+    "C16",
+    "C17",
+    "C124",
+    "C125"
+   ],
+   "qty": 4,
+   "footprint": "C_1206_3216Metric",
+   "lcsc": "C12891",
+   "c51_new_refs": [
+    "C124",
+    "C125"
+   ],
+   "need_x2": {
+    "5": 40,
+    "10": 80,
+    "20": 160
+   },
+   "stock_2026_10_18": [
+    489610,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:27Z",
+   "jlc_model": "CL31A226KAHNNNE",
+   "stock": 2471760,
+   "library": "base",
+   "assembly": "smtWeld",
+   "describe": "22uF 25V X5R ±10% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "price_qty1": 0.0904,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "B3B-XH-A(LF)(SN)",
+   "refs": [
+    "J10",
+    "J12"
+   ],
+   "qty": 2,
+   "footprint": "JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+   "lcsc": "C144394",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    151387,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:28Z",
+   "jlc_model": "B3B-XH-A(LF)(SN)",
+   "stock": 77858,
+   "library": "expand",
+   "assembly": "manualWeld",
+   "describe": "-25℃~+85℃ 1 1x3P 2.5mm 250V 3 3A 3P 5.75mm 7mm 9.9mm Brass K Pin PA66 Through Hole Tin UL94V-0 White XH 插件,P=2.5mm Wire To Board Connector ROHS",
+   "price_qty1": 0.0485,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": [
+    "JLC hand-solders (THT)"
+   ]
+  },
+  {
+   "mpn": "ESD5Z3.3T1G",
+   "refs": [
+    "D1",
+    "D2",
+    "D3",
+    "D4",
+    "D5",
+    "D6",
+    "D15"
+   ],
+   "qty": 7,
+   "footprint": "D_SOD-523",
+   "lcsc": "C61148",
+   "c51_new_refs": [
+    "D15"
+   ],
+   "need_x2": {
+    "5": 70,
+    "10": 140,
+    "20": 280
+   },
+   "stock_2026_10_18": [
+    50474,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:29Z",
+   "jlc_model": "ESD5Z3.3T1G",
+   "stock": 69874,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "105pF 11.2A 14.1V 158W@8/20us 3.3V 50nA 5V IEC 61000-4-2、IEC 61000-4-4 TVS Unidirectional SOD-523 ESD and Surge Protection (TVS/ESD) ROHS",
+   "price_qty1": 0.0372,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "TPS3703A4330DSERQ1",
+   "refs": [
+    "U3"
+   ],
+   "qty": 1,
+   "footprint": "WSON-6_1.5x1.5mm_P0.5mm",
+   "lcsc": "C1850327",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    16,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:30Z",
+   "jlc_model": "TPS3703A4330DSERQ1",
+   "stock": 56,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃@(Tj) 1 1.7V~5.5V 3.3V 4.5uA 50us Active Low No Open Drain Voltage Monitor Yes WSON-6(1.5x1.5) Supervisor and Reset ICs ROHS",
+   "price_qty1": 4.0604,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "B2B-XH-A(LF)(SN)",
+   "refs": [
+    "J2",
+    "J1"
+   ],
+   "qty": 2,
+   "footprint": "JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+   "lcsc": "C158012",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    238871,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:31Z",
+   "jlc_model": "B2B-XH-A(LF)(SN)",
+   "stock": 434000,
+   "library": "expand",
+   "assembly": "manualWeld",
+   "describe": "-25℃~+85℃ 1 1x2P 2 2.5mm 250V 2P 3A 5.75mm 7.4mm 7mm Brass K Pin PA66 Through Hole Tin UL94V-0 White XH 插件,P=2.5mm Wire To Board Connector ROHS",
+   "price_qty1": 0.0379,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": [
+    "JLC hand-solders (THT)"
+   ]
+  },
+  {
+   "mpn": "TLV3201AIDBVR",
+   "refs": [
+    "U17",
+    "U18",
+    "U31",
+    "U32",
+    "U10",
+    "U40"
+   ],
+   "qty": 6,
+   "footprint": "SOT-23-5",
+   "lcsc": "C105188",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 60,
+    "10": 120,
+    "20": 240
+   },
+   "stock_2026_10_18": [
+    3079,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:32Z",
+   "jlc_model": "TLV3201AIDBVR",
+   "stock": 24600,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 1 10uV/℃ 1mV 1mV 1pA 2.7V~5.5V 2.9ns 40ns 40uA 50pA 70dB CMOS Push-pull Rail-to-rail input SOT-23-5 Comparators ROHS",
+   "price_qty1": 1.0687,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603FR-0711K5L",
+   "refs": [
+    "R30"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C137802",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    17328,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:33Z",
+   "jlc_model": "RC0603FR-0711K5L",
+   "stock": 1868,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 11.5kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0019,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RT0603BRD078K06L",
+   "refs": [
+    "R31"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C861587",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    2636,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:34Z",
+   "jlc_model": "RT0603BRD078K06L",
+   "stock": 96,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 75V 8.06kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0361,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": [
+    "Extended, stock down from 2636 to 96"
+   ]
+  },
+  {
+   "mpn": "RC0603FR-0734K8L",
+   "refs": [
+    "R32"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C137741",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    7394,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:36Z",
+   "jlc_model": "RC0603FR-0734K8L",
+   "stock": 67,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 34.8kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0036,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": [
+    "Extended, stock down from 7394 to 67"
+   ]
+  },
+  {
+   "mpn": "RT0603BRD0790K9L",
+   "refs": [
+    "R34",
+    "R83"
+   ],
+   "qty": 2,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C728600",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    17247,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:37Z",
+   "jlc_model": "RT0603BRD0790K9L",
+   "stock": 1845,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 75V 90.9kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.039,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "C0603C104K5RACTU",
+   "refs": [
+    "C21",
+    "C22",
+    "C23",
+    "C24",
+    "C25",
+    "C26",
+    "C27",
+    "C28",
+    "C29",
+    "C30",
+    "C32",
+    "C33",
+    "C34",
+    "C35",
+    "C36",
+    "C37",
+    "C46",
+    "C47",
+    "C48",
+    "C49",
+    "C50",
+    "C51"
+   ],
+   "qty": 22,
+   "footprint": "C_0603_1608Metric",
+   "lcsc": "C127833",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 220,
+    "10": 440,
+    "20": 880
+   },
+   "stock_2026_10_18": [
+    1563,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:38Z",
+   "jlc_model": "C0603C104K5RACTU",
+   "stock": 1820,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "100nF 50V X7R ±10% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "price_qty1": 0.0691,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "TLV9031DBVR",
+   "refs": [
+    "U19",
+    "U26"
+   ],
+   "qty": 2,
+   "footprint": "SOT-23-5",
+   "lcsc": "C29777121",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    146,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:39Z",
+   "jlc_model": "TLV9031DBVR",
+   "stock": 219,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 0.5uV/℃ 1 1.65V~5.5V 100ns、115ns 1pA 300uV 5pA 6V 70dB ESD protection Push-pull Rail-to-rail input SOT-23-5 Comparators ROHS",
+   "price_qty1": 1.36,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "SN74LVC1G32DBVR",
+   "refs": [
+    "U27",
+    "U28",
+    "U44",
+    "U41"
+   ],
+   "qty": 4,
+   "footprint": "SOT-23-5",
+   "lcsc": "C10096",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 40,
+    "10": 80,
+    "20": 160
+   },
+   "stock_2026_10_18": [
+    138924,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:40Z",
+   "jlc_model": "SN74LVC1G32DBVR",
+   "stock": 139235,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+85℃ 1 1.2V、1.9V、2.4V、3.8V 1.65V~5.5V 1.7V~2V 10uA 2 300mV、400mV、450mV、550mV 32mA 32mA 4ns@5V,50pF 74LVC Series Local shutdown mode OR Gate SOT-23-5 Logic Gates ROHS",
+   "price_qty1": 0.066,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603FR-071K21L",
+   "refs": [
+    "R37"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C137779",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    29711,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:41Z",
+   "jlc_model": "RC0603FR-071K21L",
+   "stock": 4226,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 1.21kΩ 100mW 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0018,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "MAX31865AAP+T",
+   "refs": [
+    "U30",
+    "U50"
+   ],
+   "qty": 2,
+   "footprint": "SSOP-20_5.3x7.2mm_P0.65mm",
+   "lcsc": "C779509",
+   "c51_new_refs": [
+    "U50"
+   ],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_11_25_c51_read": [
+    2141,
+    "2026-11-25T14:54:30Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:42Z",
+   "jlc_model": "MAX31865AAP+T",
+   "stock": 2132,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 1 15 1LSB 2mA 3V~3.6V SPI Sigma-Delta Yes SSOP-20-208mil ADCs/DACs - Special Purpose ROHS",
+   "price_qty1": 7.9079,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RG2012V-431-W-T1",
+   "refs": [
+    "R39"
+   ],
+   "qty": 1,
+   "footprint": "R_0805_2012Metric",
+   "lcsc": "C4260028",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    0,
+    "2026-10-19T00:35:29Z"
+   ],
+   "stock_2026_11_25_c51_read": [
+    0,
+    "2026-11-25T14:54:42Z"
+   ],
+   "fetched_utc": "2026-11-26T04:13:05Z",
+   "jlc_model": "RG2012V-431-W-T1",
+   "stock": 0,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 125mW 430Ω Thin Film Resistor ±0.05% ±5ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 1.3208,
+   "cover_5": false,
+   "cover_10": false,
+   "cover_20": false,
+   "issue": [
+    "stock < 2 x need at 5/10/20 boards"
+   ]
+  },
+  {
+   "mpn": "GRM31C5C1H104JA01L",
+   "refs": [
+    "C31",
+    "C38",
+    "C80",
+    "C81",
+    "C82",
+    "C116",
+    "C117"
+   ],
+   "qty": 7,
+   "footprint": "C_1206_3216Metric",
+   "lcsc": "C97946",
+   "c51_new_refs": [
+    "C116",
+    "C117"
+   ],
+   "need_x2": {
+    "5": 70,
+    "10": 140,
+    "20": 280
+   },
+   "stock_2026_10_18": [
+    88830,
+    "2026-10-19T00:35:29Z"
+   ],
+   "stock_2026_11_25_c51_read": [
+    67174,
+    "2026-11-25T14:54:56Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:43Z",
+   "jlc_model": "GRM31C5C1H104JA01L",
+   "stock": 72859,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "100nF 50V C0G ±5% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "price_qty1": 0.2072,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603FR-07499KL",
+   "refs": [
+    "R40",
+    "R41"
+   ],
+   "qty": 2,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C131054",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    315355,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:44Z",
+   "jlc_model": "RC0603FR-07499KL",
+   "stock": 262087,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 499kΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0026,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "BLM18AG121SN1D",
+   "refs": [
+    "R46",
+    "R131"
+   ],
+   "qty": 2,
+   "footprint": "L_0603_1608Metric",
+   "lcsc": "C76892",
+   "c51_new_refs": [
+    "R131"
+   ],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    98643,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:45Z",
+   "jlc_model": "BLM18AG121SN1D",
+   "stock": 174455,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+125℃ 1 120Ω@100MHz 180mΩ 800mA ±25% 0603 Ferrite Beads ROHS",
+   "price_qty1": 0.0145,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "REF2025AIDDCR",
+   "refs": [
+    "U29"
+   ],
+   "qty": 1,
+   "footprint": "SOT-23-5",
+   "lcsc": "C962078",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    4523,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:46Z",
+   "jlc_model": "REF2025AIDDCR",
+   "stock": 352,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃@(Ta) 2.52V~5.5V 2.5V 20mA 460uA 8ppm/℃ Fixed Series ±0.05% TSOT-23-5 Voltage Reference ROHS",
+   "price_qty1": 1.8412,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "ERA-3AEB6192V",
+   "refs": [
+    "R47"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C4019122",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    181,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:47Z",
+   "jlc_model": "ERA-3AEB6192V",
+   "stock": 2,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 61.9kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0999,
+   "cover_5": false,
+   "cover_10": false,
+   "cover_20": false,
+   "issue": [
+    "stock < 2 x need at 5/10/20 boards",
+    "Extended, stock down from 181 to 2"
+   ]
+  },
+  {
+   "mpn": "ERA-3AEB103V",
+   "refs": [
+    "R48",
+    "R50",
+    "R54"
+   ],
+   "qty": 3,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C190610",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 30,
+    "10": 60,
+    "20": 120
+   },
+   "stock_2026_10_18": [
+    65686,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:48Z",
+   "jlc_model": "ERA3AEB103V",
+   "stock": 43640,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 10kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.1159,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "ERA-3AEB5901V",
+   "refs": [
+    "R49",
+    "R90"
+   ],
+   "qty": 2,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C491142",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    1488,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:49Z",
+   "jlc_model": "ERA3AEB5901V",
+   "stock": 5115,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 5.9kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.1028,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "SN74LVC1G08DBVR",
+   "refs": [
+    "U33",
+    "U25",
+    "U37",
+    "U11"
+   ],
+   "qty": 4,
+   "footprint": "SOT-23-5",
+   "lcsc": "C7666",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 40,
+    "10": 80,
+    "20": 160
+   },
+   "stock_2026_10_18": [
+    69364,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:50Z",
+   "jlc_model": "SN74LVC1G08DBVR",
+   "stock": 36,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 1 1.2V、1.9V、2.3V、3.8V 1.65V~5.5V 1.7V、2V 10uA 2 300mV、450mV、550mV 32mA 32mA 4ns@5V,50pF 700mV、800mV 74LVC Series AND Gate Overvoltage-tolerant input、Rear drive protection、Level shifting、Local shutdown mode、Live insertion protection SOT-23-5 Logic Gates ROHS",
+   "price_qty1": 0.0464,
+   "cover_5": false,
+   "cover_10": false,
+   "cover_20": false,
+   "issue": [
+    "stock < 2 x need at 5/10/20 boards",
+    "Extended, stock down from 69364 to 36"
+   ]
+  },
+  {
+   "mpn": "TPS389001DSER",
+   "refs": [
+    "U34"
+   ],
+   "qty": 1,
+   "footprint": "TPS389001DSER_WSON-6_DSE",
+   "lcsc": "C1509297",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    276,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:51Z",
+   "jlc_model": "TPS389001DSER",
+   "stock": 244,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 1 1.5V~5.5V 2.1uA 30s Active Low Manual reset input Open-drain Simple Reset/Power-On Reset WSON-6(1.5x1.5) Supervisor and Reset ICs ROHS",
+   "price_qty1": 2.4631,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RT0603BRD0716K5L",
+   "refs": [
+    "R53"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C728584",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    15985,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:52Z",
+   "jlc_model": "RT0603BRD0716K5L",
+   "stock": 9658,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 16.5kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0598,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "SN74LVC1G38DBVR",
+   "refs": [
+    "U35"
+   ],
+   "qty": 1,
+   "footprint": "SOT-23-5",
+   "lcsc": "C2867613",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    5799,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:53Z",
+   "jlc_model": "SN74LVC1G38DBVR",
+   "stock": 11333,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 1 1.65V~5.5V 1.7V~2V 10uA 2 3.9ns@5V,50pF 32mA 550mV 700mV、800mV 74LVC Series NAND Gate SOT-23-5 Logic Gates ROHS",
+   "price_qty1": 0.1541,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "B4B-XH-A(LF)(SN)",
+   "refs": [
+    "J3",
+    "J9"
+   ],
+   "qty": 2,
+   "footprint": "JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+   "lcsc": "C144395",
+   "c51_new_refs": [
+    "J9"
+   ],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    478276,
+    "2026-10-19T00:35:29Z"
+   ],
+   "stock_2026_11_25_c51_read": [
+    493207,
+    "2026-11-25T14:54:39Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:54Z",
+   "jlc_model": "B4B-XH-A(LF)(SN)",
+   "stock": 491880,
+   "library": "expand",
+   "assembly": "manualWeld",
+   "describe": "-25℃~+85℃ 1 12.4mm 1x4P 2.5mm 250V 3A 4 4P 5.75mm 7mm Brass Kinked Pin PA66 Through Hole Tin UL94V-0 White XH Plugin,P=2.5mm Wire To Board Connector ROHS",
+   "price_qty1": 0.0516,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": [
+    "JLC hand-solders (THT)"
+   ]
+  },
+  {
+   "mpn": "RT0603BRD071KL",
+   "refs": [
+    "R57",
+    "R58",
+    "R59",
+    "R60",
+    "R89",
+    "R96",
+    "R139",
+    "R140",
+    "R141",
+    "R142"
+   ],
+   "qty": 10,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C110776",
+   "c51_new_refs": [
+    "R139",
+    "R140",
+    "R141",
+    "R142"
+   ],
+   "need_x2": {
+    "5": 100,
+    "10": 200,
+    "20": 400
+   },
+   "stock_2026_10_18": [
+    1758698,
+    "2026-10-19T00:35:29Z"
+   ],
+   "stock_2026_11_25_c51_read": [
+    843570,
+    "2026-11-25T14:55:04Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:55Z",
+   "jlc_model": "RT0603BRD071KL",
+   "stock": 844332,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 1kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0275,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "C0603C102J5GACTU",
+   "refs": [
+    "C39",
+    "C40"
+   ],
+   "qty": 2,
+   "footprint": "C_0603_1608Metric",
+   "lcsc": "C2181873",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    6951,
+    "2026-10-19T00:35:29Z"
+   ],
+   "stock_2026_11_25_c51_read": [
+    1239,
+    "2026-11-25T14:55:03Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:56Z",
+   "jlc_model": "C0603C102J5GACTU",
+   "stock": 1239,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "1nF 50V C0G ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "price_qty1": 0.0266,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "GRM1885C1H103JA01D",
+   "refs": [
+    "C41",
+    "C84",
+    "C87"
+   ],
+   "qty": 3,
+   "footprint": "C_0603_1608Metric",
+   "lcsc": "C85973",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 30,
+    "10": 60,
+    "20": 120
+   },
+   "stock_2026_10_18": [
+    312125,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:57Z",
+   "jlc_model": "GRM1885C1H103JA01D",
+   "stock": 44097,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "10nF 50V C0G ±5% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "price_qty1": 0.0338,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "CC0603KRX7R9BB224",
+   "refs": [
+    "C42",
+    "C43",
+    "C44",
+    "C45"
+   ],
+   "qty": 4,
+   "footprint": "C_0603_1608Metric",
+   "lcsc": "C107083",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 40,
+    "10": 80,
+    "20": 160
+   },
+   "stock_2026_10_18": [
+    379219,
+    "2026-10-19T00:35:29Z"
+   ],
+   "stock_2026_11_25_c51_read": [
+    213618,
+    "2026-11-25T14:55:02Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:58Z",
+   "jlc_model": "CC0603KRX7R9BB224",
+   "stock": 212254,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "220nF 50V X7R ±10% 0603 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+   "price_qty1": 0.0126,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "SN74LVC14ADR",
+   "refs": [
+    "U23",
+    "U24"
+   ],
+   "qty": 2,
+   "footprint": "SOIC-14_3.9x8.7mm_P1.27mm",
+   "lcsc": "C133541",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    38203,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:25:59Z",
+   "jlc_model": "SN74LVC14ADR",
+   "stock": 55116,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 1 1.3V~2V 1.65V~3.6V 150mV~800mV 1uA 2.25V 24mA 24mA 6 6.2ns@3.3V,50pF 74LVC 800mV Schmitt trigger SOIC-14 Inverters ROHS",
+   "price_qty1": 0.2069,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "74HC30PW,118",
+   "refs": [
+    "U22"
+   ],
+   "qty": 1,
+   "footprint": "TSSOP-14_4.4x5mm_P0.65mm",
+   "lcsc": "C546857",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    144,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:00Z",
+   "jlc_model": "74HC30PW,118",
+   "stock": 1229,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 1 1.5V~4.2V 22ns@6V,50pF 2V~6V 2uA 3.7V、4.4V、5.9V 400mV 5.2mA 5.2mA 500mV~1.8V 74HC Series 8 NAND Gate StandardCMOS TSSOP-14 Logic Gates ROHS",
+   "price_qty1": 0.274,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "SN74LVC1G74DCUR",
+   "refs": [
+    "U20"
+   ],
+   "qty": 1,
+   "footprint": "VSSOP-8_2.3x2mm_P0.5mm",
+   "lcsc": "C70285",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    7157,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:01Z",
+   "jlc_model": "SN74LVC1G74DCUR",
+   "stock": 2212,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 1 1 1.1ns 1.65V~5.5V 10uA 200MHz 32mA 32mA 500ps 5pF 6.4ns@5V,50pF 74LVC Series Complementary D-Type Rising Edge Set and Reset VSSOP-8 Flip Flops ROHS",
+   "price_qty1": 0.4976,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "TPS3823-33DBVR",
+   "refs": [
+    "U21"
+   ],
+   "qty": 1,
+   "footprint": "SOT-23-5",
+   "lcsc": "C7719",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    59954,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:02Z",
+   "jlc_model": "TPS3823-33DBVR",
+   "stock": 43992,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+85℃ 1 1.6s 15uA 2.5V、3V、3.3V、5V 2.93V Active Low Push-pull Voltage Monitor Yes Yes SOT-23-5 Supervisor and Reset ICs ROHS",
+   "price_qty1": 0.4501,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "SN74LVC1G14DBVR",
+   "refs": [
+    "U45",
+    "U46",
+    "U12"
+   ],
+   "qty": 3,
+   "footprint": "SOT-23-5",
+   "lcsc": "C7835",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 30,
+    "10": 60,
+    "20": 120
+   },
+   "stock_2026_10_18": [
+    295562,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:04Z",
+   "jlc_model": "SN74LVC1G14DBVR",
+   "stock": 163102,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+85℃ 1 1 1.16V~3.33V 1.65V~5.5V 10uA 2.3V 32mA 32mA 390mV~1.87V 550mV 6.5ns@2.5V,50pF 74LVC Schmitt trigger 电源关断保护、噪声抑制功能 SOT-23-5 Inverters ROHS",
+   "price_qty1": 0.0577,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "SN74LVC1G86DBVR",
+   "refs": [
+    "U43"
+   ],
+   "qty": 1,
+   "footprint": "SOT-23-5",
+   "lcsc": "C402161",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    92048,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:05Z",
+   "jlc_model": "SN74LVC1G86DBVR",
+   "stock": 52804,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 1 1.65V~5.5V 10uA 32mA 32mA 4ns@5V,50pF 74LVC Series Overvoltage-tolerant input、Rear drive protection、Level shifting、Local shutdown mode XOR Gate SOT-23-5 Logic Gates ROHS",
+   "price_qty1": 0.0865,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603JR-070RL",
+   "refs": [
+    "R72"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C95177",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    3751961,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:06Z",
+   "jlc_model": "RC0603JR-070RL",
+   "stock": 2274870,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 0Ω 100mW 75V Thick Film Resistor ±5% 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0017,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "SN74LVC74APWR",
+   "refs": [
+    "U42"
+   ],
+   "qty": 1,
+   "footprint": "TSSOP-14_4.4x5mm_P0.65mm",
+   "lcsc": "C350561",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    1576,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:07Z",
+   "jlc_model": "SN74LVC74APWR",
+   "stock": 1811,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 1 1.65V~3.6V 10uA 150MHz 1ns 2 24mA 24mA 3ns 5.2ns@3.3V,50pF 5pF 74LVC Series Asynchronous Complementary D-Type Rising Edge Set and Reset TSSOP-14 Flip Flops ROHS",
+   "price_qty1": 0.4125,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RT0603BRD0720KL",
+   "refs": [
+    "R76",
+    "R78",
+    "R79"
+   ],
+   "qty": 3,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C723637",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 30,
+    "10": 60,
+    "20": 120
+   },
+   "stock_2026_10_18": [
+    49256,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:08Z",
+   "jlc_model": "RT0603BRD0720KL",
+   "stock": 100042,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 20kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0357,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RT0603BRD0710KL",
+   "refs": [
+    "R77",
+    "R80",
+    "R81",
+    "R84",
+    "R100",
+    "R105",
+    "R153"
+   ],
+   "qty": 7,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C95204",
+   "c51_new_refs": [
+    "R153"
+   ],
+   "need_x2": {
+    "5": 70,
+    "10": 140,
+    "20": 280
+   },
+   "stock_2026_10_18": [
+    2024503,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:09Z",
+   "jlc_model": "RT0603BRD0710KL",
+   "stock": 2010876,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 10kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0238,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "SN74LVC244APWR",
+   "refs": [
+    "U9"
+   ],
+   "qty": 1,
+   "footprint": "TSSOP-20_4.4x6.5mm_P0.65mm",
+   "lcsc": "C7668",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    96826,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:10Z",
+   "jlc_model": "SN74LVC244APWR",
+   "stock": 97892,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 1.65V~3.6V 2 24mA 24mA 3.9ns@3.3V,50pF 4 40uA 74LVC Tri-State Unidirectional TSSOP-20 Buffers, Drivers, Receivers, Transceivers ROHS",
+   "price_qty1": 0.2599,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "OPA2388IDR",
+   "refs": [
+    "U5"
+   ],
+   "qty": 1,
+   "footprint": "SOIC-8_3.9x4.9mm_P1.27mm",
+   "lcsc": "C1517414",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    7269,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:11Z",
+   "jlc_model": "OPA2388IDR",
+   "stock": 12593,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-2.75V~-1.25V、1.25V~2.75V -40℃~+125℃ 1.9mA 10MHz 140dB 2 2.5V~5.5V 250nV 30pA 5V/us 5nV/℃ 60mA 700pA 7nV/√Hz@1kHz EMI filtering/RF suppression、Zero drift / auto-zero、Reverse-phase input protection Rail-to-Rail Input, Rail-to-Rail Output SOIC-8 Precision Op Amps ROHS",
+   "price_qty1": 2.0883,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "LM4040A25IDBZR",
+   "refs": [
+    "U13"
+   ],
+   "qty": 1,
+   "footprint": "SOT-23",
+   "lcsc": "C9421",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    4727,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:12Z",
+   "jlc_model": "LM4040A25IDBZR",
+   "stock": 4073,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+85℃@(Ta) 100ppm/℃ 15mA 2.5V 35uVrms 45uA 45uA Fixed Parallel ±0.1% SOT-23 Voltage Reference ROHS",
+   "price_qty1": 2.1341,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603FR-07100RL",
+   "refs": [
+    "R85",
+    "R87",
+    "R92",
+    "R95",
+    "R98",
+    "R113",
+    "R114",
+    "R115",
+    "R116",
+    "R117",
+    "R118"
+   ],
+   "qty": 11,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C105588",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 110,
+    "10": 220,
+    "20": 440
+   },
+   "stock_2026_10_18": [
+    2685875,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:13Z",
+   "jlc_model": "RC0603FR-07100RL",
+   "stock": 8004232,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 100Ω 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0021,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "TLV9062IDR",
+   "refs": [
+    "U6",
+    "U7"
+   ],
+   "qty": 2,
+   "footprint": "SOIC-8_3.9x4.9mm_P1.27mm",
+   "lcsc": "C398355",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    164069,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:14Z",
+   "jlc_model": "TLV9062IDR",
+   "stock": 147539,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 0.05pA 0.5pA 1.6mV 1.8V~5.5V 103dB 10MHz 10nV/√Hz@1kHz 2 50mA 530nV/℃ 538uA 6.5V/us Enable/shutdown function、ESD protection、EMI filtering/RF suppression Rail-to-Rail Input, Rail-to-Rail Output SOIC-8 Operational Amplifier ROHS",
+   "price_qty1": 0.1143,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC0603FR-0710ML",
+   "refs": [
+    "R86",
+    "R101"
+   ],
+   "qty": 2,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C114606",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    1051219,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:15Z",
+   "jlc_model": "RC0603FR-0710ML",
+   "stock": 2364130,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 10MΩ 75V Thick Film Resistor ±1% ±100ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0028,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "B2B-PH-K-S(LF)(SN)",
+   "refs": [
+    "J14"
+   ],
+   "qty": 1,
+   "footprint": "JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical",
+   "lcsc": "C131337",
+   "c51_new_refs": [
+    "J14"
+   ],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_11_25_c51_read": [
+    338562,
+    "2026-11-25T14:54:40Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:16Z",
+   "jlc_model": "B2B-PH-K-S(LF)(SN)",
+   "stock": 337301,
+   "library": "expand",
+   "assembly": "manualWeld",
+   "describe": "-25℃~+85℃ 1 100V 1x2P 2 2A 2P 2mm 4.5mm 5.9mm 6mm Brass K Pin PA66 PH Through Hole Tin UL94V-0 White 插件,P=2mm Wire To Board Connector ROHS",
+   "price_qty1": 0.0331,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": [
+    "JLC hand-solders (THT)"
+   ]
+  },
+  {
+   "mpn": "RT0603BRD0747KL",
+   "refs": [
+    "R93"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C326725",
+   "c51_new_refs": [
+    "R93"
+   ],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_11_25_c51_read": [
+    15117,
+    "2026-11-25T14:54:50Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:17Z",
+   "jlc_model": "RT0603BRD0747KL",
+   "stock": 15023,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 47kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0388,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "ESD5Z5.0T1G",
+   "refs": [
+    "D7",
+    "D14"
+   ],
+   "qty": 2,
+   "footprint": "D_SOD-523",
+   "lcsc": "C82044",
+   "c51_new_refs": [
+    "D14"
+   ],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    364030,
+    "2026-10-19T00:35:29Z"
+   ],
+   "stock_2026_11_25_c51_read": [
+    210360,
+    "2026-11-25T14:55:00Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:18Z",
+   "jlc_model": "ESD5Z5.0T1G",
+   "stock": 210288,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+150℃ 174W 18.6V 50nA 5V 6.2V 80pF 9.4A@8/20us ESD IEC 61000-4-2、IEC 61000-4-4 Single-channel Unidirectional SOD-523 ESD and Surge Protection (TVS/ESD) ROHS",
+   "price_qty1": 0.0333,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "TLV9061IDBVR",
+   "refs": [
+    "U36"
+   ],
+   "qty": 1,
+   "footprint": "SOT-23-5",
+   "lcsc": "C398358",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    327862,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:19Z",
+   "jlc_model": "TLV9061IDBVR",
+   "stock": 247417,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 0.05pA 0.5pA 1 1.6mV 1.8V~5.5V 103dB 10MHz 10nV/√Hz@1kHz 50mA 530nV/℃ 538uA 6.5V/us Enable/shutdown function、ESD protection、EMI filtering/RF suppression Rail-to-Rail Input, Rail-to-Rail Output SOT-23-5 Operational Amplifier ROHS",
+   "price_qty1": 0.0915,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RT0603BRD0786K6L",
+   "refs": [
+    "R99"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C861580",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    10668,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:20Z",
+   "jlc_model": "RT0603BRD0786K6L",
+   "stock": 2398,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 75V 86.6kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0393,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "AD8436ARQZ-R7",
+   "refs": [
+    "U14"
+   ],
+   "qty": 1,
+   "footprint": "QSOP-20_3.9x8.7mm_P0.635mm",
+   "lcsc": "C495329",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    65,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:21Z",
+   "jlc_model": "AD8436ARQZ-R7",
+   "stock": 28,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-18V~-2.4V、2.4V~18V -40℃~+125℃ 1 15mA 300nV/℃ 325uA 4.8V~36V 500uV 50pA ESD protection QSOP-20-150mil RMS to DC Converters ROHS",
+   "price_qty1": 15.9173,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": false,
+   "issue": [
+    "stock < 2 x need at 20 boards",
+    "Extended, stock down from 65 to 28"
+   ]
+  },
+  {
+   "mpn": "RT0603BRD0730KL",
+   "refs": [
+    "R104"
+   ],
+   "qty": 1,
+   "footprint": "R_0603_1608Metric",
+   "lcsc": "C723585",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    374517,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:22Z",
+   "jlc_model": "RT0603BRD0730KL",
+   "stock": 1003132,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100mW 30kΩ 75V Thin Film Resistor ±0.1% ±25ppm/℃ 0603 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0285,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "BAT54S-7-F",
+   "refs": [
+    "D8"
+   ],
+   "qty": 1,
+   "footprint": "SOT-23",
+   "lcsc": "C83574",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    11513,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:23Z",
+   "jlc_model": "BAT54S-7-F",
+   "stock": 109541,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "1 Pair Series Connection 200mA 2uA@25V 30V 600mA 800mV@100mA SOT-23 Schottky Diodes ROHS",
+   "price_qty1": 0.1447,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "MCP3202-CI/SN",
+   "refs": [
+    "U15"
+   ],
+   "qty": 1,
+   "footprint": "SOIC-8_3.9x4.9mm_P1.27mm",
+   "lcsc": "C56997",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    736,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:24Z",
+   "jlc_model": "MCP3202-CI/SN",
+   "stock": 47,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+85℃ 100kHz 12 1LSB 2 2.7V~5.5V 500nA 72dB 900kHz~1.8MHz、1.8MHz SAR SPI Yes SOP-8 Analog to Digital Converters (ADC) ROHS",
+   "price_qty1": 2.0736,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": [
+    "Extended, stock down from 736 to 47"
+   ]
+  },
+  {
+   "mpn": "ESP32-S3-WROOM-1U-N8",
+   "refs": [
+    "U4"
+   ],
+   "qty": 1,
+   "footprint": "ESP32-S3-WROOM-1U",
+   "lcsc": "C2980297",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    2836,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:25Z",
+   "jlc_model": "ESP32-S3-WROOM-1U-N8",
+   "stock": 1608,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-103.5dBm -40℃~+85℃ 2.4GHz 20.5dBm 355mA 3V~3.6V 95mA Bluetooth5.0 ESP32-S3 UART、SPI、I2C、I2S、USB SMD,19.2x18mm WiFi Modules ROHS",
+   "price_qty1": 4.5661,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "TCA9555PWR",
+   "refs": [
+    "U8"
+   ],
+   "qty": 1,
+   "footprint": "TSSOP-24_4.4x7.8mm_P0.65mm",
+   "lcsc": "C465732",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    34611,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:26Z",
+   "jlc_model": "TCA9555PWR",
+   "stock": 22685,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+85℃ 1.65V~5.5V 10mA 16 25mA 3.5uA 400kHz 4V 500mV 8 I2C、SMBus Interrupt Output Push-Pull Reset function、Cascading and address extension、Built-in LED driver TSSOP-24 I/O Expanders ROHS",
+   "price_qty1": 0.7316,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RT0805BRD074K3L",
+   "refs": [
+    "R130"
+   ],
+   "qty": 1,
+   "footprint": "R_0805_2012Metric",
+   "lcsc": "C728653",
+   "c51_new_refs": [
+    "R130"
+   ],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_11_25_c51_read": [
+    4813,
+    "2026-11-25T14:54:48Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:27Z",
+   "jlc_model": "RT0805BRD074K3L",
+   "stock": 2404,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 125mW 150V 4.3kΩ Thin Film Resistor ±0.1% ±25ppm/℃ 0805 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.0583,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "BAV199-7-F",
+   "refs": [
+    "D10",
+    "D11",
+    "D12",
+    "D13"
+   ],
+   "qty": 4,
+   "footprint": "SOT-23",
+   "lcsc": "C155248",
+   "c51_new_refs": [
+    "D10",
+    "D11",
+    "D12",
+    "D13"
+   ],
+   "need_x2": {
+    "5": 40,
+    "10": 80,
+    "20": 160
+   },
+   "stock_2026_11_25_c51_read": [
+    11302,
+    "2026-11-25T16:34:37Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:28Z",
+   "jlc_model": "BAV199-7-F",
+   "stock": 11177,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+150℃ 1 Pair Series Connection 1.25V@150mA 160mA 4A 5nA@75V 85V SOT-23 Diodes - General Purpose ROHS",
+   "price_qty1": 0.1324,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "EMC2301-1-ACZL-TR",
+   "refs": [
+    "U52"
+   ],
+   "qty": 1,
+   "footprint": "MSOP-8_3x3mm_P0.65mm",
+   "lcsc": "C148036",
+   "c51_new_refs": [
+    "U52"
+   ],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_11_25_c51_read": [
+    1953,
+    "2026-11-25T14:54:27Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:29Z",
+   "jlc_model": "EMC2301-1-ACZL-TR",
+   "stock": 1959,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃ 350uA 3V~3.6V SMBus MSOP-8 Brushed DC Motor Drivers ROHS",
+   "price_qty1": 2.3354,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "BSS138LT1G",
+   "refs": [
+    "Q2"
+   ],
+   "qty": 1,
+   "footprint": "SOT-23",
+   "lcsc": "C82045",
+   "c51_new_refs": [
+    "Q2"
+   ],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_11_25_c51_read": [
+    301141,
+    "2026-11-25T14:54:51Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:30Z",
+   "jlc_model": "BSS138LT1G",
+   "stock": 300950,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+150℃ 1 N-channel 200mA 225mW 5.6Ω@2.75V 500mV 50V 50pF 5pF SOT-23 MOSFETs ROHS",
+   "price_qty1": 0.0413,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "B5B-XH-A(LF)(SN)",
+   "refs": [
+    "J15"
+   ],
+   "qty": 1,
+   "footprint": "JST_XH_B5B-XH-A_1x05_P2.50mm_Vertical",
+   "lcsc": "C157991",
+   "c51_new_refs": [
+    "J15"
+   ],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_11_25_c51_read": [
+    58056,
+    "2026-11-25T14:54:38Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:31Z",
+   "jlc_model": "B5B-XH-A(LF)(SN)",
+   "stock": 57437,
+   "library": "expand",
+   "assembly": "manualWeld",
+   "describe": "-25℃~+85℃ 1 14.9mm 1x5P 2.5mm 250V 3A 5 5.75mm 5P 7mm Brass K Pin PA66 Through Hole Tin UL94V-0 White XH 插件,P=2.5mm Wire To Board Connector ROHS",
+   "price_qty1": 0.0902,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": [
+    "JLC hand-solders (THT)"
+   ]
+  },
+  {
+   "mpn": "B12B-XH-A(LF)(SN)",
+   "refs": [
+    "J7"
+   ],
+   "qty": 1,
+   "footprint": "JST_XH_B12B-XH-A_1x12_P2.50mm_Vertical",
+   "lcsc": "C158027",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    1523,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:32Z",
+   "jlc_model": "B12B-XH-A(LF)(SN)",
+   "stock": 5734,
+   "library": "expand",
+   "assembly": "manualWeld",
+   "describe": "-25℃~+85℃ 1 12 12P 1x12P 2.5mm 250V 32.4mm 3A 5.75mm 7mm Brass K Pin PA66 Through Hole Tin UL94V-0 White XH 插件,P=2.5mm Wire To Board Connector ROHS",
+   "price_qty1": 0.2017,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": [
+    "JLC hand-solders (THT)"
+   ]
+  },
+  {
+   "mpn": "SRV05-4",
+   "refs": [
+    "U38",
+    "U39"
+   ],
+   "qty": 2,
+   "footprint": "SOT-23-6",
+   "lcsc": "C2836319",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    367457,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:33Z",
+   "jlc_model": "SRV05-4",
+   "stock": 407403,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+125℃ 0.3pF 15V 1uA 4.5A@8/20us 5V 60W@8/20us 9V ESD Four channels SOT-23-6 ESD and Surge Protection (TVS/ESD) ROHS",
+   "price_qty1": 0.0248,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "RC1206FR-07100RL",
+   "refs": [
+    "R121",
+    "R122"
+   ],
+   "qty": 2,
+   "footprint": "R_1206_3216Metric",
+   "lcsc": "C137392",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 20,
+    "10": 40,
+    "20": 80
+   },
+   "stock_2026_10_18": [
+    857075,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:34Z",
+   "jlc_model": "RC1206FR-07100RL",
+   "stock": 1963648,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-55℃~+155℃ 100Ω 200V 250mW Thick Film Resistor ±1% ±100ppm/℃ 1206 Chip Resistor - Surface Mount ROHS",
+   "price_qty1": 0.01,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "TLV76050DBZR",
+   "refs": [
+    "U16"
+   ],
+   "qty": 1,
+   "footprint": "SOT-23",
+   "lcsc": "C2867465",
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "stock_2026_10_18": [
+    18968,
+    "2026-10-19T00:35:29Z"
+   ],
+   "fetched_utc": "2026-11-26T04:26:35Z",
+   "jlc_model": "TLV76050DBZR",
+   "stock": 2705,
+   "library": "expand",
+   "assembly": "smtWeld",
+   "describe": "-40℃~+125℃@(Tj) 1 1.2V@(100mA) 100mA 30V 5V 5mA Fixed Over Current Protection、Over Temperature Protection Positive SOT-23 Voltage Regulators - Linear, Low Drop Out (LDO) Regulators ROHS",
+   "price_qty1": 0.2709,
+   "cover_5": true,
+   "cover_10": true,
+   "cover_20": true,
+   "issue": []
+  },
+  {
+   "mpn": "TC2050-IDC-NL-LAND",
+   "refs": [
+    "J11"
+   ],
+   "qty": 1,
+   "footprint": "Tag-Connect_TC2050-IDC-NL_2x05_P1.27mm_Vertical",
+   "lcsc": null,
+   "c51_new_refs": [],
+   "need_x2": {
+    "5": 10,
+    "10": 20,
+    "20": 40
+   },
+   "issue": [
+    "no LCSC code (not a JLC line)"
+   ]
+  }
+ ]
+}

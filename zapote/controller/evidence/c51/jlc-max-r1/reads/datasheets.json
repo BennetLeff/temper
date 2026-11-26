@@ -1,0 +1,27 @@
+{
+ "note": "Datasheets read for jlc-max-r1. PDFs are not committed (size); their sha256 and fetch time are. Facts are transcribed from the rendered pages (the RESI PDF's text layer drops its digits, so its pages were read as images).",
+ "PTFR (RESI, Shenzhen Kaibu Electronics)": {
+  "url": "https://datasheet.lcsc.com/datasheet/pdf/19fb9d121ec124c867093c26b2505da9.pdf?productCode=C351565 (the redirect target of JLC's dataManualUrl for C351565)",
+  "fetched_utc": "2026-11-26T04:21:10Z",
+  "sha256": "ce6a100ade2073ba8416627461be900b0efb807a330bea476227f7f9128a7ec8",
+  "pdf_title": "PTFR-C16003-V8.cdr, created 2024-04-25, 14 pages",
+  "facts": {
+   "page 1/13, electrical table, PTFR0805": "power 0.1 W (L) / 0.13 W (R) / 0.25 W (H) at +70 C; max working voltage 150 V; operating -55 C to +155 C; E24, E96; for 100 <= R < 10.2 k: TCR +/-5, +/-10, +/-25 ppm/C, tolerance +/-0.01, 0.02, 0.05, 0.1, 0.5 %",
+   "page 1/13, text": "load life: +70 C at rated power, 2000 h, typical change < +/-0.01 %, maximum < +/-0.1 %; damp heat 85/85 1000 h typical < +/-0.025 %, maximum < +/-0.1 %; AEC-Q200 logo",
+   "page 2/13, ordering code": "PTFR | size 0402/0603/0805/1206 | tolerance T=0.01 %, Q=0.02 %, A=0.05 %, B=0.1 %, D=0.5 % | value (430R = 430 ohm) | TCR V=+/-5, N=+/-10, P=+/-25, Q=+/-50, K=+/-100 ppm/C | 9 = standard product",
+   "decode PTFR0805B430RN9": "0805, +/-0.1 %, 430 ohm, +/-10 ppm/C, standard",
+   "page 2/13, 0805 dimensions": "L 2.00 +/- 0.20, W 1.25 +/- 0.20, T 0.40 +/- 0.10 mm (standard 0805 body)"
+  }
+ },
+ "SN74LVC1G08-Q1 (TI SCES556H, revised August 2026)": {
+  "url": "https://www.ti.com/lit/ds/symlink/sn74lvc1g08-q1.pdf",
+  "fetched_utc": "2026-11-26T04:29:26Z",
+  "sha256": "5f976fa3785b6fb1b49da0f7bf746c3299591b3c5ca552687f0a1633e18f153e",
+  "facts": {
+   "5.7 Switching Characteristics, TA -40 to 85 C, VCC 3.3 V +/- 0.3 V": "tpd A or B to Y: min 1, max 4.5 ns",
+   "5.6 Switching Characteristics, TA -40 to 125 C, VCC 3.3 V +/- 0.3 V": "tpd max 6.5 ns",
+   "Pin Functions, DBV": "A 1, B 2, GND 3, Y 4, VCC 5 (same as the fitted SN74LVC1G08DBVR's DBV pin-out used in verify_controller.py)",
+   "orderable": "74LVC1G08QDBVRQ1G4 / SN74LVC1G08QDBVRQ1, SOT-23 (DBV) 5, -40 to 125 C, MSL 1 260 C"
+  }
+ }
+}
