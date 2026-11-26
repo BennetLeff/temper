@@ -1,0 +1,20 @@
+{
+ "note": "Datasheet read for the UI tact switch. PDF not committed (862 pages); sha256 and fetch time are. Facts transcribed from pdftotext of the KSC pages.",
+ "C&K switch catalogue (LCSC copy, served as the datasheet of KSC323J LFG C2798494)": {
+  "url": "https://datasheet.lcsc.com/datasheet/pdf/adaca51e1938492bb666534a0c6bd29d.pdf?productCode=C2798494 (redirect target of JLC's dataManualUrl)",
+  "fetched_utc": "2026-11-26T04:40:32Z",
+  "sha256": "ffbad9d7770ac0f552d7aeb1d033f7be26525e33256ed7dfff132036de29090c",
+  "pdf_title": "C&K Switches, 862 pages",
+  "facts": {
+   "KSC Series, p. B-51 (Sealed Tact Switch for SMT)": "SPST N.O.; J bend and gullwing SMT terminals; IP67 except KSC5 (IP50). Electrical, silver / gold: max power 1 VA / 0.2 VA; max 32 VDC; min voltage 20 mV; max current 50 mA / 10 mA; min current 1 mA / 0.1 mA; bounce <= 1 ms; contact resistance <= 100 mOhm. Operating temperature silver -40 to 85 C, gold -40 to 125 C. Reflow per IEC 61760-1.",
+   "KSC Product Range, p. B-51": "KSC2 soft actuator H 3.5 mm IP67; KSC3 hard actuator H 3.5 mm IP67",
+   "KSC Series common footprint page, p. B-52":"J bend: terminal span 6.8 mm, pad layout 8.6 min / 3 max; G gullwing: span 10 (7.6), pad layout 12 min / 5.8 max. The same J and G drawings serve KSC1-KSC10; reels: KSC2G and KSC3G 2,000 per 16 mm reel",
+   "KSC2 Series, p. B-54": "KSC201 1.6 +/- 0.6 N, 5,000,000 ops, travel 0.3 +/- 0.2; KSC221 2 +/- 0.5 N, 500,000, 0.35 +0.3/-0.1; KSC222 2 +/- 0.5 N, 1,000,000, 0.35 +/- 0.15; KSC241 3.5 +/- 0.9 N, 300,000, 0.5 +/- 0.2. Ordering: KSC2 | force 0=1.6 N, 2=2 N, 4=3.5 N, 5=5.5 N | contact 1 silver, 2 silver long life, 3 gold, 4 gold long life | J or G | LFS silver plated, LFG gold plated",
+   "KSC3 Series, p. B-55": "hard actuator 3.5 mm high; KSC321 2 +/- 0.4 N, 300,000 ops, travel 0.2 +0.3/-0; KSC341 3 +/- 0.75 N, 300,000, 0.2 +0.3/-0; KSC351 5 +/- 1 N, 100,000, 0.25 +0.3/-0. Ordering: KSC3 | force 2=2 N, 4=3 N, 5=5 N | contact material | J or G | LFS / LFG",
+   "decode KSC223G LFG": "KSC2, 2 N, gold (3), gullwing, gold plated: the KSC221 mechanical row (2 +/- 0.5 N, 500,000 ops, 0.35 +0.3/-0.1 mm) with gold contacts",
+   "decode KSC323J LFG": "KSC3, 2 N (2 +/- 0.4), gold, J bend; 300,000 ops; travel 0.2 +0.3/-0 mm",
+   "decode KSC323G LFG": "as KSC323J LFG but gullwing (the same G land as KSC223G LFG)",
+   "decode KSC341GLFS": "KSC3, 3 N (3 +/- 0.75), silver, gullwing, silver plated: min current 1 mA, -40 to 85 C"
+  }
+ }
+}

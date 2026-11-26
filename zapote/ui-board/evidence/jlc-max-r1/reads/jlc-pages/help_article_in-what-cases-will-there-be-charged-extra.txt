@@ -1,0 +1,347 @@
+In what cases will there be charged extra?
+This website requires JavaScript.
+Account Restriction Notice
+Get Coupon Here
+Coupons
+Country / Region
+Language
+undefined
+Currency
+USD $
+The currency you select is for reference only, payments must be made in US dollars.
+Save
+Language Coming Soon
+Ship to
+JLCPCB
+PCB Service
+FR-4 PCBs
+Flexible PCBs
+Metal Core PCBs
+High-Frequency PCBs
+PCBA Service
+PCB Assembly
+Parts Library
+More
+SMT Stencil
+PCB Layout
+Mechanical Services
+JLC3DP - 3D Printing
+JLCCNC - CNC Machining
+JLCCNC - Sheet Metal
+JLCMC - Mechanical Components
+Tools
+EasyEDA - PCB Design Tool
+JLCDFM -  DFM Check
+Impedance Calculator
+PI Stiffener Calculator
+More
+OSHWLAB - Open Source Hardware
+JLCPCB - Flexible Heater
+Services
+Rigid PCB Capabilities
+Stencil Capabilities
+Flex PCB Capabilities
+PCB Layout Capabilities
+PCBA Capabilities
+Flexible Heaters Capabilities
+Capabilities
+Contact Us
+Online Chat>
+Mon-Fri: 24 hours, Sat: 9am-6pm, GMT+8
+Email Us>
+Mon-Fri: 24 hours, Sat: 9am-6pm, GMT+8
+WhatsApp>
+Mon-Fri: 24 hours, Sat: 9am-6pm, GMT+8
+Support
+Help Center
+Get instant answers. 24/7 Available.
+Blog
+Community
+Support
+About Us
+JLCPCB delivers one-stop electronic and mechanical manufacturing solutions to empower hardware innovators worldwide.
+Explore Us
+Why JLCPCB?
+Quality Assurance
+How We Work
+Certifications
+Company News
+About Us
+Search
+0
+Order Now
+Sign In
+Sign In
+Help Center
+Help Center
+Know Before Ordering
+In what cases will there be charged extra?
+Help Center
+Get Started
+Register
+Know Before Ordering
+Account Setting
+Ordering
+PCB Ordering
+PCB Assembly Ordering
+PCB Stencil Ordering
+PCB Manufacturing
+PCB Files Preparation
+PCB Capabilities & Instructions
+PCB Technical Guidelines
+PCB Assembly
+PCB Assembly FAQs
+PCBA Price Details
+PCBA Parts Sourcing
+PCBA Capabilities & Instructions
+PCBA Technical Guidelines
+PCBA Files Preparation
+PCBA Lead Time
+PCBA After-Sale
+FPC Manufacturing
+FPC Materials & Options
+FPC Design Guidelines
+SMT Stencil
+Stencil Ordering
+Stencil Technical Guidelines
+PCB Layout
+PCB Layout Ordering
+PCB Layout FAQs
+JLCDFM Tool
+DFM Tool Help
+DFM FAQs
+JLCONE
+JLCONE FAQs
+JLCONE Download and Installation
+Shipping & Delivery
+Shipping Policies
+Shipping Instructions
+Payment & Invoice
+Payments
+Collab & Activities
+JLCPCB API
+Coupons & Promotions
+Policies & Certifications
+Policies
+Certifications
+Flexible Heater
+Flexible Heater Ordering
+In what cases will there be charged extra?
+Last updated on Nov 10, 2026
+Table of Contents
+Extra costs for FR-4/Aluminum/Copper Core/Rogers/PTFE Teflon PCBs
+1. Different Designs in One Gerber File
+2. V-Cut on Small-Sized Boards
+3. Routing Fee
+4. Small Size Holes
+5. ENIG Area over 30%
+6. Removing the Bur and Round the Corner
+7. Board Fee
+8. Orders with Special Process
+9. Too Many Drilling Holes
+10. Small Boards
+11. Expediting Fee for Panel Boards (Prototype orders)
+12. Multiple Expedited Fee (Prototype orders)
+13. Too Many Test Points
+14. Difficulty process
+15. Large Board Fee
+16. Keyboard Design
+Additional Cost Specification for Stencils
+1. Polishing Process
+2. Thickness
+3. Extensive Apertures
+4. Irregular Apertures
+5. Stencil Cut into Small Ones
+6. Stencil Panelization
+Extra costs for FR-4/Aluminum/Copper Core/Rogers/PTFE Teflon PCBs
+With the aim of continuously providing high-quality products and services, JLCPCB has been optimizing the production process and improving the technology. In addition, it is committed to meeting the diverse needs of customers.
+In order to provide the customers with excellent service and to maintain sustainable production, extra costs will be charged for special processes and requirements, depending on the actual situation.
+Basically, all the prices are based on the online calculator when you select the corresponding options according to your Gerber file, but there are some exceptions. For specific designs and some special processes, or if you did not select the correct options during placing orders, there may be extra costs required during the file review process. Here are the cases that will incur extra costs.
+1. Different Designs in One Gerber File
+If there is more than 1 design in your file, an extra cost will be applied. You can calculate this cost on our website by selecting the appropriate number of designs. Please note that if your order needs SMT, then the SMT panel will also be charged with different design fees.
+Wondering what cases will be regarded as different designs? Please check here:
+https://jlcpcb.com/help/article/different-design-in-your-pcb-files
+2. V-Cut on Small-Sized Boards
+When dealing with PCB boards of small dimensions, applying v-cuts for panelization can be challenging due to the narrow spacing, making it difficult to achieve one-time fast cutting. It is inconvenient and inevitable to adjust tool spacing and make multiple cuts, which significantly increases production time and labor costs.
+For orders where the dimensions of single boards in the panel are less than 15mm on either side, an extra charge for V-cut will be applied.
+Cost for V-Cut on Small-Sized Boards:
+3. Routing Fee
+An excessive number of slots will increase the routing path, which in turn will lead to higher costs. Especially for slots within 1mm in width, they can only be processed with small-size milling tools. In this case, the knife needs to be rotated at a high speed and the speed of feed is slower, which increases the wear of the knife and greatly reduces production efficiency. Based on this situation, a routing fee will be added.
+- If the width of the slot is 0.8~1.0mm and the slot path reaches 80m per square meter, the Routing Fee will be charged.
+- If the width of the slot exceeds 1.0mm and the slot path reaches 120m per square meter, the Routing Fee will be charged.
+- If there are some slots with a width≤1mm and some＞1mm, the routing fee will be charged  according to the price for slots of 0.8~1.0mm. So it is recommended to widen them above 1.0mm.
+(1) Dimension:10*10cm; Routing path: 0.789m/cm² (78.9m/m²)
+The routing path refers to the total length of the slot
+knife travel during molding.
+(2) Dimension:10*10cm; Routing path: 1.1988m/cm² (119.88m/m²)
+The routing path refers to the total length of the slot
+knife travel during molding.
+4. Small Size Holes
+Smaller holes are more difficult to produce and cost more to drill than larger holes, resulting in more stringent requirements for the metallization of the hole walls. Tests such as "4-Wire Kelvin Test" are often required for quality assurance. And the position of smaller holes is also likely to deviate. Furthermore, it also seriously reduces efficiency. Therefore, the cost is higher than that of standard holes (with a diameter of ≧ 0.3mm).
+Please kindly note that, if the option of via is selected correctly, the cost will be added when quoting. If it is not selected according to the Gerber file, the cost will be charged as a supplement when reviewing.
+5.
+ENIG Area over 30%
+The more copper is exposed on the surface, the larger the ENIG area will be. Therefore, the cost will be significantly higher correspondingly. When the ENIG area is over 30% of the total PCB dimension(top and bottom sides combined, 200%), an extra cost will be charged for the excess portion.
+1. For 1U'' gold thickness, $0.8992/m² will be charged for every 1% for the portion exceeding 30%.
+e.g., exposed copper area on top and bottom layers: 20% and 19.5%
+board size: 100*100mm
+quantity: 15 pcs
+ENIG area: 20%+19.5%=39.5%
+extra cost: $0.8992*(0.1*0.1*15)*(39.5-30)=$1.281
+2. For 2U'' gold thickness, $1.7985/m² will be charged for every 1% for the portion exceeding 30%.
+e.g., exposed copper area on top and bottom layers: 20% and 19.5%
+board size: 100*100mm
+quantity: 15 pcs
+ENIG area: 20%+19.5%=39.5%
+extra cost: $1.7985*(0.1*0.1*15)*(39.5-30)=$2.562
+Note: If no solder mask is needed on either side, please design two fully opening soldermask layers in your Gerber files to correctly calculate the ENIG area.
+6. Removing the Bur and Round the Corner
+For PCB with a very small size, it is hard to make the boards with a very smooth edge, so we need to remove the bur and round the corner so that it will look better. But since the size of it is very small,  it will take a very long time to do that. So there will be an extra cost for that.
+For the board with a size of
+1.5cm-3cm
+on one side, the extra fee is
+$0.02/pcs.
+For the board with a size
+smaller than 1.5cm
+on one side, the extra fee is
+$0.05/pcs.
+7. Board Fee
+Basically, the basic cost for the PCB consists of the engineering fee and the board fee. For a single PCB that is within or equal to 102*102mm, there is a special price charged only. But when it is panelized (i.e. PCB has V-Cuts or routed lines with or without mouse bites between boards), it will turn into its original cost of Engineering fee+board fee. So we may ask you to pay for the extra cost of the board fee when it falls into this category.
+8. Orders with Special Process
+Suppose the orders do not include the standard options or do not have parameters commonly chosen by customers, for example, 1 layer, 1.6 thickness, Red, HASL(with lead), 1 oz copper, In that case, it will take longer to accumulate enough such orders to combine them into the same big panel for production. An extra charge will be applied if your orders fall under this special process category, you will receive a warning when placing your order, and the extra cost will be automatically calculated.
+9. Too Many Drilling Holes
+A large number of drill holes will increase the operation time of the drilling machine and consumption of the drilling tools, which will greatly increase the cost of drilling. Therefore, for orders with over 150,000 drill holes per square meter, an extra cost will be applied.
+10. Small Boards
+For circuit boards with small dimensions (≤3cm on either one side), the difficulty of positioning and controlling dimensional tolerances is increased during the production process. At the same time, it is easy to be mistakenly sucked by vacuum equipment, which leads to a high rate of scrap.
+If the order is a batch order and the delivery format is "Single PCB", it will further increase labor costs and reduce overall production efficiency.
+Therefore, for boards whose either side is 3cm or less with a delivery format of "Single PCB", an additional charge will be applied according to the smaller side dimension of the following rules.
+11. Expediting Fee for Panel Boards (Prototype orders)
+For expedited orders where the delivery format is panel boards, as there are more steps to process the boards, besides the original expedited fee, an additional fee of $15.71 per design will be charged.
+12. Multiple Expedited Fee (Prototype orders)
+For areas of 0.5㎡ or less, the expedited fee will be the same as the one calculated on the website. However, for orders exceeding 0.5㎡, an additional expediting fee will be charged according to the following rules:
+- For 0＜area≤0.5 square meters, the expedited fee will be the original expedited fee.
+- For 0.5＜area≤1.0 square meter, the expedited fee will be twice the original expedited fee.
+- For 1.0＜area≤1.5 square meters, the expedited fee will be three times the original expedited fee.
+- For 1.5＜area≤2.0 square meters, the expedited fee will be four times the original expedited fee.
+Similar rules are applied to numerous other areas.
+13. Too Many Test Points
+The number of test points in a PCB design depends on the number of PIN points. As the number of PIN points increases, testing time increases accordingly. As a result, labor costs and testing costs will increase. Therefore, once the number of test points per PCS/SET reaches or exceeds 8,000, we will charge the corresponding fee according to the following rules：
+14. Difficulty process
+For high-precision requirements of unconventional processes (e.g. extreme production processes such as  trace widths and spacing, solder ring sizes, or oversized boards), due to the difficulty of the process, the defective rate will increase accordingly in the production process. Besides, the production preparation will take longer than the conventional ones, and the corresponding testing will be added to ensure the quality. Therefore, the cost will be increased.
+- If the length of the board reaches or exceeds 60cm, the extra charge will be $31.43 per design for the prototype and $31.43 per square meter for the batch order.
+- If the trace width or spacing of multi-layer boards is 3.0-3.5mil, extra cost will be charged for the difficulty of the process: 20% of the order amount for 4-8 layers, and 30% of the order amount  for 10 layers and above.
+15. Large Board Fee
+If the board is too large, the labor and materials used will increase significantly. When the area of one board exceeds 650 square centimeters, an additional charge will be added every 50 square centimeters.
+16. Keyboard Design
+The keyboard PCB, due to its unique design featuring densely packed milled slots and cutouts, presents significant challenges during production and quality control, affecting both manufacturing efficiency and product quality. To balance processing costs and quality, an additional cost of $16.41+$49.25/m² will be charged.
+Additional Cost Specification for Stencils
+Generally, the stencil price is calculated by the stencil size. For instance, a stencil with a size of 37x47cm is $8.86, but here  are several situations which will cost you an extra fee:
+1. Polishing Process
+Grinding polish is for free, but electro-polishing will cost you an extra $7.25 per stencil.
+2. Thickness
+There is an extra cost for special thickness. The charge details are as following table according to thickness and dimension.
+3. Extensive Apertures
+For standard thickness stencil:
+There is an extra fee when there are more than 5000 spots on your stencil. It will cost you an extra $1.5 per 1000 spots more than 5000 spots. The following examples for reference:
+Extra $1.5 for a stencil with 5001~6000 spots.
+Extra $3.0 for a stencil with 6001~7000 spots.
+etc.
+For 0.3mm thickness stencil:
+We will charge an extra fee when there are more than 500 spots on your stencil. It will cost you an extra $4.3 per 500 spots more than 500 spots, see the following examples for reference:
+Extra $4.3 for a stencil with 501~1000 spots.
+Extra $8.6 for a stencil with 1001~1500 spots.
+etc.
+4. Irregular Apertures
+There will be an extra fee for the stencil with irregular apertures like irregular polygons and other strange shapes. Since it is more difficult to produce and has a higher scrap rate, we will charge you extra fee according to your design complexity. Generally, it is higher or equal to $7.5 per stencil.
+5.
+Stencil Cut into Small Ones
+For the stencil with a size of smaller than 28*38cm and need to be cut into several sheets. It will cost you extra fee to cut the stencil, the price is calculated by the size of your small sheets. For example, it is $1 per 5X5cm sheet, $2 per 10x10cm sheet, $3 /PCS for the stencil size of bigger than 10x10cm.
+6. Stencil Panelization
+1) If you panel the paste file by yourself, it will be free of charge of less than 5 deisgns. If there are 5 or more designs, an extra cost of $4.2 will be charged.
+2) If you want JLCPCB to panel the paste files for you, an extra cost of $4.2 per design will be charged for more than 2 designs. For example, if there are 3 designs in total, then an extra cost of 4.2$ will be charged, if 4 designs, 8.4$ will be charged, etc.
+Table of Contents
+Extra costs for FR-4/Aluminum/Copper Core/Rogers/PTFE Teflon PCBs
+1. Different Designs in One Gerber File
+2. V-Cut on Small-Sized Boards
+3. Routing Fee
+4. Small Size Holes
+5. ENIG Area over 30%
+6. Removing the Bur and Round the Corner
+7. Board Fee
+8. Orders with Special Process
+9. Too Many Drilling Holes
+10. Small Boards
+11. Expediting Fee for Panel Boards (Prototype orders)
+12. Multiple Expedited Fee (Prototype orders)
+13. Too Many Test Points
+14. Difficulty process
+15. Large Board Fee
+16. Keyboard Design
+Additional Cost Specification for Stencils
+1. Polishing Process
+2. Thickness
+3. Extensive Apertures
+4. Irregular Apertures
+5. Stencil Cut into Small Ones
+6. Stencil Panelization
+Online Chat >
+Chat with our live agent for fast reply.
+Mon-Fri: 24 hours, Sat: 9am-6pm, GMT+8
+Email Us >
+Contact us at support
+jlcpcb.com
+Typically reply within hours.
+Help Center >
+Get instant answers.
+24/7 Available.
+Products
+FR-4 PCBs
+Flexible PCBs
+Metal Core PCBs
+High-Frequency PCBs
+PCBA Service
+PCB Layout
+SMT Stencil
+Flex Heater
+Support
+Help Center
+Contact Us
+Community
+Shipping & Delivery
+Payment Methods
+How to Order
+How to Track
+After-Sales Service
+Blog
+Company
+About Us
+Quality Assurance
+How We Work
+Certifications
+Security
+Environment
+JLCAPI
+News
+Cooperation
+Electronics
+EasyEDA
+JLCPCB
+JLCDFM
+LCSC
+OSHWLAB
+Mechanical
+JLC3DP
+JLCCNC
+JLCMC
+CONNECT WITH US
+© 2026 JLCPCB.COM All Rights Reserved.
+Privacy Policy
+Terms & Conditions
+Cookies Policy
+Get Coupon >
+Live Chat >
+Home
+Cart
+Files
+Message
+Me
