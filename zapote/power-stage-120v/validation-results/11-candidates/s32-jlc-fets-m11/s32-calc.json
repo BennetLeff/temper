@@ -1,0 +1,787 @@
+{
+ "inputs": {
+  "budget_C_per_W": 0.7,
+  "grease_C_cm2_per_W": {
+   "opt": 0.06,
+   "cons": 0.4129024
+  },
+  "k_shim": {
+   "Al 6061": 167.0,
+   "Cu C110 (EST 390)": 390.0,
+   "brass (bench bound)": 109.0
+  },
+  "tab_area_mm2": [
+   151.2,
+   240.1
+  ],
+  "hole_mm2": 10.73,
+  "shim_place_tol_mm_EST": 0.5,
+  "shim_area_hot_mm2": {
+   "small": 126.7,
+   "large": 208.2
+  },
+  "spreads_mm": {
+   "U datasheet A1": 2.1,
+   "U lot A1": 1.8000000000000003,
+   "R datasheet A1": 0.5699999999999998,
+   "R lot A1": 0.27
+  },
+  "shim_max_design_mm": 2.2,
+  "functional_creepage_mm": 3.2,
+  "reinforced_mm": 8.0,
+  "x_play_mm": 0.54
+ },
+ "controls": {
+  "baseline_reproduces_stack_calc": true,
+  "bench_shim_stack_reproduced": 0.953,
+  "spreads_reproduce_tolerance_json": true
+ },
+ "tab_to_tab": [
+  {
+   "pair": "Q5(bus_p)-Q6(sw_b)",
+   "pitch": 18.0,
+   "metal_gap_centred_E1max": 3.85,
+   "metal_gap_worst_flat_play": 2.77,
+   "metal_gap_worst_corner_play": 2.808,
+   "floor": 3.2,
+   "ok_worst": false,
+   "ok_centred": true
+  },
+  {
+   "pair": "Q6(sw_b)-Q3(sw_a)",
+   "pitch": 22.1,
+   "metal_gap_centred_E1max": 7.95,
+   "metal_gap_worst_flat_play": 6.87,
+   "metal_gap_worst_corner_play": 6.908,
+   "floor": 3.2,
+   "ok_worst": true,
+   "ok_centred": true
+  },
+  {
+   "pair": "Q3(sw_a)-Q2(bus_p)",
+   "pitch": 18.0,
+   "metal_gap_centred_E1max": 3.85,
+   "metal_gap_worst_flat_play": 2.77,
+   "metal_gap_worst_corner_play": 2.808,
+   "floor": 3.2,
+   "ok_worst": false,
+   "ok_centred": true
+  }
+ ],
+ "tab_to_tab_E1_limit_mm": 13.72,
+ "a1_shim_max_width_mm": 11.38,
+ "a1": [
+  {
+   "corner": "small",
+   "grease": "cons",
+   "shim": "Al 6061",
+   "t_mm": 0.025,
+   "layers": 1,
+   "R_1D": 1.084,
+   "R_spread_est": 0.725,
+   "R_lower_bound": 0.653,
+   "margin_1D": -0.384,
+   "verdict": "FAIL (1-D and spread est.)"
+  },
+  {
+   "corner": "small",
+   "grease": "cons",
+   "shim": "Al 6061",
+   "t_mm": 2.2,
+   "layers": 1,
+   "R_1D": 1.187,
+   "R_spread_est": 0.828,
+   "R_lower_bound": 0.756,
+   "margin_1D": -0.487,
+   "verdict": "FAIL (bound)"
+  },
+  {
+   "corner": "small",
+   "grease": "cons",
+   "shim": "Al 6061",
+   "t_mm": 2.2,
+   "layers": 2,
+   "R_1D": 1.512,
+   "R_spread_est": 1.153,
+   "R_lower_bound": 1.081,
+   "margin_1D": -0.812,
+   "verdict": "FAIL (bound)"
+  },
+  {
+   "corner": "small",
+   "grease": "cons",
+   "shim": "Cu C110 (EST 390)",
+   "t_mm": 0.025,
+   "layers": 1,
+   "R_1D": 1.083,
+   "R_spread_est": 0.724,
+   "R_lower_bound": 0.652,
+   "margin_1D": -0.383,
+   "verdict": "FAIL (1-D and spread est.)"
+  },
+  {
+   "corner": "small",
+   "grease": "cons",
+   "shim": "Cu C110 (EST 390)",
+   "t_mm": 2.2,
+   "layers": 1,
+   "R_1D": 1.127,
+   "R_spread_est": 0.768,
+   "R_lower_bound": 0.696,
+   "margin_1D": -0.427,
+   "verdict": "FAIL (1-D and spread est.)"
+  },
+  {
+   "corner": "small",
+   "grease": "cons",
+   "shim": "Cu C110 (EST 390)",
+   "t_mm": 2.2,
+   "layers": 2,
+   "R_1D": 1.453,
+   "R_spread_est": 1.094,
+   "R_lower_bound": 1.022,
+   "margin_1D": -0.753,
+   "verdict": "FAIL (bound)"
+  },
+  {
+   "corner": "small",
+   "grease": "cons",
+   "shim": "brass (bench bound)",
+   "t_mm": 0.025,
+   "layers": 1,
+   "R_1D": 1.084,
+   "R_spread_est": 0.726,
+   "R_lower_bound": 0.653,
+   "margin_1D": -0.384,
+   "verdict": "FAIL (1-D and spread est.)"
+  },
+  {
+   "corner": "small",
+   "grease": "cons",
+   "shim": "brass (bench bound)",
+   "t_mm": 2.2,
+   "layers": 1,
+   "R_1D": 1.242,
+   "R_spread_est": 0.883,
+   "R_lower_bound": 0.811,
+   "margin_1D": -0.542,
+   "verdict": "FAIL (bound)"
+  },
+  {
+   "corner": "small",
+   "grease": "cons",
+   "shim": "brass (bench bound)",
+   "t_mm": 2.2,
+   "layers": 2,
+   "R_1D": 1.568,
+   "R_spread_est": 1.209,
+   "R_lower_bound": 1.137,
+   "margin_1D": -0.868,
+   "verdict": "FAIL (bound)"
+  },
+  {
+   "corner": "small",
+   "grease": "opt",
+   "shim": "Al 6061",
+   "t_mm": 0.025,
+   "layers": 1,
+   "R_1D": 0.248,
+   "R_spread_est": 0.106,
+   "R_lower_bound": 0.096,
+   "margin_1D": 0.452,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "small",
+   "grease": "opt",
+   "shim": "Al 6061",
+   "t_mm": 2.2,
+   "layers": 1,
+   "R_1D": 0.351,
+   "R_spread_est": 0.209,
+   "R_lower_bound": 0.199,
+   "margin_1D": 0.349,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "small",
+   "grease": "opt",
+   "shim": "Al 6061",
+   "t_mm": 2.2,
+   "layers": 2,
+   "R_1D": 0.399,
+   "R_spread_est": 0.256,
+   "R_lower_bound": 0.246,
+   "margin_1D": 0.301,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "small",
+   "grease": "opt",
+   "shim": "Cu C110 (EST 390)",
+   "t_mm": 0.025,
+   "layers": 1,
+   "R_1D": 0.248,
+   "R_spread_est": 0.106,
+   "R_lower_bound": 0.095,
+   "margin_1D": 0.452,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "small",
+   "grease": "opt",
+   "shim": "Cu C110 (EST 390)",
+   "t_mm": 2.2,
+   "layers": 1,
+   "R_1D": 0.292,
+   "R_spread_est": 0.15,
+   "R_lower_bound": 0.139,
+   "margin_1D": 0.408,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "small",
+   "grease": "opt",
+   "shim": "Cu C110 (EST 390)",
+   "t_mm": 2.2,
+   "layers": 2,
+   "R_1D": 0.339,
+   "R_spread_est": 0.197,
+   "R_lower_bound": 0.187,
+   "margin_1D": 0.361,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "small",
+   "grease": "opt",
+   "shim": "brass (bench bound)",
+   "t_mm": 0.025,
+   "layers": 1,
+   "R_1D": 0.249,
+   "R_spread_est": 0.107,
+   "R_lower_bound": 0.096,
+   "margin_1D": 0.451,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "small",
+   "grease": "opt",
+   "shim": "brass (bench bound)",
+   "t_mm": 2.2,
+   "layers": 1,
+   "R_1D": 0.406,
+   "R_spread_est": 0.264,
+   "R_lower_bound": 0.254,
+   "margin_1D": 0.294,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "small",
+   "grease": "opt",
+   "shim": "brass (bench bound)",
+   "t_mm": 2.2,
+   "layers": 2,
+   "R_1D": 0.454,
+   "R_spread_est": 0.312,
+   "R_lower_bound": 0.301,
+   "margin_1D": 0.246,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "cons",
+   "shim": "Al 6061",
+   "t_mm": 0.025,
+   "layers": 1,
+   "R_1D": 0.66,
+   "R_spread_est": 0.469,
+   "R_lower_bound": 0.397,
+   "margin_1D": 0.04,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "cons",
+   "shim": "Al 6061",
+   "t_mm": 2.2,
+   "layers": 1,
+   "R_1D": 0.722,
+   "R_spread_est": 0.532,
+   "R_lower_bound": 0.46,
+   "margin_1D": -0.022,
+   "verdict": "FAIL (1-D only)"
+  },
+  {
+   "corner": "large",
+   "grease": "cons",
+   "shim": "Al 6061",
+   "t_mm": 2.2,
+   "layers": 2,
+   "R_1D": 0.921,
+   "R_spread_est": 0.73,
+   "R_lower_bound": 0.658,
+   "margin_1D": -0.221,
+   "verdict": "FAIL (1-D and spread est.)"
+  },
+  {
+   "corner": "large",
+   "grease": "cons",
+   "shim": "Cu C110 (EST 390)",
+   "t_mm": 0.025,
+   "layers": 1,
+   "R_1D": 0.659,
+   "R_spread_est": 0.469,
+   "R_lower_bound": 0.397,
+   "margin_1D": 0.041,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "cons",
+   "shim": "Cu C110 (EST 390)",
+   "t_mm": 2.2,
+   "layers": 1,
+   "R_1D": 0.686,
+   "R_spread_est": 0.496,
+   "R_lower_bound": 0.424,
+   "margin_1D": 0.014,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "cons",
+   "shim": "Cu C110 (EST 390)",
+   "t_mm": 2.2,
+   "layers": 2,
+   "R_1D": 0.884,
+   "R_spread_est": 0.694,
+   "R_lower_bound": 0.622,
+   "margin_1D": -0.184,
+   "verdict": "FAIL (1-D only)"
+  },
+  {
+   "corner": "large",
+   "grease": "cons",
+   "shim": "brass (bench bound)",
+   "t_mm": 0.025,
+   "layers": 1,
+   "R_1D": 0.66,
+   "R_spread_est": 0.47,
+   "R_lower_bound": 0.398,
+   "margin_1D": 0.04,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "cons",
+   "shim": "brass (bench bound)",
+   "t_mm": 2.2,
+   "layers": 1,
+   "R_1D": 0.756,
+   "R_spread_est": 0.566,
+   "R_lower_bound": 0.494,
+   "margin_1D": -0.056,
+   "verdict": "FAIL (1-D only)"
+  },
+  {
+   "corner": "large",
+   "grease": "cons",
+   "shim": "brass (bench bound)",
+   "t_mm": 2.2,
+   "layers": 2,
+   "R_1D": 0.954,
+   "R_spread_est": 0.764,
+   "R_lower_bound": 0.692,
+   "margin_1D": -0.254,
+   "verdict": "FAIL (1-D and spread est.)"
+  },
+  {
+   "corner": "large",
+   "grease": "opt",
+   "shim": "Al 6061",
+   "t_mm": 0.025,
+   "layers": 1,
+   "R_1D": 0.151,
+   "R_spread_est": 0.069,
+   "R_lower_bound": 0.058,
+   "margin_1D": 0.549,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "opt",
+   "shim": "Al 6061",
+   "t_mm": 2.2,
+   "layers": 1,
+   "R_1D": 0.214,
+   "R_spread_est": 0.131,
+   "R_lower_bound": 0.121,
+   "margin_1D": 0.486,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "opt",
+   "shim": "Al 6061",
+   "t_mm": 2.2,
+   "layers": 2,
+   "R_1D": 0.243,
+   "R_spread_est": 0.16,
+   "R_lower_bound": 0.15,
+   "margin_1D": 0.457,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "opt",
+   "shim": "Cu C110 (EST 390)",
+   "t_mm": 0.025,
+   "layers": 1,
+   "R_1D": 0.151,
+   "R_spread_est": 0.068,
+   "R_lower_bound": 0.058,
+   "margin_1D": 0.549,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "opt",
+   "shim": "Cu C110 (EST 390)",
+   "t_mm": 2.2,
+   "layers": 1,
+   "R_1D": 0.178,
+   "R_spread_est": 0.095,
+   "R_lower_bound": 0.085,
+   "margin_1D": 0.522,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "opt",
+   "shim": "Cu C110 (EST 390)",
+   "t_mm": 2.2,
+   "layers": 2,
+   "R_1D": 0.206,
+   "R_spread_est": 0.124,
+   "R_lower_bound": 0.114,
+   "margin_1D": 0.494,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "opt",
+   "shim": "brass (bench bound)",
+   "t_mm": 0.025,
+   "layers": 1,
+   "R_1D": 0.152,
+   "R_spread_est": 0.069,
+   "R_lower_bound": 0.059,
+   "margin_1D": 0.548,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "opt",
+   "shim": "brass (bench bound)",
+   "t_mm": 2.2,
+   "layers": 1,
+   "R_1D": 0.247,
+   "R_spread_est": 0.165,
+   "R_lower_bound": 0.155,
+   "margin_1D": 0.453,
+   "verdict": "PASS"
+  },
+  {
+   "corner": "large",
+   "grease": "opt",
+   "shim": "brass (bench bound)",
+   "t_mm": 2.2,
+   "layers": 2,
+   "R_1D": 0.276,
+   "R_spread_est": 0.194,
+   "R_lower_bound": 0.183,
+   "margin_1D": 0.424,
+   "verdict": "PASS"
+  }
+ ],
+ "a1_aln_spreading_length_mm": 3.52,
+ "a1_grease_threshold_C_cm2_per_W": {
+  "small Al 6061 2.2 mm x1 cons": 0.2074,
+  "small Al 6061 2.2 mm x1 spread": 0.3401,
+  "small Al 6061 2.2 mm x2 cons": 0.1555,
+  "small Al 6061 2.2 mm x2 spread": 0.2345,
+  "small Cu C110 (EST 390) 2.2 mm x1 cons": 0.2325,
+  "small Cu C110 (EST 390) 2.2 mm x1 spread": 0.374,
+  "small Cu C110 (EST 390) 2.2 mm x2 cons": 0.1744,
+  "small Cu C110 (EST 390) 2.2 mm x2 spread": 0.2579,
+  "large Al 6061 2.2 mm x1 cons": 0.3975,
+  "large Al 6061 2.2 mm x1 spread": 0.5609,
+  "large Al 6061 2.2 mm x2 cons": 0.2981,
+  "large Al 6061 2.2 mm x2 spread": 0.3941,
+  "large Cu C110 (EST 390) 2.2 mm x1 cons": 0.4226,
+  "large Cu C110 (EST 390) 2.2 mm x1 spread": 0.5927,
+  "large Cu C110 (EST 390) 2.2 mm x2 cons": 0.3169,
+  "large Cu C110 (EST 390) 2.2 mm x2 spread": 0.4165
+ },
+ "a1_unshimmed_device": {
+  "small": 0.634,
+  "large": 0.399
+ },
+ "a1_coplanarity_EST": {
+  "terms": {
+   "step_rounding": 0.0125,
+   "shim_thickness_tol_per_layer": 0.01,
+   "extra_bond_line_var": 0.01,
+   "offset_measurement": 0.01
+  },
+  "one_layer": 0.0425,
+  "two_layers": 0.0625,
+  "req": 0.05
+ },
+ "a1_lean": {
+  "theta_accept_rad": 0.011169690341627472,
+  "force_spent_N": 10.3,
+  "comb_band_low_after_N": 49.7
+ },
+ "plane": {
+  "offset_bound_mm": 1.05,
+  "sink_float_drawing_mm": 1.0,
+  "sink_float_needed_toward_sink_mm": 1.05,
+  "short_by_mm": 0.05
+ },
+ "comb_as_is": {
+  "deflection_max_mm": 5.2,
+  "force_N": 141.4,
+  "stress_MPa": 1474.0,
+  "accept_N": [
+   45.0,
+   102.0
+  ],
+  "rm_MPa": 1300.0,
+  "ok": false
+ },
+ "br1_gap_to_tile_mm": [
+  -0.1,
+  2.08
+ ],
+ "a2": {
+  "nominal (per_device_calc)": {
+   "reach": {
+    "Q5|Q6": 2.6500000000000004,
+    "Q6|Q3": 0.0,
+    "Q3|Q2": 2.6500000000000004,
+    "Q2|BR1": 1.1000000000000005
+   },
+   "cut": {
+    "Q5": 2.6500000000000004,
+    "Q6": 2.6500000000000004,
+    "Q3": 2.6500000000000004,
+    "Q2": 3.750000000000001
+   },
+   "rows": [
+    {
+     "corner": "small",
+     "grease": "cons",
+     "area_over_shim": 105.4,
+     "R_1D": 1.308,
+     "verdict": "FAIL (1-D)"
+    },
+    {
+     "corner": "small",
+     "grease": "opt",
+     "area_over_shim": 105.4,
+     "R_1D": 0.405,
+     "verdict": "PASS"
+    },
+    {
+     "corner": "large",
+     "grease": "cons",
+     "area_over_shim": 176.5,
+     "R_1D": 0.79,
+     "verdict": "FAIL (1-D)"
+    },
+    {
+     "corner": "large",
+     "grease": "opt",
+     "area_over_shim": 176.5,
+     "R_1D": 0.243,
+     "verdict": "PASS"
+    }
+   ]
+  },
+  "worst x play": {
+   "reach": {
+    "Q5|Q6": 3.7300000000000004,
+    "Q6|Q3": 0.0,
+    "Q3|Q2": 3.7300000000000004,
+    "Q2|BR1": 1.1000000000000005
+   },
+   "cut": {
+    "Q5": 3.7300000000000004,
+    "Q6": 3.7300000000000004,
+    "Q3": 3.7300000000000004,
+    "Q2": 4.830000000000001
+   },
+   "rows": [
+    {
+     "corner": "small",
+     "grease": "cons",
+     "area_over_shim": 92.2,
+     "R_1D": 1.456,
+     "verdict": "FAIL (1-D)"
+    },
+    {
+     "corner": "small",
+     "grease": "opt",
+     "area_over_shim": 92.2,
+     "R_1D": 0.457,
+     "verdict": "PASS"
+    },
+    {
+     "corner": "large",
+     "grease": "cons",
+     "area_over_shim": 158.1,
+     "R_1D": 0.862,
+     "verdict": "FAIL (1-D)"
+    },
+    {
+     "corner": "large",
+     "grease": "opt",
+     "area_over_shim": 158.1,
+     "R_1D": 0.268,
+     "verdict": "PASS"
+    }
+   ]
+  }
+ },
+ "b": [
+  {
+   "case": "U datasheet A1",
+   "spread_mm": 2.1,
+   "corner": "small",
+   "pad_t0_mm": 10.5,
+   "pad_bulk_lower_bound": 12.5,
+   "pad_catalogue_est": 16.316,
+   "pad_total_lower_bound": 12.5,
+   "filler_k5_gap_only_lower_bound": 2.778,
+   "k_needed_everything_else_free": 19.8,
+   "k_needed_opt_rest": 24.3,
+   "k_needed_cons_rest": 41.0
+  },
+  {
+   "case": "U datasheet A1",
+   "spread_mm": 2.1,
+   "corner": "large",
+   "pad_t0_mm": 10.5,
+   "pad_bulk_lower_bound": 7.872,
+   "pad_catalogue_est": 10.275,
+   "pad_total_lower_bound": 7.872,
+   "filler_k5_gap_only_lower_bound": 1.749,
+   "k_needed_everything_else_free": 12.5,
+   "k_needed_opt_rest": 14.1,
+   "k_needed_cons_rest": 18.5
+  },
+  {
+   "case": "U lot A1",
+   "spread_mm": 1.8,
+   "corner": "small",
+   "pad_t0_mm": 9.0,
+   "pad_bulk_lower_bound": 10.714,
+   "pad_catalogue_est": 13.985,
+   "pad_total_lower_bound": 10.714,
+   "filler_k5_gap_only_lower_bound": 2.381,
+   "k_needed_everything_else_free": 17.0,
+   "k_needed_opt_rest": 20.8,
+   "k_needed_cons_rest": 35.1
+  },
+  {
+   "case": "U lot A1",
+   "spread_mm": 1.8,
+   "corner": "large",
+   "pad_t0_mm": 9.0,
+   "pad_bulk_lower_bound": 6.747,
+   "pad_catalogue_est": 8.807,
+   "pad_total_lower_bound": 6.747,
+   "filler_k5_gap_only_lower_bound": 1.499,
+   "k_needed_everything_else_free": 10.7,
+   "k_needed_opt_rest": 12.1,
+   "k_needed_cons_rest": 15.9
+  },
+  {
+   "case": "R datasheet A1",
+   "spread_mm": 0.57,
+   "corner": "small",
+   "pad_t0_mm": 2.85,
+   "pad_bulk_lower_bound": 3.393,
+   "pad_catalogue_est": 4.429,
+   "pad_total_lower_bound": 3.393,
+   "filler_k5_gap_only_lower_bound": 0.754,
+   "k_needed_everything_else_free": 5.4,
+   "k_needed_opt_rest": 6.6,
+   "k_needed_cons_rest": 11.1
+  },
+  {
+   "case": "R datasheet A1",
+   "spread_mm": 0.57,
+   "corner": "large",
+   "pad_t0_mm": 2.85,
+   "pad_bulk_lower_bound": 2.137,
+   "pad_catalogue_est": 2.789,
+   "pad_total_lower_bound": 2.137,
+   "filler_k5_gap_only_lower_bound": 0.475,
+   "k_needed_everything_else_free": 3.4,
+   "k_needed_opt_rest": 3.8,
+   "k_needed_cons_rest": 5.0
+  },
+  {
+   "case": "R lot A1",
+   "spread_mm": 0.27,
+   "corner": "small",
+   "pad_t0_mm": 1.35,
+   "pad_bulk_lower_bound": 1.607,
+   "pad_catalogue_est": 2.098,
+   "pad_total_lower_bound": 1.607,
+   "filler_k5_gap_only_lower_bound": 0.357,
+   "k_needed_everything_else_free": 2.6,
+   "k_needed_opt_rest": 3.1,
+   "k_needed_cons_rest": 5.3
+  },
+  {
+   "case": "R lot A1",
+   "spread_mm": 0.27,
+   "corner": "large",
+   "pad_t0_mm": 1.35,
+   "pad_bulk_lower_bound": 1.012,
+   "pad_catalogue_est": 1.321,
+   "pad_total_lower_bound": 1.012,
+   "filler_k5_gap_only_lower_bound": 0.225,
+   "k_needed_everything_else_free": 1.6,
+   "k_needed_opt_rest": 1.8,
+   "k_needed_cons_rest": 2.4
+  }
+ ],
+ "b_clamp_pressure_psi": [
+  27.2,
+  97.8
+ ],
+ "c": {
+  "need_mm": 0.155,
+  "worst_corner": {
+   "flat_strip": 0.415,
+   "corner": 0.055,
+   "corner_ex": -0.072,
+   "closes": false
+  },
+  "typical": {
+   "flat_strip": 0.56,
+   "corner": 0.316,
+   "corner_ex": 0.233,
+   "closes": true
+  },
+  "R_cs": [
+   0.399,
+   0.634
+  ],
+  "margin": 0.066
+ }
+}
