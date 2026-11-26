@@ -109,6 +109,9 @@ MODELS: dict[str, Model] = {
                            basis="SCES218AA: ICC 10 uA", logic="inv:2>4"),
     "SN74LVC1G08DBVR": _ic([5], [3], ins=[1, 2], outs=[4], ma=0.010,
                            basis="SCES217AA: ICC 10 uA", logic="and:1,2>4"),
+    # C52: the -Q1 grade (C840098) on the same DBV pins (SCES556H)
+    "SN74LVC1G08QDBVRQ1": _ic([5], [3], ins=[1, 2], outs=[4], ma=0.010,
+                              basis="SCES556H (-Q1): ICC taken as the commercial SCES217AA 10 uA (not re-read)", logic="and:1,2>4"),
     "SN74LVC1G32DBVR": _ic([5], [3], ins=[1, 2], outs=[4], ma=0.010,
                            basis="SCES219W: ICC 10 uA", logic="or:1,2>4"),
     # C39 capacitive-mode detector: polarity XOR and the per-leg sampling flip-flops. The flip-flop
@@ -421,7 +424,7 @@ def check_j4(rep: Report, nl: Netlist, n21: Netlist):
     # PERMIT = latch Q AND RUN_EN (COMMISSIONING.md H1): one driver, the AND gate, whose two inputs
     # are the interlock latch Q and the firmware RUN_EN line
     drivers = [(r, p, nl.mpn[r]) for r, p in nl.nets["permit"] if pin_role(nl, r, p) in ("out", "od")]
-    gate_ok = len(drivers) == 1 and drivers[0][2] == "SN74LVC1G08DBVR" and drivers[0][1] == "4"
+    gate_ok = len(drivers) == 1 and drivers[0][2] in ("SN74LVC1G08DBVR", "SN74LVC1G08QDBVRQ1") and drivers[0][1] == "4"
     gate_in = {}
     if gate_ok:
         g = drivers[0][0]
@@ -886,7 +889,8 @@ def check_thermal(rep: Report, nl: Netlist) -> None:
     rep.data("thermal", "tj_at_hs_trip_high_corner_C", res["tj_at_hs_trip_high_corner_C"])
 
 
-RES_TCR = {"RT0603BRD": 25e-6, "ERA-3AEB": 25e-6, "RC0603FR": 100e-6}   # Yageo RT / Panasonic ERA-3AEB / Yageo RC
+RES_TCR = {"RT0603BRD": 25e-6, "ERA-3AEB": 25e-6, "RC0603FR": 100e-6,   # Yageo RT / Panasonic ERA-3AEB / Yageo RC
+           "AF0603FR": 100e-6}                                              # Yageo AF (C52, R32): same 100 ppm as RC
 
 
 def _tcr(mpn: str) -> float:
@@ -1023,7 +1027,7 @@ def check_blwin(rep: Report, nl: Netlist, calcs: dict) -> None:
     rep.data("blwin", "ps3_loss_sim", {k: v for k, v in sim.items() if k != "checks"})
     rep.data("blwin", "merge_rail", {k: v for k, v in calcs["merge_rail"].items() if k != "checks"})
     rep.data("blwin", "bias_good", {k: v for k, v in calcs["bias_good"].items() if k != "checks"})
-    bulk = [r for r in nl.refs if nl.mpn.get(r) == "EEE-FK1E101P" and nl.net_of(r, "1") == BLW
+    bulk = [r for r in nl.refs if nl.mpn.get(r) in ("EEE-FK1E101P", "UCD1E101MCL6GS") and nl.net_of(r, "1") == BLW
             and nl.net_of(r, "2") == GND]
     rep.check("blwin", "bulk_cap_on_v15_blw", len(bulk) == 1, bulk)
     io = [r for r, mp in nl.mpn.items() if mp == "TCA9555PWR"]

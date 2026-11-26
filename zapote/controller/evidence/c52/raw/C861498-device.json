@@ -1,0 +1,40 @@
+{
+ "success": true,
+ "code": 0,
+ "result": [
+  {
+   "uuid": "632f4de0b9b04796b10971d881714d1f",
+   "attributes": {
+    "LCSC Part Name": "薄膜电阻 61.9kΩ ±0.1% 100mW",
+    "Supplier Part": "C861498",
+    "Manufacturer": "YAGEO(国巨)",
+    "Manufacturer Part": "RT0603BRD0761K9L",
+    "Supplier Footprint": "0603",
+    "JLCPCB Part Class": "Extended Part",
+    "Datasheet": "https://atta.szlcsc.com/upload/public/pdf/source/20200610/C326738_5639A9F1B6EB6E4AE2197577D3456E7F.pdf",
+    "Supplier": "LCSC",
+    "Add into BOM": "yes",
+    "Convert to PCB": "yes",
+    "Symbol": "1d3e79e4bff74721a985e6d2d1cc5dd0",
+    "Designator": "R?",
+    "Footprint": "b44c1b381d26462586b8a8d9fac22ec8",
+    "3D Model": "112863783b5b41f1b5254f87eedc7932",
+    "3D Model Title": "R0603",
+    "3D Model Transform": "31.8897,63.7794,0,90,0,0,0,0,0",
+    "Type": "Thin Film Resistor",
+    "Value": "61.9kΩ",
+    "Tolerance": "±0.1%",
+    "Power(Watts)": "",
+    "Temperature Coefficient": "±25ppm/℃",
+    "Operating Temperature Range": "-55℃~+155℃",
+    "Name": "={Value}"
+   },
+   "product_code": "C861498",
+   "footprint": {
+    "uuid": "b44c1b381d26462586b8a8d9fac22ec8",
+    "display_title": "R0603",
+    "title": "r0603"
+   }
+  }
+ ]
+}

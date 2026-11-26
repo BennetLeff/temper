@@ -567,8 +567,13 @@ module SelvController:
     rtd_pan.rail_monitor.RESET ~ rtd_rail_ok
     # C35 prototype-lot sourcing swap (no footprint or net change; the library copy stays byte-identical)
     rtd_pan.r_avdd_top.mpn = "RT0603BRD0716K5L"   # R53: ERA-3AEB1652V (0 stock) -> C728584, 16.5 k 0.1 % 25 ppm
-    # C37 (CR-2): Rref is the library's Susumu RG2012V-431-W-T1 (0.05 %, 5 ppm/K) again; the C35 swap
-    # to RT0805BRD07430RL (25 ppm/K) cost 0.80 K at 250 C on a hot board. JLC stock 0: consigned.
+    # C37 (CR-2): Rref was the library's Susumu RG2012V-431-W-T1 (0.05 %, 5 ppm/K); JLC stock 0 throughout.
+    # C52 (owner 2026-11-26): RESI PTFR0805B430RN9 (C351565, 0.1 %, 10 ppm/K, stocked) with CR-2 gate 1b
+    # relaxed to 0.45 K; same value and land, so no threshold word or firmware constant changes.
+    rtd_pan.r_ref.value = 430ohm +/- 0.1%
+    rtd_pan.r_ref.mpn = "PTFR0805B430RN9"         # R39: RG2012V-431-W-T1 (0 stock) -> C351565
+    rtd_pan.r_low_top.mpn = "RT0603BRD0761K9L"    # R47 C52: ERA-3AEB6192V (2 in stock) -> C861498, 61.9 k 0.1 % 25 ppm
+    rtd_pan.window_and.mpn = "SN74LVC1G08QDBVRQ1" # U33 C52: SN74LVC1G08DBVR (36 in stock) -> C840098, same DBV pinout
     rtd_pan.fb_power.p2.override_net_name = "RTD_AVDD"
     signal rtd_cs_n
     signal rtd_sck
@@ -589,6 +594,7 @@ module SelvController:
     # ================================================================ interlock
     interlock = new InterlockUnit
     interlock.aggregate.mpn = "74HC30PW,118"      # U22: CD74HC30PWR (2 in stock) -> C546857, same TSSOP-14 pinout
+    interlock.common.mpn = "SN74LVC1G08QDBVRQ1"   # U25 C52: C7666 (36 in stock) -> C840098, same DBV pinout
     interlock.vcc ~ v3v3
     interlock.gnd ~ selv_gnd
     # Fault inputs (active high, 10 k pull-ups inside the block)
@@ -613,6 +619,7 @@ module SelvController:
     # high-Z and the 10 k pull-down here (plus native-21's 2 x 100 k) holds PERMIT low.
     u_permit = new SN74LVC1G08
     u_permit.designator = "U37"
+    u_permit.mpn = "SN74LVC1G08QDBVRQ1"           # C52: C7666 (36 in stock) -> C840098, same DBV pinout and 4.5 ns tpd
     u_permit.A ~ permit_latch
     u_permit.B ~ run_en
     u_permit.Y ~ permit
@@ -774,6 +781,7 @@ module SelvController:
     # runs from v3v3, so RAIL_OK is its validity; its open/short/hot faults
     # are separate latched inputs.
     u_live = new SN74LVC1G08
+    u_live.mpn = "SN74LVC1G08QDBVRQ1"             # U11 C52: C7666 -> C840098
     u_live.A ~ rail_ok
     u_live.B ~ rtd_rail_ok
     u_live.Y ~ sensor_live
@@ -1657,6 +1665,7 @@ module SelvController:
     thermal.hs_top.mpn = "RC0603FR-0711K5L"
     thermal.hs_bottom.value = 8.06kohm +/- 1%
     thermal.hs_bottom.mpn = "RT0603BRD078K06L"   # C35: C131052 stock 3 -> C861587 (8.06 k 0.1 %, 25 ppm)
+    thermal.hs_hyst.mpn = "AF0603FR-0734K8L"     # R32 C52: RC0603FR-0734K8L (67, falling) -> C2098331, 34.8 k 1 % 100 ppm
     #   coil (100 k / 300 C glass NTC, Semitec 104GT-2 class, 10 k pull-up): trip 175.7 C / release 152.4 C
     thermal.coil_top.value = 90.9kohm +/- 0.1%
     thermal.coil_top.mpn = "RT0603BRD0790K9L"

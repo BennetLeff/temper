@@ -1,9 +1,9 @@
 {
   "atopile_version": "0.2.69",
   "build_sha256": {
-    "build/default.csv": "4205af03322ad67b5b6e798d4aad1b44fb82d18aeee9415b9914845defd04d6c",
+    "build/default.csv": "6149266dea121fd492ab031566dc5ffc930821251e2278e07d340d2bf1c8da79",
     "build/default.layouts.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "build/default.net": "4217185d2cb30ebbb4beb4403a1acfa722397719af7c98da4453c9ea8f446da7",
+    "build/default.net": "8471186cceeb8ec6624271417c4996933b3110b957232b67ae42cd442cb75c60",
     "build/manifest.json": "23524be607befdba6ffd173293692497ab794a5df3ddad253adbbc8057e9fac5"
   },
   "components": [
@@ -168,8 +168,8 @@
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:CP_Elec_8x6.2",
-        "manufacturer": "Panasonic",
-        "mpn": "EEE-FK1E101P"
+        "manufacturer": "Nichicon",
+        "mpn": "UCD1E101MCL6GS"
       }
     },
     {
@@ -328,8 +328,8 @@
       "attributes": {
         "designator_prefix": "C",
         "footprint": "Capacitor_SMD:CP_Elec_8x6.2",
-        "manufacturer": "Panasonic",
-        "mpn": "EEE-FK1E101P"
+        "manufacturer": "Nichicon",
+        "mpn": "UCD1E101MCL6GS"
       }
     },
     {
@@ -753,7 +753,7 @@
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "mpn": "RC0603FR-0734K8L",
+        "mpn": "AF0603FR-0734K8L",
         "power_rating": null,
         "value": "34.8kohm +/- 1%",
         "voltage_rating": null
@@ -969,9 +969,9 @@
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0805_2012Metric",
-        "mpn": "RG2012V-431-W-T1",
+        "mpn": "PTFR0805B430RN9",
         "power_rating": null,
-        "value": "430ohm +/- 0.05%",
+        "value": "430ohm +/- 0.1%",
         "voltage_rating": null
       }
     },
@@ -1164,7 +1164,7 @@
       "attributes": {
         "designator_prefix": "R",
         "footprint": "Resistor_SMD:R_0603_1608Metric",
-        "mpn": "ERA-3AEB6192V",
+        "mpn": "RT0603BRD0761K9L",
         "power_rating": null,
         "value": "61.9kohm +/- 0.1%",
         "voltage_rating": null
@@ -1239,7 +1239,7 @@
       "attributes": {
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
-        "mpn": "SN74LVC1G08DBVR"
+        "mpn": "SN74LVC1G08QDBVRQ1"
       }
     },
     {
@@ -1554,7 +1554,7 @@
         "designator_prefix": "U",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
-        "mpn": "SN74LVC1G08DBVR"
+        "mpn": "SN74LVC1G08QDBVRQ1"
       }
     },
     {
@@ -1750,7 +1750,7 @@
         "designator": "U37",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
-        "mpn": "SN74LVC1G08DBVR"
+        "mpn": "SN74LVC1G08QDBVRQ1"
       }
     },
     {
@@ -1965,7 +1965,7 @@
         "designator": "U11",
         "footprint": "Package_TO_SOT_SMD:SOT-23-5",
         "manufacturer": "Texas Instruments",
-        "mpn": "SN74LVC1G08DBVR"
+        "mpn": "SN74LVC1G08QDBVRQ1"
       }
     },
     {
@@ -3739,8 +3739,8 @@
     "elec/src/bay_fan_block.ato": "15ed214206fd41dc7f7c1ed994b22a7fb373040f49e3e23cda611d6f6e233b36",
     "elec/src/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
     "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
-    "elec/src/controller.ato": "e77168bc3b6367b42c0b0d022706d62029190f03b0bd9974bd15d75c4dec2aad",
-    "elec/src/controller_parts.ato": "bc002e2d41dca1ac0eaa7768a75baf2754b43c70533b9ab4556c80444e51bc91",
+    "elec/src/controller.ato": "9beab2162eb6cff669520082dc98b9bc4af9642c0c51ec09739fd298f71a9263",
+    "elec/src/controller_parts.ato": "cf675c5ea95dfd2dcfffe1e2754df7f6c58e89723b32cbbd05ff8dea79654f78",
     "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
     "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
     "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",

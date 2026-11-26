@@ -15,8 +15,8 @@
   "cj": 2.2e-07,
   "tvs": true,
   "rref": 430.0,
-  "rref_tc": 5e-06,
-  "rref_tol": 0.0005
+  "rref_tc": 1e-05,
+  "rref_tol": 0.001
  },
  "as_built_extra": {
   "r_s1n": 1000.0,
@@ -110,7 +110,7 @@
    "pass": true,
    "detail": {
     "method": "gain-only calibration with a calibrated 50 ppm reference resistor at R(200 C) on J3, board 25 C; board 0-85 C (|dT| 60 K); MAX31865 offset bounded +/-3 LSB independently at cal and use (strict, no drift spec exists); FS and INL are datasheet typ only; firmware removes the nominal pull-up loading (Rref/Rb); VBIAS cancels (ratiometric, REF2025 only sets window thresholds)",
-    "requirement": "+/-0.3 K. Gate: the board-controlled terms (Rref, calibration, loading, leakage, thermo-EMF) stacked linearly <=0.30 K AND the RSS of all terms incl. the MAX31865 <=0.30 K. The strict linear stack incl. the MAX31865 is reported, not gated: its +/-3 LSB offset bound alone is 0.23 K at 250 C with no drift spec (DECISIONS D3)",
+    "requirement": "+/-0.45 K (relaxed from +/-0.3 K by the owner on 2026-11-26, controller DECISIONS C52, to admit the stocked 10 ppm/K Rref). Gate: the board-controlled terms (Rref, calibration, loading, leakage, thermo-EMF) stacked linearly <=0.45 K AND the RSS of all terms incl. the MAX31865 <=0.45 K. The strict linear stack incl. the MAX31865 is reported, not gated: its +/-3 LSB offset bound alone is 0.23 K at 250 C with no drift spec (DECISIONS D3)",
     "captured": {
      "worst_linear_K": 1.177,
      "worst_rss_K": 0.84,
@@ -145,16 +145,16 @@
      }
     },
     "proposed": {
-     "worst_linear_K": 0.575,
-     "worst_rss_K": 0.298,
-     "worst_board_terms_K": 0.257,
+     "worst_linear_K": 0.736,
+     "worst_rss_K": 0.408,
+     "worst_board_terms_K": 0.418,
      "at_250C": {
       "T_C": 250.0,
-      "linear_K": 0.575,
-      "rss_K": 0.298,
-      "board_terms_K": 0.257,
+      "linear_K": 0.736,
+      "rss_K": 0.408,
+      "board_terms_K": 0.418,
       "nominal_loading_ohm_corrected_in_fw": 0.1195,
-      "Rref_tempco_K": 0.1609,
+      "Rref_tempco_K": 0.3217,
       "cal_reference_50ppm_K": 0.0322,
       "adc_offset_strict_K": 0.2288,
       "adc_fullscale_typ_K": 0.0164,
@@ -164,11 +164,11 @@
      },
      "at_100C": {
       "T_C": 100.0,
-      "linear_K": 0.447,
-      "rss_K": 0.232,
-      "board_terms_K": 0.181,
+      "linear_K": 0.557,
+      "rss_K": 0.3,
+      "board_terms_K": 0.291,
       "nominal_loading_ohm_corrected_in_fw": 0.0758,
-      "Rref_tempco_K": 0.1096,
+      "Rref_tempco_K": 0.2191,
       "cal_reference_50ppm_K": 0.0219,
       "adc_offset_strict_K": 0.1855,
       "adc_fullscale_typ_K": 0.0111,
@@ -177,7 +177,7 @@
       "thermo_emf_manganin_2K_K": 0.0031
      }
     },
-    "ageing_not_in_gate": "Rref load-life drift (Susumu RG datasheet value to be recorded at order); 0.01 % drift = 0.05 K at 250 C"
+    "ageing_not_in_gate": "Rref load-life drift: RESI PTFR 2000 h at 70 C rated load < 0.01 % typ, < 0.1 % max (R39 runs at about 6.7 mW of 125 mW); 0.01 % drift = 0.05 K at 250 C"
    }
   },
   "2 sample rate >=16 Hz continuous, 60 Hz notch": {
@@ -1866,8 +1866,8 @@
    "pass": true,
    "detail": {
     "rtd_runaway_band_C": [
-     299.2,
-     321.9
+     298.7,
+     322.4
     ],
     "rtd_runaway_band_captured_C": [
      237.5,

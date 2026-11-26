@@ -215,7 +215,7 @@ def runaway() -> dict:
     the FORCE- lead and the MAX31865's internal FORCE- switch drop out. With a comparator offset
     Vos and I = VB / (A + R + B), A = Rref + R_Fp, B = R_Fn + R_sw:
         R = (VB k A + Vos (A + B)) / (VB (1 - k) - Vos).
-    Corners: divider 0.1 % + 25 ppm/K x 60 K each, Rref 0.05 % + 5 ppm/K x 60 K (RG2012V-431-W-T1),
+    Corners: divider 0.1 % + 25 ppm/K x 60 K each, Rref 0.1 % + 10 ppm/K x 60 K (PTFR0805B430RN9, C52; was RG2012V 0.05 % + 5 ppm),
     VB 1.95 / 2.06 V, Vos +/-(5 mV VIO + 0.6 mV half the input hysteresis + 0.15 mV for the uA
     pull-up / divider currents in the sense leads), leads 0.9-1.1 x 1.80 ohm, FORCE- switch
     0.5-20 ohm (not specified by the vendor: swept). The sensor-r3 circuit solve
@@ -228,7 +228,7 @@ def runaway() -> dict:
                                                  (0.5, 20.0)):
         rt = 20e3 * (1 + st * span)
         rb = 10e3 * (1 + sb * span)
-        rref = 430.0 * (1 + sr * (0.0005 + 5e-6 * TEMP_SPAN_K))
+        rref = 430.0 * (1 + sr * (0.001 + 10e-6 * TEMP_SPAN_K))   # C52 PTFR0805B430RN9
         k = rb / (rt + rb)
         a = rref + lead * R_LEAD_C1
         b = lead * R_LEAD_C1 + rsw

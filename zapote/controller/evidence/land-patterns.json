@@ -48,6 +48,17 @@
    "rms_mm": 0.08
   },
   {
+   "exception": "EasyEDA Pro has no device record for C2098331 (evidence/c52/jlc_pads.json, 2026-11-26); 0603 chip on the stock R_0603 land, the land the RC0603FR part it replaces passed on",
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": null,
+   "lcsc": "C2098331",
+   "mpn": "AF0603FR-0734K8L",
+   "refs": [
+    "R32"
+   ],
+   "rms_mm": null
+  },
+  {
    "exception": null,
    "footprint": "Connector_JST:JST_XH_B12B-XH-A_1x12_P2.50mm_Vertical",
    "jlc_package": "CONN-TH_B12B-XH-A-LF-SN",
@@ -381,18 +392,6 @@
   },
   {
    "exception": null,
-   "footprint": "Capacitor_SMD:CP_Elec_8x6.2",
-   "jlc_package": "CAP-SMD_BD8.0-L8.3-W8.3-FD",
-   "lcsc": "C178539",
-   "mpn": "EEE-FK1E101P",
-   "refs": [
-    "C1",
-    "C9"
-   ],
-   "rms_mm": 0.217
-  },
-  {
-   "exception": null,
    "footprint": "Package_SO:MSOP-8_3x3mm_P0.65mm",
    "jlc_package": "MSOP-8_L3.0-W3.0-P0.65-LS5.0-BL",
    "lcsc": "C148036",
@@ -424,17 +423,6 @@
    "refs": [
     "R49",
     "R90"
-   ],
-   "rms_mm": 0.072
-  },
-  {
-   "exception": null,
-   "footprint": "Resistor_SMD:R_0603_1608Metric",
-   "jlc_package": "R0603",
-   "lcsc": "C4019122",
-   "mpn": "ERA-3AEB6192V",
-   "refs": [
-    "R47"
    ],
    "rms_mm": 0.072
   },
@@ -552,6 +540,17 @@
     "U5"
    ],
    "rms_mm": 0.23
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0805_2012Metric",
+   "jlc_package": "R0805",
+   "lcsc": "C351565",
+   "mpn": "PTFR0805B430RN9",
+   "refs": [
+    "R39"
+   ],
+   "rms_mm": 0.088
   },
   {
    "exception": null,
@@ -758,17 +757,6 @@
    "exception": null,
    "footprint": "Resistor_SMD:R_0603_1608Metric",
    "jlc_package": "R0603",
-   "lcsc": "C137741",
-   "mpn": "RC0603FR-0734K8L",
-   "refs": [
-    "R32"
-   ],
-   "rms_mm": 0.072
-  },
-  {
-   "exception": null,
-   "footprint": "Resistor_SMD:R_0603_1608Metric",
-   "jlc_package": "R0603",
    "lcsc": "C131054",
    "mpn": "RC0603FR-07499KL",
    "refs": [
@@ -835,17 +823,6 @@
     "U29"
    ],
    "rms_mm": 0.061
-  },
-  {
-   "exception": "EasyEDA has no record for C4260028 (404 on 2026-11-25); 0805 chip on the stock R_0805 land",
-   "footprint": "Resistor_SMD:R_0805_2012Metric",
-   "jlc_package": null,
-   "lcsc": "C4260028",
-   "mpn": "RG2012V-431-W-T1",
-   "refs": [
-    "R39"
-   ],
-   "rms_mm": null
   },
   {
    "exception": null,
@@ -969,6 +946,17 @@
    "exception": null,
    "footprint": "Resistor_SMD:R_0603_1608Metric",
    "jlc_package": "R0603",
+   "lcsc": "C861498",
+   "mpn": "RT0603BRD0761K9L",
+   "refs": [
+    "R47"
+   ],
+   "rms_mm": 0.072
+  },
+  {
+   "exception": null,
+   "footprint": "Resistor_SMD:R_0603_1608Metric",
+   "jlc_package": "R0603",
    "lcsc": "C861561",
    "mpn": "RT0603BRD077K06L",
    "refs": [
@@ -1037,16 +1025,16 @@
   {
    "exception": null,
    "footprint": "Package_TO_SOT_SMD:SOT-23-5",
-   "jlc_package": "SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR",
-   "lcsc": "C7666",
-   "mpn": "SN74LVC1G08DBVR",
+   "jlc_package": "SOT-23-5_L2.9-W1.6-P0.95-LS2.8-BL",
+   "lcsc": "C840098",
+   "mpn": "SN74LVC1G08QDBVRQ1",
    "refs": [
     "U11",
     "U25",
     "U33",
     "U37"
    ],
-   "rms_mm": 0.159
+   "rms_mm": 0.037
   },
   {
    "exception": null,
@@ -1315,6 +1303,18 @@
     "U1"
    ],
    "rms_mm": 0.1
+  },
+  {
+   "exception": null,
+   "footprint": "Capacitor_SMD:CP_Elec_8x6.2",
+   "jlc_package": "CAP-SMD_BD8.0-L8.3-W8.3-RD",
+   "lcsc": "C445471",
+   "mpn": "UCD1E101MCL6GS",
+   "refs": [
+    "C1",
+    "C9"
+   ],
+   "rms_mm": 0.245
   }
  ]
 }

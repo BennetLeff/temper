@@ -1,0 +1,49 @@
+{
+ "success": true,
+ "code": 0,
+ "result": [
+  {
+   "uuid": "833f099e71e0489f821c232b04a6ba32",
+   "attributes": {
+    "LCSC Part Name": "单路双输入正与门",
+    "Supplier Part": "C840098",
+    "Manufacturer": "TI(德州仪器)",
+    "Manufacturer Part": "SN74LVC1G08QDBVRQ1",
+    "Supplier Footprint": "SOT-23-5",
+    "JLCPCB Part Class": "Extended Part",
+    "Datasheet": "https://www.ti.com/cn/lit/ds/symlink/sn74lvc1g08-q1.pdf",
+    "Supplier": "LCSC",
+    "Add into BOM": "yes",
+    "Convert to PCB": "yes",
+    "Symbol": "34279c58fb1c41739172d3afedbf4499",
+    "Designator": "U?",
+    "Footprint": "ce19cf3a9e0f444ab83ae99d7368c50c",
+    "3D Model": "181cd81bc0eb45c3a4928013d5e38870",
+    "3D Model Title": "SOT-23-5_L2.9-W1.6-P0.95-LS2.8-BL",
+    "3D Model Transform": "114.96,110.236,0,0,0,0,0,0,0",
+    "Logic Type": "AND Gate",
+    "Number of Gates": "1",
+    "Voltage - Supply": "1.65V~5.5V",
+    "Quiescent Current": "10uA",
+    "Current - Output Low(IOL)": "32mA",
+    "Current - Output High(IOH)": "32mA",
+    "Input Logic Level - High": "-",
+    "Input Logic Level - Low": "-",
+    "Output Logic Level - High": "1.9V；2.3V；1.2V；3.8V",
+    "Output Logic Level - Low": "550mV；300mV；400mV；450mV",
+    "Series": "74LVC Series",
+    "Propagation Delay": "6ns@5V,50pF",
+    "Operating Temperature": "-40℃~+125℃",
+    "Inputs per Gates": "2",
+    "Features": "Local shutdown mode；Overvoltage-tolerant input；Live insertion protection；Rear drive protection",
+    "Name": "={Manufacturer Part}"
+   },
+   "product_code": "C840098",
+   "footprint": {
+    "uuid": "ce19cf3a9e0f444ab83ae99d7368c50c",
+    "display_title": "SOT-23-5_L2.9-W1.6-P0.95-LS2.8-BL",
+    "title": "sot-23-5_l2.9-w1.6-p0.95-ls2.8-bl"
+   }
+  }
+ ]
+}

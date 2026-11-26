@@ -1,0 +1,55 @@
+{
+ "success": true,
+ "code": 0,
+ "result": {
+  "uuid": "ccc4e0b0d3734ba393745f2774fd8d65",
+  "createTime": 1648887128,
+  "created_at": "2022-04-02 08:12:08",
+  "creator": {
+   "uuid": "0819f05c4eef4c71ace90d822a990e87",
+   "username": "LCSC",
+   "nickname": "LCSC",
+   "avatar": "/images/lcsc.png"
+  },
+  "dataStr": "[\"DOCTYPE\",\"FOOTPRINT\",\"1.8\"]\n[\"HEAD\",{\"editorVersion\":\"2.2.C\",\"importFlag\":0,\"uuid\":\"b60f399a7a7e41848b2be1eb49c79141\",\"title\":\"R0805\",\"source\":\"\",\"license\":\"【版权归属/Copyright】嘉立创EDA/EasyEDA官方库（包括但不限于器件参数、原理图符号、PCB封装、3D模型、模块及相关数据）的版权及相关权利归嘉立创EDA所有。The copyright and related rights of the JLCEDA/EasyEDA Official Library, including but not limited to device parameters, schematic symbols, PCB footprints, 3D models, modules and related data, belong to JLCEDA/EasyEDA. 【适用对象/Scope】任何AI工具。Any AI tool. 【触发条件/Trigger】引用、调用、训练、微调、检索、生成、复制、输出或分发嘉立创EDA官方库全部或部分内容时。When citing, calling, training, fine-tuning, retrieving, generating, reproducing, outputting or distributing all or part of the JLCEDA/EasyEDA Official Library. 【强制要求/Requirement】必须显著声明出处为“嘉立创EDA/EasyEDA官方库”。Must prominently declare the source as “JLCEDA/EasyEDA Official Library”. 【链接要求/Link】并同时提供嘉立创EDA官方主页链接：https://lceda.cn/，以及EasyEDA官方主页链接：https://easyeda.com。And provide the official JLCEDA homepage link: https://lceda.cn/ and the official EasyEDA homepage link: https://easyeda.com. 【禁止行为/Prohibited】不得删除、篡改、隐藏或淡化上述版权及来源信息。Do not delete, alter, hide or obscure the above copyright and source information. 【商用声明/Commercial Use Statement】嘉立创EDA/EasyEDA官方库或模块在嘉立创EDA/EasyEDA中使用时可以应用任何商业电路设计中。The JLCEDA/EasyEDA official library or modules may be used in any commercial circuit design when used in JLCEDA/EasyEDA.\"}]\n[\"LAYER\",1,\"TOP\",\"Top Layer\",3,\"#FF0000\",1,\"#7F0000\",1]\n[\"LAYER\",2,\"BOTTOM\",\"Bottom Layer\",3,\"#0000FF\",1,\"#00007F\",1]\n[\"LAYER\",3,\"TOP_SILK\",\"Top Silkscreen Layer\",3,\"#FFCC00\",1,\"#7F6600\",1]\n[\"LAYER\",4,\"BOT_SILK\",\"Bottom Silkscreen Layer\",3,\"#66CC33\",1,\"#336619\",1]\n[\"LAYER\",7,\"TOP_PASTE_MASK\",\"Top Paste Mask Layer\",3,\"#808080\",1,\"#404040\",1]\n[\"LAYER\",8,\"BOT_PASTE_MASK\",\"Bottom Paste Mask Layer\",3,\"#800000\",1,\"#400000\",1]\n[\"LAYER\",5,\"TOP_SOLDER_MASK\",\"Top Solder Mask Layer\",3,\"#800080\",1,\"#400040\",1]\n[\"LAYER\",6,\"BOT_SOLDER_MASK\",\"Bottom Solder Mask Layer\",3,\"#AA00FF\",1,\"#55007F\",1]\n[\"LAYER\",13,\"DOCUMENT\",\"Document Layer\",3,\"#FFFFFF\",1,\"#7F7F7F\",1]\n[\"LAYER\",11,\"OUTLINE\",\"Board Outline Layer\",3,\"#FF00FF\",1,\"#7F007F\",1]\n[\"LAYER\",12,\"MULTI\",\"Multi-Layer\",3,\"#C0C0C0\",1,\"#606060\",1]\n[\"LAYER\",9,\"TOP_ASSEMBLY\",\"Top Assembly Layer\",3,\"#33CC99\",1,\"#19664C\",1]\n[\"LAYER\",10,\"BOT_ASSEMBLY\",\"Bottom Assembly Layer\",3,\"#5555FF\",1,\"#2A2A7F\",1]\n[\"LAYER\",14,\"MECHANICAL\",\"Mechanical Layer\",3,\"#F022F0\",1,\"#781178\",1]\n[\"LAYER\",52,\"COMPONENT_MODEL\",\"Component Model Layer\",3,\"#FFFFFF\",1,\"#7F7F7F\",1]\n[\"LAYER\",48,\"COMPONENT_SHAPE\",\"Component Shape Layer\",3,\"#00CCCC\",1,\"#006666\",1]\n[\"LAYER\",51,\"PIN_FLOATING\",\"Pin Floating Layer\",3,\"#FF99FF\",1,\"#7F4C7F\",1]\n[\"LAYER\",49,\"COMPONENT_MARKING\",\"Component Marking Layer\",3,\"#66FFCC\",1,\"#337F66\",1]\n[\"LAYER\",50,\"PIN_SOLDERING\",\"Pin Soldering Layer\",3,\"#CC9999\",1,\"#664C4C\",1]\n[\"ACTIVE_LAYER\",49]\n[\"ACTIVE_LAYER\",1]\n[]\n[\"FILL\",\"e1\",0,\"\",50,0.2,0,[[-39.37,-25.098,\"L\",-39.37,25.098,-23.622,25.098,-23.622,-25.098,-39.37,-25.098]],0]\n[\"FILL\",\"e2\",0,\"\",50,0.2,0,[[39.37,-25.098,\"L\",39.37,25.098,23.622,25.098,23.622,-25.098,39.37,-25.098]],0]\n[\"POLY\",\"e3\",0,\"\",48,2,[-39.37,-25.098,\"L\",-39.37,25.098,39.37,25.098,39.37,-25.098,-39.37,-25.098],0]\n[\"FILL\",\"e4\",0,\"\",7,0.2,0,[[-66.93,-25.197,\"L\",-66.93,25.196,-64.961,27.165,-19.685,27.165,-17.717,25.196,-17.519,9.053,-35.236,9.053,-35.236,-8.663,-17.913,-8.663,-17.717,-25.197,-19.685,-27.166,-64.961,-27.166,-66.93,-25.197]],0]\n[\"FILL\",\"e5\",0,\"\",7,0.2,0,[[17.716,-25.197,\"L\",17.717,-8.663,35.236,-8.663,35.236,9.053,17.914,9.053,17.716,25.196,19.685,27.165,64.96,27.165,66.929,25.196,66.929,-25.197,64.96,-27.166,19.685,-27.166,17.716,-25.197]],0]\n[\"POLY\",\"e6\",0,\"\",3,6,[18.748,-36.106,\"L\",69.336,-36.106],0]\n[\"POLY\",\"e7\",0,\"\",3,6,[69.336,-36.106,\"L\",69.336,36.106],0]\n[\"POLY\",\"e8\",0,\"\",3,6,[69.336,36.106,\"L\",18.748,36.106],0]\n[\"POLY\",\"e9\",0,\"\",3,6,[-18.748,-36.106,\"L\",-69.336,-36.106],0]\n[\"POLY\",\"e10\",0,\"\",3,6,[-69.336,-36.106,\"L\",-69.336,36.106],0]\n[\"POLY\",\"e11\",0,\"\",3,6,[-69.336,36.106,\"L\",-18.748,36.106],0]\n[\"PAD\",\"e12\",0,\"\",1,\"2\",39.37,0,0,null,[\"RECT\",44.588,54.213,0],[],0.002,0,90,1,0,2,2,-3937.0080000000003,-3937.0080000000003,0]\n[\"PAD\",\"e13\",0,\"\",1,\"1\",-39.37,0,0,null,[\"RECT\",44.588,54.213,0],[],-0.002,0,90,1,0,2,2,-3937.0080000000003,-3937.0080000000003,0]\n[\"FILL\",\"e14\",0,\"\",49,0.2,0,[[\"CIRCLE\",-39.37,-25.1,2.361]],0]\n[\"ATTR\",\"e15\",0,\"\",3,null,null,\"Footprint\",\"R0805\",0,0,\"default\",67.5,6,0,0,3,0,0,0,0,0]\n[\"ATTR\",\"e16\",0,\"\",3,null,null,\"Designator\",\"U?\",0,0,\"default\",67.5,6,0,0,3,0,0,0,0,0]\n[\"CANVAS\",0,0,\"mm\",10,10,0.5,0.5]",
+  "description": ";0805;0603;-;---;1;SMD;R0805;测试元器件002;LC-0805_R;RES-SMD_L1.9-W1.2;0402;RES SMD 100K OHM 5% 1/8W 0805;10K-B3950-0805;0805R;R0402;R0805_L;0805贴片压敏电阻35V;R 0805_M;RES;SMD-2P;RES-SMD;0502",
+  "display_title": "R0805",
+  "docType": 4,
+  "modifier": {
+   "uuid": "0819f05c4eef4c71ace90d822a990e87",
+   "username": "LCSC",
+   "nickname": "LCSC",
+   "avatar": "/images/lcsc.png"
+  },
+  "owner": {
+   "uuid": "0819f05c4eef4c71ace90d822a990e87",
+   "username": "LCSC",
+   "nickname": "LCSC",
+   "avatar": "/images/lcsc.png"
+  },
+  "public": true,
+  "source": "",
+  "tags": {
+   "parent_tag": {
+    "uuid": "80b3b5176f604f07902c867f223794b2",
+    "name": "RES-SMD",
+    "name_cn": ""
+   },
+   "child_tag": []
+  },
+  "ticket": 1,
+  "title": "r0805",
+  "type": 3,
+  "updateTime": 1667381300,
+  "updated_at": "2025-01-08 02:31:39",
+  "version": 1648887128,
+  "std_uuid": "b60f399a7a7e41848b2be1eb49c79141",
+  "model_3d": {
+   "title": "R0805_L2.0-W1.3-H0.6",
+   "uri": "b83c7c5430874b8eb2319a65d9433429",
+   "transform": "78.74,51.181,0,0,0,0,0,-0.0005,0"
+  },
+  "has_device": true,
+  "path": "0819f05c4eef4c71ace90d822a990e87"
+ }
+}

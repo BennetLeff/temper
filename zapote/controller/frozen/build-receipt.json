@@ -6,9 +6,9 @@
   "export_command": "uv tool run --offline --from atopile==0.2.69 python tools/circuit_export.py /Users/bennet/Desktop/temper/worktrees/ctrl-c51/zapote/controller /Users/bennet/Desktop/temper/worktrees/ctrl-c51/zapote/controller/build/resolved-components.json --entry-file elec/src/controller.ato --entry SelvController",
   "exporter_sha256": "9068441892e2df3424a383c3682bdf5971527f9d4afa1812ce5171ddf8e36159",
   "frozen_sha256": {
-    "default.csv": "4205af03322ad67b5b6e798d4aad1b44fb82d18aeee9415b9914845defd04d6c",
-    "default.net": "4217185d2cb30ebbb4beb4403a1acfa722397719af7c98da4453c9ea8f446da7",
-    "resolved-components.json": "fbd5f4a51b60361f9696fa710f81f9ed7aa5fe1b58ca6b80d8a9f4855946089a"
+    "default.csv": "6149266dea121fd492ab031566dc5ffc930821251e2278e07d340d2bf1c8da79",
+    "default.net": "8471186cceeb8ec6624271417c4996933b3110b957232b67ae42cd442cb75c60",
+    "resolved-components.json": "b00c41a9ca4e1e20bed19a767a97aa73f47a2d338edbd4de0a6fdb50a9e62342"
   },
   "normalization": "absolute unit path replaced by 'UNIT'",
   "returncode": 0,
@@ -17,8 +17,8 @@
     "elec/src/bay_fan_block.ato": "15ed214206fd41dc7f7c1ed994b22a7fb373040f49e3e23cda611d6f6e233b36",
     "elec/src/components.ato": "423a7d1377bf6d7500b430e3bd0bf88dec53d74e3be59e2ab1fce5971698553b",
     "elec/src/constraints.ato": "f031aedc6655d61335c6b7ebf3d51eac83a5e66b1302a982299cbf4a6c92e21e",
-    "elec/src/controller.ato": "e77168bc3b6367b42c0b0d022706d62029190f03b0bd9974bd15d75c4dec2aad",
-    "elec/src/controller_parts.ato": "bc002e2d41dca1ac0eaa7768a75baf2754b43c70533b9ab4556c80444e51bc91",
+    "elec/src/controller.ato": "9beab2162eb6cff669520082dc98b9bc4af9642c0c51ec09739fd298f71a9263",
+    "elec/src/controller_parts.ato": "cf675c5ea95dfd2dcfffe1e2754df7f6c58e89723b32cbbd05ff8dea79654f78",
     "elec/src/fac_utils.ato": "a71fd9ecc48b2a5ad39ba3e637eef8242ca561de811c23063c18764d62ce3d7b",
     "elec/src/footprints.ato": "ae143ccaddd758fcd6a0cef2b8dcb37a1e32b51b59943c43f5e8fc4a848d7b3a",
     "elec/src/generics/interfaces.ato": "05a3dc1a86605241249c0d4e157d87edd6e23e4a2e25ace5169f9e3e6ff7079f",

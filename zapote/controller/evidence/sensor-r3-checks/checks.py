@@ -21,6 +21,8 @@ that is an engineering allowance rather than a datasheet limit.
 """
 from __future__ import annotations
 
+GATE_1B_K = 0.45   # CR-2 gate 1b bound; 0.30 until controller DECISIONS C52 (owner, 2026-11-26)
+
 import itertools
 import json
 import math
@@ -170,8 +172,8 @@ DESIGNS = {
     "captured": dict(r1=0.0, r2=0.0, c1=0.0, c2=1e-9, ccm=0.0, rb=1e6, rb_side="adc", win_side="adc",
                      cw=2e-12, div_side="adc", rth_bottom="gnd", cj=0.0, tvs=False, rref=RREF, rref_tc=25e-6, rref_tol=1e-3),
     "proposed": dict(r1=1000.0, r2=1000.0, c1=100e-9, c2=100e-9, ccm=1e-9, rb=499e3, rb_side="cable",
-                     win_side="cable", cw=10e-9, div_side="cable", rth_bottom="sn", cj=220e-9, tvs=True, rref=RREF, rref_tc=5e-6,
-                     rref_tol=5e-4),
+                     win_side="cable", cw=10e-9, div_side="cable", rth_bottom="sn", cj=220e-9, tvs=True, rref=RREF, rref_tc=10e-6,
+                     rref_tol=1e-3),   # C52 (owner 2026-11-26): stocked 0.1 % 10 ppm/K Rref; was 0.05 % 5 ppm/K
 }
 
 
@@ -362,19 +364,20 @@ def item1_accuracy():
                      "at_250C": rows[-1], "at_100C": rows[6]}
     # typical-characterisation reading: MAX31865 TOC06 (400 R Rref, 4-wire) ~ +/-0.1 C over -40..100 C die
     p = out["proposed"]
-    ok = p["worst_board_terms_K"] <= 0.30 and p["worst_rss_K"] <= 0.30
+    ok = p["worst_board_terms_K"] <= GATE_1B_K and p["worst_rss_K"] <= GATE_1B_K
     gate("1b front-end error after single-point cal, 40-250 C", ok, {
         "method": "gain-only calibration with a calibrated 50 ppm reference resistor at R(200 C) on J3, board 25 C; board 0-85 C "
                   "(|dT| 60 K); MAX31865 offset bounded +/-3 LSB independently at cal and use (strict, no "
                   "drift spec exists); FS and INL are datasheet typ only; firmware removes the nominal "
                   "pull-up loading (Rref/Rb); VBIAS cancels (ratiometric, REF2025 only sets window thresholds)",
-        "requirement": "+/-0.3 K. Gate: the board-controlled terms (Rref, calibration, loading, leakage, "
-                       "thermo-EMF) stacked linearly <=0.30 K AND the RSS of all terms incl. the MAX31865 "
-                       "<=0.30 K. The strict linear stack incl. the MAX31865 is reported, not gated: its "
+        "requirement": f"+/-{GATE_1B_K} K (relaxed from +/-0.3 K by the owner on 2026-11-26, controller DECISIONS C52, "
+                       f"to admit the stocked 10 ppm/K Rref). Gate: the board-controlled terms (Rref, calibration, loading, "
+                       f"leakage, thermo-EMF) stacked linearly <={GATE_1B_K} K AND the RSS of all terms incl. the MAX31865 "
+                       f"<={GATE_1B_K} K. The strict linear stack incl. the MAX31865 is reported, not gated: its "
                        "+/-3 LSB offset bound alone is 0.23 K at 250 C with no drift spec (DECISIONS D3)",
         "captured": out["captured"], "proposed": out["proposed"],
-        "ageing_not_in_gate": "Rref load-life drift (Susumu RG datasheet value to be recorded at order); "
-                              "0.01 % drift = 0.05 K at 250 C",
+        "ageing_not_in_gate": "Rref load-life drift: RESI PTFR 2000 h at 70 C rated load < 0.01 % typ, < 0.1 % max "
+                              "(R39 runs at about 6.7 mW of 125 mW); 0.01 % drift = 0.05 K at 250 C",
     })
     return out
 

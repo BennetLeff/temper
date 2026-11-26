@@ -23,7 +23,8 @@ from netlist import attach_resolved, parse_value, read_netlist  # noqa: E402
 
 import checks  # noqa: E402
 
-RREF_TC = {"RG2012V-431-W-T1": 5e-6, "RT0805BRD07430RL": 25e-6}     # RG2012 V code; Yageo RT 25 ppm
+RREF_TC = {"RG2012V-431-W-T1": 5e-6, "RT0805BRD07430RL": 25e-6,    # RG2012 V code; Yageo RT 25 ppm
+           "PTFR0805B430RN9": 10e-6}                                 # RESI PTFR N code = +/-10 ppm/C (C52)
 
 
 def as_built() -> tuple[dict, dict]:

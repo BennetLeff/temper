@@ -1,0 +1,41 @@
+{
+ "success": true,
+ "code": 0,
+ "result": [
+  {
+   "uuid": "5e21cf57b6df4ecca3487b7d9dd520de",
+   "attributes": {
+    "LCSC Part Name": "薄膜电阻 430Ω ±0.1% 130mW",
+    "Supplier Part": "C351565",
+    "Manufacturer": "RESI(开步睿思)",
+    "Manufacturer Part": "PTFR0805B430RN9",
+    "Supplier Footprint": "0805",
+    "JLCPCB Part Class": "Extended Part",
+    "Datasheet": "https://item.szlcsc.com/datasheet/PTFR0805B430RN9/327473.html",
+    "Supplier": "LCSC",
+    "Add into BOM": "yes",
+    "Convert to PCB": "yes",
+    "Symbol": "6a73f4fbbecf4ebc982ae33a6cc31316",
+    "Designator": "R?",
+    "Footprint": "ccc4e0b0d3734ba393745f2774fd8d65",
+    "3D Model": "b83c7c5430874b8eb2319a65d9433429",
+    "3D Model Title": "R0805_L2.0-W1.3-H0.6",
+    "3D Model Transform": "78.74,51.181,0,0,0,0,0,-0.0005,0",
+    "Type": "Thin Film Resistor",
+    "Value": "430Ω",
+    "Tolerance": "±0.1%",
+    "Power(Watts)": "130mW",
+    "Voltage-Supply(Max)": "150V",
+    "Temperature Coefficient": "±10ppm/℃",
+    "Operating Temperature": "-55℃~+125℃",
+    "Name": "={Value}"
+   },
+   "product_code": "C351565",
+   "footprint": {
+    "uuid": "ccc4e0b0d3734ba393745f2774fd8d65",
+    "display_title": "R0805",
+    "title": "r0805"
+   }
+  }
+ ]
+}

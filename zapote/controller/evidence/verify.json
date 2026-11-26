@@ -3,7 +3,7 @@
   "inputs": {
     "native21_commit": "f0c669a86b70ac270d36fa416fd75870c078974a",
     "netlist": "frozen/default.net",
-    "netlist_sha256": "4217185d2cb30ebbb4beb4403a1acfa722397719af7c98da4453c9ea8f446da7"
+    "netlist_sha256": "8471186cceeb8ec6624271417c4996933b3110b957232b67ae42cd442cb75c60"
   },
   "schema": "temper.controller.verify.v1",
   "sections": {
@@ -1530,7 +1530,7 @@
               [
                 "U37",
                 "4",
-                "SN74LVC1G08DBVR"
+                "SN74LVC1G08QDBVRQ1"
               ]
             ],
             "gate_inputs": [
@@ -3266,6 +3266,20 @@
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
             "board": "controller",
             "mA": 0.065,
+            "path": "rtd_pan.low_window",
+            "ref": "U31"
+          },
+          {
+            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
+            "board": "controller",
+            "mA": 0.065,
+            "path": "rtd_pan.high_window",
+            "ref": "U32"
+          },
+          {
+            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
+            "board": "controller",
+            "mA": 0.065,
             "path": "thermal.hs_comp",
             "ref": "U17"
           },
@@ -3289,20 +3303,6 @@
             "mA": 0.065,
             "path": "u_rim_trip",
             "ref": "U40"
-          },
-          {
-            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
-            "board": "controller",
-            "mA": 0.065,
-            "path": "rtd_pan.low_window",
-            "ref": "U31"
-          },
-          {
-            "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
-            "board": "controller",
-            "mA": 0.065,
-            "path": "rtd_pan.high_window",
-            "ref": "U32"
           },
           {
             "basis": "TLV3201AIDBVR: SBOS561C: IQ 65 uA (-40..125 C)",
@@ -3438,6 +3438,13 @@
             "ref": "U43"
           },
           {
+            "basis": "SN74LVC1G08QDBVRQ1: SCES556H (-Q1): ICC taken as the commercial SCES217AA 10 uA (not re-read)",
+            "board": "controller",
+            "mA": 0.01,
+            "path": "rtd_pan.window_and",
+            "ref": "U33"
+          },
+          {
             "basis": "SN74LVC1G32DBVR: SCES219W: ICC 10 uA",
             "board": "controller",
             "mA": 0.01,
@@ -3466,14 +3473,14 @@
             "ref": "U20"
           },
           {
-            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
+            "basis": "SN74LVC1G08QDBVRQ1: SCES556H (-Q1): ICC taken as the commercial SCES217AA 10 uA (not re-read)",
             "board": "controller",
             "mA": 0.01,
             "path": "interlock.common",
             "ref": "U25"
           },
           {
-            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
+            "basis": "SN74LVC1G08QDBVRQ1: SCES556H (-Q1): ICC taken as the commercial SCES217AA 10 uA (not re-read)",
             "board": "controller",
             "mA": 0.01,
             "path": "u_permit",
@@ -3515,7 +3522,7 @@
             "ref": "U12"
           },
           {
-            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
+            "basis": "SN74LVC1G08QDBVRQ1: SCES556H (-Q1): ICC taken as the commercial SCES217AA 10 uA (not re-read)",
             "board": "controller",
             "mA": 0.01,
             "path": "u_live",
@@ -3534,13 +3541,6 @@
             "mA": 0.01,
             "path": "u_runaway_or",
             "ref": "U41"
-          },
-          {
-            "basis": "SN74LVC1G08DBVR: SCES217AA: ICC 10 uA",
-            "board": "controller",
-            "mA": 0.01,
-            "path": "rtd_pan.window_and",
-            "ref": "U33"
           },
           {
             "basis": "SN74LVC1G00DBVR: SCES212: ICC 10 uA",

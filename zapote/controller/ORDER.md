@@ -1,5 +1,9 @@
 # Controller prototype order package (JLC PCB + PCBA)
 
+> **C52 (2026-11-26, branch `controller-c51`):** R39 is now the JLC-stocked RESI PTFR0805B430RN9 (C351565) with CR-2 gate 1b at
+> 0.45 K, and C1/C9, R47, U11/U25/U33/U37 and R32 moved to stocked parts (DECISIONS C52). The R39 consignment text in §2 below
+> is C48/C49 history: on C51 nothing is consigned or owner-fitted. The C51 order package is written after layout.
+
 > **JLC preview done 2026-10-19 (`evidence/fab-loose-ends/cpl-rotation/PREVIEW-2026-10-19.md`): the CPL had to change.** The NEEDS-PREVIEW parts were
 > rotated wrong in JLC's own viewer (U11, U12, U16, Q1 by 180, U3 by 90). `layout/fab.py` now applies the geometry offsets (29 rotations changed; the THT connectors J1 J2 J3 J4 J7 stay at KiCad's rotation: check their body and keying against our silk in the preview), and the CPL
 > hash in the table below is the corrected file. The BOM and Gerbers are unchanged. The viewer also showed: **Standard PCBA is required** (83 extended part types,

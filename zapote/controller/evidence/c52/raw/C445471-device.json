@@ -1,0 +1,44 @@
+{
+ "success": true,
+ "code": 0,
+ "result": [
+  {
+   "uuid": "bce6ad243f1349b5b95ef842cdc509e0",
+   "attributes": {
+    "LCSC Part Name": "100uF ±20% 25V",
+    "Supplier Part": "C445471",
+    "Manufacturer": "Nichicon(尼吉康)",
+    "Manufacturer Part": "UCD1E101MCL6GS",
+    "Supplier Footprint": "SMD,D8xL6.2mm",
+    "JLCPCB Part Class": "Extended Part",
+    "Datasheet": "https://item.szlcsc.com/datasheet/UCD1E101MCL6GS/446950.html",
+    "Supplier": "LCSC",
+    "Add into BOM": "yes",
+    "Convert to PCB": "yes",
+    "Symbol": "d9d25060dd834a25bb90b8dded5c2afe",
+    "Designator": "C?",
+    "Footprint": "4a19328c99a546fab239ca5f08848a6d",
+    "3D Model": "f75f2c88ad914221af1dba0ab686eb91",
+    "3D Model Title": "CAP-SMD_BD8.0-L8.3-W8.3-RD",
+    "3D Model Transform": "354.33,326.81037,0,0,0,0,0,0,0",
+    "Value": "100uF",
+    "Tolerance": "±20%",
+    "Voltage Rating": "25V",
+    "Ripple Current": "300mA@100kHz",
+    "Equivalent Series Resistance(ESR)": "260mΩ@100kHz",
+    "Diameter": "8mm",
+    "Height - Seated (Max)": "6.5mm",
+    "Lifetime": "2000hrs@105℃",
+    "Operating Temperature": "-55℃~+105℃",
+    "Polarity type": "有极性",
+    "Name": "={Value}"
+   },
+   "product_code": "C445471",
+   "footprint": {
+    "uuid": "4a19328c99a546fab239ca5f08848a6d",
+    "display_title": "CAP-SMD_BD8.0-L8.3-W8.3-RD",
+    "title": "cap-smd_bd8.0-l8.3-w8.3-rd"
+   }
+  }
+ ]
+}

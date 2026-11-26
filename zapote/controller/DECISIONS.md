@@ -758,3 +758,37 @@ C37 called 35542 right and CR-7's 35544 wrong ("233.22 Ω, outside the 233.21 Ω
 - **Layers (decided): four layers first.** C51 is routed only after R45 agrees J9 / J14 / J15. If fewer than 2 of 3 runs converge, C51 goes to six layers: `gridroute.py` signals F, In2 and B, and six layers needs two more signal layers there. Cost, stackup (the review names JLC06161H-3313) and the effect on thermal and RF checks have not been read.
 - **s56 lands:** 15 of the 26 lines without JLC geometry now compared and pass (power stage `c58-s56-lands`); 11 remain, plus F1 and BR1, which have no JLC code.
 - **Not done:** layout, routing, CPL, firmware (P05 / P06 / P17 / 0x2F / 47 k / Pt1000), an independent review, and the enclosure's agreement on J9, J14 and J15. C49's 1-of-3 routing record stands, and U30's larger land will move its neighbours.
+
+## C52. R39 on a stocked 10 ppm/K Rref with CR-2 gate 1b at 0.45 K; four stock swaps; C51 fully JLC-assembled (owner, 2026-11-26)
+Owner direction 2026-11-25: JLC assembles as much as possible, near-zero hand soldering. Basis: `evidence/c51/jlc-max-r1/README.md`
+(JLC reads 2026-11-26 04:13–04:31Z, commit 2f7887738). Owner decision 2026-11-26: "adopt RESI PTFR0805B430RN9 (C351565) and relax
+CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
+- **R39 (pan MAX31865 Rref) → RESI PTFR0805B430RN9, C351565** (430 Ω 0805, B = ±0.1 %, N = ±10 ppm/°C per the RESI ordering
+  code; JLC 48,662). It replaces the Susumu RG2012V-431-W-T1 (0.05 %, 5 ppm/K), which had 0 stock at JLC on every read since
+  2026-10-12 and no small-quantity source. Same value and land: the threshold words (35544 / 12844), firmware constants and copper
+  do not change. Override in `controller.ato` (`rtd_c1_block.ato` stays the library text plus the listed C37 edits).
+- **CR-2 gate 1b is ±0.45 K** (was ±0.30 K): `evidence/sensor-r3-checks/checks.py` `GATE_1B_K`. As built: board terms 0.418 K, RSS
+  0.408 K at 250 °C (Rref tempco 0.322 K of it, from 10 ppm/K over the gate's 60 K board swing). The sensor-r3 proposal now
+  names the 0.1 % / 10 ppm/K Rref, so the as-built comparison reports no difference. Not in the gate: Rref load-life drift (RESI:
+  2000 h at 70 °C rated load < 0.01 % typ, < 0.1 % max; R39 runs at about 6.7 mW of 125 mW; 0.01 % is 0.05 K at 250 °C).
+- **Runaway trip** (`controller_calcs.runaway`, corners now Rref 0.1 % + 10 ppm/K × 60 K): 298.3–323.6 °C, inside the
+  270–325 °C gate, 1.4 °C below its upper bound (was 299.2–321.9 °C with the RG2012V).
+- **Firmware still has no CR-2 gain calibration** (`rtd_convert.c` divides by a fixed 430.0). Until it exists, Rref tolerance adds
+  directly: 0.54 K at 250 °C for 0.1 % (0.27 K for the old 0.05 %). The 0.45 K gate assumes the single-point calibration.
+  Comments in fw-unified `max31865.h:65` and `rtd_convert.h:37` still name the RG2012V (no code change).
+- **Stock swaps (BOM only, no net or land change; ratings equal):**
+  - C1, C9: Panasonic EEE-FK1E101P (0 at JLC) → **Nichicon UCD1E101MCL6GS, C445471** (772): 100 µF 25 V ±20 %, D8 × 6.2
+    (JLC attributes; maker datasheet not read). Changed in `controller_parts.ato` `Cap100u25Elec`. Land fit 0.245 mm RMS
+    against the 0.30 mm gate (JLC's land is wider than CP_Elec_8x6.2); polarity stays a JLC-preview item.
+  - R47: ERA-3AEB6192V (2 left) → **RT0603BRD0761K9L, C861498** (5,464), 61.9 k 0.1 % 25 ppm.
+  - U11, U25, U33, U37: SN74LVC1G08DBVR (36 left, under the 5-board need) → **SN74LVC1G08QDBVRQ1, C840098** (7,990), same DBV
+    pinout, tpd max 4.5 ns (SCES556H), so the capmode slack is unchanged. `verify_controller.py` models both codes.
+  - R32: RC0603FR-0734K8L (67, falling) → **AF0603FR-0734K8L, C2098331** (31,248), 34.8 k 1 % 100 ppm. EasyEDA has no pad record
+    for C2098331 (`evidence/c52/missing.json`), so it is a named land-gate exception on the stock R_0603 land.
+- **JLC pads** for the new codes: `evidence/c52/fetch_pro_pads.py` (pro.easyeda.com; the old easyeda.com route 403s), control
+  C7666 reproduces the committed record exactly. The RG2012V land exception is removed (stale).
+- **Result:** freeze, `verify_controller.py` VERIFY: PASS, land patterns PASS (95 of 97 compared, 2 named exceptions), sensor-r3
+  as-built 11/11 PASS with no difference from the change request. With these, no C51 BOM line is consigned or owner-fitted;
+  JLC hand-solders the 11 THT connectors. Order-day items stay: pre-order U3, U14, U15; re-read R23/R36/R152 and R31.
+- **Reverses if:** a ≤ 5 ppm/K 0.05 % 430 Ω part appears in JLC stock (go back to the 0.30 K gate), or bench data show the board's
+  temperature swing from calibration exceeds about 36 K with the PTFR (re-check 1b against the measured swing).

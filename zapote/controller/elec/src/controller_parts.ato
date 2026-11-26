@@ -112,11 +112,12 @@ component Ind22u:
     signal p2 ~ pin 2
 
 component Cap100u25Elec:
-    """Panasonic EEE-FK1E101P, 100 uF 25 V aluminium SMD, case D8 8x6.2 (LCSC C178539).
+    """Nichicon UCD1E101MCL6GS, 100 uF 25 V aluminium SMD, case D8 8x6.2 (LCSC C445471; DECISIONS C52).
+    Was Panasonic EEE-FK1E101P (C178539), 0 at JLC on 2026-11-26.
     Damps the 15 V harness inductance against the buck input ceramics."""
     designator_prefix = "C"
-    mpn = "EEE-FK1E101P"
-    manufacturer = "Panasonic"
+    mpn = "UCD1E101MCL6GS"
+    manufacturer = "Nichicon"
     footprint = "Capacitor_SMD:CP_Elec_8x6.2"
     signal p ~ pin 1
     signal n ~ pin 2

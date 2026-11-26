@@ -658,6 +658,41 @@
       "basis": "Diodes DS30232 Rev. 12-2 p. 2 (sha256 9f9bf1807d06ef4c): IR <= 80 nA at 75 V 150 C",
       "lcsc": "C155248",
       "jlc_stock_2026_11_25": 11302
+    },
+    "PTFR0805B430RN9": {
+      "origin": "controller C52 (R39, was RG2012V-431-W-T1 0.05 % 5 ppm, 0 stock)",
+      "basis": "RESI PTFR 430 ohm 0805, B = 0.1 %, N = +/-10 ppm/C (RESI PTFR datasheet ordering code, sha256 in evidence/c51/jlc-max-r1/reads/datasheets.json); CR-2 gate 1b relaxed to 0.45 K by the owner (C52)",
+      "lcsc": "C351565",
+      "jlc_stock_2026_11_26": 48662,
+      "stock_source": "evidence/c51/jlc-max-r1 (JLC reads 2026-11-26 04:13-04:31Z)"
+    },
+    "UCD1E101MCL6GS": {
+      "origin": "controller C52 (C1, C9, was EEE-FK1E101P, 0 stock)",
+      "basis": "Nichicon UCD 100 uF 25 V +/-20 % aluminium SMD, D8 x 6.2, 105 C (JLC attributes; maker datasheet not read)",
+      "lcsc": "C445471",
+      "jlc_stock_2026_11_26": 772,
+      "stock_source": "evidence/c51/jlc-max-r1 (JLC reads 2026-11-26 04:13-04:31Z)"
+    },
+    "RT0603BRD0761K9L": {
+      "origin": "controller C52 (R47, was ERA-3AEB6192V, 2 in stock)",
+      "basis": "Yageo RT 61.9 k 0.1 % 25 ppm 0603, same rating as ERA-3AEB6192V",
+      "lcsc": "C861498",
+      "jlc_stock_2026_11_26": 5464,
+      "stock_source": "evidence/c51/jlc-max-r1 (JLC reads 2026-11-26 04:13-04:31Z)"
+    },
+    "SN74LVC1G08QDBVRQ1": {
+      "origin": "controller C52 (U11, U25, U33, U37, was SN74LVC1G08DBVR, 36 in stock)",
+      "basis": "TI SN74LVC1G08-Q1, same DBV (SOT-23-5) pinout; tpd max 4.5 ns at 3.3 V +/- 0.3 V, -40..85 C (SCES556H 5.7), the figure controller_calcs capmode uses",
+      "lcsc": "C840098",
+      "jlc_stock_2026_11_26": 7990,
+      "stock_source": "evidence/c51/jlc-max-r1 (JLC reads 2026-11-26 04:13-04:31Z)"
+    },
+    "AF0603FR-0734K8L": {
+      "origin": "controller C52 (R32, was RC0603FR-0734K8L, 67 and falling)",
+      "basis": "Yageo AF 34.8 k 1 % 100 ppm 0603 (anti-sulfur variant of the RC line), same rating",
+      "lcsc": "C2098331",
+      "jlc_stock_2026_11_26": 31248,
+      "stock_source": "evidence/c51/jlc-max-r1 (JLC reads 2026-11-26 04:13-04:31Z)"
     }
   }
 }

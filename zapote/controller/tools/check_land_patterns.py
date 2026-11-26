@@ -21,11 +21,13 @@ import kicad_pads as kp  # noqa: E402
 from netlist import attach_resolved, read_netlist  # noqa: E402
 
 LIMIT_MM = 0.30
-PADS = [UNIT / "evidence/fab-loose-ends/cpl-rotation/easyeda_pads.json", UNIT / "evidence/c51/jlc_pads.json"]
+PADS = [UNIT / "evidence/fab-loose-ends/cpl-rotation/easyeda_pads.json", UNIT / "evidence/c51/jlc_pads.json",
+        UNIT / "evidence/c52/jlc_pads.json"]
 STOCK = Path("/Applications/KiCad/KiCad.app/Contents/SharedSupport/footprints")
 LIBS = [UNIT / "pcb/libs", UNIT / "layout/footprints", UNIT.parent / "rtd/unit/candidate/candidate-libs", STOCK]
 EXCEPTIONS: dict[str, str] = {
-    "RG2012V-431-W-T1": "EasyEDA has no record for C4260028 (404 on 2026-11-25); 0805 chip on the stock R_0805 land",
+    "AF0603FR-0734K8L": "EasyEDA Pro has no device record for C2098331 (evidence/c52/jlc_pads.json, 2026-11-26); 0603 chip "
+                        "on the stock R_0603 land, the land the RC0603FR part it replaces passed on",
     "SWPA6045S100MT": "inner pad edges agree (KiCad 1.40 mm, JLC 1.37 mm from centre); JLC's land only reaches further "
                       "outside the 6.0 mm body (3.84 against 3.10 mm)",
     "TC2050-IDC-NL-LAND": "flush probe land, no part is placed",
