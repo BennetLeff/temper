@@ -68,7 +68,7 @@ SINK_LEN = 76.2                     # cut length (along z): fins vertical
 SINK_HEIGHT = 59.7                  # base + fins (along -y), milled 'M' series
 SINK_BASE_T = 5.6                   # A = 0.220 in, milled
 SINK_FIN_PITCH = 8.7                # C = 0.342 in
-SINK_FLATNESS = 0.05                # mm per mm, milled
+SINK_FLATNESS = 0.002               # per unit length (in/in = mm/mm), milled; 0.05 was a mis-conversion of 0.002 in/in. No tool reads it
 RSA_NAT = 0.90                      # C/W natural convection, distributed sources, 50 C rise
 RSA_NAT_RISE = 50.0
 RSA_FORCED_100CFM = 0.12            # C/W at 100 CFM, shrouded (not our fan; not used for any claim)
@@ -151,7 +151,7 @@ NTC_XZ = (77.8, 40.0)               # M3 tapped, front face, between Q2 and BR1 
 TCO_XZ = (94.2, 40.0)               # TCO body centre (horizontal along x), above BR1, the largest heat source
 TCO_CLAMP_SCREW_XZ = (94.2, 47.0)   # M3 tapped for the cushioned loop clamp's tab
 BOND_XZ = (110.0, 72.0)             # M4 tapped, PE bond ring lug (14 AWG G/Y)
-BR1_SCREW = "M3 x 10 SHCS + flat washer into the sink's tapped hole, through BR1's 3.1-3.4 mm hole (GBJ N)"
+BR1_SCREW = "M3 x 10 SHCS + ISO 7092 small-series M3 washer (6.0 OD: an ISO 7089 7.0 OD washer does not pass the 6.5 mm bar slot) into the sink's tapped hole, through BR1's 3.1-3.4 mm hole (GBJ N)"
 BRACKET = dict(angle=(38.1, 38.1, 3.175), height=70.0)   # 1-1/2 x 1-1/2 x 1/8 in aluminium angle, one per sink end
 STANDOFF_H = 15.0                   # nylon M3 male-female at H1, H3-H8; board top = 15 + 1.6 above the baseplate
 BOARD_T = 1.6

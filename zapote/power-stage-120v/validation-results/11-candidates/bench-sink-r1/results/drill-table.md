@@ -4,12 +4,12 @@ Sink Wakefield-Vette 511-3M: front face 132.33 (u) x 76.2 (v), u from the face's
 
 | hole | u mm | v mm | size | how |
 |---|---|---|---|---|
-| bar screw L, M4 tapped through the base | 5.00 | 14.20 | 4.0 | drill 3.3 x 10 deep, tap M4 8 deep |
-| bar screw R, M4 tapped through the base | 127.50 | 14.20 | 4.0 | drill 3.3 x 10 deep, tap M4 8 deep |
-| NTC lug, M3 | 89.80 | 35.50 | 3.0 | drill 2.5 x 6 deep, tap M3 5 deep |
-| TCO loop-clamp tab, M3 | 106.20 | 42.50 | 3.0 | drill 2.5 x 6 deep, tap M3 5 deep |
-| PE bond, M4 | 122.00 | 67.50 | 4.0 | drill 3.3 x 7 deep, tap M4 5 deep |
-| BR1 screw, M3 | 106.20 | 8.90 | 3.0 | v = (measured seat height of a loose BR1 + 11.0 + 0.2) - 4.5; shown at the EST seat 2.2. Drill 2.5, tap M3 5 deep |
+| bar screw L, M4 tapped through the base | 5.00 | 14.20 | 4.0 | drill 3.3 through the 5.6 mm base, tap M4 through (5.6 mm engagement); confirm first that it lands between fin grooves |
+| bar screw R, M4 tapped through the base | 127.50 | 14.20 | 4.0 | drill 3.3 through the 5.6 mm base, tap M4 through (5.6 mm engagement); confirm first that it lands between fin grooves |
+| NTC lug, M3 | 89.80 | 35.50 | 3.0 | drill 2.5 through the 5.6 mm base, tap M3 through (5.6 mm engagement); confirm first that it lands between fin grooves |
+| TCO loop-clamp tab, M3 | 106.20 | 42.50 | 3.0 | drill 2.5 through the 5.6 mm base, tap M3 through (5.6 mm engagement); confirm first that it lands between fin grooves |
+| PE bond, M4 | 122.00 | 67.50 | 4.0 | drill 3.3 through the 5.6 mm base, tap M4 through (5.6 mm engagement); confirm first that it lands between fin grooves |
+| BR1 screw, M3 | 106.20 | 8.90 | 3.0 | v = (measured seat height of a loose BR1 + 11.0 + 0.2) - 4.5; shown at the EST seat 2.2. Drill 2.5 through the 5.6 mm base, tap M3 through (5.6 mm engagement) |
 
 Bracket bolts (2 per end, M4 through the outermost fin, nut in the first fin channel): MATCH-drill with the sink set on its gauges; brackets stay >= 5 mm behind the board edge (y <= -5).
 

@@ -254,13 +254,14 @@ def write_svg(path):
 def main():
     u = lambda x: x - SINK_X[0]
     v = lambda z: z - SINK_Z[0]
-    holes = [("bar screw L, M4 tapped through the base", u(P.BAR_SCREW_X[0]), v(P.BAR_SCREW_Z), 4.0, "drill 3.3 x 10 deep, tap M4 8 deep"),
-             ("bar screw R, M4 tapped through the base", u(P.BAR_SCREW_X[1]), v(P.BAR_SCREW_Z), 4.0, "drill 3.3 x 10 deep, tap M4 8 deep"),
-             ("NTC lug, M3", u(P.NTC_XZ[0]), v(P.NTC_XZ[1]), 3.0, "drill 2.5 x 6 deep, tap M3 5 deep"),
-             ("TCO loop-clamp tab, M3", u(P.TCO_CLAMP_SCREW_XZ[0]), v(P.TCO_CLAMP_SCREW_XZ[1]), 3.0, "drill 2.5 x 6 deep, tap M3 5 deep"),
-             ("PE bond, M4", u(P.BOND_XZ[0]), v(P.BOND_XZ[1]), 4.0, "drill 3.3 x 7 deep, tap M4 5 deep"),
+    base_txt = f"through the {P.SINK_BASE_T} mm base"   # the base is the only metal the hole can thread into
+    holes = [("bar screw L, M4 tapped through the base", u(P.BAR_SCREW_X[0]), v(P.BAR_SCREW_Z), 4.0, f"drill 3.3 {base_txt}, tap M4 through ({P.SINK_BASE_T} mm engagement); confirm first that it lands between fin grooves"),
+             ("bar screw R, M4 tapped through the base", u(P.BAR_SCREW_X[1]), v(P.BAR_SCREW_Z), 4.0, f"drill 3.3 {base_txt}, tap M4 through ({P.SINK_BASE_T} mm engagement); confirm first that it lands between fin grooves"),
+             ("NTC lug, M3", u(P.NTC_XZ[0]), v(P.NTC_XZ[1]), 3.0, f"drill 2.5 {base_txt}, tap M3 through ({P.SINK_BASE_T} mm engagement); confirm first that it lands between fin grooves"),
+             ("TCO loop-clamp tab, M3", u(P.TCO_CLAMP_SCREW_XZ[0]), v(P.TCO_CLAMP_SCREW_XZ[1]), 3.0, f"drill 2.5 {base_txt}, tap M3 through ({P.SINK_BASE_T} mm engagement); confirm first that it lands between fin grooves"),
+             ("PE bond, M4", u(P.BOND_XZ[0]), v(P.BOND_XZ[1]), 4.0, f"drill 3.3 {base_txt}, tap M4 through ({P.SINK_BASE_T} mm engagement); confirm first that it lands between fin grooves"),
              ("BR1 screw, M3", u(BR1_HOLE_EST[0]), v(BR1_HOLE_EST[1]), 3.0,
-              f"v = (measured seat height of a loose BR1 + {sum(P.GBJ['S']) / 2:.1f} + {P.BR1_LIFT}) - {P.Z_SINK_BOTTOM}; shown at the EST seat {P.BR1_SEAT_Z_EST}. Drill 2.5, tap M3 5 deep")]
+              f"v = (measured seat height of a loose BR1 + {sum(P.GBJ['S']) / 2:.1f} + {P.BR1_LIFT}) - {P.Z_SINK_BOTTOM}; shown at the EST seat {P.BR1_SEAT_Z_EST}. Drill 2.5 {base_txt}, tap M3 through ({P.SINK_BASE_T} mm engagement)")]
     xb0 = P.BAR["x"][0]
     bar_holes = [(f"pocket {r}", P.FET_X[r] - xb0, P.SPRING_Z - P.BAR["z"][0], P.SPRING["hole"],
                   f"3/8 in flat-bottom, {P.POCKET_DEPTH} deep (twist drill + 3/8 in counterbore, or end mill)") for r in P.FET_X]

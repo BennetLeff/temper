@@ -365,7 +365,7 @@ Hand tools and a drill press. Dimensions are in `results/drill-table.md`.
    - Feeler-gauge the gap between its back and the strip with BR1 vertical and its leads centred in their holes.
    - Run `shim_select.py` with a `BR1,g,` row to get the shim, rounded down.
    - Lift the strip's free right end, slide in the greased BR1 shim stack (Ø3.5 hole at the screw), and lay the strip back.
-4. **Screw.** Fit BR1 with its M3 × 10 SHCS and flat washer through the bar slot, using a 2.5 mm ball-end hex driver, ≤ 0.56 N·m.
+4. **Screw.** Fit BR1 with its M3 × 10 SHCS and an ISO 7092 small-series washer (6.0 mm OD; an ISO 7089 washer is 7.0 mm and does not pass the 6.5 mm slot) through the bar slot, using a 2.5 mm ball-end hex driver, ≤ 0.56 N·m.
    - BR1 hangs on the screw, with ≥ 0.2 mm under its seat features.
    - If the strip face lies beyond BR1's free position (negative shim), the screw leans BR1 back in its holes: up to 0.0362 rad, against 0.154 rad available (corner-limited play, c60; was 0.0187 / 0.423).
 5. **Preheat.**
@@ -428,7 +428,7 @@ Reads are from 2026-10-18; the raw reads and the blocked sites are in `sources/S
 | 16 | **Benchtop hot-air bottom preheater** (class in §6.3) | 1 | owner's choice, **not read** | – | – |
 | 17 | Aluminium angle 1-1/2 × 1-1/2 × 1/8 in, 2 × 70 mm; **M4 fender washers** | – | McMaster, **PN not read** | – | – |
 | 18 | Nylon M3 × 15 male-female standoffs, nylon screws and nuts | 7 | McMaster, **PN not read** | – | – |
-| 19 | Steel fasteners (as revision 1), **plus M3 × 10 SHCS + washer for BR1 and a 2.5 mm ball-end hex driver** | – | any | – | – |
+| 19 | Steel fasteners (as revision 1), **plus M3 × 10 SHCS + ISO 7092 M3 washer (6.0 OD) for BR1 and a 2.5 mm ball-end hex driver** | – | any | – | – |
 | 20 | Loop clamp, wire, lugs, splices, plywood, polycarbonate cover, thermocouples, insulation tester, 4-wire ohmmeter | – | as revision 1 | – | – |
 
 - **Removed:** the single 0.020 in aluminium BR1 shim. It is replaced by the selected shim stock.
