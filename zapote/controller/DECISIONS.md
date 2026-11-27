@@ -988,3 +988,59 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
   - Board of record: run 1 (sha256 11265a33…, commit eb8218075).
   - Block validators on it: interlock 68/7/5, thermal 87/10/7, RTD 5/40/5. The C30 locality fail is gone, and every
     added fail is W8.
+- **Independent layout review of eb8218075 (fresh Fable reviewer, frozen export; report
+  evidence/c53-layout-review/REVIEW.md): no BLOCKER, five MAJOR. The board of record above is superseded.**
+  - Every finding below was re-measured on the board before acting.
+  - The copper fixes went in together, so the routing convergence is rerun (three fresh runs). The rerun board then
+    gets a fresh review.
+  - **M3, fixed: the face-fan buck (U51/L3/J15, C51) had no power-stage copper.**
+    - `sw_fan2` was 9.7 mm of 0.15 mm track. `V12_FAN2` was 55 mm of 0.15 mm through three vias (0.67 A against
+      0.60 A for 10 K). U51's VIN came over 0.25 mm V15_BLW necks.
+    - Fix: build_board `buck_pours` for U51 (SW band to L3 pad 1, VIN pour), and the caps at U2's offsets on the pours.
+      `sw_fan2`/`V12_FAN2` join the Power class and OUTER_ONLY. V12_FAN2 routes at 0.6 mm with no neck. V15_BLW routes
+      at 0.8 mm (was 1.0) with no neck.
+    - New gate `power_paths`: each supply's source and load pads are joined by pours or tracks of at least the net's
+      path width (V_BLOWER 0.8, V12_FAN2 0.6, V15_BLW 0.5, v15_selv 0.25 mm), counting vias and pin stubs up to
+      1.2 mm. On the old board it fails exactly V12_FAN2 and U51's V15_BLW branch.
+  - **M4, fixed: V_BLOWER's four layer changes were single 0.6/0.3 vias** (1.42 A typical, 2.70 A max, about 1 A per
+    barrel).
+    - New step `layout/power_vias.py`, run in route.py before the pours: it adds companion vias on the high-current
+      nets, aiming for three barrels per layer change. Each companion is checked with gridroute's exact clearance and
+      drill checks.
+    - New gate `power_vias`: at least two barrels at every site. On the old routed board it added 28 vias with DRC
+      still clean.
+  - **M5 and m1, fixed: In2 v3v3 pour islands carrying IC supplies hung on single links.** The ESP32 module's island
+    had one via and a 0.3 mm track. C30 (U30 DVDD) sat on another island from its pin.
+    - New `layout/v3v3_islands.py` counts each island's links. plane_islands.py asks the router for a second link on
+      any supply island with one.
+    - New gate `v3v3_islands`. On the old board it finds the reviewer's islands: four with one link.
+    - Locked F.Cu stubs now tie each MAX31865's DVDD pin to its bypass. C110/C111 swapped, so C111's pad is level with
+      U50.2. `rtd_decoupling` now also requires that F.Cu path.
+    - An In3 v3v3 fill was considered and rejected: In3 sits 0.11 mm from In2's RTD analog traces, and the RTD
+      regions forbid In3 fills.
+  - **M2, gated:** a THT connector whose JLC footprint numbers the pins differently must be listed in
+    `fab.THT_REVIEWED` (the eight known, with the order-process check), or fab fails. A two-pad resistor with no JLC
+    pad record (R32) may take offset 0 or 180 only. The THT orientation itself is an order step (F2 above).
+  - **M1, open (owner): J4 numbering.** Molex's site refused automated reads of the 43045-1600 drawing (timeouts from
+    both the fetch tool and curl). The power board's mate is the same KiCad Molex family (vertical 43045-1612), so a
+    1:1 harness maps pin n to pin n unless KiCad's generator differs between the two. No copper change. Owner: read the
+    drawing; bring-up: buzz J4.3 and J4.9 before mating.
+  - **Minor items:**
+    - m2: the J13.1 feed pour reaches past the pad on +X/+Y/−Y, so all four spokes form (was one).
+    - m3: the interlock gate and the router's forbid list also count nets the MCU drives through a ≤ 100 Ω series
+      part. That catches pwm_hb's 25 mm In3 run through the latch block; the op-amp `*_buf_out` nets go into the ADC
+      and are excluded. The gate uses an exact segment/box test.
+    - m6: a 10 mm selv_gnd stitching grid over the board (61 vias).
+    - m7: three fiducials, board-only, each with a 1.5 mm keep-out.
+    - m10: silk revision text.
+    - m11: drill maps out of the zip.
+    - Stale strings fixed: the jlc-dfm stack-up and C1's height-table name (UCD1E101MCL6GS, D8 × 6.2, as C52).
+  - **Accepted:**
+    - m4: In2/In3 broadside runs. The inferred glitch is a few hundred mV for about 10 ns, on lines filtered or
+      latched downstream.
+    - m5: RTD tap resistors 35–40 mm from U30. They are RC-filtered, and moving them is a placement study.
+    - m8: via-in-pad. It is acceptable with JLC's epoxy fill and cap, which becomes an order-form item.
+    - m12: digital and SS tracks under L2's shielded body.
+    - J11 courtyard edge overhang: copper-only lands, nothing fitted.
+  - **To ORDER:** m9 stock reads for the 18 unread lines, JLC's six-layer minimum quantity, POFV, and the THT
+    orientation steps.

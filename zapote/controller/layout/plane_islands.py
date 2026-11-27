@@ -9,6 +9,10 @@ nothing to aim at. This replaces every such item with a real pair: for each isla
 not the largest, the closest two v3v3 vias (or through-hole pads) of that island and of the
 rest of the net, written as through-hole items so gridroute.py may join them on any layer.
 The board must have filled zones (the DRC run with --refill-zones --save-board does that).
+
+C53 review M5: an island that IS connected, but by a single link, and carries an IC's supply (v3v3_islands.py) also
+gets a pair: from one of its vias that is not on the existing link to the nearest via of the main island, so the
+router adds a second link.
 """
 import json
 import math
@@ -25,8 +29,6 @@ def main():
     d = json.load(open(path))
     zone_items = [u for u in d["unconnected_items"]
                   if all(e["description"].startswith("Zone") for e in u["items"])]
-    if not zone_items:
-        return
     keep = [u for u in d["unconnected_items"] if u not in zone_items]
     for net in sorted({__import__("re").search(r"\[([^\]]+)\]", u["items"][0]["description"]).group(1)
                        for u in zone_items}):
@@ -63,9 +65,26 @@ def main():
                 {"description": f"Via [{net}] on F.Cu - B.Cu", "pos": {"x": a[0], "y": a[1]}},
                 {"description": f"Via [{net}] on F.Cu - B.Cu", "pos": {"x": m[0], "y": m[1]}}]})
             main_set = main_set + members
+    sys.path.insert(0, __import__("os").path.dirname(__file__))
+    import v3v3_islands
+    n_weak = 0
+    for o in v3v3_islands.weak(b):
+        if o["links"] == 0 or not o["main_anchors_mm"]:
+            continue          # an unlinked island is a zone item above
+        # prefer an island via that is not on the existing link, so the new pair is a second, separate path
+        free = [a for a, used in zip(o["anchors_mm"], o["anchor_linked"]) if not used]
+        cands = free or o["anchors_mm"]
+        best = min(((math.dist(a, m), a, m) for a in cands for m in o["main_anchors_mm"]), default=None)
+        if best is None:
+            continue
+        _, a, m = best
+        keep.append({"description": "weak plane island (plane_islands.py, v3v3_islands.py)", "items": [
+            {"description": f"Via [{v3v3_islands.NET}] on F.Cu - B.Cu", "pos": {"x": a[0], "y": a[1]}},
+            {"description": f"Via [{v3v3_islands.NET}] on F.Cu - B.Cu", "pos": {"x": m[0], "y": m[1]}}]})
+        n_weak += 1
     d["unconnected_items"] = keep
     json.dump(d, open(path, "w"), indent=1)
-    print(f"plane islands: {len(zone_items)} zone items replaced")
+    print(f"plane islands: {len(zone_items)} zone items replaced, {n_weak} weak-island pairs added")
 
 
 if __name__ == "__main__":

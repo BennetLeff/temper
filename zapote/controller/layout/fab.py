@@ -89,6 +89,19 @@ CPL_ROTATION_OFFSET = {
     "C155248": 180,   # BAV199-7-F, SOT-23 (C51 food-probe clamps)
     "C169383": 180,   # SWRB1205S-100MT inductor: two identical pads, numbering only; applied so the gate has no SMD exceptions
 }
+# C53 review M2: THT connectors whose JLC footprint numbers the pins 180 degrees from ours. The CPL keeps KiCad's
+# rotation for them: the body follows the silk outline (PREVIEW-2026-10-19.md Result 2; a right-angle J4 at +180
+# hung off the edge), and the order carries the check (ORDER.md: rotate in JLC's placement editor if the key renders
+# off the silk key wall; assembly remark; key check on arrival). A THT code that disagrees and is not listed here
+# fails the build.
+THT_REVIEWED = {
+    "C158012": "B2B-XH-A, J1/J2",
+    "C144395": "B4B-XH-A, J3/J9",
+    "C158027": "B12B-XH-A, J7",
+    "C277731": "Molex 43045-1600, J4 (numbering: owner reads the 43045-1600 drawing; bring-up buzz J4.3/J4.9)",
+    "C131337": "JST PH B2B-PH-K, J14",
+    "C157991": "B5B-XH-A, J15",
+}
 PAD_RECORDS = ["evidence/fab-loose-ends/cpl-rotation/easyeda_pads.json", "evidence/c51/jlc_pads.json",
                "evidence/c52/jlc_pads.json"]
 
@@ -111,6 +124,8 @@ def cpl_rotation_gate(placed):
         if not rec or not rec.get("pads"):
             if not (n == 2 and ref.startswith("R")):
                 bad.append(f"{ref} {lcsc}: no JLC pad record ({n} pads)")
+            elif off % 180:
+                bad.append(f"{ref} {lcsc}: two-pad resistor with no JLC pad record at offset {off} (only 0 or 180 keep its axis)")
             continue
         kp = [{"num": p.GetNumber(), "x": pcbnew.ToMM(p.GetFPRelativePosition().x),
                "y": pcbnew.ToMM(p.GetFPRelativePosition().y)} for p in fp.Pads()]
@@ -122,6 +137,9 @@ def cpl_rotation_gate(placed):
         elif tht:
             if best != off:
                 tht_preview.append((ref, lcsc, best))
+                if lcsc not in THT_REVIEWED:
+                    bad.append(f"{ref} {lcsc}: THT part whose JLC footprint needs offset {best} (CPL {off}) is not in "
+                               "THT_REVIEWED")
         elif best != off:
             bad.append(f"{ref} {lcsc}: JLC footprint needs offset {best}, CPL applies {off}")
     return bad, tht_preview
@@ -150,6 +168,8 @@ def main():
         "--generate-map", "--map-format", "gerberx2", "--drill-origin", "plot", "-o", str(g) + "/", str(BOARD))
     with zipfile.ZipFile(FAB / "controller-gerbers.zip", "w", zipfile.ZIP_DEFLATED) as z:
         for f in sorted(g.iterdir()):
+            if "drl_map" in f.name:      # C53 review m11: drill maps stay out of the upload (JLC could read them as layers)
+                continue
             z.write(f, f.name)
     run("pcb", "export", "pdf", "--layers", "F.Fab,Edge.Cuts,F.Silkscreen", "--mode-single", "--black-and-white",
         "--include-border-title", "-o", str(FAB / "assembly-top.pdf"), str(BOARD))

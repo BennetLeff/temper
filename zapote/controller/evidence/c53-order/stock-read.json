@@ -1,0 +1,2423 @@
+{
+ "flags": [],
+ "lines": {
+  "0430451600": {
+   "bom_code_stock": 785,
+   "lcsc_bom": "C277731",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C17258169",
+      "library": "expand",
+      "mfr": "MOLEX",
+      "model": "0430451600",
+      "package": "Push-Pull",
+      "price_qty1": 1.4996,
+      "stock": 0
+     },
+     {
+      "by_code": true,
+      "lcsc": "C277731",
+      "library": "expand",
+      "model": "430451600",
+      "stock": 785
+     }
+    ],
+    "t": "2026-11-27T07:28:50Z"
+   }
+  },
+  "2N7002": {
+   "bom_code_stock": 5647416,
+   "lcsc_bom": "C8545",
+   "library": "base",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C8545",
+      "library": "base",
+      "mfr": "Jiangsu Changjing Electronics Technology Co., Ltd.",
+      "model": "2N7002",
+      "package": "SOT-23",
+      "price_qty1": 0.0151,
+      "stock": 5647416
+     },
+     {
+      "lcsc": "C124475",
+      "library": "expand",
+      "mfr": "onsemi",
+      "model": "2N7002",
+      "package": "SOT-23-3L",
+      "price_qty1": 0.0379,
+      "stock": 26083
+     },
+     {
+      "lcsc": "C179727",
+      "library": "expand",
+      "mfr": "HT(Shenzhen Jinyu Semicon)",
+      "model": "2N7002",
+      "package": "SOT-23",
+      "price_qty1": 0.024,
+      "stock": 2869
+     }
+    ],
+    "t": "2026-11-27T07:29:04Z"
+   }
+  },
+  "74HC30PW,118": {
+   "bom_code_stock": 1229,
+   "lcsc_bom": "C546857",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C546857",
+      "library": "expand",
+      "mfr": "Nexperia",
+      "model": "74HC30PW,118",
+      "package": "TSSOP-14",
+      "price_qty1": 0.2782,
+      "stock": 1229
+     }
+    ],
+    "t": "2026-11-27T07:30:26Z"
+   }
+  },
+  "AD8436ARQZ-R7": {
+   "bom_code_stock": 28,
+   "lcsc_bom": "C495329",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C495329",
+      "library": "expand",
+      "mfr": "Analog Devices",
+      "model": "AD8436ARQZ-R7",
+      "package": "QSOP-20-150mil",
+      "price_qty1": 15.9393,
+      "stock": 28
+     }
+    ],
+    "t": "2026-11-27T07:30:19Z"
+   }
+  },
+  "AF0603FR-0734K8L": {
+   "bom_code_stock": 30948,
+   "lcsc_bom": "C2098331",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C2098331",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "AF0603FR-0734K8L",
+      "package": "0603",
+      "price_qty1": 0.0097,
+      "stock": 30948
+     }
+    ],
+    "t": "2026-11-27T07:29:30Z"
+   }
+  },
+  "B12B-XH-A(LF)(SN)": {
+   "bom_code_stock": 5712,
+   "lcsc_bom": "C158027",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C158027",
+      "library": "expand",
+      "mfr": "JST",
+      "model": "B12B-XH-A(LF)(SN)",
+      "package": "Plugin,P=2.5mm",
+      "price_qty1": 0.202,
+      "stock": 5712
+     }
+    ],
+    "t": "2026-11-27T07:28:53Z"
+   }
+  },
+  "B2B-PH-K-S(LF)(SN)": {
+   "bom_code_stock": 330387,
+   "lcsc_bom": "C131337",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C131337",
+      "library": "expand",
+      "mfr": "JST",
+      "model": "B2B-PH-K-S(LF)(SN)",
+      "package": "Plugin,P=2mm",
+      "price_qty1": 0.0328,
+      "stock": 330387
+     }
+    ],
+    "t": "2026-11-27T07:28:58Z"
+   }
+  },
+  "B2B-XH-A(LF)(SN)": {
+   "bom_code_stock": 428881,
+   "lcsc_bom": "C158012",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C158012",
+      "library": "expand",
+      "mfr": "JST",
+      "model": "B2B-XH-A(LF)(SN)",
+      "package": "Plugin,P=2.5mm",
+      "price_qty1": 0.0376,
+      "stock": 428881
+     }
+    ],
+    "t": "2026-11-27T07:28:48Z"
+   }
+  },
+  "B2P-VH(LF)(SN)": {
+   "bom_code_stock": 140237,
+   "lcsc_bom": "C160315",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C160315",
+      "library": "expand",
+      "mfr": "JST",
+      "model": "B2P-VH(LF)(SN)",
+      "package": "Plugin,P=3.96mm",
+      "price_qty1": 0.0558,
+      "stock": 140237
+     }
+    ],
+    "t": "2026-11-27T07:28:56Z"
+   }
+  },
+  "B3B-XH-A(LF)(SN)": {
+   "bom_code_stock": 75373,
+   "lcsc_bom": "C144394",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C144394",
+      "library": "expand",
+      "mfr": "JST",
+      "model": "B3B-XH-A(LF)(SN)",
+      "package": "Plugin,P=2.5mm",
+      "price_qty1": 0.0486,
+      "stock": 75373
+     }
+    ],
+    "t": "2026-11-27T07:28:55Z"
+   }
+  },
+  "B4B-XH-A(LF)(SN)": {
+   "bom_code_stock": 490118,
+   "lcsc_bom": "C144395",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C144395",
+      "library": "expand",
+      "mfr": "JST",
+      "model": "B4B-XH-A(LF)(SN)",
+      "package": "Plugin,P=2.5mm",
+      "price_qty1": 0.0517,
+      "stock": 490118
+     }
+    ],
+    "t": "2026-11-27T07:28:49Z"
+   }
+  },
+  "B5B-XH-A(LF)(SN)": {
+   "bom_code_stock": 55265,
+   "lcsc_bom": "C157991",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C157991",
+      "library": "expand",
+      "mfr": "JST",
+      "model": "B5B-XH-A(LF)(SN)",
+      "package": "Plugin,P=2.5mm",
+      "price_qty1": 0.0903,
+      "stock": 55265
+     },
+     {
+      "lcsc": "C9900249948",
+      "library": "expand",
+      "mfr": "JLCPCB Assembly",
+      "model": "B5B-XH-A(LF)(SN)",
+      "package": "Plugin,P=2.5mm,5P",
+      "price_qty1": 0.0399,
+      "stock": 0
+     }
+    ],
+    "t": "2026-11-27T07:28:59Z"
+   }
+  },
+  "BAT54S-7-F": {
+   "bom_code_stock": 109422,
+   "lcsc_bom": "C83574",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C83574",
+      "library": "expand",
+      "mfr": "Diodes Incorporated",
+      "model": "BAT54S-7-F",
+      "package": "SOT-23",
+      "price_qty1": 0.1449,
+      "stock": 109422
+     }
+    ],
+    "t": "2026-11-27T07:28:43Z"
+   }
+  },
+  "BAV199-7-F": {
+   "bom_code_stock": 10891,
+   "lcsc_bom": "C155248",
+   "library": "expand",
+   "qty_per_board": 4,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C155248",
+      "library": "expand",
+      "mfr": "Diodes Incorporated",
+      "model": "BAV199-7-F",
+      "package": "SOT-23",
+      "price_qty1": 0.1326,
+      "stock": 10891
+     }
+    ],
+    "t": "2026-11-27T07:28:46Z"
+   }
+  },
+  "BLM18AG121SN1D": {
+   "bom_code_stock": 174180,
+   "lcsc_bom": "C76892",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C76892",
+      "library": "expand",
+      "mfr": "Murata Electronics",
+      "model": "BLM18AG121SN1D",
+      "package": "0603",
+      "price_qty1": 0.0145,
+      "stock": 174180
+     }
+    ],
+    "t": "2026-11-27T07:29:37Z"
+   }
+  },
+  "BSS138LT1G": {
+   "bom_code_stock": 290037,
+   "lcsc_bom": "C82045",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C82045",
+      "library": "expand",
+      "mfr": "onsemi",
+      "model": "BSS138LT1G",
+      "package": "SOT-23",
+      "price_qty1": 0.0413,
+      "stock": 290037
+     },
+     {
+      "lcsc": "C18212666",
+      "library": "expand",
+      "mfr": "TECH PUBLIC",
+      "model": "BSS138LT1G",
+      "package": "SOT-23",
+      "price_qty1": 0.0222,
+      "stock": 24528
+     }
+    ],
+    "t": "2026-11-27T07:29:06Z"
+   }
+  },
+  "C0603C102J5GACTU": {
+   "bom_code_stock": 1108,
+   "lcsc_bom": "C2181873",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C2181873",
+      "library": "expand",
+      "mfr": "KEMET",
+      "model": "C0603C102J5GACTU",
+      "package": "0603",
+      "price_qty1": 0.0266,
+      "stock": 1108
+     }
+    ],
+    "t": "2026-11-27T07:28:36Z"
+   }
+  },
+  "C0603C104K5RACTU": {
+   "bom_code_stock": 1735,
+   "lcsc_bom": "C127833",
+   "library": "expand",
+   "qty_per_board": 22,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C127833",
+      "library": "expand",
+      "mfr": "KEMET",
+      "model": "C0603C104K5RACTU",
+      "package": "0603",
+      "price_qty1": 0.0692,
+      "stock": 1735
+     }
+    ],
+    "t": "2026-11-27T07:28:33Z"
+   }
+  },
+  "CC0603KRX7R9BB104": {
+   "bom_code_stock": 44990799,
+   "lcsc_bom": "C14663",
+   "library": "base",
+   "qty_per_board": 46,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C14663",
+      "library": "base",
+      "mfr": "YAGEO",
+      "model": "CC0603KRX7R9BB104",
+      "package": "0603",
+      "price_qty1": 0.0048,
+      "stock": 44990799
+     },
+     {
+      "lcsc": "C9900097451",
+      "library": "expand",
+      "mfr": "JLCPCB Assembly",
+      "model": "CC0603KRX7R9BB104",
+      "package": "0603",
+      "price_qty1": 0.0399,
+      "stock": 0
+     },
+     {
+      "lcsc": "C9900299837",
+      "library": "expand",
+      "mfr": "JLCPCB Assembly",
+      "model": "CC0603KRX7R9BB104",
+      "package": "0603",
+      "price_qty1": 0.0399,
+      "stock": 0
+     }
+    ],
+    "t": "2026-11-27T07:28:25Z"
+   }
+  },
+  "CC0603KRX7R9BB224": {
+   "bom_code_stock": 198848,
+   "lcsc_bom": "C107083",
+   "library": "expand",
+   "qty_per_board": 4,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C107083",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "CC0603KRX7R9BB224",
+      "package": "0603",
+      "price_qty1": 0.0127,
+      "stock": 198848
+     }
+    ],
+    "t": "2026-11-27T07:28:39Z"
+   }
+  },
+  "CL10A105KB8NNNC": {
+   "bom_code_stock": 11085426,
+   "lcsc_bom": "C15849",
+   "library": "base",
+   "qty_per_board": 8,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C15849",
+      "library": "base",
+      "mfr": "Samsung Electro-Mechanics",
+      "model": "CL10A105KB8NNNC",
+      "package": "0603",
+      "price_qty1": 0.0136,
+      "stock": 11085426
+     }
+    ],
+    "t": "2026-11-27T07:28:30Z"
+   }
+  },
+  "CL10B103KB8NNNC": {
+   "bom_code_stock": 1464862,
+   "lcsc_bom": "C1589",
+   "library": "expand",
+   "qty_per_board": 3,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C1589",
+      "library": "expand",
+      "mfr": "Samsung Electro-Mechanics",
+      "model": "CL10B103KB8NNNC",
+      "package": "0603",
+      "price_qty1": 0.0069,
+      "stock": 1464862
+     }
+    ],
+    "t": "2026-11-27T07:28:24Z"
+   }
+  },
+  "CL10C102JB8NNNC": {
+   "bom_code_stock": 160968,
+   "lcsc_bom": "C163508",
+   "library": "expand",
+   "qty_per_board": 6,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C163508",
+      "library": "expand",
+      "mfr": "Samsung Electro-Mechanics",
+      "model": "CL10C102JB8NNNC",
+      "package": "0603",
+      "price_qty1": 0.009,
+      "stock": 160968
+     }
+    ],
+    "t": "2026-11-27T07:28:32Z"
+   }
+  },
+  "CL21A226MAQNNNE": {
+   "bom_code_stock": 4389680,
+   "lcsc_bom": "C45783",
+   "library": "base",
+   "qty_per_board": 4,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C45783",
+      "library": "base",
+      "mfr": "Samsung Electro-Mechanics",
+      "model": "CL21A226MAQNNNE",
+      "package": "0805",
+      "price_qty1": 0.0915,
+      "stock": 4389680
+     },
+     {
+      "lcsc": "C9900205101",
+      "library": "expand",
+      "mfr": "JLCPCB Assembly",
+      "model": "CL21A226MAQNNNE",
+      "package": "0805",
+      "price_qty1": 0.0399,
+      "stock": 0
+     },
+     {
+      "lcsc": "C9900221728",
+      "library": "expand",
+      "mfr": "JLCPCB Assembly",
+      "model": "CL21A226MAQNNNE",
+      "package": "0805",
+      "price_qty1": 0.0399,
+      "stock": 0
+     },
+     {
+      "lcsc": "C9900318643",
+      "library": "expand",
+      "mfr": "JLCPCB Assembly",
+      "model": "CL21A226MAQNNNE",
+      "package": "0805",
+      "price_qty1": 0.0399,
+      "stock": 0
+     }
+    ],
+    "t": "2026-11-27T07:28:28Z"
+   }
+  },
+  "CL31A106KAHNNNE": {
+   "bom_code_stock": 384770,
+   "lcsc_bom": "C9807",
+   "library": "expand",
+   "qty_per_board": 5,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C9807",
+      "library": "expand",
+      "mfr": "Samsung Electro-Mechanics",
+      "model": "CL31A106KAHNNNE",
+      "package": "1206",
+      "price_qty1": 0.0363,
+      "stock": 384770
+     }
+    ],
+    "t": "2026-11-27T07:28:27Z"
+   }
+  },
+  "CL31A226KAHNNNE": {
+   "bom_code_stock": 2455977,
+   "lcsc_bom": "C12891",
+   "library": "base",
+   "qty_per_board": 4,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C12891",
+      "library": "base",
+      "mfr": "Samsung Electro-Mechanics",
+      "model": "CL31A226KAHNNNE",
+      "package": "1206",
+      "price_qty1": 0.0903,
+      "stock": 2455977
+     }
+    ],
+    "t": "2026-11-27T07:28:31Z"
+   }
+  },
+  "EMC2301-1-ACZL-TR": {
+   "bom_code_stock": 1979,
+   "lcsc_bom": "C148036",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C148036",
+      "library": "expand",
+      "mfr": "Microchip Tech",
+      "model": "EMC2301-1-ACZL-TR",
+      "package": "MSOP-8",
+      "price_qty1": 2.3387,
+      "stock": 1979
+     }
+    ],
+    "t": "2026-11-27T07:30:42Z"
+   }
+  },
+  "ERA-3AEB103V": {
+   "bom_code_stock": 43401,
+   "lcsc_bom": "C190610",
+   "library": "expand",
+   "qty_per_board": 3,
+   "read": {
+    "hits": [
+     {
+      "by_code": true,
+      "lcsc": "C190610",
+      "library": "expand",
+      "model": "ERA3AEB103V",
+      "stock": 43401
+     }
+    ],
+    "t": "2026-11-27T07:29:40Z"
+   }
+  },
+  "ERA-3AEB5901V": {
+   "bom_code_stock": 5105,
+   "lcsc_bom": "C491142",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "by_code": true,
+      "lcsc": "C491142",
+      "library": "expand",
+      "model": "ERA3AEB5901V",
+      "stock": 5105
+     }
+    ],
+    "t": "2026-11-27T07:29:42Z"
+   }
+  },
+  "ESD5Z3.3T1G": {
+   "bom_code_stock": 267269,
+   "lcsc_bom": "C61148",
+   "library": "expand",
+   "qty_per_board": 7,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C2827729",
+      "library": "expand",
+      "mfr": "TECH PUBLIC",
+      "model": "ESD5Z3.3T1G",
+      "package": "SOD-523",
+      "price_qty1": 0.0281,
+      "stock": 305945
+     },
+     {
+      "lcsc": "C61148",
+      "library": "expand",
+      "mfr": "onsemi",
+      "model": "ESD5Z3.3T1G",
+      "package": "SOD-523",
+      "price_qty1": 0.0345,
+      "stock": 267269
+     },
+     {
+      "lcsc": "C28310455",
+      "library": "expand",
+      "mfr": "GOODWORK",
+      "model": "ESD5Z3.3T1G",
+      "package": "SOD-523",
+      "price_qty1": 0.0124,
+      "stock": 14519
+     },
+     {
+      "lcsc": "C56367407",
+      "library": "expand",
+      "mfr": "FUXINSEMI",
+      "model": "ESD5Z3.3T1G",
+      "package": "SOD-523",
+      "price_qty1": 0.0136,
+      "stock": 6000
+     },
+     {
+      "lcsc": "C5252448",
+      "library": "expand",
+      "mfr": "UMW(Youtai Semiconductor Co., Ltd.)",
+      "model": "ESD5Z3.3T1G",
+      "package": "SOD-523",
+      "price_qty1": 0.0137,
+      "stock": 1543
+     }
+    ],
+    "t": "2026-11-27T07:28:40Z"
+   }
+  },
+  "ESD5Z5.0T1G": {
+   "bom_code_stock": 208997,
+   "lcsc_bom": "C82044",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C82044",
+      "library": "expand",
+      "mfr": "onsemi",
+      "model": "ESD5Z5.0T1G",
+      "package": "SOD-523",
+      "price_qty1": 0.0333,
+      "stock": 208997
+     },
+     {
+      "lcsc": "C5199848",
+      "library": "expand",
+      "mfr": "UMW(Youtai Semiconductor Co., Ltd.)",
+      "model": "ESD5Z5.0T1G",
+      "package": "SOD-523",
+      "price_qty1": 0.0141,
+      "stock": 47015
+     },
+     {
+      "lcsc": "C343989",
+      "library": "expand",
+      "mfr": "BORN",
+      "model": "ESD5Z5.0T1G",
+      "package": "SOD-523",
+      "price_qty1": 0.024,
+      "stock": 24371
+     },
+     {
+      "lcsc": "C28310461",
+      "library": "expand",
+      "mfr": "GOODWORK",
+      "model": "ESD5Z5.0T1G",
+      "package": "SOD-523",
+      "price_qty1": 0.0125,
+      "stock": 7737
+     },
+     {
+      "lcsc": "C2934892",
+      "library": "expand",
+      "mfr": "KUU",
+      "model": "ESD5Z5.0T1G",
+      "package": "SOD-523",
+      "price_qty1": 0.0169,
+      "stock": 6080
+     },
+     {
+      "lcsc": "C56124264",
+      "library": "expand",
+      "mfr": "FUXINSEMI",
+      "model": "ESD5Z5.0T1G",
+      "package": "SOD-523",
+      "price_qty1": 0.0136,
+      "stock": 5910
+     },
+     {
+      "lcsc": "C970023",
+      "library": "expand",
+      "mfr": "TECH PUBLIC",
+      "model": "ESD5Z5.0T1G",
+      "package": "SOD-523",
+      "price_qty1": 0.0214,
+      "stock": 4358
+     }
+    ],
+    "t": "2026-11-27T07:28:42Z"
+   }
+  },
+  "ESP32-S3-WROOM-1U-N8": {
+   "bom_code_stock": 1577,
+   "lcsc_bom": "C2980297",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C2980297",
+      "library": "expand",
+      "mfr": "Espressif Systems",
+      "model": "ESP32-S3-WROOM-1U-N8",
+      "package": "SMD,19.2x18mm",
+      "price_qty1": 4.5724,
+      "stock": 1577
+     }
+    ],
+    "t": "2026-11-27T07:30:07Z"
+   }
+  },
+  "GRM1885C1H103JA01D": {
+   "bom_code_stock": 37827,
+   "lcsc_bom": "C85973",
+   "library": "expand",
+   "qty_per_board": 3,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C85973",
+      "library": "expand",
+      "mfr": "Murata Electronics",
+      "model": "GRM1885C1H103JA01D",
+      "package": "0603",
+      "price_qty1": 0.0338,
+      "stock": 37827
+     }
+    ],
+    "t": "2026-11-27T07:28:38Z"
+   }
+  },
+  "GRM31C5C1H104JA01L": {
+   "bom_code_stock": 72205,
+   "lcsc_bom": "C97946",
+   "library": "expand",
+   "qty_per_board": 7,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C97946",
+      "library": "expand",
+      "mfr": "Murata Electronics",
+      "model": "GRM31C5C1H104JA01L",
+      "package": "1206",
+      "price_qty1": 0.2075,
+      "stock": 72205
+     }
+    ],
+    "t": "2026-11-27T07:28:35Z"
+   }
+  },
+  "LM4040A25IDBZR": {
+   "bom_code_stock": 4016,
+   "lcsc_bom": "C9421",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C9421",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "LM4040A25IDBZR",
+      "package": "SOT-23",
+      "price_qty1": 2.1371,
+      "stock": 4016
+     }
+    ],
+    "t": "2026-11-27T07:30:18Z"
+   }
+  },
+  "MAX31865AAP+T": {
+   "bom_code_stock": 2097,
+   "lcsc_bom": "C779509",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C779509",
+      "library": "expand",
+      "mfr": "Analog Devices Inc./Maxim Integrated",
+      "model": "MAX31865AAP+T",
+      "package": "SSOP-20-208mil",
+      "price_qty1": 7.6632,
+      "stock": 2097
+     }
+    ],
+    "t": "2026-11-27T07:30:31Z"
+   }
+  },
+  "MCP3202-CI/SN": {
+   "bom_code_stock": 31,
+   "lcsc_bom": "C56997",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C56997",
+      "library": "expand",
+      "mfr": "Microchip Tech",
+      "model": "MCP3202-CI/SN",
+      "package": "SOP-8",
+      "price_qty1": 2.0764,
+      "stock": 31
+     }
+    ],
+    "t": "2026-11-27T07:30:20Z"
+   }
+  },
+  "OPA2388IDR": {
+   "bom_code_stock": 12533,
+   "lcsc_bom": "C1517414",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C1517414",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "OPA2388IDR",
+      "package": "SOIC-8",
+      "price_qty1": 2.0912,
+      "stock": 12533
+     }
+    ],
+    "t": "2026-11-27T07:30:09Z"
+   }
+  },
+  "PTFR0805B430RN9": {
+   "bom_code_stock": 48608,
+   "lcsc_bom": "C351565",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C351565",
+      "library": "expand",
+      "mfr": "RESI",
+      "model": "PTFR0805B430RN9",
+      "package": "0805",
+      "price_qty1": 0.1799,
+      "stock": 48608
+     }
+    ],
+    "t": "2026-11-27T07:29:34Z"
+   }
+  },
+  "RC0603FR-07100KL": {
+   "bom_code_stock": 9134535,
+   "lcsc_bom": "C14675",
+   "library": "expand",
+   "qty_per_board": 9,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C14675",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-07100KL",
+      "package": "0603",
+      "price_qty1": 0.0019,
+      "stock": 9134535
+     }
+    ],
+    "t": "2026-11-27T07:29:11Z"
+   }
+  },
+  "RC0603FR-07100RL": {
+   "bom_code_stock": 7874083,
+   "lcsc_bom": "C105588",
+   "library": "expand",
+   "qty_per_board": 11,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C105588",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-07100RL",
+      "package": "0603",
+      "price_qty1": 0.0021,
+      "stock": 7874083
+     }
+    ],
+    "t": "2026-11-27T07:29:52Z"
+   }
+  },
+  "RC0603FR-0710KL": {
+   "bom_code_stock": 6853173,
+   "lcsc_bom": "C98220",
+   "library": "expand",
+   "qty_per_board": 38,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C98220",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-0710KL",
+      "package": "0603",
+      "price_qty1": 0.0023,
+      "stock": 6853173
+     }
+    ],
+    "t": "2026-11-27T07:29:09Z"
+   }
+  },
+  "RC0603FR-0710ML": {
+   "bom_code_stock": 2312546,
+   "lcsc_bom": "C114606",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C114606",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-0710ML",
+      "package": "0603",
+      "price_qty1": 0.0028,
+      "stock": 2312546
+     }
+    ],
+    "t": "2026-11-27T07:29:53Z"
+   }
+  },
+  "RC0603FR-0711K5L": {
+   "bom_code_stock": 1638,
+   "lcsc_bom": "C137802",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C137802",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-0711K5L",
+      "package": "0603",
+      "price_qty1": 0.0019,
+      "stock": 1638
+     }
+    ],
+    "t": "2026-11-27T07:29:27Z"
+   }
+  },
+  "RC0603FR-0712K1L": {
+   "bom_code_stock": 200054,
+   "lcsc_bom": "C123417",
+   "library": "expand",
+   "qty_per_board": 4,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C123417",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-0712K1L",
+      "package": "0603",
+      "price_qty1": 0.0028,
+      "stock": 200054
+     }
+    ],
+    "t": "2026-11-27T07:29:13Z"
+   }
+  },
+  "RC0603FR-071K21L": {
+   "bom_code_stock": 4206,
+   "lcsc_bom": "C137779",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C137779",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-071K21L",
+      "package": "0603",
+      "price_qty1": 0.0018,
+      "stock": 4206
+     }
+    ],
+    "t": "2026-11-27T07:29:33Z"
+   }
+  },
+  "RC0603FR-071KL": {
+   "bom_code_stock": 12134414,
+   "lcsc_bom": "C22548",
+   "library": "expand",
+   "qty_per_board": 12,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C22548",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-071KL",
+      "package": "0603",
+      "price_qty1": 0.0036,
+      "stock": 12134414
+     }
+    ],
+    "t": "2026-11-27T07:29:10Z"
+   }
+  },
+  "RC0603FR-071ML": {
+   "bom_code_stock": 3453676,
+   "lcsc_bom": "C105578",
+   "library": "expand",
+   "qty_per_board": 3,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C105578",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-071ML",
+      "package": "0603",
+      "price_qty1": 0.002,
+      "stock": 3453676
+     }
+    ],
+    "t": "2026-11-27T07:30:00Z"
+   }
+  },
+  "RC0603FR-0720KL": {
+   "bom_code_stock": 2310752,
+   "lcsc_bom": "C105575",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C105575",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-0720KL",
+      "package": "0603",
+      "price_qty1": 0.0024,
+      "stock": 2310752
+     },
+     {
+      "lcsc": "C9900325118",
+      "library": "expand",
+      "mfr": "JLCPCB Assembly",
+      "model": "RC0603FR-0720KL",
+      "package": "R0603",
+      "price_qty1": 0.0399,
+      "stock": 0
+     }
+    ],
+    "t": "2026-11-27T07:29:17Z"
+   }
+  },
+  "RC0603FR-0733RL": {
+   "bom_code_stock": 2571634,
+   "lcsc_bom": "C108661",
+   "library": "expand",
+   "qty_per_board": 9,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C108661",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-0733RL",
+      "package": "0603",
+      "price_qty1": 0.0025,
+      "stock": 2571634
+     }
+    ],
+    "t": "2026-11-27T07:29:07Z"
+   }
+  },
+  "RC0603FR-07499KL": {
+   "bom_code_stock": 260777,
+   "lcsc_bom": "C131054",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C131054",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-07499KL",
+      "package": "0603",
+      "price_qty1": 0.0026,
+      "stock": 260777
+     }
+    ],
+    "t": "2026-11-27T07:29:36Z"
+   }
+  },
+  "RC0603FR-074K7L": {
+   "bom_code_stock": 7966729,
+   "lcsc_bom": "C99782",
+   "library": "expand",
+   "qty_per_board": 4,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C99782",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-074K7L",
+      "package": "0603",
+      "price_qty1": 0.0032,
+      "stock": 7966729
+     }
+    ],
+    "t": "2026-11-27T07:29:20Z"
+   }
+  },
+  "RC0603FR-0756K2L": {
+   "bom_code_stock": 3364,
+   "lcsc_bom": "C482887",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C482887",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603FR-0756K2L",
+      "package": "0603",
+      "price_qty1": 0.0013,
+      "stock": 3364
+     }
+    ],
+    "t": "2026-11-27T07:29:22Z"
+   }
+  },
+  "RC0603JR-070RL": {
+   "bom_code_stock": 2249587,
+   "lcsc_bom": "C95177",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C95177",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC0603JR-070RL",
+      "package": "0603",
+      "price_qty1": 0.0017,
+      "stock": 2249587
+     }
+    ],
+    "t": "2026-11-27T07:29:48Z"
+   }
+  },
+  "RC1206FR-07100RL": {
+   "bom_code_stock": 91139,
+   "lcsc_bom": "C137392",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C137392",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RC1206FR-07100RL",
+      "package": "1206",
+      "price_qty1": 0.0098,
+      "stock": 91139
+     }
+    ],
+    "t": "2026-11-27T07:29:59Z"
+   }
+  },
+  "REF2025AIDDCR": {
+   "bom_code_stock": 345,
+   "lcsc_bom": "C962078",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C962078",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "REF2025AIDDCR",
+      "package": "TSOT-23-5",
+      "price_qty1": 1.8437,
+      "stock": 345
+     }
+    ],
+    "t": "2026-11-27T07:30:30Z"
+   }
+  },
+  "RT0603BRD0710KL": {
+   "bom_code_stock": 1894071,
+   "lcsc_bom": "C95204",
+   "library": "expand",
+   "qty_per_board": 7,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C95204",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD0710KL",
+      "package": "0603",
+      "price_qty1": 0.0235,
+      "stock": 1894071
+     }
+    ],
+    "t": "2026-11-27T07:29:51Z"
+   }
+  },
+  "RT0603BRD0711K5L": {
+   "bom_code_stock": 471,
+   "lcsc_bom": "C705719",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C705719",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD0711K5L",
+      "package": "0603",
+      "price_qty1": 0.0461,
+      "stock": 471
+     }
+    ],
+    "t": "2026-11-27T07:29:25Z"
+   }
+  },
+  "RT0603BRD07140KL": {
+   "bom_code_stock": 514,
+   "lcsc_bom": "C861125",
+   "library": "expand",
+   "qty_per_board": 3,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C861125",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD07140KL",
+      "package": "0603",
+      "price_qty1": 0.0359,
+      "stock": 514
+     }
+    ],
+    "t": "2026-11-27T07:29:24Z"
+   }
+  },
+  "RT0603BRD0716K5L": {
+   "bom_code_stock": 9472,
+   "lcsc_bom": "C728584",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C728584",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD0716K5L",
+      "package": "0603",
+      "price_qty1": 0.0599,
+      "stock": 9472
+     },
+     {
+      "lcsc": "C9900009447",
+      "library": "expand",
+      "mfr": "JLCPCB Assembly",
+      "model": "RT0603BRD0716K5L",
+      "package": "R0603",
+      "price_qty1": 0.0007,
+      "stock": 0
+     }
+    ],
+    "t": "2026-11-27T07:29:45Z"
+   }
+  },
+  "RT0603BRD071KL": {
+   "bom_code_stock": 826477,
+   "lcsc_bom": "C110776",
+   "library": "expand",
+   "qty_per_board": 10,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C110776",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD071KL",
+      "package": "0603",
+      "price_qty1": 0.0276,
+      "stock": 826477
+     }
+    ],
+    "t": "2026-11-27T07:29:46Z"
+   }
+  },
+  "RT0603BRD0720KL": {
+   "bom_code_stock": 96016,
+   "lcsc_bom": "C723637",
+   "library": "expand",
+   "qty_per_board": 3,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C723637",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD0720KL",
+      "package": "0603",
+      "price_qty1": 0.0358,
+      "stock": 96016
+     }
+    ],
+    "t": "2026-11-27T07:29:49Z"
+   }
+  },
+  "RT0603BRD0722K1L": {
+   "bom_code_stock": 17346,
+   "lcsc_bom": "C723484",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C723484",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD0722K1L",
+      "package": "0603",
+      "price_qty1": 0.0587,
+      "stock": 17346
+     }
+    ],
+    "t": "2026-11-27T07:29:14Z"
+   }
+  },
+  "RT0603BRD0730KL": {
+   "bom_code_stock": 998644,
+   "lcsc_bom": "C723585",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C723585",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD0730KL",
+      "package": "0603",
+      "price_qty1": 0.0286,
+      "stock": 998644
+     }
+    ],
+    "t": "2026-11-27T07:29:58Z"
+   }
+  },
+  "RT0603BRD0747KL": {
+   "bom_code_stock": 14879,
+   "lcsc_bom": "C326725",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C326725",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD0747KL",
+      "package": "0603",
+      "price_qty1": 0.0389,
+      "stock": 14879
+     }
+    ],
+    "t": "2026-11-27T07:29:55Z"
+   }
+  },
+  "RT0603BRD0761K9L": {
+   "bom_code_stock": 5164,
+   "lcsc_bom": "C861498",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C861498",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD0761K9L",
+      "package": "0603",
+      "price_qty1": 0.0671,
+      "stock": 5164
+     }
+    ],
+    "t": "2026-11-27T07:29:38Z"
+   }
+  },
+  "RT0603BRD077K06L": {
+   "bom_code_stock": 10757,
+   "lcsc_bom": "C861561",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C861561",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD077K06L",
+      "package": "0603",
+      "price_qty1": 0.0458,
+      "stock": 10757
+     }
+    ],
+    "t": "2026-11-27T07:29:15Z"
+   }
+  },
+  "RT0603BRD0786K6L": {
+   "bom_code_stock": 2210,
+   "lcsc_bom": "C861580",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C861580",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD0786K6L",
+      "package": "0603",
+      "price_qty1": 0.0394,
+      "stock": 2210
+     }
+    ],
+    "t": "2026-11-27T07:29:56Z"
+   }
+  },
+  "RT0603BRD078K06L": {
+   "bom_code_stock": 68,
+   "lcsc_bom": "C861587",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C861587",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD078K06L",
+      "package": "0603",
+      "price_qty1": 0.0361,
+      "stock": 68
+     }
+    ],
+    "t": "2026-11-27T07:29:28Z"
+   }
+  },
+  "RT0603BRD0790K9L": {
+   "bom_code_stock": 1777,
+   "lcsc_bom": "C728600",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C728600",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0603BRD0790K9L",
+      "package": "0603",
+      "price_qty1": 0.0391,
+      "stock": 1777
+     }
+    ],
+    "t": "2026-11-27T07:29:32Z"
+   }
+  },
+  "RT0805BRD074K3L": {
+   "bom_code_stock": 1904,
+   "lcsc_bom": "C728653",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C728653",
+      "library": "expand",
+      "mfr": "YAGEO",
+      "model": "RT0805BRD074K3L",
+      "package": "0805",
+      "price_qty1": 0.0584,
+      "stock": 1904
+     }
+    ],
+    "t": "2026-11-27T07:30:02Z"
+   }
+  },
+  "SN74LVC14ADR": {
+   "bom_code_stock": 54863,
+   "lcsc_bom": "C133541",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C133541",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "SN74LVC14ADR",
+      "package": "SOIC-14",
+      "price_qty1": 0.2072,
+      "stock": 54863
+     }
+    ],
+    "t": "2026-11-27T07:30:28Z"
+   }
+  },
+  "SN74LVC1G08QDBVRQ1": {
+   "bom_code_stock": 7762,
+   "lcsc_bom": "C840098",
+   "library": "expand",
+   "qty_per_board": 4,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C840098",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "SN74LVC1G08QDBVRQ1",
+      "package": "SOT-23-5",
+      "price_qty1": 0.2631,
+      "stock": 7762
+     }
+    ],
+    "t": "2026-11-27T07:30:15Z"
+   }
+  },
+  "SN74LVC1G14DBVR": {
+   "bom_code_stock": 159922,
+   "lcsc_bom": "C7835",
+   "library": "expand",
+   "qty_per_board": 3,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C7835",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "SN74LVC1G14DBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 0.0574,
+      "stock": 159922
+     },
+     {
+      "lcsc": "C434069",
+      "library": "expand",
+      "mfr": "UMW(Youtai Semiconductor Co., Ltd.)",
+      "model": "SN74LVC1G14DBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 0.0454,
+      "stock": 68498
+     },
+     {
+      "lcsc": "C19829661",
+      "library": "expand",
+      "mfr": "TECH PUBLIC",
+      "model": "SN74LVC1G14DBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 0.0499,
+      "stock": 6015
+     },
+     {
+      "lcsc": "C5250998",
+      "library": "expand",
+      "mfr": "TWGMC",
+      "model": "SN74LVC1G14DBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 0.052,
+      "stock": 1596
+     },
+     {
+      "lcsc": "C3272808",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "SN74LVC1G14DBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 0.0625,
+      "stock": 0
+     }
+    ],
+    "t": "2026-11-27T07:30:17Z"
+   }
+  },
+  "SN74LVC1G32DBVR": {
+   "bom_code_stock": 138774,
+   "lcsc_bom": "C10096",
+   "library": "expand",
+   "qty_per_board": 4,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C10096",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "SN74LVC1G32DBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 0.0661,
+      "stock": 138774
+     },
+     {
+      "lcsc": "C19829663",
+      "library": "expand",
+      "mfr": "TECH PUBLIC",
+      "model": "SN74LVC1G32DBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 0.0504,
+      "stock": 2880
+     }
+    ],
+    "t": "2026-11-27T07:30:29Z"
+   }
+  },
+  "SN74LVC1G38DBVR": {
+   "bom_code_stock": 11323,
+   "lcsc_bom": "C2867613",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C2867613",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "SN74LVC1G38DBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 0.1543,
+      "stock": 11323
+     }
+    ],
+    "t": "2026-11-27T07:30:34Z"
+   }
+  },
+  "SN74LVC1G74DCUR": {
+   "bom_code_stock": 7845,
+   "lcsc_bom": "C70285",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C70285",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "SN74LVC1G74DCUR",
+      "package": "VSSOP-8",
+      "price_qty1": 0.5212,
+      "stock": 7845
+     }
+    ],
+    "t": "2026-11-27T07:30:24Z"
+   }
+  },
+  "SN74LVC1G86DBVR": {
+   "bom_code_stock": 52061,
+   "lcsc_bom": "C402161",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C402161",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "SN74LVC1G86DBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 0.0869,
+      "stock": 52061
+     }
+    ],
+    "t": "2026-11-27T07:30:41Z"
+   }
+  },
+  "SN74LVC244APWR": {
+   "bom_code_stock": 97761,
+   "lcsc_bom": "C7668",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C7668",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "SN74LVC244APWR",
+      "package": "TSSOP-20",
+      "price_qty1": 0.2603,
+      "stock": 97761
+     }
+    ],
+    "t": "2026-11-27T07:30:13Z"
+   }
+  },
+  "SN74LVC74APWR": {
+   "bom_code_stock": 1765,
+   "lcsc_bom": "C350561",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C350561",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "SN74LVC74APWR",
+      "package": "TSSOP-14",
+      "price_qty1": 0.413,
+      "stock": 1765
+     }
+    ],
+    "t": "2026-11-27T07:30:39Z"
+   }
+  },
+  "SRV05-4": {
+   "bom_code_stock": 403291,
+   "lcsc_bom": "C2836319",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C7420376",
+      "library": "expand",
+      "mfr": "hongjiacheng",
+      "model": "SRV05-4",
+      "package": "SOT-23-6L",
+      "price_qty1": 0.0853,
+      "stock": 538711
+     },
+     {
+      "lcsc": "C558418",
+      "library": "expand",
+      "mfr": "TECH PUBLIC",
+      "model": "SRV05-4",
+      "package": "SOT-23-6",
+      "price_qty1": 0.0259,
+      "stock": 448989
+     },
+     {
+      "lcsc": "C2836319",
+      "library": "expand",
+      "mfr": "MSKSEMI",
+      "model": "SRV05-4",
+      "package": "SOT-23-6",
+      "price_qty1": 0.0248,
+      "stock": 403291
+     },
+     {
+      "lcsc": "C2985619",
+      "library": "expand",
+      "mfr": "KUU",
+      "model": "SRV05-4",
+      "package": "SOT-23-6",
+      "price_qty1": 0.0277,
+      "stock": 9175
+     },
+     {
+      "lcsc": "C397788",
+      "library": "expand",
+      "mfr": "AnBon",
+      "model": "SRV05-4",
+      "package": "SOT-23-6",
+      "price_qty1": 0.0495,
+      "stock": 5325
+     },
+     {
+      "lcsc": "C2972082",
+      "library": "expand",
+      "mfr": "DOWO",
+      "model": "SRV05-4",
+      "package": "SOT-23-6L",
+      "price_qty1": 0.0364,
+      "stock": 5321
+     },
+     {
+      "lcsc": "C384887",
+      "library": "expand",
+      "mfr": "Leiditech",
+      "model": "SRV05-4",
+      "package": "SOT-26",
+      "price_qty1": 0.0654,
+      "stock": 5057
+     },
+     {
+      "lcsc": "C5240367",
+      "library": "expand",
+      "mfr": "TWGMC",
+      "model": "SRV05-4",
+      "package": "SOT-23-6",
+      "price_qty1": 0.0379,
+      "stock": 4716
+     },
+     {
+      "lcsc": "C2972750",
+      "library": "expand",
+      "mfr": "Shenzhen Jinkaisheng Elec",
+      "model": "SRV05-4",
+      "package": "SOT-23-6L",
+      "price_qty1": 0.0512,
+      "stock": 2538
+     },
+     {
+      "lcsc": "C2999974",
+      "library": "expand",
+      "mfr": "Slkor(SLKORMICRO Elec.)",
+      "model": "SRV05-4",
+      "package": "SOT-23-6L",
+      "price_qty1": 0.0456,
+      "stock": 3
+     },
+     {
+      "lcsc": "C712153",
+      "library": "expand",
+      "mfr": "Applied Power",
+      "model": "SRV05-4",
+      "package": "SOT-23-6",
+      "price_qty1": 0.0995,
+      "stock": 1
+     }
+    ],
+    "t": "2026-11-27T07:30:38Z"
+   }
+  },
+  "SS14": {
+   "bom_code_stock": 1043247,
+   "lcsc_bom": "C2480",
+   "library": "base",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C2480",
+      "library": "base",
+      "mfr": "MDD(Microdiode Semiconductor)",
+      "model": "SS14",
+      "package": "SMA(DO-214AC)",
+      "price_qty1": 0.0192,
+      "stock": 1043247
+     },
+     {
+      "lcsc": "C266551",
+      "library": "expand",
+      "mfr": "BORN",
+      "model": "SS14",
+      "package": "SMA(DO-214AC)",
+      "price_qty1": 0.0248,
+      "stock": 157550
+     },
+     {
+      "lcsc": "C727050",
+      "library": "expand",
+      "mfr": "TWGMC",
+      "model": "SS14",
+      "package": "SMA(DO-214AC)",
+      "price_qty1": 0.0177,
+      "stock": 128122
+     },
+     {
+      "lcsc": "C83852",
+      "library": "expand",
+      "mfr": "onsemi",
+      "model": "SS14",
+      "package": "SMA(DO-214AC)",
+      "price_qty1": 0.1228,
+      "stock": 109037
+     },
+     {
+      "lcsc": "C84343",
+      "library": "expand",
+      "mfr": "Changzhou Starsea Elec",
+      "model": "SS14",
+      "package": "SMA(DO-214AC)",
+      "price_qty1": 0.0251,
+      "stock": 78269
+     },
+     {
+      "lcsc": "C509048",
+      "library": "expand",
+      "mfr": "Guangdong Hottech",
+      "model": "SS14",
+      "package": "SMA(DO-214AC)",
+      "price_qty1": 0.0194,
+      "stock": 55102
+     },
+     {
+      "lcsc": "C444721",
+      "library": "expand",
+      "mfr": "Slkor(SLKORMICRO Elec.)",
+      "model": "SS14",
+      "package": "SMA(DO-214AC)",
+      "price_qty1": 0.0245,
+      "stock": 50045
+     },
+     {
+      "lcsc": "C402302",
+      "library": "expand",
+      "mfr": "LGE",
+      "model": "SS14",
+      "package": "SMAJ",
+      "price_qty1": 0.0356,
+      "stock": 23031
+     },
+     {
+      "lcsc": "C112424",
+      "library": "expand",
+      "mfr": "Shandong Jingdao Microelectronics",
+      "model": "SS14",
+      "package": "SMA(DO-214AC)",
+      "price_qty1": 0.0182,
+      "stock": 21858
+     },
+     {
+      "lcsc": "C908232",
+      "library": "expand",
+      "mfr": "FUXINSEMI",
+      "model": "SS14",
+      "package": "SMA(DO-214AC)",
+      "price_qty1": 0.0143,
+      "stock": 21108
+     },
+     {
+      "lcsc": "C211769",
+      "library": "expand",
+      "mfr": "Yangzhou Yangjie Elec Tech",
+      "model": "SS14",
+      "package": "SMA-W",
+      "price_qty1": 0.0351,
+      "stock": 9717
+     },
+     {
+      "lcsc": "C466498",
+      "library": "expand",
+      "mfr": "High Diode",
+      "model": "SS14",
+      "package": "SMAG",
+      "price_qty1": 0.0177,
+      "stock": 6032
+     },
+     {
+      "lcsc": "C369935",
+      "library": "expand",
+      "mfr": "KEXIN",
+      "model": "SS14",
+      "package": "DO-214AC(SMA)",
+      "price_qty1": 0.0292,
+      "stock": 4884
+     },
+     {
+      "lcsc": "C432301",
+      "library": "expand",
+      "mfr": "LGE",
+      "model": "SS14",
+      "package": "SMAF",
+      "price_qty1": 0.0182,
+      "stock": 4406
+     },
+     {
+      "lcsc": "C1884561",
+      "library": "expand",
+      "mfr": "YFW",
+      "model": "SS14",
+      "package": "SMA(DO-214AC)",
+      "price_qty1": 0.022,
+      "stock": 4290
+     },
+     {
+      "lcsc": "C908676",
+      "library": "expand",
+      "mfr": "GOODWORK",
+      "model": "SS14",
+      "package": "SMA(DO-214AC)",
+      "price_qty1": 0.0152,
+      "stock": 43
+     },
+     {
+      "lcsc": "C84170",
+      "library": "expand",
+      "mfr": "DIYI Elec Tech",
+      "model": "SS14",
+      "package": "SMA(DO-214AC)",
+      "price_qty1": 0.0255,
+      "stock": 12
+     },
+     {
+      "lcsc": "C492901",
+      "library": "expand",
+      "mfr": "SMC(Sangdest Microelectronicstronic (Nanjing))",
+      "model": "SS14",
+      "package": "SMA",
+      "price_qty1": 0.0579,
+      "stock": 4
+     },
+     {
+      "lcsc": "C360435",
+      "library": "expand",
+      "mfr": "Chongqing Pingwei Tech",
+      "model": "SS14",
+      "package": "DO-214AC",
+      "price_qty1": 0.021,
+      "stock": 2
+     }
+    ],
+    "t": "2026-11-27T07:28:45Z"
+   }
+  },
+  "SWPA6045S100MT": {
+   "bom_code_stock": 9743,
+   "lcsc_bom": "C79272",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C79272",
+      "library": "expand",
+      "mfr": "Sunlord",
+      "model": "SWPA6045S100MT",
+      "package": "SMD,6x6mm",
+      "price_qty1": 0.0843,
+      "stock": 9743
+     }
+    ],
+    "t": "2026-11-27T07:29:01Z"
+   }
+  },
+  "SWRB1205S-100MT": {
+   "bom_code_stock": 454,
+   "lcsc_bom": "C169383",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C169383",
+      "library": "expand",
+      "mfr": "Sunlord",
+      "model": "SWRB1205S-100MT",
+      "package": "SMD,12.5x12.5mm",
+      "price_qty1": 0.3958,
+      "stock": 454
+     }
+    ],
+    "t": "2026-11-27T07:29:02Z"
+   }
+  },
+  "TCA9555PWR": {
+   "bom_code_stock": 22520,
+   "lcsc_bom": "C465732",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C465732",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "TCA9555PWR",
+      "package": "TSSOP-24",
+      "price_qty1": 0.7326,
+      "stock": 22520
+     }
+    ],
+    "t": "2026-11-27T07:30:11Z"
+   }
+  },
+  "TLV3201AIDBVR": {
+   "bom_code_stock": 23251,
+   "lcsc_bom": "C105188",
+   "library": "expand",
+   "qty_per_board": 6,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C105188",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "TLV3201AIDBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 1.0702,
+      "stock": 23251
+     }
+    ],
+    "t": "2026-11-27T07:30:14Z"
+   }
+  },
+  "TLV76050DBZR": {
+   "bom_code_stock": 2665,
+   "lcsc_bom": "C2867465",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C2867465",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "TLV76050DBZR",
+      "package": "SOT-23",
+      "price_qty1": 0.2713,
+      "stock": 2665
+     }
+    ],
+    "t": "2026-11-27T07:30:22Z"
+   }
+  },
+  "TLV9031DBVR": {
+   "bom_code_stock": 222,
+   "lcsc_bom": "C29777121",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C29777121",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "TLV9031DBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 1.3619,
+      "stock": 222
+     }
+    ],
+    "t": "2026-11-27T07:30:23Z"
+   }
+  },
+  "TLV9061IDBVR": {
+   "bom_code_stock": 246368,
+   "lcsc_bom": "C398358",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C398358",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "TLV9061IDBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 0.0917,
+      "stock": 246368
+     }
+    ],
+    "t": "2026-11-27T07:30:35Z"
+   }
+  },
+  "TLV9062IDR": {
+   "bom_code_stock": 147051,
+   "lcsc_bom": "C398355",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C398355",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "TLV9062IDR",
+      "package": "SOIC-8",
+      "price_qty1": 0.1144,
+      "stock": 147051
+     },
+     {
+      "lcsc": "C9900303625",
+      "library": "expand",
+      "mfr": "JLCPCB Assembly",
+      "model": "TLV9062IDR",
+      "package": "SOP-8",
+      "price_qty1": 0.0399,
+      "stock": 0
+     }
+    ],
+    "t": "2026-11-27T07:30:10Z"
+   }
+  },
+  "TPS3703A4330DSERQ1": {
+   "bom_code_stock": 52,
+   "lcsc_bom": "C1850327",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C1850327",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "TPS3703A4330DSERQ1",
+      "package": "WSON-6(1.5x1.5)",
+      "price_qty1": 4.066,
+      "stock": 52
+     }
+    ],
+    "t": "2026-11-27T07:30:06Z"
+   }
+  },
+  "TPS3823-33DBVR": {
+   "bom_code_stock": 36656,
+   "lcsc_bom": "C7719",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C7719",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "TPS3823-33DBVR",
+      "package": "SOT-23-5",
+      "price_qty1": 0.4507,
+      "stock": 36656
+     }
+    ],
+    "t": "2026-11-27T07:30:25Z"
+   }
+  },
+  "TPS389001DSER": {
+   "bom_code_stock": 96,
+   "lcsc_bom": "C1509297",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C1509297",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "TPS389001DSER",
+      "package": "WSON-6(1.5x1.5)",
+      "price_qty1": 2.4665,
+      "stock": 96
+     }
+    ],
+    "t": "2026-11-27T07:30:32Z"
+   }
+  },
+  "TPS62933DRLR": {
+   "bom_code_stock": 36247,
+   "lcsc_bom": "C3200405",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C3200405",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "TPS62933DRLR",
+      "package": "SOT-583",
+      "price_qty1": 0.4704,
+      "stock": 36247
+     }
+    ],
+    "t": "2026-11-27T07:30:04Z"
+   }
+  },
+  "TPS62933FDRLR": {
+   "bom_code_stock": 2431,
+   "lcsc_bom": "C5219272",
+   "library": "expand",
+   "qty_per_board": 1,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C5219272",
+      "library": "expand",
+      "mfr": "Texas Instruments",
+      "model": "TPS62933FDRLR",
+      "package": "SOT-583",
+      "price_qty1": 1.1259,
+      "stock": 2431
+     }
+    ],
+    "t": "2026-11-27T07:30:03Z"
+   }
+  },
+  "UCD1E101MCL6GS": {
+   "bom_code_stock": 722,
+   "lcsc_bom": "C445471",
+   "library": "expand",
+   "qty_per_board": 2,
+   "read": {
+    "hits": [
+     {
+      "lcsc": "C445471",
+      "library": "expand",
+      "mfr": "Nichicon",
+      "model": "UCD1E101MCL6GS",
+      "package": "SMD,D8xL6.2mm",
+      "price_qty1": 0.246,
+      "stock": 722
+     }
+    ],
+    "t": "2026-11-27T07:28:23Z"
+   }
+  }
+ }
+}

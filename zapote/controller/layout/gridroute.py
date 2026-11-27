@@ -71,14 +71,18 @@ class Crop:
             out[a0 - i0:a1 - i0, b0 - j0:b1 - j0] = self.a[a0 - self.i0:a1 - self.i0, b0 - self.j0:b1 - self.j0]
         return out
 SIG_W = 0.15
-POWER = {"v15_selv": 0.8, "V15_BLW": 1.0, "V_BLOWER": 0.8, "sw_3v3": 0.4, "sw_12": 0.8, "v3v3": 0.3}   # L3: blower 1.42 A typ
+POWER = {"v15_selv": 0.8, "V15_BLW": 0.8, "V_BLOWER": 0.8, "sw_3v3": 0.4, "sw_12": 0.8, "v3v3": 0.3,   # L3: blower 1.42 A typ
+         "V12_FAN2": 0.6, "sw_fan2": 0.8}   # C53 review M3: face-fan buck output (J15, 0.67 A) and SW node
 # High-current routed nets never fall back to a 0.25 mm neck (blower 2.70 A peak). V15_BLW (PS3 feed,
 # 2.72 A) runs J13 -> bulk -> input caps -> U2 in F.Cu pours; its routed tracks are the EN/BLW_PG branches.
-NO_NECK = {"V_BLOWER", "sw_12"}   # V15_BLW carries its current in the BLW_FEED pours
+NO_NECK = {"V_BLOWER", "sw_12", "V12_FAN2", "V15_BLW"}
+# C53 review M3: V15_BLW's main current is in the BLW_FEED pours, but its routed branches feed D9 (the logic rail,
+# <= 1 A) and the face-fan buck's VIN pour (~0.6 A), which ran on 0.25 mm necks; 0.8 mm (was 1.0) fits the 0603 pads
+# of its divider branches without a neck
 # C53: the current-carrying nets stay on the 1 oz outer layers. LAYOUT.md sizes them with IPC-2221's external
 # formula; on six layers the router had put V_BLOWER (>= 1.5 A) and v15_selv (D9, <= 1 A) on 0.5 oz In2/In3,
 # where a 0.8 mm track carries about 0.6 A for a 10 K rise (internal formula). check_layout's power_layers gate.
-OUTER_ONLY = {"V_BLOWER", "sw_12", "v15_selv", "V15_BLW"}
+OUTER_ONLY = {"V_BLOWER", "sw_12", "v15_selv", "V15_BLW", "V12_FAN2", "sw_fan2"}
 LAYERS = ("F", "In2", "In3", "B")    # In2 carries signals where needed; the v3v3 pour refills around them.
 # C53: six-layer board; In3 is a signal layer between In2 and the In4 selv_gnd plane (no In3 tracks over the RTD
 # regions: rule areas from build_board.py)

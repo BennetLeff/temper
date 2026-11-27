@@ -25,6 +25,8 @@ def main():
     changed = []
     for fp in b.GetFootprints():
         ref = fp.GetReference()
+        if fp.IsBoardOnly():        # C53: fiducials are not in the netlist
+            continue
         mpn = comps[ref]["mpn"]
         if fp.GetValue() != mpn or fp.GetFieldText("MPN") != mpn:
             changed.append((ref, fp.GetValue(), mpn))

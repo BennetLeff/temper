@@ -30,7 +30,7 @@ import pcbnew  # type: ignore[import-not-found]
 
 LIMITS = {"annular_ring_mm": 0.20, "via_ring_mm": 0.15, "track_mm": 0.15, "via_drill_mm": 0.3,
           "pth_drill_mm": (0.15, 6.3), "npth_drill_mm": 0.5, "board_max_mm": (663.0, 593.0),
-          "copper": "1 oz outer (0.035 mm), 0.5 oz inner, JLC04161H-7628"}
+          "copper": "1 oz outer (0.035 mm), 0.5 oz inner, 6 layers JLC06161H-3313 (C53)"}
 
 
 def main() -> None:

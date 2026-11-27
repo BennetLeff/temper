@@ -285,6 +285,13 @@ def main():
         rnd, n_open = route_rounds(work, log, rnd, 3)
         if n_open == 0:
             break
+    # C53 review M4: companion vias on the high-current nets' layer changes (layout/power_vias.py), before the pours
+    run([KPY, str(HERE / "export_geom.py"), str(work), str(WORK / "geom-power.json")])
+    print(run([sys.executable, str(HERE / "power_vias.py"), "plan", str(WORK / "geom-power.json"),
+               str(WORK / "power-vias.json")]).strip().splitlines()[-1], flush=True)
+    print(run([KPY, str(HERE / "power_vias.py"), "apply", str(work), str(WORK / "power-vias.json")]).strip().splitlines()[-1],
+          flush=True)
+    log["power_vias"] = json.loads((WORK / "power-vias.json").read_text())["short"]
     print(run([KPY, __file__, "finish", str(work), "-", "1"]), flush=True)
     # a last pass of KiCad's own dangling list after the pours and designators are in
     for k in range(3):

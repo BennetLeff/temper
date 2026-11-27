@@ -18,17 +18,23 @@ Enclosure (R31 CONTROLLER-SPEC section + R33 DECISIONS section 3 delta, via layo
 Layout rules (brief):
   decoupling  every IC supply pin (the 'vcc' pins of verify_controller's part models) has a capacitor to
               selv_gnd on the same net within 5 mm (pad to pad)
-  rtd_decoupling  each MAX31865 (U30, U50) supply pin has its bypass within 3 mm pad edge to pad edge (RTD unit rule, C53)
+  rtd_decoupling  each MAX31865 (U30, U50) supply pin has its bypass within 3 mm pad edge to pad edge (RTD unit rule,
+              C53), and the v3v3 (DVDD) bypass joined to its pin by F.Cu track, not only by the In2 pour (review m1)
   rtd_j3_protection  each J3 pin has its 220 nF and TVS (C37); pad distances reported
   rtd_j9_protection  each J9 line's 100 nF is nearer the pin than its BAV199 clamp (C51 layout rule)
   partition   both bucks (blower L2/U2, face fan L3/U51) >= 10 mm courtyard to courtyard from both RTD channels
-  interlock   no track of an MCU (U4) net crosses the interlock region; PERMIT path latch->J4.9 length
+  interlock   no track of an MCU (U4) net, or of a net it drives through a <= 100 R series part (review m3), crosses
+              the interlock regions (exact segment test); PERMIT path latch->J4.9 length
   thermal_relief  every through-hole pad that a pour reaches is thermal-relieved (zone setting)
   power_widths  V_BLOWER routed >= 0.8 mm; V15_BLW's J13.1, bulk and input-cap pads in one F.Cu pour region
-  power_layers  no track of V_BLOWER, sw_12, v15_selv or V15_BLW on a 0.5 oz inner layer (C53)
+  power_layers  no track of V_BLOWER, sw_12, v15_selv, V15_BLW, V12_FAN2 or sw_fan2 on a 0.5 oz inner layer (C53)
+  power_paths  each supply's source and load pads joined by pours or tracks >= its path width (C53 review M3)
+  power_vias   every layer change of a high-current net has >= 2 barrels (layout/power_vias.py; C53 review M4)
+  v3v3_islands every In2 v3v3 pour island that carries an IC supply has >= 2 links (v3v3_islands.py; review M5)
 """
 from __future__ import annotations
 
+import collections
 import json
 import math
 import sys
@@ -42,6 +48,16 @@ sys.path.insert(0, str(HERE))
 import world  # noqa: E402
 
 mm = pcbnew.ToMM
+
+
+def _ohms(v):
+    """Resistance from a Yageo RC/RT/AF MPN (RC0603FR-0733RL -> 33, -0710KL -> 10 k, -074K7L -> 4.7 k); inf if not one.
+    The footprints carry the MPN as their value, with no resistance field."""
+    m = __import__("re").match(r"(?:RC|RT|AF)\d{4}[A-Z]{2}-\d{2}(\d*)([RKM])(\d*)L", v)
+    if not m:
+        return float("inf")
+    return float(f"{m.group(1) or 0}.{m.group(3) or 0}") * {"R": 1, "K": 1e3, "M": 1e6}[m.group(2)]
+
 TOL = world.CONNECTOR_TOL
 # Groups by atopile path (footprint SourceInstance): stable when a schematic edit renumbers designators
 GATE_PATHS = ["u_permit", "c_permit", "r_run_en_pd", "r_permit_pd"]
@@ -50,7 +66,7 @@ HEIGHTS = {"JST XH mated (J1-J3, J7, J9, J10, J12; JST eXH.pdf 9.8 assembled)": 
            "J13 B2P-VH mated (JST eVH.pdf p.1 mounting height 16.5)": 16.5,
            "J4 43045-1600 + 43025-1600 mated (Molex 43045 series part data 10.29)": 10.29,
            "J11 TC2050-IDC-NL land (C41: copper pads only, nothing fitted)": 0.0,
-           "C1 EEE-FK1E101P": 6.2, "L1 SWPA6045": 4.5, "L2 SWRB1205S (Sunlord SWRB-S, 6.0 max)": 6.0,
+           "C1 UCD1E101MCL6GS (C52: Nichicon UCD, D8 x 6.2, the can size of EEE-FK1E101P)": 6.2, "L1 SWPA6045": 4.5, "L2 SWRB1205S (Sunlord SWRB-S, 6.0 max)": 6.0,
            "U4 ESP32-S3-WROOM-1U (Espressif DS v1.8 Table 1-2)": 3.2}
 CONNECTOR_PARTS = {k for k in HEIGHTS if k.startswith(("JST", "J4", "J11", "J13"))}
 LOCAL_PARTS = {"J13 B2P-VH mated (JST eVH.pdf p.1 mounting height 16.5)": "J13"}
@@ -302,10 +318,32 @@ def main():
                     if best is None or d < best[0]:
                         best = (d, c.GetReference())
             good = best is not None and best[0] <= 3.0
+            direct = None
+            if good and rail == "v3v3":
+                # review m1: on the pour net the cap must reach the pin through F.Cu track (build_board's locked
+                # stub), not only through the In2 pour, which In2 signals can split between the two
+                cap_fp = fps[best[1]]
+                ic_pads = [p for p in u.Pads() if p.GetNetname() == rail]
+                trk = [t for t in b.GetTracks() if t.Type() == pcbnew.PCB_TRACE_T and t.GetNetname() == rail
+                       and t.GetLayer() == pcbnew.F_Cu]
+                seen = set()
+                todo = [k for k, t in enumerate(trk) if any(p.HitTest(t.GetStart()) or p.HitTest(t.GetEnd()) for p in ic_pads)]
+                while todo:
+                    k = todo.pop()
+                    if k in seen:
+                        continue
+                    seen.add(k)
+                    t = trk[k]
+                    for m_, o in enumerate(trk):
+                        if m_ not in seen and (o.HitTest(t.GetStart(), t.GetWidth() // 2) or o.HitTest(t.GetEnd(), t.GetWidth() // 2)):
+                            todo.append(m_)
+                direct = any(any(q.HitTest(trk[k].GetStart()) or q.HitTest(trk[k].GetEnd()) for k in seen)
+                             for q in cap_fp.Pads() if q.GetNetname() == rail)
+                good = direct
             rtd_ok &= good
             rtd_rows.append({"ic": ref, "net": rail, "cap": best and best[1],
-                             "edge_mm": best and round(best[0], 2), "ok": good})
-    put("rtd_decoupling", rtd_ok, limit_mm=3.0, rails=rtd_rows)
+                             "edge_mm": best and round(best[0], 2), "direct_f_cu": direct, "ok": good})
+    put("rtd_decoupling", rtd_ok, limit_mm=3.0, v3v3_by_f_cu_track=True, rails=rtd_rows)
 
     # ---- C37 (sensor-r3 CR-1): J3 protection distances, reported (the CR's 3 mm cannot be met: the XH
     # body courtyard reaches 3.44 mm in front of the pin row). Pad centre to pad centre, and pad-edge gap.
@@ -358,6 +396,15 @@ def main():
     # ---- interlock regions: no MCU-net track through them. Two regions: the latch block
     # (U20-U25 and their pull-ups/bypasses) and the PERMIT gate at J4.9 (U37 with its parts).
     mcu_nets = {p.GetNetname() for p in fps["U4"].Pads()} - {"selv_gnd", "v3v3", ""}
+    # C53 review m3: a net the MCU drives through a series resistor (the 33 R PWM series parts) is an MCU net too
+    for r_, f_ in fps.items():
+        ns_ = [p.GetNetname() for p in f_.Pads()]
+        # series terminations only (<= 100 R: the 33 R PWM parts); kilohm ADC input resistors face the other way, and
+        # the op-amp buffer outputs (*_buf_out) behind their 33-100 R isolation resistors are signals into the ADC
+        if r_.startswith("R") and len(ns_) == 2 and _ohms(f_.GetValue()) <= 100:
+            for a_, b_ in (ns_, ns_[::-1]):
+                if a_ in mcu_nets and b_ not in ("selv_gnd", "v3v3", "") and not b_.endswith("_buf_out"):
+                    mcu_nets = mcu_nets | {b_}
     # MCU nets that end in a region by design (requests into the interlock: IL_RESET_N, IL_WDI,
     # RUN_EN; the read-back outputs of U9) are allowed in; any other MCU net crossing fails
     ends_inside = {p.GetNetname() for ref in INTERLOCK + [RB] for p in fps[ref].Pads()}
@@ -375,16 +422,25 @@ def main():
             continue
         pts = [(mm(t.GetStart().x), mm(t.GetStart().y)), (mm(t.GetEnd().x), mm(t.GetEnd().y))]
         for name, reg in regions.items():
-            hit = False
-            for k in range(11):
-                x = pts[0][0] + (pts[1][0] - pts[0][0]) * k / 10
-                y = pts[0][1] + (pts[1][1] - pts[0][1]) * k / 10
-                if reg[0] < x < reg[2] and reg[1] < y < reg[3]:
-                    cross.append({"region": name, "net": t.GetNetname(), "layer": t.GetLayerName(),
-                                  "at": [round(v, 2) for v in world.to_w(x, y)]})
-                    hit = True
-                    break
-            if hit:
+            # C53 review m3: exact segment / open-box intersection (Liang-Barsky); 11 samples could step over a
+            # 4.5 mm box
+            (x0_, y0_), (x1_, y1_) = pts
+            dx_, dy_ = x1_ - x0_, y1_ - y0_
+            lo, hi, ok_ = 0.0, 1.0, True
+            for pk, qk in ((-dx_, x0_ - reg[0]), (dx_, reg[2] - x0_), (-dy_, y0_ - reg[1]), (dy_, reg[3] - y0_)):
+                if abs(pk) < 1e-12:
+                    if qk <= 0:
+                        ok_ = False
+                else:
+                    tk = qk / pk
+                    if pk < 0:
+                        lo = max(lo, tk)
+                    else:
+                        hi = min(hi, tk)
+            if ok_ and hi - lo > 1e-6:
+                tm = (lo + hi) / 2
+                cross.append({"region": name, "net": t.GetNetname(), "layer": t.GetLayerName(),
+                              "at": [round(v, 2) for v in world.to_w(x0_ + dx_ * tm, y0_ + dy_ * tm)]})
                 break
     reg = regions["latch block"]
     # PERMIT route length (latch Q -> J4.9) and trip-input route lengths
@@ -416,14 +472,14 @@ def main():
     # listed, not failed. V15_BLW (2.72 A, PLAN-16 sec. 3) must carry its current in F.Cu pours: J13.1, the
     # bulk + pad, every input-cap V15_BLW pad and U2's VIN pour must lie in one connected filled V15_BLW
     # region; its routed tracks (EN / BLW_PG divider branches, mA) are reported only.
-    need = {"V_BLOWER": 0.8}
+    need = {"V_BLOWER": 0.8, "V12_FAN2": 0.6, "V15_BLW": 0.8}   # C53 review M3: face-fan output and V15_BLW's routed branches
     pw, pw_ok = {}, True
     for n, w_req in need.items():
         ts = [t for t in b.GetTracks() if t.GetNetname() == n and t.Type() == pcbnew.PCB_TRACE_T]
         long_ = [t for t in ts if mm(t.GetLength()) > 1.0]
         narrow = [round(mm(t.GetWidth()), 3) for t in long_ if mm(t.GetWidth()) < w_req - 1e-6]
         vias = [t for t in b.GetTracks() if t.GetNetname() == n and t.Type() == pcbnew.PCB_VIA_T]
-        pw[n] = {"required_mm": w_req, "min_width_mm": round(min((mm(t.GetWidth()) for t in long_), default=0), 3),
+        pw[n if n != "V15_BLW" else "V15_BLW routed"] = {"required_mm": w_req, "min_width_mm": round(min((mm(t.GetWidth()) for t in long_), default=0), 3),
                  "narrow_segments": narrow, "stubs": len(ts) - len(long_), "vias": len(vias),
                  "length_mm": round(sum(mm(t.GetLength()) for t in ts), 1)}
         pw_ok &= not narrow
@@ -462,13 +518,144 @@ def main():
 
     # ---- C53: current-carrying nets only on the 1 oz outer layers (power_widths and LAYOUT.md's ampacity use
     # IPC-2221's external formula; the inner layers are 0.5 oz and the internal formula halves the current)
-    outer_only = ("V_BLOWER", "sw_12", "v15_selv", "V15_BLW")
+    outer_only = ("V_BLOWER", "sw_12", "v15_selv", "V15_BLW", "V12_FAN2", "sw_fan2")
     inner_mm = {}
     for t in b.GetTracks():
         if t.Type() == pcbnew.PCB_TRACE_T and t.GetNetname() in outer_only and t.GetLayer() not in (pcbnew.F_Cu, pcbnew.B_Cu):
             k = f"{t.GetNetname()} {b.GetLayerName(t.GetLayer())}"
             inner_mm[k] = round(inner_mm.get(k, 0) + mm(t.GetLength()), 2)
     put("power_layers", not inner_mm, nets=list(outer_only), inner_track_mm=inner_mm)
+
+    # ---- C53 review M3: wide-copper paths. Each supply's source and load pads are joined by pour copper or tracks of
+    # at least PATH_W (vias join layers; pin stubs <= 1.2 mm count at any width); a longer 0.25 mm neck or a
+    # signal-width track anywhere on the path fails it.
+    # per-net path width: V_BLOWER 2.70 A max, V12_FAN2 0.67 A, V15_BLW's branches D9 + U51 about 1.6 A together,
+    # v15_selv the 4.83 W logic rail (0.33 A at 15 V; IPC-2221 external, 1 oz: 0.25 mm carries 0.85 A at 10 K)
+    PATH_WS = {"V_BLOWER": 0.8, "V12_FAN2": 0.6, "V15_BLW": 0.5, "v15_selv": 0.25}
+    path_need = {"V_BLOWER": [("l_12", "2"), ("j_fan", "1")],
+                 "V12_FAN2": [("bay_fan.l", "2"), ("bay_fan.j", "2")],
+                 "V15_BLW": [("J13", "1"), ("u_12", "3"), ("bay_fan.u_buck", "3"), ("d_merge", None)],
+                 "v15_selv": [("d_merge", None), ("u_3v3", "3")]}
+    by_src = {f.GetFieldText("SourceInstance"): f for f in b.GetFootprints()}
+    def wide_components(net):
+        PATH_W = PATH_WS[net]
+        items = []          # (kind, obj, layer or None)
+        for t in b.GetTracks():
+            if t.GetNetname() != net:
+                continue
+            if t.Type() == pcbnew.PCB_VIA_T:
+                items.append(("via", t, None))
+            elif t.Type() == pcbnew.PCB_TRACE_T and (mm(t.GetWidth()) >= PATH_W - 1e-6 or mm(t.GetLength()) <= 1.2):
+                # (a pin stub <= 1.2 mm counts at its width: the buck pins' 0.3 mm stubs into their pours are 1.03 mm)
+                items.append(("trk", t, t.GetLayer()))
+        for f in b.GetFootprints():
+            for p in f.Pads():
+                if p.GetNetname() == net:
+                    items.append(("pad", (f, p), None))
+        for z in b.Zones():
+            if z.GetNetname() != net or z.GetIsRuleArea():
+                continue
+            for lay in z.GetLayerSet().Seq():
+                fill = z.GetFilledPolysList(lay)
+                for i in range(fill.OutlineCount()):
+                    ps = pcbnew.SHAPE_POLY_SET()
+                    ps.AddOutline(fill.Outline(i))
+                    for j in range(fill.HoleCount(i)):
+                        ps.AddHole(fill.Hole(i, j))
+                    items.append(("zone", ps, lay))
+        par = list(range(len(items)))
+        def find(x):
+            while par[x] != x:
+                par[x] = par[par[x]]
+                x = par[x]
+            return x
+        def touch(a, c):
+            ka, oa, la = a
+            kc, oc, lc = c
+            if ka == "trk" and kc == "trk":
+                return la == lc and (any(oc.HitTest(e, oa.GetWidth() // 2) for e in (oa.GetStart(), oa.GetEnd()))
+                                     or any(oa.HitTest(e, oc.GetWidth() // 2) for e in (oc.GetStart(), oc.GetEnd())))
+            if ka == "trk" and kc == "via":
+                return any((e - oc.GetPosition()).EuclideanNorm() <= oc.GetWidth(pcbnew.F_Cu) // 2 for e in (oa.GetStart(), oa.GetEnd()))
+            if ka == "trk" and kc == "pad":
+                return oc[1].IsOnLayer(la) and any(oc[1].HitTest(e) for e in (oa.GetStart(), oa.GetEnd()))
+            if ka == "trk" and kc == "zone":
+                return la == lc and any(oc.Contains(e) for e in (oa.GetStart(), oa.GetEnd()))
+            if ka == "via" and kc == "pad":
+                return oc[1].HitTest(oa.GetPosition())
+            if ka == "via" and kc == "zone":
+                return oc.Contains(oa.GetPosition())
+            if ka == "pad" and kc == "zone":
+                if not oa[1].IsOnLayer(lc):
+                    return False
+                inter = pcbnew.SHAPE_POLY_SET(oa[1].GetEffectivePolygon(lc, pcbnew.ERROR_INSIDE))
+                inter.BooleanIntersection(oc)
+                return inter.Area() > 0
+            if ka == "zone" and kc == "zone":       # same-net pours that overlap (BLW_FEED and the buck VIN pours)
+                if la != lc:
+                    return False
+                inter = pcbnew.SHAPE_POLY_SET(oa)
+                inter.Inflate(pcbnew.FromMM(0.02), pcbnew.CORNER_STRATEGY_CHAMFER_ALL_CORNERS, pcbnew.FromMM(0.005))
+                inter.BooleanIntersection(oc)        # fills of abutting same-net zones meet edge to edge: 0.02 mm grow
+                return inter.Area() > 0
+            if ka == "via" and kc == "via":
+                return False
+            return False
+        order = {"trk": 0, "via": 1, "pad": 2, "zone": 3}
+        for i_ in range(len(items)):
+            for j_ in range(len(items)):
+                if order[items[i_][0]] < order[items[j_][0]] or (items[i_][0] == items[j_][0] in ("trk", "zone") and i_ < j_):
+                    if find(i_) != find(j_) and touch(items[i_], items[j_]):
+                        par[find(i_)] = find(j_)
+        return items, find
+    pp_rows, pp_ok = {}, True
+    for net, ends in path_need.items():
+        items, find = wide_components(net)
+        comps = {}
+        for src, pin in ends:
+            f = by_src.get(src) or fps.get(src)
+            if f is None:
+                comps[f"{src}.{pin}"] = None
+                continue
+            for i_, it in enumerate(items):
+                if it[0] == "pad" and it[1][0].GetReference() == f.GetReference() and (pin is None or it[1][1].GetNumber() == pin):
+                    comps[f"{f.GetReference()}.{it[1][1].GetNumber()}"] = find(i_)
+        good = None not in comps.values() and len(set(comps.values())) == 1 and len(comps) >= len(ends)
+        pp_ok &= good
+        pp_rows[net] = {"ok": good, "groups": {k: (sorted(comps.values()).index(v) if v is not None else None)
+                                                 for k, v in comps.items()}}
+    put("power_paths", pp_ok, min_width_mm=PATH_WS, nets=pp_rows)
+
+    # ---- C53 review M4: every layer change of a high-current net has >= 2 barrels (layout/power_vias.py adds them):
+    # same-net vias grouped by single linkage within power_vias.REACH; every group needs >= 2
+    import power_vias
+    pv_rows, pv_ok = {}, True
+    for net in power_vias.NETS:
+        pts = [t.GetPosition() for t in b.GetTracks() if t.Type() == pcbnew.PCB_VIA_T and t.GetNetname() == net]
+        par = list(range(len(pts)))
+        def fnd(x):
+            while par[x] != x:
+                x = par[x]
+            return x
+        for i_ in range(len(pts)):
+            for j_ in range(i_ + 1, len(pts)):
+                if mm((pts[i_] - pts[j_]).EuclideanNorm()) <= power_vias.REACH:
+                    par[fnd(i_)] = fnd(j_)
+        groups = {}
+        for i_ in range(len(pts)):
+            groups.setdefault(fnd(i_), []).append(i_)
+        single = [[round(v, 2) for v in world.to_w(mm(pts[g[0]].x), mm(pts[g[0]].y))] for g in groups.values() if len(g) < 2]
+        pv_ok &= not single
+        pv_rows[net] = {"vias": len(pts), "sites": len(groups), "sites_by_barrels": dict(sorted(
+            collections.Counter(len(g) for g in groups.values()).items())), "single_via_sites_world": single}
+    put("power_vias", pv_ok, nets=pv_rows)
+
+    # ---- C53 review M5: In2 v3v3 pour islands that carry an IC supply have >= 2 links to the rest of the net
+    import v3v3_islands
+    isl = v3v3_islands.analyse(b)
+    weak_ = [{k: v for k, v in o.items() if k in ("area_mm2", "links", "ics", "vias")} |
+             {"bbox_world": [round(v, 2) for v in wbox(o["bbox_mm"])]} for o in isl if o["supply"] and o["links"] < 2]
+    put("v3v3_islands", not weak_, islands=len(isl) + 1, supply_islands=sum(o["supply"] for o in isl), weak=weak_)
 
     # ---- analog partition: courtyard-to-courtyard separations (ENCLOSURE-HANDOFF placement notes)
     def crt(ref):

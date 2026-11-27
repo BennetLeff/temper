@@ -212,10 +212,11 @@ def run(board, forbid_rects, edge_rect, stitch=None):
         drills.append((c, VIA_DRILL / 2))
         done += 1
     n_stitch = 0
-    if stitch:
-        rects, pitch, avoid = stitch
+    stitches = stitch if isinstance(stitch, list) else ([stitch] if stitch else [])   # C53: several grids
+    if stitches:
         gnd_vias = [g[0] for g in (o[1] for o in obstacles[pcbnew.B_Cu] if o[0] == "circle" and o[2] == "selv_gnd")]
         obstacles[pcbnew.F_Cu].extend(lanes)
+    for rects, pitch, avoid in stitches:
         for x0, y0, x1, y1 in rects:
             nx_, ny_ = int((x1 - x0) / pitch) + 1, int((y1 - y0) / pitch) + 1
             for i in range(nx_):

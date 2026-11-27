@@ -13,6 +13,16 @@ import sys
 import pcbnew
 
 mm = pcbnew.ToMM
+
+
+def _ohms(v):
+    """Resistance from a Yageo RC/RT/AF MPN (RC0603FR-0733RL -> 33, -0710KL -> 10 k, -074K7L -> 4.7 k); inf if not one.
+    The footprints carry the MPN as their value, with no resistance field."""
+    m = __import__("re").match(r"(?:RC|RT|AF)\d{4}[A-Z]{2}-\d{2}(\d*)([RKM])(\d*)L", v)
+    if not m:
+        return float("inf")
+    return float(f"{m.group(1) or 0}.{m.group(3) or 0}") * {"R": 1, "K": 1e3, "M": 1e6}[m.group(2)]
+
 LAYERS = {"F": pcbnew.F_Cu, "In2": pcbnew.In2_Cu, "In3": pcbnew.In3_Cu, "B": pcbnew.B_Cu}   # C53: In3 (6 layers)
 
 
@@ -86,6 +96,14 @@ def main():
                 xs += [mm(bb.GetLeft()), mm(bb.GetRight())]
                 ys += [mm(bb.GetTop()), mm(bb.GetBottom())]
     mcu = {p.GetNetname() for p in fps["U4"].Pads()} - {"selv_gnd", "v3v3", ""}
+    for r_, f_ in fps.items():      # C53 review m3: nets the MCU drives through a series resistor
+        ns_ = [p.GetNetname() for p in f_.Pads()]
+        # series terminations only (<= 100 R: the 33 R PWM parts); kilohm ADC input resistors face the other way, and
+        # the op-amp buffer outputs (*_buf_out) behind their 33-100 R isolation resistors are signals into the ADC
+        if r_.startswith("R") and len(ns_) == 2 and _ohms(f_.GetValue()) <= 100:
+            for a_, b_ in (ns_, ns_[::-1]):
+                if a_ in mcu and b_ not in ("selv_gnd", "v3v3", "") and not b_.endswith("_buf_out"):
+                    mcu = mcu | {b_}
     allowed = {p.GetNetname() for r_ in block + rb for p in fps[r_].Pads()}
     d["forbid"] = [{"rect": [min(xs), min(ys), max(xs), max(ys)], "nets": sorted(mcu - allowed),
                     "why": "interlock block: no MCU traces through it"}]

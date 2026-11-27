@@ -179,9 +179,11 @@ PLACE = {
     "rtd_food.d_sp": (49.62, 76.6, 90),
     "rtd_food.d_fp": (53.17, 76.6, 90),
     "rtd_food.adc": (46.0, 68.3, 180),
-    # C53: U50's bypasses fixed beside its pin-1 end (auto-placed, C111 was 2.97 mm from DVDD pin 2; rule 3 mm)
-    "rtd_food.c_dvdd": (53.54, 67.025, 90),  # DVDD pin 2: 2.62 mm
-    "rtd_food.c_vdd": (51.945, 66.175, -90), # VDD (RTD2_AVDD) pin 3: 1.03 mm (its auto-placed pose)
+    # C53: U50's bypasses fixed beside its pin-1 end (auto-placed, C111 was 2.97 mm from DVDD pin 2; rule 3 mm).
+    # Review m1: the DVDD cap is the inner one, its rail pad level with pin 2, so build_board's locked F.Cu stub joins
+    # them directly (the In2 v3v3 pour can split, so a pour-only connection is not a local bypass)
+    "rtd_food.c_dvdd": (51.945, 65.245, -90), # DVDD pin 2: 1.02 mm, pad 1 level with it
+    "rtd_food.c_vdd": (53.54, 67.025, 90),    # VDD (RTD2_AVDD) pin 3: 2.62 mm
     # second filter stage in the 2.5 mm row between U50's pin 10/11 end (Y 71.2) and the clamps: R2n, C2 (1206 across
     # the sense pair, pad 1 = S+ on the right), R2p; the common-mode caps beside pins 11 (left) and 10 (right)
     "rtd_food.r_s2n": (42.0, 73.41, 0),
@@ -209,6 +211,12 @@ PLACE = {
     #      channels; EMC2301 (U52) and the PWM cascode / tach parts at J15 (104.5, 86; pins 1..5 at X 99.5..109.5)
     "bay_fan.u_buck": (82.0, 54.0, 0),
     "bay_fan.l": (89.0, 54.0, 0),
+    # C53 review M3: the face-fan buck gets the blower buck's power-stage layout (build_board.buck_pours: SW band to L3
+    # pad 1, VIN pour left of pin 3). The caps sit at U2's offsets: the 100 nF HF input cap next to pins 3/4, the bulk
+    # cap beside it, both with pad 1 on the VIN pour; the bootstrap cap's SW pad on the SW band
+    "bay_fan.c_in_b": (79.8, 51.35, -90),
+    "bay_fan.c_in_a": (77.8, 51.15, -90),
+    "bay_fan.c_bst": (84.1, 52.95, -90),
     "bay_fan.u_fan": (106.0, 76.0, 90),
     "bay_fan.q_pwm": (110.4, 79.6, 0),
     "bay_fan.d_tach": (104.5, 81.2, 90),
@@ -225,7 +233,7 @@ PLACE = {
 
 # Board text (world mm, size): ID and SELV mark on F.Silkscreen in the free front-middle area
 SILK = [("TEMPER CONTROLLER", 115.0, 24.0, 2.5), ("SELV  15 V max  -  NO MAINS", 115.0, 20.0, 1.5),
-        ("zapote/controller  rev L2 (enclosure R33)", 115.0, 30.0, 1.2)]  # C44: X98 -> X115, clear of the C39 group
+        ("zapote/controller  C53 (C51, 6 layers)", 115.0, 30.0, 1.2)]  # C44: X98 -> X115, clear of the C39 group
 
 # Passive -> anchor IC/connector (pin chosen automatically: the anchor pin on the passive's
 # non-ground net). Listed where the automatic "most specific net" choice would pick the wrong
@@ -282,8 +290,7 @@ ANCHOR = {
     "rtd_food.c_avdd_bulk": "rtd_food.adc",
     "rtd_food.fb": "rtd_food.adc", "rtd_food.r_ref": "rtd_food.adc",
     # C53 face fan: buck parts at U51 / L3, EMC2301 parts at U52, tach pull-up and series R at J15
-    "bay_fan.c_ss": "bay_fan.u_buck", "bay_fan.c_bst": "bay_fan.u_buck", "bay_fan.c_in_a": "bay_fan.u_buck",
-    "bay_fan.c_in_b": "bay_fan.u_buck", "bay_fan.r_en_top": "bay_fan.u_buck", "bay_fan.r_en_bot": "bay_fan.u_buck",
+    "bay_fan.c_ss": "bay_fan.u_buck", "bay_fan.r_en_top": "bay_fan.u_buck", "bay_fan.r_en_bot": "bay_fan.u_buck",
     "bay_fan.r_fb_top": "bay_fan.u_buck", "bay_fan.r_fb_bot": "bay_fan.u_buck",
     "bay_fan.c_out_a": "bay_fan.l", "bay_fan.c_out_b": "bay_fan.l",
     "bay_fan.c_fan": "bay_fan.u_fan", "bay_fan.c_tach": "bay_fan.u_fan", 
@@ -339,7 +346,7 @@ CHANNELS: list[tuple[float, float, float, float]] = [
 # blower buck VIN pour (world Y ~72.4-75.0, left of U2). 1.7 mm wide along X 82.6-84.3; the top
 # reaches J13.1. The CHANNELS entry above keeps auto-placed parts out of it.
 BLW_FEED: list[tuple[float, float, float, float]] = [(82.6, 74.6, 84.3, 84.6),   # band down the left of U2
-                                                     (81.4, 84.4, 86.6, 87.8),   # top: J13.1 and the BLW_PG top R
+                                                     (81.4, 84.0, 87.95, 88.5),  # top: J13.1 and the BLW_PG top R (C53 review m2: past the pad on +X/+Y/-Y so all four spokes form; was one)
                                                      (74.0, 72.9, 82.6, 74.9)]   # strip: bulk + and input caps
 
 # C34: the RTD unit's analog signal family (zapote/rtd unit profile geometry.sensitive_nets, mapped to the
@@ -362,6 +369,13 @@ RTD_RETURN_VIA_MM = 2.5          # the unit's required_locality_mm is 3.0
 RTD_STITCH: list[tuple[float, float, float, float]] = [(115.0, 55.0, 167.0, 89.0),
                                                        (35.0, 63.5, 56.0, 89.0)]     # C53: food channel, J9 to U50
 RTD_STITCH_PITCH = 3.0
+# C53 review m6: a coarse selv_gnd stitching grid over the whole board ties the In1 and In4 planes together where no
+# part fan-out does (12 % of the board was > 10 mm from a ground via; worst 25 mm). Skipped where a ground via is
+# within half the pitch; the module body is skipped as for RTD_STITCH.
+GND_STITCH_PITCH = 10.0
+# C53 review m7: three fiducials (1 mm copper, 2 mm mask opening) for JLC's placement vision, at the free spots nearest
+# three board corners (the WROOM module fills the fourth); world mm. A 1.5 mm copper keep-out keeps the mask opening bare.
+FIDUCIALS = [(-32.55, 84.55), (-23.55, 19.55), (153.95, 20.05)]
 
 # C34: net-pair clearances above the net classes (KiCad custom rules, pcb/controller.kicad_dru, and the
 # router). The block validators see the shared plane nets' whole copper, so the thermal-sense unit's

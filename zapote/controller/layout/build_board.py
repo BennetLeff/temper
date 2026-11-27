@@ -56,7 +56,7 @@ CLASSES = {
     "Thermal": {"track_width": 0.15, "clearance": 0.20, "via_diameter": 0.6, "via_drill": 0.3},
 }
 V15B = "V15_BLW"          # stage 16 (C33): blower buck input from PS3 via J13
-POWER_NETS = [V15, V15B, "V_BLOWER", "sw_3v3", "sw_12"]
+POWER_NETS = [V15, V15B, "V_BLOWER", "sw_3v3", "sw_12", "sw_fan2", "V12_FAN2"]   # C53 review M3: face-fan buck
 SUPPLY_NETS = ["V5_UI", "v5_drop", "v5_mid", "RTD_AVDD"]
 ANALOG_NETS = ["rtd_sense_p", "rtd_sense_n", "rtd_force_p", "rtd_force_n", "vbus_p",
                "vbus_n", "ct_mon", "ct_buf_out", "m12_node", "m12_filt", "p1", "refin_n", "rms_in", "rms_ibuf",
@@ -342,6 +342,10 @@ def main():
             if n:
                 pad.SetNet(board.FindNet(n))
         fps[ref] = fp
+    # C53 review m7: the fiducial footprint (placed with the explicit poses below)
+    (PCB / "libs" / "Fiducial.pretty").mkdir(parents=True, exist_ok=True)
+    shutil.copy2(lib_dir("Fiducial") / "Fiducial_1mm_Mask2mm.kicad_mod", PCB / "libs" / "Fiducial.pretty" / "Fiducial_1mm_Mask2mm.kicad_mod")
+    libs.add("Fiducial")
     (PCB / "fp-lib-table").write_text("(fp_lib_table\n  (version 7)\n" + "".join(
         f'  (lib (name "{lib}") (type "KiCad") (uri "${{KIPRJMOD}}/libs/{lib}.pretty") (options "") (descr ""))\n'
         for lib in sorted(libs)) + ")\n")
@@ -371,6 +375,37 @@ def main():
     bad = [(a, b) for a in placed for b in placed if a < b and overlap(placed[a], placed[b])]
     if bad:
         raise SystemExit(f"explicit poses overlap: {bad}")
+
+    # ---- C53 review m7: fiducials (board-only footprints: not in the schematic, BOM or CPL)
+    fdst = PCB / "libs" / "Fiducial.pretty"      # vendored with the others, before fp-lib-table
+    for k_, (fx, fy) in enumerate(floorplan.FIDUCIALS, 1):
+        ff = pcbnew.FootprintLoad(str(fdst), "Fiducial_1mm_Mask2mm")
+        ff.SetReference(f"FID{k_}")
+        ff.SetField("SourceInstance", f"board.fiducial{k_}")     # every script reads this field on every footprint
+        ff.GetField("SourceInstance").SetVisible(False)
+        ff.SetFPID(pcbnew.LIB_ID("Fiducial", "Fiducial_1mm_Mask2mm"))
+        ff.Reference().SetVisible(False)
+        ff.SetBoardOnly(True)
+        ff.SetExcludedFromBOM(True)
+        ff.SetExcludedFromPosFiles(True)
+        board.Add(ff)
+        pose(ff, fx, fy, 0, None)
+        placed[f"FID{k_}"] = crt_rect(ff)
+        kz = pcbnew.ZONE(board)
+        kz.SetIsRuleArea(True)
+        kz.SetLayer(pcbnew.F_Cu)
+        kz.SetZoneName(f"FID{k_}_keepout")
+        kz.SetDoNotAllowTracks(True)
+        kz.SetDoNotAllowVias(True)
+        kz.SetDoNotAllowZoneFills(True)
+        kz.SetDoNotAllowPads(False)
+        kz.SetDoNotAllowFootprints(False)
+        ol_ = kz.Outline()
+        ol_.NewOutline()
+        cx_, cy_ = world.to_k(fx, fy)
+        for a_ in range(24):
+            ol_.Append(mm(cx_ + 1.5 * math.cos(a_ * math.pi / 12)), mm(cy_ + 1.5 * math.sin(a_ * math.pi / 12)))
+        board.Add(kz)
 
     kx0, ky0 = world.to_k(world.BOARD[0], world.BOARD[3])
     kx1, ky1 = world.to_k(world.BOARD[2], world.BOARD[1])
@@ -423,7 +458,7 @@ def main():
         t.SetLocked(True)
         board.Add(t)
 
-    def buck_pours(u, ind, tag, vin_net):
+    def buck_pours(u, ind, tag, vin_net, block_vin=False):
         """SOT-583 converter (pins 1-4 left, 5-8 right, 0.5 mm pitch): a 0.3 mm stub leaves each
         power pin straight outward (it is as wide as the pad), and the wide pour starts 0.25 mm
         clear of the pin row, so the 0.2 mm pin gaps never carry pour."""
@@ -443,6 +478,8 @@ def main():
         stub(vin_net, (x0 + x1) / 2, cy, x0 - 0.7, cy)
         plane(vin_net, pcbnew.F_Cu, 5, f"VIN_{tag.upper()}", (x0 - 4.0, cy, x0 - 0.25, cy + 2.6),
               pad_conn=pcbnew.ZONE_CONNECTION_FULL)
+        if block_vin:       # C53: keep auto-placed parts off a VIN pour whose caps have explicit poses
+            placed[f"_vin_{u}"] = (x0 - 4.0, cy, x0 - 0.25, cy + 2.6)
         # GND (pin 4, the lower-left corner pin): stub straight down to a plane via
         x0, y0, x1, y1 = pad_box(f"{u}.4")
         cx = (x0 + x1) / 2
@@ -457,6 +494,25 @@ def main():
         board.Add(v)
     buck_pours(R("u_3v3"), R("l_3v3"), "3v3", V15)
     buck_pours(R("u_12"), R("l_12"), "12", V15B)
+    # C53 review M3: the face-fan buck (C51) had no power-stage copper: its SW node and output were routed as 0.15 mm
+    # signal track. Same pours as U2; its output V12_FAN2 is a Power-class routed net (gridroute POWER, NO_NECK).
+    buck_pours(R("bay_fan.u_buck"), R("bay_fan.l"), "fan2", V15B, block_vin=True)
+
+    # C53 review m1: each MAX31865's DVDD pin is tied to its bypass cap by a locked F.Cu stub. The In2 v3v3 pour can
+    # be split by In2 signals, and C30 had ended up on another pour island from U30.2: within 2.5 mm by pad boxes
+    # but not locally connected. U30 (rot 90): east under the body between the pin rows, then into pin 2. U50:
+    # straight, the cap's pad 1 is level with pin 2 (floorplan).
+    def pad_c(rp):
+        r, p = rp.split(".")
+        q = next(q for q in fps[r].Pads() if q.GetNumber() == p)
+        return pcbnew.ToMM(q.GetPosition().x), pcbnew.ToMM(q.GetPosition().y)
+    for ic, cap in (("rtd_pan.adc", "rtd_pan.c_dvdd"), ("rtd_food.adc", "rtd_food.c_dvdd")):
+        (ux, uy), (cx_, cy_) = pad_c(f"{R(ic)}.2"), pad_c(f"{R(cap)}.1")
+        if abs(uy - cy_) < 0.01:
+            stub(V3, cx_, cy_, ux, uy, w=0.25)
+        else:
+            stub(V3, cx_, cy_, ux, cy_, w=0.25)
+            stub(V3, ux, cy_, ux, uy, w=0.25)
     # Stage 16 (C33): J13.1 -> blower buck VIN pour as an F.Cu feed band (2.72 A design load), so
     # the PS3 feed never depends on a routed track. World rectangles from floorplan.BLW_FEED (rectangles, because fanout.py treats a zone as its bbox); THT
     # pads (J13.1) get thermal reliefs, SMD pads connect solid.
@@ -658,7 +714,10 @@ def main():
         a_, b_ = world.to_k(x0, y1), world.to_k(x1, y0)
         st_rects.append((a_[0], a_[1], b_[0], b_[1]))
     n_fan, fan_missed = fanout.run(board, forbidden_rects(), (kx0, ky0, kx1, ky1),
-                                   stitch=(st_rects, floorplan.RTD_STITCH_PITCH, [crt_rect(fps["U4"])]))
+                                   stitch=[(st_rects, floorplan.RTD_STITCH_PITCH, [crt_rect(fps["U4"])]),
+                                           # C53 review m6: board-wide coarse grid
+                                           ([(kx0 + 3.0, ky0 + 3.0, kx1 - 3.0, ky1 - 3.0)], floorplan.GND_STITCH_PITCH,
+                                            [crt_rect(fps["U4"])])])
     if fan_missed:
         raise SystemExit(f"fan-out found no via spot for {fan_missed}")
 
