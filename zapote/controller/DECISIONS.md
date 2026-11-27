@@ -1107,3 +1107,14 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
       that pass would delete the stub and strand the via. Their dangling pass still runs.
     - Smoke test: cluster() on run 3's routed V_BLOWER and V15_BLW copper finds the same short vias power_vias.py found.
     - Set 5 runs on this code.
+  - **Review-fix set 5 (companions placed at route time): runs 2 and 3 did not route.** They left 6 and 4 pairs open after
+    38 and 35 rounds (137 and 123 min). Run 1 was stopped at round 33 on the same course. Archive:
+    build/conv/failed-review-fix-set5/.
+    - The companions did work: no V_BLOWER or V15_BLW via was left short.
+    - Every open pair, and most repair targets, sat in the band V_BLOWER crosses: C16, U52, J10, U29 and U34
+      (x 160-200). Run 2 also left V_BLOWER itself open from C16 to J10.
+    - Run 2 also had one DRC error, an RTD via 0.75 mm from the board edge.
+    - Reading: V_BLOWER routed late, after the short local links (shortest-first order). Its clusters then fought
+      for the leftover room, and negotiated rip-up kept displacing and re-routing it.
+    - Set 6: CLUSTER nets route first in every round and pay 4× the via cost, and in pass 2 a signal path may not
+      rip a CLUSTER route.

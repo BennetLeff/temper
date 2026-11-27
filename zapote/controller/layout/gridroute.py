@@ -96,6 +96,11 @@ COMP_STEPS = (0.9, 1.1, 1.3, 1.5)
 COMP_REACH = 1.8         # power_vias.REACH: a same-net via this close counts as a companion
 CLUSTER_TRIES = 4        # routes per width/margin try, each barring the vias that could not have companions
 VIA_BAR_MM = 1.0
+# Set 5: clusters routed as late, ordinary pairs left 4 and 6 signal pairs open (35 / 38 rounds, vs 26 / 31 in set 4),
+# all in the dense band C16-U52-J10-U29 that V_BLOWER crosses, with V_BLOWER itself ripped and re-routed there. So a
+# CLUSTER net routes first in every round, pays CLUSTER_VIA_X times the via cost (fewer layer changes, fewer clusters),
+# and a signal path in negotiated rip-up may not rip a CLUSTER route.
+CLUSTER_VIA_X = 4
 LAYERS = ("F", "In2", "In3", "B")    # In2 carries signals where needed; the v3v3 pour refills around them.
 # C53: six-layer board; In3 is a signal layer between In2 and the In4 selv_gnd plane (no In3 tracks over the RTD
 # regions: rule areas from build_board.py)
@@ -592,6 +597,7 @@ class Router:
         ras = self.ras
         r_t = w / 2 + CLR + extra(net)
         r_v = VIA_R + CLR + extra(net)
+        via_cost = VIA_COST * (CLUSTER_VIA_X if net in CLUSTER else 1)
         rtd = net in RTD_ANALOG
         cov_t, cov_v = self.get_cover(r_t), self.get_cover(r_v)
         pa, pb = ras.px(*a), ras.px(*b)
@@ -767,7 +773,7 @@ class Router:
                 for ol in range(len(LAYERS)):
                     if ol == l or not fr[ol, i, j]:
                         continue
-                    ng = gcost + VIA_COST
+                    ng = gcost + via_cost
                     if ng < dist[ol, i, j]:
                         dist[ol, i, j] = ng
                         prev[(ol, i, j)] = (l, i, j)
@@ -853,7 +859,7 @@ def main():
 
     def order(q):
         d = math.dist(q[1][0][0], q[1][1][0])
-        return (q[0] not in first, 0 if d >= LONG_MM else 1, -d if d >= LONG_MM else d)
+        return (q[0] not in first, q[0] not in CLUSTER, 0 if d >= LONG_MM else 1, -d if d >= LONG_MM else d)
     pairs.sort(key=order)
     queue = list(range(len(pairs)))
     ripped_count = {}
@@ -933,6 +939,8 @@ def main():
                 victims = victims_of(net, res[0], res[1])
                 if len(victims) > 30:
                     continue
+                if net not in CLUSTER and any(R.routes[rid][0] in CLUSTER for rid in victims):
+                    continue            # a signal path does not displace a CLUSTER route (set 5)
                 saved = {rid: R.routes[rid] for rid in victims}
                 for rid in victims:
                     R.remove_route(rid)
