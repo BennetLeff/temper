@@ -714,10 +714,9 @@ def main():
         a_, b_ = world.to_k(x0, y1), world.to_k(x1, y0)
         st_rects.append((a_[0], a_[1], b_[0], b_[1]))
     n_fan, fan_missed = fanout.run(board, forbidden_rects(), (kx0, ky0, kx1, ky1),
-                                   stitch=[(st_rects, floorplan.RTD_STITCH_PITCH, [crt_rect(fps["U4"])]),
-                                           # C53 review m6: board-wide coarse grid
-                                           ([(kx0 + 3.0, ky0 + 3.0, kx1 - 3.0, ky1 - 3.0)], floorplan.GND_STITCH_PITCH,
-                                            [crt_rect(fps["U4"])])])
+                                   stitch=(st_rects, floorplan.RTD_STITCH_PITCH, [crt_rect(fps["U4"])]))
+    # C53 review m6's board-wide 10 mm grid is placed after routing (power_vias.py stitch), where the copper allows:
+    # placed here, its 61 locked through vias blocked every layer of the cross-board corridors (0/3 runs closed)
     if fan_missed:
         raise SystemExit(f"fan-out found no via spot for {fan_missed}")
 

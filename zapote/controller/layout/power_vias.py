@@ -11,6 +11,11 @@ it, and a stub on each of the via's other layers ties it back to the via. Each c
 clearance, keep-out and drill-spacing checks against the copper exported by layout/export_geom.py, and the vias
 already accepted. A via whose candidates all fail keeps fewer companions; check_layout.py's power_vias gate reports
 it. Run after routing, before the outer pours go in (route.py).
+
+Then the board-wide selv_gnd stitching grid (C53 review m6): at each node of a GND_STITCH_PITCH grid (3 mm inside
+the edge, off the module) with no selv_gnd via within half a pitch, the first legal spot within STITCH_SEARCH mm
+gets a through via (it joins the In1/In4 planes). Placed before routing, the grid's locked vias took the corridors
+the long cross-board nets needed; placed here it only uses room the routes left.
 """
 import json
 import math
@@ -22,6 +27,9 @@ COMPANIONS = 2        # so each layer change has three barrels (1.42 A typ / 2.7
 REACH = 1.8           # mm: a via within this of another same-net via counts as its companion
 STEPS = (0.9, 1.1, 1.3, 1.5)
 RTD_KEEP = 2.0        # mm from any RTD analog via (their In1 antipad spacing, gridroute RTD_HOLE_GAP)
+GND = "selv_gnd"
+STITCH_SEARCH = 3.0   # mm around a grid node
+STITCH_INSET = 3.0    # mm inside the board edge
 
 
 def plan(geom_path, out_path):
@@ -100,8 +108,49 @@ def plan(geom_path, out_path):
             added_v.append({"net": net, "at": list(p)})
         if near(c, net) < COMPANIONS:
             short.append({"net": net, "at": list(c), "companions": near(c, net)})
-    json.dump({"vias": added_v, "tracks": added_t, "short": short}, open(out_path, "w"), indent=1)
-    print(f"power vias: {len(added_v)} added, {len(added_t)} stubs, {len(short)} vias short of {COMPANIONS} companions")
+    n_power = len(added_v)
+
+    # board-wide selv_gnd stitching grid (review m6)
+    import floorplan
+    pitch = floorplan.GND_STITCH_PITCH
+    x0, y0, x1, y1 = geom["edge"]
+    x0, y0, x1, y1 = x0 + STITCH_INSET, y0 + STITCH_INSET, x1 - STITCH_INSET, y1 - STITCH_INSET
+    u4 = [pt for pd in geom["pads"] if pd["ref"].split(".")[0] == "U4" for pg in pd["poly"] for pt in pg["outline"]]
+    mod = (min(x for x, _ in u4) - 1.0, min(y for _, y in u4) - 1.0, max(x for x, _ in u4) + 1.0, max(y for _, y in u4) + 1.0)
+    gnd = [tuple(v["at"]) for v in geom["vias"] if v["net"] == GND]
+    ring = [(0.0, 0.0)] + [(r * math.cos(math.pi * k / (4 * r / 0.5)), r * math.sin(math.pi * k / (4 * r / 0.5)))
+                           for r in [0.5 * i for i in range(1, int(STITCH_SEARCH / 0.5) + 1)]
+                           for k in range(int(8 * r / 0.5))]
+    stitched, missed = 0, []
+    nx_, ny_ = int((x1 - x0) / pitch) + 1, int((y1 - y0) / pitch) + 1
+    for i in range(nx_):
+        for j in range(ny_):
+            node = (x0 + i * pitch, y0 + j * pitch)
+            if mod[0] <= node[0] <= mod[2] and mod[1] <= node[1] <= mod[3]:
+                continue
+            if any(math.dist(node, o) < pitch / 2 for o in gnd):
+                continue
+            for dx, dy in ring:
+                p = (node[0] + dx, node[1] + dy)
+                if mod[0] <= p[0] <= mod[2] and mod[1] <= p[1] <= mod[3]:
+                    continue
+                if not (x0 <= p[0] <= x1 and y0 <= p[1] <= y1):      # the board's corners are rounded
+                    continue
+                if any(math.dist(p, r) < RTD_KEEP for r in rtd_vias) or not ex.via_ok(p, GND, drills):
+                    continue
+                for l in g.LAYERS:
+                    ex.add(l, Point(p).buffer(g.VIA_R), GND)
+                drills.append((p[0], p[1], g.VIA_DRILL_R))
+                gnd.append(p)
+                added_v.append({"net": GND, "at": list(p)})
+                stitched += 1
+                break
+            else:
+                missed.append(list(node))
+    json.dump({"vias": added_v, "tracks": added_t, "short": short, "stitch": stitched, "stitch_missed": missed},
+              open(out_path, "w"), indent=1)
+    print(f"power vias: {n_power} added, {len(added_t)} stubs, {len(short)} vias short of {COMPANIONS} companions; "
+          f"{stitched} {GND} stitch vias, {len(missed)} grid nodes with no legal spot")
 
 
 def apply(board_path, plan_path):
@@ -116,6 +165,7 @@ def apply(board_path, plan_path):
         tr.SetWidth(pcbnew.FromMM(t["w"]))
         tr.SetLayer(L[t["layer"]])
         tr.SetNet(b.FindNet(t["net"]))
+        tr.thisown = False      # the board owns it: a Python-owned item is freed when its proxy is rebound (wrong nets)
         b.Add(tr)
     for v in r["vias"]:
         via = pcbnew.PCB_VIA(b)
@@ -123,6 +173,11 @@ def apply(board_path, plan_path):
         via.SetWidth(pcbnew.FromMM(0.6))
         via.SetDrill(pcbnew.FromMM(0.3))
         via.SetNet(b.FindNet(v["net"]))
+        if v["net"] == GND:
+            # a track-less via inside several filled pours: KiCad's connectivity re-nets it to one of them at save (a
+            # random 8-16 of 70 stitch vias became v3v3). A free via keeps its net.
+            via.SetIsFree(True)
+        via.thisown = False
         b.Add(via)
     pcbnew.SaveBoard(board_path, b)
     print(f"power vias applied: {len(r['vias'])} vias, {len(r['tracks'])} stubs")

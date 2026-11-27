@@ -1030,7 +1030,9 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
     - m3: the interlock gate and the router's forbid list also count nets the MCU drives through a ≤ 100 Ω series
       part. That catches pwm_hb's 25 mm In3 run through the latch block; the op-amp `*_buf_out` nets go into the ADC
       and are excluded. The gate uses an exact segment/box test.
-    - m6: a 10 mm selv_gnd stitching grid over the board (61 vias).
+    - m6: a 10 mm selv_gnd stitching grid, placed after routing (see set 1 below). New gate `gnd_stitch`: every point
+      3 mm or more inside the edge, off the module, within 11 mm of a ground via. The old board measures 23.4 mm worst
+      (27 % beyond 7 mm); with the grid, 10.0 mm worst (1.9 %).
     - m7: three fiducials, board-only, each with a 1.5 mm keep-out.
     - m10: silk revision text.
     - m11: drill maps out of the zip.
@@ -1044,3 +1046,14 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
     - J11 courtyard edge overhang: copper-only lands, nothing fitted.
   - **To ORDER:** m9 stock reads for the 18 unread lines, JLC's six-layer minimum quantity, POFV, and the THT
     orientation steps.
+  - **Review-fix convergence set 1: 0/3.** Runs ended at 1–3 opens after 6,148–6,405 s and about 36 rounds (the
+    superseded set took 14 rounds). Logs: build/conv/failed-review-fix-set1.
+    - Long cross-board nets stayed open in every run (BLW_PG, SUP_RUN_OK_RB, RUNAWAY_FAULT). The m6 grid had been placed
+      before routing as 61 locked through vias, which blocked all six layers of those corridors. Fix: the grid is now
+      placed after routing (power_vias.py), only where the routed copper leaves room.
+    - Run 2 left U51's V15_BLW feed open. Its branch hangs off R150.1, the EN divider pad 1 mm outside the VIN pour, and
+      no 0.8 mm track can pass R150.2 to get there. Fix: V15_BLW gets one narrower try at 0.5 mm, the power_paths
+      width; no 0.25 mm neck.
+    - Found while testing: a track-less via added to a filled board is re-netted by KiCad's connectivity at save. A
+      random 8–16 of 70 stitch vias became v3v3. They are now marked free vias, and three repeat applies gave 0 wrong
+      nets.

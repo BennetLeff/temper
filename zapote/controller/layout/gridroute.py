@@ -76,6 +76,9 @@ POWER = {"v15_selv": 0.8, "V15_BLW": 0.8, "V_BLOWER": 0.8, "sw_3v3": 0.4, "sw_12
 # High-current routed nets never fall back to a 0.25 mm neck (blower 2.70 A peak). V15_BLW (PS3 feed,
 # 2.72 A) runs J13 -> bulk -> input caps -> U2 in F.Cu pours; its routed tracks are the EN/BLW_PG branches.
 NO_NECK = {"V_BLOWER", "sw_12", "V12_FAN2", "V15_BLW"}
+# C53: a no-neck net's one narrower try, at check_layout's power_paths width. V15_BLW's U51 branch hangs off the EN
+# divider pad (R150.1), 1 mm outside U51's VIN pour, where 0.8 mm cannot pass R150.2: 0.8-only left it open (run 2)
+NARROW = {"V15_BLW": 0.5}
 # C53 review M3: V15_BLW's main current is in the BLW_FEED pours, but its routed branches feed D9 (the logic rail,
 # <= 1 A) and the face-fan buck's VIN pour (~0.6 A), which ran on 0.25 mm necks; 0.8 mm (was 1.0) fits the 0603 pads
 # of its divider branches without a neck
@@ -800,6 +803,8 @@ def main():
         tries = [(POWER.get(net, SIG_W), m) for m in margins]
         if net in POWER and net not in NO_NECK:
             tries += [(0.25, m) for m in margins]
+        elif net in NARROW:
+            tries += [(NARROW[net], m) for m in margins]
         why = ""
         for w, m in tries:
             res, why = R.route(net, a, b, la, lb, w, m)
@@ -839,7 +844,8 @@ def main():
             net, ((a, la), (b, lb)) = pairs[idx]
             committed = False
             for w_, m_ in [(POWER.get(net, SIG_W), m) for m in (6.0, 15.0, 40.0)] + \
-                    ([(0.25, m) for m in (6.0, 15.0)] if net in POWER and net not in NO_NECK else []):
+                    ([(0.25, m) for m in (6.0, 15.0)] if net in POWER and net not in NO_NECK else []) + \
+                    ([(NARROW[net], m) for m in (6.0, 15.0)] if net in NARROW else []):
                 res, why = R.route(net, a, b, la, lb, w_, m_, soft=True)
                 if not res:
                     continue
@@ -979,7 +985,8 @@ def eco():
             ends.append((p, ls))
         (a, la), (b, lb) = ends
         res = None
-        for w_, m_ in [(POWER.get(net, SIG_W), m) for m in (3.0, 10.0, 30.0)]:
+        for w_, m_ in [(POWER.get(net, SIG_W), m) for m in (3.0, 10.0, 30.0)] + \
+                [(NARROW[net], m) for m in (10.0, 30.0) if net in NARROW]:
             res, why = R.route(net, a, b, la, lb, w_, m_, soft=True)
             if res:
                 break

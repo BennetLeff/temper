@@ -31,6 +31,7 @@ Layout rules (brief):
   power_paths  each supply's source and load pads joined by pours or tracks >= its path width (C53 review M3)
   power_vias   every layer change of a high-current net has >= 2 barrels (layout/power_vias.py; C53 review M4)
   v3v3_islands every In2 v3v3 pour island that carries an IC supply has >= 2 links (v3v3_islands.py; review M5)
+  gnd_stitch   every point 3 mm inside the edge, off the module, within 11 mm of a selv_gnd via (review m6)
 """
 from __future__ import annotations
 
@@ -656,6 +657,23 @@ def main():
     weak_ = [{k: v for k, v in o.items() if k in ("area_mm2", "links", "ics", "vias")} |
              {"bbox_world": [round(v, 2) for v in wbox(o["bbox_mm"])]} for o in isl if o["supply"] and o["links"] < 2]
     put("v3v3_islands", not weak_, islands=len(isl) + 1, supply_islands=sum(o["supply"] for o in isl), weak=weak_)
+
+    # ---- C53 review m6: ground stitching coverage. Every 1 mm sample 3 mm or more inside the edge, off the module, lies
+    # within GND_STITCH_LIMIT of a selv_gnd via (eb8218075: 25.9 mm worst, 14.6 % of the board beyond 10 mm)
+    GND_STITCH_LIMIT = 11.0
+    eb_ = b.GetBoardEdgesBoundingBox()
+    ex0, ey0, ex1, ey1 = mm(eb_.GetLeft()) + 3, mm(eb_.GetTop()) + 3, mm(eb_.GetRight()) - 3, mm(eb_.GetBottom()) - 3
+    gv = [(mm(v.GetPosition().x), mm(v.GetPosition().y)) for v in b.GetTracks()
+          if v.Type() == pcbnew.PCB_VIA_T and v.GetNetname() == "selv_gnd"]
+    ub = fps["U4"].GetBoundingBox(False)
+    um = (mm(ub.GetLeft()), mm(ub.GetTop()), mm(ub.GetRight()), mm(ub.GetBottom()))
+    smp = [(ex0 + i_, ey0 + j_) for i_ in range(int(ex1 - ex0) + 1) for j_ in range(int(ey1 - ey0) + 1)]
+    smp = [p_ for p_ in smp if not (um[0] <= p_[0] <= um[2] and um[1] <= p_[1] <= um[3])]
+    dist_ = [min(math.dist(p_, q_) for q_ in gv) for p_ in smp]
+    wi = max(range(len(dist_)), key=lambda i_: dist_[i_])
+    put("gnd_stitch", dist_[wi] <= GND_STITCH_LIMIT, limit_mm=GND_STITCH_LIMIT, gnd_vias=len(gv),
+        worst_mm=round(dist_[wi], 2), worst_world=[round(v, 2) for v in world.to_w(*smp[wi])],
+        pct_beyond_7mm=round(100 * sum(d_ > 7 for d_ in dist_) / len(dist_), 1))
 
     # ---- analog partition: courtyard-to-courtyard separations (ENCLOSURE-HANDOFF placement notes)
     def crt(ref):

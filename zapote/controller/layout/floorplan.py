@@ -372,7 +372,7 @@ RTD_STITCH_PITCH = 3.0
 # C53 review m6: a coarse selv_gnd stitching grid over the whole board ties the In1 and In4 planes together where no
 # part fan-out does (12 % of the board was > 10 mm from a ground via; worst 25 mm). Skipped where a ground via is
 # within half the pitch; the module body is skipped as for RTD_STITCH.
-GND_STITCH_PITCH = 10.0
+GND_STITCH_PITCH = 10.0      # C53 review m6: post-route selv_gnd grid (power_vias.py stitch)
 # C53 review m7: three fiducials (1 mm copper, 2 mm mask opening) for JLC's placement vision, at the free spots nearest
 # three board corners (the WROOM module fills the fourth); world mm. A 1.5 mm copper keep-out keeps the mask opening bare.
 FIDUCIALS = [(-32.55, 84.55), (-23.55, 19.55), (153.95, 20.05)]
