@@ -86,6 +86,16 @@ NARROW = {"V15_BLW": 0.5}
 # formula; on six layers the router had put V_BLOWER (>= 1.5 A) and v15_selv (D9, <= 1 A) on 0.5 oz In2/In3,
 # where a 0.8 mm track carries about 0.6 A for a 10 K rise (internal formula). check_layout's power_layers gate.
 OUTER_ONLY = {"V_BLOWER", "sw_12", "v15_selv", "V15_BLW", "V12_FAN2", "sw_fan2"}
+# C53 review M4: the nets whose layer changes can carry > 1 A (check_layout's power_vias gate) get each via's
+# companions when the route is made, from the copper around it then, and a via that cannot have them is barred
+# and the pair re-routed. Added after routing (layout/power_vias.py, still the back-up), set 4 run 3 left a 2.7 A
+# V_BLOWER via by C16 on one barrel: I2C tracks and a v3v3 via had taken the room around it.
+CLUSTER = {"V_BLOWER", "V15_BLW"}
+COMPANIONS = 2
+COMP_STEPS = (0.9, 1.1, 1.3, 1.5)
+COMP_REACH = 1.8         # power_vias.REACH: a same-net via this close counts as a companion
+CLUSTER_TRIES = 4        # routes per width/margin try, each barring the vias that could not have companions
+VIA_BAR_MM = 1.0
 LAYERS = ("F", "In2", "In3", "B")    # In2 carries signals where needed; the v3v3 pour refills around them.
 # C53: six-layer board; In3 is a signal layer between In2 and the In4 selv_gnd plane (no In3 tracks over the RTD
 # regions: rule areas from build_board.py)
@@ -526,9 +536,59 @@ class Router:
         return
 
     # ---- one connection
-    def route(self, net, a, b, la, lb, w, margin, soft=False):
+    def cluster(self, net, segs, vias, w):
+        """Companion vias for a CLUSTER net's route: for each via, up to COMPANIONS more within COMP_REACH,
+        each on one of the via's tracks or around it, tied back by a stub on the via's other layers, exactly
+        checked against the copper routed so far. Returns (segs, vias, the vias left short)."""
+        drills = [tuple(d) for d in self.drills] + [tuple(d) for v in self.route_drills.values() for d in v]
+        drills += [(c[0], c[1], VIA_DRILL_R) for c in vias]
+        rk = self.rtd_keep(net) if RTD_ANALOG else None
+        placed = [tuple(c) for c in vias]
+        add_s, add_v, short = [], [], []
+        for c in vias:
+            inc = []
+            for l, p, q, _ in segs:
+                for a_, b_ in ((p, q), (q, p)):
+                    if math.dist(a_, c) < 0.05 and math.dist(a_, b_) > 1e-6:
+                        inc.append((l, b_))
+            layers = sorted({l for l, _ in inc})
+            cands = []
+            for l, e in inc:
+                d = math.dist(c, e)
+                u = ((e[0] - c[0]) / d, (e[1] - c[1]) / d)
+                cands += [((c[0] + s * u[0], c[1] + s * u[1]), l) for s in COMP_STEPS if s <= d]
+                cands += [((c[0] - sg * s * u[1], c[1] + sg * s * u[0]), None) for s in COMP_STEPS for sg in (1, -1)]
+            cands += [((c[0] + s * math.cos(math.pi * k / 8), c[1] + s * math.sin(math.pi * k / 8)), None)
+                      for k in range(16) for s in COMP_STEPS]
+            got = sum(1 for o in placed if 1e-6 < math.dist(o, c) <= COMP_REACH)
+            for p, on in cands:
+                if got >= COMPANIONS:
+                    break
+                if any(math.dist(p, o) < 0.9 for o in placed):
+                    continue
+                if rk is not None:
+                    pi_, pj_ = self.ras.px(*p)
+                    pi_, pj_ = int(round(pi_)), int(round(pj_))
+                    if not (0 <= pi_ < self.ras.nx and 0 <= pj_ < self.ras.ny) or rk[pi_, pj_]:
+                        continue
+                if not self.ex.via_ok(p, net, drills):
+                    continue
+                stubs = [l for l in layers if l != on]
+                if not all(self.ex.seg_ok(l, p, c, w, net) for l in stubs):
+                    continue
+                add_s += [(l, p, tuple(c), w) for l in stubs]
+                add_v.append(p)
+                placed.append(p)
+                drills.append((p[0], p[1], VIA_DRILL_R))
+                got += 1
+            if got < COMPANIONS:
+                short.append(tuple(c))
+        return list(segs) + add_s, list(vias) + add_v, short
+
+    def route(self, net, a, b, la, lb, w, margin, soft=False, via_bar=()):
         """soft=False: other nets' routes are obstacles. soft=True: they are a cost (negotiated
-        congestion): the path may cross them, and the caller rips up the routes it crosses."""
+        congestion): the path may cross them, and the caller rips up the routes it crosses.
+        via_bar: points no via of this route may come within VIA_BAR_MM of (cluster)."""
         ras = self.ras
         r_t = w / 2 + CLR + extra(net)
         r_v = VIA_R + CLR + extra(net)
@@ -606,6 +666,11 @@ class Router:
                 vb |= (cov_v[l][i0:i1, j0:j1].astype(np.int16) - self.own(net, r_v, l, win)) > 0
         vb |= self.edge_dist[i0:i1, j0:j1] < EDGE + VIA_R + 0.05
         vb |= self.kv_dist[i0:i1, j0:j1] < VIA_R + 0.07
+        if via_bar:
+            bx_ = ras.x0 + np.arange(i0, i1) * G
+            by_ = ras.y0 + np.arange(j0, j1) * G
+            for qx, qy in via_bar:
+                vb |= ((bx_[:, None] - qx) ** 2 + (by_[None, :] - qy) ** 2) <= VIA_BAR_MM ** 2
         # drill-to-drill
         im = Image.new("L", (i1 - i0, j1 - j0), 0)
         dr = ImageDraw.Draw(im)
@@ -806,11 +871,27 @@ def main():
         elif net in NARROW:
             tries += [(NARROW[net], m) for m in margins]
         why = ""
+        best = None
         for w, m in tries:
-            res, why = R.route(net, a, b, la, lb, w, m)
-            if res:
-                R.add_copper(net, res[0], res[1], rid=idx)
-                return True, why
+            bar = []
+            for _ in range(CLUSTER_TRIES if net in CLUSTER else 1):
+                res, why = R.route(net, a, b, la, lb, w, m, via_bar=tuple(bar))
+                if not res:
+                    break
+                if net not in CLUSTER:
+                    R.add_copper(net, res[0], res[1], rid=idx)
+                    return True, why
+                segs, vias, short = R.cluster(net, res[0], res[1], w)
+                if not short:
+                    R.add_copper(net, segs, vias, rid=idx)
+                    return True, why
+                if best is None or len(short) < best[0]:
+                    best = (len(short), segs, vias)
+                bar += short
+        if best is not None:
+            # no route had companions at every via: the best one, and power_vias / the gate see the rest
+            R.add_copper(net, best[1], best[2], rid=idx)
+            return True, "ok, companions short"
         return False, why
 
     # pass 1: every pair once, other routes are obstacles

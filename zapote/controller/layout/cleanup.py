@@ -35,6 +35,9 @@ import pcbnew
 
 mm = pcbnew.ToMM
 PLANE = {"selv_gnd", "v3v3"}
+# gridroute.CLUSTER: these nets' layer changes are via clusters, each companion tied back by a stub that closes a loop
+# with the track it sits on. The loop pass would delete the stubs and strand the companions; only the dangling pass runs.
+CLUSTER = {"V_BLOWER", "V15_BLW"}
 EPS = 0.001
 
 
@@ -172,7 +175,7 @@ def main():
                     r0 = roots.pop()
                     for r in roots:
                         parent[r] = r0
-            loop = [s_ for s_ in segs if id(s_) not in needed]
+            loop = [s_ for s_ in segs if id(s_) not in needed] if net not in CLUSTER else []
             for s_ in loop:
                 b.Remove(s_)
                 removed_loop += 1

@@ -1092,3 +1092,18 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
       - Every layout gate passed.
     - Runs 2 and 3 were stopped at round 23 (old post-route code), and all three runs were restarted on this code.
       route.py now saves pcb/route/work-routed.kicad_pcb before the post-route steps.
+  - **Review-fix set 4: runs 2 and 3 routed clean** (DRC 0 errors, 0 unconnected; 31 and 26 rounds, 79 and 73 min), **and
+    both failed the power_vias gate on one 2.70 A V_BLOWER via each.**
+    - The two vias were at C16 by U52 (run 3) and near J4 (run 2). By the time power_vias.py ran, I2C tracks and a v3v3
+      via had taken the room around each one. Run 1 was stopped at round 12. Archive: build/conv/failed-review-fix-set4/.
+    - Two runs out of two means a companion added after routing is a matter of luck. The change: gridroute.py now
+      places each CLUSTER-net via's two companions (V_BLOWER, V15_BLW: the nets with > 1 A sites) when it makes the
+      route.
+      - It uses power_vias.py's candidate spots and stubs, exactly checked against the copper routed so far.
+      - A via that cannot get both is barred (1 mm) and the pair re-routed, up to 4 times per width/margin try.
+      - If no try clusters every via, the route with the fewest short vias is kept.
+      - power_vias.py stays as the back-up.
+    - cleanup.py's loop pass skips the CLUSTER nets. Each companion's stub closes a loop with the track it sits on, and
+      that pass would delete the stub and strand the via. Their dangling pass still runs.
+    - Smoke test: cluster() on run 3's routed V_BLOWER and V15_BLW copper finds the same short vias power_vias.py found.
+    - Set 5 runs on this code.
