@@ -1,0 +1,81 @@
+{
+ "rounds": [
+  {
+   "round": 1,
+   "open_before": 442
+  },
+  {
+   "round": 2,
+   "open_before": 20
+  },
+  {
+   "round": 3,
+   "open_before": 6
+  },
+  {
+   "repair": "0.0",
+   "radius_mm": 3.0,
+   "open_before": 5,
+   "first": "FAN_TACH,UI_CS_OLED_N,p1,rtd_pan.adc-sdi"
+  },
+  {
+   "round": 4,
+   "open_before": 85,
+   "first": "FAN_TACH,UI_CS_OLED_N,p1,rtd_pan.adc-sdi"
+  },
+  {
+   "round": 5,
+   "open_before": 3
+  },
+  {
+   "round": 6,
+   "open_before": 2
+  },
+  {
+   "repair": "0.1",
+   "radius_mm": 5.0,
+   "open_before": 2,
+   "first": "RTD2_CS_N,UI_CS_OLED_N"
+  },
+  {
+   "round": 7,
+   "open_before": 53,
+   "first": "RTD2_CS_N,UI_CS_OLED_N"
+  },
+  {
+   "round": 8,
+   "open_before": 3
+  },
+  {
+   "repair": "0.2",
+   "radius_mm": 8.0,
+   "open_before": 3,
+   "first": "HS_FAULT_RB,UI_CS_OLED_N,rx_a_out"
+  },
+  {
+   "round": 9,
+   "open_before": 116,
+   "first": "HS_FAULT_RB,UI_CS_OLED_N,rx_a_out"
+  },
+  {
+   "round": 10,
+   "open_before": 4
+  },
+  {
+   "round": 11,
+   "open_before": 1
+  },
+  {
+   "cleanup": 0
+  },
+  {
+   "round": 12,
+   "open_before": 1
+  },
+  {
+   "round": 13,
+   "open_before": 0
+  }
+ ],
+ "final_open": 0
+}

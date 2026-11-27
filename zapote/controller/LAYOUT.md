@@ -2,7 +2,7 @@
 
 This is the layout of the integrated SELV controller: 284 parts, 6 layers (C53), 206 × 76 mm, placed and routed by scripts from `frozen/default.net`, with a JLCPCB fab package. Nothing was drawn by hand in the KiCad GUI.
 
-**Status: DRC-clean candidate, not released** (ordering is the owner's decision). KiCad DRC: 0 errors, 0 unconnected, schematic parity 0; JLC DFM PASS; all 13 enclosure/layout checks PASS; gerbv fab review PASS. Not fabricated. Every number below comes from a file in `evidence/` that `python3 layout/make.py` regenerates: `drc.json`, `jlc-dfm.json`, `layout-check.json`, `fab-review.json`, `silk-designators.json`, `verify.json`; the routing-robustness proof is `evidence/convergence.json` (`layout/convergence.py`).
+**Status: DRC-clean candidate, not released** (ordering is the owner's decision). KiCad DRC: 0 errors, 0 unconnected, schematic parity 0; JLC DFM PASS; all 17 enclosure/layout checks PASS; gerbv fab review PASS. Not fabricated. Every number below comes from a file in `evidence/` that `python3 layout/make.py` regenerates: `drc.json`, `jlc-dfm.json`, `layout-check.json`, `fab-review.json`, `silk-designators.json`, `verify.json`; the routing-robustness proof is `evidence/convergence.json` (`layout/convergence.py`).
 
 **Enclosure revision:** R31 outline, holes and connectors (`output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md`, "R31" section, with R30's mounting and heights) plus the **R33 controller delta** (`output/temper-manufacturing-r33/design/r33/DECISIONS.md` §3; the R35 HANDOFF restates it unchanged):
 - J5, J6 and J8 are deleted; one 12-way JST B12B-XH-A **J7** at X29.8–62.2, Y57.1–62.9 carries the UI bus (DECISIONS C26);
@@ -198,12 +198,26 @@ Every IC supply pin (the "vcc" pins of `verify_controller.py`'s part models) has
 | Designators | 191 on silk, 94 on F.Fab only (all on the assembly drawing) | `evidence/silk-designators.json` |
 | `tools/verify_controller.py` | PASS, 233 checks in 16 sections; 50/50 mutation tests (`tests/test_verify_mutations.py`) | `evidence/verify.json` |
 | CPL rotations | audit rerun (C44, C45): 16 CORRECTED (U42 SN74LVC74APWR added, 270°), 224 OK, 44 NEEDS-PREVIEW (listed in `fab/fab-notes.md`); all 284 CPL lines equal the proposal | `evidence/fab-loose-ends/cpl-rotation/audit.json` |
-| Routing robustness | **3/3 consecutive full runs from a clean start close the C1 + CR-8 board** with all gates passing (C47; this board is run 3). Before the C44 placement fixes, C1 runs did not pass: run 1 closed with 10 copper-to-edge errors (an `rtd_sense_p_ext` route along the right edge; the pull-ups moved, C44); run 2 (detector inside the bus) left 1 pair open, also after a gridroute `--eco` attempt; run 3 (detector moved) closed but failed the partition gate. those placements were changed, not the router | `evidence/convergence.json`, `evidence/route-log.json` |
-| Block validators (C44, C45, C47) | interlock 69 pass / 6 fail / 5 indeterminate, thermal-sense 88 / 9 / 7, RTD 5 / 33 / 5 (C34: 70 / 5 / 5, 88 / 9 / 7, 5 / 18 / 5). The new fails are the C35 HC30 swap (W6) and the C37 RTD filter (W7). Every FAIL and INDETERMINATE is waived line by line; the same verdict counts on all three C47 convergence boards | `evidence/block-validators/` (`WAIVERS.md`, `summary.json`) |
+| Routing robustness | **2 of 3 full runs from a clean start close the C51 six-layer board** with all gates passing (C53 final set; the board of record is run 1). Run 2's router left I2C_SCL_BOOT open after 18 rounds. The C51 rule is at least 2 of 3. Four earlier six-layer sets are recorded in `evidence/c53-six-layer-*` (DECISIONS C53) | `evidence/convergence.json`, `evidence/c53-six-layer-final/` |
+| Block validators (C53) | interlock 68 pass / 7 fail / 5 indeterminate, thermal-sense 87 / 10 / 7, RTD 5 / 40 / 5 (C47: 69 / 6 / 5, 88 / 9 / 7, 5 / 33 / 5). The new fails are the C51/C52 part swaps and the six-layer manufacturing contract (W8). Every FAIL and INDETERMINATE is waived line by line | `evidence/block-validators/` (`WAIVERS.md`, `summary.json`) |
 
 **Convergence (routing robustness).** `python3 layout/convergence.py --runs 3 --out <dir>` moves `pcb/route/` away before each run, so no run reuses copper, then runs the whole `make.py`.
 
-**C47 proof (C1 + CR-8, 285 parts; current `evidence/convergence.json`):**
+**C53 proof (C51, six layers; current `evidence/convergence.json`, runs in `evidence/c53-six-layer-final/`):**
+| Run | Result | Rounds | Time | Warnings |
+|---|---|---|---|---|
+| 1 | ALL GATES PASS (board of record) | 17 | 3250 s | 21 |
+| 2 | DRC not clean: I2C_SCL_BOOT open, a 0.14 mm In3 stub short of its via | 18 | 3646 s | 26 |
+| 3 | ALL GATES PASS | 17 | 3419 s | 23 |
+
+The passing runs had 0 errors, 0 unconnected and parity 0, with warnings of the four accepted kinds only. Before this
+set, four six-layer sets were run (DECISIONS C53):
+- one invalidated by a router bug;
+- one superseded when power nets were moved off the 0.5 oz inner layers;
+- one that closed 1 of 3;
+- one that closed 3 of 3 but was superseded by the RTD bypass placement fix.
+
+**C47 proof (history; C1 + CR-8, 285 parts):**
 
 | Run | Exit | Wall time | DRC errors / unconnected / parity | Warnings |
 |---|---|---|---|---|

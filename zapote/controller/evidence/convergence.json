@@ -1,54 +1,66 @@
 {
+ "stackup": "6 layers, JLC06161H-3313 (C53)",
+ "rule": "C51: at least 2 of 3 clean runs, else six layers",
  "runs": [
   {
    "run": "run1",
    "make_last_line": "ALL GATES PASS",
    "errors": 0,
-   "warnings": 42,
+   "warnings": 21,
    "unconnected": 0,
    "schematic_parity": 0,
    "violation_types": {
-    "connection_width": 26,
+    "connection_width": 9,
     "lib_footprint_mismatch": 2,
-    "silk_edge_clearance": 14
+    "silk_edge_clearance": 10
    },
    "rc": 0,
-   "seconds": 5867,
-   "closed": true
+   "seconds": 3250,
+   "closed": true,
+   "route_rounds": 17
   },
   {
    "run": "run2",
-   "make_last_line": "ALL GATES PASS",
+   "make_last_line": "DRC not clean",
    "errors": 0,
-   "warnings": 35,
-   "unconnected": 0,
+   "warnings": 26,
+   "unconnected": 1,
    "schematic_parity": 0,
    "violation_types": {
-    "connection_width": 19,
+    "connection_width": 10,
+    "copper_sliver": 2,
     "lib_footprint_mismatch": 2,
-    "silk_edge_clearance": 14
+    "silk_edge_clearance": 10,
+    "track_dangling": 2
    },
-   "rc": 0,
-   "seconds": 3670,
-   "closed": true
+   "rc": 1,
+   "seconds": 3646,
+   "closed": false,
+   "route_rounds": 18,
+   "open_net": "I2C_SCL_BOOT"
   },
   {
    "run": "run3",
    "make_last_line": "ALL GATES PASS",
    "errors": 0,
-   "warnings": 34,
+   "warnings": 23,
    "unconnected": 0,
    "schematic_parity": 0,
    "violation_types": {
-    "connection_width": 18,
+    "connection_width": 11,
     "lib_footprint_mismatch": 2,
-    "silk_edge_clearance": 14
+    "silk_edge_clearance": 10
    },
    "rc": 0,
-   "seconds": 3319,
-   "closed": true
+   "seconds": 3419,
+   "closed": true,
+   "route_rounds": 17
   }
  ],
- "all_closed": true,
- "consecutive_closed": 3
+ "closed": 2,
+ "all_closed": false,
+ "passes_rule": true,
+ "board_of_record": "run1",
+ "board_sha256": "11265a33a7c5e9a704b7e1fad5f948a197e2796356af5ed3f6153e43f96fb0ff",
+ "note": "C53 final set: In3 X-preferred, OUTER_ONLY power nets, RTD bypasses on explicit poses (rtd_decoupling). Run 2's router left I2C_SCL_BOOT open (0.14 mm In3 stub short of its via after 18 rounds). Earlier sets: c53-six-layer-invalid, -superseded, -outer-only, -in3x."
 }

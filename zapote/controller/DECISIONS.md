@@ -980,3 +980,11 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
   - **F6:** first flash is over J11 (TC2050) with a home-made USB lead; there is no UART fallback. Make the cable before
     the boards arrive.
   - **F7:** README's power tree still had PS1 on J4.1 (fixed, C49 path).
+- **Final convergence set (RTD bypass poses): 2 of 3, which meets the C51 rule** (evidence/c53-six-layer-final/,
+  evidence/convergence.json).
+  - Runs 1 and 3 passed every gate, `rtd_decoupling`, `power_layers` and the CPL rotation gate included: 17 rounds
+    each; 3250 s and 3419 s; 21 and 23 warnings.
+  - Run 2's router left I2C_SCL_BOOT open after 18 rounds (a 0.14 mm In3 stub short of its via).
+  - Board of record: run 1 (sha256 11265a33…, commit eb8218075).
+  - Block validators on it: interlock 68/7/5, thermal 87/10/7, RTD 5/40/5. The C30 locality fail is gone, and every
+    added fail is W8.
