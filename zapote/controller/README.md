@@ -9,7 +9,7 @@ This is the induction cooktop's low-voltage controller, captured in atopile and 
 - the 3.3 V supply and the adjustable 5.5–12 V blower supply with tach (L3, DECISIONS C28), the blower buck fed from its own 15 V supply PS3 through J13 (stage 16, C33);
 - the probe connectors and one 12-way UI bus (J7, R33) to the fascia UI board, which carries the OLED, buttons, encoder and buzzer.
 
-It draws power from native-21's J4 header and supplies native-21's 3.3 V logic back through J4.3.
+It draws all of its power from PS3 on J13 (C49: the logic rail `v15_selv` is fed from `V15_BLW` through D9, SS14) and supplies native-21's 3.3 V logic back through J4.3. J4.1 is not a supply since C49: it is `bias_good_j4` from the power board, read on GPIO35.
 
 **Status:** schematic source, frozen netlist and a routed, DRC-clean layout candidate (0 errors, 0 unconnected, schematic parity 0; DFM, enclosure checks and fab review PASS) with a JLC fab package ([LAYOUT.md](LAYOUT.md)). **Candidate, not released**: ordering is the owner's decision. Not fabricated, no physical test. Open items and decisions are in [DECISIONS.md](DECISIONS.md). The connector list and placement note for the enclosure team are in [ENCLOSURE-HANDOFF.md](ENCLOSURE-HANDOFF.md).
 
@@ -122,7 +122,7 @@ The simulation treats the sources as independent. Physical paths that make sever
 ## Power tree
 
 ```
-native-21 PS1 IRM-20-15 (15 V ±2.5 %, 21 W) ── J4.1 v15_selv ── 100 µF + 2×(10 µF‖100 nF)    [logic only, 4.83 W]
+PS3 15 V on J13 V15_BLW ── D9 SS14 (C49) ── v15_selv ── 100 µF + 2×(10 µF‖100 nF)    [logic only, 4.83 W]
   ├─ U1 TPS62933F (FCCM, 500 kHz, EN UVLO on 10.9–12.1 V, off ≥ 9.8 V), 10 µH, 3×22 µF
   │    └─ v3v3 3.304 V nom (3.242–3.367 V, 0–85 °C)
   │         ├─ ESP32-S3-WROOM-1U-N8, J7.2 to the UI board (OLED, expander, encoder, buzzer), expander, buffers, D-11 receiver, MCP3202
@@ -149,7 +149,7 @@ PS3 IRM-60-15ST (chassis, 15 V ±2.5 %, 60 W; stage 16, C33) ── J13 (B2P-VH)
 | **Peak** | **1047** |
 
 - **Converter limits:** the TPS62933F is good for 3 A and SWPA6045S100MT for 2.45 A Irms (3.5 A sat).
-- **PS1 at simultaneous peak:** 14.8 W at R32's blower drive cap (0.8, about 9 W), against IRM-20-15's 21 W. That is 4.3 W on the 3.3 V rail at an 85 % allocation, 10 W for the blower at 90 %, and 0.55 W straight from 15 V (AD8436, the 5 V UI LDO at its 5 mA maximum ground current plus 30 mA). **At full blower speed it is 23.7 W (Delta typical) to 40.8 W (Delta maximum), over the rating: owner item 13 (DECISIONS C28).**
+- **PS3 (C49, logic and blower on one supply):** merged continuous load 44.55 W against 65 W, 99 % of the 45 W 60 °C derated figure (`tools/controller_calcs.py` `merge_rail`; DECISIONS C49). The PS1 figures that stood here were for the pre-C49 board, which had a separate 21 W logic supply.
 - **Own load:** with the fan excluded, the controller's own load stays under the spec's ≈ 4 W even at peak.
 - **Native-21's rail:** it sees 3.237–3.389 V at its J4.3. That covers regulator tolerance, the J4 harness (≤ 1 m AWG22, two 10 mΩ contacts per conductor; an allocation, because the harness isn't specified) and ground shift from the 15 V return. This is inside the 3.135–3.465 V contract.
 

@@ -79,7 +79,52 @@ CPL_ROTATION_OFFSET = {
     "C10096": 180,    # SN74LVC1G32, SOT-23-5
     "C962078": 180,   # REF2025, SOT-23-5
     "C402161": 180,   # SN74LVC1G86, SOT-23-5
+    # C53 (bring-up pre-mortem, confirmed with audit.py geometry() on the committed JLC pad records evidence/c51 and
+    # evidence/c52/jlc_pads.json): codes added by C51/C52 had no entry and went out at offset 0. cpl_rotation_gate()
+    # below now fails the build on any such miss.
+    "C445471": 180,   # UCD1E101MCL6GS 100 uF electrolytic (C52, C1/C9): JLC pad 1 (+) at +X; at 0 it is reversed
+    "C840098": 270,   # SN74LVC1G08QDBVRQ1 (C52 swap from C7666): a different JLC SOT-23-5 footprint from C7666's
+    "C148036": 270,   # EMC2301-1-ACZL-TR, MSOP-8 (C51 face fan)
+    "C82045": 180,    # BSS138LT1G, SOT-23 (C51 fan PWM)
+    "C155248": 180,   # BAV199-7-F, SOT-23 (C51 food-probe clamps)
+    "C169383": 180,   # SWRB1205S-100MT inductor: two identical pads, numbering only; applied so the gate has no SMD exceptions
 }
+PAD_RECORDS = ["evidence/fab-loose-ends/cpl-rotation/easyeda_pads.json", "evidence/c51/jlc_pads.json",
+               "evidence/c52/jlc_pads.json"]
+
+
+def cpl_rotation_gate(placed):
+    """C53. Compare the applied offset with the JLC-footprint geometry offset (audit.py geometry(): best 90-degree fit of
+    JLC's numbered pads onto ours) for every placement. Fails on an SMD disagreement, and on a part with no JLC pad
+    record unless it is a two-pad resistor. THT connectors keep KiCad's rotation (the body must follow the silk,
+    PREVIEW-2026-10-19.md); their geometry offset is returned for the preview list. Symmetric pad sets (ambiguous fit)
+    pass: any of their fits places the same copper."""
+    sys.path.insert(0, str(UNIT / "evidence/fab-loose-ends/cpl-rotation"))
+    from audit import geometry  # noqa: E402
+    recs = {}
+    for f in PAD_RECORDS:
+        recs.update(json.loads((UNIT / f).read_text()))
+    bad, tht_preview = [], []
+    for ref, lcsc, fp, off, tht in placed:
+        n = len({p.GetNumber() for p in fp.Pads() if p.GetNumber()})
+        rec = recs.get(lcsc)
+        if not rec or not rec.get("pads"):
+            if not (n == 2 and ref.startswith("R")):
+                bad.append(f"{ref} {lcsc}: no JLC pad record ({n} pads)")
+            continue
+        kp = [{"num": p.GetNumber(), "x": pcbnew.ToMM(p.GetFPRelativePosition().x),
+               "y": pcbnew.ToMM(p.GetFPRelativePosition().y)} for p in fp.Pads()]
+        best, _rms, status = geometry(kp, rec["pads"])
+        if status != "ok":
+            if status.startswith("ambiguous"):
+                continue
+            bad.append(f"{ref} {lcsc}: {status}")
+        elif tht:
+            if best != off:
+                tht_preview.append((ref, lcsc, best))
+        elif best != off:
+            bad.append(f"{ref} {lcsc}: JLC footprint needs offset {best}, CPL applies {off}")
+    return bad, tht_preview
 
 
 def run(*args):
@@ -115,6 +160,7 @@ def main():
     lines = defaultdict(list)
     cpl = []
     rotated = []
+    placed = []
     board_only = []
     for fp in sorted(b.GetFootprints(), key=lambda f: natural(f.GetReference())):
         ref = fp.GetReference()
@@ -135,6 +181,7 @@ def main():
         y1 = max(p.GetBoundingBox().GetBottom() for p in pads)
         cx, cy = mm((x0 + x1) // 2), mm((y0 + y1) // 2)
         off = CPL_ROTATION_OFFSET.get((parts.get(mpn) or {}).get("lcsc"), 0)
+        placed.append((ref, (parts.get(mpn) or {}).get("lcsc"), fp, off, tht))
         if off:
             rotated.append(ref)
         cpl.append([ref, f"{cx:.3f}mm", f"{-cy:.3f}mm", "Bottom" if fp.IsFlipped() else "Top",
@@ -175,14 +222,15 @@ def main():
                   + (" -- **candidate, not released** (ordering is the owner's decision)"
                      if errs == 0 and opens == 0 and not d_["schematic_parity"]
                      else " -- **NOT FOR ORDER: the board is not fully routed or not DRC-clean**"))
-    audit_csv = UNIT / "evidence/fab-loose-ends/cpl-rotation/audit.csv"
+    rot_bad, tht_preview = cpl_rotation_gate(placed)
     by_code = defaultdict(list)
-    if audit_csv.exists():
-        for r in csv.DictReader(audit_csv.open()):
-            if r["class"] == "NEEDS-PREVIEW":
-                by_code[(r["lcsc"], r["mpn"], r["kicad_footprint"])].append(r["ref"])
-    preview = "\n".join(f"  - {c} {m} ({f}): {', '.join(sorted(rs, key=natural))}"
-                        for (c, m, f), rs in sorted(by_code.items())) or "  - none"
+    for ref, lcsc, best in tht_preview:
+        by_code[(lcsc, best)].append(ref)
+    preview = "\n".join(f"  - {c} THT connector, JLC footprint numbering {o} degrees from ours; CPL keeps KiCad's "
+                        f"rotation: check body and key against the silk: {', '.join(sorted(rs, key=natural))}"
+                        for (c, o), rs in sorted(by_code.items())) or "  - none"
+    preview += ("\n  - C53 offsets never seen in a JLC preview (one part per code): C1 (C445471, + pad), U11 (C840098),"
+                " U52 (C148036), Q2 (C82045), D10 (C155248)")
     notes = f"""# Controller fabrication notes (generated by layout/fab.py)
 
 - **Board status:** {status} (evidence/drc.json).
@@ -196,7 +244,8 @@ def main():
   Y = {world.OY:g} - ky = {world.OY:g} + (Gerber Y). Board lower-left corner = world ({world.BOARD[0]:g}, {world.BOARD[1]:g}) = Gerber (20, -96).
 - **Assembly:** all parts on the top side. BOM lines {len(lines)}, placements {len(cpl)}
   ({sum(1 for c in cpl if c[5] == 'THT')} THT). CPL rotations are KiCad's plus the audited JLC offset
-  (`CPL_ROTATION_OFFSET` in layout/fab.py; evidence/fab-loose-ends/cpl-rotation): {len(rotated)} lines corrected
+  (`CPL_ROTATION_OFFSET` in layout/fab.py; evidence/fab-loose-ends/cpl-rotation; every SMD placement's offset is
+  checked against JLC's pad geometry by cpl_rotation_gate): {len(rotated)} lines corrected
   ({', '.join(sorted(rotated, key=natural))}).
 - **NEEDS-PREVIEW (owner checks these in JLC's placement preview before paying; one designator per LCSC code
   is enough, the rest of the code follows; the CPL carries KiCad's rotation for them):**
@@ -204,8 +253,8 @@ def main():
 - **LCSC numbers:** from bom/controller-parts.json; missing: {missing or 'none'}.
 - **Consign / stock:** stock 0 (latest JLC check per part: 2026-10-08, C35 swaps 2026-10-12, C37-C41 parts
   2026-10-15): {zero_stock or 'none'} -- consign these or use JLC global sourcing; stock below 10x the
-  quantity: {low_stock or 'none'} (DECISIONS open item 7). RG2012V-431-W-T1 (Rref) is consigned by decision
-  C37: the sensor-r3 CR-2 accuracy budget needs its 0.05 % / 5 ppm/K.
+  quantity: {low_stock or 'none'} (DECISIONS open item 7). Nothing is consigned (C52: R39 is the stocked
+  PTFR0805B430RN9).
 - **Sourcing swaps (DECISIONS C35/C36):** R53 RT0603BRD0716K5L (C728584), U22 74HC30PW,118 (C546857),
   R31 RT0603BRD078K06L (C861587), J13 code C160315 (same MPN), U14 AD8436ARQZ-R7 (C495329). The C35 Rref
   swap (RT0805BRD07430RL) is reverted by C37.
@@ -220,7 +269,9 @@ def main():
     (FAB / "fab-notes.md").write_text(notes)
     print(json.dumps({"bom_lines": len(lines), "placements": len(cpl), "missing_lcsc": missing,
                       "gerbers": sorted(p.name for p in g.iterdir())}, indent=1))
-    if missing:
+    if rot_bad:
+        print("CPL rotation gate FAIL:\n  " + "\n  ".join(rot_bad))
+    if missing or rot_bad:
         sys.exit(1)
 
 

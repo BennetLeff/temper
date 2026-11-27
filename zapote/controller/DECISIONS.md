@@ -922,3 +922,57 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
     on the layer, and `power_layers` now gates that.
   - Not read: JLC's six-layer price and minimum quantity (the quote page needs the order form; to be read at
     order time).
+- **The In3 X-preferred set closed 3 of 3** (evidence/c53-six-layer-in3x/).
+  - Runs 1–3 passed every gate, `power_layers` included: 33, 23 and 33 rounds; 5301, 4783 and 5541 s; 24, 23 and
+    24 warnings, all of the committed board's kinds.
+  - Superseded before a board of record was taken, because the block validators found a placement fault (next item).
+- **The block validators could not read a six-layer board (fixed).**
+  - zapote-core / zapote-drc hardcoded four copper layers in the zone schema, the RTD return-plane contract, the
+    layer order and the reference-plane table.
+  - On the six-layer board the RTD run stopped at INPUT_SCHEMA ("native zone uses unknown copper layer In4.Cu"). Its
+    fail count fell from 33 to 27 because those checks never ran, not because any passed. Interlock and thermal read the
+    board normally.
+  - Fix: `Board.copper_layer_count`, filled by the harness from the export (default 4, so older inputs are unchanged).
+    Layer names are accepted for any count, F.Cu < InN.Cu < B.Cu, and six layers reference F/In2 to In1 and In3/B to In4.
+    The other stacks have no reference, so their traces are not proven. Rust tests pass.
+  - The binder also aborted on four undeclared C51/C52 MPNs (U30 MAX31865AAP+T, R39 PTFR0805B430RN9, R47
+    RT0603BRD0761K9L, U33 SN74LVC1G08QDBVRQ1). They are now in rtd-deviations-c37.json, and Rust still reports each one.
+- **C30 (U30 DVDD bypass) was 3.10 mm from its pin. The RTD unit's rule is 3 mm** (DRC.RTD.LOCAL_DECOUPLING, pad edge
+  to pad edge).
+  - Auto-placement put C30 at the far end of U30's pin-1 corner. The C51 land is larger, and the 5 mm `decoupling` gate
+    passed it. C47 met the rule.
+  - The same measure put U50's C111 at 2.96 mm (U50 is outside the block validator's filter).
+  - Fix: explicit poses for C29/C30 and C110/C111 (2.42 / 2.51 / 1.02 / 2.61 mm). New gate `rtd_decoupling`
+    (check_layout): both MAX31865s, with the validator's measure.
+  - Placement changed, so the routing convergence is rerun: three fresh runs.
+- **pcb/libs footprints added in C51 were untracked:** SSOP-20 5.3 mm (U30, U50), MSOP-8, JST PH 2-pin, XH 5-pin. A
+  clean checkout could not build the board. Committed in b77bb230a.
+- **Bring-up pre-mortem (fresh Fable reviewer, frozen export: netlist, BOM/CPL, sources at b77bb230a, firmware
+  fw/c51-s56-unified fbd6f5ca9; report evidence/c53-premortem/PREMORTEM.md).**
+  - No firmware-vs-netlist error: all 36 `controller_pins.h` signals, the straps, the I2C addresses and the expander
+    bits check out. Reset defaults (PERMIT low) are as designed. The MAX31865 SSOP-20 pinout was checked pad by pad
+    against the Maxim table (FORCE2 grounded for 4-wire).
+  - **F1, fixed: 12 placements would have gone to JLC at the wrong rotation.** Among them, C1/C9 (100 uF electrolytics
+    across 15 V) would have been reversed, and U11/U25/U33/U37 (the AND gates on the PERMIT path) would have been 90°
+    off. Also affected: U52 EMC2301, Q2, D10-D13.
+    - Cause: `CPL_ROTATION_OFFSET` is keyed by LCSC code and ended at C49, so codes added by C51/C52 got offset 0. The
+      C52 U11-class swap moved to a different JLC footprint (C840098 needs 270; C7666 needed 180).
+    - Confirmed with audit.py `geometry()` on the committed JLC pad records (fit RMS 0.03-0.28 mm at the needed offset).
+      Controls U30, U50, U20, D9 and U2 agree with the CPL.
+    - Fix: six table entries (with L2, whose identical pads only renumber), and a gate in fab.py,
+      `cpl_rotation_gate`. Every placement's offset is checked against JLC's pad geometry. An SMD disagreement fails the
+      build, and so does a part with no JLC pad record, unless it is a two-pad resistor (R32's code has none). With the
+      new entries removed, the gate fails all 13 placements; with them, it passes.
+    - fab-notes' NEEDS-PREVIEW list is now built from the gate: the THT connectors, plus one part per C53 code.
+  - **F2 (order process):** JLC numbers seven THT headers 180° from ours. The CPL keeps KiCad's rotation, and the bodies
+    must follow the silk. J7 reversed would short v3v3 to the UI board's ground; J15 reversed puts 12 V on the fan's
+    PWM pin. ORDER gets an assembly remark and a check on arrival.
+  - **F3:** J4 circuit numbering rests on one library. Buzz J4.3 and J4.9 against the power board before mating
+    (bring-up step).
+  - **F4, accepted:** U30 CS# has no pull-up (U15 and U50 have one). The bus is idle until firmware init, and the init
+    rewrites the configuration. Not worth a placement change and a fourth convergence set.
+  - **F5, firmware follow-up (fw/c51-s56-unified):** the food-probe CS# output latch is written only in `create()`. A
+    lone TCA9555 reset leaves the probe reading "no reading" (fail-silent) until reboot.
+  - **F6:** first flash is over J11 (TC2050) with a home-made USB lead; there is no UART fallback. Make the cable before
+    the boards arrive.
+  - **F7:** README's power tree still had PS1 on J4.1 (fixed, C49 path).
