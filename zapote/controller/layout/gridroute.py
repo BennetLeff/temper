@@ -76,9 +76,13 @@ POWER = {"v15_selv": 0.8, "V15_BLW": 0.8, "V_BLOWER": 0.8, "sw_3v3": 0.4, "sw_12
 # High-current routed nets never fall back to a 0.25 mm neck (blower 2.70 A peak). V15_BLW (PS3 feed,
 # 2.72 A) runs J13 -> bulk -> input caps -> U2 in F.Cu pours; its routed tracks are the EN/BLW_PG branches.
 NO_NECK = {"V_BLOWER", "sw_12", "V12_FAN2", "V15_BLW"}
-# C53: a no-neck net's one narrower try, at check_layout's power_paths width. V15_BLW's U51 branch hangs off the EN
-# divider pad (R150.1), 1 mm outside U51's VIN pour, where 0.8 mm cannot pass R150.2: 0.8-only left it open (run 2)
+# C53: a no-neck net's pad neck. V15_BLW's U51 branch hangs off the EN divider pad (R150.1), 1 mm outside U51's VIN
+# pour, where 0.8 mm cannot pass R150.2: 0.8-only left it open (run 2). Set 7: the try was a whole route at 0.5 mm, and
+# run 2 laid 10 mm of R150.1 -> R17.1 at 0.5 (R17.1 beside the R151.2 ground pad), which power_widths fails (0.8 mm on
+# every track > 1.2 mm). Now the route keeps the full width and only an end piece of at most NECK_MM, from the pad to
+# the first full-width cell, may be NARROW[net]: within the gate's 1.2 mm pin-stub allowance.
 NARROW = {"V15_BLW": 0.5}
+NECK_MM = 1.0
 # C53 review M3: V15_BLW's main current is in the BLW_FEED pours, but its routed branches feed D9 (the logic rail,
 # <= 1 A) and the face-fan buck's VIN pour (~0.6 A), which ran on 0.25 mm necks; 0.8 mm (was 1.0) fits the 0603 pads
 # of its divider branches without a neck
@@ -590,10 +594,11 @@ class Router:
                 short.append(tuple(c))
         return list(segs) + add_s, list(vias) + add_v, short
 
-    def route(self, net, a, b, la, lb, w, margin, soft=False, via_bar=()):
+    def route(self, net, a, b, la, lb, w, margin, soft=False, via_bar=(), neck=None):
         """soft=False: other nets' routes are obstacles. soft=True: they are a cost (negotiated
         congestion): the path may cross them, and the caller rips up the routes it crosses.
-        via_bar: points no via of this route may come within VIA_BAR_MM of (cluster)."""
+        via_bar: points no via of this route may come within VIA_BAR_MM of (cluster).
+        neck: a narrower width an end piece (pad to the first full-width cell, <= NECK_MM) may take."""
         ras = self.ras
         r_t = w / 2 + CLR + extra(net)
         r_v = VIA_R + CLR + extra(net)
@@ -721,7 +726,8 @@ class Router:
                 cand.sort()
                 n = 0
                 for dd, l_, i, j in cand:
-                    if self.ex.seg_ok(l_, tuple(p), xy(i, j), w, net, fixed_only=soft):
+                    if self.ex.seg_ok(l_, tuple(p), xy(i, j), w, net, fixed_only=soft) or (
+                            neck and dd <= NECK_MM and self.ex.seg_ok(l_, tuple(p), xy(i, j), neck, net, fixed_only=soft)):
                         out.append((dd / G, l_, i, j))
                         n += 1
                         if n >= 40:
@@ -814,6 +820,13 @@ class Router:
             m_ = best
             segs.append((l, pts[k][1], pts[m_][1], w))
             k = m_
+        if neck and segs:
+            # an end piece that is legal only at the neck width (escapes) takes it; every other piece was checked or
+            # rasterised at w
+            for k_ in sorted({0, len(segs) - 1}):
+                l_, p_, q_, _ = segs[k_]
+                if math.dist(p_, q_) <= NECK_MM + 1e-6 and not self.ex.seg_ok(l_, p_, q_, w, net, fixed_only=soft):
+                    segs[k_] = (l_, p_, q_, neck)
         if soft:
             # history: every congested cell on the path gets dearer for the next attempt
             for l, i, j in path:
@@ -871,17 +884,17 @@ def main():
 
     def attempt(idx, margins):
         net, ((a, la), (b, lb)) = pairs[idx]
-        tries = [(POWER.get(net, SIG_W), m) for m in margins]
+        tries = [(POWER.get(net, SIG_W), m, None) for m in margins]
         if net in POWER and net not in NO_NECK:
-            tries += [(0.25, m) for m in margins]
+            tries += [(0.25, m, None) for m in margins]
         elif net in NARROW:
-            tries += [(NARROW[net], m) for m in margins]
+            tries += [(POWER[net], m, NARROW[net]) for m in margins]
         why = ""
         best = None
-        for w, m in tries:
+        for w, m, nk in tries:
             bar = []
             for _ in range(CLUSTER_TRIES if net in CLUSTER else 1):
-                res, why = R.route(net, a, b, la, lb, w, m, via_bar=tuple(bar))
+                res, why = R.route(net, a, b, la, lb, w, m, via_bar=tuple(bar), neck=nk)
                 if not res:
                     break
                 if net not in CLUSTER:
@@ -930,10 +943,10 @@ def main():
         for idx in open_pairs:
             net, ((a, la), (b, lb)) = pairs[idx]
             committed = False
-            for w_, m_ in [(POWER.get(net, SIG_W), m) for m in (6.0, 15.0, 40.0)] + \
-                    ([(0.25, m) for m in (6.0, 15.0)] if net in POWER and net not in NO_NECK else []) + \
-                    ([(NARROW[net], m) for m in (6.0, 15.0)] if net in NARROW else []):
-                res, why = R.route(net, a, b, la, lb, w_, m_, soft=True)
+            for w_, m_, nk_ in [(POWER.get(net, SIG_W), m, None) for m in (6.0, 15.0, 40.0)] + \
+                    ([(0.25, m, None) for m in (6.0, 15.0)] if net in POWER and net not in NO_NECK else []) + \
+                    ([(POWER[net], m, NARROW[net]) for m in (6.0, 15.0)] if net in NARROW else []):
+                res, why = R.route(net, a, b, la, lb, w_, m_, soft=True, neck=nk_)
                 if not res:
                     continue
                 victims = victims_of(net, res[0], res[1])
@@ -1074,9 +1087,9 @@ def eco():
             ends.append((p, ls))
         (a, la), (b, lb) = ends
         res = None
-        for w_, m_ in [(POWER.get(net, SIG_W), m) for m in (3.0, 10.0, 30.0)] + \
-                [(NARROW[net], m) for m in (10.0, 30.0) if net in NARROW]:
-            res, why = R.route(net, a, b, la, lb, w_, m_, soft=True)
+        for w_, m_, nk_ in [(POWER.get(net, SIG_W), m, None) for m in (3.0, 10.0, 30.0)] + \
+                [(POWER[net], m, NARROW[net]) for m in (10.0, 30.0) if net in NARROW]:
+            res, why = R.route(net, a, b, la, lb, w_, m_, soft=True, neck=nk_)
             if res:
                 break
         if not res:

@@ -12,7 +12,8 @@ The board must have filled zones (the DRC run with --refill-zones --save-board d
 
 C53 review M5: an island that IS connected, but by a single link, and carries an IC's supply (v3v3_islands.py) also
 gets a pair: from one of its vias that is not on the existing link to the nearest via of the main island, so the
-router adds a second link.
+router adds a second link. An island with no free via and no room for a new one pairs its linked via with a main-pour
+via its copper does not reach yet (a second main link).
 """
 import json
 import math
@@ -143,6 +144,17 @@ def main():
             # vias, so the route leaves In2 through a new via in the island.
             a = interior_point(o["poly"], o["anchors_mm"])
             if a is None:
+                # set 7 run 1: a 3 mm2 sliver under U36 has no room for a via, and the pair was dropped, so routing
+                # closed with the gate failing. A second route from the island's linked via to another main-pour via
+                # gives its copper a second main link (main_links, v3v3_islands.is_weak), which is what the gate asks.
+                best = min(((math.dist(a_, m_), a_, m_) for a_ in o["anchors_mm"] for m_ in fresh), default=None)
+                if best is None:
+                    continue
+                _, a, m = best
+                end_a = {"description": f"Via [{v3v3_islands.NET}] on F.Cu - B.Cu", "pos": {"x": a[0], "y": a[1]}}
+                keep.append({"description": "weak plane island (plane_islands.py, v3v3_islands.py)", "items": [
+                    end_a, {"description": f"Via [{v3v3_islands.NET}] on F.Cu - B.Cu", "pos": {"x": m[0], "y": m[1]}}]})
+                n_weak += 1
                 continue
             m = min(fresh, key=lambda m: math.dist(a, m), default=None)
             if m is None:

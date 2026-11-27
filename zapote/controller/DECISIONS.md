@@ -1148,3 +1148,26 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
     - This was set 5 run 2's one DRC error: an RTD via 0.45 mm from the edge against the 0.5 mm rule.
     - The edge is now inset by half the outline's line width, giving [20.0, 20.0, 226.0, 96.0].
     - Found by an outside audit of 07f7b8582. Set 7 was stopped at 40 min and restarted with this fix.
+  - **Set 7 (6942fdd41): 0/3. Every run routed clean (DRC 0 errors, 0 unconnected) and failed one layout gate.**
+    Archive: build/conv/failed-review-fix-set7/.
+    - Run 1, v3v3_islands: U36's island (3.1 mm², one via, one link, main_links 1) is a sliver beside a via pad.
+      - interior_point() found no room for a new via, and plane_islands dropped the pair without telling anyone.
+      - Routing then closed at 0 open, and only the gate saw the island.
+      - Fix: with no free via and no interior point, pair the island's linked via with the nearest main-pour via its
+        copper does not reach yet. That gives a second main link, which is what is_weak asks for.
+      - On run 1's board the pair is now issued (U36 via to the main-pour via at 167.7, 30.1).
+    - Runs 2 and 3, power_widths: V15_BLW R150.1 -> R17.1 was laid at 0.5 mm for 10 mm, the same path in both.
+      - gridroute's NARROW try routed the whole pair at 0.5 mm. power_widths (review M3) wants 0.8 mm on every
+        V15_BLW track over 1.2 mm, so any NARROW route longer than that failed the gate. The router and the gate
+        disagreed.
+      - Why 0.5 won (read from attempt(), not logged by the run): V15_BLW is a CLUSTER net. A 0.8 mm route found
+        only through vias is kept as a fallback when their companions come up short. The 0.5 mm all-F.Cu route has
+        no vias, so it returned at once.
+      - Fix: NARROW is now a neck. The route keeps 0.8 mm, and only an end piece of at most NECK_MM = 1.0 mm, from the
+        pad to the first full-width cell, may be 0.5 mm. That is inside the gate's 1.2 mm pin-stub allowance. The gate
+        is unchanged.
+      - On run 2's final geometry, 0.8 mm routes R150.1 -> R17.1 with no neck. A synthetic pad in a 0.95 mm channel
+        routes only with the neck (1.0 mm at 0.5, then 0.8). Run 3's geometry also routes at 0.8 mm.
+      - If a 0.8 mm route's vias are short of companions, power_vias and its gate see them, as before.
+    - Run 1's saved board with the island fix: one ECO pass, then 0 open, DRC 0/0/0, ALL GATES PASS.
+    - Set 8 runs on this code.
