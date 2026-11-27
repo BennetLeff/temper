@@ -29,7 +29,7 @@ Layout rules (brief):
   power_widths  V_BLOWER routed >= 0.8 mm; V15_BLW's J13.1, bulk and input-cap pads in one F.Cu pour region
   power_layers  no track of V_BLOWER, sw_12, v15_selv, V15_BLW, V12_FAN2 or sw_fan2 on a 0.5 oz inner layer (C53)
   power_paths  each supply's source and load pads joined by pours or tracks >= its path width (C53 review M3)
-  power_vias   every layer change of a high-current net has >= 2 barrels (layout/power_vias.py; C53 review M4)
+  power_vias   every layer change in a path carrying > 1 A has >= 2 barrels (layout/power_vias.py; C53 review M4)
   v3v3_islands every In2 v3v3 pour island that carries an IC supply has >= 2 links (v3v3_islands.py; review M5)
   gnd_stitch   every point 3 mm inside the edge, off the module, within 11 mm of a selv_gnd via (review m6)
 """
@@ -469,7 +469,7 @@ def main():
     put("thermal_relief", not bad and not tht_in_buck_pours, zones=[n for n, _ in zs], solid_connect_zones_with_tht=bad + tht_in_buck_pours,
         note="GND/v3v3 planes and pours use 'thermal reliefs for PTH' (SMD solid); the buck SW/VIN pours touch SMD pads only")
 
-    # ---- high-current paths (stage 16). V_BLOWER routed >= 0.8 mm (L3); pin stubs <= 1.0 mm long are
+    # ---- high-current paths (stage 16). V_BLOWER routed >= 0.8 mm (L3); pin stubs <= 1.2 mm long are
     # listed, not failed. V15_BLW (2.72 A, PLAN-16 sec. 3) must carry its current in F.Cu pours: J13.1, the
     # bulk + pad, every input-cap V15_BLW pad and U2's VIN pour must lie in one connected filled V15_BLW
     # region; its routed tracks (EN / BLW_PG divider branches, mA) are reported only.
@@ -477,7 +477,9 @@ def main():
     pw, pw_ok = {}, True
     for n, w_req in need.items():
         ts = [t for t in b.GetTracks() if t.GetNetname() == n and t.Type() == pcbnew.PCB_TRACE_T]
-        long_ = [t for t in ts if mm(t.GetLength()) > 1.0]
+        # pin stubs: the same 1.2 mm as power_paths (the buck VIN pins' locked 0.3 mm stubs into their pours are 1.035 mm;
+        # with V15_BLW in this list since review M3, the old 1.0 mm cut failed them)
+        long_ = [t for t in ts if mm(t.GetLength()) > 1.2]
         narrow = [round(mm(t.GetWidth()), 3) for t in long_ if mm(t.GetWidth()) < w_req - 1e-6]
         vias = [t for t in b.GetTracks() if t.GetNetname() == n and t.Type() == pcbnew.PCB_VIA_T]
         pw[n if n != "V15_BLW" else "V15_BLW routed"] = {"required_mm": w_req, "min_width_mm": round(min((mm(t.GetWidth()) for t in long_), default=0), 3),
@@ -538,14 +540,17 @@ def main():
                  "V15_BLW": [("J13", "1"), ("u_12", "3"), ("bay_fan.u_buck", "3"), ("d_merge", None)],
                  "v15_selv": [("d_merge", None), ("u_3v3", "3")]}
     by_src = {f.GetFieldText("SourceInstance"): f for f in b.GetFootprints()}
-    def wide_components(net):
-        PATH_W = PATH_WS[net]
+    def wide_components(net, path_w=None, skip=()):
+        """Union-find over the net's copper; path_w overrides the track width floor (0: every track), and vias at the
+        positions in skip are left out (power_vias below)."""
+        PATH_W = PATH_WS[net] if path_w is None else path_w
         items = []          # (kind, obj, layer or None)
         for t in b.GetTracks():
             if t.GetNetname() != net:
                 continue
             if t.Type() == pcbnew.PCB_VIA_T:
-                items.append(("via", t, None))
+                if (t.GetPosition().x, t.GetPosition().y) not in skip:
+                    items.append(("via", t, None))
             elif t.Type() == pcbnew.PCB_TRACE_T and (mm(t.GetWidth()) >= PATH_W - 1e-6 or mm(t.GetLength()) <= 1.2):
                 # (a pin stub <= 1.2 mm counts at its width: the buck pins' 0.3 mm stubs into their pours are 1.03 mm)
                 items.append(("trk", t, t.GetLayer()))
@@ -627,9 +632,25 @@ def main():
                                                  for k, v in comps.items()}}
     put("power_paths", pp_ok, min_width_mm=PATH_WS, nets=pp_rows)
 
-    # ---- C53 review M4: every layer change of a high-current net has >= 2 barrels (layout/power_vias.py adds them):
-    # same-net vias grouped by single linkage within power_vias.REACH; every group needs >= 2
+    # ---- C53 review M4: a layer change in a path carrying > 1 A has >= 2 barrels (the review's own gate, "single via in
+    # a > 1 A path"; layout/power_vias.py adds companions at every layer change of its NETS, where the copper allows).
+    # Same-net vias are grouped into sites by single linkage within power_vias.REACH. A site's current is the sum of the
+    # loads that lose their path to the source when the site's vias are removed (all of the net's copper counted); a
+    # site whose loads all keep a parallel path is charged the net's whole load current. Load currents (A, max):
+    # V_BLOWER the blower's 2.70; V12_FAN2 the face fan's 0.67; v15_selv the 4.83 W logic rail, 0.33 at 15 V;
+    # V15_BLW U2's VIN 2.4 (12 V x 2.70 A / 15 V / 0.9), U51's VIN 0.61 (12 V x 0.67 A / 15 V / 0.88), D9 1.0.
+    # (Set 3 run 1: the U51 feed via beside R150 is boxed in by In2/In3 signal tracks; at 0.61 A one barrel is 1.6x.)
     import power_vias
+    PV_MIN_A = 1.0
+    PV_LOADS = {"V_BLOWER": (("l_12", "2"), {("j_fan", "1"): 2.70}),
+                "V12_FAN2": (("bay_fan.l", "2"), {("bay_fan.j", "2"): 0.67}),
+                "v15_selv": (("d_merge", None), {("u_3v3", "3"): 0.33}),
+                "V15_BLW": (("J13", "1"), {("u_12", "3"): 2.4, ("bay_fan.u_buck", "3"): 0.61, ("d_merge", None): 1.0})}
+
+    def pad_items(items, src, pin):
+        f = by_src.get(src) or fps.get(src)
+        return [i_ for i_, it in enumerate(items) if it[0] == "pad" and f is not None
+                and it[1][0].GetReference() == f.GetReference() and (pin is None or it[1][1].GetNumber() == pin)]
     pv_rows, pv_ok = {}, True
     for net in power_vias.NETS:
         pts = [t.GetPosition() for t in b.GetTracks() if t.Type() == pcbnew.PCB_VIA_T and t.GetNetname() == net]
@@ -645,11 +666,25 @@ def main():
         groups = {}
         for i_ in range(len(pts)):
             groups.setdefault(fnd(i_), []).append(i_)
-        single = [[round(v, 2) for v in world.to_w(mm(pts[g[0]].x), mm(pts[g[0]].y))] for g in groups.values() if len(g) < 2]
+        (s_src, s_pin), loads = PV_LOADS[net]
+        total = sum(loads.values())
+        single, single_ok = [], []
+        for g_ in groups.values():
+            if len(g_) >= 2:
+                continue
+            items, find = wide_components(net, path_w=0.0, skip={(pts[k].x, pts[k].y) for k in g_})
+            src_c = {find(i_) for i_ in pad_items(items, s_src, s_pin)}
+            cut = sum(a_ for (ls, lp), a_ in loads.items()
+                      if not src_c & {find(i_) for i_ in pad_items(items, ls, lp)})
+            amps = cut if cut > 0 else total
+            row = {"at_world": [round(v, 2) for v in world.to_w(mm(pts[g_[0]].x), mm(pts[g_[0]].y))],
+                   "amps": round(amps, 2), "parallel_path": cut == 0}
+            (single if amps > PV_MIN_A else single_ok).append(row)
         pv_ok &= not single
         pv_rows[net] = {"vias": len(pts), "sites": len(groups), "sites_by_barrels": dict(sorted(
-            collections.Counter(len(g) for g in groups.values()).items())), "single_via_sites_world": single}
-    put("power_vias", pv_ok, nets=pv_rows)
+            collections.Counter(len(g) for g in groups.values()).items())),
+            "single_via_sites_over_1A": single, "single_via_sites_at_or_under_1A": single_ok}
+    put("power_vias", pv_ok, min_amps_for_two_barrels=PV_MIN_A, nets=pv_rows)
 
     # ---- C53 review M5: In2 v3v3 pour islands that carry an IC supply have >= 2 links to the rest of the net
     import v3v3_islands

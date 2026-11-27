@@ -285,6 +285,8 @@ def main():
         rnd, n_open = route_rounds(work, log, rnd, 3)
         if n_open == 0:
             break
+    # the routed board before the post-route steps, so power_vias.py and the gates can be re-run on it without re-routing
+    shutil.copy2(work, WORK / "work-routed.kicad_pcb")
     # C53 review M4: companion vias on the high-current nets' layer changes (layout/power_vias.py), before the pours
     run([KPY, str(HERE / "export_geom.py"), str(work), str(WORK / "geom-power.json")])
     print(run([sys.executable, str(HERE / "power_vias.py"), "plan", str(WORK / "geom-power.json"),

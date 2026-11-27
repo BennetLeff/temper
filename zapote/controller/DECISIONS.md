@@ -1071,3 +1071,24 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
     - Checked and kept: the m3 interlock-forbid expansion for the PWM lines. A round-1 A/B on the rebuilt board, with
       and without the pwm_* forbid, gave the same pass-1 result (22 open) and the same pass-2 sequence. RUNAWAY_FAULT
       routes alone on the unrouted board in one pass (1 via, 133 mm on In3), so its late failures are churn.
+  - **Review-fix set 3, run 1: routed in 18 rounds, about 40 min**, with DRC 0 errors and 0 unconnected; set 2 took 34–36
+    rounds. Three post-route gates failed, which no earlier set had reached:
+    - power_widths: V15_BLW's two 1.035 mm buck VIN pin stubs (0.3 mm, locked) counted as narrow track. power_widths
+      cut stubs at 1.0 mm, power_paths at 1.2 mm. Both now use 1.2 mm.
+    - power_vias: four single-via sites. The planner only tried spots along the via's tracks or square to them. It now
+      also tries a 16-direction ring, with no stub on a layer where a same-net pour holds both vias. On run 1's routed
+      geometry the zero-companion sites went from 4 to 1. That one, the V15_BLW via beside R150, is boxed in by
+      In2/In3 signal tracks.
+    - The power_vias gate itself now follows the review's M4 criterion, "single via in a > 1 A path". It was ≥ 2
+      barrels at every layer change of the four nets. A site's current is the sum of the loads cut off from the
+      source when its vias are removed, or the net's whole load if all of them keep a parallel path. Two barrels are
+      required above 1 A. The V15_BLW via beside R150 feeds only U51: 0.61 A, so one barrel carries it 1.6×. V_BLOWER's
+      single sites were 2.70 A and now get companions.
+    - gnd_stitch: 11.71 mm worst, against the 11 mm limit, by J13. The grid nodes there found no legal spot within
+      3 mm. STITCH_SEARCH is now 5 mm: 69 stitch vias, worst 10.0 mm at a board corner.
+    - Checked on run 1's board with the old plan's vias and stubs removed and the new plan applied:
+      - DRC: 0 errors, 0 unconnected.
+      - All 108 planned vias kept their nets after save.
+      - Every layout gate passed.
+    - Runs 2 and 3 were stopped at round 23 (old post-route code), and all three runs were restarted on this code.
+      route.py now saves pcb/route/work-routed.kicad_pcb before the post-route steps.

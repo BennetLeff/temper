@@ -28,7 +28,7 @@ REACH = 1.8           # mm: a via within this of another same-net via counts as 
 STEPS = (0.9, 1.1, 1.3, 1.5)
 RTD_KEEP = 2.0        # mm from any RTD analog via (their In1 antipad spacing, gridroute RTD_HOLE_GAP)
 GND = "selv_gnd"
-STITCH_SEARCH = 3.0   # mm around a grid node
+STITCH_SEARCH = 5.0   # mm around a grid node (3.0 left two nodes by J13 unstitched: 11.7 mm worst, gnd_stitch 11)
 STITCH_INSET = 3.0    # mm inside the board edge
 
 
@@ -54,6 +54,9 @@ def plan(geom_path, out_path):
 
     def in_fill(p, net, l):
         return any(gz.buffer(-g.VIA_R).contains(Point(p)) for gz in fills.get(net, {}).get(l, []))
+
+    def touches_fill(p, net, l):
+        return any(gz.intersects(Point(p).buffer(g.VIA_R)) for gz in fills.get(net, {}).get(l, []))
 
     def near(c, net):
         return sum(1 for o in same[net] if 1e-6 < math.dist(o, c) <= REACH)
@@ -86,6 +89,11 @@ def plan(geom_path, out_path):
             for s in STEPS:          # beside the via, square to the track, stubbed on every layer
                 for sg in (1, -1):
                     cands.append(((c[0] - sg * s * u[1], c[1] + sg * s * u[0]), None))
+        # then a ring of 16 directions, stubbed on the via's layers (C53 set 3: four vias whose track-wise spots were all
+        # taken by neighbouring pads and tracks kept one barrel, among them two of V_BLOWER's)
+        for k in range(16):
+            for s in STEPS:
+                cands.append(((c[0] + s * math.cos(math.pi * k / 8), c[1] + s * math.sin(math.pi * k / 8)), None))
         for p, on in cands:
             if near(c, net) >= COMPANIONS:
                 break
@@ -95,7 +103,8 @@ def plan(geom_path, out_path):
                 continue
             if any(not in_fill(p, net, l) for l in pour_layers):
                 continue
-            stubs = [l for l in layers if l != on]
+            # no stub on a layer where a same-net pour holds the companion and touches the via
+            stubs = [l for l in layers if l != on and not (in_fill(p, net, l) and touches_fill(c, net, l))]
             if not all(ex.seg_ok(l, p, c, w, net) for l in stubs):
                 continue
             for l in g.LAYERS:
