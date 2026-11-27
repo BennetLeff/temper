@@ -632,6 +632,25 @@ def main():
     if pending:
         raise SystemExit(f"unplaced: {pending}")
 
+    # C53: the face-fan buck's EN divider top resistor takes V15_BLW at its pad 1, auto-placed ~1.8 mm above U51's VIN
+    # pour. Routed, that hop could only land on U51 pin 3 (0.5 mm pitch), where no 0.8 or 0.5 mm track fits: it stayed
+    # open nearly every round of the review-fix runs and its repairs churned the board. A locked 0.8 mm F.Cu stub
+    # joins the pad straight down into the pour, so U51's feed is pour copper from R150 on.
+    r_en = fps[R("bay_fan.r_en_top")]
+    vin = placed[f"_vin_{R('bay_fan.u_buck')}"]
+    q = next(p for p in r_en.Pads() if p.GetNetname() == V15B)
+    qx, qy = pcbnew.ToMM(q.GetPosition().x), pcbnew.ToMM(q.GetPosition().y)
+    if not (vin[0] + 0.4 <= qx <= vin[2] - 0.4 and qy < vin[1]):
+        raise SystemExit(f"{r_en.GetReference()}.{q.GetNumber()} at ({qx:.2f}, {qy:.2f}) is not above the fan2 VIN "
+                         f"pour {vin}: move the V15_BLW stub")
+    seg = pcbnew.SHAPE_SEGMENT(q.GetPosition(), pcbnew.VECTOR2I(mm(qx), mm(vin[1] + 0.5)), mm(0.8))
+    hit = [f"{f.GetReference()}.{p.GetNumber()}" for f in fps.values() for p in f.Pads()
+           if p.GetNetname() != V15B and p.IsOnLayer(pcbnew.F_Cu)
+           and p.GetEffectiveShape(pcbnew.F_Cu).Collide(seg, mm(0.2))]
+    if hit:
+        raise SystemExit(f"V15_BLW stub {r_en.GetReference()} -> fan2 VIN pour hits {hit}")
+    stub(V15B, qx, qy, qx, vin[1] + 0.5, w=0.8)
+
     # ---- outline, holes, keep-outs
     corners = [(kx0, ky0), (kx1, ky0), (kx1, ky1), (kx0, ky1)]
     for (x0, y0), (x1, y1) in zip(corners, corners[1:] + corners[:1]):

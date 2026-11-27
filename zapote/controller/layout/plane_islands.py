@@ -30,6 +30,42 @@ def main():
     zone_items = [u for u in d["unconnected_items"]
                   if all(e["description"].startswith("Zone") for e in u["items"])]
     keep = [u for u in d["unconnected_items"] if u not in zone_items]
+    # a pad or via -> zone item (a PTH pad left on a pour island, C53 J7.2): the zone end also carries the zone's first
+    # corner (the board corner), which the router took as a 77 mm target every round. Aim it at the zone's through
+    # copper instead: the anchor in the zone's largest fill outline nearest the other end.
+    n_mixed = 0
+    for u in keep:
+        zs = [e for e in u["items"] if e["description"].startswith("Zone")]
+        others = [e for e in u["items"] if not e["description"].startswith("Zone")]
+        if len(zs) != 1 or not others:
+            continue
+        m_ = __import__("re").match(r"Zone '([^']*)' \[([^\]]+)\] on ([^,\s]+)", zs[0]["description"])
+        if not m_:
+            continue
+        zname, net, lname = m_.groups()
+        lay = b.GetLayerID(lname)
+        o = (others[0]["pos"]["x"], others[0]["pos"]["y"])
+        cands = []
+        for z in b.Zones():
+            if z.GetZoneName() != zname or z.GetNetname() != net or not z.IsOnLayer(lay):
+                continue
+            fill = z.GetFilledPolysList(lay)
+            if not fill.OutlineCount():
+                continue
+            k = max(range(fill.OutlineCount()), key=lambda i: abs(fill.Outline(i).Area()))
+            poly = pcbnew.SHAPE_POLY_SET()
+            poly.AddOutline(fill.Outline(k))
+            pts = [t.GetPosition() for t in b.GetTracks() if t.Type() == pcbnew.PCB_VIA_T and t.GetNetname() == net]
+            pts += [p.GetPosition() for f in b.GetFootprints() for p in f.Pads()
+                    if p.GetNetname() == net and p.GetAttribute() == pcbnew.PAD_ATTRIB_PTH]
+            cands += [(mm(q.x), mm(q.y)) for q in pts if poly.Contains(q)]
+        cands = [c for c in cands if math.dist(c, o) > 0.05]
+        if not cands:
+            continue
+        c = min(cands, key=lambda c: math.dist(c, o))
+        zs[0]["description"] = f"Via [{net}] on F.Cu - B.Cu"
+        zs[0]["pos"] = {"x": c[0], "y": c[1]}
+        n_mixed += 1
     for net in sorted({__import__("re").search(r"\[([^\]]+)\]", u["items"][0]["description"]).group(1)
                        for u in zone_items}):
         # through-copper anchors of this net: vias and PTH pads
@@ -84,7 +120,8 @@ def main():
         n_weak += 1
     d["unconnected_items"] = keep
     json.dump(d, open(path, "w"), indent=1)
-    print(f"plane islands: {len(zone_items)} zone items replaced, {n_weak} weak-island pairs added")
+    print(f"plane islands: {len(zone_items)} zone items replaced, {n_mixed} pad-to-zone items re-aimed, "
+          f"{n_weak} weak-island pairs added")
 
 
 if __name__ == "__main__":

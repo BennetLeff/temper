@@ -1057,3 +1057,17 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
     - Found while testing: a track-less via added to a filled board is re-netted by KiCad's connectivity at save. A
       random 8–16 of 70 stitch vias became v3v3. They are now marked free vias, and three repeat applies gave 0 wrong
       nets.
+  - **Review-fix convergence set 2: 0/3.** Runs 2 and 3 ended at 6 and 2 opens after 8,374 and 8,775 s and 34–36
+    rounds. Run 1 was stopped at round 36 with 2 open (BLW_PG, RUNAWAY_FAULT). Logs: build/conv/failed-review-fix-set2.
+    - The set-1 diagnosis of V15_BLW was wrong. The pair R150.1 → U51.3 failed in nearly every round of runs 1 and 3,
+      and each failure put V15_BLW first in a repair that ripped 77–200 pairs. The open pair's far end is U51 pin 3,
+      a 0.5 mm-pitch SOT-583 pin that no 0.8 or 0.5 mm track can land on. KiCad names the pin, not the VIN pour it
+      sits in. Fix: build_board adds a locked 0.8 mm F.Cu stub from R150.1 straight down into the fan2 VIN pour. It
+      stops the build if R150 is not above the pour or the stub touches another pad. The NARROW fallback stays for
+      V15_BLW's other branches.
+    - A "J7.2 ↔ V3V3_plane zone" item reached the router with the zone end at the zone's first corner, the board
+      corner (20.3, 20.3). The router tried a 77 mm route there every round. Fix: plane_islands re-aims a pad-to-zone
+      item at the zone's nearest through copper in its largest fill outline.
+    - Checked and kept: the m3 interlock-forbid expansion for the PWM lines. A round-1 A/B on the rebuilt board, with
+      and without the pwm_* forbid, gave the same pass-1 result (22 open) and the same pass-2 sequence. RUNAWAY_FAULT
+      routes alone on the unrouted board in one pass (1 via, 133 mm on In3), so its late failures are churn.
