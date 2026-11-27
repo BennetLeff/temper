@@ -336,8 +336,8 @@
     },
     {
       "rule": "ERC.THERMAL.PARTS",
-      "severity": "info",
-      "status": "pass",
+      "severity": "error",
+      "status": "fail",
       "message": "exact MPN hs_hyst: RC0603FR-0734K8L",
       "object": "hs_hyst",
       "actual": null,
@@ -860,7 +860,7 @@
       "rule": "DRC.BOARD.STACKUP",
       "severity": "info",
       "status": "pass",
-      "message": "4 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+      "message": "6 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
       "object": "board.setup.stackup",
       "actual": null,
       "required": null
@@ -933,7 +933,7 @@
       "severity": "error",
       "status": "fail",
       "message": "pad/trace clearance 0.000000 mm is below 0.200000 mm",
-      "object": "hs_bypass.1 / 94e3eef0-e0c7-4cd3-8350-37bae9c97b7f",
+      "object": "hs_bypass.1 / 070e1343-4623-4d4d-9742-1e2210df5d46",
       "actual": null,
       "required": null
     },
@@ -942,7 +942,7 @@
       "severity": "error",
       "status": "fail",
       "message": "pad/via clearance 0.000000 mm is below 0.200000 mm",
-      "object": "hs_bypass.1 / 19c61a86-1a8a-4480-be7c-78d036406727",
+      "object": "hs_bypass.1 / 86d41452-7fdd-4941-8925-4ab2275c2008",
       "actual": null,
       "required": null
     }

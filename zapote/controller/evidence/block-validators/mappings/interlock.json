@@ -4,14 +4,14 @@
     "host"
   ],
   "block": "interlock",
-  "controller_board": "/Users/bennet/Desktop/temper/.claude/worktrees/agent-aca19bcf1cfbbdbc6/zapote/controller/pcb/controller.kicad_pcb",
+  "controller_board": "/Users/bennet/Desktop/temper/worktrees/ctrl-c51/zapote/controller/pcb/controller.kicad_pcb",
   "controller_census": 23,
   "dropped_items": {
-    "footprint": 262,
+    "footprint": 320,
     "graphics": 16,
-    "segment": 3182,
-    "via": 556,
-    "zone": 14
+    "segment": 3535,
+    "via": 550,
+    "zone": 16
   },
   "extra_controller_instances": [],
   "negative_control": {
@@ -60,6 +60,6 @@
   },
   "unit_census": 25,
   "unit_name_collisions_with_unmapped_controller_nets": [],
-  "unit_source_manifest": "/Users/bennet/Desktop/temper/.claude/worktrees/agent-aca19bcf1cfbbdbc6/zapote/interlock/candidate/source-manifest.json",
+  "unit_source_manifest": "/Users/bennet/Desktop/temper/worktrees/ctrl-c51/zapote/interlock/candidate/source-manifest.json",
   "unmapped_controller_nets_on_kept_pads": []
 }

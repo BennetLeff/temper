@@ -1,7 +1,7 @@
 {
     "$schema": "https://schemas.kicad.org/drc.v1.json",
     "coordinate_units": "mm",
-    "date": "2026-10-18T15:09:50",
+    "date": "2026-11-27T00:17:39",
     "ignored_checks": [
         {
             "description": "Footprint has no courtyard defined",
@@ -35,135 +35,15 @@
     "unconnected_items": [],
     "violations": [
         {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1285 mm) (F.Cu)",
+            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1048 mm) (In1.Cu)",
             "items": [
                 {
-                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
+                    "description": "Zone 'GND_plane' [selv_gnd] on In1.Cu, priority 0",
                     "pos": {
-                        "x": 20.25,
-                        "y": 20.25
+                        "x": 20.3,
+                        "y": 20.3
                     },
-                    "uuid": "ff5b0114-5ed3-47cf-b58b-930f9be0476c"
-                }
-            ],
-            "severity": "warning",
-            "type": "connection_width"
-        },
-        {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.0588 mm) (F.Cu)",
-            "items": [
-                {
-                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
-                    "pos": {
-                        "x": 20.25,
-                        "y": 20.25
-                    },
-                    "uuid": "ff5b0114-5ed3-47cf-b58b-930f9be0476c"
-                }
-            ],
-            "severity": "warning",
-            "type": "connection_width"
-        },
-        {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1034 mm) (F.Cu)",
-            "items": [
-                {
-                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
-                    "pos": {
-                        "x": 20.25,
-                        "y": 20.25
-                    },
-                    "uuid": "ff5b0114-5ed3-47cf-b58b-930f9be0476c"
-                }
-            ],
-            "severity": "warning",
-            "type": "connection_width"
-        },
-        {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1141 mm) (F.Cu)",
-            "items": [
-                {
-                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
-                    "pos": {
-                        "x": 20.25,
-                        "y": 20.25
-                    },
-                    "uuid": "ff5b0114-5ed3-47cf-b58b-930f9be0476c"
-                }
-            ],
-            "severity": "warning",
-            "type": "connection_width"
-        },
-        {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1067 mm) (F.Cu)",
-            "items": [
-                {
-                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
-                    "pos": {
-                        "x": 20.25,
-                        "y": 20.25
-                    },
-                    "uuid": "ff5b0114-5ed3-47cf-b58b-930f9be0476c"
-                }
-            ],
-            "severity": "warning",
-            "type": "connection_width"
-        },
-        {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1141 mm) (F.Cu)",
-            "items": [
-                {
-                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
-                    "pos": {
-                        "x": 20.25,
-                        "y": 20.25
-                    },
-                    "uuid": "ff5b0114-5ed3-47cf-b58b-930f9be0476c"
-                }
-            ],
-            "severity": "warning",
-            "type": "connection_width"
-        },
-        {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1055 mm) (F.Cu)",
-            "items": [
-                {
-                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
-                    "pos": {
-                        "x": 20.25,
-                        "y": 20.25
-                    },
-                    "uuid": "ff5b0114-5ed3-47cf-b58b-930f9be0476c"
-                }
-            ],
-            "severity": "warning",
-            "type": "connection_width"
-        },
-        {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1034 mm) (F.Cu)",
-            "items": [
-                {
-                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
-                    "pos": {
-                        "x": 20.25,
-                        "y": 20.25
-                    },
-                    "uuid": "ff5b0114-5ed3-47cf-b58b-930f9be0476c"
-                }
-            ],
-            "severity": "warning",
-            "type": "connection_width"
-        },
-        {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1114 mm) (F.Cu)",
-            "items": [
-                {
-                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
-                    "pos": {
-                        "x": 20.25,
-                        "y": 20.25
-                    },
-                    "uuid": "ff5b0114-5ed3-47cf-b58b-930f9be0476c"
+                    "uuid": "17214f08-9569-41ec-8d03-152cf69cdade"
                 }
             ],
             "severity": "warning",
@@ -178,112 +58,112 @@
                         "x": 20.25,
                         "y": 20.25
                     },
-                    "uuid": "e4a9d2db-154d-462d-ae37-81864ff8962b"
+                    "uuid": "b5fbdda5-0c26-4ee6-9744-29069fff7b4e"
                 }
             ],
             "severity": "warning",
             "type": "connection_width"
         },
         {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1048 mm) (B.Cu)",
+            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1048 mm) (In4.Cu)",
             "items": [
                 {
-                    "description": "Zone 'GND_B' [selv_gnd] on B.Cu, priority 0",
+                    "description": "Zone 'GND_plane_In4' [selv_gnd] on In4.Cu, priority 0",
+                    "pos": {
+                        "x": 20.3,
+                        "y": 20.3
+                    },
+                    "uuid": "ec43c58a-3cab-4424-a6d4-2d7f24ad3adc"
+                }
+            ],
+            "severity": "warning",
+            "type": "connection_width"
+        },
+        {
+            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1149 mm) (F.Cu)",
+            "items": [
+                {
+                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
                     "pos": {
                         "x": 20.25,
                         "y": 20.25
                     },
-                    "uuid": "e4a9d2db-154d-462d-ae37-81864ff8962b"
+                    "uuid": "438916d1-877d-4911-a77a-a31bc6fe9af9"
                 }
             ],
             "severity": "warning",
             "type": "connection_width"
         },
         {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1048 mm) (B.Cu)",
+            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1086 mm) (F.Cu)",
             "items": [
                 {
-                    "description": "Zone 'GND_B' [selv_gnd] on B.Cu, priority 0",
+                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
                     "pos": {
                         "x": 20.25,
                         "y": 20.25
                     },
-                    "uuid": "e4a9d2db-154d-462d-ae37-81864ff8962b"
+                    "uuid": "438916d1-877d-4911-a77a-a31bc6fe9af9"
                 }
             ],
             "severity": "warning",
             "type": "connection_width"
         },
         {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1048 mm) (B.Cu)",
+            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.0950 mm) (F.Cu)",
             "items": [
                 {
-                    "description": "Zone 'GND_B' [selv_gnd] on B.Cu, priority 0",
+                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
                     "pos": {
                         "x": 20.25,
                         "y": 20.25
                     },
-                    "uuid": "e4a9d2db-154d-462d-ae37-81864ff8962b"
+                    "uuid": "438916d1-877d-4911-a77a-a31bc6fe9af9"
                 }
             ],
             "severity": "warning",
             "type": "connection_width"
         },
         {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1048 mm) (In1.Cu)",
+            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1123 mm) (F.Cu)",
             "items": [
                 {
-                    "description": "Zone 'GND_plane' [selv_gnd] on In1.Cu, priority 0",
+                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
                     "pos": {
-                        "x": 20.3,
-                        "y": 20.3
+                        "x": 20.25,
+                        "y": 20.25
                     },
-                    "uuid": "3f83fa4d-405e-4944-b10e-bdd8c6b53b94"
+                    "uuid": "438916d1-877d-4911-a77a-a31bc6fe9af9"
                 }
             ],
             "severity": "warning",
             "type": "connection_width"
         },
         {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1048 mm) (In1.Cu)",
+            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1259 mm) (F.Cu)",
             "items": [
                 {
-                    "description": "Zone 'GND_plane' [selv_gnd] on In1.Cu, priority 0",
+                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
                     "pos": {
-                        "x": 20.3,
-                        "y": 20.3
+                        "x": 20.25,
+                        "y": 20.25
                     },
-                    "uuid": "3f83fa4d-405e-4944-b10e-bdd8c6b53b94"
+                    "uuid": "438916d1-877d-4911-a77a-a31bc6fe9af9"
                 }
             ],
             "severity": "warning",
             "type": "connection_width"
         },
         {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1048 mm) (In1.Cu)",
+            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1031 mm) (F.Cu)",
             "items": [
                 {
-                    "description": "Zone 'GND_plane' [selv_gnd] on In1.Cu, priority 0",
+                    "description": "Zone 'GND_F' [selv_gnd] on F.Cu, priority 0",
                     "pos": {
-                        "x": 20.3,
-                        "y": 20.3
+                        "x": 20.25,
+                        "y": 20.25
                     },
-                    "uuid": "3f83fa4d-405e-4944-b10e-bdd8c6b53b94"
-                }
-            ],
-            "severity": "warning",
-            "type": "connection_width"
-        },
-        {
-            "description": "Copper connection too narrow (board setup constraints minimum connection width 0.1500 mm; actual 0.1048 mm) (In1.Cu)",
-            "items": [
-                {
-                    "description": "Zone 'GND_plane' [selv_gnd] on In1.Cu, priority 0",
-                    "pos": {
-                        "x": 20.3,
-                        "y": 20.3
-                    },
-                    "uuid": "3f83fa4d-405e-4944-b10e-bdd8c6b53b94"
+                    "uuid": "438916d1-877d-4911-a77a-a31bc6fe9af9"
                 }
             ],
             "severity": "warning",
@@ -298,7 +178,7 @@
                         "x": 20.0,
                         "y": 96.0
                     },
-                    "uuid": "3060fb3d-cb9a-4731-b971-a654829e349b"
+                    "uuid": "8083fca3-fdd7-4692-8dc3-589521103fa2"
                 },
                 {
                     "description": "Circle on F.Silkscreen",
@@ -306,7 +186,7 @@
                         "x": 24.0,
                         "y": 92.0
                     },
-                    "uuid": "9424bd33-c90c-4adc-b1e3-d6bab4e4aadb"
+                    "uuid": "53e1e2a1-cee2-4f25-880e-1c7a6a5580b4"
                 }
             ],
             "severity": "warning",
@@ -321,7 +201,7 @@
                         "x": 226.0,
                         "y": 96.0
                     },
-                    "uuid": "9ec2b058-e732-46b0-86ba-4d2d9c9ee200"
+                    "uuid": "8464412e-07f2-402d-8274-bbc2a816ccd2"
                 },
                 {
                     "description": "Circle on F.Silkscreen",
@@ -329,7 +209,7 @@
                         "x": 123.0,
                         "y": 92.0
                     },
-                    "uuid": "83c81066-2050-4211-bab8-e6945e010846"
+                    "uuid": "26970547-ebfb-412e-b09d-975592bf33ef"
                 }
             ],
             "severity": "warning",
@@ -344,7 +224,7 @@
                         "x": 20.0,
                         "y": 20.0
                     },
-                    "uuid": "fdfd7606-3977-47a2-ae98-c8967584b34d"
+                    "uuid": "ee1d12fa-ba70-489b-9829-6dc5c703097c"
                 },
                 {
                     "description": "Circle on F.Silkscreen",
@@ -352,7 +232,7 @@
                         "x": 133.0,
                         "y": 24.0
                     },
-                    "uuid": "0b223528-0d15-4ded-b2e6-a0ba126dabdd"
+                    "uuid": "e8e4679e-2927-4fdc-91d3-aae501f48730"
                 }
             ],
             "severity": "warning",
@@ -367,7 +247,7 @@
                         "x": 226.0,
                         "y": 20.0
                     },
-                    "uuid": "7bf50ab1-c2c6-4345-b369-d4c9823d09e8"
+                    "uuid": "59341ddd-eed1-4835-93d3-cb3a41f29d40"
                 },
                 {
                     "description": "Circle on F.Silkscreen",
@@ -375,7 +255,7 @@
                         "x": 222.0,
                         "y": 30.0
                     },
-                    "uuid": "43b8a4b9-0a83-4e3d-bc99-77edb12dc771"
+                    "uuid": "d1c8a907-8a9c-4b9f-852c-e14660c63b50"
                 }
             ],
             "severity": "warning",
@@ -390,7 +270,7 @@
                         "x": 226.0,
                         "y": 20.0
                     },
-                    "uuid": "7bf50ab1-c2c6-4345-b369-d4c9823d09e8"
+                    "uuid": "59341ddd-eed1-4835-93d3-cb3a41f29d40"
                 },
                 {
                     "description": "Circle on F.Silkscreen",
@@ -398,168 +278,7 @@
                         "x": 222.0,
                         "y": 92.0
                     },
-                    "uuid": "04c518ca-c073-44a2-9dea-861a9c284b03"
-                }
-            ],
-            "severity": "warning",
-            "type": "silk_edge_clearance"
-        },
-        {
-            "description": "Silkscreen clipped by board edge",
-            "items": [
-                {
-                    "description": "Segment on Edge.Cuts",
-                    "pos": {
-                        "x": 20.0,
-                        "y": 20.0
-                    },
-                    "uuid": "fdfd7606-3977-47a2-ae98-c8967584b34d"
-                },
-                {
-                    "description": "Segment of J13 on F.Silkscreen",
-                    "pos": {
-                        "x": 143.16,
-                        "y": 19.940874
-                    },
-                    "uuid": "f6404630-2c68-4bac-8b83-62d4fe547dd6"
-                }
-            ],
-            "severity": "warning",
-            "type": "silk_edge_clearance"
-        },
-        {
-            "description": "Silkscreen clipped by board edge",
-            "items": [
-                {
-                    "description": "Segment on Edge.Cuts",
-                    "pos": {
-                        "x": 20.0,
-                        "y": 20.0
-                    },
-                    "uuid": "fdfd7606-3977-47a2-ae98-c8967584b34d"
-                },
-                {
-                    "description": "Segment of J13 on F.Silkscreen",
-                    "pos": {
-                        "x": 143.16,
-                        "y": 21.640874
-                    },
-                    "uuid": "520a6c93-a97b-4a92-aa74-9ae5ba102ce1"
-                }
-            ],
-            "severity": "warning",
-            "type": "silk_edge_clearance"
-        },
-        {
-            "description": "Silkscreen clipped by board edge",
-            "items": [
-                {
-                    "description": "Segment on Edge.Cuts",
-                    "pos": {
-                        "x": 20.0,
-                        "y": 20.0
-                    },
-                    "uuid": "fdfd7606-3977-47a2-ae98-c8967584b34d"
-                },
-                {
-                    "description": "Segment of J13 on F.Silkscreen",
-                    "pos": {
-                        "x": 148.84,
-                        "y": 19.940874
-                    },
-                    "uuid": "c9e10f54-101d-4062-b338-da26651c71a0"
-                }
-            ],
-            "severity": "warning",
-            "type": "silk_edge_clearance"
-        },
-        {
-            "description": "Silkscreen clipped by board edge",
-            "items": [
-                {
-                    "description": "Segment on Edge.Cuts",
-                    "pos": {
-                        "x": 20.0,
-                        "y": 96.0
-                    },
-                    "uuid": "3060fb3d-cb9a-4731-b971-a654829e349b"
-                },
-                {
-                    "description": "Segment of J9 on F.Silkscreen",
-                    "pos": {
-                        "x": 19.95,
-                        "y": 23.225875
-                    },
-                    "uuid": "ce14f1d0-4cc8-4c30-a9ab-fc89a9069beb"
-                }
-            ],
-            "severity": "warning",
-            "type": "silk_edge_clearance"
-        },
-        {
-            "description": "Silkscreen clipped by board edge",
-            "items": [
-                {
-                    "description": "Segment on Edge.Cuts",
-                    "pos": {
-                        "x": 20.0,
-                        "y": 96.0
-                    },
-                    "uuid": "3060fb3d-cb9a-4731-b971-a654829e349b"
-                },
-                {
-                    "description": "Segment of J9 on F.Silkscreen",
-                    "pos": {
-                        "x": 20.9,
-                        "y": 20.675875
-                    },
-                    "uuid": "56d2b093-aaf0-46e7-ac33-74bd05ba3f42"
-                }
-            ],
-            "severity": "warning",
-            "type": "silk_edge_clearance"
-        },
-        {
-            "description": "Silkscreen clipped by board edge",
-            "items": [
-                {
-                    "description": "Segment on Edge.Cuts",
-                    "pos": {
-                        "x": 20.0,
-                        "y": 96.0
-                    },
-                    "uuid": "3060fb3d-cb9a-4731-b971-a654829e349b"
-                },
-                {
-                    "description": "Rectangle of J9 on F.Silkscreen",
-                    "pos": {
-                        "x": 19.94,
-                        "y": 20.965875
-                    },
-                    "uuid": "e923f87e-6bdb-4afc-ad2c-31145933c98d"
-                }
-            ],
-            "severity": "warning",
-            "type": "silk_edge_clearance"
-        },
-        {
-            "description": "Silkscreen clipped by board edge",
-            "items": [
-                {
-                    "description": "Segment on Edge.Cuts",
-                    "pos": {
-                        "x": 20.0,
-                        "y": 96.0
-                    },
-                    "uuid": "3060fb3d-cb9a-4731-b971-a654829e349b"
-                },
-                {
-                    "description": "Rectangle of J9 on F.Silkscreen",
-                    "pos": {
-                        "x": 19.95,
-                        "y": 20.975875
-                    },
-                    "uuid": "232f99ea-44a7-4dae-9310-976b5071e0df"
+                    "uuid": "297fba43-c37b-45d4-90f7-1b6b5c5af2cf"
                 }
             ],
             "severity": "warning",
@@ -574,7 +293,7 @@
                         "x": 226.0,
                         "y": 96.0
                     },
-                    "uuid": "9ec2b058-e732-46b0-86ba-4d2d9c9ee200"
+                    "uuid": "8464412e-07f2-402d-8274-bbc2a816ccd2"
                 },
                 {
                     "description": "Segment of J11 on F.Silkscreen",
@@ -582,7 +301,7 @@
                         "x": 195.35,
                         "y": 96.08
                     },
-                    "uuid": "b1ddc4db-6410-4295-bed3-e366f7888f0a"
+                    "uuid": "5dccb262-2089-44fb-85fb-a4c20e4743e4"
                 }
             ],
             "severity": "warning",
@@ -597,7 +316,7 @@
                         "x": 226.0,
                         "y": 96.0
                     },
-                    "uuid": "9ec2b058-e732-46b0-86ba-4d2d9c9ee200"
+                    "uuid": "8464412e-07f2-402d-8274-bbc2a816ccd2"
                 },
                 {
                     "description": "Segment of J11 on F.Silkscreen",
@@ -605,7 +324,76 @@
                         "x": 198.05,
                         "y": 94.1
                     },
-                    "uuid": "8923694d-f017-4dbd-97a4-548c91d82880"
+                    "uuid": "473897db-c740-4e77-b179-6bf759b956c5"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        },
+        {
+            "description": "Silkscreen clipped by board edge",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 20.0
+                    },
+                    "uuid": "ee1d12fa-ba70-489b-9829-6dc5c703097c"
+                },
+                {
+                    "description": "Segment of J13 on F.Silkscreen",
+                    "pos": {
+                        "x": 143.16,
+                        "y": 19.940874
+                    },
+                    "uuid": "48fbc1e1-629f-49c3-a969-23211b72c584"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        },
+        {
+            "description": "Silkscreen clipped by board edge",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 20.0
+                    },
+                    "uuid": "ee1d12fa-ba70-489b-9829-6dc5c703097c"
+                },
+                {
+                    "description": "Segment of J13 on F.Silkscreen",
+                    "pos": {
+                        "x": 143.16,
+                        "y": 21.640874
+                    },
+                    "uuid": "6e980de9-b7c5-4003-8fc6-f364f34becb8"
+                }
+            ],
+            "severity": "warning",
+            "type": "silk_edge_clearance"
+        },
+        {
+            "description": "Silkscreen clipped by board edge",
+            "items": [
+                {
+                    "description": "Segment on Edge.Cuts",
+                    "pos": {
+                        "x": 20.0,
+                        "y": 20.0
+                    },
+                    "uuid": "ee1d12fa-ba70-489b-9829-6dc5c703097c"
+                },
+                {
+                    "description": "Segment of J13 on F.Silkscreen",
+                    "pos": {
+                        "x": 148.84,
+                        "y": 19.940874
+                    },
+                    "uuid": "34aba0e8-1cca-4c57-8042-f90cd5b49f8f"
                 }
             ],
             "severity": "warning",
@@ -620,7 +408,7 @@
                         "x": 208.0,
                         "y": 50.1
                     },
-                    "uuid": "7d2b9859-7ccf-4666-b04c-5873be4eabdb"
+                    "uuid": "270d748b-d26e-4ee0-a49c-28ad88168b39"
                 }
             ],
             "severity": "warning",
@@ -635,17 +423,11 @@
                         "x": 40.0,
                         "y": 50.5
                     },
-                    "uuid": "f3271faa-655d-4dcb-ad83-5a91ca4dd428"
+                    "uuid": "4436e488-7add-44ed-b803-dd7349e83ffa"
                 }
             ],
             "severity": "warning",
             "type": "lib_footprint_mismatch"
-        },
-        {
-            "description": "Copper sliver (In2.Cu)",
-            "items": [],
-            "severity": "warning",
-            "type": "copper_sliver"
         }
     ]
 }

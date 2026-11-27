@@ -966,7 +966,11 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
     - fab-notes' NEEDS-PREVIEW list is now built from the gate: the THT connectors, plus one part per C53 code.
   - **F2 (order process):** JLC numbers seven THT headers 180° from ours. The CPL keeps KiCad's rotation, and the bodies
     must follow the silk. J7 reversed would short v3v3 to the UI board's ground; J15 reversed puts 12 V on the fan's
-    PWM pin. ORDER gets an assembly remark and a check on arrival.
+    PWM pin. ORDER gets three steps:
+    1. In JLC's placement preview, rotate any header whose key renders 180° from the silk key wall, there in JLC's
+       editor (its THT operators follow the render, not text remarks).
+    2. Add an assembly remark.
+    3. Check each key on arrival before plugging J7 or J15.
   - **F3:** J4 circuit numbering rests on one library. Buzz J4.3 and J4.9 against the power board before mating
     (bring-up step).
   - **F4, accepted:** U30 CS# has no pull-up (U15 and U50 have one). The bus is idle until firmware init, and the init

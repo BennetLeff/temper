@@ -11,38 +11,23 @@
   Y = 110 - ky = 110 + (Gerber Y). Board lower-left corner = world (-38, 14) = Gerber (20, -96).
 - **Assembly:** all parts on the top side. BOM lines 96, placements 342
   (11 THT). CPL rotations are KiCad's plus the audited JLC offset
-  (`CPL_ROTATION_OFFSET` in layout/fab.py; evidence/fab-loose-ends/cpl-rotation): 43 lines corrected
-  (D8, Q1, U1, U2, U3, U5, U6, U7, U8, U9, U10, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U26, U27, U28, U29, U30, U31, U32, U36, U38, U39, U40, U41, U42, U43, U44, U45, U46, U50, U51).
+  (`CPL_ROTATION_OFFSET` in layout/fab.py; evidence/fab-loose-ends/cpl-rotation; every SMD placement's offset is
+  checked against JLC's pad geometry by cpl_rotation_gate): 56 lines corrected
+  (C1, C9, D8, D10, D11, D12, D13, L2, Q1, Q2, U1, U2, U3, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, U32, U33, U36, U37, U38, U39, U40, U41, U42, U43, U44, U45, U46, U50, U51, U52).
 - **NEEDS-PREVIEW (owner checks these in JLC's placement preview before paying; one designator per LCSC code
   is enough, the rest of the code follows; the CPL carries KiCad's rotation for them):**
-  - C10096 SN74LVC1G32DBVR (SOT-23-5): U27, U28, U41, U44
-  - C105188 TLV3201AIDBVR (SOT-23-5): U10, U17, U18, U31, U32, U40
-  - C144395 B4B-XH-A(LF)(SN) (JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical): J3
-  - C158012 B2B-XH-A(LF)(SN) (JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical): J1, J2
-  - C158027 B12B-XH-A(LF)(SN) (JST_XH_B12B-XH-A_1x12_P2.50mm_Vertical): J7
-  - C178539 EEE-FK1E101P (CP_Elec_8x6.2): C1, C9
-  - C1850327 TPS3703A4330DSERQ1 (WSON-6_1.5x1.5mm_P0.5mm): U3
-  - C277731 0430451600 (Molex_Micro-Fit_3.0_43045-1600_2x08_P3.00mm_Horizontal): J4
-  - C2867465 TLV76050DBZR (SOT-23): U16
-  - C2867613 SN74LVC1G38DBVR (SOT-23-5): U35
-  - C29777121 TLV9031DBVR (SOT-23-5): U19, U26
-  - C3200405 TPS62933DRLR (SOT-583-8): U2
-  - C402161 SN74LVC1G86DBVR (SOT-23-5): U43
-  - C495329 AD8436ARQZ-R7 (QSOP-20_3.9x8.7mm_P0.635mm): U14
-  - C5219272 TPS62933FDRLR (SOT-583-8): U1
-  - C61148 ESD5Z3.3T1G (D_SOD-523): D1, D2, D3, D4, D5, D6
-  - C7666 SN74LVC1G08DBVR (SOT-23-5): U11, U25, U33, U37
-  - C7835 SN74LVC1G14DBVR (SOT-23-5): U12, U45, U46
-  - C82044 ESD5Z5.0T1G (D_SOD-523): D7
-  - C83574 BAT54S-7-F (SOT-23): D8
-  - C8545 2N7002 (SOT-23): Q1
-  - C9421 LM4040A25IDBZR (SOT-23): U13
-  - C962078 REF2025AIDDCR (SOT-23-5): U29
+  - C131337 THT connector, JLC footprint numbering 180 degrees from ours; CPL keeps KiCad's rotation: check body and key against the silk: J14
+  - C144395 THT connector, JLC footprint numbering 180 degrees from ours; CPL keeps KiCad's rotation: check body and key against the silk: J3, J9
+  - C157991 THT connector, JLC footprint numbering 180 degrees from ours; CPL keeps KiCad's rotation: check body and key against the silk: J15
+  - C158012 THT connector, JLC footprint numbering 180 degrees from ours; CPL keeps KiCad's rotation: check body and key against the silk: J1, J2
+  - C158027 THT connector, JLC footprint numbering 180 degrees from ours; CPL keeps KiCad's rotation: check body and key against the silk: J7
+  - C277731 THT connector, JLC footprint numbering 180 degrees from ours; CPL keeps KiCad's rotation: check body and key against the silk: J4
+  - C53 offsets never seen in a JLC preview (one part per code): C1 (C445471, + pad), U11 (C840098), U52 (C148036), Q2 (C82045), D10 (C155248)
 - **LCSC numbers:** from bom/controller-parts.json; missing: none.
 - **Consign / stock:** stock 0 (latest JLC check per part: 2026-10-08, C35 swaps 2026-10-12, C37-C41 parts
   2026-10-15): none -- consign these or use JLC global sourcing; stock below 10x the
-  quantity: none (DECISIONS open item 7). RG2012V-431-W-T1 (Rref) is consigned by decision
-  C37: the sensor-r3 CR-2 accuracy budget needs its 0.05 % / 5 ppm/K.
+  quantity: none (DECISIONS open item 7). Nothing is consigned (C52: R39 is the stocked
+  PTFR0805B430RN9).
 - **Sourcing swaps (DECISIONS C35/C36):** R53 RT0603BRD0716K5L (C728584), U22 74HC30PW,118 (C546857),
   R31 RT0603BRD078K06L (C861587), J13 code C160315 (same MPN), U14 AD8436ARQZ-R7 (C495329). The C35 Rref
   swap (RT0805BRD07430RL) is reverted by C37.

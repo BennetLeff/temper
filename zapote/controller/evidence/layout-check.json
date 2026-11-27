@@ -13,7 +13,7 @@
     90.05
    ],
    "edge_segments": 4,
-   "copper_layers": 4,
+   "copper_layers": 6,
    "thickness_mm": 1.6
   },
   "holes": {
@@ -152,11 +152,11 @@
     {
      "ref": "J9",
      "spec": [
-      -33.0,
+      43.5,
       86.0
      ],
      "body_centre": [
-      -33.0,
+      43.5,
       86.0
      ],
      "error_mm": 0.0,
@@ -170,6 +170,32 @@
      ],
      "body_centre": [
       139.0,
+      86.0
+     ],
+     "error_mm": 0.0,
+     "body_on_board": true
+    },
+    {
+     "ref": "J14",
+     "spec": [
+      66.0,
+      86.0
+     ],
+     "body_centre": [
+      66.0,
+      86.0
+     ],
+     "error_mm": 0.0,
+     "body_on_board": true
+    },
+    {
+     "ref": "J15",
+     "spec": [
+      104.5,
+      86.0
+     ],
+     "body_centre": [
+      104.5,
       86.0
      ],
      "error_mm": 0.0,
@@ -349,14 +375,14 @@
      "pin": "U11.5",
      "net": "v3v3",
      "cap": "C58",
-     "distance_mm": 1.98,
+     "distance_mm": 2.89,
      "ok": true
     },
     {
      "pin": "U12.5",
      "net": "v3v3",
      "cap": "C57",
-     "distance_mm": 1.98,
+     "distance_mm": 3.78,
      "ok": true
     },
     {
@@ -482,21 +508,21 @@
      "pin": "U3.2",
      "net": "v3v3",
      "cap": "C20",
-     "distance_mm": 1.86,
+     "distance_mm": 2.23,
      "ok": true
     },
     {
      "pin": "U30.2",
      "net": "v3v3",
      "cap": "C30",
-     "distance_mm": 2.37,
+     "distance_mm": 4.01,
      "ok": true
     },
     {
      "pin": "U30.3",
      "net": "RTD_AVDD",
      "cap": "C29",
-     "distance_mm": 2.19,
+     "distance_mm": 3.1,
      "ok": true
     },
     {
@@ -626,6 +652,20 @@
      "ok": true
     },
     {
+     "pin": "U50.2",
+     "net": "v3v3",
+     "cap": "C111",
+     "distance_mm": 4.05,
+     "ok": true
+    },
+    {
+     "pin": "U52.3",
+     "net": "v3v3",
+     "cap": "C126",
+     "distance_mm": 2.35,
+     "ok": true
+    },
+    {
      "pin": "U6.8",
      "net": "v3v3",
      "cap": "C66",
@@ -651,6 +691,40 @@
      "net": "v3v3",
      "cap": "C61",
      "distance_mm": 1.81,
+     "ok": true
+    }
+   ]
+  },
+  "rtd_decoupling": {
+   "ok": true,
+   "limit_mm": 3.0,
+   "rails": [
+    {
+     "ic": "U30",
+     "net": "RTD_AVDD",
+     "cap": "C29",
+     "edge_mm": 2.42,
+     "ok": true
+    },
+    {
+     "ic": "U30",
+     "net": "v3v3",
+     "cap": "C30",
+     "edge_mm": 2.51,
+     "ok": true
+    },
+    {
+     "ic": "U50",
+     "net": "RTD2_AVDD",
+     "cap": "C110",
+     "edge_mm": 1.02,
+     "ok": true
+    },
+    {
+     "ic": "U50",
+     "net": "v3v3",
+     "cap": "C111",
+     "edge_mm": 2.61,
      "ok": true
     }
    ]
@@ -725,6 +799,48 @@
     }
    ]
   },
+  "rtd_j9_protection": {
+   "ok": true,
+   "rule": "each J9 line: 100 nF nearer the pin than its BAV199 (DECISIONS C51 layout rule)",
+   "rows": [
+    {
+     "j9_pin": "1",
+     "net": "rtd2_force_p",
+     "clamp": "D10",
+     "clamp_mm": 9.86,
+     "cap": "C112",
+     "cap_mm": 5.2,
+     "cap_first": true
+    },
+    {
+     "j9_pin": "2",
+     "net": "rtd2_sense_p_ext",
+     "clamp": "D11",
+     "clamp_mm": 9.27,
+     "cap": "C113",
+     "cap_mm": 5.2,
+     "cap_first": true
+    },
+    {
+     "j9_pin": "3",
+     "net": "rtd2_sense_n_ext",
+     "clamp": "D12",
+     "clamp_mm": 8.97,
+     "cap": "C114",
+     "cap_mm": 5.2,
+     "cap_first": true
+    },
+    {
+     "j9_pin": "4",
+     "net": "rtd2_force_n",
+     "cap": "C115",
+     "cap_mm": 5.2,
+     "clamp": "D13",
+     "clamp_mm": 9.51,
+     "cap_first": true
+    }
+   ]
+  },
   "interlock": {
    "ok": true,
    "regions_world": {
@@ -750,36 +866,37 @@
     "RUN_EN"
    ],
    "route_length_mm": {
-    "permit": 66.9,
-    "PERMIT_LATCH": 50.2,
-    "RUN_EN": 218.1,
-    "bus_fault": 91.1,
-    "all_good": 36.7,
-    "reset_clock": 42.1,
-    "latched_fault": 56.6,
-    "HS_FAULT": 88.6,
-    "COIL_FAULT": 95.1,
-    "line": 196.4,
-    "RUNAWAY_FAULT": 153.1,
-    "RAIL_FAULT": 34.5,
-    "SENSOR_LIVE": 17.0
+    "permit": 74.8,
+    "PERMIT_LATCH": 49.4,
+    "RUN_EN": 208.1,
+    "bus_fault": 94.9,
+    "all_good": 41.3,
+    "reset_clock": 45.8,
+    "latched_fault": 55.1,
+    "HS_FAULT": 90.4,
+    "COIL_FAULT": 87.7,
+    "line": 188.9,
+    "RUNAWAY_FAULT": 149.7,
+    "RAIL_FAULT": 33.7,
+    "SENSOR_LIVE": 17.6
    }
   },
   "thermal_relief": {
    "ok": true,
    "zones": [
-    "SW_12",
     "BLW_FEED2",
-    "BLW_FEED1",
-    "SW_3V3",
-    "VIN_12",
-    "RTD_AVDD_F",
-    "BLW_FEED0",
-    "VIN_3V3",
     "GND_F",
+    "BLW_FEED0",
+    "SW_3V3",
+    "SW_12",
+    "BLW_FEED1",
+    "RTD_AVDD_F",
+    "VIN_12",
+    "VIN_3V3",
     "GND_B",
     "GND_plane",
-    "V3V3_plane"
+    "V3V3_plane",
+    "GND_plane_In4"
    ],
    "solid_connect_zones_with_tht": [],
    "note": "GND/v3v3 planes and pours use 'thermal reliefs for PTH' (SMD solid); the buck SW/VIN pours touch SMD pads only"
@@ -791,28 +908,44 @@
      "required_mm": 0.8,
      "min_width_mm": 0.8,
      "narrow_segments": [],
-     "stubs": 11,
+     "stubs": 9,
      "vias": 6,
-     "length_mm": 66.8
+     "length_mm": 74.7
     },
     "V15_BLW": {
      "pour_outline_per_pad": {
       "C9.1": 0,
-      "J13.1": 0,
       "C15.1": 0,
-      "C13.1": 0,
-      "C14.1": 0
+      "C14.1": 0,
+      "J13.1": 0,
+      "C13.1": 0
      },
      "one_pour_region": true,
      "pour_regions": 1,
-     "routed_branch_tracks": 19,
-     "routed_branch_min_width_mm": 0.3
+     "routed_branch_tracks": 33,
+     "routed_branch_min_width_mm": 0.25
     }
    }
   },
+  "power_layers": {
+   "ok": true,
+   "nets": [
+    "V_BLOWER",
+    "sw_12",
+    "v15_selv",
+    "V15_BLW"
+   ],
+   "inner_track_mm": {}
+  },
   "partition": {
    "ok": true,
-   "rule": "L2 >= 10 mm from the RTD analog section (ENCLOSURE-HANDOFF item 6); others reported",
+   "rule": "the blower buck (L2/U2) and the face-fan buck (L3/U51, C53) >= 10 mm from both RTD channels (ENCLOSURE-HANDOFF item 6); others reported",
+   "gated": [
+    "L2/U2 (12 V fan buck) -> RTD front end",
+    "L2/U2 (12 V fan buck) -> food RTD",
+    "L3/U51 (face-fan buck) -> RTD front end",
+    "L3/U51 (face-fan buck) -> food RTD"
+   ],
    "separations_mm": {
     "L2/U2 (12 V fan buck) -> RTD front end": {
      "mm": 10.5,
@@ -821,11 +954,18 @@
       "R54"
      ]
     },
-    "L2/U2 (12 V fan buck) -> thermal-sense": {
-     "mm": 48.2,
+    "L2/U2 (12 V fan buck) -> food RTD": {
+     "mm": 22.4,
      "nearest": [
       "U2",
-      "R33"
+      "R136"
+     ]
+    },
+    "L2/U2 (12 V fan buck) -> thermal-sense": {
+     "mm": 50.7,
+     "nearest": [
+      "U2",
+      "C24"
      ]
     },
     "L2/U2 (12 V fan buck) -> J4 analog": {
@@ -842,6 +982,13 @@
       "R77"
      ]
     },
+    "L1/U1 (3.3 V buck) -> food RTD": {
+     "mm": 40.3,
+     "nearest": [
+      "U1",
+      "R135"
+     ]
+    },
     "L1/U1 (3.3 V buck) -> thermal-sense": {
      "mm": 52.0,
      "nearest": [
@@ -854,6 +1001,34 @@
      "nearest": [
       "U1",
       "U15"
+     ]
+    },
+    "L3/U51 (face-fan buck) -> RTD front end": {
+     "mm": 22.0,
+     "nearest": [
+      "L3",
+      "R77"
+     ]
+    },
+    "L3/U51 (face-fan buck) -> food RTD": {
+     "mm": 23.2,
+     "nearest": [
+      "U51",
+      "R136"
+     ]
+    },
+    "L3/U51 (face-fan buck) -> thermal-sense": {
+     "mm": 52.7,
+     "nearest": [
+      "U51",
+      "C23"
+     ]
+    },
+    "L3/U51 (face-fan buck) -> J4 analog": {
+     "mm": 68.3,
+     "nearest": [
+      "U51",
+      "U7"
      ]
     }
    }
@@ -873,10 +1048,13 @@
   "wroom": true,
   "height": true,
   "decoupling": true,
+  "rtd_decoupling": true,
   "rtd_j3_protection": true,
+  "rtd_j9_protection": true,
   "interlock": true,
   "thermal_relief": true,
   "power_widths": true,
+  "power_layers": true,
   "partition": true,
   "stranded_vias": true
  },

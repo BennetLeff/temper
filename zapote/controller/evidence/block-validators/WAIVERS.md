@@ -20,6 +20,16 @@ sense filter and J3 protection, W7). Fails: interlock W1 (5) + W6 (1); thermal W
 W3 (2) + W7 (15). Indeterminates unchanged. The RTD binder now takes `--deviations rtd-deviations-c37.json`
 (W7); without it, it aborts on the census, as it would already have done on C36's `r_avdd_top` swap.
 
+**C53 rerun (current `results/`, `summary.json`): the C51 six-layer board, convergence set "placement fix" run 1
+(`pcb/controller.kicad_pcb` sha256 `11265a33…`).** Interlock **68 / 7 / 5** (+1 fail), thermal-sense **87 / 10 / 7**
+(+1 fail), RTD **5 / 40 / 5** (+7 fails). Every added fail is W8. Indeterminates are unchanged. Two tool changes, both
+DECISIONS C53:
+- The validators now read a six-layer export (`Board.copper_layer_count`). Before the fix, the RTD run stopped at
+  INPUT_SCHEMA on In4.Cu, and its lower fail count was checks that never ran.
+- The binder's deviations file declares the C51/C52 MPNs.
+
+The informative layer-roles run has 71 clock-return findings (W4).
+
 The indeterminate findings left are those of each unit's own standalone control (W5), plus for the RTD
 `unit_io` pending (W1) and the two layer-role gaps (W4). The standalone controls themselves exit 1 with zero
 FAIL and only these INDETERMINATE findings, so exit 0 is not reachable for any of the three (README).
@@ -166,3 +176,19 @@ nets are not unit nets, so the validator does not check them; the router applies
 (`RTD_ANALOG_NETS` in `layout/floorplan.py`: F.Cu / In2.Cu only, a ground via within 2.5 mm of each via).
 Informative layer-roles run: 61 clock-return trace findings on the RTD SPI nets of the committed board (69 / 91 / 61 on the three C47 convergence boards, 87 on the C44 board, 74 on C34's; W4,
 routing differs per run), no analog finding.
+
+## W8. C51/C52 parts and the six-layer stack (DECISIONS C51, C52, C53; 9 findings)
+
+| Validator | Finding | Part | Reason |
+|---|---|---|---|
+| Interlock | `ERC.INTERLOCK.PARTS` exact MPN `common: SN74LVC1G08DBVR` | U11-class AND gates | C52 stock swap to SN74LVC1G08QDBVRQ1 (C840098), the automotive grade of the same gate in the same DBV package |
+| Thermal | `ERC.THERMAL.PARTS` exact MPN `hs_hyst: RC0603FR-0734K8L` | R32 | C52 stock swap to AF0603FR-0734K8L (C2098331), the same 34.8 k 1 % 0603 in Yageo's anti-sulfur line |
+| RTD | `DRC.RTD.UNIT_PAD_GEOMETRY` ×2, `ERC.RTD.BOARD_COMPONENT_BINDING` ×2, `ERC.RTD.UNIT_COMPONENT_MPN` ×2 | U30, R39 | U30: MAX31865AAP+T is the tape-and-reel code of the unit's MAX31865AAP+ (C51), on the correct 5.3 mm SSOP land. R39: PTFR0805B430RN9 is the stocked 0.1 % 10 ppm/K Rref (C52; CR-2 gate 1b at 0.45 K) |
+| RTD | `ERC.RTD.UNIT_COMPONENT_MPN` "unit manufacturing contract does not match the standalone profile" | board | The unit's standalone contract is four layers. The controller is six (C53): 1 oz outer, 0.5 oz inner, the same 0.20 mm rules |
+
+**Justification:** each finding names a part that DECISIONS changed on purpose, and the validator still reports it,
+because the native export goes to Rust unchanged. The binder declarations (`rtd-deviations-c37.json`) only stop its
+census and MPN gates from aborting. The thermal and AND-gate swaps keep value, tolerance and package. The Rref change
+carries its own accuracy budget (C52). The RTD layer-role and reference-plane checks run on the six-layer stack itself:
+F/In2 against In1, In3/B against In4.
+

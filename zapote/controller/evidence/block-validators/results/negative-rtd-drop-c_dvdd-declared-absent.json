@@ -2,6 +2,51 @@
   "status": "fail",
   "findings": [
     {
+      "rule": "ERC.RTD.UNIT_COMPONENT_MPN",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit manufacturing contract does not match the standalone profile",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_COMPONENT_MPN",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit adc rtd_pan.adc has MPN MAX31865AAP+T; expected MAX31865AAP+",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.UNIT_COMPONENT_MPN",
+      "severity": "error",
+      "status": "fail",
+      "message": "unit rref rtd_pan.r_ref has MPN PTFR0805B430RN9; expected RG2012V-431-W-T1",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.UNIT_PAD_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "native unit is missing exact ADC MPN MAX31865AAP+",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "DRC.RTD.UNIT_PAD_GEOMETRY",
+      "severity": "error",
+      "status": "fail",
+      "message": "native unit is missing exact RREF MPN RG2012V-431-W-T1",
+      "object": "unit-input",
+      "actual": null,
+      "required": null
+    },
+    {
       "rule": "DRC.RTD.UNIT_PAD_GEOMETRY",
       "severity": "error",
       "status": "fail",
@@ -241,6 +286,24 @@
       "status": "pass",
       "message": "source-derived local load 8.448898 mA and reference boundary 100.000 uA/10.000 nF are within contract",
       "object": "RTD_LOCAL_10MA",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board component rtd_pan.adc has MPN MAX31865AAP+T; expected MAX31865AAP+",
+      "object": "rtd_pan.adc",
+      "actual": null,
+      "required": null
+    },
+    {
+      "rule": "ERC.RTD.BOARD_COMPONENT_BINDING",
+      "severity": "error",
+      "status": "fail",
+      "message": "board component rtd_pan.r_ref has MPN PTFR0805B430RN9; expected RG2012V-431-W-T1",
+      "object": "rtd_pan.r_ref",
       "actual": null,
       "required": null
     },

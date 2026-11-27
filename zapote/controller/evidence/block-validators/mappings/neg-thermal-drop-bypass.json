@@ -4,14 +4,14 @@
     "hs_bypass"
   ],
   "block": "thermal",
-  "controller_board": "/Users/bennet/Desktop/temper/.claude/worktrees/agent-aca19bcf1cfbbdbc6/zapote/controller/pcb/controller.kicad_pcb",
+  "controller_board": "/Users/bennet/Desktop/temper/worktrees/ctrl-c51/zapote/controller/pcb/controller.kicad_pcb",
   "controller_census": 25,
   "dropped_items": {
-    "footprint": 260,
+    "footprint": 318,
     "graphics": 16,
-    "segment": 3718,
-    "via": 632,
-    "zone": 14
+    "segment": 3933,
+    "via": 606,
+    "zone": 16
   },
   "extra_controller_instances": [],
   "negative_control": {
@@ -43,6 +43,6 @@
   },
   "unit_census": 27,
   "unit_name_collisions_with_unmapped_controller_nets": [],
-  "unit_source_manifest": "/Users/bennet/Desktop/temper/.claude/worktrees/agent-aca19bcf1cfbbdbc6/zapote/thermal-sense/candidate/source-manifest.json",
+  "unit_source_manifest": "/Users/bennet/Desktop/temper/worktrees/ctrl-c51/zapote/thermal-sense/candidate/source-manifest.json",
   "unmapped_controller_nets_on_kept_pads": []
 }

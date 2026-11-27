@@ -462,8 +462,8 @@
     },
     {
       "rule": "ERC.INTERLOCK.PARTS",
-      "severity": "info",
-      "status": "pass",
+      "severity": "error",
+      "status": "fail",
       "message": "exact MPN common: SN74LVC1G08DBVR",
       "object": "common",
       "actual": null,
@@ -635,7 +635,7 @@
       "rule": "DRC.BOARD.STACKUP",
       "severity": "info",
       "status": "pass",
-      "message": "4 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
+      "message": "6 copper layers; copper + dielectric + mask = 1.600000 mm, declared 1.600000 mm",
       "object": "board.setup.stackup",
       "actual": null,
       "required": null
@@ -708,7 +708,7 @@
       "severity": "error",
       "status": "fail",
       "message": "pad/trace clearance 0.000000 mm is below 0.150000 mm",
-      "object": "fault_inv_bypass.1 / 67a8bd8f-f701-4790-bf05-23b911438212",
+      "object": "fault_inv_bypass.1 / a820e991-4a6c-4327-b02f-62ff6c2e478a",
       "actual": null,
       "required": null
     },
@@ -717,7 +717,7 @@
       "severity": "error",
       "status": "fail",
       "message": "pad/via clearance 0.000000 mm is below 0.150000 mm",
-      "object": "fault_inv_bypass.1 / 7d95d835-7503-4480-b6f4-60b1a97dd5a9",
+      "object": "fault_inv_bypass.1 / 5c766b45-40b6-4cac-a0e3-8d5311264df5",
       "actual": null,
       "required": null
     },

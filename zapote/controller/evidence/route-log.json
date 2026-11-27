@@ -2,218 +2,78 @@
  "rounds": [
   {
    "round": 1,
-   "open_before": 365
+   "open_before": 442
   },
   {
    "round": 2,
-   "open_before": 22
+   "open_before": 20
   },
   {
    "round": 3,
-   "open_before": 15
+   "open_before": 6
   },
   {
    "repair": "0.0",
    "radius_mm": 3.0,
-   "open_before": 12,
-   "first": "BUS_FAULT_RB,COIL_FAULT_RB,PERMIT_RB,line,p1,rtd_pan.r_high_top-inp,rtd_sense_n_ext,v3v3,vbias"
+   "open_before": 5,
+   "first": "FAN_TACH,UI_CS_OLED_N,p1,rtd_pan.adc-sdi"
   },
   {
    "round": 4,
-   "open_before": 142,
-   "first": "BUS_FAULT_RB,COIL_FAULT_RB,PERMIT_RB,line,p1,rtd_pan.r_high_top-inp,rtd_sense_n_ext,v3v3,vbias"
+   "open_before": 85,
+   "first": "FAN_TACH,UI_CS_OLED_N,p1,rtd_pan.adc-sdi"
   },
   {
    "round": 5,
-   "open_before": 16
+   "open_before": 3
   },
   {
    "round": 6,
-   "open_before": 9
+   "open_before": 2
   },
   {
    "repair": "0.1",
    "radius_mm": 5.0,
-   "open_before": 8,
-   "first": "BLW_PG,PERMIT_RB,RTD_DRDY,coil_buf_out,line,rtd_force_n,v3v3"
+   "open_before": 2,
+   "first": "RTD2_CS_N,UI_CS_OLED_N"
   },
   {
    "round": 7,
-   "open_before": 165,
-   "first": "BLW_PG,PERMIT_RB,RTD_DRDY,coil_buf_out,line,rtd_force_n,v3v3"
+   "open_before": 53,
+   "first": "RTD2_CS_N,UI_CS_OLED_N"
   },
   {
    "round": 8,
-   "open_before": 10
-  },
-  {
-   "round": 9,
-   "open_before": 5
+   "open_before": 3
   },
   {
    "repair": "0.2",
    "radius_mm": 8.0,
-   "open_before": 4,
-   "first": "LATCHED_FAULT_RB,ct_buf_out,p1,v3v3"
+   "open_before": 3,
+   "first": "HS_FAULT_RB,UI_CS_OLED_N,rx_a_out"
+  },
+  {
+   "round": 9,
+   "open_before": 116,
+   "first": "HS_FAULT_RB,UI_CS_OLED_N,rx_a_out"
   },
   {
    "round": 10,
-   "open_before": 153,
-   "first": "LATCHED_FAULT_RB,ct_buf_out,p1,v3v3"
+   "open_before": 4
   },
   {
    "round": 11,
-   "open_before": 24
-  },
-  {
-   "round": 12,
-   "open_before": 5
+   "open_before": 1
   },
   {
    "cleanup": 0
   },
   {
+   "round": 12,
+   "open_before": 1
+  },
+  {
    "round": 13,
-   "open_before": 8
-  },
-  {
-   "round": 14,
-   "open_before": 5
-  },
-  {
-   "repair": "1.0",
-   "radius_mm": 3.0,
-   "open_before": 5,
-   "first": "RTD_FAULT_RB,RTD_SDO,hs_buf_out,m12_buf_out,rtd_sense_p_ext"
-  },
-  {
-   "round": 15,
-   "open_before": 81,
-   "first": "RTD_FAULT_RB,RTD_SDO,hs_buf_out,m12_buf_out,rtd_sense_p_ext"
-  },
-  {
-   "round": 16,
-   "open_before": 14
-  },
-  {
-   "round": 17,
-   "open_before": 11
-  },
-  {
-   "repair": "1.1",
-   "radius_mm": 5.0,
-   "open_before": 11,
-   "first": "FAN_OFF,LINE_ZC_MCU,RTD_FAULT_RB,RTD_SDI,RTD_SDO,RUN_EN,SUP_RUN_OK_RB,hs_buf_out,rtd_sense_n_ext,v15_selv"
-  },
-  {
-   "round": 18,
-   "open_before": 166,
-   "first": "FAN_OFF,LINE_ZC_MCU,RTD_FAULT_RB,RTD_SDI,RTD_SDO,RUN_EN,SUP_RUN_OK_RB,hs_buf_out,rtd_sense_n_ext,v15_selv"
-  },
-  {
-   "round": 19,
-   "open_before": 10
-  },
-  {
-   "round": 20,
-   "open_before": 6
-  },
-  {
-   "repair": "1.2",
-   "radius_mm": 8.0,
-   "open_before": 6,
-   "first": "COIL_FAULT,HS_FAULT_RB,HS_SENSE,LATCHED_FAULT_RB,RUN_EN,sclk"
-  },
-  {
-   "round": 21,
-   "open_before": 145,
-   "first": "COIL_FAULT,HS_FAULT_RB,HS_SENSE,LATCHED_FAULT_RB,RUN_EN,sclk"
-  },
-  {
-   "round": 22,
-   "open_before": 10
-  },
-  {
-   "round": 23,
-   "open_before": 4
-  },
-  {
-   "cleanup": 1
-  },
-  {
-   "round": 24,
-   "open_before": 6
-  },
-  {
-   "round": 25,
-   "open_before": 2
-  },
-  {
-   "repair": "2.0",
-   "radius_mm": 3.0,
-   "open_before": 2,
-   "first": "CM_LA_OK_RB,UI_DC"
-  },
-  {
-   "round": 26,
-   "open_before": 30,
-   "first": "CM_LA_OK_RB,UI_DC"
-  },
-  {
-   "round": 27,
-   "open_before": 3
-  },
-  {
-   "round": 28,
-   "open_before": 2
-  },
-  {
-   "repair": "2.1",
-   "radius_mm": 5.0,
-   "open_before": 2,
-   "first": "CM_LA_OK_RB,FAN_OFF"
-  },
-  {
-   "round": 29,
-   "open_before": 32,
-   "first": "CM_LA_OK_RB,FAN_OFF"
-  },
-  {
-   "round": 30,
-   "open_before": 2
-  },
-  {
-   "round": 31,
-   "open_before": 1
-  },
-  {
-   "repair": "2.2",
-   "radius_mm": 8.0,
-   "open_before": 1,
-   "first": "CM_LA_OK_RB"
-  },
-  {
-   "round": 32,
-   "open_before": 37,
-   "first": "CM_LA_OK_RB"
-  },
-  {
-   "round": 33,
-   "open_before": 3
-  },
-  {
-   "round": 34,
-   "open_before": 0
-  },
-  {
-   "cleanup": 2
-  },
-  {
-   "round": 35,
-   "open_before": 1
-  },
-  {
-   "round": 36,
    "open_before": 0
   }
  ],

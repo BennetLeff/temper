@@ -1,6 +1,16 @@
 # Block validators re-run on the controller layout (DECISIONS C30, C34)
 
-## C44 / C45 rerun (current results)
+## C53 rerun (current results)
+
+`results/`, `mappings/`, `summary.json` and the `*.sha256` files are from the **C51 six-layer board**: the C53
+"placement fix" convergence run 1 (`pcb/controller.kicad_pcb` sha256
+`11265a33a7c5e9a704b7e1fad5f948a197e2796356af5ed3f6153e43f96fb0ff`). Interlock 68 / 7 / 5, thermal-sense 87 / 10 / 7,
+RTD 5 / 40 / 5. The added fails are the C51/C52 part swaps and the six-layer manufacturing contract (WAIVERS W8).
+The binaries are rebuilt from this branch: the zapote-core / zapote-drc six-layer fix changed their hashes
+(binaries.sha256). Negative controls still add findings in every block. An earlier rerun on the In3-X board found
+C30 3.10 mm from U30's DVDD pin (`DRC.RTD.LOCAL_DECOUPLING`), which is fixed on this board.
+
+## C44 / C45 rerun (history)
 
 `results/`, `mappings/`, `summary.json` and the `*.sha256` files are from the **committed board, C47
 convergence run 3** (C1 + CR-8; `pcb/controller.kicad_pcb` sha256

@@ -99,7 +99,7 @@
   },
   "controller-interlock": {
     "exit_code": 1,
-    "fail": 6,
+    "fail": 7,
     "indeterminate": 5,
     "non_pass_by_rule": {
       "fail ERC.INTERLOCK.CONNECTIVITY": {
@@ -110,6 +110,7 @@
       },
       "fail ERC.INTERLOCK.PARTS": {
         "exact MPN aggregate: CD74HC30PWR": 1,
+        "exact MPN common: SN74LVC1G08DBVR": 1,
         "exact MPN faults: B8B-XH-A(LF)(SN)": 1,
         "exact MPN host: B8B-XH-A(LF)(SN)": 1
       },
@@ -124,19 +125,23 @@
         "physical fault tests NOT RUN": 1
       }
     },
-    "pass": 69,
+    "pass": 68,
     "status": "fail"
   },
   "controller-rtd": {
     "exit_code": 1,
-    "fail": 33,
+    "fail": 40,
     "indeterminate": 5,
     "non_pass_by_rule": {
       "fail DRC.RTD.UNIT_PAD_GEOMETRY": {
         "native component census does not exactly match compiled source components": 1,
-        "native pad census does not exactly match compiled source bindings": 1
+        "native pad census does not exactly match compiled source bindings": 1,
+        "native unit is missing exact ADC MPN MAX31865AAP+": 1,
+        "native unit is missing exact RREF MPN RG2012V-431-W-T1": 1
       },
       "fail ERC.RTD.BOARD_COMPONENT_BINDING": {
+        "board component rtd_pan.adc has MPN MAX31865AAP+T; expected MAX31865AAP+": 1,
+        "board component rtd_pan.r_ref has MPN PTFR0805B430RN9; expected RG2012V-431-W-T1": 1,
         "board has no rtd_pan.j_rtd1.2 -> rtd_sense_p connection": 1,
         "board has no rtd_pan.j_rtd1.3 -> rtd_sense_n connection": 1
       },
@@ -166,6 +171,9 @@
         "source binding rtd_pan.r_rtdin_n_bias.1 expects rtd_sense_n, observed Some(\"rtd_sense_n_ext\")": 1,
         "source binding rtd_pan.r_rtdin_p_bias.1 expects rtd_sense_p, observed Some(\"rtd_sense_p_ext\")": 1,
         "source binding rtd_pan.r_window_sense_p.1 expects rtd_sense_p, observed Some(\"rtd_sense_p_ext\")": 1,
+        "unit adc rtd_pan.adc has MPN MAX31865AAP+T; expected MAX31865AAP+": 1,
+        "unit manufacturing contract does not match the standalone profile": 1,
+        "unit rref rtd_pan.r_ref has MPN PTFR0805B430RN9; expected RG2012V-431-W-T1": 1,
         "unit rtd_input_filter rtd_pan.c_rtd_input has MPN GRM31C5C1H104JA01L; expected C0603C102J5GACTU": 1
       },
       "fail ERC.RTD.UNIT_INTERFACE": {
@@ -200,7 +208,7 @@
   },
   "controller-thermal": {
     "exit_code": 1,
-    "fail": 9,
+    "fail": 10,
     "indeterminate": 7,
     "non_pass_by_rule": {
       "fail ERC.THERMAL.CONNECTIVITY": {
@@ -215,6 +223,7 @@
         "exact MPN coil_top: RC0603FR-0720KL": 1,
         "exact MPN host: B6B-XH-A(LF)(SN)": 1,
         "exact MPN hs_bottom: RC0603FR-0711K5L": 1,
+        "exact MPN hs_hyst: RC0603FR-0734K8L": 1,
         "exact MPN hs_top: RC0603FR-079K09L": 1
       },
       "fail ERC.THERMAL.TOPOLOGY": {
@@ -230,22 +239,26 @@
         "sensor harness open/short behavior and downstream latch integration": 1
       }
     },
-    "pass": 88,
+    "pass": 87,
     "status": "fail"
   },
   "informative-controller-rtd-layer-roles": {
     "exit_code": 1,
-    "fail": 94,
+    "fail": 111,
     "indeterminate": 3,
     "non_pass_by_rule": {
       "fail DRC.RTD.NATIVE_GEOMETRY": {
-        "clock_return signal trace <uuid> exits the filled return corridor or crosses a zone hole": 61
+        "clock_return signal trace <uuid> exits the filled return corridor or crosses a zone hole": 71
       },
       "fail DRC.RTD.UNIT_PAD_GEOMETRY": {
         "native component census does not exactly match compiled source components": 1,
-        "native pad census does not exactly match compiled source bindings": 1
+        "native pad census does not exactly match compiled source bindings": 1,
+        "native unit is missing exact ADC MPN MAX31865AAP+": 1,
+        "native unit is missing exact RREF MPN RG2012V-431-W-T1": 1
       },
       "fail ERC.RTD.BOARD_COMPONENT_BINDING": {
+        "board component rtd_pan.adc has MPN MAX31865AAP+T; expected MAX31865AAP+": 1,
+        "board component rtd_pan.r_ref has MPN PTFR0805B430RN9; expected RG2012V-431-W-T1": 1,
         "board has no rtd_pan.j_rtd1.2 -> rtd_sense_p connection": 1,
         "board has no rtd_pan.j_rtd1.3 -> rtd_sense_n connection": 1
       },
@@ -275,6 +288,9 @@
         "source binding rtd_pan.r_rtdin_n_bias.1 expects rtd_sense_n, observed Some(\"rtd_sense_n_ext\")": 1,
         "source binding rtd_pan.r_rtdin_p_bias.1 expects rtd_sense_p, observed Some(\"rtd_sense_p_ext\")": 1,
         "source binding rtd_pan.r_window_sense_p.1 expects rtd_sense_p, observed Some(\"rtd_sense_p_ext\")": 1,
+        "unit adc rtd_pan.adc has MPN MAX31865AAP+T; expected MAX31865AAP+": 1,
+        "unit manufacturing contract does not match the standalone profile": 1,
+        "unit rref rtd_pan.r_ref has MPN PTFR0805B430RN9; expected RG2012V-431-W-T1": 1,
         "unit rtd_input_filter rtd_pan.c_rtd_input has MPN GRM31C5C1H104JA01L; expected C0603C102J5GACTU": 1
       },
       "fail ERC.RTD.UNIT_INTERFACE": {
@@ -305,7 +321,7 @@
   },
   "negative-interlock-drop-aggregate_bypass": {
     "exit_code": 1,
-    "fail": 8,
+    "fail": 9,
     "indeterminate": 5,
     "non_pass_by_rule": {
       "fail DRC.INTERLOCK.LOCALITY": {
@@ -320,6 +336,42 @@
       "fail ERC.INTERLOCK.PARTS": {
         "exact MPN aggregate: CD74HC30PWR": 1,
         "exact MPN aggregate_bypass: C0603C104K5RACTU": 1,
+        "exact MPN common: SN74LVC1G08DBVR": 1,
+        "exact MPN faults: B8B-XH-A(LF)(SN)": 1,
+        "exact MPN host: B8B-XH-A(LF)(SN)": 1
+      },
+      "fail ERC.INTERLOCK.TOPOLOGY": {
+        "native pads and connections equal complete pin/net intent": 1
+      },
+      "indeterminate ERC.INTERLOCK.QUALIFICATION": {
+        "AUX producer and downstream active-high PERMIT receiver": 1,
+        "HC30 threshold applicability at actual rail, harness transients and component failures": 1,
+        "SENSOR_LIVE producer and remote power-off injection": 1,
+        "actual watchdog timing, power ramps, propagation and clock/clear recovery/removal": 1,
+        "physical fault tests NOT RUN": 1
+      }
+    },
+    "pass": 66,
+    "status": "fail"
+  },
+  "negative-interlock-swap-fault_inv_bypass-pad1-to-gnd": {
+    "exit_code": 1,
+    "fail": 9,
+    "indeterminate": 5,
+    "non_pass_by_rule": {
+      "fail DRC.NATIVE.CLEARANCE": {
+        "pad/trace clearance 0.000000 mm is below 0.150000 mm": 1,
+        "pad/via clearance 0.000000 mm is below 0.150000 mm": 1
+      },
+      "fail ERC.INTERLOCK.CONNECTIVITY": {
+        "one native connectivity cluster per authored net with exact node sets": 1
+      },
+      "fail ERC.INTERLOCK.NATIVE_COMPONENTS": {
+        "exact 25-component native census": 1
+      },
+      "fail ERC.INTERLOCK.PARTS": {
+        "exact MPN aggregate: CD74HC30PWR": 1,
+        "exact MPN common: SN74LVC1G08DBVR": 1,
         "exact MPN faults: B8B-XH-A(LF)(SN)": 1,
         "exact MPN host: B8B-XH-A(LF)(SN)": 1
       },
@@ -337,43 +389,9 @@
     "pass": 67,
     "status": "fail"
   },
-  "negative-interlock-swap-fault_inv_bypass-pad1-to-gnd": {
-    "exit_code": 1,
-    "fail": 8,
-    "indeterminate": 5,
-    "non_pass_by_rule": {
-      "fail DRC.NATIVE.CLEARANCE": {
-        "pad/trace clearance 0.000000 mm is below 0.150000 mm": 1,
-        "pad/via clearance 0.000000 mm is below 0.150000 mm": 1
-      },
-      "fail ERC.INTERLOCK.CONNECTIVITY": {
-        "one native connectivity cluster per authored net with exact node sets": 1
-      },
-      "fail ERC.INTERLOCK.NATIVE_COMPONENTS": {
-        "exact 25-component native census": 1
-      },
-      "fail ERC.INTERLOCK.PARTS": {
-        "exact MPN aggregate: CD74HC30PWR": 1,
-        "exact MPN faults: B8B-XH-A(LF)(SN)": 1,
-        "exact MPN host: B8B-XH-A(LF)(SN)": 1
-      },
-      "fail ERC.INTERLOCK.TOPOLOGY": {
-        "native pads and connections equal complete pin/net intent": 1
-      },
-      "indeterminate ERC.INTERLOCK.QUALIFICATION": {
-        "AUX producer and downstream active-high PERMIT receiver": 1,
-        "HC30 threshold applicability at actual rail, harness transients and component failures": 1,
-        "SENSOR_LIVE producer and remote power-off injection": 1,
-        "actual watchdog timing, power ramps, propagation and clock/clear recovery/removal": 1,
-        "physical fault tests NOT RUN": 1
-      }
-    },
-    "pass": 68,
-    "status": "fail"
-  },
   "negative-rtd-drop-c_dvdd-declared-absent": {
     "exit_code": 1,
-    "fail": 36,
+    "fail": 43,
     "indeterminate": 6,
     "non_pass_by_rule": {
       "fail DRC.RTD.LOCAL_DECOUPLING": {
@@ -383,9 +401,13 @@
       "fail DRC.RTD.UNIT_PAD_GEOMETRY": {
         "native component census does not exactly match compiled source components": 1,
         "native pad census does not exactly match compiled source bindings": 1,
+        "native unit is missing exact ADC MPN MAX31865AAP+": 1,
+        "native unit is missing exact RREF MPN RG2012V-431-W-T1": 1,
         "unit adc_dvdd source component rtd_pan.c_dvdd is absent from native board": 1
       },
       "fail ERC.RTD.BOARD_COMPONENT_BINDING": {
+        "board component rtd_pan.adc has MPN MAX31865AAP+T; expected MAX31865AAP+": 1,
+        "board component rtd_pan.r_ref has MPN PTFR0805B430RN9; expected RG2012V-431-W-T1": 1,
         "board has no rtd_pan.j_rtd1.2 -> rtd_sense_p connection": 1,
         "board has no rtd_pan.j_rtd1.3 -> rtd_sense_n connection": 1
       },
@@ -415,6 +437,9 @@
         "source binding rtd_pan.r_rtdin_n_bias.1 expects rtd_sense_n, observed Some(\"rtd_sense_n_ext\")": 1,
         "source binding rtd_pan.r_rtdin_p_bias.1 expects rtd_sense_p, observed Some(\"rtd_sense_p_ext\")": 1,
         "source binding rtd_pan.r_window_sense_p.1 expects rtd_sense_p, observed Some(\"rtd_sense_p_ext\")": 1,
+        "unit adc rtd_pan.adc has MPN MAX31865AAP+T; expected MAX31865AAP+": 1,
+        "unit manufacturing contract does not match the standalone profile": 1,
+        "unit rref rtd_pan.r_ref has MPN PTFR0805B430RN9; expected RG2012V-431-W-T1": 1,
         "unit rtd_input_filter rtd_pan.c_rtd_input has MPN GRM31C5C1H104JA01L; expected C0603C102J5GACTU": 1
       },
       "fail ERC.RTD.UNIT_INTERFACE": {
@@ -452,7 +477,7 @@
   },
   "negative-thermal-drop-hs_bypass": {
     "exit_code": 1,
-    "fail": 11,
+    "fail": 12,
     "indeterminate": 7,
     "non_pass_by_rule": {
       "fail DRC.THERMAL.LOCALITY": {
@@ -471,6 +496,7 @@
         "exact MPN host: B6B-XH-A(LF)(SN)": 1,
         "exact MPN hs_bottom: RC0603FR-0711K5L": 1,
         "exact MPN hs_bypass: C0603C104K5RACTU": 1,
+        "exact MPN hs_hyst: RC0603FR-0734K8L": 1,
         "exact MPN hs_top: RC0603FR-079K09L": 1
       },
       "fail ERC.THERMAL.TOPOLOGY": {
@@ -486,12 +512,12 @@
         "sensor harness open/short behavior and downstream latch integration": 1
       }
     },
-    "pass": 86,
+    "pass": 85,
     "status": "fail"
   },
   "negative-thermal-swap-hs_bypass-pad1-to-COIL_REF": {
     "exit_code": 1,
-    "fail": 11,
+    "fail": 12,
     "indeterminate": 7,
     "non_pass_by_rule": {
       "fail DRC.NATIVE.CLEARANCE": {
@@ -510,6 +536,7 @@
         "exact MPN coil_top: RC0603FR-0720KL": 1,
         "exact MPN host: B6B-XH-A(LF)(SN)": 1,
         "exact MPN hs_bottom: RC0603FR-0711K5L": 1,
+        "exact MPN hs_hyst: RC0603FR-0734K8L": 1,
         "exact MPN hs_top: RC0603FR-079K09L": 1
       },
       "fail ERC.THERMAL.TOPOLOGY": {
@@ -525,7 +552,7 @@
         "sensor harness open/short behavior and downstream latch integration": 1
       }
     },
-    "pass": 87,
+    "pass": 86,
     "status": "fail"
   }
 }
