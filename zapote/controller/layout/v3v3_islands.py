@@ -7,7 +7,8 @@ In2 carries signals as well as the v3v3 pour, so the pour fills as several islan
 of the net by v3v3 copper on the other layers: an island via, then tracks, pads and other vias, then a via in another
 island. links = min(island vias with such a path, outside vias reached). The ESP32 module's 3V3 pin sat on an island
 whose only link was one via and a 0.3 mm track. An island is a supply island when that copper reaches a v3v3 pad of an
-IC (a U footprint). Used by plane_islands.py (it asks the router for a second link) and check_layout.py (gate
+IC (a U footprint). It is weak when it has < 2 links and that copper reaches < 2 vias of the main (largest) island: an
+island hanging off IC copper that is already linked twice carries no supply of its own. Used by plane_islands.py (it asks the router for a second link) and check_layout.py (gate
 v3v3_islands: every supply island has >= 2 links).
 """
 import sys
@@ -98,11 +99,17 @@ def analyse(b):
                 inside.add(ai)
                 outside.update(others)
         bb = polys[i].BBox()
+        # set 6: a one-via island hanging off an IC's supply copper that reaches the main pour through two other vias.
+        # links stays 1 whatever is routed to the island via, though the IC has two links. main_links: the main-pour
+        # vias that copper reaches; an island is weak only when both counts are short.
+        main_out = [aj for aj in outside if isl[aj] == main]
         out.append({"island": i, "area_mm2": round(areas[i], 1), "links": min(len(inside), len(outside)),
+                    "main_links": len(main_out),
+                    "linked_main_mm": [[pcbnew.ToMM(anchors[aj][0].x), pcbnew.ToMM(anchors[aj][0].y)] for aj in main_out],
                     "ics": sorted(ics), "supply": bool(ics), "vias": len(mine),
                     "bbox_mm": [round(pcbnew.ToMM(v), 2) for v in (bb.GetLeft(), bb.GetTop(), bb.GetRight(), bb.GetBottom())],
                     "anchors_mm": [[pcbnew.ToMM(anchors[ai][0].x), pcbnew.ToMM(anchors[ai][0].y)] for ai in mine],
-                    "anchor_linked": [ai in inside for ai in mine]})
+                    "anchor_linked": [ai in inside for ai in mine], "poly": polys[i]})
     main_anchors = [[pcbnew.ToMM(anchors[ai][0].x), pcbnew.ToMM(anchors[ai][0].y)] for ai in range(n_a) if isl[ai] == main]
     for o in out:
         o["main_anchors_mm"] = main_anchors
@@ -110,10 +117,14 @@ def analyse(b):
 
 
 def weak(b):
-    """Supply islands with fewer than MIN_LINKS links."""
-    return [o for o in analyse(b) if o["supply"] and o["links"] < MIN_LINKS]
+    """Supply islands with fewer than MIN_LINKS links whose supply copper also reaches fewer than MIN_LINKS main-pour vias."""
+    return [o for o in analyse(b) if is_weak(o)]
+
+
+def is_weak(o):
+    return o["supply"] and o["links"] < MIN_LINKS and o["main_links"] < MIN_LINKS
 
 
 if __name__ == "__main__":
     for o in analyse(pcbnew.LoadBoard(sys.argv[1])):
-        print({k: v for k, v in o.items() if not k.endswith("anchors_mm") and k != "anchor_linked"})
+        print({k: v for k, v in o.items() if not k.endswith("anchors_mm") and k not in ("anchor_linked", "poly", "linked_main_mm")})

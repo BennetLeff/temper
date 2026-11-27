@@ -19,6 +19,8 @@ Steps:
      a loop and dangling chains (graph passes until none), then whatever KiCad's DRC still lists as
      via_dangling / track_dangling; normal rounds follow, and if a pair is still open the repair
      cycle (5-6) runs again, up to REPAIR_CYCLES times;
+  6b. ECO (eco_passes): pairs still open get gridroute --eco, up to ECO_PASSES times, each followed by normal rounds
+     and a cleanup. It frees a long pair blocked mid-corridor, which the end-local repair cannot reach;
   7. the outer selv_gnd pours and the designators (layout/silk.py) are added and zones refilled.
 
 Every DRC report the router reads first goes through layout/plane_islands.py, which turns KiCad's
@@ -66,6 +68,7 @@ def drc(board, report):
 
 REPAIR_R = (3.0, 5.0, 8.0)      # mm around each open pair's ends, one radius per repair pass
 REPAIR_CYCLES = 3               # repair passes + cleanup, repeated while pairs stay open
+ECO_PASSES = 2                  # then gridroute --eco passes, each with normal rounds and a cleanup (main())
 
 
 def rip_around(board, report, radius):
@@ -241,6 +244,70 @@ def route_rounds(work, log, rnd, n_rounds, env=None):
     return rnd, n_open
 
 
+def eco_passes(work, log, rnd, n_open):
+    """gridroute --eco passes for the pairs the repair cycles left open; returns (rnd, n_open)."""
+    # ECO for what the repair cycles leave open. Repair frees only REPAIR_R around a stuck pair's ends; a long pair
+    # blocked mid-corridor (set 6: coil_buf_out 47 mm, RTD_SDO 47 mm) stays blocked. gridroute --eco routes each open
+    # pair against the fixed copper and deletes just the pieces its path crosses; the normal rounds re-route those.
+    # On set 6 run 3's open board one ECO pass and one round closed both (46 open after the rip, then 0 signal pairs).
+    for k in range(ECO_PASSES):
+        if n_open == 0:
+            break
+        rep_json = WORK / f"drc-eco{k}.json"
+        drc(work, rep_json)
+        run([KPY, str(HERE / "export_geom.py"), str(work), str(WORK / "geom.json")])
+        r = subprocess.run([sys.executable, "-u", str(HERE / "gridroute.py"), "--eco", str(WORK / "geom.json"),
+                            str(rep_json), str(WORK / f"routes-eco{k}.json")], capture_output=True, text=True)
+        if r.returncode:
+            raise SystemExit(f"gridroute --eco failed:\n{(r.stdout + r.stderr)[-3000:]}")
+        print(r.stdout[-1500:], flush=True)
+        print(run([KPY, __file__, "finish", str(work), str(WORK / f"routes-eco{k}.json"), "0"]), flush=True)
+        log["rounds"].append({"eco": k, "open_before": n_open})
+        rnd, n_open = route_rounds(work, log, rnd, 3)
+        for _ in range(8):
+            out = run([KPY, str(HERE / "cleanup.py"), str(work)])
+            if "removed=0" in out:
+                break
+        for j in range(5):
+            rep_json = WORK / f"drc-eco-dangling{k}-{j}.json"
+            drc(work, rep_json)
+            if "removed=0" in run([KPY, str(HERE / "cleanup.py"), str(work), "--dangling", str(rep_json)]):
+                break
+        rnd, n_open = route_rounds(work, log, rnd, 3)
+    return rnd, n_open
+
+
+def post_route(work, log):
+    """Companion vias, pours and designators, the final dangling pass and DRC; writes the route log."""
+    # the routed board before the post-route steps, so power_vias.py and the gates can be re-run on it without re-routing
+    shutil.copy2(work, WORK / "work-routed.kicad_pcb")
+    # C53 review M4: companion vias on the high-current nets' layer changes (layout/power_vias.py), before the pours
+    run([KPY, str(HERE / "export_geom.py"), str(work), str(WORK / "geom-power.json")])
+    print(run([sys.executable, str(HERE / "power_vias.py"), "plan", str(WORK / "geom-power.json"),
+               str(WORK / "power-vias.json")]).strip().splitlines()[-1], flush=True)
+    print(run([KPY, str(HERE / "power_vias.py"), "apply", str(work), str(WORK / "power-vias.json")]).strip().splitlines()[-1],
+          flush=True)
+    log["power_vias"] = json.loads((WORK / "power-vias.json").read_text())["short"]
+    print(run([KPY, __file__, "finish", str(work), "-", "1"]), flush=True)
+    # a last pass of KiCad's own dangling list after the pours and designators are in
+    for k in range(3):
+        rep_json = WORK / f"drc-dangling-final{k}.json"
+        drc(work, rep_json)
+        out = run([KPY, str(HERE / "cleanup.py"), str(work), "--dangling", str(rep_json)])
+        print(next((l for l in out.splitlines() if l.startswith("cleanup")), out[-200:]), flush=True)
+        if "removed=0" in out:
+            break
+    shutil.copy2(work, PCB / "controller-routed.kicad_pcb")
+    shutil.copy2(PCB / "controller.kicad_pro", PCB / "controller-routed.kicad_pro")
+    shutil.copy2(PCB / "controller.kicad_dru", PCB / "controller-routed.kicad_dru")
+    d = drc(PCB / "controller-routed.kicad_pcb", WORK / "drc-final.json")
+    log["final_open"] = len(d["unconnected_items"])
+    text = json.dumps(log, indent=1) + "\n"
+    (WORK / "route-log.json").write_text(text)
+    (UNIT / "evidence" / "route-log.json").write_text(text)   # committed copy of this run's log
+    print(json.dumps(log))
+
+
 def main():
     import os
     # a fixed hash seed removes one source of run-to-run variation (set/dict order of net names in
@@ -285,33 +352,8 @@ def main():
         rnd, n_open = route_rounds(work, log, rnd, 3)
         if n_open == 0:
             break
-    # the routed board before the post-route steps, so power_vias.py and the gates can be re-run on it without re-routing
-    shutil.copy2(work, WORK / "work-routed.kicad_pcb")
-    # C53 review M4: companion vias on the high-current nets' layer changes (layout/power_vias.py), before the pours
-    run([KPY, str(HERE / "export_geom.py"), str(work), str(WORK / "geom-power.json")])
-    print(run([sys.executable, str(HERE / "power_vias.py"), "plan", str(WORK / "geom-power.json"),
-               str(WORK / "power-vias.json")]).strip().splitlines()[-1], flush=True)
-    print(run([KPY, str(HERE / "power_vias.py"), "apply", str(work), str(WORK / "power-vias.json")]).strip().splitlines()[-1],
-          flush=True)
-    log["power_vias"] = json.loads((WORK / "power-vias.json").read_text())["short"]
-    print(run([KPY, __file__, "finish", str(work), "-", "1"]), flush=True)
-    # a last pass of KiCad's own dangling list after the pours and designators are in
-    for k in range(3):
-        rep_json = WORK / f"drc-dangling-final{k}.json"
-        drc(work, rep_json)
-        out = run([KPY, str(HERE / "cleanup.py"), str(work), "--dangling", str(rep_json)])
-        print(next((l for l in out.splitlines() if l.startswith("cleanup")), out[-200:]), flush=True)
-        if "removed=0" in out:
-            break
-    shutil.copy2(work, PCB / "controller-routed.kicad_pcb")
-    shutil.copy2(PCB / "controller.kicad_pro", PCB / "controller-routed.kicad_pro")
-    shutil.copy2(PCB / "controller.kicad_dru", PCB / "controller-routed.kicad_dru")
-    d = drc(PCB / "controller-routed.kicad_pcb", WORK / "drc-final.json")
-    log["final_open"] = len(d["unconnected_items"])
-    text = json.dumps(log, indent=1) + "\n"
-    (WORK / "route-log.json").write_text(text)
-    (UNIT / "evidence" / "route-log.json").write_text(text)   # committed copy of this run's log
-    print(json.dumps(log))
+    rnd, n_open = eco_passes(work, log, rnd, n_open)
+    post_route(work, log)
 
 
 if __name__ == "__main__":

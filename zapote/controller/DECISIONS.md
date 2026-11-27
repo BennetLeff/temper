@@ -1118,3 +1118,27 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
       for the leftover room, and negotiated rip-up kept displacing and re-routing it.
     - Set 6: CLUSTER nets route first in every round and pay 4× the via cost, and in pass 2 a signal path may not
       rip a CLUSTER route.
+  - **Review-fix set 6 (CLUSTER first, 4× via cost, not ripped by signals): run 3 left 2 long signal pairs open after
+    38 rounds** (coil_buf_out 47 mm, RTD_SDO 47 mm, both on the left half). Runs 1 and 2 were stopped at rounds 37 and
+    31, deep in the repair cycles. Archive: build/conv/failed-review-fix-set6/.
+    - Not from the clusters. V_BLOWER and V15_BLW lie at x > 137 and cross neither corridor. They have 15 vias against
+      set 4's 10, out of about 1165 on the board.
+    - Four fixes, all checked on run 3's saved board.
+    - **ECO stage (route.py eco_passes, ECO_PASSES = 2).** Repair rips only within REPAIR_R of a pair's ends, so a
+      long pair blocked mid-corridor never frees.
+      - gridroute --eco existed but was not wired in.
+      - On run 3's board, one ECO pass ripped 57 pieces of 37 nets. One normal round re-routed them (44 open, then 0).
+    - **plane_islands re-issued a pair forever.** A 2 mm² one-via In2 island hangs off U29/U35's v3v3 copper.
+      - links (island vias with a path out) is 1 whatever is routed to that via, so every round added the same
+        B.Cu track: 22 copies on the test board.
+      - The IC copper reaches 5 vias of the main pour. Its supply is linked, and the island carries none of it.
+      - v3v3_islands now reports main_links. An island is weak only if links < 2 and main_links < 2. M5's case, the
+        ESP32 pin fed by one via and a 0.3 mm track, has main_links 1 and still fails.
+      - A weak pair now targets a main-pour via the copper does not reach yet. An island with no free via is targeted
+        at an In2 point inside it, so the route adds a via there.
+    - **power_paths joined a track to a pour only by an end point inside the fill.** U51's locked VIN stub ended on
+      VIN_FAN2's fill edge, which a nearby `en` via had pushed there. KiCad's DRC connected it; the gate split U51.3
+      off. The track-to-zone test is now shape overlap, as in KiCad's connectivity.
+    - Result on run 3's board after ECO: DRC 0 errors, 0 unconnected, parity 0. All layout gates, JLC DFM and the fab
+      review pass.
+    - Set 7 runs on this code.

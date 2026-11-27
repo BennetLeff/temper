@@ -586,7 +586,16 @@ def main():
             if ka == "trk" and kc == "pad":
                 return oc[1].IsOnLayer(la) and any(oc[1].HitTest(e) for e in (oa.GetStart(), oa.GetEnd()))
             if ka == "trk" and kc == "zone":
-                return la == lc and any(oc.Contains(e) for e in (oa.GetStart(), oa.GetEnd()))
+                if la != lc:
+                    return False
+                if any(oc.Contains(e) for e in (oa.GetStart(), oa.GetEnd())):
+                    return True
+                # as KiCad's connectivity: the track's shape overlapping the fill (set 6: U51's VIN stub ended on the
+                # VIN_FAN2 fill's edge, pushed there by a nearby via; DRC connected it, an end-point test did not)
+                sh = pcbnew.SHAPE_POLY_SET()
+                oa.TransformShapeToPolygon(sh, la, 0, pcbnew.FromMM(0.005), pcbnew.ERROR_INSIDE)
+                sh.BooleanIntersection(oc)
+                return sh.Area() > 0
             if ka == "via" and kc == "pad":
                 return oc[1].HitTest(oa.GetPosition())
             if ka == "via" and kc == "zone":
@@ -689,8 +698,8 @@ def main():
     # ---- C53 review M5: In2 v3v3 pour islands that carry an IC supply have >= 2 links to the rest of the net
     import v3v3_islands
     isl = v3v3_islands.analyse(b)
-    weak_ = [{k: v for k, v in o.items() if k in ("area_mm2", "links", "ics", "vias")} |
-             {"bbox_world": [round(v, 2) for v in wbox(o["bbox_mm"])]} for o in isl if o["supply"] and o["links"] < 2]
+    weak_ = [{k: v for k, v in o.items() if k in ("area_mm2", "links", "main_links", "ics", "vias")} |
+             {"bbox_world": [round(v, 2) for v in wbox(o["bbox_mm"])]} for o in isl if v3v3_islands.is_weak(o)]
     put("v3v3_islands", not weak_, islands=len(isl) + 1, supply_islands=sum(o["supply"] for o in isl), weak=weak_)
 
     # ---- C53 review m6: ground stitching coverage. Every 1 mm sample 3 mm or more inside the edge, off the module, lies
