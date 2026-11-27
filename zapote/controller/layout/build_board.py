@@ -12,8 +12,9 @@ controller.kicad_pro, controller.kicad_sch + controller.kicad_sym (a typed-label
 from the same netlist so KiCad's schematic-parity DRC has a reference), placement.json (every pose
 in world mm), libs/ (vendored footprints) and fp-lib-table.
 
-Stack-up: 4 layers, JLC JLC04161H-7628 (1.6 mm; outer 1 oz, inner 0.5 oz).
-  F.Cu signal + parts, In1.Cu solid selv_gnd plane, In2.Cu v3v3 plane, B.Cu signal.
+Stack-up (C53): 6 layers, JLC JLC06161H-3313 (1.6 mm; outer 1 oz, inner 0.5 oz).
+  F.Cu signal + parts, In1.Cu solid selv_gnd plane, In2.Cu v3v3 pour + signals (the RTD analog layer with F),
+  In3.Cu signals (none over the RTD regions: In2 is 0.11 mm above it), In4.Cu solid selv_gnd plane, B.Cu signal.
 """
 from __future__ import annotations
 
@@ -64,25 +65,30 @@ ANALOG_NETS = ["rtd_sense_p", "rtd_sense_n", "rtd_force_p", "rtd_force_n", "vbus
                # C37 (sensor-r3 CR-1) connector-side and mid-filter RTD sense nodes; C38 rim trip threshold
                "rtd_sense_p_ext", "rtd_sense_n_ext", "rtd_sense_p_mid", "rtd_sense_n_mid", "RIM_TRIP_TH", "rim_filt"]
 
-# C34: the layers sum exactly to the 1.6 mm board thickness (zapote DRC.BOARD.STACKUP): JLC's
-# JLC04161H-7628 figures (0.2104 prepreg, 0.0152 inner Cu, 1.065 core, masks 0.01) total 1.6062, so
-# the core is entered as 1.0588 mm (JLC's finished thickness is 1.6 mm +/- 10 %; nothing here depends
-# on the core thickness)
+# C53: six layers, JLC's JLC06161H-3313 (jlcpcb.com/impedance, read 2026-11-26): 1 oz outer 0.035, 3313 prepreg
+# 0.0994 (er 4.1), 0.5 oz inner 0.0152, core 0.55 (er 4.6), 2116 prepreg 0.1088 (er 4.16). Those figures and the
+# masks total 1.5584 mm, so each core is entered as 0.5708 mm to sum exactly to the 1.6 mm board (zapote
+# DRC.BOARD.STACKUP; C34 did the same on the 4-layer core; finished thickness is 1.6 mm +/- 10 %)
+# Finish ENIG: JLC's capability page (read 2026-11-26): "FR-4/HDI boards with 6 or more layers ... do not support HASL"
 STACKUP = """		(stackup
 			(layer "F.SilkS" (type "Top Silk Screen"))
 			(layer "F.Paste" (type "Top Solder Paste"))
 			(layer "F.Mask" (type "Top Solder Mask") (thickness 0.01))
 			(layer "F.Cu" (type "copper") (thickness 0.035))
-			(layer "dielectric 1" (type "prepreg") (thickness 0.2104) (material "7628") (epsilon_r 4.4) (loss_tangent 0.02))
+			(layer "dielectric 1" (type "prepreg") (thickness 0.0994) (material "3313") (epsilon_r 4.1) (loss_tangent 0.02))
 			(layer "In1.Cu" (type "copper") (thickness 0.0152))
-			(layer "dielectric 2" (type "core") (thickness 1.0588) (material "FR4") (epsilon_r 4.6) (loss_tangent 0.02))
+			(layer "dielectric 2" (type "core") (thickness 0.5708) (material "FR4") (epsilon_r 4.6) (loss_tangent 0.02))
 			(layer "In2.Cu" (type "copper") (thickness 0.0152))
-			(layer "dielectric 3" (type "prepreg") (thickness 0.2104) (material "7628") (epsilon_r 4.4) (loss_tangent 0.02))
+			(layer "dielectric 3" (type "prepreg") (thickness 0.1088) (material "2116") (epsilon_r 4.16) (loss_tangent 0.02))
+			(layer "In3.Cu" (type "copper") (thickness 0.0152))
+			(layer "dielectric 4" (type "core") (thickness 0.5708) (material "FR4") (epsilon_r 4.6) (loss_tangent 0.02))
+			(layer "In4.Cu" (type "copper") (thickness 0.0152))
+			(layer "dielectric 5" (type "prepreg") (thickness 0.0994) (material "3313") (epsilon_r 4.1) (loss_tangent 0.02))
 			(layer "B.Cu" (type "copper") (thickness 0.035))
 			(layer "B.Mask" (type "Bottom Solder Mask") (thickness 0.01))
 			(layer "B.Paste" (type "Bottom Solder Paste"))
 			(layer "B.SilkS" (type "Bottom Silk Screen"))
-			(copper_finish "HAL lead-free")
+			(copper_finish "ENIG")
 			(dielectric_constraints no)
 		)
 """
@@ -173,13 +179,17 @@ def write_project(thermal=()):
 
 
 def shell_board():
-    """An empty 4-layer board with our stack-up; In1/In2 are typed power planes (Specctra 'power')."""
+    """An empty 6-layer board with our stack-up; In1/In2/In4 are typed power planes (Specctra 'power')."""
     b = pcbnew.CreateEmptyBoard()
-    b.SetCopperLayerCount(4)
+    b.SetCopperLayerCount(world.COPPER_LAYERS)
     tmp = PCB / "_shell.kicad_pcb"
     pcbnew.SaveBoard(str(tmp), b)
     t = tmp.read_text()
-    t = t.replace('(4 "In1.Cu" signal)', '(4 "In1.Cu" power)').replace('(6 "In2.Cu" signal)', '(6 "In2.Cu" power)')
+    for lid, name in ((4, "In1.Cu"), (6, "In2.Cu"), (10, "In4.Cu")):
+        a_ = f'({lid} "{name}" signal)'
+        if a_ not in t:
+            raise SystemExit(f"shell board has no {a_}")
+        t = t.replace(a_, f'({lid} "{name}" power)')
     t = t.replace("\t(setup\n", "\t(setup\n" + STACKUP, 1)
     t = t.replace("(thickness 1.6)", f"(thickness {world.THICKNESS})", 1)
     out = PCB / f"{NAME}.kicad_pcb"
@@ -364,7 +374,7 @@ def main():
 
     kx0, ky0 = world.to_k(world.BOARD[0], world.BOARD[3])
     kx1, ky1 = world.to_k(world.BOARD[2], world.BOARD[1])
-    # ---- planes: In1 selv_gnd, In2 v3v3 (whole board; the WROOM rule area and hole keep-outs cut them)
+    # ---- planes: In1 and In4 selv_gnd, In2 v3v3 (whole board; the WROOM rule area and hole keep-outs cut them)
     def plane(net, layer, prio, name, rect=None, pad_conn=pcbnew.ZONE_CONNECTION_THT_THERMAL):
         z = pcbnew.ZONE(board)
         z.SetLayer(layer)
@@ -389,6 +399,7 @@ def main():
         return z
     plane(GND, pcbnew.In1_Cu, 0, "GND_plane")
     plane(V3, pcbnew.In2_Cu, 0, "V3V3_plane")
+    plane(GND, pcbnew.In4_Cu, 0, "GND_plane_In4")    # C53: B.Cu's reference plane
 
     # ---- power-stage pours (F.Cu): VIN / SW / VOUT of both bucks, built from their pad positions
     def pad_xy(rp):
@@ -575,7 +586,7 @@ def main():
         s.SetLayer(pcbnew.Edge_Cuts)
         s.SetWidth(mm(0.1))
         board.Add(s)
-    all_cu = pcbnew.LSET.AllCuMask(4)
+    all_cu = pcbnew.LSET.AllCuMask(world.COPPER_LAYERS)
     for i, (hx, hy) in enumerate(world.HOLES):
         c = K(hx, hy)
         s = pcbnew.PCB_SHAPE(board)
@@ -604,6 +615,24 @@ def main():
         r = world.HOLE_KEEPOUT_D / 2 / math.cos(math.pi / 64)     # circumscribed: the polygon contains the circle
         for k in range(64):
             ol.Append(c.x + mm(r * math.cos(2 * math.pi * k / 64)), c.y + mm(r * math.sin(2 * math.pi * k / 64)))
+        board.Add(z)
+
+    # ---- C53: no In3 tracks over the RTD analog regions (In2, the RTD analog layer, is 0.11 mm above In3; In1 is
+    #      0.57 mm below In2), so nothing runs broadside under an RTD analog track. Vias may cross.
+    for i, (x0, y0, x1, y1) in enumerate(floorplan.RTD_STITCH):
+        z = pcbnew.ZONE(board)
+        z.SetIsRuleArea(True)
+        z.SetLayer(pcbnew.In3_Cu)
+        z.SetZoneName(f"rtd{i + 1}_in3_keepout")
+        z.SetDoNotAllowTracks(True)
+        z.SetDoNotAllowZoneFills(True)
+        for flag in ("Vias", "Pads", "Footprints"):
+            getattr(z, f"SetDoNotAllow{flag}")(False)
+        ol = z.Outline()
+        ol.NewOutline()
+        a_, b_ = world.to_k(x0, y1), world.to_k(x1, y0)
+        for x, y in ((a_[0], a_[1]), (b_[0], a_[1]), (b_[0], b_[1]), (a_[0], b_[1])):
+            ol.Append(mm(x), mm(y))
         board.Add(z)
 
     # ---- silk: board ID, SELV mark, revision

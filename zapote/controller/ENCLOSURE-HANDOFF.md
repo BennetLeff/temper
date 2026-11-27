@@ -94,7 +94,7 @@ Heights above the board's top surface (bottom Z23, top Z24.6 since R30; Z40 leav
 ## C51 request to R45 (2026-11-25; not agreed yet, and nothing is routed until it is)
 | Connector | Proposed body centre (world X, Y) | Body | Free on C49's layout? |
 |---|---|---|---|
-| J9 food probe, JST B4B-XH-A, 4-pin (was B3B, centre X -33) | (-31.5, 86) | 12.4 x 5.75 | yes; 1.6 mm to J2's body edge |
+| J9 food probe, JST B4B-XH-A, 4-pin (was B3B, centre X -33) | ~~(-31.5, 86)~~ **(43.5, 86), rotated 180 (C53)** | 12.4 x 5.75 | yes (C53 layout) |
 | J14 bay NTC, JST B2B-PH (R45-BAY-NTC bead at about (-95, 200, 55)) | (66, 86) | 5.9 wide | yes, no part centre within Y 77-90 |
 | J15 face fan, JST B5B-XH-A | (104.5, 86) | 14.9 x 5.75 | yes; nearest part C74 at X 114.1 |
 
@@ -123,3 +123,14 @@ Heights above the board's top surface (bottom Z23, top Z24.6 since R30; Z40 leav
   same rule: a tie close to each plug, and that retention test (a loose end ≥ 8 mm from HOT, measured round the barrier) on each route.
   The routes do not exist yet. J14's runs to the bay bead across the power board, and J15's goes to a fan that is not placed.
 - What R45 still owes for these three: J14 and J15 routes with ties, the retention test on both, and the J9 M12 lead redrawn at 4 cores.
+
+### C53 revision: J9 moves to (43.5, 86), rotated 180 (2026-11-26)
+- **Why:** the rear-left corner at (-31.5, 86) has room for about a quarter of the food-probe channel (U50, its 8 protection parts and
+  10 filter parts, which must sit between J9 and U50; J2, the Ø8 keep-out at (-26, 74), J4 and the interlock block fill the rest). At
+  X43.5 the whole channel sits in the free field in front of J9 (DECISIONS C53).
+- **Corridor:** `check_r45_connector_corridors.py` re-run with J9 at (43.5, 86): free ≥ 30 mm above the board (need 19.0), plug body
+  17.8 mm from the native-21 HOT block (J14 is 8.15 mm, J15 7.53 mm). J9 sits left of the X60–124 J13 barrier run.
+- **Harness:** the M12 port stays in the left wall. R41 runs the lead along Y94.5 / Z88 to the old J9; it now continues about 75 mm
+  further along that run (about 215 → 290 mm) and drops to J9 between J2 (X −20) and J1 (X 55). R45 redraws it at 4 cores anyway.
+- **Rotation:** J9 is turned 180 so its pins read F−, S−, S+, F+ left to right. The plug mates turned 180 about Z
+  compared with J1–J3; the cable still leaves upward. Pin 1 (F+) is at X 47.25.

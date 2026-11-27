@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the routed controller board against JLCPCB's published 4-layer 1 oz limits, with margin.
+"""Check the routed controller board against JLCPCB's published multilayer 1 oz limits, with margin.
 
     KICAD_PY layout/jlc_dfm_check.py pcb/controller.kicad_pcb > evidence/jlc-dfm.json
 
@@ -9,11 +9,14 @@ copper. JLC figures re-read on 2026-10-09 from https://jlcpcb.com/capabilities/p
   - PTH annular ring, 1 oz: recommended >= 0.20 mm, absolute minimum 0.15 mm
   - via hole / diameter: 0.15 / 0.25 mm; via hole-to-hole 0.2 mm; pad hole-to-hole 0.45 mm
   - non-plated hole >= 0.50 mm; copper to routed board edge >= 0.2 mm
+C53 (six layers): the multilayer track/space (0.09/0.09 mm, 1 oz), via (0.15/0.25 mm) and PTH ring (0.20 mm
+recommended, 0.15 mm minimum) figures were re-read on 2026-11-26 and are unchanged.
 Limits applied here (each with margin over the JLC minimum):
   - plated component holes: ring >= 0.20 mm (the recommended value), drill 0.15-6.3 mm;
   - vias: drill >= 0.3 mm and ring >= 0.15 mm (2x JLC's 0.05 mm via ring rule);
   - tracks >= 0.15 mm (1.7x JLC's 0.09 mm); our routing uses >= 0.2 mm;
-  - NPTH >= 0.5 mm; 4-layer size <= 663 x 593 mm.
+  - NPTH >= 0.5 mm; size <= 663 x 593 mm (the 4-layer figure read 2026-10-09; the six-layer size limit was
+    not re-read, and the board is 206 x 76 mm).
 Spacing, hole-to-hole (0.5 mm) and edge clearance (0.5 mm) are KiCad DRC rules (pcb/controller.kicad_pro).
 Every plated pad must have copper on F.Cu and B.Cu (a pad whose outer land was stripped would pass
 KiCad's DRC; see the original gate's history).
@@ -70,7 +73,10 @@ def main() -> None:
     size = sorted([mm(bb.GetWidth()), mm(bb.GetHeight())], reverse=True)
     if size[0] > LIMITS["board_max_mm"][0] or size[1] > LIMITS["board_max_mm"][1]:
         fails.append({"kind": "outline", "size_mm": size})
-    if board.GetCopperLayerCount() != 4:
+    import pathlib
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    import world
+    if board.GetCopperLayerCount() != world.COPPER_LAYERS:
         fails.append({"kind": "layers", "count": board.GetCopperLayerCount()})
     print(json.dumps({"limits": LIMITS, "vias": len(vias), "tracks": len(tracks), "plated_pads": pads,
                       "npth_pads": npth, "board_mm": size,

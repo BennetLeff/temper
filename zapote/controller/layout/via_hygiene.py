@@ -1,4 +1,4 @@
-"""Stranded vias on a pcbnew board: a via whose net has copper (track, pad or filled pour of that net) under its centre on
+"""Stranded vias on a pcbnew board: a via whose net has copper (track, pad or filled pour of that net) overlapping its pad on
 fewer than two copper layers. All vias on this board are through vias. A stranded via cannot carry a connection, so removing it
 never opens a net. Used by check_layout.py (report) and route.py (strip before the final DRC).
 """
@@ -15,10 +15,14 @@ def stranded(b):
         if v.Type() != pcbnew.PCB_VIA_T:
             continue
         pos, code, hit = v.GetPosition(), v.GetNetCode(), set()
+        # C53: copper that overlaps the via's pad connects (KiCad's connectivity), not only copper over its centre. The
+        # centre test removed three connecting vias on a six-layer run (0.14-0.42 mm stubs ending off-centre) and opened two
+        # nets after a clean DRC.
+        r = v.GetWidth(pcbnew.F_Cu) // 2
         for lay in copper:
-            if any(t.GetNetCode() == code and t.IsOnLayer(lay) and t.HitTest(pos) for t in tracks) \
-                    or any(p.GetNetCode() == code and p.IsOnLayer(lay) and p.HitTest(pos) for p in pads) \
-                    or any(z.GetNetCode() == code and z.IsOnLayer(lay) and z.HitTestFilledArea(lay, pos) for z in zones):
+            if any(t.GetNetCode() == code and t.IsOnLayer(lay) and t.HitTest(pos, r) for t in tracks) \
+                    or any(p.GetNetCode() == code and p.IsOnLayer(lay) and p.HitTest(pos, r) for p in pads) \
+                    or any(z.GetNetCode() == code and z.IsOnLayer(lay) and z.HitTestFilledArea(lay, pos, r) for z in zones):
                 hit.add(lay)
         if len(hit) < 2:
             out.append((v, {"net": v.GetNetname(), "at": [round(mm(pos.x), 2), round(mm(pos.y), 2)],

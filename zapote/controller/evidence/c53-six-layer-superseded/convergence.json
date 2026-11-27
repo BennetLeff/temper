@@ -1,0 +1,66 @@
+{
+ "stackup": "6 layers, JLC06161H-3313 (C53)",
+ "rule": "C51: at least 2 of 3 clean runs, else six layers",
+ "runs": [
+  {
+   "run": "run1",
+   "make_last_line": "ALL GATES PASS",
+   "errors": 0,
+   "warnings": 39,
+   "unconnected": 0,
+   "schematic_parity": 0,
+   "violation_types": {
+    "connection_width": 26,
+    "copper_sliver": 1,
+    "lib_footprint_mismatch": 2,
+    "silk_edge_clearance": 10
+   },
+   "rc": 0,
+   "seconds": 5253,
+   "closed": true,
+   "route_rounds": 21
+  },
+  {
+   "run": "run2",
+   "make_last_line": "DRC not clean",
+   "errors": 0,
+   "warnings": 21,
+   "unconnected": 1,
+   "schematic_parity": 0,
+   "violation_types": {
+    "connection_width": 8,
+    "lib_footprint_mismatch": 2,
+    "silk_edge_clearance": 10,
+    "track_dangling": 1
+   },
+   "rc": 1,
+   "seconds": 8256,
+   "closed": false,
+   "route_rounds": 36,
+   "open_net": "coil_buf_out"
+  },
+  {
+   "run": "run3",
+   "make_last_line": "ALL GATES PASS",
+   "errors": 0,
+   "warnings": 21,
+   "unconnected": 0,
+   "schematic_parity": 0,
+   "violation_types": {
+    "connection_width": 7,
+    "lib_footprint_mismatch": 2,
+    "silk_edge_clearance": 10,
+    "track_dangling": 2
+   },
+   "rc": 0,
+   "seconds": 9297,
+   "closed": true,
+   "route_rounds": 25
+  }
+ ],
+ "closed": 2,
+ "all_closed": false,
+ "passes_rule": true,
+ "board_of_record": "run1",
+ "note": "three runs after the gridroute.py via/keep-out fix (C53); the earlier six-layer runs are in c53-six-layer-invalid/"
+}

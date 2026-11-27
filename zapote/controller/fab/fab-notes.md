@@ -2,15 +2,17 @@
 
 - **Board status:** DRC errors 0, unconnected 0, schematic parity 0 -- **candidate, not released** (ordering is the owner's decision) (evidence/drc.json).
 
-- **Board:** 206.0 x 76.0 mm, 4 layers, 1.6 mm, JLC04161H-7628
-  (F.Cu 1 oz signal / In1.Cu 0.5 oz selv_gnd plane / In2.Cu 0.5 oz v3v3 pour + signals / B.Cu 1 oz signal),
-  HASL lead-free, green mask, white silk. Six 4.0 mm holes (R30 snap-in supports) are milled from Edge.Cuts (no plating, no copper).
+- **Board:** 206.0 x 76.0 mm, 6 layers, 1.6 mm, JLC06161H-3313
+  (F.Cu 1 oz signal / In1.Cu 0.5 oz selv_gnd plane / In2.Cu 0.5 oz v3v3 pour + signals / In3.Cu 0.5 oz signals /
+  In4.Cu 0.5 oz selv_gnd plane / B.Cu 1 oz signal),
+  ENIG (JLC offers no HASL on FR-4 boards of 6 or more layers), vias epoxy-filled and capped (JLC's default for 6+
+  layers, free per its via-covering article of 2026-11-10), green mask, white silk. Six 4.0 mm holes (R30 snap-in supports) are milled from Edge.Cuts (no plating, no copper).
 - **Coordinates:** Gerbers/drill in KiCad's plot frame. World (appliance) mm: X = kx - 58,
   Y = 110 - ky = 110 + (Gerber Y). Board lower-left corner = world (-38, 14) = Gerber (20, -96).
-- **Assembly:** all parts on the top side. BOM lines 89, placements 288
-  (9 THT). CPL rotations are KiCad's plus the audited JLC offset
-  (`CPL_ROTATION_OFFSET` in layout/fab.py; evidence/fab-loose-ends/cpl-rotation): 45 lines corrected
-  (D8, Q1, U1, U2, U3, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, U32, U33, U36, U37, U38, U39, U40, U41, U42, U43, U44, U45, U46).
+- **Assembly:** all parts on the top side. BOM lines 96, placements 342
+  (11 THT). CPL rotations are KiCad's plus the audited JLC offset
+  (`CPL_ROTATION_OFFSET` in layout/fab.py; evidence/fab-loose-ends/cpl-rotation): 43 lines corrected
+  (D8, Q1, U1, U2, U3, U5, U6, U7, U8, U9, U10, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U26, U27, U28, U29, U30, U31, U32, U36, U38, U39, U40, U41, U42, U43, U44, U45, U46, U50, U51).
 - **NEEDS-PREVIEW (owner checks these in JLC's placement preview before paying; one designator per LCSC code
   is enough, the rest of the code follows; the CPL carries KiCad's rotation for them):**
   - C10096 SN74LVC1G32DBVR (SOT-23-5): U27, U28, U41, U44
@@ -38,7 +40,7 @@
   - C962078 REF2025AIDDCR (SOT-23-5): U29
 - **LCSC numbers:** from bom/controller-parts.json; missing: none.
 - **Consign / stock:** stock 0 (latest JLC check per part: 2026-10-08, C35 swaps 2026-10-12, C37-C41 parts
-  2026-10-15): ['RG2012V-431-W-T1'] -- consign these or use JLC global sourcing; stock below 10x the
+  2026-10-15): none -- consign these or use JLC global sourcing; stock below 10x the
   quantity: none (DECISIONS open item 7). RG2012V-431-W-T1 (Rref) is consigned by decision
   C37: the sensor-r3 CR-2 accuracy budget needs its 0.05 % / 5 ppm/K.
 - **Sourcing swaps (DECISIONS C35/C36):** R53 RT0603BRD0716K5L (C728584), U22 74HC30PW,118 (C546857),

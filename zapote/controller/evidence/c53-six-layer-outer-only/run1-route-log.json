@@ -1,0 +1,175 @@
+{
+ "rounds": [
+  {
+   "round": 1,
+   "open_before": 442
+  },
+  {
+   "round": 2,
+   "open_before": 42
+  },
+  {
+   "round": 3,
+   "open_before": 9
+  },
+  {
+   "repair": "0.0",
+   "radius_mm": 3.0,
+   "open_before": 9,
+   "first": "BUS_FAULT_RB,RAIL_OK_RB,RIM_HOT,RTD_SCK,fb,rtd_sense_p_ext,v3v3,vbias"
+  },
+  {
+   "round": 4,
+   "open_before": 140,
+   "first": "BUS_FAULT_RB,RAIL_OK_RB,RIM_HOT,RTD_SCK,fb,rtd_sense_p_ext,v3v3,vbias"
+  },
+  {
+   "round": 5,
+   "open_before": 17
+  },
+  {
+   "round": 6,
+   "open_before": 12
+  },
+  {
+   "repair": "0.1",
+   "radius_mm": 5.0,
+   "open_before": 9,
+   "first": "CM_LA_OK_RB,CT_ZC_MCU,RTD2_CS_N,RTD_SCK,RTD_SDO,SUP_RUN_OK_RB,UI_MISO,rx_a_out,v3v3"
+  },
+  {
+   "round": 7,
+   "open_before": 186,
+   "first": "CM_LA_OK_RB,CT_ZC_MCU,RTD2_CS_N,RTD_SCK,RTD_SDO,SUP_RUN_OK_RB,UI_MISO,rx_a_out,v3v3"
+  },
+  {
+   "round": 8,
+   "open_before": 17
+  },
+  {
+   "round": 9,
+   "open_before": 12
+  },
+  {
+   "repair": "0.2",
+   "radius_mm": 8.0,
+   "open_before": 12,
+   "first": "FAN_OFF,I2C_SDA,PERMIT_RB,RTD_DRDY,UI_DC,UI_MISO,UI_MOSI,bst,pwm_lb,rtd_pan.low_window-inp,v3v3"
+  },
+  {
+   "round": 10,
+   "open_before": 173,
+   "first": "FAN_OFF,I2C_SDA,PERMIT_RB,RTD_DRDY,UI_DC,UI_MISO,UI_MOSI,bst,pwm_lb,rtd_pan.low_window-inp,v3v3"
+  },
+  {
+   "round": 11,
+   "open_before": 5
+  },
+  {
+   "round": 12,
+   "open_before": 2
+  },
+  {
+   "cleanup": 0
+  },
+  {
+   "round": 13,
+   "open_before": 5
+  },
+  {
+   "round": 14,
+   "open_before": 2
+  },
+  {
+   "repair": "1.0",
+   "radius_mm": 3.0,
+   "open_before": 2,
+   "first": "p1,rtd_sense_p_ext"
+  },
+  {
+   "round": 15,
+   "open_before": 40,
+   "first": "p1,rtd_sense_p_ext"
+  },
+  {
+   "round": 16,
+   "open_before": 3
+  },
+  {
+   "repair": "1.1",
+   "radius_mm": 5.0,
+   "open_before": 3,
+   "first": "IL_RESET_N,p1,rtd_sense_p_ext"
+  },
+  {
+   "round": 17,
+   "open_before": 73,
+   "first": "IL_RESET_N,p1,rtd_sense_p_ext"
+  },
+  {
+   "round": 18,
+   "open_before": 6
+  },
+  {
+   "round": 19,
+   "open_before": 5
+  },
+  {
+   "repair": "1.2",
+   "radius_mm": 8.0,
+   "open_before": 5,
+   "first": "I2C_SDA,RTD_DRDY,coil_buf_out,rtd_pan.r_high_top-inp,rtd_sense_n_ext"
+  },
+  {
+   "round": 20,
+   "open_before": 136,
+   "first": "I2C_SDA,RTD_DRDY,coil_buf_out,rtd_pan.r_high_top-inp,rtd_sense_n_ext"
+  },
+  {
+   "round": 21,
+   "open_before": 6
+  },
+  {
+   "round": 22,
+   "open_before": 5
+  },
+  {
+   "cleanup": 1
+  },
+  {
+   "round": 23,
+   "open_before": 5
+  },
+  {
+   "round": 24,
+   "open_before": 2
+  },
+  {
+   "repair": "2.0",
+   "radius_mm": 3.0,
+   "open_before": 2,
+   "first": "LINE_ZC_MCU,vbias"
+  },
+  {
+   "round": 25,
+   "open_before": 32,
+   "first": "LINE_ZC_MCU,vbias"
+  },
+  {
+   "round": 26,
+   "open_before": 1
+  },
+  {
+   "round": 27,
+   "open_before": 0
+  },
+  {
+   "cleanup": 2
+  },
+  {
+   "round": 28,
+   "open_before": 0
+  }
+ ],
+ "final_open": 0
+}

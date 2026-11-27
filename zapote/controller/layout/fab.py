@@ -3,7 +3,7 @@
 
     KICAD_PY layout/fab.py            (from zapote/controller)  -> fab/
 
-fab/gerbers/      Gerber X2 for the 4 copper layers, masks, paste, silk, Edge.Cuts; Excellon PTH/NPTH
+fab/gerbers/      Gerber X2 for the 6 copper layers, masks, paste, silk, Edge.Cuts; Excellon PTH/NPTH
                   drill files + drill map; job file
 fab/controller-gerbers.zip   the same, zipped for upload
 fab/bom-jlcpcb.csv           Comment, Designator, Footprint, LCSC Part #, Manufacturer, MPN, Mount
@@ -34,7 +34,7 @@ import world  # noqa: E402
 CLI = "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
 BOARD = UNIT / "pcb/controller.kicad_pcb"
 FAB = UNIT / "fab"
-LAYERS = "F.Cu,In1.Cu,In2.Cu,B.Cu,F.Mask,B.Mask,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,Edge.Cuts"
+LAYERS = "F.Cu,In1.Cu,In2.Cu,In3.Cu,In4.Cu,B.Cu,F.Mask,B.Mask,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,Edge.Cuts"
 
 
 # JLC places its library footprint at the CPL rotation, so the CPL carries KiCad's rotation plus the offset
@@ -187,9 +187,11 @@ def main():
 
 - **Board status:** {status} (evidence/drc.json).
 
-- **Board:** {mm(bb.GetWidth()) - 0.1:.1f} x {mm(bb.GetHeight()) - 0.1:.1f} mm, 4 layers, 1.6 mm, JLC04161H-7628
-  (F.Cu 1 oz signal / In1.Cu 0.5 oz selv_gnd plane / In2.Cu 0.5 oz v3v3 pour + signals / B.Cu 1 oz signal),
-  HASL lead-free, green mask, white silk. Six 4.0 mm holes (R30 snap-in supports) are milled from Edge.Cuts (no plating, no copper).
+- **Board:** {mm(bb.GetWidth()) - 0.1:.1f} x {mm(bb.GetHeight()) - 0.1:.1f} mm, 6 layers, 1.6 mm, JLC06161H-3313
+  (F.Cu 1 oz signal / In1.Cu 0.5 oz selv_gnd plane / In2.Cu 0.5 oz v3v3 pour + signals / In3.Cu 0.5 oz signals /
+  In4.Cu 0.5 oz selv_gnd plane / B.Cu 1 oz signal),
+  ENIG (JLC offers no HASL on FR-4 boards of 6 or more layers), vias epoxy-filled and capped (JLC's default for 6+
+  layers, free per its via-covering article of 2026-11-10), green mask, white silk. Six 4.0 mm holes (R30 snap-in supports) are milled from Edge.Cuts (no plating, no copper).
 - **Coordinates:** Gerbers/drill in KiCad's plot frame. World (appliance) mm: X = kx - {world.OX:g},
   Y = {world.OY:g} - ky = {world.OY:g} + (Gerber Y). Board lower-left corner = world ({world.BOARD[0]:g}, {world.BOARD[1]:g}) = Gerber (20, -96).
 - **Assembly:** all parts on the top side. BOM lines {len(lines)}, placements {len(cpl)}

@@ -1,6 +1,6 @@
 # Controller PCB layout (L3 + stage 16 + L4: enclosure R33/R41, R36 rim NTC, blower supply from PS3, thermal trip ladder, block-validator fixes)
 
-This is the layout of the integrated SELV controller: 284 parts, 4 layers, 206 × 76 mm, placed and routed by scripts from `frozen/default.net`, with a JLCPCB fab package. Nothing was drawn by hand in the KiCad GUI.
+This is the layout of the integrated SELV controller: 284 parts, 6 layers (C53), 206 × 76 mm, placed and routed by scripts from `frozen/default.net`, with a JLCPCB fab package. Nothing was drawn by hand in the KiCad GUI.
 
 **Status: DRC-clean candidate, not released** (ordering is the owner's decision). KiCad DRC: 0 errors, 0 unconnected, schematic parity 0; JLC DFM PASS; all 13 enclosure/layout checks PASS; gerbv fab review PASS. Not fabricated. Every number below comes from a file in `evidence/` that `python3 layout/make.py` regenerates: `drc.json`, `jlc-dfm.json`, `layout-check.json`, `fab-review.json`, `silk-designators.json`, `verify.json`; the routing-robustness proof is `evidence/convergence.json` (`layout/convergence.py`).
 
@@ -32,7 +32,7 @@ This is the layout of the integrated SELV controller: 284 parts, 4 layers, 206 �
 - A 20 k / 4.7 k BLW_PG divider feeds expander P16.
 
 **L4 (DECISIONS C34, 2026-10-12): layout fixes from the block-validator re-run** (`evidence/block-validators/`, C30). Every remaining validator finding is a justified waiver in `evidence/block-validators/WAIVERS.md`.
-- **Stack-up** sums to the 1.6 mm board (core entered as 1.0588 mm).
+- **Stack-up** sums to the 1.6 mm board (core entered as 1.0588 mm; C53's six-layer stack enters each core as 0.5708 mm).
 - **Thermal-sense spacing:** the unit's 0.20 mm floor on every thermal-block net (net class Thermal) and between selv_gnd and v3v3 (custom rule, `pcb/controller.kicad_dru`).
 - **RTD input filter:** `c_rtd_input` (C31) sits across the MAX31865's RTDIN+/RTDIN− end, about 2.1 mm from pins 10/11 (rule ≤ 3 mm).
 - **RTD analog return:** the eight RTD analog nets run only on F.Cu / In2.Cu over the solid In1 ground plane, never over an In1 antipad, and change layer only within 2.5 mm of a ground via; 96 selv_gnd stitching vias (3 mm grid) cover the RTD region; In1's clearance is 0.20 mm. A local RTD_AVDD F.Cu pour serves the MAX31865 VDD pin and its bypass.
@@ -74,18 +74,28 @@ evidence/block-validators/run.sh <bin>              # interlock / thermal / RTD 
 
 World (appliance) mm, X right, Y rear, viewed from above. KiCad frame: **kx = X + 58, ky = 110 − Y** (`layout/world.py`). The board's rear-left corner, world (−38, 90), is KiCad (20, 20); the front-right corner, world (168, 14), is KiCad (226, 96). This is a translation plus the y-flip of KiCad's y-down screen; the top side stays on top (no mirror). Gerber Y = −ky, so world Y = 110 + Gerber Y. Every part's world pose is in `pcb/placement.json`.
 
-## Stack-up: 4 layers, 1 oz outer
+## Stack-up: 6 layers, 1 oz outer (C53)
 
-JLC JLC04161H-7628, 1.6 mm: F.Cu 1 oz (0.035) / 0.21 prepreg / In1.Cu 0.5 oz / 1.065 core / In2.Cu 0.5 oz / 0.21 prepreg / B.Cu 1 oz. JLC's layer figures plus masks total 1.6062 mm, so the board file enters the core as 1.0588 mm and the stack-up sums to exactly 1.6000 mm (C34, zapote `DRC.BOARD.STACKUP`); JLC's finished thickness is 1.6 mm ± 10 %, and nothing here depends on the core figure.
+JLC JLC06161H-3313, 1.6 mm (jlcpcb.com/impedance, read 2026-11-26): F.Cu 1 oz (0.035) / 3313 prepreg 0.0994 (εr 4.1) / In1.Cu 0.5 oz (0.0152) / core 0.55 (εr 4.6) / In2.Cu 0.5 oz / 2116 prepreg 0.1088 (εr 4.16) / In3.Cu 0.5 oz / core 0.55 / In4.Cu 0.5 oz / 3313 prepreg 0.0994 / B.Cu 1 oz. JLC's figures sum to 1.5384 mm, 1.5584 mm with the masks, so the board file enters each core as 0.5708 mm and the stack-up sums to exactly 1.6000 mm (zapote `DRC.BOARD.STACKUP`). JLC's finished thickness is 1.6 mm ± 10 %, and nothing here depends on the core figures.
 
 | Layer | Use |
 |---|---|
 | F.Cu | All parts; signals; buck VIN/SW pours; `selv_gnd` pour in the gaps |
 | In1.Cu | Solid `selv_gnd` plane, cut only by the six Ø8 snap-in keep-outs and the via antipads (0.20 mm clearance, C34) |
-| In2.Cu | `v3v3` pour (same cuts); also a third routing layer where F/B are full, the pour refilling around those tracks |
+| In2.Cu | `v3v3` pour (same cuts); also a routing layer, the pour refilling around its tracks. The RTD analog nets use F/In2 only. |
+| In3.Cu | Signals (C53). No tracks over the two RTD stitch regions (`rtd1/2_in3_keepout` rule areas, vias allowed), so nothing crosses between the RTD analog copper and In4. |
+| In4.Cu | Solid `selv_gnd` plane: B.Cu's reference (C53) |
 | B.Cu | Signals; `selv_gnd` pour in the gaps |
 
-**Why four:** the board carries three sensitive analog front ends (the RTD MAX31865 and the ±1 µA thermal-sense nodes, the D-11 bus receiver into the ESP32 ADC, the AD8436 tank RMS) next to an ESP32 radio module, two 500 kHz bucks and two SPI buses. A continuous ground plane 0.21 mm under every F.Cu signal gives every return path a defined image, and the In2 3.3 V plane gives about 100 decoupling capacitors a one-via return each. On two layers the ground would be a pour broken by every crossing. **Why 1 oz:** the largest currents are the blower output (≥ 1.5 A on V_BLOWER, C28) and the v15_selv feed to the blower buck. Both run on 0.8 mm outer tracks, which IPC-2221's external-layer formula (I = 0.048·ΔT^0.44·A^0.725, A in mil²) puts at 2.0 A for a 10 K rise on 1 oz copper; 1 oz is JLC's standard 4-layer copper.
+**Finish and vias:** ENIG. JLC's capability page: FR-4 boards of 6 or more layers "do not support HASL". Vias are epoxy-filled and capped, JLC's default for 6+ layers and free per its via-covering article (updated 2026-11-10). The vias carry no mask opening, as before.
+
+**Why six (C53):** C51's rule. The four-layer board (route 3) closed on 1 of 3 clean runs, and C51 set six layers as the step when four does not reach 2 of 3 (evidence/c53-four-layer/).
+
+**Why planes first:** the board carries three sensitive analog front ends (the RTD MAX31865 and the ±1 µA thermal-sense nodes, the D-11 bus receiver into the ESP32 ADC, the AD8436 tank RMS) next to an ESP32 radio module, two 500 kHz bucks and two SPI buses. A continuous ground plane 0.1 mm under every F.Cu signal (and In4 under B.Cu) gives every return path a defined image, and the In2 3.3 V plane gives about 100 decoupling capacitors a one-via return each.
+
+**Why 1 oz, and outer only for current:** the largest currents are the blower output (≥ 1.5 A on V_BLOWER, C28) and the v15_selv feed (D9, ≤ 1 A). Both run on 0.8 mm outer tracks, which IPC-2221's external-layer formula (I = 0.048·ΔT^0.44·A^0.725, A in mil²) puts at 2.0 A for a 10 K rise on 1 oz copper. The inner layers are 0.5 oz, where the internal formula gives about 0.6 A for the same track. So V_BLOWER, sw_12, v15_selv and V15_BLW are routed on F/B only (gridroute.py `OUTER_ONLY`), and `check_layout.py`'s `power_layers` gate fails any inner-layer track on them (C53).
+
+**RF and impedance:** no RF line on the board. The WROOM-1U's U.FL is on the module and the antenna is off-board on coax (R33), and no net is impedance-controlled.
 
 **One ground.** The schematic has one return net, `selv_gnd`, and no separate analog ground, so the board has one solid plane and the analog/digital partition is done by placement. A split would force every analog-to-ADC signal across a gap.
 
@@ -95,7 +105,7 @@ JLC figures re-read 2026-10-09 from jlcpcb.com/capabilities/pcb-capabilities (mu
 
 | Rule | This board | Margin over JLC |
 |---|---|---|
-| Track | 0.15 mm signal, 0.3 mm v3v3 / plane stubs, 0.4 mm v15/SW (0.8 mm v15_selv, V_BLOWER and the blower SW node where routed) | ≥ 1.7× |
+| Track | 0.15 mm signal, 0.3 mm v3v3 / plane stubs, 0.4 mm v15/SW (0.8 mm v15_selv, V_BLOWER and the blower SW node where routed, outer layers only, C53) | ≥ 1.7× |
 | Clearance | 0.15 mm; **0.20 mm** for the thermal-sense block's nets (net class Thermal) and between selv_gnd and v3v3 (custom rule, `pcb/controller.kicad_dru`), C34 | 1.7× / 2.2× (JLC 0.09 mm) |
 | Via | 0.6/0.3 mm | ring 0.15 mm = 3× JLC's via rule |
 | PTH ring | ≥ 0.20 mm (gate) | JLC recommended |
@@ -221,7 +231,7 @@ What changed from L2, where three of four runs closed:
 - A run that does not close still stops `make.py` with "DRC not clean"; it never produces a fab package.
 
 **Enclosure constraints (R31 + R33 + R36/R38), all checked by `layout/check_layout.py`:**
-- outline X−38…168 / Y14…90, 1.6 mm, 4 layers: exact;
+- outline X−38…168 / Y14…90, 1.6 mm, 6 layers: exact;
 - six Ø4.0 holes at the R31 positions: exact; Ø8 keep-outs free of courtyards, pads, tracks, vias and fills;
 - J1, J2, J3, J7, J9, J10, J12 body centres: 0.0 mm worst error; J7 body edges within 0.074 mm of the R33 box X29.8–62.2 / Y57.1–62.9; J3 body along the rear edge; J10 (now 3-way, C28) at its R31 centre (139, 86); J12 at (126, 86) (accepted, R38);
 - J4 courtyard X-38.01…-24.29 / Y27.795…57.005, mating −X at the left edge;

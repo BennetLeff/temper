@@ -26,7 +26,8 @@ BEND = 3.0              # minimum bend radius as a multiple of OD (enclosure har
 
 # name, centre (world X, Y), body X x Y, mated height (None = unread), cable OD, parts this connector replaces or owns
 CONNECTORS = [
-    dict(name="J9", part="JST B4B-XH-A", centre=(-31.5, 86.0), body=(12.4, 5.75), mated=9.8, od=2.3,
+    # C53: J9 moved from (-31.5, 86) to (43.5, 86), rotated 180 (the food channel sits in the free field in front of it)
+    dict(name="J9", part="JST B4B-XH-A", centre=(43.5, 86.0), body=(12.4, 5.75), mated=9.8, od=2.3,
          own=("electronics_controller_J9", "harness_probe_M12_to_controller")),
     # JST ePH.pdf (PDF created 2026-01-27) p.1: top entry "mounting height of 8 mm", width 4.5; header table B = 5.9
     # for 2 circuits; insulation O.D. 0.5-1.5 mm.

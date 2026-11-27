@@ -41,6 +41,8 @@ def to_w(kx: float, ky: float) -> tuple[float, float]:
 # Outline (R31): 206 x 76 x 1.6 mm at world X-38..168, Y14..90.
 BOARD = (-38.0, 14.0, 168.0, 90.0)
 THICKNESS = 1.6
+# C53: six copper layers (C51's rule: route 3 of the four-layer board closed on 1 of 3 clean runs)
+COPPER_LAYERS = 6
 # Height (R30): components and mated connectors below Z40; board bottom Z23 -> 15.4 mm above the top face.
 BOARD_BOTTOM_Z = 23.0
 Z_LIMIT = 40.0

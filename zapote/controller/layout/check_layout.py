@@ -4,7 +4,7 @@
     KICAD_PY layout/check_layout.py [pcb/controller.kicad_pcb]   -> evidence/layout-check.json, exit 1 on FAIL
 
 Enclosure (R31 CONTROLLER-SPEC section + R33 DECISIONS section 3 delta, via layout/world.py):
-  outline     Edge.Cuts is exactly the X-38..168 / Y14..90 rectangle, 1.6 mm board, 4 copper layers
+  outline     Edge.Cuts is exactly the X-38..168 / Y14..90 rectangle, 1.6 mm board, world.COPPER_LAYERS copper layers (6 since C53)
   holes       six 4.0 mm holes (R30) at the R31 positions (+-0.05 mm), nothing else cut
   hole_keepout  no courtyard, pad, track, via or copper fill inside the 8 mm snap-in head circle
   connectors  J1-J3, J7, J9, J10, J12, J13 body (F.Fab) centre within 0.5 mm of the spec centre (J12: the
@@ -24,6 +24,7 @@ Layout rules (brief):
   interlock   no track of an MCU (U4) net crosses the interlock region; PERMIT path latch->J4.9 length
   thermal_relief  every through-hole pad that a pour reaches is thermal-relieved (zone setting)
   power_widths  V_BLOWER routed >= 0.8 mm; V15_BLW's J13.1, bulk and input-cap pads in one F.Cu pour region
+  power_layers  no track of V_BLOWER, sw_12, v15_selv or V15_BLW on a 0.5 oz inner layer (C53)
 """
 from __future__ import annotations
 
@@ -117,7 +118,7 @@ def main():
     # the edge line width (0.1) widens the bbox by 0.05 per side
     err = max(abs(o - w) for o, w in zip(ob, (world.BOARD[0] - 0.05, world.BOARD[1] - 0.05,
                                               world.BOARD[2] + 0.05, world.BOARD[3] + 0.05)))
-    put("outline", err < 0.01 and len(segs) == 4 and b.GetCopperLayerCount() == 4
+    put("outline", err < 0.01 and len(segs) == 4 and b.GetCopperLayerCount() == world.COPPER_LAYERS
         and abs(mm(b.GetDesignSettings().GetBoardThickness()) - world.THICKNESS) < 1e-6,
         world_bbox=[round(v, 3) for v in ob], edge_segments=len(segs), copper_layers=b.GetCopperLayerCount(),
         thickness_mm=mm(b.GetDesignSettings().GetBoardThickness()))
@@ -432,6 +433,16 @@ def main():
                      "routed_branch_tracks": len(blw_tracks),
                      "routed_branch_min_width_mm": round(min((mm(t.GetWidth()) for t in blw_tracks), default=0), 3)}
     put("power_widths", pw_ok and one, nets=pw)
+
+    # ---- C53: current-carrying nets only on the 1 oz outer layers (power_widths and LAYOUT.md's ampacity use
+    # IPC-2221's external formula; the inner layers are 0.5 oz and the internal formula halves the current)
+    outer_only = ("V_BLOWER", "sw_12", "v15_selv", "V15_BLW")
+    inner_mm = {}
+    for t in b.GetTracks():
+        if t.Type() == pcbnew.PCB_TRACE_T and t.GetNetname() in outer_only and t.GetLayer() not in (pcbnew.F_Cu, pcbnew.B_Cu):
+            k = f"{t.GetNetname()} {b.GetLayerName(t.GetLayer())}"
+            inner_mm[k] = round(inner_mm.get(k, 0) + mm(t.GetLength()), 2)
+    put("power_layers", not inner_mm, nets=list(outer_only), inner_track_mm=inner_mm)
 
     # ---- analog partition: courtyard-to-courtyard separations (ENCLOSURE-HANDOFF placement notes)
     def crt(ref):

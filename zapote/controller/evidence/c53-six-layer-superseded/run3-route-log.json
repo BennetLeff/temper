@@ -1,0 +1,153 @@
+{
+ "rounds": [
+  {
+   "round": 1,
+   "open_before": 442
+  },
+  {
+   "round": 2,
+   "open_before": 23
+  },
+  {
+   "round": 3,
+   "open_before": 9
+  },
+  {
+   "repair": "0.0",
+   "radius_mm": 3.0,
+   "open_before": 9,
+   "first": "BUS_FAULT_RB,RTD2_CS_N,p1,pwm_lb,rtd2_force_n,rtd_sense_p_ext,v3v3"
+  },
+  {
+   "round": 4,
+   "open_before": 125,
+   "first": "BUS_FAULT_RB,RTD2_CS_N,p1,pwm_lb,rtd2_force_n,rtd_sense_p_ext,v3v3"
+  },
+  {
+   "round": 5,
+   "open_before": 15
+  },
+  {
+   "round": 6,
+   "open_before": 12
+  },
+  {
+   "repair": "0.1",
+   "radius_mm": 5.0,
+   "open_before": 11,
+   "first": "BUS_FAULT_RB,FAN_PWM,HS_FAULT,I2C_SDA,RAIL_OK_RB,RTD_SDO,pwm_lb,rtd_pan.low_window-inp,v3v3,y"
+  },
+  {
+   "round": 7,
+   "open_before": 178,
+   "first": "BUS_FAULT_RB,FAN_PWM,HS_FAULT,I2C_SDA,RAIL_OK_RB,RTD_SDO,pwm_lb,rtd_pan.low_window-inp,v3v3,y"
+  },
+  {
+   "round": 8,
+   "open_before": 20
+  },
+  {
+   "round": 9,
+   "open_before": 12
+  },
+  {
+   "repair": "0.2",
+   "radius_mm": 8.0,
+   "open_before": 12,
+   "first": "BLW_PG,BUS_FAULT_RB,HS_FAULT_RB,RTD2_CS_N,RTD_SDO,UI_CS_OLED_N,p1,pwm_hb,rim_buf_out,rtd_sense_n_ext,v3v3"
+  },
+  {
+   "round": 10,
+   "open_before": 244,
+   "first": "BLW_PG,BUS_FAULT_RB,HS_FAULT_RB,RTD2_CS_N,RTD_SDO,UI_CS_OLED_N,p1,pwm_hb,rim_buf_out,rtd_sense_n_ext,v3v3"
+  },
+  {
+   "round": 11,
+   "open_before": 13
+  },
+  {
+   "round": 12,
+   "open_before": 9
+  },
+  {
+   "cleanup": 0
+  },
+  {
+   "round": 13,
+   "open_before": 10
+  },
+  {
+   "round": 14,
+   "open_before": 5
+  },
+  {
+   "repair": "1.0",
+   "radius_mm": 3.0,
+   "open_before": 5,
+   "first": "BUS_FAULT_RB,FAN_OFF,IL_WDI,hs_buf_out,rtd_sense_p_ext"
+  },
+  {
+   "round": 15,
+   "open_before": 97,
+   "first": "BUS_FAULT_RB,FAN_OFF,IL_WDI,hs_buf_out,rtd_sense_p_ext"
+  },
+  {
+   "round": 16,
+   "open_before": 7
+  },
+  {
+   "round": 17,
+   "open_before": 2
+  },
+  {
+   "repair": "1.1",
+   "radius_mm": 5.0,
+   "open_before": 2,
+   "first": "rtd_sense_p_ext,v3v3"
+  },
+  {
+   "round": 18,
+   "open_before": 48,
+   "first": "rtd_sense_p_ext,v3v3"
+  },
+  {
+   "round": 19,
+   "open_before": 2
+  },
+  {
+   "round": 20,
+   "open_before": 1
+  },
+  {
+   "repair": "1.2",
+   "radius_mm": 8.0,
+   "open_before": 1,
+   "first": "vbias"
+  },
+  {
+   "round": 21,
+   "open_before": 56,
+   "first": "vbias"
+  },
+  {
+   "round": 22,
+   "open_before": 1
+  },
+  {
+   "round": 23,
+   "open_before": 0
+  },
+  {
+   "cleanup": 1
+  },
+  {
+   "round": 24,
+   "open_before": 3
+  },
+  {
+   "round": 25,
+   "open_before": 0
+  }
+ ],
+ "final_open": 0
+}

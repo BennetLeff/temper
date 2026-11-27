@@ -792,3 +792,133 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
   JLC hand-solders the 11 THT connectors. Order-day items stay: pre-order U3, U14, U15; re-read R23/R36/R152 and R31.
 - **Reverses if:** a ≤ 5 ppm/K 0.05 % 430 Ω part appears in JLC stock (go back to the 0.30 K gate), or bench data show the board's
   temperature swing from calibration exceeds about 36 K with the PTFR (re-check 1b against the measured swing).
+
+## C53. C51 layout: placement, J9 moved to (43.5, 86), six layers (2026-11-26, owner chose "C51 controller layout next")
+- **J9 moves from the C51 request's (-31.5, 86) to (43.5, 86), rotated 180.** The rear-left corner holds about a quarter of the
+  food-probe channel: J2, the Ø8 keep-out at (-26, 74), J4 and the interlock block fill the rest. At X43.5 the channel (U50, 4 caps,
+  4 BAV199, 2 filter stages, Rref, the 1 k SPI resistors) sits in the free field between J9 and J7. Rotated 180, J9 reads F-, S-,
+  S+, F+ left to right, which meets U50 (also rotated 180) at its pin 11 (S-) / 10 (S+) end without crossing the sense pair.
+  The R43 corridor check passes at the new spot (free >= 30 mm, need 19.0; plug 17.8 mm from the HOT block). R45 still has to
+  agree, and the M12 lead gets about 75 mm longer (ENCLOSURE-HANDOFF "C53 revision"). J14 and J15 stay at the C51 request.
+- **Routing before R45 agrees (changes C51's "routed only after R45 agrees").** The corridor check found all three columns free,
+  and what R45 still owes (cable routes, ties, retention tests) does not move a connector. A connector move later is a
+  `world.py` edit and a re-run.
+- **Placement:**
+  - Food channel: the 100 nF caps at the J9 pins, the BAV199 row behind them (C51 rule: caps take the ESD first), the first
+    filter stage (R1n, C1, R1p) between the two sense clamps, the second stage (R2n, C2, R2p) in the 2.5 mm row at U50's pins
+    10/11, the CM caps beside those pins, the 1 M open-lead pull-ups at the ends of that row. The food nets join the RTD analog
+    family (F.Cu / In2.Cu only, return via within 2.5 mm) with their own stitch grid (X35-56, Y63.5-89).
+  - Face fan: U51 / L3 in the free field in front of the blower buck (U51 at (82, 54)); U52 (EMC2301), the PWM cascode Q2,
+    the two ESD diodes and the tach resistors at J15. Pinning R154/R155 kept the blower buck's SS cap and EN divider at U2.
+  - Bay NTC: TVS and 47 k pull-up at J14, the 159 Hz RC at its buffer (u_buf2), the ADC RC at the module.
+  - U30 moves 1.3 mm forward with C31: its 5.3 mm SSOP land (C51 fix) reached the J3 protection strip.
+  - Pan Rref R39 is now anchored to U30 (16 mm away, where C49 had it 24 mm away with no anchor; the space round U30 is full).
+- **Gates added (`check_layout.py`):** `rtd_j9_protection` (each line's cap nearer the pin than its clamp; a cap moved behind
+  its clamp fails it), and `partition` now holds both bucks (L2/U2 and L3/U51) >= 10 mm from both RTD channels. Fixed:
+  `rtd_j3_protection` found J3 by its B4B-XH MPN, which C51's J9 shares; it now uses the designator.
+- **First two routes did not close; both faults were placement.**
+  - Route 1 (runs 1 and 3; run 2 stopped): one open item each, `rtd_food.adc-cs_n` (U50 pin 16 to its 1 k series
+    resistor R135). Anchored to U50, R135 had been put at (36.5, 80.6) beside J9, so its stub crossed the clamp row and
+    the food stitch grid. Fix: the four food SPI resistors and the CS pull-up got explicit poses (moving R135 alone let
+    the anchor drop R134 into its spot).
+  - Route 2 (run 1; runs 2 and 3 stopped): `cs_n` and `sclk` open (pins 16 and 15). The real cause was that U50's
+    SPI side (pins 14-17) faced U12 (`u_rail_inv`) 1 mm away, and U12's 3V3 and RAIL_FAULT vias filled the escape.
+    That row predates C53. Fix: U3/U11/U12 move left to X 24.8/30/36 (U3 only 2.2 mm, held off U24). R135 sits
+    under U50 pins 18-20 (GND, GND, NC), 4 mm from pin 16. U12's cap C57 is pinned below U12 (3V3 pad 3.78 mm from
+    pin 5, gate 5 mm), so X 38.1..41.5, Y 66..72 stays free for the escape.
+  - Convergence counts route 3's three runs only (four layers); the six-layer board starts its own three.
+- **Four layers closes on 1 of 3, so C51 goes to six layers (C51's rule, applied as written).** Route 3, from three clean
+  starts on the fixed placement: run 1 left 7 open (`p1` and `refin_n` at U30, `rtd_sense_p_ext`, IL_WDI, RAIL_OK,
+  UI_MISO, UI_SCK); run 2 left 5 open (`rtd_sense_n_ext`, RAIL_OK_RB, LATCHED_FAULT_RB, RTD_SDO, rx_a_out); run 3
+  passed every gate (6219 s). Summaries: `evidence/c53-four-layer/`. Unlike routes 1 and 2, there is no single
+  blockage. Both failing runs level off at 4-10 open through every repair stage (route logs), and half of the open nets are
+  long cross-board runs. C49 also closed on 1 of 3 (2026-10-19 addendum), so this is the netlist family's level, not
+  a C53 regression. One more placement pass was considered and rejected. U30's pin rows sit 2.2 mm from the WROOM box
+  (R33) and under 1 mm from the J3 protection strip, both fixed, so no pan-only move frees its Rref and SPI
+  resistors, and it would leave the cross-board nets as they are.
+- **Six-layer stack-up: JLC06161H-3313** (jlcpcb.com/impedance, read 2026-11-26): F.Cu signal, In1 selv_gnd plane (3313
+  prepreg 0.0994 to F), In2 v3v3 pour + signals, In3 signals (2116 prepreg 0.1088 to In2), In4 selv_gnd plane (new:
+  B.Cu now has a reference plane), B.Cu signal. Each core is entered as 0.5708 mm (JLC lists 0.55) so the stack sums
+  to 1.6 mm, as C34 did for four layers.
+  - The RTD analog family stays on F/In2 over In1, unchanged.
+  - In2 sits 0.11 mm above In3 and 0.57 mm below In1, so build_board puts a no-tracks rule area on In3 over both
+    RTD stitch regions (vias may still cross). Nothing then runs broadside under an RTD analog track.
+  - The router signals F, In2, In3, B. In3 prefers Y, against F's X.
+  - C51 expected two more signal layers. This stack adds one, In3, and makes In4 a second selv_gnd plane.
+    Two signal layers would leave B.Cu with no reference plane and put two signal layers next to each other a
+    second time. The four-layer failures were 5-7 nets, and one more signal layer roughly adds half again to the
+    routing area. If the six-layer runs still do not close, In4 becoming a signal layer is the next step.
+  - Scripts changed: build_board, export_geom, gridroute, route, check_layout (outline gate:
+    `world.COPPER_LAYERS`), jlc_dfm_check (multilayer limits re-read 2026-11-26, unchanged; the six-layer size
+    limit was not re-read), fab (six copper Gerbers).
+  - **Finish: ENIG, not HASL.** JLC's capability page (read 2026-11-26): "FR-4/HDI boards with 6 or more layers ...
+    do not support HASL". JLC's via-covering article (updated 2026-11-10): "For our 6-layer and above multi-layer
+    boards, resin filling is now available for free"; the capability page makes epoxy fill-and-cap the default
+    for 6+ layers. No JLC page gives an ENIG price, so whether it costs extra is unread.
+    The stack-up's `copper_finish` and fab-notes now say ENIG.
+  - If these runs do not reach 2 of 3, the first change is In3 to X-preferred DIRPEN (1.0, 2.0, 1.5). The board is
+    206 x 76, half the four-layer failures were long X runs, and F is the only X-preferred layer now. In4 to signals
+    comes only after that (it costs B.Cu its plane). (Suggested in an outside review of the diff.)
+  - Not read yet: the price difference at JLC, and the thermal and RF checks on the new stack-up.
+- **The first three six-layer runs were invalid: a router bug, not the board.** They were stopped after 6.5 h at
+  rounds 14-15 (evidence/c53-six-layer-invalid/).
+  - Symptom: every round started from about 97 open pairs, and each round took 25-35 min against 2-4 min on four
+    layers.
+  - Cause: gridroute.py's exact check (`Exact.via_ok`) ran `seg_ok` on every layer with that layer's track
+    keep-outs. So the new In3 RTD rule areas (tracks not allowed, vias allowed) rejected every via inside them:
+    0 of 3000 sampled via spots passed, 1049 pass with the fix.
+  - The grid search does allow vias there, as KiCad does. So each round routed about 90 pairs, and the legalise laps
+    then discarded 87-99 of them (unchanged from lap 1 to lap 3).
+  - Fix: track keep-outs no longer apply to vias; via-forbidding rule areas are still checked through `keep_v`.
+  - Guard: gridroute.py exits non-zero when at least 20 routes, and at least 20 % of all routes, still fail the exact
+    check after three laps without shrinking. That means the raster and the exact check disagree on a rule, so the
+    run should stop rather than go on routing.
+  - Convergence restarts from three fresh runs.
+- **The second three six-layer runs closed 2 of 3, but every board put current on 0.5 oz inner copper; superseded.**
+  - Run 1 passed every gate (21 rounds, 5253 s). Run 2 ended with `coil_buf_out` open (36 rounds). Run 3 passed
+    (25 rounds). Evidence: evidence/c53-six-layer-superseded/.
+  - Run 1's board had V_BLOWER (>= 1.5 A, C28) 35 mm on In2/In3, v15_selv (fed through D9, SS14 1 A) 76 mm on In3 and
+    V15_BLW 29 mm on In3, all on 0.5 oz copper. C49's four-layer board kept V_BLOWER on F/B entirely and had 5.9 mm
+    of v15_selv on In2.
+  - LAYOUT.md's ampacity case is IPC-2221's external formula on 1 oz copper (0.8 mm: 2.0 A at 10 K). The internal
+    formula (I = 0.024·ΔT^0.44·A^0.725) on 0.5 oz gives about 0.6 A for 0.8 mm at 10 K, and 1.1 A at 40 K.
+  - `power_widths` checks width only, so it passed.
+  - Fix: gridroute.py `OUTER_ONLY` keeps V_BLOWER, sw_12, v15_selv and V15_BLW on F/B. v3v3 is unchanged (In2 is its
+    pour).
+  - New gate `power_layers` in check_layout.py: no track of those nets on an inner layer. It fails run 1's board and
+    passes every other check there.
+  - Convergence restarts from three more runs.
+- **via_hygiene.py removed connecting vias (fixed).**
+  - Run 1 of the outer-only set closed its routing (28 rounds, final 0 open) and its first DRC was clean
+    (0 unconnected).
+  - The stranded-via strip then removed 4 vias, and the second DRC found 2 unconnected (IL_RESET_N, pwm_hb) and
+    4 dangling stubs.
+  - Cause: a via counted as stranded unless copper of its net covered the via's centre on 2 layers. KiCad connects
+    copper that overlaps any part of the via's pad, and these 0.14-0.42 mm stubs ended off-centre.
+  - On the routed board, 3 of the 4 vias had tracks overlapping their pads on 2 layers (IL_RESET_N F/In2,
+    RUNAWAY_TH F/In2, pwm_hb B/In2).
+  - Fix: the test is pad overlap (`HitTest(pos, via radius)` for tracks, pads and filled zones). On that board it
+    finds no stranded via.
+  - Run 1's post-route steps were regenerated with `make.py --no-route` from its own routed board; the routing is
+    unchanged, so it counts as that run's result. Logs: build/c53-run1-hygiene-fail.log and
+    build/c53-run1-noroute.log.
+  - Earlier failures were not this bug. The four-layer runs 1 and 2 had 7 and 5 nets open on their first DRC,
+    before the strip, and the superseded six-layer runs that reached the strip stayed clean.
+- **The outer-only set closed 1 of 3, so In3 goes X-preferred.** Evidence: evidence/c53-six-layer-outer-only/.
+  - Run 1 passed every gate, `power_layers` included (28 rounds; 22 warnings, all of the committed board's kinds).
+  - Run 2 left UI_CS_EXP_N (94 mm X span) and rtd2_force_p (RTD analog, F/In2 only, at U50) open after 35 rounds
+    (13679 s).
+  - Run 3 left RTD_FAULT_RB (79 mm X span) open after 31 rounds.
+  - With the superseded set's coil_buf_out (64 mm), three of the four late failures are long X runs, and F was the
+    only X-preferred layer.
+  - Change: In3 DIRPEN (2.0, 1.0, 1.5) -> (1.0, 2.0, 1.5), the fallback recorded above. Three fresh runs.
+  - In4 to signals stays the next step if this does not reach 2 of 3.
+- **Stack-up checks beyond ampacity (C53).**
+  - RF: the board has no RF net. The ESP32-S3-WROOM-1U's U.FL is on the module and the antenna is off-board on
+    coax (R33), so the stack-up carries no RF line.
+  - Impedance: none controlled (unchanged).
+  - Thermal: heat leaves through the same parts and pours. The six-layer board adds the In4 selv_gnd plane and
+    keeps 1 oz outer copper, so no thermal figure in LAYOUT.md gets worse. Only the current-carrying tracks depended
+    on the layer, and `power_layers` now gates that.
+  - Not read: JLC's six-layer price and minimum quantity (the quote page needs the order form; to be read at
+    order time).

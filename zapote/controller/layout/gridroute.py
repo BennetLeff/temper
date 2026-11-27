@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Two-layer grid router for the controller board (numpy/scipy; no KiCad needed).
+"""Multi-layer grid router for the controller board (F, In2, In3, B signal layers since C53) (numpy/scipy; no KiCad needed).
 
     python3 layout/gridroute.py <geom.json> <drc.json> <routes.json>
 
@@ -44,7 +44,9 @@ CLR = RULE + 0.09       # + raster margin (a 0.1 mm raster misplaces an edge by 
 EDGE = 0.5
 VIA_R, VIA_DRILL_R, HOLE_GAP = 0.3, 0.15, 0.5
 VIA_COST = 10           # in grid steps (2 mm)
-DIRPEN = ((1.0, 2.5, 1.5), (1.2, 1.2, 1.5), (2.5, 1.0, 1.5))   # [F, In2, B][along X, along Y, diagonal]
+DIRPEN = ((1.0, 2.5, 1.5), (1.2, 1.2, 1.5), (1.0, 2.0, 1.5), (2.5, 1.0, 1.5))   # [F, In2, In3, B][along X, along Y, diagonal]
+# C53: In3 X-preferred (was (2.0, 1.0, 1.5)). The 206 x 76 board's late failures were long X spans (coil_buf_out 64 mm,
+# RTD_FAULT_RB 79 mm, UI_CS_EXP_N 94 mm) with F the only X-preferred layer.
 SOFT_PEN = 40.0         # cost multiplier for crossing another net's route (negotiated rip-up)
 HIST_STEP = 1.0         # added per conflict to a cell's history cost
 
@@ -73,7 +75,13 @@ POWER = {"v15_selv": 0.8, "V15_BLW": 1.0, "V_BLOWER": 0.8, "sw_3v3": 0.4, "sw_12
 # High-current routed nets never fall back to a 0.25 mm neck (blower 2.70 A peak). V15_BLW (PS3 feed,
 # 2.72 A) runs J13 -> bulk -> input caps -> U2 in F.Cu pours; its routed tracks are the EN/BLW_PG branches.
 NO_NECK = {"V_BLOWER", "sw_12"}   # V15_BLW carries its current in the BLW_FEED pours
-LAYERS = ("F", "In2", "B")    # In2 carries signals where needed; the v3v3 pour refills around them
+# C53: the current-carrying nets stay on the 1 oz outer layers. LAYOUT.md sizes them with IPC-2221's external
+# formula; on six layers the router had put V_BLOWER (>= 1.5 A) and v15_selv (D9, <= 1 A) on 0.5 oz In2/In3,
+# where a 0.8 mm track carries about 0.6 A for a 10 K rise (internal formula). check_layout's power_layers gate.
+OUTER_ONLY = {"V_BLOWER", "sw_12", "v15_selv", "V15_BLW"}
+LAYERS = ("F", "In2", "In3", "B")    # In2 carries signals where needed; the v3v3 pour refills around them.
+# C53: six-layer board; In3 is a signal layer between In2 and the In4 selv_gnd plane (no In3 tracks over the RTD
+# regions: rule areas from build_board.py)
 # C34: per-net clearance above RULE (net class "Thermal": 0.20 mm), from geom["clearance"]; a pair keeps
 # the larger of its two nets' clearances, as KiCad's DRC does
 NET_CLR: dict[str, float] = {}
@@ -214,16 +222,18 @@ class Exact:
         if any(k.intersects(body) for k in self.keep_v):
             return False
         for l in LAYERS:
-            if not self.seg_ok(l, c, c, 2 * VIA_R, net):
+            # C53: a track-only rule area (the In3 RTD keep-outs) does not forbid vias; keep_v above covers
+            # the areas that do. Applying keep[l] here rejected every via the grid search put in them.
+            if not self.seg_ok(l, c, c, 2 * VIA_R, net, keep=False):
                 return False
         return all(math.dist(c, (dx, dy)) - dr - VIA_DRILL_R >= HOLE_GAP - 1e-6 for dx, dy, dr in drills
                    if math.dist(c, (dx, dy)) > 1e-6)
 
-    def seg_ok(self, l, p, q, w, net, fixed_only=False):
+    def seg_ok(self, l, p, q, w, net, fixed_only=False, keep=True):
         body = LineString([p, q]).buffer(w / 2, quad_segs=4) if p != q else Point(p).buffer(w / 2)
         if not self.inner.contains(body) or any(h.intersects(body) for h in self.holes):
             return False
-        if any(k.intersects(body) for k in self.keep[l]):
+        if keep and any(k.intersects(body) for k in self.keep[l]):
             return False
         if any(net in nets_ and poly.intersects(body) for nets_, poly in self.forbid):
             return False
@@ -571,8 +581,10 @@ class Router:
                     if a0 < a1 and b0 < b1:
                         blocked[a0:a1, b0:b1] = True
             blocked |= self.kt_dist[l][i0:i1, j0:j1] < w / 2 + 0.07
+            if net in OUTER_ONLY and l not in ("F", "B"):
+                blocked[:] = True
             if rtd:
-                if l == "B":
+                if l not in ("F", "In2"):
                     blocked[:] = True
                 else:
                     # an F/In2 track over an In1 hole has no return plane under it
@@ -752,6 +764,8 @@ def main():
                 ls = ("B",)
             elif "on In2.Cu" in desc:
                 ls = ("In2",)
+            elif "on In3.Cu" in desc:
+                ls = ("In3",)
             else:
                 ls = ("F",)
             ends.append((p, ls))
@@ -860,6 +874,7 @@ def main():
     # shapely (the raster can misjudge by a fraction of a cell); offending routes are ripped up and
     # re-routed with a wider raster margin, and checked again
     global CLR
+    bad_laps = []
     for lap in range(4):
         drills_all = list(R.drills) + [d_ for v in R.route_drills.values() for d_ in v]
         bad = []
@@ -870,8 +885,16 @@ def main():
                 bad.append(rid)
         progress.write(f"legalise lap {lap}: {len(bad)} routes fail the exact check\n")
         progress.flush()
+        bad_laps.append(len(bad))
         if not bad:
             break
+        # C53 guard: raster misjudgement shrinks as the margin widens; a large count that does not shrink
+        # means the grid search and the exact check disagree on a rule (C53: In3 track keep-outs applied to
+        # vias, 6 h of rounds discarding ~90 routes each). Fail the run instead of routing on.
+        if lap >= 2 and len(bad) >= 20 and len(bad) >= 0.9 * bad_laps[1] and len(bad) >= 0.2 * len(R.routes):
+            print(f"legalise: {len(bad)} of {len(R.routes)} routes still fail the exact check after {lap + 1} laps "
+                  f"({bad_laps}); the raster and the exact check disagree on a rule", file=sys.stderr, flush=True)
+            sys.exit(3)
         for rid in bad:
             R.remove_route(rid)
         CLR += 0.05
@@ -945,6 +968,8 @@ def eco():
                 ls = ("B",)
             elif "on In2.Cu" in desc:
                 ls = ("In2",)
+            elif "on In3.Cu" in desc:
+                ls = ("In3",)
             else:
                 ls = ("F",)
             ends.append((p, ls))

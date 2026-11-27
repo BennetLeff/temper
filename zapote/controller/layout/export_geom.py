@@ -13,7 +13,7 @@ import sys
 import pcbnew
 
 mm = pcbnew.ToMM
-LAYERS = {"F": pcbnew.F_Cu, "In2": pcbnew.In2_Cu, "B": pcbnew.B_Cu}
+LAYERS = {"F": pcbnew.F_Cu, "In2": pcbnew.In2_Cu, "In3": pcbnew.In3_Cu, "B": pcbnew.B_Cu}   # C53: In3 (6 layers)
 
 
 def polys(ps):
@@ -51,7 +51,7 @@ def main():
             d["drills"].append([mm(t.GetPosition().x), mm(t.GetPosition().y), mm(t.GetDrillValue()) / 2])
             d["drill_nets"].append(t.GetNetname())
         else:
-            ln = {pcbnew.F_Cu: "F", pcbnew.In2_Cu: "In2", pcbnew.B_Cu: "B"}.get(t.GetLayer())
+            ln = {l: n for n, l in LAYERS.items()}.get(t.GetLayer())
             if ln:
                 d["tracks"].append({"net": t.GetNetname(), "layer": ln, "w": mm(t.GetWidth()), "locked": t.IsLocked(),
                                     "a": [mm(t.GetStart().x), mm(t.GetStart().y)], "b": [mm(t.GetEnd().x), mm(t.GetEnd().y)]})

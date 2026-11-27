@@ -1,0 +1,130 @@
+{
+ "rounds": [
+  {
+   "round": 1,
+   "open_before": 442
+  },
+  {
+   "round": 2,
+   "open_before": 23
+  },
+  {
+   "round": 3,
+   "open_before": 9
+  },
+  {
+   "repair": "0.0",
+   "radius_mm": 3.0,
+   "open_before": 10,
+   "first": "BUS_FAULT_RB,RTD2_CS_N,p1,pwm_lb,rtd2_force_n,rtd_sense_p_ext,v3v3"
+  },
+  {
+   "round": 4,
+   "open_before": 132,
+   "first": "BUS_FAULT_RB,RTD2_CS_N,p1,pwm_lb,rtd2_force_n,rtd_sense_p_ext,v3v3"
+  },
+  {
+   "round": 5,
+   "open_before": 14
+  },
+  {
+   "round": 6,
+   "open_before": 4
+  },
+  {
+   "repair": "0.1",
+   "radius_mm": 5.0,
+   "open_before": 4,
+   "first": "RAIL_OK_RB,RTD_SDO,rtd_pan.low_window-inp,v3v3"
+  },
+  {
+   "round": 7,
+   "open_before": 96,
+   "first": "RAIL_OK_RB,RTD_SDO,rtd_pan.low_window-inp,v3v3"
+  },
+  {
+   "round": 8,
+   "open_before": 13
+  },
+  {
+   "round": 9,
+   "open_before": 8
+  },
+  {
+   "repair": "0.2",
+   "radius_mm": 8.0,
+   "open_before": 6,
+   "first": "BUS_FAULT_RB,FAN_TACH,RTD2_DRDY,RTD_SDI,RTD_SDO,pwm_hb"
+  },
+  {
+   "round": 10,
+   "open_before": 163,
+   "first": "BUS_FAULT_RB,FAN_TACH,RTD2_DRDY,RTD_SDI,RTD_SDO,pwm_hb"
+  },
+  {
+   "round": 11,
+   "open_before": 8
+  },
+  {
+   "round": 12,
+   "open_before": 6
+  },
+  {
+   "cleanup": 0
+  },
+  {
+   "round": 13,
+   "open_before": 9
+  },
+  {
+   "round": 14,
+   "open_before": 3
+  },
+  {
+   "repair": "1.0",
+   "radius_mm": 3.0,
+   "open_before": 3,
+   "first": "LINE_ZC_MCU,pwm_lb,vbias"
+  },
+  {
+   "round": 15,
+   "open_before": 53,
+   "first": "LINE_ZC_MCU,pwm_lb,vbias"
+  },
+  {
+   "round": 16,
+   "open_before": 3
+  },
+  {
+   "repair": "1.1",
+   "radius_mm": 5.0,
+   "open_before": 3,
+   "first": "LINE_ZC_MCU,pwm_lb,v3v3"
+  },
+  {
+   "round": 17,
+   "open_before": 80,
+   "first": "LINE_ZC_MCU,pwm_lb,v3v3"
+  },
+  {
+   "round": 18,
+   "open_before": 1
+  },
+  {
+   "round": 19,
+   "open_before": 0
+  },
+  {
+   "cleanup": 1
+  },
+  {
+   "round": 20,
+   "open_before": 1
+  },
+  {
+   "round": 21,
+   "open_before": 0
+  }
+ ],
+ "final_open": 0
+}

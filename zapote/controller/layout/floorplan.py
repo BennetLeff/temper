@@ -52,9 +52,10 @@ PLACE = {
     "interlock.aggregate": (8.0, 67.0, 90),
     "interlock.control_inv": (18.5, 66.0, 90),
     "u_rb": (22.0, 50.0, 0),       # read-back buffer: in front of the block, outputs toward the module
-    "u_rail": (27.0, 68.5, 0),
-    "u_live": (33.0, 68.5, 0),
-    "u_rail_inv": (39.0, 68.5, 0),
+    # C53: the row moves 3 mm left (from X 27/33/39; U3 2.2 mm, held off U24) to open an escape channel for U50's SPI pins 14-17
+    "u_rail": (24.8, 68.5, 0),
+    "u_live": (30.0, 68.5, 0),
+    "u_rail_inv": (36.0, 68.5, 0),
     # ---- MCU support: expander between the read-back buffer and the module
     "u_io": (118.0, 44.0, 0),
     # ---- J7 UI bus (R33): ESD arrays in front of the header, +5 V LDO beside it
@@ -183,6 +184,19 @@ PLACE = {
     # open-lead 1 M pull-ups (sense ext nodes to rtd2_bias) at the ends of that row
     "rtd_food.r_bias_n": (38.5, 73.41, 0),
     "rtd_food.r_bias_p": (53.5, 73.41, 0),
+    # SPI series resistors and the CS pull-up, explicit. Anchored to U50, r_cs landed at (36.5, 80.6) by J9 and its
+    # 13 mm stub through the clamp row stayed open in runs 1 and 3 of the first C53 route; with r_cs moved, the
+    # anchor put r_sdo in that spot instead. The second route still left cs_n and sclk open: U12 sat 1 mm from
+    # U50's SPI pins 14-17 and its vias filled their escape. The U3/U11/U12 row now sits further left (above).
+    # r_cs sits under pins 18-20 (GND, GND, NC), 4 mm from pin 16. U12's cap C57 takes r_cs's old spot, its 3V3
+    # pad 4 mm from U12 pin 5, so that X 38.1..41.5, Y 66..72 stays free for the escape. The other three keep
+    # the poses that routed in the first route
+    "rtd_food.r_cs": (39.6, 65.1, 0),
+    "c_rail_inv": (35.9, 65.1, -90),
+    "rtd_food.r_sdi": (32.86, 65.11, 0),
+    "rtd_food.r_sdo": (28.36, 65.58, 180),
+    "rtd_food.r_sck": (30.56, 72.32, 0),
+    "rtd_food.r_cs_pu": (60.92, 70.45, 0),
     # ---- C53: face-fan 12 V buck (U51, L3) in the free field in front of the blower buck, > 10 mm from both RTD
     #      channels; EMC2301 (U52) and the PWM cascode / tach parts at J15 (104.5, 86; pins 1..5 at X 99.5..109.5)
     "bay_fan.u_buck": (82.0, 54.0, 0),
@@ -223,7 +237,7 @@ ANCHOR = {
     "interlock.fault_inv_bypass": "interlock.fault_inv", "interlock.control_inv_bypass": "interlock.control_inv",
     "interlock.aggregate_bypass": "interlock.aggregate", "interlock.latch_bypass": "interlock.latch",
     "interlock.watchdog_bypass": "interlock.watchdog", "interlock.common_bypass": "interlock.common",
-    "c_rail_inv": "u_rail_inv", "c_live": "u_live", "c_runaway": "u_runaway", "c_rb": "u_rb",
+    "c_live": "u_live", "c_runaway": "u_runaway", "c_rb": "u_rb",
     "c_rx": "u_rx", "c_buf1": "u_buf1", "c_buf2": "u_buf2",
     "c_rms_vcc": "u_rms", "c_rms_vcc2": "u_rms", "c_adc": "u_adc",
     "c_mcu_bulk": "U4", "c_mcu_hf": "U4", "c_io": "u_io",
@@ -260,8 +274,6 @@ ANCHOR = {
     # at the converter; the open-lead pull-ups and the first filter stage at J9
     "rtd_food.c_vdd": "rtd_food.adc", "rtd_food.c_dvdd": "rtd_food.adc", "rtd_food.c_avdd_bulk": "rtd_food.adc",
     "rtd_food.fb": "rtd_food.adc", "rtd_food.r_ref": "rtd_food.adc",
-    "rtd_food.r_sck": "rtd_food.adc", "rtd_food.r_sdi": "rtd_food.adc", "rtd_food.r_sdo": "rtd_food.adc",
-    "rtd_food.r_cs": "rtd_food.adc", "rtd_food.r_cs_pu": "rtd_food.adc",
     # C53 face fan: buck parts at U51 / L3, EMC2301 parts at U52, tach pull-up and series R at J15
     "bay_fan.c_ss": "bay_fan.u_buck", "bay_fan.c_bst": "bay_fan.u_buck", "bay_fan.c_in_a": "bay_fan.u_buck",
     "bay_fan.c_in_b": "bay_fan.u_buck", "bay_fan.r_en_top": "bay_fan.u_buck", "bay_fan.r_en_bot": "bay_fan.u_buck",

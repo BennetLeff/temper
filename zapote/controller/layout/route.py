@@ -128,7 +128,7 @@ def finish(board, routes, last):
                 b.Remove(t)
                 n_rm += 1
         print(f"ECO: deleted {n_rm} crossed pieces of {sorted(r.get('rip_nets', []))}")
-    L = {"F": pcbnew.F_Cu, "In2": pcbnew.In2_Cu, "B": pcbnew.B_Cu}
+    L = {"F": pcbnew.F_Cu, "In2": pcbnew.In2_Cu, "In3": pcbnew.In3_Cu, "B": pcbnew.B_Cu}   # C53: In3
     for t in r["tracks"]:
         tr = pcbnew.PCB_TRACK(b)
         tr.SetStart(pcbnew.VECTOR2I(pcbnew.FromMM(t["a"][0]), pcbnew.FromMM(t["a"][1])))

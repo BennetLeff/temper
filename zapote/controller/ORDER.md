@@ -54,13 +54,13 @@ The JLC "Mount" column in the BOM/CPL is informational. JLC decides SMT or THT f
 | Option | Value |
 |---|---|
 | Size | 206.0 × 76.0 mm (single board, no panel) |
-| Layers | 4 |
-| Stack-up | **JLC04161H-7628**: F.Cu signal / In1.Cu solid selv_gnd plane / In2.Cu v3v3 pour + signals / B.Cu signal |
+| Layers | 6 (C53) |
+| Stack-up | **JLC06161H-3313**: F.Cu signal / In1.Cu solid selv_gnd plane / In2.Cu v3v3 pour + signals / In3.Cu signals / In4.Cu solid selv_gnd plane / B.Cu signal |
 | Thickness | 1.6 mm |
 | Copper | 1 oz outer, 0.5 oz inner |
-| Surface finish | HASL lead-free |
+| Surface finish | ENIG (JLC offers no HASL on FR-4 boards of 6 or more layers) |
 | Mask / silk | green / white |
-| Via covering | tented (vias carry no mask opening; gerbv review counts 2019 tented via sides) |
+| Via covering | epoxy-filled and capped (JLC's default for 6+ layers, free per its via-covering article of 2026-11-10); vias carry no mask opening |
 | Minimum features | track 0.15 mm, clearance 0.15 mm, via 0.6 / 0.3 mm, PTH ring ≥ 0.20 mm (all at or above JLC's standard capability; `evidence/jlc-dfm.json`) |
 | Impedance control | **none**. No controlled-impedance nets: the SPI, UI and PWM lines are slow, and the RTD analog nets are DC. |
 | Holes | six Ø4.0 mm non-plated support holes, milled from Edge.Cuts; 5 NPTH drill hits (J4's 2 pegs, J11's 3 TC2050 holes) |
@@ -147,7 +147,7 @@ The block-validator waivers W1–W7 (`evidence/block-validators/WAIVERS.md`) are
 
 ## 5. Quantity recommendation
 
-**Order 5 bare PCBs (JLC's minimum for 4 layers) and assemble 3** (JLC PCBA minimum 2).
+**Order 5 bare PCBs (confirm JLC's six-layer minimum on the quote page) and assemble 3** (JLC PCBA minimum 2).
 - Board 1: bring-up and firmware.
 - Board 2: integration with native-21 and the enclosure.
 - Board 3: the physical fault-injection tests the validators list as NOT RUN, which can be destructive.
