@@ -68,7 +68,8 @@ def drc(board, report):
 
 REPAIR_R = (3.0, 5.0, 8.0)      # mm around each open pair's ends, one radius per repair pass
 REPAIR_CYCLES = 3               # repair passes + cleanup, repeated while pairs stay open
-ECO_PASSES = 2                  # then gridroute --eco passes, each with normal rounds and a cleanup (main())
+ECO_PASSES = 3                  # then gridroute --eco passes, each with normal rounds and a cleanup (main()). Set 8: 3
+                                # (was 2), since a pair whose path would cross another ECO path of its pass now waits
 
 
 def rip_around(board, report, radius):

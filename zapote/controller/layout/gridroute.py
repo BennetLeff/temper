@@ -1035,6 +1035,40 @@ def main():
                       "failed": len(out["failed"])}))
 
 
+def _eco_key(it):
+    return (it["net"], it["kind"], round(it["a"][0], 3), round(it["a"][1], 3), round(it["b"][0], 3), round(it["b"][1], 3))
+
+
+def _eco_conflicts(geom, done, gone):
+    """Indices of the ECO pairs whose new copper is within clearance of another net's track or via: one on the board
+    and not deleted (gone: _eco_key set), or another pair's new copper."""
+    from shapely.strtree import STRtree
+
+    def clr(n1, n2):
+        return max(NET_CLR.get(n1, RULE), NET_CLR.get(n2, RULE), PAIR_CLR.get(frozenset((n1, n2)), RULE))
+    old = [(t["net"], t["layer"], LineString([t["a"], t["b"]]).buffer(t["w"] / 2)) for t in geom["tracks"]
+           if _eco_key({"net": t["net"], "kind": "t", "a": t["a"], "b": t["b"]}) not in gone]
+    old += [(v["net"], None, Point(v["at"]).buffer(v["r"])) for v in geom["vias"]
+            if v["net"] != "<npth>" and _eco_key({"net": v["net"], "kind": "v", "a": v["at"], "b": v["at"]}) not in gone]
+    new = [(i_, t["net"], t["layer"], LineString([t["a"], t["b"]]).buffer(t["w"] / 2))
+           for i_, d_ in enumerate(done) for t in d_["tracks"]]
+    new += [(i_, v["net"], None, Point(v["at"]).buffer(VIA_R)) for i_, d_ in enumerate(done) for v in d_["vias"]]
+    tree = STRtree([g for _, _, g in old]) if old else None
+    cmax = max([RULE] + list(NET_CLR.values()) + list(PAIR_CLR.values()))
+    bad = set()
+    for i_, n, l, g in new:
+        if tree is not None:
+            for j in tree.query(g.buffer(cmax)):
+                n2, l2, g2 = old[int(j)]
+                if n2 != n and (l is None or l2 is None or l == l2) and g.distance(g2) < clr(n, n2) - 1e-3:
+                    bad.add(i_)
+                    break
+        for i2, n2, l2, g2 in new:
+            if i2 != i_ and n2 != n and (l is None or l2 is None or l == l2) and g.distance(g2) < clr(n, n2) - 1e-3:
+                bad.add(max(i_, i2))      # the later pair gives way
+    return bad
+
+
 def eco():
     """ECO for pairs the normal rounds leave open: route each one against the fixed copper only
     (pads, zones, locked fan-outs and stubs), then name the nets whose earlier (unlocked) routing
@@ -1067,7 +1101,14 @@ def eco():
         R.add_copper(n, segs, vias, rid=rid_of[n])
     tht = {(round(d_[0], 3), round(d_[1], 3)) for d_ in geom["drills"]}
     out = {"tracks": [], "vias": [], "failed": [], "rip_nets": [], "rip_items": []}
-    for k, u in enumerate(drc["unconnected_items"]):
+    eco_geo = []          # (net, copper) of the paths this pass has laid
+    done = []             # the routed pairs: copper and the pieces each one deletes
+    # longest pair first: a later path may not cross an earlier one (below), and the short local pairs left open by that
+    # route around it in the normal rounds; the 134 mm PERMIT_RB has no such detour (set 8 run 1)
+    def span(u):
+        p_, q_ = u["items"][0]["pos"], u["items"][-1]["pos"]
+        return -math.dist((p_["x"], p_["y"]), (q_["x"], q_["y"]))
+    for k, u in enumerate(sorted(drc["unconnected_items"], key=span)):
         it = u["items"]
         net = re.search(r"\[([^\]]+)\]", it[0]["description"]).group(1)
         ends = []
@@ -1098,7 +1139,12 @@ def eco():
         segs, vias = res
         body = [LineString([p, q]).buffer(w__ / 2 + 0.25) for _, p, q, w__ in segs] + \
                [Point(c).buffer(VIA_R + 0.25) for c in vias]
-        hit = []
+        # set 8 run 1: a path may not cross another net's ECO path of this pass. Those are not on the board yet, so
+        # nothing could delete them, and the soft route treats them as a cost only. The pair is left to the rounds.
+        if any(n_ != net and any(g0.intersects(g1) for g1 in body) for n_, g0 in eco_geo):
+            out["failed"].append({"net": net, "a": a, "b": b, "why": "crosses an ECO path of this pass"})
+            continue
+        hit, rips_k = [], []
         for n2, rid in rid_of.items():
             if n2 == net or rid not in R.routes:
                 continue
@@ -1107,17 +1153,47 @@ def eco():
                     [("v", None, c, c, 2 * VIA_R, Point(c).buffer(VIA_R)) for c in v2]
             crossing = [it for it in items if any(it[5].intersects(g1) for g1 in body)]
             if crossing:
-                hit.append(n2)
+                hit.append((n2, crossing))
                 # only the crossed pieces are deleted; KiCad then reports just those broken links
-                out["rip_items"] += [{"net": n2, "kind": it[0], "layer": it[1], "a": list(it[2]), "b": list(it[3])}
-                                     for it in crossing]
-        for n2 in hit:
+                rips_k += [{"net": n2, "kind": it[0], "layer": it[1], "a": list(it[2]), "b": list(it[3])}
+                           for it in crossing]
+        for n2, crossing in hit:
+            # set 8 run 1: the router keeps the pieces the board keeps. Removing the whole net here let a later pair of
+            # the same pass lay copper across n2's uncrossed tracks unseen: no rip item, a short on the board (PERMIT_RB
+            # across RTD_SDI, UI_MOSI, rtd_sense_p_ext).
+            gone_t = {(it[1], it[2], it[3]) for it in crossing if it[0] == "t"}
+            gone_v = {it[2] for it in crossing if it[0] == "v"}
+            _, s2, v2 = R.routes[rid_of[n2]]
+            keep_s = [s for s in s2 if (s[0], s[1], s[2]) not in gone_t]
+            keep_v = [c for c in v2 if c not in gone_v]
             R.remove_route(rid_of[n2])
+            if keep_s or keep_v:
+                R.add_copper(n2, keep_s, keep_v, rid=rid_of[n2])
+        hit = [n2 for n2, _ in hit]
+        eco_geo += [(net, LineString([p, q]).buffer(w__ / 2)) for _, p, q, w__ in segs] + \
+                   [(net, Point(c).buffer(VIA_R)) for c in vias]
         R.add_copper(net, segs, vias, rid=10_000 + k)
-        out["rip_nets"] = sorted(set(out["rip_nets"]) | set(hit))   # for the log
-        out["tracks"] += [{"net": net, "layer": l, "a": list(p), "b": list(q), "w": w_} for l, p, q, w_ in segs]
-        out["vias"] += [{"net": net, "at": list(c)} for c in vias]
+        done.append({"net": net, "a": a, "b": b, "hit": hit, "rips": rips_k,
+                     "tracks": [{"net": net, "layer": l, "a": list(p), "b": list(q), "w": w_} for l, p, q, w_ in segs],
+                     "vias": [{"net": net, "at": list(c)} for c in vias]})
         print(f"eco {net}: routed, rips {hit}", flush=True)
+    # set 8: the output is checked against the input geometry, not the router's model of it. With this pass's deletions
+    # applied, no new track or via may come within clearance of another net's copper, the board's or another new
+    # path's. A pair that does is dropped with its deletions (left to the rounds); repeat until none does.
+    while True:
+        gone = {_eco_key(it) for d_ in done for it in d_["rips"]}
+        bad = _eco_conflicts(geom, done, gone)
+        if not bad:
+            break
+        for i_ in sorted(bad, reverse=True):
+            d_ = done.pop(i_)
+            out["failed"].append({"net": d_["net"], "a": d_["a"], "b": d_["b"], "why": "output check: clearance"})
+            print(f"eco {d_['net']}: dropped by the output check", flush=True)
+    for d_ in done:
+        out["tracks"] += d_["tracks"]
+        out["vias"] += d_["vias"]
+        out["rip_items"] += d_["rips"]
+        out["rip_nets"] = sorted(set(out["rip_nets"]) | set(d_["hit"]))   # for the log
     json.dump(out, open(sys.argv[4], "w"), indent=0)
     print(json.dumps({"eco_routed": len(out["tracks"]) > 0, "rip_nets": out["rip_nets"], "failed": len(out["failed"])}))
 

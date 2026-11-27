@@ -1170,4 +1170,26 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
         routes only with the neck (1.0 mm at 0.5, then 0.8). Run 3's geometry also routes at 0.8 mm.
       - If a 0.8 mm route's vias are short of companions, power_vias and its gate see them, as before.
     - Run 1's saved board with the island fix: one ECO pass, then 0 open, DRC 0/0/0, ALL GATES PASS.
-    - Set 8 runs on this code.
+    - Set 8 runs on this code (76287a259).
+  - **Set 8 (76287a259): 1/3.**
+    - Run 2: ALL GATES PASS in 54 min. Its routing closed before the ECO stage.
+    - Runs 1 and 3: DRC shorts and crossings, 6 and 43 errors. Every one first appears in the DRC right after ECO pass
+      0. Archive: build/conv/failed-review-fix-set8/.
+    - Cause, two holes in gridroute.eco()'s model of the board.
+      - (a) A path that crossed net N2 deleted only the crossed pieces on the board, but remove_route() dropped all of
+        N2 from the router. A later pair of the same pass then crossed N2's surviving tracks unseen: no rip item, so
+        a short.
+      - (b) Paths of the same pass were only a soft cost to each other and were never checked for crossings.
+    - Fix.
+      - The router keeps every piece the board keeps.
+      - A path that crosses another net's ECO path of the pass is left to the rounds.
+      - Pairs go longest first, so the long PERMIT_RB is not the one that waits.
+      - ECO_PASSES is 3 (was 2): a waiting pair can rip the earlier ECO copper in the next pass.
+    - New guard: every pass's output is checked against the input geometry, the board's copper minus the pass's
+      deletions plus the other new paths. A pair within clearance of another net is dropped with its deletions.
+    - Replay: the four saved ECO inputs (both runs, passes 0 and 1) re-run on those runs' final geometry, with an
+      independent checker.
+      - Old code: run 1's exact short set (PERMIT_RB with RTD_SDI, UI_MOSI and rtd_sense_p_ext; sense with FAN_TACH),
+        plus 15 and 6 conflicts on run 3, including ECO-to-ECO crossings.
+      - New code: 0 in all four. The guard, applied to the old outputs, flags exactly the shorted nets.
+    - Run 2 is not counted: set 9 runs 3 fresh runs on this code.
