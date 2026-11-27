@@ -119,8 +119,13 @@ def main():
     d["pair_clearance"] = [list(x) for x in floorplan.PAIR_CLEARANCE]
     d["rtd_analog"] = list(floorplan.RTD_ANALOG_NETS)
     d["rtd_return_via_mm"] = floorplan.RTD_RETURN_VIA_MM
+    # the outline's centre line, which KiCad's DRC measures copper-to-edge clearance from. GetBoardEdgesBoundingBox()
+    # includes half the Edge.Cuts line width (0.1 mm lines: 226.05 for 226.0), which let a via sit 0.45 mm from the
+    # edge against the 0.5 mm rule (set 5 run 2)
     eb = b.GetBoardEdgesBoundingBox()
-    d["edge"] = [mm(eb.GetLeft()), mm(eb.GetTop()), mm(eb.GetRight()), mm(eb.GetBottom())]
+    hw = max([mm(s.GetWidth()) / 2 for s in b.GetDrawings()
+              if s.GetLayer() == pcbnew.Edge_Cuts and s.GetShape() != pcbnew.SHAPE_T_CIRCLE] or [0.0])
+    d["edge"] = [mm(eb.GetLeft()) + hw, mm(eb.GetTop()) + hw, mm(eb.GetRight()) - hw, mm(eb.GetBottom()) - hw]
     d["circles"] = [[mm(s.GetCenter().x), mm(s.GetCenter().y), mm(s.GetRadius())] for s in b.GetDrawings()
                     if s.GetLayer() == pcbnew.Edge_Cuts and s.GetShape() == pcbnew.SHAPE_T_CIRCLE]
     json.dump(d, open(sys.argv[2], "w"))

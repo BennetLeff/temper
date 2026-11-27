@@ -1142,3 +1142,9 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
     - Result on run 3's board after ECO: DRC 0 errors, 0 unconnected, parity 0. All layout gates, JLC DFM and the fab
       review pass.
     - Set 7 runs on this code.
+  - **Board edge 0.05 mm too large in the router's geometry.** export_geom.py took geom["edge"] from
+    GetBoardEdgesBoundingBox(), which includes half the 0.1 mm Edge.Cuts line ([19.95, 19.95, 226.05, 96.05] for the
+    20-226 × 20-96 outline). The router kept copper 0.5 mm inside that, so 0.45 mm from the real edge.
+    - This was set 5 run 2's one DRC error: an RTD via 0.45 mm from the edge against the 0.5 mm rule.
+    - The edge is now inset by half the outline's line width, giving [20.0, 20.0, 226.0, 96.0].
+    - Found by an outside audit of 07f7b8582. Set 7 was stopped at 40 min and restarted with this fix.
