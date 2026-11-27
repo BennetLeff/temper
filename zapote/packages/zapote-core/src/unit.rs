@@ -731,7 +731,7 @@ impl UnitProfile {
             || self.return_planes.iter().any(|plane| {
                 plane.purpose.trim().is_empty()
                     || plane.net.trim().is_empty()
-                    || !matches!(plane.layer.as_str(), "F.Cu" | "B.Cu" | "In1.Cu" | "In2.Cu")
+                    || !crate::is_copper_layer(&plane.layer, self.board.copper_layers)
             })
         {
             errors.push(

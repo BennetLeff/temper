@@ -1,0 +1,65 @@
+{
+ "stackup": "6 layers, JLC06161H-3313 (C53)",
+ "rule": "C51: at least 2 of 3 clean runs, else six layers",
+ "runs": [
+  {
+   "run": "run1",
+   "make_last_line": "ALL GATES PASS",
+   "errors": 0,
+   "warnings": 24,
+   "unconnected": 0,
+   "schematic_parity": 0,
+   "violation_types": {
+    "connection_width": 11,
+    "copper_sliver": 1,
+    "lib_footprint_mismatch": 2,
+    "silk_edge_clearance": 10
+   },
+   "rc": 0,
+   "seconds": 5301,
+   "closed": true,
+   "route_rounds": 33
+  },
+  {
+   "run": "run2",
+   "make_last_line": "ALL GATES PASS",
+   "errors": 0,
+   "warnings": 23,
+   "unconnected": 0,
+   "schematic_parity": 0,
+   "violation_types": {
+    "connection_width": 10,
+    "copper_sliver": 1,
+    "lib_footprint_mismatch": 2,
+    "silk_edge_clearance": 10
+   },
+   "rc": 0,
+   "seconds": 4783,
+   "closed": true,
+   "route_rounds": 23
+  },
+  {
+   "run": "run3",
+   "make_last_line": "ALL GATES PASS",
+   "errors": 0,
+   "warnings": 24,
+   "unconnected": 0,
+   "schematic_parity": 0,
+   "violation_types": {
+    "connection_width": 10,
+    "copper_sliver": 2,
+    "lib_footprint_mismatch": 2,
+    "silk_edge_clearance": 10
+   },
+   "rc": 0,
+   "seconds": 5541,
+   "closed": true,
+   "route_rounds": 33
+  }
+ ],
+ "closed": 3,
+ "all_closed": true,
+ "passes_rule": true,
+ "board_of_record": null,
+ "note": "In3 X-preferred set (C53), 3 of 3 closed. Superseded before a board of record was taken: the block validators found C30 (U30 DVDD bypass) 3.10 mm from its pin against the RTD unit's 3 mm rule, so the bypasses got explicit poses and the routing was rerun. Run 1's board is kept as build/c53-in3x-run1.kicad_pcb (not committed)."
+}

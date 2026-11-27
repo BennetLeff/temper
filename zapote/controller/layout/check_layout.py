@@ -18,6 +18,7 @@ Enclosure (R31 CONTROLLER-SPEC section + R33 DECISIONS section 3 delta, via layo
 Layout rules (brief):
   decoupling  every IC supply pin (the 'vcc' pins of verify_controller's part models) has a capacitor to
               selv_gnd on the same net within 5 mm (pad to pad)
+  rtd_decoupling  each MAX31865 (U30, U50) supply pin has its bypass within 3 mm pad edge to pad edge (RTD unit rule, C53)
   rtd_j3_protection  each J3 pin has its 220 nF and TVS (C37); pad distances reported
   rtd_j9_protection  each J9 line's 100 nF is nearer the pin than its BAV199 clamp (C51 layout rule)
   partition   both bucks (blower L2/U2, face fan L3/U51) >= 10 mm courtyard to courtyard from both RTD channels
@@ -280,6 +281,31 @@ def main():
             rows.append({"pin": f"{ref}.{p.GetNumber()}", "net": n, "cap": best[1] if best else None,
                          "distance_mm": round(best[0], 2) if best else None, "ok": good})
     put("decoupling", ok, limit_mm=5.0, pins=rows)
+
+    # ---- rtd_decoupling (C53): the RTD unit's locality rule on both MAX31865s, measured as zapote-drc does
+    # (DRC.RTD.LOCAL_DECOUPLING: pad box edge to pad box edge, rail pads of the IC to the cap's rail pad). The block
+    # validator covers U30 only; the 5 mm decoupling gate above let C30 drift to 3.10 mm.
+    def pad_gap(p, q):
+        a, c = p.GetBoundingBox(), q.GetBoundingBox()
+        dx = max(mm(a.GetLeft()) - mm(c.GetRight()), mm(c.GetLeft()) - mm(a.GetRight()))
+        dy = max(mm(a.GetTop()) - mm(c.GetBottom()), mm(c.GetTop()) - mm(a.GetBottom()))
+        return math.hypot(dx, dy) if dx >= 0 and dy >= 0 else max(dx, dy)
+    rtd_rows, rtd_ok = [], True
+    for ref in ("U30", "U50"):
+        u = fps[ref]
+        for rail in sorted({p.GetNetname() for p in u.Pads()} & {"v3v3", "RTD_AVDD", "RTD2_AVDD"}):
+            best = None
+            for c in caps:
+                if {q.GetNetname() for q in c.Pads()} >= {rail, "selv_gnd"}:
+                    d = min(pad_gap(p, q) for p in u.Pads() if p.GetNetname() == rail
+                            for q in c.Pads() if q.GetNetname() == rail)
+                    if best is None or d < best[0]:
+                        best = (d, c.GetReference())
+            good = best is not None and best[0] <= 3.0
+            rtd_ok &= good
+            rtd_rows.append({"ic": ref, "net": rail, "cap": best and best[1],
+                             "edge_mm": best and round(best[0], 2), "ok": good})
+    put("rtd_decoupling", rtd_ok, limit_mm=3.0, rails=rtd_rows)
 
     # ---- C37 (sensor-r3 CR-1): J3 protection distances, reported (the CR's 3 mm cannot be met: the XH
     # body courtyard reaches 3.44 mm in front of the pin row). Pad centre to pad centre, and pad-edge gap.

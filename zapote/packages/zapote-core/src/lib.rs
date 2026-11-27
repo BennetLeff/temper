@@ -201,6 +201,27 @@ pub struct Board {
     #[serde(default)]
     pub paths: Vec<PathConstraint>,
     pub geometry: GeometryConstraints,
+    /// Copper layer count of the native board (C53: the controller is six layers). Absent in inputs written before
+    /// it existed; those boards are four layers.
+    #[serde(default = "default_copper_layer_count")]
+    pub copper_layer_count: u8,
+}
+
+fn default_copper_layer_count() -> u8 {
+    4
+}
+
+/// A KiCad copper layer name of a board with `count` layers: F.Cu, In1.Cu .. In{count-2}.Cu, B.Cu.
+pub fn is_copper_layer(layer: &str, count: u8) -> bool {
+    if layer == "F.Cu" || layer == "B.Cu" {
+        return true;
+    }
+    inner_layer_index(layer).is_some_and(|n| n >= 1 && n + 2 <= count)
+}
+
+/// N for "InN.Cu", else None.
+pub fn inner_layer_index(layer: &str) -> Option<u8> {
+    layer.strip_prefix("In")?.strip_suffix(".Cu")?.parse().ok()
 }
 
 impl Board {
@@ -344,7 +365,7 @@ impl Board {
             if !net_names.contains(zone.net.as_str()) {
                 errors.push(format!("native zone references unknown net {}", zone.net));
             }
-            if !matches!(zone.layer.as_str(), "F.Cu" | "B.Cu" | "In1.Cu" | "In2.Cu") {
+            if !is_copper_layer(&zone.layer, self.copper_layer_count) {
                 errors.push(format!(
                     "native zone {} uses unknown copper layer {}",
                     zone.id, zone.layer

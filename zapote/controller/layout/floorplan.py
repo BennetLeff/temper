@@ -94,6 +94,11 @@ PLACE = {
     "r_fan_inj": (92.1, 80.05, 0),
     # ---- RTD front end (rtd_pan) and the runaway comparator, between the module and J3
     "rtd_pan.adc": (149.0, 75.2, 90),       # C53: 1.3 mm forward; the 5.3 mm SSOP land (C51 U30 fix) reached the J3 strip
+    # C53: supply bypasses at U30's pin-1 end, pad 1 (the rail) toward the pin row. The RTD unit's rule is <= 3 mm pad
+    # edge to pad edge (zapote-drc DRC.RTD.LOCAL_DECOUPLING; check_layout rtd_decoupling). Auto-placed, C30 (DVDD, pin 2)
+    # landed at the top of that end, 3.10 mm from its pin.
+    "rtd_pan.c_dvdd": (144.28, 75.655, 90),  # DVDD pin 2: 2.51 mm
+    "rtd_pan.c_vdd": (144.28, 72.465, 90),   # VDD (RTD_AVDD) pin 3: 2.43 mm
     "rtd_pan.reference": (140.0, 78.5, 0),
     "rtd_pan.low_window": (138.0, 70.5, 0),
     "rtd_pan.high_window": (131.0, 70.5, 0),
@@ -174,6 +179,9 @@ PLACE = {
     "rtd_food.d_sp": (49.62, 76.6, 90),
     "rtd_food.d_fp": (53.17, 76.6, 90),
     "rtd_food.adc": (46.0, 68.3, 180),
+    # C53: U50's bypasses fixed beside its pin-1 end (auto-placed, C111 was 2.97 mm from DVDD pin 2; rule 3 mm)
+    "rtd_food.c_dvdd": (53.54, 67.025, 90),  # DVDD pin 2: 2.62 mm
+    "rtd_food.c_vdd": (51.945, 66.175, -90), # VDD (RTD2_AVDD) pin 3: 1.03 mm (its auto-placed pose)
     # second filter stage in the 2.5 mm row between U50's pin 10/11 end (Y 71.2) and the clamps: R2n, C2 (1206 across
     # the sense pair, pad 1 = S+ on the right), R2p; the common-mode caps beside pins 11 (left) and 10 (right)
     "rtd_food.r_s2n": (42.0, 73.41, 0),
@@ -230,7 +238,6 @@ ANCHOR = {
     "thermal.hs_bypass": "thermal.hs_comp", "thermal.coil_bypass": "thermal.coil_comp",
     "thermal.hs_open_bypass": "thermal.hs_open_comp", "thermal.coil_open_bypass": "thermal.coil_open_comp",
     "thermal.hs_or_bypass": "thermal.hs_or", "thermal.coil_or_bypass": "thermal.coil_or",
-    "rtd_pan.c_vdd": "rtd_pan.adc", "rtd_pan.c_dvdd": "rtd_pan.adc",
     "rtd_pan.c_reference": "rtd_pan.reference", "rtd_pan.c_low_window": "rtd_pan.low_window",
     "rtd_pan.c_high_window": "rtd_pan.high_window", "rtd_pan.c_window_and": "rtd_pan.window_and",
     "rtd_pan.c_rail_monitor": "rtd_pan.rail_monitor", "rtd_pan.c_fault_nand": "rtd_pan.fault_nand",
@@ -272,7 +279,7 @@ ANCHOR = {
     "d_bay": "J14", "r_bay_pu": "J14", "r_bay_filt": "u_buf2", "c_bay_filt": "u_buf2", "c_bay_adc": "r_bay_adc",
     # C53 food RTD (U50): supply, Rref, SPI 1 k series (C51: every SPI line has 1 k at U50) and the second filter stage
     # at the converter; the open-lead pull-ups and the first filter stage at J9
-    "rtd_food.c_vdd": "rtd_food.adc", "rtd_food.c_dvdd": "rtd_food.adc", "rtd_food.c_avdd_bulk": "rtd_food.adc",
+    "rtd_food.c_avdd_bulk": "rtd_food.adc",
     "rtd_food.fb": "rtd_food.adc", "rtd_food.r_ref": "rtd_food.adc",
     # C53 face fan: buck parts at U51 / L3, EMC2301 parts at U52, tach pull-up and series R at J15
     "bay_fan.c_ss": "bay_fan.u_buck", "bay_fan.c_bst": "bay_fan.u_buck", "bay_fan.c_in_a": "bay_fan.u_buck",

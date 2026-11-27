@@ -23,7 +23,11 @@
     "rtd_pan.r_avdd_top": {"unit": "ERA-3AEB1652V", "controller": "RT0603BRD0716K5L", "reason": "C35/C36 sourcing swap, same 16.5 k 0.1 % 25 ppm 0603 (W6)"},
     "rtd_pan.c_rtd_input": {"unit": "C0603C102J5GACTU", "controller": "GRM31C5C1H104JA01L", "reason": "C37: the RTDIN differential cap is the second filter stage, 100 nF C0G 1206"},
     "rtd_pan.r_rtdin_p_bias": {"unit": "RC0603JR-071ML", "controller": "RC0603FR-07499KL", "reason": "C37: open-input pull-up 499 k on the connector side"},
-    "rtd_pan.r_rtdin_n_bias": {"unit": "RC0603JR-071ML", "controller": "RC0603FR-07499KL", "reason": "C37: open-input pull-up 499 k on the connector side"}
+    "rtd_pan.r_rtdin_n_bias": {"unit": "RC0603JR-071ML", "controller": "RC0603FR-07499KL", "reason": "C37: open-input pull-up 499 k on the connector side"},
+    "rtd_pan.adc": {"unit": "MAX31865AAP+", "controller": "MAX31865AAP+T", "reason": "C51: same part, tape-and-reel ordering code (C779509); the controller also carries the 5.3 mm SSOP-20 land the unit's 3.9 mm QSOP land got wrong"},
+    "rtd_pan.r_ref": {"unit": "RG2012V-431-W-T1", "controller": "PTFR0805B430RN9", "reason": "C52: stocked 430 ohm 0805 0.1 % 10 ppm/K Rref (C351565), CR-2 gate 1b at 0.45 K"},
+    "rtd_pan.r_low_top": {"unit": "ERA-3AEB6192V", "controller": "RT0603BRD0761K9L", "reason": "C52 stock swap: same 61.9 k 0.1 % 25 ppm 0603 (C861498)"},
+    "rtd_pan.window_and": {"unit": "SN74LVC1G08DBVR", "controller": "SN74LVC1G08QDBVRQ1", "reason": "C52 stock swap: automotive grade of the same AND gate, same DBV package (C840098)"}
   },
   "pad_nets": {
     "rtd_pan.j_rtd1.2": {"unit": "rtd_sense_p", "controller": "rtd_sense_p_ext", "reason": "C37: J3.2 reaches RTDIN+ through the two-stage filter"},

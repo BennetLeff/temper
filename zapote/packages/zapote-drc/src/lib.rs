@@ -538,13 +538,12 @@ fn pad_clearance_mm(first: &Pad, second: &Pad) -> f64 {
     }
 }
 
+/// Stack order of a copper layer: F.Cu 0, InN.Cu N, B.Cu last (C53: any layer count, not only four).
 fn layer_index(layer: &str) -> Option<u8> {
     match layer {
         "F.Cu" => Some(0),
-        "In1.Cu" => Some(1),
-        "In2.Cu" => Some(2),
-        "B.Cu" => Some(3),
-        _ => None,
+        "B.Cu" => Some(u8::MAX),
+        _ => zapote_core::inner_layer_index(layer),
     }
 }
 
@@ -758,10 +757,15 @@ fn segment_inside_zone(
     })
 }
 
-fn reference_layer(signal_layer: &str) -> Option<&'static str> {
-    match signal_layer {
-        "F.Cu" | "In2.Cu" => Some("In1.Cu"),
-        "B.Cu" | "In1.Cu" => Some("In2.Cu"),
+/// The return plane a signal layer is checked against. Four layers: F and In2 over In1, B and In1 over In2 (the
+/// unit's stack). Six layers (C53, the controller: F / In1 plane / In2 / In3 / In4 plane / B): F and In2 over In1,
+/// In3 and B over In4. Any other stack has no defined reference, so its traces are not proven inside a corridor.
+fn reference_layer(signal_layer: &str, copper_layers: u8) -> Option<&'static str> {
+    match (copper_layers, signal_layer) {
+        (4, "F.Cu" | "In2.Cu") => Some("In1.Cu"),
+        (4, "B.Cu" | "In1.Cu") => Some("In2.Cu"),
+        (6, "F.Cu" | "In2.Cu") => Some("In1.Cu"),
+        (6, "B.Cu" | "In3.Cu") => Some("In4.Cu"),
         _ => None,
     }
 }
@@ -1571,7 +1575,7 @@ fn check_native_geometry(
                     ));
                 } else {
                     for trace in route_traces {
-                        let reference = reference_layer(&trace.layer).and_then(|layer| {
+                        let reference = reference_layer(&trace.layer, input.board.copper_layer_count).and_then(|layer| {
                             input.board.zones.iter().find(|z| {
                                 z.net == "gnd" && z.layer == layer && !z.filled_polygons.is_empty()
                             })
@@ -1961,8 +1965,14 @@ mod tests {
             [9.0, 5.0],
             |_, _| false
         ));
-        assert_eq!(reference_layer("B.Cu"), Some("In2.Cu"));
-        assert_eq!(reference_layer("F.Cu"), Some("In1.Cu"));
+        assert_eq!(reference_layer("B.Cu", 4), Some("In2.Cu"));
+        assert_eq!(reference_layer("F.Cu", 4), Some("In1.Cu"));
+        assert_eq!(reference_layer("B.Cu", 6), Some("In4.Cu"));
+        assert_eq!(reference_layer("In3.Cu", 6), Some("In4.Cu"));
+        assert_eq!(reference_layer("In2.Cu", 6), Some("In1.Cu"));
+        assert_eq!(reference_layer("In4.Cu", 6), None);
+        assert_eq!(layer_index("B.Cu"), Some(u8::MAX));
+        assert_eq!(layer_index("In4.Cu"), Some(4));
     }
 }
 
