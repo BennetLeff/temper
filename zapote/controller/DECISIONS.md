@@ -1301,3 +1301,9 @@ Dispositions:
   - m5: J13 polarity check before power.
   - m6: J4 buzz.
   - m3 ("SAFE MODE" once after a flash) and m4 (BIAS_GOOD margin) are bring-up notes.
+- **m4 disposition (owner, 2026-11-28): accepted for the C53 prototype.** "Accept m4 (0.493 K linear / 0.414 K RSS vs 0.45 K on
+  CR-2 gate 1b) for the C53 prototype, with Kelvin Rref routing logged for the next layout." The gate stays as it is and keeps
+  reporting FAIL. The owner had first chosen to fix it before ordering; the RTD re-layout was stopped before any change.
+  - Kelvin Rref routing for the next layout: the same net may carry a force and a sense path if they meet only at Rref's pad, so the next layout should pre-route four locked tracks: U30.4 (BIAS) and U30.5 (REFIN+) each to R39.1, U30.6 (REFIN-) and U30.7 (ISENSOR) each to R39.2, never joined at the converter. That needs no netlist change. Then gate the resistance common to the force and sense paths, not the path length (check_layout rtd_rref_copper measures the latter today), and give R39 a pose beside the pin row (it faces the module courtyard 0.6 mm off on this placement).
+- **C53 is orderable (owner, 2026-11-28)** on board `3efed65c…` (e54affc58 and this entry), subject to the owner's J4 Molex drawing
+  check and the JLC placement-preview checks (ORDER.md §3, §5.2). Not ordered. The owner orders and sends the JLC message.

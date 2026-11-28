@@ -2,7 +2,7 @@
 
 **Nothing has been ordered, uploaded or paid. Ordering is the owner's decision, and the owner sends the JLC message.**
 
-**One owner decision is open before ordering: CR-2 gate 1b** (§5.1). Everything else in this file is ready.
+**Status: orderable (owner, 2026-11-28)**, subject to the owner's two checks before paying: the J4 Molex drawing (§5.2) and the JLC placement preview (§3). CR-2 gate 1b's 0.04 K miss is accepted for this prototype (§5.1).
 
 The C49 package this file used to describe is in git history (ORDER.md before 2026-11-28). It is superseded.
 
@@ -94,14 +94,12 @@ One designator per LCSC code is enough; the rest of the code follows. The full l
 
 ## 5. Owner items before paying
 
-1. **CR-2 gate 1b (decision; LAYOUT.md open item 13).**
-   - **The problem:** the routed copper between the pan MAX31865 (U30) and its Rref (R39) is 252.9 mΩ. Its copper tempco adds
-     0.074 K at 250 °C over the 60 K board swing. That takes the board terms of gate 1b to **0.493 K against your 0.45 K**;
-     the RSS is 0.414 K and passes.
-   - **Why it can't be fixed in place:** R39 cannot move to U30's pins as placed.
-   - **Options:**
-     - (a) accept it for the prototype and fix it in the next layout;
-     - (b) re-lay the RTD front end, or split the Rref nets for a Kelvin tie, then re-route and re-prove before ordering.
+1. **CR-2 gate 1b: accepted for the C53 prototype (owner, 2026-11-28; LAYOUT.md open item 13, DECISIONS C53).**
+   - The routed copper between the pan MAX31865 (U30) and its Rref (R39) is 252.9 mΩ. Its copper tempco adds 0.074 K at
+     250 °C over the 60 K board swing, so gate 1b's board terms are **0.493 K linear against 0.45 K**; the RSS is 0.414 K.
+   - The sensor-r3 check keeps reporting 1b as FAIL (`evidence/sensor-r3-checks/checks-as-built.json`): the acceptance is
+     recorded here and in DECISIONS, not by loosening the gate.
+   - Next layout: Kelvin Rref routing for the next layout: the same net may carry a force and a sense path if they meet only at Rref's pad, so the next layout should pre-route four locked tracks: U30.4 (BIAS) and U30.5 (REFIN+) each to R39.1, U30.6 (REFIN-) and U30.7 (ISENSOR) each to R39.2, never joined at the converter. That needs no netlist change. Then gate the resistance common to the force and sense paths, not the path length (check_layout rtd_rref_copper measures the latter today), and give R39 a pose beside the pin row (it faces the module courtyard 0.6 mm off on this placement).
 2. **J4 numbering.**
    - Read circuit 1's position against the pegs on Molex's `430451600_sd.pdf` and record it in DECISIONS.
    - KiCad's and JLC's footprints now agree on pin 1 relative to the body (set 11 review B1). That is not the Molex drawing.

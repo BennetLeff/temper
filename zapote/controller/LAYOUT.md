@@ -2,7 +2,7 @@
 
 This is the layout of the integrated SELV controller: 346 footprints (342 placed by JLC; J11's TC2050 land and the 3 fiducials are copper only), 6 layers (C53), 206 × 76 mm, placed and routed by scripts from `frozen/default.net`, with a JLCPCB fab package. Nothing was drawn by hand in the KiCad GUI.
 
-**Status: DRC-clean candidate, not released** (ordering is the owner's decision). KiCad DRC: 0 errors, 0 unconnected, schematic parity 0; JLC DFM PASS; all 22 enclosure/layout checks PASS; gerbv fab review PASS. Not fabricated. Every number below comes from a file in `evidence/` that `python3 layout/make.py` regenerates: `drc.json`, `jlc-dfm.json`, `layout-check.json`, `fab-review.json`, `silk-designators.json`, `verify.json`; the routing-robustness proof is `evidence/convergence.json` (`layout/convergence.py`).
+**Status: orderable (owner, 2026-11-28), not yet ordered**, subject to the owner's J4 Molex drawing check and the JLC preview checks (ORDER.md §3, §5). Ordering is the owner's. KiCad DRC: 0 errors, 0 unconnected, schematic parity 0; JLC DFM PASS; all 22 enclosure/layout checks PASS; gerbv fab review PASS. Not fabricated. Every number below comes from a file in `evidence/` that `python3 layout/make.py` regenerates: `drc.json`, `jlc-dfm.json`, `layout-check.json`, `fab-review.json`, `silk-designators.json`, `verify.json`; the routing-robustness proof is `evidence/convergence.json` (`layout/convergence.py`).
 
 **Enclosure revision:** R31 outline, holes and connectors (`output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md`, "R31" section, with R30's mounting and heights) plus the **R33 controller delta** (`output/temper-manufacturing-r33/design/r33/DECISIONS.md` §3; the R35 HANDOFF restates it unchanged):
 - J5, J6 and J8 are deleted; one 12-way JST B12B-XH-A **J7** at X29.8–62.2, Y57.1–62.9 carries the UI bus (DECISIONS C26);
@@ -286,7 +286,7 @@ What changed from L2, where three of four runs closed:
 10. **Long lines:** RUN_EN and the RTD trip inputs cross most of the board (Interlock trip path). All fail safe on a break; a bench noise check on them is worth adding.
 11. **In2 use:** In2 carries some signal tracks where F/B were full; the v3v3 pour refills around them, and `plane_islands.py` re-joins any v3v3 island; DRC shows v3v3 as one connected net.
 12. **Firmware pins.h:** RUN_EN 14; RTD_DRDY expander P07; SUP_RUN_OK expander P14; FAN_OFF expander P15; BLW_PG expander P16 (input, 1 = PS3 present); FAN_PWM GPIO46 (feedback injection, duty 0 = full speed); FAN_TACH (J10 FG) GPIO3 (PCNT); UI SPI 40/41/44/47/48/45; I²C SDA 37 / SCL 0; RIM_ADC 9.
-13. **CR-2 gate 1b fails with the routed Rref copper (set 11 review m4; owner decision).** The pan MAX31865 (U30) reads 252.9 mΩ of
+13. **CR-2 gate 1b fails with the routed Rref copper (set 11 review m4): accepted for the C53 prototype by the owner, 2026-11-28; Kelvin Rref routing in the next layout (ORDER.md §5.1).** The pan MAX31865 (U30) reads 252.9 mΩ of
     track and vias between its BIAS/REFIN+ and REFIN−/ISENSOR pins and R39 (`layout-check.json` `rtd_rref_copper`; R39 is 15 mm away,
     because U30's pin row faces the module courtyard 0.6 mm off). The single-point calibration removes the fixed part. Its copper
     tempco does not: 0.074 K at 250 °C over the gate's 60 K board swing. Board terms come to **0.493 K against the 0.45 K gate**
