@@ -265,7 +265,7 @@ def main():
     xb0 = P.BAR["x"][0]
     bar_holes = [(f"pocket {r}", P.FET_X[r] - xb0, P.SPRING_Z - P.BAR["z"][0], P.SPRING["hole"],
                   f"3/8 in flat-bottom, {P.POCKET_DEPTH} deep (twist drill + 3/8 in counterbore, or end mill)") for r in P.FET_X]
-    bar_holes += [(f"end hole {i}", x - xb0, P.BAR_SCREW_Z - P.BAR["z"][0], 4.5, "through 4.5 (M4 clearance)")
+    bar_holes += [(f"end hole {i}", x - xb0, P.BAR_SCREW_Z - P.BAR["z"][0], P.BAR_HOLE_D, f"through {P.BAR_HOLE_D} (M4 clearance)")
                   for i, x in enumerate(P.BAR_SCREW_X, 1)]
     sl = P.BAR_SLOT
     bar_holes += [("BR1 driver slot", sl["x"] - xb0, sum(sl["z"]) / 2 - P.BAR["z"][0], sl["w"],

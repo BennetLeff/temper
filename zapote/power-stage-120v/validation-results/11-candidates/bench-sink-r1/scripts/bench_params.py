@@ -116,6 +116,8 @@ FR4_T = (1.44, 1.76)                # 1.6 mm +/-10 % (EST; IPC-4101 class)
 FR4_PAD = (14.0, 16.0)              # x, z
 BAR = dict(t=9.525, h=25.4, x=(-11.0, 119.5), z=(6.0, 31.4))    # 6061 3/8 x 1 in flat bar
 POCKET_DEPTH = 7.0                  # 3/8 in flat-bottom pocket
+POCKET_DEPTH_TOL = 0.05             # +/- on the fab drawing (spring preload), jlc-mech-r1 section 1 row 1; no tool reads it
+BAR_HOLE_D = 4.5                    # bar end holes, through (M4 clearance)
 SPACER_L = 10.0                     # bar-to-sink spacer length (M4, aluminium)
 BAR_SCREW_X = (-7.0, 115.5)
 BAR_SCREW_Z = 18.7

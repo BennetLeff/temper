@@ -1,5 +1,7 @@
 # Bench heatsink r1: thermal mount for the first native-21 boards
 
+**2026-11-28: fab package for the clamp bar (JLCCNC) and the FR-4 pads (JLCPCB) is in `fab/`; see §12.** Nothing was ordered or uploaded.
+
 **2026-11-25 (stage 57, DECISIONS 87): the FET holes are 1.8 mm.** Lead play grows 0.15 mm, so the thickest FET shim is 2.2 mm (was 2.0). Every verdict in `results/` is unchanged; re-run with `scripts/bench_*.py`. The bracket slots need ± 1.05 mm in y (was ± 0.90; they have ± 2.0).
 
 **2026-11-25 (DECISIONS 91): reversed DECISIONS 86 — JLC again solders Q2 / Q3 / Q5 / Q6 (consigned).** §2's FET remark and the JLC-soldered gauge-and-shim procedure below apply again (with the stage-57 1.8 mm hole caveat above: only the center drain shoulder seats, and the thickest shim is 2.2 mm).
@@ -28,6 +30,8 @@ Study, 2026-10-18. Branch `study/bench-sink-r1`, from `codex/power-stage-integra
 | `python3 -I scripts/bench_cad.py` | `results/bench-sink-r1.dxf`, `.svg`, `results/drill-table.md` |
 | `python3 -I scripts/compare_mounts.py` (revision 3: common sink vs per-device sinks vs thick gap pad) | `results/compare.md`, `.json` |
 | `python3 -I scripts/shim_select.py gaps.csv` (at assembly; exits 1 on a reject) | the fit sheet for the measured board (`example-gaps.csv` shows the format) |
+| `~/.local/share/temper/cadenv/bin/python -I scripts/bench_bar_step.py`, then `bench_bar_drawing.py`, then `bench_bar_verify.py` (build123d; exit 1 on a disagreement or FAIL) | `fab/clamp-bar/`: STEP, PDF, DXF, `step-check.md` (§12) |
+| `~/.local/share/temper/kikit-venv/bin/python -I scripts/bench_pads_gerber.py`, then `cadenv/bin/python -I scripts/bench_pads_verify.py` (KiCad 10 + KiKit; gerbv; exit 1 on a FAIL) | `fab/pads/`: two Gerber zips, renders, `pads-check.md` (§12) |
 
 All tools use the standard library only and each runs in about a second. `bench_thermal.py` imports the device study's `thermal.py` loss models and asserts on their constants. `bench_mech.py` holds the soldered-lead mechanics shared by the others.
 
@@ -456,3 +460,88 @@ Reads are from 2026-10-18; the raw reads and the blocked sites are in `sources/S
   - the tie is removed before the IR test and before 4b;
   - with hv_ret at PE, the strip sees at most the step-3/4 bus voltage, inside the 622.4 V bound (`insulation.md`).
 - **Q10. Soldered-lead mechanics.** The lead modulus, the allowed lead stress (200 MPa), the pivot at the board and the strip compliance are all EST. The lean limit and the "cannot close" verdict rest on them. The verdict holds across a wide margin (spread ≥ 0.270 mm against a budget of 0.0195 mm). The lean limit is the sensitive one.
+
+## 12. Fab package: clamp bar and FR-4 pads (2026-11-28)
+
+Follows `../jlc-mech-r1/README.md` §1 rows 1–2 and §2. Nothing was ordered, uploaded or sent.
+
+**What was made.**
+- **Clamp bar** (JLCCNC CNC). A build123d solid built from `bench_params.py` (`BAR`, `FET_X`, `SPRING_Z`, `SPRING["hole"]`, `POCKET_DEPTH`, `BAR_SCREW_X/Z`; new `BAR_HOLE_D` 4.5 and `POCKET_DEPTH_TOL` 0.05). It has four flat-bottom Ø9.53 × 7.00 pockets opening into face A (the spacer-seat face) and two Ø4.5 through-holes. **There is no BR1 driver slot** (jlc-mech-r1 §2, option a). The build script cross-checks every feature against `results/drill-table.md` and refuses to build on any disagreement. There was none.
+  - The drawing is one A3 sheet at 2:1, projected (OCCT hidden-line) from the re-imported STEP. It has a view on face A, a right view, section A-A through the pockets and an isometric. Each dimension is measured on the STEP and must match `bench_params.py`.
+  - The DXF holds the same sheet at 1:1 in model space: `$INSUNITS` 4, closed outlines, true circles.
+- **FR-4 pads** (JLCPCB bare board). One zip per thickness, 1.6 and 0.8 mm. Each is a 60 × 48 mm panel: 3 × 2 pads of 14 × 16 mm, so 4 + 2 spares, and 30 pads per thickness at JLCPCB's 5-panel minimum.
+  - A 5 mm frame, 2 mm milled gaps and a 0.5 mm router radius.
+  - Each pad hangs on two 5 mm tabs, one on each 14 mm edge. Each tab has 7 Ø0.6 mouse-bites at 0.833 pitch (0.233 web), set 0.25 mm inside the pad edge.
+- **`bench_cad.py`** now reads `BAR_HOLE_D` instead of a literal 4.5. Its outputs are byte-identical.
+
+**Files** (sha256; all three generators are deterministic, so a re-run reproduces these bytes):
+
+| file | sha256 |
+|---|---|
+| `fab/clamp-bar/bench-clamp-bar-r1.step` | `6bddbac3556de67f20b96d02b316f8b448e060f325fe2aae6a205d92ae8c386d` |
+| `fab/clamp-bar/bench-clamp-bar-r1.pdf` | `d8f4a7de2c06466fd83427c8eeb211e445c912c6216a28e39598517f110659df` |
+| `fab/clamp-bar/bench-clamp-bar-r1.dxf` | `1b2fe9e3fb9634bc73388775242fe4e09b11b29e0e86414225a2725f60cb00e8` |
+| `fab/pads/bench-pads-1.6mm-r1.zip` | `257e869ee8647678b50270bd5e7136a73f1c468353a538a7690b589df0f65a41` |
+| `fab/pads/bench-pads-0.8mm-r1.zip` | `66d5801ead1cc6376b639527d6aee464968f3c4111135b32d06ac4f66736f562` |
+
+**Checks.**
+- **`fab/clamp-bar/step-check.md`: 32 PASS, 0 FAIL.** The checks are on the re-imported STEP:
+  - mm units, one solid;
+  - bounding box 130.500 × 25.400 × 9.525;
+  - volume 29272.284 mm³, equal to the analytic value;
+  - only plane and cylinder faces;
+  - pocket centres u 20.95 / 38.95 / 61.05 / 79.05, v 9.00, Ø9.5300, depth 7.0000 from face A, each floor a plane bounded by one circle of r 4.7650 (area 71.331, no drill point);
+  - through-holes Ø4.5000 at u 4.00 / 126.50, v 12.70, z 0 to 9.525;
+  - the slot location is solid metal.
+
+  A mutation run (pocket depth 7.08, hole Ø4.6) makes it exit 1.
+- **`fab/pads/pads-check.md`: 60 PASS, 0 FAIL**, from the zip files alone.
+  - The Edge.Cuts is polygonised, and the board is cut along the NPTH mouse-bites. It breaks into 1 frame, 6 pads and 3 pad-to-pad bridges, which also shows every tab is fully perforated.
+  - Each pad's routed outline is 14.000 × 16.000.
+  - Gaps are 2.000; rails are 5.000.
+  - Tabs are 5.6 mm perforated, centred on the edge (offset 0.000), with the bite row 0.250 inside it.
+  - The modelled break residue is ≤ 0.039 mm: the router-radius fillet just outside the last bite. Sand it flush.
+  - The copper layers are empty. Both mask layers open each whole pad. The silk is on the frame only.
+  - gerbv renders every layer (`fab/pads/bench-pads-*-r1.png`). Its only message is the RS-274D format guess it prints for the empty copper files.
+
+**Layers in each pad zip, and why.**
+- Edge.Cuts (`.gm1`) and an NPTH Excellon carry all the geometry.
+- F.Cu and B.Cu are present and empty, so the set reads as an ordinary 2-layer board with no copper.
+- F.Mask and B.Mask open every pad plus 0.1 mm, so both pad faces are bare laminate (the thickness the tolerance stack uses). Mask stays on the frame only.
+- F.SilkS carries the panel label and `JLCJLCJLCJLC` on the frame rails, so JLC's order number lands on the frame, not on a pad face.
+- No paste and no PTH file.
+
+**JLCPCB rules used** (https://jlcpcb.com/capabilities/pcb-capabilities, read 2026-11-28 by a web-fetch subagent):
+- "FR4/Rogers/PTFE: 3 × 3 mm" minimum board, for thickness ≥ 0.6 mm. So 60 × 48 is far above it.
+- Mouse-bites: "Panel board spacing: 1.6 or 2 mm"; "For breakaway with mouse-bites, the minimum width is 5mm"; "Recommended diameter of mouse bite is 0.5mm-0.8mm; Recommended distance between the two mouse-bites is 0.2-0.3mm"; "Minimum tooling edge width: 3 mm".
+- "Min. Non-plated holes: 0.50mm"; "Min. Non-Plated Slots: 1.0mm".
+- Thicknesses "0.4/0.6/0.8/1.0/1.2/1.6/2.0 mm". Tolerance "± 10%" at ≥ 1.0 mm, "± 0.1mm" below.
+- V-cut needs a 70 × 70 panel, so it is not used.
+
+**Order settings.**
+- **JLCCNC.** Upload the STEP, plus the PDF as the 2D drawing (and the DXF).
+  - CNC milling, **aluminium 6061-T6**.
+  - Finish **as machined, deburred, no anodize, no coating**. The bar is PE-bonded through its screws and spacers.
+  - Tolerance **ISO 2768-m**, with the drawing's **pocket depth 7.00 ± 0.05** from face A. Floors flat, corner R0.2 max.
+  - No threads. **Quantity 2** (1 + spare).
+- **JLCPCB.** One order per zip.
+  - Base material **FR-4**, 2 layers, **thickness 1.6 mm** (or **0.8 mm** for the other zip), 60 × 48 mm, quantity 5.
+  - Delivery format: panel by customer; the file is already a 3 × 2 panel with its frame. Surface finish: any (there is no copper).
+  - Remove order number: "specify a location" (the `JLCJLCJLCJLC` text).
+  - Remark: *"Bare FR-4 pressure pads: copper layers intentionally empty (no copper); mask openings over the pads intentionally leave bare laminate."*
+
+**Open items.**
+1. **The owner cuts the BR1 driver slot** after measuring BR1's seat height: 6.5 mm wide (two 6.5 holes + file), centred on u 105.20. Its v is set by the measured seat; at the EST seat it is v 3.4–11.4. An M3 SHCS head passes only within ±1.25 mm of the EST seat (jlc-mech-r1 §2).
+2. **JLCPCB acceptance of a no-copper board is unconfirmed.** The help article returned 404, and the capabilities page says nothing about bare substrate or mask-free boards. If JLCPCB refuses it:
+   - JLCCNC can machine the pads in "FR4" from the pad outline;
+   - or BOM lines 5–6 (G-10 sheet) are hand-cut, as before.
+3. **JLCPCB's 0.8 mm tolerance (± 0.1, so 0.70–0.90) is wider than `FR4_THIN_T` (0.71–0.87, EST).** The 1.6 mm tolerance (1.44–1.76) equals `FR4_T`. A scratch re-run of `bench_tolerance.py` and `bench_insulation.py` with 0.70–0.90 still passes both, and nothing committed was changed:
+   - the 0.8 mm pad window becomes 0.606–1.437 mm (committed 0.596–1.467);
+   - its force becomes 60.0–86.6 N (committed 60.0–85.9);
+   - coverage of the 2.100 mm spread is still True;
+   - the tightest 0.8-pad clearance is 3.832 mm (committed 3.84).
+
+   `FR4_THIN_T` is left as is. Caliper each pad at assembly; `shim_select.py` already works per device.
+4. The bar's end holes leave a 1.75 mm wall to the bar ends (u 4.0, Ø4.5), as the drill table has always had.
+5. **Regression** (re-run 2026-11-28). `bench_tolerance.py` (exit 0, closes with shims = True), `bench_thermal.py`, `bench_insulation.py` (exit 0, all True) and `bench_cad.py` all regenerated `results/` byte-identical, so every verdict is unchanged.
+
