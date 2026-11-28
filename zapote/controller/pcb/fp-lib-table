@@ -5,6 +5,7 @@
   (lib (name "Connector_JST") (type "KiCad") (uri "${KIPRJMOD}/libs/Connector_JST.pretty") (options "") (descr ""))
   (lib (name "Connector_Molex") (type "KiCad") (uri "${KIPRJMOD}/libs/Connector_Molex.pretty") (options "") (descr ""))
   (lib (name "Diode_SMD") (type "KiCad") (uri "${KIPRJMOD}/libs/Diode_SMD.pretty") (options "") (descr ""))
+  (lib (name "Fiducial") (type "KiCad") (uri "${KIPRJMOD}/libs/Fiducial.pretty") (options "") (descr ""))
   (lib (name "Inductor_SMD") (type "KiCad") (uri "${KIPRJMOD}/libs/Inductor_SMD.pretty") (options "") (descr ""))
   (lib (name "Package_SO") (type "KiCad") (uri "${KIPRJMOD}/libs/Package_SO.pretty") (options "") (descr ""))
   (lib (name "Package_SON") (type "KiCad") (uri "${KIPRJMOD}/libs/Package_SON.pretty") (options "") (descr ""))

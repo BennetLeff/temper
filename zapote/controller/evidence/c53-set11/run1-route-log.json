@@ -1,0 +1,311 @@
+{
+ "rounds": [
+  {
+   "round": 1,
+   "open_before": 437
+  },
+  {
+   "round": 2,
+   "open_before": 19
+  },
+  {
+   "round": 3,
+   "open_before": 10
+  },
+  {
+   "repair": "0.0",
+   "radius_mm": 3.0,
+   "open_before": 7,
+   "first": "rtd_food.adc-sdi,rtd_sense_p_ext,sense,ss_12,v3v3"
+  },
+  {
+   "round": 4,
+   "open_before": 79,
+   "first": "rtd_food.adc-sdi,rtd_sense_p_ext,sense,ss_12,v3v3"
+  },
+  {
+   "round": 5,
+   "open_before": 11
+  },
+  {
+   "round": 6,
+   "open_before": 7
+  },
+  {
+   "repair": "0.1",
+   "radius_mm": 5.0,
+   "open_before": 6,
+   "first": "coil_buf_out,rtd2_bias,rtd2_sense_n,rtd_food.adc-cs_n,rtd_pan.low_window-inp,rtd_sense_p_ext"
+  },
+  {
+   "round": 7,
+   "open_before": 76,
+   "first": "coil_buf_out,rtd2_bias,rtd2_sense_n,rtd_food.adc-cs_n,rtd_pan.low_window-inp,rtd_sense_p_ext"
+  },
+  {
+   "round": 8,
+   "open_before": 6
+  },
+  {
+   "round": 9,
+   "open_before": 3
+  },
+  {
+   "repair": "0.2",
+   "radius_mm": 8.0,
+   "open_before": 3,
+   "first": "rtd2_force_n,rtd_sense_p_ext,vbias"
+  },
+  {
+   "round": 10,
+   "open_before": 121,
+   "first": "rtd2_force_n,rtd_sense_p_ext,vbias"
+  },
+  {
+   "round": 11,
+   "open_before": 10
+  },
+  {
+   "round": 12,
+   "open_before": 7
+  },
+  {
+   "cleanup": 0
+  },
+  {
+   "round": 13,
+   "open_before": 10
+  },
+  {
+   "round": 14,
+   "open_before": 3
+  },
+  {
+   "repair": "1.0",
+   "radius_mm": 3.0,
+   "open_before": 3,
+   "first": "pwm_hb,rtd_pan.low_window-inp,v3v3"
+  },
+  {
+   "round": 15,
+   "open_before": 40,
+   "first": "pwm_hb,rtd_pan.low_window-inp,v3v3"
+  },
+  {
+   "round": 16,
+   "open_before": 7
+  },
+  {
+   "round": 17,
+   "open_before": 7
+  },
+  {
+   "repair": "1.1",
+   "radius_mm": 5.0,
+   "open_before": 6,
+   "first": "I2C_SDA,UI_CS_EXP_N,pwm_hb,v3v3"
+  },
+  {
+   "round": 18,
+   "open_before": 107,
+   "first": "I2C_SDA,UI_CS_EXP_N,pwm_hb,v3v3"
+  },
+  {
+   "round": 19,
+   "open_before": 4
+  },
+  {
+   "repair": "1.2",
+   "radius_mm": 8.0,
+   "open_before": 4,
+   "first": "coil_buf_out,p1,pwm_hb,vbias"
+  },
+  {
+   "round": 20,
+   "open_before": 96,
+   "first": "coil_buf_out,p1,pwm_hb,vbias"
+  },
+  {
+   "round": 21,
+   "open_before": 7
+  },
+  {
+   "round": 22,
+   "open_before": 4
+  },
+  {
+   "cleanup": 1
+  },
+  {
+   "round": 23,
+   "open_before": 3
+  },
+  {
+   "round": 24,
+   "open_before": 2
+  },
+  {
+   "repair": "2.0",
+   "radius_mm": 3.0,
+   "open_before": 2,
+   "first": "pwm_hb,rtd_sense_p_ext"
+  },
+  {
+   "round": 25,
+   "open_before": 22,
+   "first": "pwm_hb,rtd_sense_p_ext"
+  },
+  {
+   "round": 26,
+   "open_before": 2
+  },
+  {
+   "repair": "2.1",
+   "radius_mm": 5.0,
+   "open_before": 2,
+   "first": "pwm_hb,rtd_sense_p_ext"
+  },
+  {
+   "round": 27,
+   "open_before": 46,
+   "first": "pwm_hb,rtd_sense_p_ext"
+  },
+  {
+   "round": 28,
+   "open_before": 4
+  },
+  {
+   "round": 29,
+   "open_before": 3
+  },
+  {
+   "repair": "2.2",
+   "radius_mm": 8.0,
+   "open_before": 3,
+   "first": "line,pwm_hb,v3v3"
+  },
+  {
+   "round": 30,
+   "open_before": 87,
+   "first": "line,pwm_hb,v3v3"
+  },
+  {
+   "round": 31,
+   "open_before": 7
+  },
+  {
+   "round": 32,
+   "open_before": 3
+  },
+  {
+   "cleanup": 2
+  },
+  {
+   "round": 33,
+   "open_before": 5
+  },
+  {
+   "round": 34,
+   "open_before": 2
+  },
+  {
+   "eco": 0,
+   "open_before": 2
+  },
+  {
+   "round": 35,
+   "open_before": 109
+  },
+  {
+   "round": 36,
+   "open_before": 10
+  },
+  {
+   "round": 37,
+   "open_before": 6
+  },
+  {
+   "round": 38,
+   "open_before": 7
+  },
+  {
+   "round": 39,
+   "open_before": 2
+  },
+  {
+   "eco": 1,
+   "open_before": 2
+  },
+  {
+   "round": 40,
+   "open_before": 62
+  },
+  {
+   "round": 41,
+   "open_before": 9
+  },
+  {
+   "round": 42,
+   "open_before": 7
+  },
+  {
+   "round": 43,
+   "open_before": 9
+  },
+  {
+   "round": 44,
+   "open_before": 4
+  },
+  {
+   "round": 45,
+   "open_before": 5
+  },
+  {
+   "eco": 2,
+   "open_before": 4
+  },
+  {
+   "round": 46,
+   "open_before": 45
+  },
+  {
+   "round": 47,
+   "open_before": 10
+  },
+  {
+   "round": 48,
+   "open_before": 8
+  },
+  {
+   "round": 49,
+   "open_before": 9
+  },
+  {
+   "round": 50,
+   "open_before": 4
+  },
+  {
+   "round": 51,
+   "open_before": 3
+  }
+ ],
+ "power_vias": [
+  {
+   "net": "v15_selv",
+   "at": [
+    52.0,
+    75.2
+   ],
+   "companions": 1
+  },
+  {
+   "net": "V12_FAN2",
+   "at": [
+    158.8,
+    50.6
+   ],
+   "companions": 1
+  }
+ ],
+ "final_open": 2
+}

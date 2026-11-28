@@ -31,7 +31,7 @@
 - **Sourcing swaps (DECISIONS C35/C36):** R53 RT0603BRD0716K5L (C728584), U22 74HC30PW,118 (C546857),
   R31 RT0603BRD078K06L (C861587), J13 code C160315 (same MPN), U14 AD8436ARQZ-R7 (C495329). The C35 Rref
   swap (RT0805BRD07430RL) is reverted by C37.
-- **Board-only lands (not on the BOM or CPL):** J11 (J11: Tag-Connect TC2050-IDC-NL
+- **Board-only lands (not on the BOM or CPL):** FID1, FID2, FID3, J11 (J11: Tag-Connect TC2050-IDC-NL
   debug/programming pads, DECISIONS C41; nothing is fitted).
 - **U14 is the AD8436 A grade (ARQZ), not the B grade:** its larger initial gain error is removed by the
   COMMISSIONING step-1 trim; the converter's worst case is -1.5 to +0.8 %, inside the +/-3 % criterion.

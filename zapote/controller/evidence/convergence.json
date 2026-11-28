@@ -1,66 +1,94 @@
 {
  "stackup": "6 layers, JLC06161H-3313 (C53)",
  "rule": "C51: at least 2 of 3 clean runs, else six layers",
+ "code": "1be33819a (route.py pv_repair, gridroute ECO companions)",
  "runs": [
   {
    "run": "run1",
-   "make_last_line": "ALL GATES PASS",
+   "make_last_line": "DRC not clean",
    "errors": 0,
-   "warnings": 21,
-   "unconnected": 0,
+   "warnings": 44,
+   "unconnected": 2,
    "schematic_parity": 0,
    "violation_types": {
-    "connection_width": 9,
+    "connection_width": 17,
+    "copper_sliver": 1,
+    "hole_to_hole": 2,
     "lib_footprint_mismatch": 2,
-    "silk_edge_clearance": 10
+    "silk_edge_clearance": 10,
+    "track_dangling": 10,
+    "via_dangling": 2
    },
-   "rc": 0,
-   "seconds": 3250,
-   "closed": true,
-   "route_rounds": 17
+   "rc": 1,
+   "seconds": 7931,
+   "closed": false,
+   "route_rounds": 51,
+   "eco_passes": 3,
+   "pv_repair": null,
+   "open_nets": [
+    "HS_FAULT",
+    "hs_buf_out"
+   ]
   },
   {
    "run": "run2",
-   "make_last_line": "DRC not clean",
+   "make_last_line": "ALL GATES PASS",
    "errors": 0,
-   "warnings": 26,
-   "unconnected": 1,
+   "warnings": 27,
+   "unconnected": 0,
    "schematic_parity": 0,
    "violation_types": {
-    "connection_width": 10,
-    "copper_sliver": 2,
+    "connection_width": 11,
+    "copper_sliver": 3,
     "lib_footprint_mismatch": 2,
     "silk_edge_clearance": 10,
-    "track_dangling": 2
+    "track_dangling": 1
    },
-   "rc": 1,
-   "seconds": 3646,
-   "closed": false,
-   "route_rounds": 18,
-   "open_net": "I2C_SCL_BOOT"
+   "rc": 0,
+   "seconds": 8422,
+   "closed": true,
+   "route_rounds": 52,
+   "eco_passes": 3,
+   "pv_repair": [
+    [
+     "v15_selv",
+     133.6,
+     69.8
+    ]
+   ]
   },
   {
    "run": "run3",
    "make_last_line": "ALL GATES PASS",
    "errors": 0,
-   "warnings": 23,
+   "warnings": 31,
    "unconnected": 0,
    "schematic_parity": 0,
    "violation_types": {
-    "connection_width": 11,
+    "connection_width": 14,
+    "copper_sliver": 1,
     "lib_footprint_mismatch": 2,
-    "silk_edge_clearance": 10
+    "silk_edge_clearance": 10,
+    "track_dangling": 4
    },
    "rc": 0,
-   "seconds": 3419,
+   "seconds": 6906,
    "closed": true,
-   "route_rounds": 17
+   "route_rounds": 44,
+   "eco_passes": 1,
+   "pv_repair": [
+    [
+     "V12_FAN2",
+     158.8,
+     50.6
+    ]
+   ]
   }
  ],
  "closed": 2,
  "all_closed": false,
  "passes_rule": true,
- "board_of_record": "run1",
- "board_sha256": "11265a33a7c5e9a704b7e1fad5f948a197e2796356af5ed3f6153e43f96fb0ff",
- "note": "C53 final set: In3 X-preferred, OUTER_ONLY power nets, RTD bypasses on explicit poses (rtd_decoupling). Run 2's router left I2C_SCL_BOOT open (0.14 mm In3 stub short of its via after 18 rounds). Earlier sets: c53-six-layer-invalid, -superseded, -outer-only, -in3x."
+ "board_of_record": "run2",
+ "board_sha256": "e82e614093a3af4e7a8cd38c86660ad66042704a4389d164d5a07941b1d6307d",
+ "note": "C53 set 11, the first set on the final routing code. Run 1 left HS_FAULT and hs_buf_out open after its last ECO pass. Runs 2 and 3: DRC 0/0/0, ALL GATES PASS. Board of record run 2 (fewer DRC warnings: 27 vs 31). Failed sets 7-10 are recorded in DECISIONS.md C53 (archives in build/conv/failed-review-fix-set7..10). evidence/c53-six-layer-final/ is the superseded pre-review-fix set."
 }

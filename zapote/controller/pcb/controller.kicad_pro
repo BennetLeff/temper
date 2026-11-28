@@ -430,6 +430,14 @@
         "pattern": "sw_12"
       },
       {
+        "netclass": "Power",
+        "pattern": "sw_fan2"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "V12_FAN2"
+      },
+      {
         "netclass": "Plane",
         "pattern": "selv_gnd"
       },

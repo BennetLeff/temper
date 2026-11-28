@@ -2,7 +2,7 @@
 
 This is the layout of the integrated SELV controller: 284 parts, 6 layers (C53), 206 × 76 mm, placed and routed by scripts from `frozen/default.net`, with a JLCPCB fab package. Nothing was drawn by hand in the KiCad GUI.
 
-**Status: DRC-clean candidate, not released** (ordering is the owner's decision). KiCad DRC: 0 errors, 0 unconnected, schematic parity 0; JLC DFM PASS; all 17 enclosure/layout checks PASS; gerbv fab review PASS. Not fabricated. Every number below comes from a file in `evidence/` that `python3 layout/make.py` regenerates: `drc.json`, `jlc-dfm.json`, `layout-check.json`, `fab-review.json`, `silk-designators.json`, `verify.json`; the routing-robustness proof is `evidence/convergence.json` (`layout/convergence.py`).
+**Status: DRC-clean candidate, not released** (ordering is the owner's decision). KiCad DRC: 0 errors, 0 unconnected, schematic parity 0; JLC DFM PASS; all 21 enclosure/layout checks PASS; gerbv fab review PASS. Not fabricated. Every number below comes from a file in `evidence/` that `python3 layout/make.py` regenerates: `drc.json`, `jlc-dfm.json`, `layout-check.json`, `fab-review.json`, `silk-designators.json`, `verify.json`; the routing-robustness proof is `evidence/convergence.json` (`layout/convergence.py`).
 
 **Enclosure revision:** R31 outline, holes and connectors (`output/temper-manufacturing-r31/design/r31/CONTROLLER-SPEC.md`, "R31" section, with R30's mounting and heights) plus the **R33 controller delta** (`output/temper-manufacturing-r33/design/r33/DECISIONS.md` §3; the R35 HANDOFF restates it unchanged):
 - J5, J6 and J8 are deleted; one 12-way JST B12B-XH-A **J7** at X29.8–62.2, Y57.1–62.9 carries the UI bus (DECISIONS C26);
@@ -191,31 +191,36 @@ Every IC supply pin (the "vcc" pins of `verify_controller.py`'s part models) has
 | KiCad DRC errors | **0** | `evidence/drc.json` |
 | Unconnected items | **0** | `evidence/drc.json` |
 | Schematic parity | 0 | `evidence/drc.json` |
-| DRC warnings | 34: connection_width 18, silk_edge_clearance 14, lib_footprint_mismatch 2. connection_width is thin necks in zone fills; silk_edge_clearance is designators near the board edge; lib_footprint_mismatch is the two intended footprint edits (U20 pads, WROOM courtyard). No dangling track or via | `evidence/drc.json` |
-| JLC DFM (1 oz limits) | PASS: 1074 vias (the C34 RTD stitching grid included), 4314 tracks, 59 plated pads, 5 NPTH (J4's 2, J11's 3 TC2050 holes), min track 0.15 mm | `evidence/jlc-dfm.json` |
-| Enclosure + layout check | PASS on all 13 checks (C37 adds rtd_j3_protection: J3 cap / TVS edge gaps 2.83–5.45 mm, reported; the CR's 3 mm is set by the XH body, C37). Partition: L2 to the RTD front end 10.5 mm | `evidence/layout-check.json` |
-| Fab review (gerbv) | PASS: 1133 PTH hits (59 component, 1074 via), 5 NPTH, outline 206.0 × 76.0 mm | `evidence/fab-review.json` |
-| Designators | 191 on silk, 94 on F.Fab only (all on the assembly drawing) | `evidence/silk-designators.json` |
-| `tools/verify_controller.py` | PASS, 233 checks in 16 sections; 50/50 mutation tests (`tests/test_verify_mutations.py`) | `evidence/verify.json` |
+| DRC warnings | 27: connection_width 11, silk_edge_clearance 10, copper_sliver 3, lib_footprint_mismatch 2, track_dangling 1. connection_width is thin necks in zone fills and copper_sliver slivers of zone fill; silk_edge_clearance is designators near the board edge; lib_footprint_mismatch is the two intended footprint edits (U20 pads, WROOM courtyard). track_dangling is a 2.4 mm v3v3 B.Cu dead-end branch beside U31 (197.8–198.3, 36.2–38.4), left by a rip-up: cleanup.py skips the plane nets, whose tracks may end in a pour. It carries no connection | `evidence/drc.json` |
+| JLC DFM (1 oz limits) | PASS: 1312 vias (the C34 RTD stitching grid and the C53 selv_gnd grid and power companions included), 5778 tracks, 67 plated pads, 5 NPTH (J4's 2, J11's 3 TC2050 holes), min track 0.15 mm | `evidence/jlc-dfm.json` |
+| Enclosure + layout check | PASS on all 21 checks (C53 adds rtd_j9_protection, power_widths, power_layers, power_paths, power_vias, v3v3_islands, gnd_stitch, stranded_vias). rtd_j3_protection: J3 cap / TVS edge gaps 2.83–5.45 mm, reported; the CR's 3 mm is set by the XH body, C37. Partition: L2 to the RTD front end 10.5 mm, L3 22.0 mm | `evidence/layout-check.json` |
+| Fab review (gerbv) | PASS: 1379 PTH hits (67 component, 1312 via), 5 NPTH, outline 206.0 × 76.0 mm | `evidence/fab-review.json` |
+| Designators | 199 on silk, 147 on F.Fab only (all on the assembly drawing) | `evidence/silk-designators.json` |
+| `tools/verify_controller.py` | PASS, 270 checks in 17 sections; 50/50 mutation tests (`tests/test_verify_mutations.py`) | `evidence/verify.json` |
 | CPL rotations | audit rerun (C44, C45): 16 CORRECTED (U42 SN74LVC74APWR added, 270°), 224 OK, 44 NEEDS-PREVIEW (listed in `fab/fab-notes.md`); all 284 CPL lines equal the proposal | `evidence/fab-loose-ends/cpl-rotation/audit.json` |
-| Routing robustness | **2 of 3 full runs from a clean start close the C51 six-layer board** with all gates passing (C53 final set; the board of record is run 1). Run 2's router left I2C_SCL_BOOT open after 18 rounds. The C51 rule is at least 2 of 3. Four earlier six-layer sets are recorded in `evidence/c53-six-layer-*` (DECISIONS C53) | `evidence/convergence.json`, `evidence/c53-six-layer-final/` |
-| Block validators (C53) | interlock 68 pass / 7 fail / 5 indeterminate, thermal-sense 87 / 10 / 7, RTD 5 / 40 / 5 (C47: 69 / 6 / 5, 88 / 9 / 7, 5 / 33 / 5). The new fails are the C51/C52 part swaps and the six-layer manufacturing contract (W8). Every FAIL and INDETERMINATE is waived line by line | `evidence/block-validators/` (`WAIVERS.md`, `summary.json`) |
+| Routing robustness | **2 of 3 full runs from a clean start close the C51 six-layer board** with all gates passing (C53 set 11, routing code 1be33819a; the board of record is run 2, sha256 `e82e6140…`). Run 1 left HS_FAULT and hs_buf_out open after its last ECO pass. The C51 rule is at least 2 of 3. Earlier sets are recorded in DECISIONS C53 | `evidence/convergence.json`, `evidence/c53-set11/` |
+| Block validators (C53, set 11 board) | interlock 68 pass / 7 fail / 5 indeterminate, thermal-sense 87 / 10 / 7, RTD 5 / 40 / 5, the same as the superseded C53 board (C47: 69 / 6 / 5, 88 / 9 / 7, 5 / 33 / 5). The new fails are the C51/C52 part swaps and the six-layer manufacturing contract (W8). Every FAIL and INDETERMINATE is waived line by line | `evidence/block-validators/` (`WAIVERS.md`, `summary.json`) |
 
 **Convergence (routing robustness).** `python3 layout/convergence.py --runs 3 --out <dir>` moves `pcb/route/` away before each run, so no run reuses copper, then runs the whole `make.py`.
 
-**C53 proof (C51, six layers; current `evidence/convergence.json`, runs in `evidence/c53-six-layer-final/`):**
-| Run | Result | Rounds | Time | Warnings |
-|---|---|---|---|---|
-| 1 | ALL GATES PASS (board of record) | 17 | 3250 s | 21 |
-| 2 | DRC not clean: I2C_SCL_BOOT open, a 0.14 mm In3 stub short of its via | 18 | 3646 s | 26 |
-| 3 | ALL GATES PASS | 17 | 3419 s | 23 |
+**C53 proof (C51, six layers; set 11 on routing code 1be33819a; current `evidence/convergence.json`, runs in `evidence/c53-set11/`):**
 
-The passing runs had 0 errors, 0 unconnected and parity 0, with warnings of the four accepted kinds only. Before this
-set, four six-layer sets were run (DECISIONS C53):
-- one invalidated by a router bug;
-- one superseded when power nets were moved off the 0.5 oz inner layers;
-- one that closed 1 of 3;
-- one that closed 3 of 3 but was superseded by the RTD bypass placement fix.
+| Run | Result | Rounds | ECO passes | Time | Warnings |
+|---|---|---|---|---|---|
+| 1 | DRC not clean: HS_FAULT and hs_buf_out open after the last ECO pass | 51 | 3 | 7931 s | 44 |
+| 2 | ALL GATES PASS (board of record); pv_repair added a v15_selv via's companion | 52 | 3 | 8422 s | 27 |
+| 3 | ALL GATES PASS; pv_repair added a V12_FAN2 via's companion | 44 | 1 | 6906 s | 31 |
+
+The passing runs had 0 errors, 0 unconnected and parity 0, with warnings of the kinds listed above only. The runs take
+two to three times as long as the superseded set's (about 3300 s): the post-review gates (power_vias, v3v3_islands,
+power_widths) add the ECO passes and pv_repair. Sets 7 to 10 on the way to this code failed. Each cause was fixed and
+replayed on the saved boards first (DECISIONS C53):
+- set 7: island drop and the V15_BLW neck;
+- set 8: ECO model shorts;
+- set 9: single-barrel V_BLOWER vias;
+- set 10: U2 pin escape.
+
+The superseded C53 set (run 1 of record, 2 of 3, before the layout-review fixes) is in `evidence/c53-six-layer-final/`.
 
 **C47 proof (history; C1 + CR-8, 285 parts):**
 
@@ -277,7 +282,7 @@ What changed from L2, where three of four runs closed:
      - Insertion depth isn't on the catalog page. The conservative bound (zero insertion) puts the plug end at X ≥ −52.0, against the enclosure's X−50.
      - The enclosure either allows X−52 plus wire bend room, or the 430251600_sd product drawing is needed.
 8. **CPL rotations:** KiCad's rotations are written as-is; check each package in JLC's placement preview before ordering.
-9. **Consigned / low-stock parts** (DECISIONS open item 7): none after the C35/C36 sourcing swaps (R31, R39, R53, U14 A grade, U22; J13 code fix); `fab/fab-notes.md` lists the swaps and the NEEDS-PREVIEW CPL lines. Fab ZIP sha256 `9331ee6d…`, frozen netlist `2f5c40d2…` (DECISIONS C36).
+9. **Consigned / low-stock parts** (DECISIONS open item 7): none after the C35/C36 sourcing swaps (R31, R39, R53, U14 A grade, U22; J13 code fix); `fab/fab-notes.md` lists the swaps and the NEEDS-PREVIEW CPL lines. Fab ZIP sha256 `978ef705…`, frozen netlist `8471186c…` (`frozen/build-receipt.json`; C53 set 11 board).
 10. **Long lines:** RUN_EN and the RTD trip inputs cross most of the board (Interlock trip path). All fail safe on a break; a bench noise check on them is worth adding.
 11. **In2 use:** In2 carries some signal tracks where F/B were full; the v3v3 pour refills around them, and `plane_islands.py` re-joins any v3v3 island; DRC shows v3v3 as one connected net.
 12. **Firmware pins.h:** RUN_EN 14; RTD_DRDY expander P07; SUP_RUN_OK expander P14; FAN_OFF expander P15; BLW_PG expander P16 (input, 1 = PS3 present); FAN_PWM GPIO46 (feedback injection, duty 0 = full speed); FAN_TACH (J10 FG) GPIO3 (PCNT); UI SPI 40/41/44/47/48/45; I²C SDA 37 / SCL 0; RIM_ADC 9.

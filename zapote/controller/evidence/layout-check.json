@@ -337,7 +337,7 @@
      "height_mm": 0.0,
      "limit_mm": 15.4
     },
-    "C1 EEE-FK1E101P": {
+    "C1 UCD1E101MCL6GS (C52: Nichicon UCD, D8 x 6.2, the can size of EEE-FK1E101P)": {
      "height_mm": 6.2,
      "limit_mm": 6.4
     },
@@ -655,7 +655,7 @@
      "pin": "U50.2",
      "net": "v3v3",
      "cap": "C111",
-     "distance_mm": 4.05,
+     "distance_mm": 2.45,
      "ok": true
     },
     {
@@ -698,12 +698,14 @@
   "rtd_decoupling": {
    "ok": true,
    "limit_mm": 3.0,
+   "v3v3_by_f_cu_track": true,
    "rails": [
     {
      "ic": "U30",
      "net": "RTD_AVDD",
      "cap": "C29",
      "edge_mm": 2.42,
+     "direct_f_cu": null,
      "ok": true
     },
     {
@@ -711,20 +713,23 @@
      "net": "v3v3",
      "cap": "C30",
      "edge_mm": 2.51,
+     "direct_f_cu": true,
      "ok": true
     },
     {
      "ic": "U50",
      "net": "RTD2_AVDD",
      "cap": "C110",
-     "edge_mm": 1.02,
+     "edge_mm": 2.61,
+     "direct_f_cu": null,
      "ok": true
     },
     {
      "ic": "U50",
      "net": "v3v3",
      "cap": "C111",
-     "edge_mm": 2.61,
+     "edge_mm": 1.02,
+     "direct_f_cu": true,
      "ok": true
     }
    ]
@@ -833,10 +838,10 @@
     {
      "j9_pin": "4",
      "net": "rtd2_force_n",
-     "cap": "C115",
-     "cap_mm": 5.2,
      "clamp": "D13",
      "clamp_mm": 9.51,
+     "cap": "C115",
+     "cap_mm": 5.2,
      "cap_first": true
     }
    ]
@@ -866,33 +871,35 @@
     "RUN_EN"
    ],
    "route_length_mm": {
-    "permit": 74.8,
+    "permit": 74.0,
     "PERMIT_LATCH": 49.4,
-    "RUN_EN": 208.1,
-    "bus_fault": 94.9,
-    "all_good": 41.3,
-    "reset_clock": 45.8,
-    "latched_fault": 55.1,
-    "HS_FAULT": 90.4,
-    "COIL_FAULT": 87.7,
-    "line": 188.9,
-    "RUNAWAY_FAULT": 149.7,
-    "RAIL_FAULT": 33.7,
-    "SENSOR_LIVE": 17.6
+    "RUN_EN": 208.7,
+    "bus_fault": 93.9,
+    "all_good": 37.1,
+    "reset_clock": 42.3,
+    "latched_fault": 55.3,
+    "HS_FAULT": 90.9,
+    "COIL_FAULT": 98.7,
+    "line": 210.9,
+    "RUNAWAY_FAULT": 150.5,
+    "RAIL_FAULT": 33.8,
+    "SENSOR_LIVE": 17.4
    }
   },
   "thermal_relief": {
    "ok": true,
    "zones": [
-    "BLW_FEED2",
-    "GND_F",
-    "BLW_FEED0",
-    "SW_3V3",
-    "SW_12",
-    "BLW_FEED1",
-    "RTD_AVDD_F",
     "VIN_12",
     "VIN_3V3",
+    "BLW_FEED1",
+    "GND_F",
+    "RTD_AVDD_F",
+    "SW_3V3",
+    "BLW_FEED2",
+    "VIN_FAN2",
+    "SW_12",
+    "SW_FAN2",
+    "BLW_FEED0",
     "GND_B",
     "GND_plane",
     "V3V3_plane",
@@ -908,22 +915,38 @@
      "required_mm": 0.8,
      "min_width_mm": 0.8,
      "narrow_segments": [],
-     "stubs": 9,
+     "stubs": 37,
+     "vias": 12,
+     "length_mm": 92.2
+    },
+    "V12_FAN2": {
+     "required_mm": 0.6,
+     "min_width_mm": 0.6,
+     "narrow_segments": [],
+     "stubs": 6,
      "vias": 6,
-     "length_mm": 74.7
+     "length_mm": 54.1
+    },
+    "V15_BLW routed": {
+     "required_mm": 0.8,
+     "min_width_mm": 0.8,
+     "narrow_segments": [],
+     "stubs": 29,
+     "vias": 15,
+     "length_mm": 54.1
     },
     "V15_BLW": {
      "pour_outline_per_pad": {
-      "C9.1": 0,
-      "C15.1": 0,
-      "C14.1": 0,
-      "J13.1": 0,
-      "C13.1": 0
+      "C15.1": 1,
+      "C9.1": 1,
+      "C14.1": 1,
+      "C13.1": 1,
+      "J13.1": 1
      },
      "one_pour_region": true,
-     "pour_regions": 1,
-     "routed_branch_tracks": 33,
-     "routed_branch_min_width_mm": 0.25
+     "pour_regions": 2,
+     "routed_branch_tracks": 40,
+     "routed_branch_min_width_mm": 0.3
     }
    }
   },
@@ -933,9 +956,114 @@
     "V_BLOWER",
     "sw_12",
     "v15_selv",
-    "V15_BLW"
+    "V15_BLW",
+    "V12_FAN2",
+    "sw_fan2"
    ],
    "inner_track_mm": {}
+  },
+  "power_paths": {
+   "ok": true,
+   "min_width_mm": {
+    "V_BLOWER": 0.8,
+    "V12_FAN2": 0.6,
+    "V15_BLW": 0.5,
+    "v15_selv": 0.25
+   },
+   "nets": {
+    "V_BLOWER": {
+     "ok": true,
+     "groups": {
+      "L2.2": 0,
+      "J10.1": 0
+     }
+    },
+    "V12_FAN2": {
+     "ok": true,
+     "groups": {
+      "L3.2": 0,
+      "J15.2": 0
+     }
+    },
+    "V15_BLW": {
+     "ok": true,
+     "groups": {
+      "J13.1": 0,
+      "U2.3": 0,
+      "U51.3": 0,
+      "D9.2": 0
+     }
+    },
+    "v15_selv": {
+     "ok": true,
+     "groups": {
+      "D9.1": 0,
+      "U1.3": 0
+     }
+    }
+   }
+  },
+  "power_vias": {
+   "ok": true,
+   "min_amps_for_two_barrels": 1.0,
+   "nets": {
+    "V_BLOWER": {
+     "vias": 12,
+     "sites": 4,
+     "sites_by_barrels": {
+      "3": 4
+     },
+     "single_via_sites_over_1A": [],
+     "single_via_sites_at_or_under_1A": []
+    },
+    "V15_BLW": {
+     "vias": 15,
+     "sites": 4,
+     "sites_by_barrels": {
+      "3": 2,
+      "4": 1,
+      "5": 1
+     },
+     "single_via_sites_over_1A": [],
+     "single_via_sites_at_or_under_1A": []
+    },
+    "v15_selv": {
+     "vias": 25,
+     "sites": 8,
+     "sites_by_barrels": {
+      "3": 7,
+      "4": 1
+     },
+     "single_via_sites_over_1A": [],
+     "single_via_sites_at_or_under_1A": []
+    },
+    "V12_FAN2": {
+     "vias": 6,
+     "sites": 2,
+     "sites_by_barrels": {
+      "3": 2
+     },
+     "single_via_sites_over_1A": [],
+     "single_via_sites_at_or_under_1A": []
+    }
+   }
+  },
+  "v3v3_islands": {
+   "ok": true,
+   "islands": 18,
+   "supply_islands": 15,
+   "weak": []
+  },
+  "gnd_stitch": {
+   "ok": true,
+   "limit_mm": 11.0,
+   "gnd_vias": 397,
+   "worst_mm": 9.95,
+   "worst_world": [
+    164.95,
+    17.05
+   ],
+   "pct_beyond_7mm": 1.6
   },
   "partition": {
    "ok": true,
@@ -1055,6 +1183,10 @@
   "thermal_relief": true,
   "power_widths": true,
   "power_layers": true,
+  "power_paths": true,
+  "power_vias": true,
+  "v3v3_islands": true,
+  "gnd_stitch": true,
   "partition": true,
   "stranded_vias": true
  },

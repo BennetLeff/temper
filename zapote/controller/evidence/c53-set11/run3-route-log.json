@@ -1,0 +1,284 @@
+{
+ "rounds": [
+  {
+   "round": 1,
+   "open_before": 437
+  },
+  {
+   "round": 2,
+   "open_before": 19
+  },
+  {
+   "round": 3,
+   "open_before": 10
+  },
+  {
+   "repair": "0.0",
+   "radius_mm": 3.0,
+   "open_before": 7,
+   "first": "rtd_food.adc-sdi,rtd_sense_p_ext,sense,ss_12,v3v3"
+  },
+  {
+   "round": 4,
+   "open_before": 78,
+   "first": "rtd_food.adc-sdi,rtd_sense_p_ext,sense,ss_12,v3v3"
+  },
+  {
+   "round": 5,
+   "open_before": 13
+  },
+  {
+   "round": 6,
+   "open_before": 9
+  },
+  {
+   "repair": "0.1",
+   "radius_mm": 5.0,
+   "open_before": 8,
+   "first": "coil_buf_out,rtd2_bias,rtd2_sense_n,rtd_food.adc-cs_n,rtd_pan.low_window-inp,rtd_sense_p_ext,v3v3,vbias"
+  },
+  {
+   "round": 7,
+   "open_before": 105,
+   "first": "coil_buf_out,rtd2_bias,rtd2_sense_n,rtd_food.adc-cs_n,rtd_pan.low_window-inp,rtd_sense_p_ext,v3v3,vbias"
+  },
+  {
+   "round": 8,
+   "open_before": 11
+  },
+  {
+   "round": 9,
+   "open_before": 10
+  },
+  {
+   "repair": "0.2",
+   "radius_mm": 8.0,
+   "open_before": 10,
+   "first": "FAN_TACH,I2C_SDA,RTD_SDO,RUNAWAY_TH,pwm_hb,rtd2_force_n,rtd_sense_n_ext"
+  },
+  {
+   "round": 10,
+   "open_before": 167,
+   "first": "FAN_TACH,I2C_SDA,RTD_SDO,RUNAWAY_TH,pwm_hb,rtd2_force_n,rtd_sense_n_ext"
+  },
+  {
+   "round": 11,
+   "open_before": 17
+  },
+  {
+   "round": 12,
+   "open_before": 6
+  },
+  {
+   "cleanup": 0
+  },
+  {
+   "round": 13,
+   "open_before": 5
+  },
+  {
+   "round": 14,
+   "open_before": 4
+  },
+  {
+   "repair": "1.0",
+   "radius_mm": 3.0,
+   "open_before": 4,
+   "first": "I2C_SDA,RUNAWAY_FAULT,SUP_RUN_OK_RB,rtd_sense_p_ext"
+  },
+  {
+   "round": 15,
+   "open_before": 68,
+   "first": "I2C_SDA,RUNAWAY_FAULT,SUP_RUN_OK_RB,rtd_sense_p_ext"
+  },
+  {
+   "round": 16,
+   "open_before": 11
+  },
+  {
+   "round": 17,
+   "open_before": 10
+  },
+  {
+   "repair": "1.1",
+   "radius_mm": 5.0,
+   "open_before": 8,
+   "first": "CAP_FAULT,CT_ZC_MCU,J7_MOSI,RTD2_DRDY,RUNAWAY_FAULT,pwm_hb,v3v3"
+  },
+  {
+   "round": 18,
+   "open_before": 150,
+   "first": "CAP_FAULT,CT_ZC_MCU,J7_MOSI,RTD2_DRDY,RUNAWAY_FAULT,pwm_hb,v3v3"
+  },
+  {
+   "round": 19,
+   "open_before": 5
+  },
+  {
+   "round": 20,
+   "open_before": 3
+  },
+  {
+   "repair": "1.2",
+   "radius_mm": 8.0,
+   "open_before": 3,
+   "first": "coil_buf_out,rtd_pan.low_window-inp,rtd_sense_p_ext"
+  },
+  {
+   "round": 21,
+   "open_before": 113,
+   "first": "coil_buf_out,rtd_pan.low_window-inp,rtd_sense_p_ext"
+  },
+  {
+   "round": 22,
+   "open_before": 4
+  },
+  {
+   "round": 23,
+   "open_before": 2
+  },
+  {
+   "cleanup": 1
+  },
+  {
+   "round": 24,
+   "open_before": 6
+  },
+  {
+   "round": 25,
+   "open_before": 3
+  },
+  {
+   "repair": "2.0",
+   "radius_mm": 3.0,
+   "open_before": 3,
+   "first": "UI_CS_OLED_N,UI_DC,rtd2_bias"
+  },
+  {
+   "round": 26,
+   "open_before": 57,
+   "first": "UI_CS_OLED_N,UI_DC,rtd2_bias"
+  },
+  {
+   "round": 27,
+   "open_before": 5
+  },
+  {
+   "round": 28,
+   "open_before": 4
+  },
+  {
+   "repair": "2.1",
+   "radius_mm": 5.0,
+   "open_before": 4,
+   "first": "LINE_ZC_MCU,UI_CS_EXP_N,pwm_hb,v3v3"
+  },
+  {
+   "round": 29,
+   "open_before": 88,
+   "first": "LINE_ZC_MCU,UI_CS_EXP_N,pwm_hb,v3v3"
+  },
+  {
+   "round": 30,
+   "open_before": 6
+  },
+  {
+   "round": 31,
+   "open_before": 5
+  },
+  {
+   "repair": "2.2",
+   "radius_mm": 8.0,
+   "open_before": 5,
+   "first": "IL_RESET_N,UI_SCK,coil_buf_out,en,rtd_pan.low_window-inp"
+  },
+  {
+   "round": 32,
+   "open_before": 128,
+   "first": "IL_RESET_N,UI_SCK,coil_buf_out,en,rtd_pan.low_window-inp"
+  },
+  {
+   "round": 33,
+   "open_before": 6
+  },
+  {
+   "round": 34,
+   "open_before": 2
+  },
+  {
+   "cleanup": 2
+  },
+  {
+   "round": 35,
+   "open_before": 4
+  },
+  {
+   "round": 36,
+   "open_before": 2
+  },
+  {
+   "eco": 0,
+   "open_before": 2
+  },
+  {
+   "round": 37,
+   "open_before": 35
+  },
+  {
+   "round": 38,
+   "open_before": 1
+  },
+  {
+   "round": 39,
+   "open_before": 2
+  },
+  {
+   "round": 40,
+   "open_before": 1
+  },
+  {
+   "round": 41,
+   "open_before": 0
+  },
+  {
+   "pv_repair": [
+    [
+     "V12_FAN2",
+     158.8,
+     50.6
+    ]
+   ]
+  },
+  {
+   "round": 42,
+   "open_before": 4
+  },
+  {
+   "round": 43,
+   "open_before": 0
+  },
+  {
+   "round": 44,
+   "open_before": 0
+  }
+ ],
+ "power_vias": [
+  {
+   "net": "v15_selv",
+   "at": [
+    52.0,
+    75.2
+   ],
+   "companions": 1
+  },
+  {
+   "net": "V12_FAN2",
+   "at": [
+    146.1,
+    55.1
+   ],
+   "companions": 1
+  }
+ ],
+ "final_open": 0
+}

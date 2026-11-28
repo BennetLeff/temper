@@ -2,79 +2,322 @@
  "rounds": [
   {
    "round": 1,
-   "open_before": 442
+   "open_before": 437
   },
   {
    "round": 2,
-   "open_before": 20
+   "open_before": 19
   },
   {
    "round": 3,
-   "open_before": 6
+   "open_before": 10
   },
   {
    "repair": "0.0",
    "radius_mm": 3.0,
-   "open_before": 5,
-   "first": "FAN_TACH,UI_CS_OLED_N,p1,rtd_pan.adc-sdi"
+   "open_before": 7,
+   "first": "rtd_food.adc-sdi,rtd_sense_p_ext,sense,ss_12,v3v3"
   },
   {
    "round": 4,
-   "open_before": 85,
-   "first": "FAN_TACH,UI_CS_OLED_N,p1,rtd_pan.adc-sdi"
+   "open_before": 80,
+   "first": "rtd_food.adc-sdi,rtd_sense_p_ext,sense,ss_12,v3v3"
   },
   {
    "round": 5,
-   "open_before": 3
+   "open_before": 14
   },
   {
    "round": 6,
-   "open_before": 2
+   "open_before": 14
   },
   {
    "repair": "0.1",
    "radius_mm": 5.0,
-   "open_before": 2,
-   "first": "RTD2_CS_N,UI_CS_OLED_N"
+   "open_before": 10,
+   "first": "UI_MOSI,rtd2_bias,rtd2_sense_n,rtd_food.adc-cs_n,rtd_sense_p_ext,v3v3,vbias"
   },
   {
    "round": 7,
-   "open_before": 53,
-   "first": "RTD2_CS_N,UI_CS_OLED_N"
+   "open_before": 148,
+   "first": "UI_MOSI,rtd2_bias,rtd2_sense_n,rtd_food.adc-cs_n,rtd_sense_p_ext,v3v3,vbias"
   },
   {
    "round": 8,
-   "open_before": 3
+   "open_before": 11
+  },
+  {
+   "round": 9,
+   "open_before": 10
   },
   {
    "repair": "0.2",
    "radius_mm": 8.0,
-   "open_before": 3,
-   "first": "HS_FAULT_RB,UI_CS_OLED_N,rx_a_out"
-  },
-  {
-   "round": 9,
-   "open_before": 116,
-   "first": "HS_FAULT_RB,UI_CS_OLED_N,rx_a_out"
+   "open_before": 8,
+   "first": "I2C_SDA,IL_RESET_N,UI_SCK,V_BLOWER,rtd_sense_n_ext,rtd_sense_p_ext,sense"
   },
   {
    "round": 10,
-   "open_before": 4
+   "open_before": 161,
+   "first": "I2C_SDA,IL_RESET_N,UI_SCK,V_BLOWER,rtd_sense_n_ext,rtd_sense_p_ext,sense"
   },
   {
    "round": 11,
-   "open_before": 1
+   "open_before": 12
+  },
+  {
+   "round": 12,
+   "open_before": 10
   },
   {
    "cleanup": 0
   },
   {
-   "round": 12,
+   "round": 13,
+   "open_before": 11
+  },
+  {
+   "round": 14,
+   "open_before": 7
+  },
+  {
+   "repair": "1.0",
+   "radius_mm": 3.0,
+   "open_before": 7,
+   "first": "I2C_SCL_BOOT,RUNAWAY_FAULT,SUP_RUN_OK_RB,hs_buf_out,rtd_pan.adc-sclk,rtd_pan.adc-sdo,rtd_pan.low_window-inp"
+  },
+  {
+   "round": 15,
+   "open_before": 108,
+   "first": "I2C_SCL_BOOT,RUNAWAY_FAULT,SUP_RUN_OK_RB,hs_buf_out,rtd_pan.adc-sclk,rtd_pan.adc-sdo,rtd_pan.low_window-inp"
+  },
+  {
+   "round": 16,
+   "open_before": 12
+  },
+  {
+   "round": 17,
+   "open_before": 8
+  },
+  {
+   "repair": "1.1",
+   "radius_mm": 5.0,
+   "open_before": 8,
+   "first": "FAN2_ALERT,UI_CS_EXP_N,hs_buf_out,pwm_hb,rtd_pan.low_window-inp,rtd_sense_p_ext,vbias"
+  },
+  {
+   "round": 18,
+   "open_before": 106,
+   "first": "FAN2_ALERT,UI_CS_EXP_N,hs_buf_out,pwm_hb,rtd_pan.low_window-inp,rtd_sense_p_ext,vbias"
+  },
+  {
+   "round": 19,
+   "open_before": 11
+  },
+  {
+   "round": 20,
+   "open_before": 7
+  },
+  {
+   "repair": "1.2",
+   "radius_mm": 8.0,
+   "open_before": 7,
+   "first": "I2C_SCL_BOOT,RTD_SCK,RTD_SDO,UI_SCK,coil_buf_out,rtd_sense_n_ext,y"
+  },
+  {
+   "round": 21,
+   "open_before": 134,
+   "first": "I2C_SCL_BOOT,RTD_SCK,RTD_SDO,UI_SCK,coil_buf_out,rtd_sense_n_ext,y"
+  },
+  {
+   "round": 22,
+   "open_before": 14
+  },
+  {
+   "round": 23,
+   "open_before": 9
+  },
+  {
+   "cleanup": 1
+  },
+  {
+   "round": 24,
+   "open_before": 9
+  },
+  {
+   "round": 25,
+   "open_before": 5
+  },
+  {
+   "repair": "2.0",
+   "radius_mm": 3.0,
+   "open_before": 5,
+   "first": "RTD_DRDY,UI_MOSI,UI_SCK,inn,rtd_sense_p_ext"
+  },
+  {
+   "round": 26,
+   "open_before": 92,
+   "first": "RTD_DRDY,UI_MOSI,UI_SCK,inn,rtd_sense_p_ext"
+  },
+  {
+   "round": 27,
+   "open_before": 10
+  },
+  {
+   "round": 28,
+   "open_before": 9
+  },
+  {
+   "repair": "2.1",
+   "radius_mm": 5.0,
+   "open_before": 9,
+   "first": "FAN2_ALERT,RTD2_DRDY,pwm_hb,rtd_force_n,rtd_pan.adc-sdo,rtd_pan.low_window-inp,rtd_sense_n_ext,v3v3,vbias"
+  },
+  {
+   "round": 29,
+   "open_before": 155,
+   "first": "FAN2_ALERT,RTD2_DRDY,pwm_hb,rtd_force_n,rtd_pan.adc-sdo,rtd_pan.low_window-inp,rtd_sense_n_ext,v3v3,vbias"
+  },
+  {
+   "round": 30,
+   "open_before": 6
+  },
+  {
+   "round": 31,
+   "open_before": 5
+  },
+  {
+   "repair": "2.2",
+   "radius_mm": 8.0,
+   "open_before": 5,
+   "first": "RTD_SCK,UI_CS_OLED_N,coil_buf_out,rtd_pan.adc-sclk,y"
+  },
+  {
+   "round": 32,
+   "open_before": 155,
+   "first": "RTD_SCK,UI_CS_OLED_N,coil_buf_out,rtd_pan.adc-sclk,y"
+  },
+  {
+   "round": 33,
+   "open_before": 8
+  },
+  {
+   "round": 34,
+   "open_before": 5
+  },
+  {
+   "cleanup": 2
+  },
+  {
+   "round": 35,
+   "open_before": 7
+  },
+  {
+   "round": 36,
    "open_before": 1
   },
   {
-   "round": 13,
+   "eco": 0,
+   "open_before": 1
+  },
+  {
+   "round": 37,
+   "open_before": 23
+  },
+  {
+   "round": 38,
+   "open_before": 5
+  },
+  {
+   "round": 39,
+   "open_before": 7
+  },
+  {
+   "round": 40,
+   "open_before": 4
+  },
+  {
+   "eco": 1,
+   "open_before": 4
+  },
+  {
+   "round": 41,
+   "open_before": 33
+  },
+  {
+   "round": 42,
+   "open_before": 4
+  },
+  {
+   "round": 43,
+   "open_before": 4
+  },
+  {
+   "round": 44,
+   "open_before": 4
+  },
+  {
+   "round": 45,
+   "open_before": 1
+  },
+  {
+   "eco": 2,
+   "open_before": 1
+  },
+  {
+   "round": 46,
+   "open_before": 7
+  },
+  {
+   "round": 47,
+   "open_before": 1
+  },
+  {
+   "round": 48,
    "open_before": 0
+  },
+  {
+   "round": 49,
+   "open_before": 0
+  },
+  {
+   "pv_repair": [
+    [
+     "v15_selv",
+     133.6,
+     69.8
+    ]
+   ]
+  },
+  {
+   "round": 50,
+   "open_before": 6
+  },
+  {
+   "round": 51,
+   "open_before": 0
+  },
+  {
+   "round": 52,
+   "open_before": 0
+  }
+ ],
+ "power_vias": [
+  {
+   "net": "v15_selv",
+   "at": [
+    52.0,
+    75.2
+   ],
+   "companions": 1
+  },
+  {
+   "net": "V15_BLW",
+   "at": [
+    137.999347,
+    56.265732
+   ],
+   "companions": 1
   }
  ],
  "final_open": 0
