@@ -44,6 +44,7 @@ def main():
             for ln, l in LAYERS.items():
                 if p.IsOnLayer(l) and p.FlashLayer(l):
                     d["pads"].append({"net": p.GetNetname(), "layer": ln, "ref": f"{fp.GetReference()}.{p.GetNumber()}",
+                                      "src": fp.GetFieldText("SourceInstance") if fp.HasField("SourceInstance") else "",
                                       "poly": polys(p.GetEffectivePolygon(l, pcbnew.ERROR_OUTSIDE))})
             if p.GetDrillSize().x > 0:
                 r = mm(max(p.GetDrillSize().x, p.GetDrillSize().y)) / 2

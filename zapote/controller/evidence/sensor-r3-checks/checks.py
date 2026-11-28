@@ -327,6 +327,15 @@ def dc_error_terms(d, rtd, corners=True):
     return nominal, worst
 
 
+# controller DECISIONS C53 (set 11 review m4): routed copper inside the pan Rref measurement, from the board
+# (layout/check_layout.py rtd_rref_copper). Its tempco (copper 3930 ppm/K) is a gain drift over the board swing that the
+# single-point calibration does not remove. 0 if the layout check has not been run.
+CU_TC = 3.93e-3
+_LC = HERE.parents[1] / "evidence" / "layout-check.json"
+RREF_CU_OHM = (json.loads(_LC.read_text())["checks"].get("rtd_rref_copper", {}).get("blocks", {})
+               .get("U30 -> R39", {}).get("mohm_total", 0.0) / 1e3) if _LC.exists() else 0.0
+
+
 def item1_accuracy():
     out = {}
     t_cal = 200.0
@@ -341,6 +350,7 @@ def item1_accuracy():
             nom, dc_res = dc_error_terms(d, r)
             terms = {
                 "Rref_tempco": d["rref_tc"] * dT_board * r,
+                "Rref_copper_tempco": RREF_CU_OHM * CU_TC * dT_board / d["rref"] * r,
                 "cal_reference_50ppm": (50e-6 + 2e-6 * 5) * r,
                 "adc_offset_strict": (3 + 3 * r / r_cal) * lsb_ohm,
                 "adc_fullscale_typ": 1 * lsb_ohm * r / RREF,
@@ -352,7 +362,7 @@ def item1_accuracy():
             lin = sum(abs(v) for v in terms.values()) * k
             rss = math.sqrt(sum(v * v for v in terms.values())) * k
             # board-controlled terms only (what the PCB design can change): Rref, cal, loading, EMF
-            board = (terms["Rref_tempco"] + terms["cal_reference_50ppm"] + dc_res
+            board = (terms["Rref_tempco"] + terms["Rref_copper_tempco"] + terms["cal_reference_50ppm"] + dc_res
                      + terms["thermo_emf_manganin_2K"]) * k
             worst_lin = max(worst_lin, lin)
             worst_rss = max(worst_rss, rss)

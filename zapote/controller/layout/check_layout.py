@@ -678,8 +678,19 @@ def main():
         (s_src, s_pin), loads = PV_LOADS[net]
         total = sum(loads.values())
         single, single_ok = [], []
+        series = []
         for g_ in groups.values():
             if len(g_) >= 2:
+                # set 11 review m2: vias close together are not parallel barrels when they sit in series (V12_FAN2 at
+                # 145.7, 51.1). Each via of a multi-via site is removed alone: if that cuts loads, it carries them alone.
+                for k in g_:
+                    items, find = wide_components(net, path_w=0.0, skip={(pts[k].x, pts[k].y)})
+                    src_c = {find(i_) for i_ in pad_items(items, s_src, s_pin)}
+                    cut = sum(a_ for (ls, lp), a_ in loads.items()
+                              if not src_c & {find(i_) for i_ in pad_items(items, ls, lp)})
+                    if cut > 0:
+                        series.append({"at_world": [round(v, 2) for v in world.to_w(mm(pts[k].x), mm(pts[k].y))],
+                                       "amps": round(cut, 2)})
                 continue
             items, find = wide_components(net, path_w=0.0, skip={(pts[k].x, pts[k].y) for k in g_})
             src_c = {find(i_) for i_ in pad_items(items, s_src, s_pin)}
@@ -689,10 +700,31 @@ def main():
             row = {"at_world": [round(v, 2) for v in world.to_w(mm(pts[g_[0]].x), mm(pts[g_[0]].y))],
                    "amps": round(amps, 2), "parallel_path": cut == 0}
             (single if amps > PV_MIN_A else single_ok).append(row)
-        pv_ok &= not single
+        pv_ok &= not single and not [r_ for r_ in series if r_["amps"] > PV_MIN_A]
         pv_rows[net] = {"vias": len(pts), "sites": len(groups), "sites_by_barrels": dict(sorted(
             collections.Counter(len(g) for g in groups.values()).items())),
-            "single_via_sites_over_1A": single, "single_via_sites_at_or_under_1A": single_ok}
+            "single_via_sites_over_1A": single, "single_via_sites_at_or_under_1A": single_ok,
+            "series_vias_in_multi_via_sites": series}
+    # set 11 review M1: a supply's source pad reaches the plane through >= 2 vias on its own F.Cu copper (power_vias.SOURCES;
+    # the 3.3 V rail, 1041 mA peak in verify.json, left L1.2 through one via)
+    for net, (src_, pin_, _w) in power_vias.SOURCES.items():
+        f_ = by_src.get(src_)
+        pad_ = next(p_ for p_ in f_.Pads() if p_.GetNumber() == pin_)
+        isl_t, isl_v, grown = [], set(), True
+        trks = [t for t in b.GetTracks() if t.GetNetname() == net and t.Type() == pcbnew.PCB_TRACE_T
+                and t.GetLayer() == pcbnew.F_Cu]
+        vias_ = [t for t in b.GetTracks() if t.GetNetname() == net and t.Type() == pcbnew.PCB_VIA_T]
+        def on_isl(pt, r):
+            return pad_.HitTest(pt, r) or any(t.HitTest(pt, r) for t in isl_t)
+        while grown:
+            grown = False
+            for t in trks:
+                if t not in isl_t and any(on_isl(e, t.GetWidth() // 2) for e in (t.GetStart(), t.GetEnd())):
+                    isl_t.append(t)
+                    grown = True
+        n_src = sum(1 for v_ in vias_ if on_isl(v_.GetPosition(), v_.GetWidth(pcbnew.F_Cu) // 2))
+        pv_ok &= n_src >= 2
+        pv_rows[f"{net} source {f_.GetReference()}.{pin_}"] = {"vias_on_source_copper": n_src, "ok": n_src >= 2}
     put("power_vias", pv_ok, min_amps_for_two_barrels=PV_MIN_A, nets=pv_rows)
 
     # ---- C53 review M5: In2 v3v3 pour islands that carry an IC supply have >= 2 links to the rest of the net
@@ -755,6 +787,79 @@ def main():
     import via_hygiene
     stranded = [info for _, info in via_hygiene.stranded(b)]
     put("stranded_vias", not stranded, count=len(stranded), stranded=stranded[:20])
+
+    # ---- set 11 review m4: routed copper inside each MAX31865's reference measurement. BIAS/REFIN+ (one net) and
+    # REFIN-/ISENSOR (one net) are joined at the converter's pins, so every milliohm between those pins and Rref's pads is
+    # read as Rref, and its copper tempco is a gain drift the single-point calibration does not remove. Reported here
+    # (shortest-resistance path over tracks and vias); evidence/sensor-r3-checks/checks.py gate 1b carries it.
+    import heapq
+    RS = {pcbnew.F_Cu: 0.49e-3, pcbnew.B_Cu: 0.49e-3}       # ohm/sq, 35 um outer copper; inner 0.5 oz (15.2 um) below
+    VIA_OHM = 0.7e-3
+
+    def path_ohm(net, pads_a, pad_b):
+        trks = [t for t in b.GetTracks() if t.GetNetname() == net and t.Type() == pcbnew.PCB_TRACE_T]
+        vias_ = [t for t in b.GetTracks() if t.GetNetname() == net and t.Type() == pcbnew.PCB_VIA_T]
+        adj = collections.defaultdict(list)
+
+        def node(l, pt):
+            return (l, round(pt.x / 5000), round(pt.y / 5000))       # 5 um bins
+        for t in trks:
+            rs = RS.get(t.GetLayer(), 1.13e-3)
+            ends = [t.GetStart(), t.GetEnd()]
+            r_ = rs * t.GetLength() / t.GetWidth()
+            na, nb = node(t.GetLayer(), ends[0]), node(t.GetLayer(), ends[1])
+            adj[na].append((nb, r_)); adj[nb].append((na, r_))
+            for o in trks:          # T joins: an end of o on t's body
+                if o is t or o.GetLayer() != t.GetLayer():
+                    continue
+                for e in (o.GetStart(), o.GetEnd()):
+                    if t.HitTest(e, t.GetWidth() // 2):
+                        ne = node(o.GetLayer(), e)
+                        for end_, n_ in ((ends[0], na), (ends[1], nb)):
+                            r2 = rs * (e - end_).EuclideanNorm() / t.GetWidth()
+                            adj[ne].append((n_, r2)); adj[n_].append((ne, r2))
+        for v_ in vias_:
+            vn = ("via", v_.GetPosition().x, v_.GetPosition().y)
+            for t in trks:
+                for e in (t.GetStart(), t.GetEnd()):
+                    if (e - v_.GetPosition()).EuclideanNorm() <= v_.GetWidth(pcbnew.F_Cu) // 2:
+                        ne = node(t.GetLayer(), e)
+                        adj[vn].append((ne, VIA_OHM / 2)); adj[ne].append((vn, VIA_OHM / 2))
+
+        def pad_nodes(pd):
+            return [node(t.GetLayer(), e) for t in trks for e in (t.GetStart(), t.GetEnd())
+                    if pd.IsOnLayer(t.GetLayer()) and pd.HitTest(e)]
+        dist = {n_: 0.0 for pd in pads_a for n_ in pad_nodes(pd)}
+        goal = set(pad_nodes(pad_b))
+        h = [(0.0, n_) for n_ in dist]
+        heapq.heapify(h)
+        while h:
+            d_, n_ = heapq.heappop(h)
+            if n_ in goal:
+                return d_
+            if d_ > dist.get(n_, 1e9):
+                continue
+            for m_, w_ in adj[n_]:
+                if d_ + w_ < dist.get(m_, 1e9):
+                    dist[m_] = d_ + w_
+                    heapq.heappush(h, (d_ + w_, m_))
+        return None
+    rref_rows = {}
+    for blk in ("rtd_pan", "rtd_food"):
+        u_, rr_ = by_src.get(f"{blk}.adc"), by_src.get(f"{blk}.r_ref")
+        if u_ is None or rr_ is None:
+            continue
+        upads = {p_.GetNumber(): p_ for p_ in u_.Pads()}
+        row = {}
+        for rp in rr_.Pads():
+            net = rp.GetNetname()
+            ohm = path_ohm(net, [p_ for p_ in upads.values() if p_.GetNetname() == net], rp)
+            row[net] = None if ohm is None else round(ohm * 1e3, 1)
+        rref_rows[f"{u_.GetReference()} -> {rr_.GetReference()}"] = {"rref": rr_.GetValue(), "mohm_by_net": row,
+                                                                    "mohm_total": round(sum(v for v in row.values() if v), 1)}
+    put("rtd_rref_copper", all(None not in r_["mohm_by_net"].values() for r_ in rref_rows.values()),
+        rule="reported: copper inside the Rref measurement (20 C, tracks + 0.7 mOhm per via); gated in sensor-r3 checks 1b",
+        blocks=rref_rows)
 
     status = "PASS" if all(v["ok"] for v in res.values()) else "FAIL"
     out = {"board": str(Path(path).name), "revision": world.REVISION,

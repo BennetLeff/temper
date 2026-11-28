@@ -62,7 +62,7 @@ python3 tools/snapshot_native21.py # re-derive inputs/native-21 from git (read-o
 - **Warnings:** the build emits only atopile's "Implicit Declaration" deprecation warnings for `override_net_name`, the same as the thermal-sense build.
 - **Part identity:** it comes from `resolved-components.json` or the CSV, never from the netlist's `libsource` field. Atopile 0.2.69 aliases parts by footprint there; see the power-stage README.
 
-**Current result** (frozen netlist sha256 `c0808194…`; 285 components, C37–C41, C45): `VERIFY: PASS` (233 checks), and 50/50 mutation tests pass.
+**Current result** (frozen netlist sha256 `8471186c…`; 343 components, C51/C52): `VERIFY: PASS` (270 checks in 17 sections), and 50/50 mutation tests pass (2026-11-27).
 
 | Section | Checks | What is asserted |
 |---|---|---|
@@ -132,7 +132,7 @@ PS3 15 V on J13 V15_BLW ── D9 SS14 (C49) ── v15_selv ── 100 µF + 2�
   ├─ U14 AD8436 tank-RMS converter (single supply, ≈ 0.64 mA)
   └─ 2 × 100 Ω → U16 TLV76050 → V5_UI (J7 pin 1, ≤ 30 mA for a 5 V encoder; current-limited)
 
-PS3 IRM-60-15ST (chassis, 15 V ±2.5 %, 60 W; stage 16, C33) ── J13 (B2P-VH) V15_BLW ── 100 µF + 3 input caps
+PS3 MPM-90-15ST (chassis, 15 V, 85 W; C51; IRM-60-15ST at stage 16, C33) ── J13 (B2P-VH) V15_BLW ── 100 µF + 3 input caps
   ├─ 20 k / 4.7 k → BLW_PG → expander P16 (PS3 present)
   └─ U2 TPS62933 (500 kHz), 10 µH SWRB1205S, 2×22 µF → V_BLOWER 5.0–12.4 V (PWM into FB) → J10 blower (1.42 A typ, 2.70 A max)
        EN defaults on (UVLO follows PS3); firmware sets speed (GPIO46 PWM, full speed by default) and can switch it off (Q1 from expander P15)

@@ -60,10 +60,7 @@ CPL_ROTATION_OFFSET = {
     # 2026-10-19, JLC's own 3D placement preview of this board (evidence/fab-loose-ends/cpl-rotation/PREVIEW-2026-10-19.md): the
     # NEEDS-PREVIEW parts below showed JLC's pin 1 at a different corner from ours by the EasyEDA-footprint offset (U11, U12 and
     # U16 by 180, U3 by 90). Where the DB and the geometry disagreed the preview sided with the geometry. Offsets are the audit's
-    # geometry_offset (JLC's library footprint against our pads); re-check in the preview after upload. NOT applied to the THT
-    # connectors J1 J2 J3 J4 J7: the geometry offset there is a pad-numbering difference, but for a physical connector the body must
-    # match the silk outline, and with +180 JLC's J4 body (a right-angle Micro-Fit) hung off the board edge instead of sitting inside the
-    # outline, opening toward +X as ENCLOSURE-HANDOFF says. They stay at KiCad's rotation until checked against the silk in the preview.
+    # geometry_offset (JLC's library footprint against our pads); re-check in the preview after upload.
     "C5219272": 180,  # TPS62933F, SOT-583-8
     "C3200405": 180,  # TPS62933, SOT-583-8
     "C1850327": 270,  # TPS3703, WSON-6
@@ -88,19 +85,16 @@ CPL_ROTATION_OFFSET = {
     "C82045": 180,    # BSS138LT1G, SOT-23 (C51 fan PWM)
     "C155248": 180,   # BAV199-7-F, SOT-23 (C51 food-probe clamps)
     "C169383": 180,   # SWRB1205S-100MT inductor: two identical pads, numbering only; applied so the gate has no SMD exceptions
-}
-# C53 review M2: THT connectors whose JLC footprint numbers the pins 180 degrees from ours. The CPL keeps KiCad's
-# rotation for them: the body follows the silk outline (PREVIEW-2026-10-19.md Result 2; a right-angle J4 at +180
-# hung off the edge), and the order carries the check (ORDER.md: rotate in JLC's placement editor if the key renders
-# off the silk key wall; assembly remark; key check on arrival). A THT code that disagrees and is not listed here
-# fails the build.
-THT_REVIEWED = {
-    "C158012": "B2B-XH-A, J1/J2",
-    "C144395": "B4B-XH-A, J3/J9",
-    "C158027": "B12B-XH-A, J7",
-    "C277731": "Molex 43045-1600, J4 (numbering: owner reads the 43045-1600 drawing; bring-up buzz J4.3/J4.9)",
-    "C131337": "JST PH B2B-PH-K, J14",
-    "C157991": "B5B-XH-A, J15",
+    # C53 set 11 review B1: the THT connectors. JLC's footprint is ours turned 180 degrees, body outline and pin 1 together
+    # (EasyEDA Pro records, y up as in evidence/c52/fetch_pro_pads.py: B2B-XH pin 1 at +x with the 3.40 mm wall at -y; KiCad
+    # pin 1 at -x, the wall at +y). PREVIEW-2026-10-19 kept KiCad's rotation because J4 at +180 hung off the edge; that came
+    # from the CPL position (pegs included in the pad box), not the rotation: JLC's J4 origin is the 2 x 8 pin-field centre.
+    "C158012": 180,   # JST B2B-XH-A, J1/J2
+    "C144395": 180,   # JST B4B-XH-A, J3/J9
+    "C158027": 180,   # JST B12B-XH-A, J7
+    "C157991": 180,   # JST B5B-XH-A, J15
+    "C131337": 180,   # JST B2B-PH-K-S, J14
+    "C277731": 180,   # Molex 43045-1600, J4 (right-angle; pegs on one side, so it cannot go in reversed)
 }
 PAD_RECORDS = ["evidence/fab-loose-ends/cpl-rotation/easyeda_pads.json", "evidence/c51/jlc_pads.json",
                "evidence/c52/jlc_pads.json"]
@@ -109,9 +103,9 @@ PAD_RECORDS = ["evidence/fab-loose-ends/cpl-rotation/easyeda_pads.json", "eviden
 def cpl_rotation_gate(placed):
     """C53. Compare the applied offset with the JLC-footprint geometry offset (audit.py geometry(): best 90-degree fit of
     JLC's numbered pads onto ours) for every placement. Fails on an SMD disagreement, and on a part with no JLC pad
-    record unless it is a two-pad resistor. THT connectors keep KiCad's rotation (the body must follow the silk,
-    PREVIEW-2026-10-19.md); their geometry offset is returned for the preview list. Symmetric pad sets (ambiguous fit)
-    pass: any of their fits places the same copper."""
+    record unless it is a two-pad resistor. THT parts are held to the same rule (set 11 review B1: the CPL is the
+    only thing that orients a symmetric XH header); the THT list is returned for the preview. Symmetric pad sets
+    (ambiguous fit) pass: any of their fits places the same copper."""
     sys.path.insert(0, str(UNIT / "evidence/fab-loose-ends/cpl-rotation"))
     from audit import geometry  # noqa: E402
     recs = {}
@@ -134,14 +128,10 @@ def cpl_rotation_gate(placed):
             if status.startswith("ambiguous"):
                 continue
             bad.append(f"{ref} {lcsc}: {status}")
-        elif tht:
-            if best != off:
-                tht_preview.append((ref, lcsc, best))
-                if lcsc not in THT_REVIEWED:
-                    bad.append(f"{ref} {lcsc}: THT part whose JLC footprint needs offset {best} (CPL {off}) is not in "
-                               "THT_REVIEWED")
         elif best != off:
             bad.append(f"{ref} {lcsc}: JLC footprint needs offset {best}, CPL applies {off}")
+        elif tht:
+            tht_preview.append((ref, lcsc, best))
     return bad, tht_preview
 
 
@@ -195,6 +185,10 @@ def main():
         tht = bool(fp.GetAttributes() & pcbnew.FP_THROUGH_HOLE)
         lib = fp.GetFPID().GetLibItemName().wx_str()
         lines[(mpn, lib, "THT" if tht else "SMD")].append(ref)
+        if tht:
+            # set 11 review B1: JLC's THT records hold the numbered pins only (J4's two NPTH pegs are not in C277731),
+            # with the origin at their centre; the peg-inclusive box put J4 2.5 mm off in JLC's render
+            pads = [p for p in pads if p.GetNumber()] or pads
         x0 = min(p.GetBoundingBox().GetLeft() for p in pads)
         x1 = max(p.GetBoundingBox().GetRight() for p in pads)
         y0 = min(p.GetBoundingBox().GetTop() for p in pads)
@@ -246,8 +240,8 @@ def main():
     by_code = defaultdict(list)
     for ref, lcsc, best in tht_preview:
         by_code[(lcsc, best)].append(ref)
-    preview = "\n".join(f"  - {c} THT connector, JLC footprint numbering {o} degrees from ours; CPL keeps KiCad's "
-                        f"rotation: check body and key against the silk: {', '.join(sorted(rs, key=natural))}"
+    preview = "\n".join(f"  - {c} THT connector, CPL = KiCad's rotation + {o} (JLC's footprint against ours): "
+                        f"check that JLC's body and key wall sit on our silk outline: {', '.join(sorted(rs, key=natural))}"
                         for (c, o), rs in sorted(by_code.items())) or "  - none"
     preview += ("\n  - C53 offsets never seen in a JLC preview (one part per code): C1 (C445471, + pad), U11 (C840098),"
                 " U52 (C148036), Q2 (C82045), D10 (C155248)")
@@ -268,7 +262,7 @@ def main():
   checked against JLC's pad geometry by cpl_rotation_gate): {len(rotated)} lines corrected
   ({', '.join(sorted(rotated, key=natural))}).
 - **NEEDS-PREVIEW (owner checks these in JLC's placement preview before paying; one designator per LCSC code
-  is enough, the rest of the code follows; the CPL carries KiCad's rotation for them):**
+  is enough, the rest of the code follows):**
 {preview}
 - **LCSC numbers:** from bom/controller-parts.json; missing: {missing or 'none'}.
 - **Consign / stock:** stock 0 (latest JLC check per part: 2026-10-08, C35 swaps 2026-10-12, C37-C41 parts

@@ -12,16 +12,18 @@
 - **Assembly:** all parts on the top side. BOM lines 96, placements 342
   (11 THT). CPL rotations are KiCad's plus the audited JLC offset
   (`CPL_ROTATION_OFFSET` in layout/fab.py; evidence/fab-loose-ends/cpl-rotation; every SMD placement's offset is
-  checked against JLC's pad geometry by cpl_rotation_gate): 56 lines corrected
-  (C1, C9, D8, D10, D11, D12, D13, L2, Q1, Q2, U1, U2, U3, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, U32, U33, U36, U37, U38, U39, U40, U41, U42, U43, U44, U45, U46, U50, U51, U52).
+  checked against JLC's pad geometry by cpl_rotation_gate): 64 lines corrected
+  (C1, C9, D8, D10, D11, D12, D13, J1, J2, J3, J4, J7, J9, J14, J15, L2, Q1, Q2, U1, U2, U3, U5, U6, U7, U8, U9, U10, U11, U12, U13, U14, U15, U16, U17, U18, U19, U20, U21, U22, U23, U24, U25, U26, U27, U28, U29, U30, U31, U32, U33, U36, U37, U38, U39, U40, U41, U42, U43, U44, U45, U46, U50, U51, U52).
 - **NEEDS-PREVIEW (owner checks these in JLC's placement preview before paying; one designator per LCSC code
-  is enough, the rest of the code follows; the CPL carries KiCad's rotation for them):**
-  - C131337 THT connector, JLC footprint numbering 180 degrees from ours; CPL keeps KiCad's rotation: check body and key against the silk: J14
-  - C144395 THT connector, JLC footprint numbering 180 degrees from ours; CPL keeps KiCad's rotation: check body and key against the silk: J3, J9
-  - C157991 THT connector, JLC footprint numbering 180 degrees from ours; CPL keeps KiCad's rotation: check body and key against the silk: J15
-  - C158012 THT connector, JLC footprint numbering 180 degrees from ours; CPL keeps KiCad's rotation: check body and key against the silk: J1, J2
-  - C158027 THT connector, JLC footprint numbering 180 degrees from ours; CPL keeps KiCad's rotation: check body and key against the silk: J7
-  - C277731 THT connector, JLC footprint numbering 180 degrees from ours; CPL keeps KiCad's rotation: check body and key against the silk: J4
+  is enough, the rest of the code follows):**
+  - C131337 THT connector, CPL = KiCad's rotation + 180 (JLC's footprint against ours): check that JLC's body and key wall sit on our silk outline: J14
+  - C144394 THT connector, CPL = KiCad's rotation + 0 (JLC's footprint against ours): check that JLC's body and key wall sit on our silk outline: J10, J12
+  - C144395 THT connector, CPL = KiCad's rotation + 180 (JLC's footprint against ours): check that JLC's body and key wall sit on our silk outline: J3, J9
+  - C157991 THT connector, CPL = KiCad's rotation + 180 (JLC's footprint against ours): check that JLC's body and key wall sit on our silk outline: J15
+  - C158012 THT connector, CPL = KiCad's rotation + 180 (JLC's footprint against ours): check that JLC's body and key wall sit on our silk outline: J1, J2
+  - C158027 THT connector, CPL = KiCad's rotation + 180 (JLC's footprint against ours): check that JLC's body and key wall sit on our silk outline: J7
+  - C160315 THT connector, CPL = KiCad's rotation + 0 (JLC's footprint against ours): check that JLC's body and key wall sit on our silk outline: J13
+  - C277731 THT connector, CPL = KiCad's rotation + 180 (JLC's footprint against ours): check that JLC's body and key wall sit on our silk outline: J4
   - C53 offsets never seen in a JLC preview (one part per code): C1 (C445471, + pad), U11 (C840098), U52 (C148036), Q2 (C82045), D10 (C155248)
 - **LCSC numbers:** from bom/controller-parts.json; missing: none.
 - **Consign / stock:** stock 0 (latest JLC check per part: 2026-10-08, C35 swaps 2026-10-12, C37-C41 parts

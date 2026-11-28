@@ -26,6 +26,11 @@ import sys
 from pathlib import Path
 
 NETS = {"V_BLOWER": 0.8, "V15_BLW": 0.8, "v15_selv": 0.8, "V12_FAN2": 0.6}   # net: stub width (its routed width)
+# set 11 review M1: a supply's source pad whose own F.Cu copper reaches the plane through vias: net -> (the source part's
+# atopile path, its pad, stub width). The whole 3.3 V rail (1041 mA peak, verify.json budget) left L1 pin 2 through one
+# via; the rail's other vias (its capacitors', its loads') are not in that path, so these count only the vias on the
+# pad's own F.Cu copper, not every v3v3 via within REACH.
+SOURCES = {"v3v3": ("l_3v3", "2", 0.4)}
 COMPANIONS = 2        # so each layer change has three barrels (1.42 A typ / 2.70 A max over three on V_BLOWER)
 REACH = 1.8           # mm: a via within this of another same-net via counts as its companion
 STEPS = (0.9, 1.1, 1.3, 1.5)
@@ -125,6 +130,11 @@ def plan(geom_path, out_path, sites_path=None):
             added_v.append({"net": net, "at": list(p)})
         if near(c, net) < COMPANIONS:
             short.append({"net": net, "at": list(c), "companions": near(c, net)})
+    if only is None:
+        for net, (src, pin, w) in SOURCES.items():
+            got, need = source_companions(geom, ex, drills, rtd_vias, net, src, pin, w, added_v, added_t)
+            if got < need:
+                short.append({"net": net, "at": f"{src}.{pin}", "companions": got - 1})
     n_power = len(added_v)
     if only is not None:
         json.dump({"vias": added_v, "tracks": added_t, "short": short, "stitch": 0, "stitch_missed": []},
@@ -174,6 +184,62 @@ def plan(geom_path, out_path, sites_path=None):
               open(out_path, "w"), indent=1)
     print(f"power vias: {n_power} added, {len(added_t)} stubs, {len(short)} vias short of {COMPANIONS} companions; "
           f"{stitched} {GND} stitch vias, {len(missed)} grid nodes with no legal spot")
+
+
+def source_island_vias(geom, net, src, pin, extra_t=(), extra_v=()):
+    """The net's vias on the F.Cu copper of the source pad (the pad, then F.Cu tracks joined end to end)."""
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
+    import gridroute as g
+    pads = [g.shp(pd["poly"]) for pd in geom["pads"]
+            if pd.get("src") == src and pd["ref"].rsplit(".", 1)[1] == pin and pd["layer"] == "F"]
+    if not pads:
+        raise SystemExit(f"power_vias: no F.Cu pad {src}.{pin}")
+    isl = unary_union(pads)
+    trk = [LineString([t["a"], t["b"]]).buffer(t["w"] / 2) for t in list(geom["tracks"]) + list(extra_t)
+           if t["net"] == net and t["layer"] == "F"]
+    grown = True
+    while grown:
+        grown = False
+        for k, t in enumerate(trk):
+            if t is not None and t.intersects(isl):
+                isl, trk[k], grown = isl.union(t), None, True
+    vias = [tuple(v["at"]) for v in list(geom["vias"]) + list(extra_v) if v["net"] == net]
+    return isl, [c for c in vias if isl.intersects(Point(c).buffer(0.05))]
+
+
+def source_companions(geom, ex, drills, rtd_vias, net, src, pin, w, added_v, added_t):
+    """Companion vias on the source pad's own copper until it has 1 + COMPANIONS vias; returns (vias, wanted)."""
+    import gridroute as g
+    from shapely.geometry import LineString, Point
+    need = 1 + COMPANIONS
+    isl, have = source_island_vias(geom, net, src, pin)
+    same = [tuple(v["at"]) for v in geom["vias"] if v["net"] == net]
+    for c in list(have):
+        if len(have) >= need:
+            break
+        cands = [((c[0] + s * math.cos(math.pi * k / 8), c[1] + s * math.sin(math.pi * k / 8))) for s in STEPS
+                 for k in range(16)]
+        for p in cands:
+            if len(have) >= need:
+                break
+            if any(math.dist(p, r) < RTD_KEEP for r in rtd_vias) or any(math.dist(p, o) < 0.9 for o in same):
+                continue
+            if not ex.via_ok(p, net, drills):
+                continue
+            in_pad = isl.buffer(-g.VIA_R).contains(Point(p))    # on the pad or its tracks already: no stub
+            if not in_pad and not ex.seg_ok("F", p, c, w, net):
+                continue
+            for l in g.LAYERS:
+                ex.add(l, Point(p).buffer(g.VIA_R), net)
+            if not in_pad:
+                ex.add("F", LineString([p, c]).buffer(w / 2), net)
+                added_t.append({"net": net, "layer": "F", "w": w, "a": list(p), "b": list(c)})
+            drills.append((p[0], p[1], g.VIA_DRILL_R))
+            same.append(p)
+            have.append(p)
+            added_v.append({"net": net, "at": list(p)})
+    return len(have), need
 
 
 def apply(board_path, plan_path, lock=False):

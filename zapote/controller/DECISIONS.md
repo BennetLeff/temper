@@ -1239,3 +1239,65 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
       - Run 3: 10 pieces ripped, 2 companions placed, closed in 2 rounds.
       - Both: DRC 0 errors / 0 unconnected / parity 0, ALL GATES PASS.
     - Set 11 runs 3 fresh runs on this code.
+  - **Set 11 (1be33819a): 2/3, the proof.**
+    - Run 1: HS_FAULT and hs_buf_out still open after its last ECO pass.
+    - Runs 2 and 3: DRC 0/0/0, ALL GATES PASS (8422 s and 6906 s). pv_repair fired once in each (a v15_selv companion; a
+      V12_FAN2 one).
+    - Board of record run 2 (fewer warnings), committed 5d3ff39c2: `evidence/convergence.json`, `evidence/c53-set11/`.
+
+### C53 set 11 review and pre-mortem (2026-11-28)
+Two fresh Fable agents worked on frozen exports of 5d3ff39c2, without the earlier review and pre-mortem texts.
+- The layout review is `evidence/c53-set11-review/REVIEW.md`. Its verdict was do not order yet: one blocker.
+- The bring-up pre-mortem is `evidence/c53-set11-premortem/PREMORTEM.md`, with firmware fbd6f5ca9 rebuilt in a scratch copy. Its
+  verdict was order: no DEAD/UNSAFE finding, and firmware vs netlist matches on every module pin, expander bit, address, CS, ADC
+  channel and strap.
+
+Dispositions:
+- **B1 (review) / M2 (pre-mortem), THT CPL rotation: fixed, CPL only.**
+  - JLC's footprints for C158012, C144395, C158027, C157991, C131337 and C277731 are ours turned 180°, body and pin 1
+    together. I checked this myself on the EasyEDA Pro records with the y-up convention of `evidence/c52/fetch_pro_pads.py`
+    (which reproduces the preview-validated C7666 record). B2B-XH: pin 1 at +x with the 3.40 mm wall at −y; KiCad: pin 1 at
+    −x with the wall at +y.
+  - PREVIEW-2026-10-19's revert came from the CPL position, not the rotation. The pad box included J4's two NPTH pegs
+    (kx 28.400); JLC's C277731 origin is the 16-pin field centre (kx 30.935).
+  - `layout/fab.py` now adds +180 for those codes and centres THT lines on their numbered pads. THT_REVIEWED is removed, so the
+    rotation gate holds THT to the SMD rule and fails any disagreement.
+  - CPL: J1 J2 J3 J7 J14 J15 → 180, J9 → 0, J4 → 270 at (30.935, −67.600). J10, J12 and J13 are unchanged.
+  - JLC's preview stays the confirmation (ORDER.md).
+- **M1 (review), v3v3 left U1's inductor through one via: fixed after the proof, Pareto.**
+  - Peak budget 1041 mA (verify.json). L1.2 reached In2 only through one 0.6/0.3 via.
+  - `power_vias.SOURCES` adds companions on the source pad's own F.Cu copper.
+  - route.py's post_route was re-run on run 2's saved routed board. With the proof code it reproduces run 2's copper,
+    footprints and zones exactly (UUIDs and order differ). With the change, the only additions are two vias (one in L1.2's
+    pad) and one 0.4 mm stub, plus the selv_gnd refill around them.
+  - Board `3efed65c…`: DRC 0/0/0, ALL GATES PASS, block validators unchanged.
+  - The `power_vias` gate counts the vias on L1.2's copper (3; it fails below 2).
+- **m2 (review), series vias counted as one site: gate fixed.**
+  - Each via of a multi-via site is now removed alone. If that cuts more than 1 A of load, the gate fails.
+  - Only V12_FAN2 at world (87.7, 58.9) shows a cut: 0.67 A, reported.
+- **m4 (review), Rref not Kelvin: measured, gated, and failing; owner decision.**
+  - `check_layout.py` `rtd_rref_copper`: 252.9 mΩ in the pan channel, matching the review's 252 mΩ by an independent method.
+    The food channel has 236.6 mΩ against 4.3 kΩ, which is negligible.
+  - sensor-r3 checks 1b gains `Rref_copper_tempco` = R_cu × 3.93e-3/K × 60 K / Rref × R(T): 0.074 K at 250 °C.
+  - **Gate 1b now FAILS: board terms 0.493 K against 0.45 K**; RSS 0.414 K passes.
+  - R39 cannot sit at U30's pins as placed: the pin row faces the module courtyard 0.6 mm away. The fix is an RTD front-end
+    reshuffle or a Kelvin net split (both re-route and re-prove).
+  - The choice between accepting it for the prototype and fixing it first is the owner's (LAYOUT.md open item 13).
+- **M2 (review) / M3 (pre-mortem), via in pad.** 387 drills touch an SMD pad (138 centred in one), so epoxy fill and cap is a
+  checked order-form line (ORDER.md). Accepted as C53 m8.
+- **m3 (review), V_BLOWER 0.8 mm at the fan's 2.70 A maximum (about 19 K by IPC-2221): accepted.** 1.42 A running, about 6 K; the
+  maximum is the start/lock figure. LAYOUT.md corrected.
+- **Accepted for the prototype, with notes in LAYOUT/ORDER:**
+  - m1 (ESP32 v3v3 island on two 0.3 mm links);
+  - m5 (C91 48 mm from EN; the RC still sets the delay; move it at the next placement);
+  - m6 (U51 FB 6 mm under its SW pour, with two ground planes between);
+  - m7 and m8 (outer ground islands and plane slots; slow signals only);
+  - m9 (U2 thermal at 2.70 A: bench);
+  - m10 (no test points; J11 is the flash path).
+- **Docs fixed:** m11 (review) / m9 (pre-mortem): LAYOUT.md's J4.1, v15_selv and PS3 text; README's PS3 (MPM-90-15ST).
+- **Pre-mortem order items:**
+  - M1: ORDER.md rewritten for this board.
+  - M4: the J11 USB lead, IO0/EN jumpers and 15 V on J13 for the first flash.
+  - m5: J13 polarity check before power.
+  - m6: J4 buzz.
+  - m3 ("SAFE MODE" once after a flash) and m4 (BIAS_GOOD margin) are bring-up notes.

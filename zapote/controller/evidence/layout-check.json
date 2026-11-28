@@ -892,14 +892,14 @@
     "VIN_12",
     "VIN_3V3",
     "BLW_FEED1",
-    "GND_F",
-    "RTD_AVDD_F",
     "SW_3V3",
     "BLW_FEED2",
     "VIN_FAN2",
     "SW_12",
     "SW_FAN2",
     "BLW_FEED0",
+    "GND_F",
+    "RTD_AVDD_F",
     "GND_B",
     "GND_plane",
     "V3V3_plane",
@@ -1014,7 +1014,8 @@
       "3": 4
      },
      "single_via_sites_over_1A": [],
-     "single_via_sites_at_or_under_1A": []
+     "single_via_sites_at_or_under_1A": [],
+     "series_vias_in_multi_via_sites": []
     },
     "V15_BLW": {
      "vias": 15,
@@ -1025,7 +1026,8 @@
       "5": 1
      },
      "single_via_sites_over_1A": [],
-     "single_via_sites_at_or_under_1A": []
+     "single_via_sites_at_or_under_1A": [],
+     "series_vias_in_multi_via_sites": []
     },
     "v15_selv": {
      "vias": 25,
@@ -1035,7 +1037,8 @@
       "4": 1
      },
      "single_via_sites_over_1A": [],
-     "single_via_sites_at_or_under_1A": []
+     "single_via_sites_at_or_under_1A": [],
+     "series_vias_in_multi_via_sites": []
     },
     "V12_FAN2": {
      "vias": 6,
@@ -1044,7 +1047,20 @@
       "3": 2
      },
      "single_via_sites_over_1A": [],
-     "single_via_sites_at_or_under_1A": []
+     "single_via_sites_at_or_under_1A": [],
+     "series_vias_in_multi_via_sites": [
+      {
+       "at_world": [
+        87.7,
+        58.9
+       ],
+       "amps": 0.67
+      }
+     ]
+    },
+    "v3v3 source L1.2": {
+     "vias_on_source_copper": 3,
+     "ok": true
     }
    }
   },
@@ -1165,6 +1181,28 @@
    "ok": true,
    "count": 0,
    "stranded": []
+  },
+  "rtd_rref_copper": {
+   "ok": true,
+   "rule": "reported: copper inside the Rref measurement (20 C, tracks + 0.7 mOhm per via); gated in sensor-r3 checks 1b",
+   "blocks": {
+    "U30 -> R39": {
+     "rref": "PTFR0805B430RN9",
+     "mohm_by_net": {
+      "p1": 145.1,
+      "refin_n": 107.8
+     },
+     "mohm_total": 252.9
+    },
+    "U50 -> R130": {
+     "rref": "RT0805BRD074K3L",
+     "mohm_by_net": {
+      "rtd2_bias": 199.0,
+      "rtd2_refin_n": 37.6
+     },
+     "mohm_total": 236.6
+    }
+   }
   }
  },
  "summary": {
@@ -1188,7 +1226,8 @@
   "v3v3_islands": true,
   "gnd_stitch": true,
   "partition": true,
-  "stranded_vias": true
+  "stranded_vias": true,
+  "rtd_rref_copper": true
  },
  "status": "PASS"
 }
