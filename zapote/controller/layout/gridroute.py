@@ -1080,10 +1080,10 @@ def eco():
     geom = json.load(open(sys.argv[2]))
     drc = json.load(open(sys.argv[3]))
     configure(geom)
-    # set 9: a CLUSTER net's routing is fixed here, as in pass 2 (a signal path does not displace a CLUSTER route):
-    # re-routed after an ECO cut, it may find no room for its companion vias
+    # (set 9 made CLUSTER copper fixed here; set 10 showed the room it takes from the pin escapes beside it, U2's ss_12.
+    # A CLUSTER via left with one barrel after a cut is route.py's pv_repair's to fix.)
     def soft(x):
-        return not x.get("locked", True) and x["net"] not in CLUSTER and x["net"] != "<npth>"
+        return not x.get("locked", True) and x["net"] != "<npth>"
     soft_tracks = [t for t in geom["tracks"] if soft(t)]
     soft_vias = [v for v in geom["vias"] if soft(v)]
     fixed = dict(geom)

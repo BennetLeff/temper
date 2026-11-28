@@ -21,6 +21,8 @@ Steps:
      cycle (5-6) runs again, up to REPAIR_CYCLES times;
   6b. ECO (eco_passes): pairs still open get gridroute --eco, up to ECO_PASSES times, each followed by normal rounds
      and a cleanup. It frees a long pair blocked mid-corridor, which the end-local repair cannot reach;
+  6c. pv_repair: a high-current via the routing left with one barrel gets the other nets' copper within PV_RIP mm
+     deleted, its companion vias placed first (locked), and the deleted links re-routed (rounds, cleanup, ECO);
   7. the outer selv_gnd pours and the designators (layout/silk.py) are added and zones refilled.
 
 Every DRC report the router reads first goes through layout/plane_islands.py, which turns KiCad's
@@ -48,7 +50,7 @@ WORK = PCB / "route"
 KPY = "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3"
 CLI = "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
 GND = "selv_gnd"
-CLUSTER = {"V_BLOWER", "V15_BLW"}     # = gridroute.CLUSTER (rip_around runs in KiCad's Python, which has no shapely)
+PV_RIP = 1.8        # mm: pv_repair's rip around a single-barrel power via (power_vias.STEPS reach 1.5, plus a via radius)
 
 
 def run(cmd):
@@ -73,8 +75,8 @@ ECO_PASSES = 3                  # then gridroute --eco passes, each with normal 
                                 # (was 2), since a pair whose path would cross another ECO path of its pass now waits
 
 
-def rip_around(board, report, radius):
-    """KiCad Python: delete unlocked tracks/vias of other (non-plane) nets near each open end."""
+def rip_around(board, report, radius, keep=()):
+    """KiCad Python: delete unlocked tracks/vias of other (non-plane) nets near each open end; nets in keep stay."""
     import math
     import pcbnew
     b = pcbnew.LoadBoard(str(board))
@@ -100,9 +102,7 @@ def rip_around(board, report, radius):
             if math.dist((a[0] + k * dx, a[1] + k * dy), e) < radius:
                 return True
         return False
-    # set 9 run 1: the CLUSTER nets' copper stays. Ripped, V_BLOWER came back after the stuck nets (GRIDROUTE_FIRST)
-    # had taken the room its companion vias stood in, and kept one barrel at 2.7 A (power_vias gate)
-    gone = [t for t in b.GetTracks() if not t.IsLocked() and t.GetNetname() not in stuck | {GND, "v3v3"} | CLUSTER
+    gone = [t for t in b.GetTracks() if not t.IsLocked() and t.GetNetname() not in stuck | {GND, "v3v3"} | set(keep)
             and near(t)]
     for t in gone:
         b.Remove(t)
@@ -282,6 +282,57 @@ def eco_passes(work, log, rnd, n_open):
     return rnd, n_open
 
 
+def clean(work, tag):
+    """layout/cleanup.py's graph passes, then KiCad's dangling list, until each removes nothing."""
+    for _ in range(8):
+        out = run([KPY, str(HERE / "cleanup.py"), str(work)])
+        print(next((l for l in out.splitlines() if l.startswith("cleanup")), out[-200:]), flush=True)
+        if "removed=0" in out:
+            break
+    for k in range(5):
+        rep_json = WORK / f"drc-dangling-{tag}-{k}.json"
+        drc(work, rep_json)
+        out = run([KPY, str(HERE / "cleanup.py"), str(work), "--dangling", str(rep_json)])
+        print(next((l for l in out.splitlines() if l.startswith("cleanup")), out[-200:]), flush=True)
+        if "removed=0" in out:
+            break
+
+
+def pv_repair(work, log, rnd, n_open):
+    """Companions for the power vias the routing left with one barrel (power_vias gate); returns (rnd, n_open).
+
+    Set 9: runs 1 and 3 closed with a V_BLOWER layer change of one barrel at 2.7 A, boxed in by signal tracks, so
+    power_vias.py found no spot. Two different paths led there (a repair rip, then the re-route after the stuck nets;
+    an ECO path), and set 10 showed that barring them costs the routing its room: with CLUSTER copper fixed in the
+    repair rips, all three runs stuck on U2's ss_12 pin escape beside V_BLOWER. This fixes the result instead: on the
+    routed board, the other nets' unlocked copper within PV_RIP of each single-barrel via is deleted, the via's
+    companions go in first (power_vias.py plan --sites, locked), and the rounds, a cleanup and the ECO passes re-route
+    the deleted links around them, as after a repair rip."""
+    import power_vias
+    if n_open:
+        return rnd, n_open
+    run([KPY, str(HERE / "export_geom.py"), str(work), str(WORK / "geom-pv.json")])
+    run([sys.executable, str(HERE / "power_vias.py"), "plan", str(WORK / "geom-pv.json"), str(WORK / "pv-dry.json")])
+    sites = [s_ for s_ in json.loads((WORK / "pv-dry.json").read_text())["short"] if s_["companions"] == 0]
+    log["rounds"].append({"pv_repair": [[s_["net"]] + s_["at"] for s_ in sites]})
+    if not sites:
+        return rnd, n_open
+    (WORK / "pv-sites.json").write_text(json.dumps({"unconnected_items": [
+        {"items": [{"description": f"Via [{s_['net']}] on F.Cu - B.Cu", "pos": {"x": s_["at"][0], "y": s_["at"][1]}}]}
+        for s_ in sites]}))
+    print(run([KPY, __file__, "rip", str(work), str(WORK / "pv-sites.json"), str(PV_RIP), ",".join(power_vias.NETS)]),
+          flush=True)
+    run([KPY, str(HERE / "export_geom.py"), str(work), str(WORK / "geom-pv.json")])
+    print(run([sys.executable, str(HERE / "power_vias.py"), "plan", str(WORK / "geom-pv.json"), str(WORK / "pv-sites-plan.json"),
+               str(WORK / "pv-sites.json")]).strip().splitlines()[-1], flush=True)
+    print(run([KPY, str(HERE / "power_vias.py"), "apply", str(work), str(WORK / "pv-sites-plan.json"), "lock"]).strip()
+          .splitlines()[-1], flush=True)
+    rnd, n_open = route_rounds(work, log, rnd, 3)
+    clean(work, "pv")
+    rnd, n_open = route_rounds(work, log, rnd, 3)
+    return eco_passes(work, log, rnd, n_open)
+
+
 def post_route(work, log):
     """Companion vias, pours and designators, the final dangling pass and DRC; writes the route log."""
     # the routed board before the post-route steps, so power_vias.py and the gates can be re-run on it without re-routing
@@ -320,9 +371,6 @@ def main():
     # pairs in varying order, which breaks ties in gridroute.py's pair order. Every run is gated by
     # the DRC in layout/make.py (0 errors, 0 unconnected, parity 0) rather than by a fixed outcome.
     os.environ["PYTHONHASHSEED"] = "0"
-    sys.path.insert(0, str(HERE))
-    import gridroute
-    assert CLUSTER == gridroute.CLUSTER, "route.CLUSTER must match gridroute.CLUSTER"
     WORK.mkdir(exist_ok=True)
     work = WORK / "work.kicad_pcb"
     if "--continue" not in sys.argv:        # --continue: resume on pcb/route/work.kicad_pcb
@@ -361,6 +409,7 @@ def main():
         if n_open == 0:
             break
     rnd, n_open = eco_passes(work, log, rnd, n_open)
+    rnd, n_open = pv_repair(work, log, rnd, n_open)
     post_route(work, log)
 
 
@@ -368,6 +417,6 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "finish":
         finish(sys.argv[2], sys.argv[3], sys.argv[4] == "1")
     elif len(sys.argv) > 1 and sys.argv[1] == "rip":
-        rip_around(sys.argv[2], sys.argv[3], float(sys.argv[4]))
+        rip_around(sys.argv[2], sys.argv[3], float(sys.argv[4]), tuple(filter(None, (sys.argv[5:] or [""])[0].split(","))))
     else:
         main()

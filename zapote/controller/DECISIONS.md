@@ -1217,3 +1217,25 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
         code: 3 sites of 3 barrels, the same 32 rip items, 0 clearance violations in the independent checker
         (e8/check.py).
     - Run 2 is not counted: set 10 runs 3 fresh runs on this code.
+  - **Set 10 (b305fa08a): 0/3** (run 1 stopped once set 10 could no longer pass).
+    - Runs 2 and 3 closed DRC-clean except for one pair: ss_12, U2 pin 7 to its escape via (1.4 mm).
+    - Run 1 was stuck on en_12 and ss_12 through its last repair cycle and into ECO.
+    - Cause: set 9's fix. U2's upper-right pins (ss_12, fb_12) escape toward V_BLOWER, which routes first and passes
+      0.67 mm from them. With CLUSTER copper fixed in repair rips and in ECO, nothing could free the escape, and the
+      three U2 nets ripped each other in turn (ECO passes 0-2: ss_12, then en_12/fb_12, then ss_12). Set 9 had closed
+      routing in all three runs. Archive: build/conv/failed-review-fix-set10/.
+    - Fix: give the routing its room back and repair the result.
+      - rip_around and eco() may rip CLUSTER copper again.
+      - eco() keeps set 9's companions for a CLUSTER ECO path.
+      - New route.py step, pv_repair (after the ECO passes, before post_route).
+        - power_vias.py plan as a dry run names every power via with no companion.
+        - The other nets' unlocked copper within PV_RIP = 1.8 mm of each is deleted (v3v3, selv_gnd and the
+          power_vias nets stay).
+        - power_vias.py plan with a sites file places those vias' companions, and apply locks them.
+        - Rounds, a cleanup and the ECO passes re-route the deleted links.
+    - Checks (archive pv-repair-test/): pv_repair plus post_route and make.py --no-route on set 9's two failing
+      routed boards.
+      - Run 1: 20 pieces ripped, 2 companions placed, closed in 4 rounds.
+      - Run 3: 10 pieces ripped, 2 companions placed, closed in 2 rounds.
+      - Both: DRC 0 errors / 0 unconnected / parity 0, ALL GATES PASS.
+    - Set 11 runs 3 fresh runs on this code.

@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Companion vias for the high-current nets' layer changes (C53 review M4).
 
-    python3  layout/power_vias.py plan  <geom.json> <plan.json>     (shapely; layout/gridroute.py's exact check)
-    KICAD_PY layout/power_vias.py apply <board.kicad_pcb> <plan.json>
+    python3  layout/power_vias.py plan  <geom.json> <plan.json> [<sites.json>]   (shapely; gridroute.py's exact check)
+    KICAD_PY layout/power_vias.py apply <board.kicad_pcb> <plan.json> [lock]
+
+With a sites file (route.py's pv_repair: a DRC-report-shaped list of via positions) only the vias at those sites get
+companions and the stitch grid is left out; "lock" locks what apply adds, so the re-routing after it keeps it.
 
 The router makes every layer change with one 0.6/0.3 via. A 0.3 mm barrel is about 1 A of plating, and V_BLOWER
 (1.42 A typ, 2.70 A max) went through four of them in series. For each via of a net in NETS, this adds companion
@@ -32,7 +35,7 @@ STITCH_SEARCH = 5.0   # mm around a grid node (3.0 left two nodes by J13 unstitc
 STITCH_INSET = 3.0    # mm inside the board edge
 
 
-def plan(geom_path, out_path):
+def plan(geom_path, out_path, sites_path=None):
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import gridroute as g
     from shapely.geometry import LineString, Point
@@ -43,6 +46,9 @@ def plan(geom_path, out_path):
     rtd_vias = [v["at"] for v in geom["vias"] if v["net"] in set(geom.get("rtd_analog", []))]
     tracks = [t for t in geom["tracks"] if t["net"] in NETS]
     vias = [v for v in geom["vias"] if v["net"] in NETS]
+    only = None
+    if sites_path:
+        only = [(e["pos"]["x"], e["pos"]["y"]) for u in json.load(open(sites_path))["unconnected_items"] for e in u["items"]]
     added_v, added_t, short = [], [], []
     same = {n: [tuple(v["at"]) for v in vias if v["net"] == n] for n in NETS}
     fills = {}          # net -> layer -> filled zone geometry (F/B pours such as BLW_FEED and the buck VIN pours)
@@ -63,6 +69,8 @@ def plan(geom_path, out_path):
 
     for v in vias:
         c, net = tuple(v["at"]), v["net"]
+        if only is not None and not any(math.dist(c, o) < 0.05 for o in only):
+            continue
         w = NETS[net]
         inc = []
         for t in tracks:
@@ -118,6 +126,12 @@ def plan(geom_path, out_path):
         if near(c, net) < COMPANIONS:
             short.append({"net": net, "at": list(c), "companions": near(c, net)})
     n_power = len(added_v)
+    if only is not None:
+        json.dump({"vias": added_v, "tracks": added_t, "short": short, "stitch": 0, "stitch_missed": []},
+                  open(out_path, "w"), indent=1)
+        print(f"power vias at {len(only)} sites: {n_power} added, {len(added_t)} stubs, {len(short)} vias short of "
+              f"{COMPANIONS} companions")
+        return
 
     # board-wide selv_gnd stitching grid (review m6)
     import floorplan
@@ -162,7 +176,7 @@ def plan(geom_path, out_path):
           f"{stitched} {GND} stitch vias, {len(missed)} grid nodes with no legal spot")
 
 
-def apply(board_path, plan_path):
+def apply(board_path, plan_path, lock=False):
     import pcbnew
     b = pcbnew.LoadBoard(board_path)
     r = json.load(open(plan_path))
@@ -174,6 +188,7 @@ def apply(board_path, plan_path):
         tr.SetWidth(pcbnew.FromMM(t["w"]))
         tr.SetLayer(L[t["layer"]])
         tr.SetNet(b.FindNet(t["net"]))
+        tr.SetLocked(lock)
         tr.thisown = False      # the board owns it: a Python-owned item is freed when its proxy is rebound (wrong nets)
         b.Add(tr)
     for v in r["vias"]:
@@ -186,6 +201,7 @@ def apply(board_path, plan_path):
             # a track-less via inside several filled pours: KiCad's connectivity re-nets it to one of them at save (a
             # random 8-16 of 70 stitch vias became v3v3). A free via keeps its net.
             via.SetIsFree(True)
+        via.SetLocked(lock)
         via.thisown = False
         b.Add(via)
     pcbnew.SaveBoard(board_path, b)
@@ -193,4 +209,7 @@ def apply(board_path, plan_path):
 
 
 if __name__ == "__main__":
-    {"plan": plan, "apply": apply}[sys.argv[1]](sys.argv[2], sys.argv[3])
+    if sys.argv[1] == "plan":
+        plan(sys.argv[2], sys.argv[3], sys.argv[4] if len(sys.argv) > 4 else None)
+    else:
+        apply(sys.argv[2], sys.argv[3], len(sys.argv) > 4 and sys.argv[4] == "lock")
