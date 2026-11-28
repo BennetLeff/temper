@@ -105,10 +105,60 @@ size_t ctrl_exp_init_writes(bool fan_off_output, ctrl_i2c_write_t out[6]);
 /* OUTPUT1 value for a FAN_OFF request: only P15 is an output, the other port-1 bits stay 1. */
 uint8_t ctrl_exp_output1(bool fan_off);
 /* CONFIG0 value: all port-0 pins inputs (the init plan's), or P06 (food-probe CS#, C51) an output to select
- * U50. OUTPUT0 value: P06 latch 0, written once before the first select; the other port-0 pins are inputs,
- * so their latches do nothing. */
+ * U50. OUTPUT0 value: P06 latch 0, kept by ctrl_exp_keeper_service() below; the other port-0 pins are
+ * inputs, so their latches do nothing. */
 uint8_t ctrl_exp_config0(bool food_cs_selected);
 uint8_t ctrl_exp_output0(void);
+
+/* ---- Expander latch keeper (F5, C52/C53 firmware review) ----------------------------------------------
+ * A TCA9555 reset (power-on reset: a dip of its 3.3 V; the part has no reset pin) returns every register
+ * to its power-up value: OUTPUT0/1 = 0xFF, CONFIG0/1 = 0xFF (all inputs), POLARITY0/1 = 0. CONFIG0 = 0xFF
+ * is "deselected", so the reset itself is safe, but the P06 latch is now 1: the next select would make P06
+ * an output driving HIGH and U50 would never see CS# asserted. The select runs inside the RTD SPI hold (the
+ * RMS ADC drops a half-cycle after a 1.5 ms gap), so it stays one CONFIG0 write and the latch is kept from
+ * outside the hold. (Writing OUTPUT0 on every select would add a second 2-byte write in the hold: 27 SCL
+ * clocks + START/STOP = ~73 us of wire at CTRL_I2C_HZ 400 kHz, plus the i2c_master synchronous-path cost,
+ * plus a second wait on the I2C bus semaphore, which the control task on the other core holds for every
+ * 10 ms INPUT poll (~0.12 ms wire) and, on a bus fault, for up to its 2 ms timeout. That worst case is not
+ * bounded below 1.5 ms, so the latch is not written in the hold.)
+ *  - ctrl_exp_keeper_service(): once per monitor tick, in the task that owns the food-probe hold and just
+ *    before it (never concurrent with a hold). Reads OUTPUT0 back. A wrong value (a reset), or any
+ *    expander error reported since the last good service, re-applies the whole register plan
+ *    (ctrl_exp_restore_writes) and confirms it by reading OUTPUT0 back again.
+ *  - ctrl_exp_keeper_select(): one CONFIG0 write. A select is refused (nothing written, returns false)
+ *    while the latch is unconfirmed: after an expander error and until the next good service. A deselect
+ *    is always written. A reset that lands between a service and the select cannot be seen by the select:
+ *    then P06 drives high, U50 hears nothing, rtd_food_service drops that reading (U50's config does not
+ *    read back "converting", so it is never a temperature) and the next service restores the latch.
+ *  - ctrl_exp_keeper_error(): every failed expander transfer, from any path (poll, FAN_OFF, select).
+ * The keeper also owns the FAN_OFF latch value (fan_off), so a restore puts the blower back where the
+ * last request left it. */
+typedef struct {
+    bool (*read)(void *ctx, uint8_t reg, uint8_t *value);
+    bool (*write)(void *ctx, uint8_t reg, uint8_t value);
+    void *ctx;
+} ctrl_exp_ops_t;
+
+typedef struct {
+    bool fan_off_output; /* P15 FAN_OFF is an output in the plan (L3, C28) */
+    bool fan_off;        /* FAN_OFF latch last requested (false = blower on) */
+    bool latch_ok;       /* OUTPUT0 confirmed = ctrl_exp_output0() since the last expander error */
+    uint32_t resets;     /* OUTPUT0 read back wrong: the expander lost its registers */
+    uint32_t restores;   /* register plan re-applied and confirmed */
+    uint32_t errors;     /* expander errors reported */
+} ctrl_exp_keeper_t;
+
+/* latch_ok starts false: the first service writes the plan (with OUTPUT0) before any select. */
+void ctrl_exp_keeper_init(ctrl_exp_keeper_t *k, bool fan_off_output);
+void ctrl_exp_keeper_error(ctrl_exp_keeper_t *k);
+/* The restore plan, latches before directions: POLARITY0/1 = 0, OUTPUT0 (P06 latch 0), OUTPUT1 (FAN_OFF =
+ * fan_off), CONFIG0 all inputs (deselected), CONFIG1 (P15 an output only with fan_off_output). Returns the
+ * count (6). */
+size_t ctrl_exp_restore_writes(bool fan_off_output, bool fan_off, ctrl_i2c_write_t out[6]);
+/* Outside any RTD SPI hold. Returns latch_ok afterwards. */
+bool ctrl_exp_keeper_service(ctrl_exp_keeper_t *k, const ctrl_exp_ops_t *ops);
+/* Inside the RTD SPI hold only. */
+bool ctrl_exp_keeper_select(ctrl_exp_keeper_t *k, const ctrl_exp_ops_t *ops, bool selected);
 
 typedef struct {
     bool rtd_drdy;      /* P07 low: a MAX31865 conversion is ready */
@@ -195,9 +245,12 @@ bool ctrl_board_blower_tach_count(uint16_t *count);
  * apart: (re)initialises the part until it answers, then services it. If this is not called, or the bus
  * fails, the part's continuous watchdog drives the fan to 100 % within 4 s. */
 bool ctrl_board_face_fan_service(uint8_t drive, emc2301_poll_t *out);
-/* C51 food-probe CS# (TCA9555 P06). prepare: OUTPUT0 with the P06 latch 0, once, outside any SPI hold.
- * select: CONFIG0 = ctrl_exp_config0(selected), one I2C write with a 2 ms limit; called only while the
- * caller holds the RTD SPI bus (rtd_food_service.h). */
+/* Expander latch keeper (F5, ctrl_exp_keeper_service above). Monitor task, every tick, right before
+ * food_rtd_tick(): never inside an RTD SPI hold. Also takes the control task's failed polls as errors. */
+bool ctrl_board_expander_service(void);
+/* C51 food-probe CS# (TCA9555 P06). prepare: one keeper service (OUTPUT0 with the P06 latch 0 confirmed),
+ * outside any SPI hold. select: ctrl_exp_keeper_select(), one CONFIG0 write with a 2 ms limit; called
+ * only while the caller holds the RTD SPI bus (rtd_food_service.h), in the monitor task. */
 bool ctrl_board_food_cs_prepare(void);
 bool ctrl_board_food_cs(bool selected);
 #endif

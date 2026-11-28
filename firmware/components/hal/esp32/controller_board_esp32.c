@@ -21,6 +21,9 @@
  *    duty 0 and every failure stops it at idle level 0), PCNT on GPIO3 (FG rising edges), and
  *    expander P15 FAN_OFF (latch written 0 = on before the pin becomes an output). The speed and
  *    on/off decisions are blower_ctrl_step() in components/control/thermal_mgmt.c.
+ *  - F5: the expander's register plan (P06 food-probe CS# latch 0, FAN_OFF) is kept across a TCA9555 reset
+ *    by the keeper (ctrl_exp_keeper_service, controller_board.c), serviced by the monitor task before the
+ *    food-probe hold; the select inside the hold stays one CONFIG0 write.
  *  - C51 face fan: EMC2301 at 0x2F on the same bus (emc2301.c does the work). Its absence or a bus
  *    failure is logged, never fatal: the part's own watchdog then runs the fan at 100 %.
  */
@@ -84,6 +87,34 @@ static bool exp_write(uint8_t reg, uint8_t value)
     return i2c_master_transmit(s_exp, b, sizeof b, 5) == ESP_OK;
 }
 
+/* F5 latch keeper (controller_board.h). Owned by the monitor task: the service, the food-probe select and
+ * the FAN_OFF write all run there. The control task's failed polls reach it through s_exp_poll_failed. */
+static ctrl_exp_keeper_t s_keeper;
+static bool s_exp_poll_failed; /* under s_exp_mux */
+
+static bool keeper_read(void *ctx, uint8_t reg, uint8_t *value)
+{
+    (void)ctx;
+    return s_exp && i2c_master_transmit_receive(s_exp, &reg, 1, value, 1, 2) == ESP_OK;
+}
+
+static bool keeper_write(void *ctx, uint8_t reg, uint8_t value)
+{
+    (void)ctx;
+    return s_exp && exp_write(reg, value);
+}
+
+/* The select's write keeps its 2 ms limit (it runs inside the RTD SPI hold). */
+static bool keeper_write_select(void *ctx, uint8_t reg, uint8_t value)
+{
+    (void)ctx;
+    uint8_t b[2] = {reg, value};
+    return s_exp && i2c_master_transmit(s_exp, b, sizeof b, 2) == ESP_OK;
+}
+
+static const ctrl_exp_ops_t s_keeper_ops = {.read = keeper_read, .write = keeper_write, .ctx = NULL};
+static const ctrl_exp_ops_t s_keeper_select_ops = {.read = keeper_read, .write = keeper_write_select, .ctx = NULL};
+
 static bool i2c_create(void)
 {
     i2c_master_bus_config_t bc = {
@@ -98,6 +129,8 @@ static bool i2c_create(void)
     i2c_device_config_t dc = {.dev_addr_length = I2C_ADDR_BIT_LEN_7,
                               .device_address = CTRL_TCA9555_ADDR, .scl_speed_hz = CTRL_I2C_HZ};
     if (i2c_master_bus_add_device(s_i2c_bus, &dc, &s_exp) != ESP_OK) return false;
+    /* F5: if the plan below fails part-way, the keeper's first service re-applies all of it. */
+    ctrl_exp_keeper_init(&s_keeper, true);
     /* L3: FAN_OFF (P15) becomes an output with its latch written 0 (blower on) first (C28). */
     ctrl_i2c_write_t w[6];
     size_t n = ctrl_exp_init_writes(true, w);
@@ -122,17 +155,39 @@ static bool fan2_write(void *ctx, uint8_t reg, uint8_t value)
     return s_fan2 && i2c_master_transmit(s_fan2, b, sizeof b, 5) == ESP_OK;
 }
 
+/* F5 (controller_board.h): monitor task, every tick, before the food-probe hold. Reads OUTPUT0 back (one
+ * ~0.1 ms transaction per 100 ms); after a reset or any expander error it re-applies the plan. */
+bool ctrl_board_expander_service(void)
+{
+    if (!s_exp) return false;
+    portENTER_CRITICAL(&s_exp_mux);
+    bool poll_failed = s_exp_poll_failed;
+    s_exp_poll_failed = false;
+    portEXIT_CRITICAL(&s_exp_mux);
+    if (poll_failed) ctrl_exp_keeper_error(&s_keeper);
+    uint32_t resets = s_keeper.resets;
+    bool ok = ctrl_exp_keeper_service(&s_keeper, &s_keeper_ops);
+    if (s_keeper.resets != resets)
+        ESP_LOGW(TAG, "TCA9555 lost its registers (reset %u): plan re-applied %s", (unsigned)s_keeper.resets,
+                 ok ? "and confirmed" : "but not confirmed");
+    if (ok && !s_fan_off_output) { /* boot plan had failed: the restore made P15 an output, latch fan_off */
+        s_fan_off_output = true;
+        s_fan_off_written = true;
+        s_fan_off_last = s_keeper.fan_off;
+    }
+    return ok;
+}
+
 /* C51 food-probe CS# (P06). The select write runs inside an RTD SPI bus hold, so its limit is short: the
- * RMS ADC on the same bus drops a half-cycle after a 1.5 ms gap. */
+ * RMS ADC on the same bus drops a half-cycle after a 1.5 ms gap. The P06 latch is kept outside the hold. */
 bool ctrl_board_food_cs_prepare(void)
 {
-    return s_exp && exp_write(TCA9555_REG_OUTPUT0, ctrl_exp_output0());
+    return ctrl_board_expander_service();
 }
 
 bool ctrl_board_food_cs(bool selected)
 {
-    uint8_t b[2] = {TCA9555_REG_CONFIG0, ctrl_exp_config0(selected)};
-    return s_exp && i2c_master_transmit(s_exp, b, sizeof b, 2) == ESP_OK;
+    return s_exp && ctrl_exp_keeper_select(&s_keeper, &s_keeper_select_ops, selected);
 }
 
 static const emc2301_ops_t s_fan2_ops = {.read = fan2_read, .write = fan2_write, .ctx = NULL};
@@ -249,6 +304,8 @@ bool ctrl_board_poll_expander(void)
         s_exp_cache.raw = raw;
         s_exp_cache.t_us = now;
         s_exp_cache.valid = true;
+    } else {
+        s_exp_poll_failed = true; /* F5: the monitor task's keeper re-applies the plan */
     }
     s_exp_cache.blw_pg = pg;
     portEXIT_CRITICAL(&s_exp_mux);
@@ -277,9 +334,11 @@ bool ctrl_board_blower_apply(bool on, uint32_t ledc_counts)
     }
     /* FAN_OFF only when explicitly asked; rewrite on change or after a failed write. */
     bool off = !on;
+    s_keeper.fan_off = off; /* F5: a restore re-latches the requested FAN_OFF */
     if (s_fan_off_output && s_exp && (!s_fan_off_written || off != s_fan_off_last)) {
         s_fan_off_written = exp_write(TCA9555_REG_OUTPUT1, ctrl_exp_output1(off));
         s_fan_off_last = off;
+        if (!s_fan_off_written) ctrl_exp_keeper_error(&s_keeper);
     }
     return ok && s_fan_off_output && s_fan_off_written;
 }

@@ -151,6 +151,76 @@ size_t ctrl_exp_init_writes(bool fan_off_output, ctrl_i2c_write_t out[6])
     return n;
 }
 
+/* ---- Expander latch keeper (F5, see controller_board.h) ---- */
+void ctrl_exp_keeper_init(ctrl_exp_keeper_t *k, bool fan_off_output)
+{
+    if (!k) return;
+    memset(k, 0, sizeof *k);
+    k->fan_off_output = fan_off_output;
+}
+
+void ctrl_exp_keeper_error(ctrl_exp_keeper_t *k)
+{
+    if (!k) return;
+    k->latch_ok = false;
+    k->errors++;
+}
+
+size_t ctrl_exp_restore_writes(bool fan_off_output, bool fan_off, ctrl_i2c_write_t out[6])
+{
+    size_t n = 0;
+    out[n++] = (ctrl_i2c_write_t){TCA9555_REG_POLARITY0, 0x00};
+    out[n++] = (ctrl_i2c_write_t){TCA9555_REG_POLARITY1, 0x00};
+    /* Latches first: a reset left both ports inputs, so these drive nothing yet. */
+    out[n++] = (ctrl_i2c_write_t){TCA9555_REG_OUTPUT0, ctrl_exp_output0()};
+    out[n++] = (ctrl_i2c_write_t){TCA9555_REG_OUTPUT1, ctrl_exp_output1(fan_off)};
+    /* CONFIG0 all inputs: U50 deselected. Safe here because the service never runs inside a hold. */
+    out[n++] = (ctrl_i2c_write_t){TCA9555_REG_CONFIG0, ctrl_exp_config0(false)};
+    out[n++] = (ctrl_i2c_write_t){TCA9555_REG_CONFIG1,
+                                  fan_off_output ? (uint8_t)(0xFFu & ~(1u << (CTRL_EXP_FAN_OFF - 8))) : (uint8_t)0xFFu};
+    return n;
+}
+
+bool ctrl_exp_keeper_service(ctrl_exp_keeper_t *k, const ctrl_exp_ops_t *ops)
+{
+    if (!k || !ops || !ops->read || !ops->write) return false;
+    uint8_t v = 0;
+    if (k->latch_ok) {
+        if (!ops->read(ops->ctx, TCA9555_REG_OUTPUT0, &v)) {
+            ctrl_exp_keeper_error(k);
+            return false;
+        }
+        if (v == ctrl_exp_output0()) return true;
+        k->resets++; /* the P06 latch is not ours any more: the part reset */
+        k->latch_ok = false;
+    }
+    ctrl_i2c_write_t w[6];
+    size_t n = ctrl_exp_restore_writes(k->fan_off_output, k->fan_off, w);
+    for (size_t i = 0; i < n; i++) {
+        if (!ops->write(ops->ctx, w[i].reg, w[i].value)) {
+            ctrl_exp_keeper_error(k);
+            return false;
+        }
+    }
+    if (!ops->read(ops->ctx, TCA9555_REG_OUTPUT0, &v) || v != ctrl_exp_output0()) {
+        ctrl_exp_keeper_error(k);
+        return false;
+    }
+    k->latch_ok = true;
+    k->restores++;
+    return true;
+}
+
+bool ctrl_exp_keeper_select(ctrl_exp_keeper_t *k, const ctrl_exp_ops_t *ops, bool selected)
+{
+    if (!k || !ops || !ops->write) return false;
+    /* Never assert into an unconfirmed latch: it may be 1, and P06 would drive high, not low. */
+    if (selected && !k->latch_ok) return false;
+    bool ok = ops->write(ops->ctx, TCA9555_REG_CONFIG0, ctrl_exp_config0(selected));
+    if (!ok) ctrl_exp_keeper_error(k);
+    return ok;
+}
+
 ctrl_exp_inputs_t ctrl_exp_decode(uint16_t raw)
 {
     return (ctrl_exp_inputs_t){

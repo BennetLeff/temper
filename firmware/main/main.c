@@ -157,6 +157,10 @@ static void monitor_task(void *arg) {
          * (thermal_io.c / thermal_mgmt.c blower_ctrl_step()). 100 ms = its BLOWER_TICK_S. */
         thermal_blower_tick();
 
+        /* F5: confirm the TCA9555 P06 latch (re-apply the register plan after a reset or an expander
+         * error) outside the hold and right before it, so the select inside the hold stays one write. */
+        (void)ctrl_board_expander_service();
+
         /* C51 food probe (J9): at most one short RTD-bus hold per tick (rtd_food_service.h). */
         food_rtd_tick();
 

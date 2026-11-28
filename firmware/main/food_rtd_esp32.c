@@ -6,7 +6,9 @@
  * spics_io_num = -1 and CS# is TCA9555 P06. A hold is spi_device_acquire_bus(portMAX_DELAY, the only wait
  * ESP-IDF 5.3 accepts) ... spi_device_release_bus. The monitor task (core 0, priority 23, above the UI)
  * runs it, so only the IPC task and interrupts preempt a hold. Hold = two 2-byte I2C writes at 400 kHz
- * plus a transfer of at most 4 bytes at 500 kHz: about 0.3 ms.
+ * plus a transfer of at most 4 bytes at 500 kHz: about 0.3 ms. The P06 latch (OUTPUT0) is not written in
+ * the hold: the monitor task's ctrl_board_expander_service() confirms or restores it just before this tick
+ * (F5), and a select is refused while it is unconfirmed.
  */
 #include "food_rtd.h"
 

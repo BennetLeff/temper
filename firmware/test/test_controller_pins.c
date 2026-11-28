@@ -435,6 +435,184 @@ static void test_food_cs_on_p06_only(void)
     }
 }
 
+/* ------------------------------------------------------------------ TCA9555 register model (F5) */
+typedef struct {
+    uint8_t reg[8];
+    int fail_reads, fail_writes; /* next N transfers fail */
+    unsigned writes, reads;
+    ctrl_i2c_write_t log[32];
+    unsigned n_log;
+    int p06_min_level, p15_max_level; /* lowest / highest pad level seen during a write sequence */
+} tca_t;
+static tca_t T;
+
+/* Power-on reset values (TCA9555 data sheet, register table): outputs 1, polarity 0, all inputs. */
+static void tca_por(void)
+{
+    for (int r = 0; r < 8; r++) T.reg[r] = 0xFF;
+    T.reg[TCA9555_REG_POLARITY0] = T.reg[TCA9555_REG_POLARITY1] = 0x00;
+}
+static void tca_new(void)
+{
+    memset(&T, 0, sizeof T);
+    tca_por();
+}
+/* Pad levels: an output drives its latch; an input reads its pull (R136 10 k pull-up on P06, the 10 k gate
+ * pull-down on P15). */
+static int tca_p06(void)
+{
+    const uint8_t b = (uint8_t)(1u << CTRL_EXP_RTD_FOOD_CS_N);
+    return (T.reg[TCA9555_REG_CONFIG0] & b) ? 1 : ((T.reg[TCA9555_REG_OUTPUT0] & b) ? 1 : 0);
+}
+static int tca_p15(void)
+{
+    const uint8_t b = (uint8_t)(1u << (CTRL_EXP_FAN_OFF - 8));
+    return (T.reg[TCA9555_REG_CONFIG1] & b) ? 0 : ((T.reg[TCA9555_REG_OUTPUT1] & b) ? 1 : 0);
+}
+static bool t_read(void *c, uint8_t reg, uint8_t *v)
+{
+    (void)c;
+    T.reads++;
+    if (T.fail_reads) { T.fail_reads--; return false; }
+    assert(reg < 8);
+    *v = T.reg[reg];
+    return true;
+}
+static bool t_write(void *c, uint8_t reg, uint8_t v)
+{
+    (void)c;
+    T.writes++;
+    if (T.fail_writes) { T.fail_writes--; return false; }
+    assert(reg < 8);
+    if (T.n_log < 32) T.log[T.n_log++] = (ctrl_i2c_write_t){reg, v}; /* first 32 since the last clear */
+    T.reg[reg] = v;
+    if (tca_p06() < T.p06_min_level) T.p06_min_level = tca_p06();
+    if (tca_p15() > T.p15_max_level) T.p15_max_level = tca_p15();
+    return true;
+}
+static const ctrl_exp_ops_t TOPS = {.read = t_read, .write = t_write, .ctx = NULL};
+/* A part that resets just before every read. */
+static bool t_read_after_por(void *c, uint8_t reg, uint8_t *v)
+{
+    tca_por();
+    return t_read(c, reg, v);
+}
+
+/* F5: a TCA9555 reset mid-run (OUTPUT0 = CONFIG0 = 0xFF) must not leave the food-probe CS# unable to assert:
+ * after the keeper's service, a select drives P06 LOW, not high. */
+static void test_food_cs_survives_expander_reset(void)
+{
+    tca_new();
+    ctrl_exp_keeper_t k;
+    ctrl_exp_keeper_init(&k, true);
+    assert(!k.latch_ok);
+    /* Before the first service a select is refused and writes nothing. */
+    unsigned w0 = T.writes;
+    assert(!ctrl_exp_keeper_select(&k, &TOPS, true) && T.writes == w0 && tca_p06() == 1);
+    assert(ctrl_exp_keeper_service(&k, &TOPS) && k.latch_ok && k.restores == 1 && k.resets == 0);
+    assert(ctrl_exp_keeper_select(&k, &TOPS, true) && tca_p06() == 0);
+    assert(ctrl_exp_keeper_select(&k, &TOPS, false) && tca_p06() == 1);
+
+    /* Mid-run: the blower was switched off, then the part resets. */
+    k.fan_off = true;
+    assert(t_write(NULL, TCA9555_REG_OUTPUT1, ctrl_exp_output1(true)) && tca_p15() == 1);
+    tca_por();
+    assert(T.reg[TCA9555_REG_OUTPUT0] == 0xFF && T.reg[TCA9555_REG_CONFIG0] == 0xFF && tca_p15() == 0);
+
+    /* A reset between a service and a select is invisible to the select: P06 drives HIGH (U50 not selected;
+     * rtd_food_service drops that reading). This is the bug F5 names, bounded to one hold. */
+    assert(ctrl_exp_keeper_select(&k, &TOPS, true) && tca_p06() == 1);
+    assert(ctrl_exp_keeper_select(&k, &TOPS, false) && tca_p06() == 1);
+
+    /* The next service sees OUTPUT0 wrong, restores the plan and confirms it. */
+    T.n_log = 0;
+    T.p06_min_level = 1;
+    T.p15_max_level = 0;
+    assert(ctrl_exp_keeper_service(&k, &TOPS) && k.latch_ok && k.resets == 1 && k.restores == 2);
+    assert(T.reg[TCA9555_REG_OUTPUT0] == ctrl_exp_output0());
+    assert(T.reg[TCA9555_REG_CONFIG0] == ctrl_exp_config0(false));
+    assert(T.reg[TCA9555_REG_POLARITY0] == 0 && T.reg[TCA9555_REG_POLARITY1] == 0);
+    assert(tca_p15() == 1); /* FAN_OFF restored as last requested, P15 an output again */
+    assert(T.p06_min_level == 1); /* the restore never selects U50 */
+    /* Latches before directions. */
+    int i_out0 = -1, i_cfg0 = -1, i_out1 = -1, i_cfg1 = -1;
+    for (unsigned i = 0; i < T.n_log; i++) {
+        if (T.log[i].reg == TCA9555_REG_OUTPUT0) i_out0 = (int)i;
+        if (T.log[i].reg == TCA9555_REG_CONFIG0) i_cfg0 = (int)i;
+        if (T.log[i].reg == TCA9555_REG_OUTPUT1) i_out1 = (int)i;
+        if (T.log[i].reg == TCA9555_REG_CONFIG1) i_cfg1 = (int)i;
+    }
+    assert(i_out0 >= 0 && i_out0 < i_cfg0 && i_out1 >= 0 && i_out1 < i_cfg1);
+
+    /* After recovery P06 drives low on select. */
+    assert(ctrl_exp_keeper_select(&k, &TOPS, true) && tca_p06() == 0);
+    assert(ctrl_exp_keeper_select(&k, &TOPS, false) && tca_p06() == 1);
+
+    /* A healthy service is one read and no writes. */
+    unsigned r0 = T.reads;
+    w0 = T.writes;
+    assert(ctrl_exp_keeper_service(&k, &TOPS) && T.reads == r0 + 1 && T.writes == w0 && k.restores == 2);
+
+    /* Blower on, reset again: the restore latches FAN_OFF = 0 before P15 becomes an output (never off). */
+    k.fan_off = false;
+    assert(t_write(NULL, TCA9555_REG_OUTPUT1, ctrl_exp_output1(false)));
+    tca_por();
+    T.p15_max_level = 0;
+    assert(ctrl_exp_keeper_service(&k, &TOPS) && k.resets == 2 && tca_p15() == 0 && T.p15_max_level == 0);
+    assert(ctrl_exp_keeper_select(&k, &TOPS, true) && tca_p06() == 0);
+    assert(ctrl_exp_keeper_select(&k, &TOPS, false));
+}
+
+/* F5: any expander error makes the latch unconfirmed: selects are refused (deselects still written) until a
+ * service re-applies and confirms the plan. */
+static void test_food_cs_refused_after_expander_error(void)
+{
+    tca_new();
+    ctrl_exp_keeper_t k;
+    ctrl_exp_keeper_init(&k, true);
+    assert(ctrl_exp_keeper_service(&k, &TOPS));
+
+    /* A failed select write. */
+    T.fail_writes = 1;
+    assert(!ctrl_exp_keeper_select(&k, &TOPS, true) && !k.latch_ok && k.errors == 1);
+    assert(ctrl_exp_keeper_select(&k, &TOPS, false) && tca_p06() == 1); /* deselect always written */
+    unsigned w0 = T.writes;
+    assert(!ctrl_exp_keeper_select(&k, &TOPS, true) && T.writes == w0 && tca_p06() == 1);
+
+    /* A failed restore write, then a failed read-back: still refused. */
+    T.fail_writes = 1;
+    assert(!ctrl_exp_keeper_service(&k, &TOPS) && !k.latch_ok);
+    T.fail_reads = 1;
+    assert(!ctrl_exp_keeper_service(&k, &TOPS) && !k.latch_ok);
+    assert(!ctrl_exp_keeper_select(&k, &TOPS, true));
+    /* A read-back that disagrees (the part reset again during the restore) is not a confirmation. */
+    const ctrl_exp_ops_t reset_part = {.read = t_read_after_por, .write = t_write, .ctx = NULL};
+    assert(!ctrl_exp_keeper_service(&k, &reset_part) && !k.latch_ok);
+    assert(!ctrl_exp_keeper_select(&k, &TOPS, true));
+
+    /* A good service restores; selects work again. */
+    tca_por(); /* whatever state the failures left */
+    assert(ctrl_exp_keeper_service(&k, &TOPS) && k.latch_ok);
+    assert(ctrl_exp_keeper_select(&k, &TOPS, true) && tca_p06() == 0);
+    assert(ctrl_exp_keeper_select(&k, &TOPS, false));
+
+    /* An error reported from elsewhere (a failed poll or FAN_OFF write) forces a full restore even though
+     * OUTPUT0 still reads right. */
+    ctrl_exp_keeper_error(&k);
+    assert(!ctrl_exp_keeper_select(&k, &TOPS, true));
+    w0 = T.writes;
+    assert(ctrl_exp_keeper_service(&k, &TOPS) && T.writes == w0 + 6 && k.resets == 0);
+    assert(ctrl_exp_keeper_select(&k, &TOPS, true) && tca_p06() == 0);
+    assert(ctrl_exp_keeper_select(&k, &TOPS, false));
+
+    /* A failed periodic read-back is an error too. */
+    T.fail_reads = 1;
+    assert(!ctrl_exp_keeper_service(&k, &TOPS) && !k.latch_ok);
+    assert(!ctrl_exp_keeper_select(&k, &TOPS, true));
+    assert(ctrl_exp_keeper_service(&k, &TOPS) && ctrl_exp_keeper_select(&k, &TOPS, true) && tca_p06() == 0);
+    assert(!ctrl_exp_keeper_service(NULL, &TOPS) && !ctrl_exp_keeper_select(NULL, &TOPS, true));
+}
+
 int main(void)
 {
     TEST(test_no_duplicate_gpio_or_net);
@@ -449,6 +627,8 @@ int main(void)
     TEST(test_blw_pg_stays_input);
     TEST(test_blw_pg_debounce);
     TEST(test_food_cs_on_p06_only);
+    TEST(test_food_cs_survives_expander_reset);
+    TEST(test_food_cs_refused_after_expander_error);
     printf("controller pin map: %u tests passed\n", tests);
     return 0;
 }
