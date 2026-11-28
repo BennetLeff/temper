@@ -48,6 +48,7 @@ WORK = PCB / "route"
 KPY = "/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3"
 CLI = "/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli"
 GND = "selv_gnd"
+CLUSTER = {"V_BLOWER", "V15_BLW"}     # = gridroute.CLUSTER (rip_around runs in KiCad's Python, which has no shapely)
 
 
 def run(cmd):
@@ -99,7 +100,10 @@ def rip_around(board, report, radius):
             if math.dist((a[0] + k * dx, a[1] + k * dy), e) < radius:
                 return True
         return False
-    gone = [t for t in b.GetTracks() if not t.IsLocked() and t.GetNetname() not in stuck | {GND, "v3v3"} and near(t)]
+    # set 9 run 1: the CLUSTER nets' copper stays. Ripped, V_BLOWER came back after the stuck nets (GRIDROUTE_FIRST)
+    # had taken the room its companion vias stood in, and kept one barrel at 2.7 A (power_vias gate)
+    gone = [t for t in b.GetTracks() if not t.IsLocked() and t.GetNetname() not in stuck | {GND, "v3v3"} | CLUSTER
+            and near(t)]
     for t in gone:
         b.Remove(t)
     pcbnew.SaveBoard(str(board), b)
@@ -316,6 +320,9 @@ def main():
     # pairs in varying order, which breaks ties in gridroute.py's pair order. Every run is gated by
     # the DRC in layout/make.py (0 errors, 0 unconnected, parity 0) rather than by a fixed outcome.
     os.environ["PYTHONHASHSEED"] = "0"
+    sys.path.insert(0, str(HERE))
+    import gridroute
+    assert CLUSTER == gridroute.CLUSTER, "route.CLUSTER must match gridroute.CLUSTER"
     WORK.mkdir(exist_ok=True)
     work = WORK / "work.kicad_pcb"
     if "--continue" not in sys.argv:        # --continue: resume on pcb/route/work.kicad_pcb

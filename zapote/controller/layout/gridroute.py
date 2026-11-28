@@ -1080,11 +1080,15 @@ def eco():
     geom = json.load(open(sys.argv[2]))
     drc = json.load(open(sys.argv[3]))
     configure(geom)
-    soft_tracks = [t for t in geom["tracks"] if not t.get("locked", True)]
-    soft_vias = [v for v in geom["vias"] if not v.get("locked", True) and v["net"] != "<npth>"]
+    # set 9: a CLUSTER net's routing is fixed here, as in pass 2 (a signal path does not displace a CLUSTER route):
+    # re-routed after an ECO cut, it may find no room for its companion vias
+    def soft(x):
+        return not x.get("locked", True) and x["net"] not in CLUSTER and x["net"] != "<npth>"
+    soft_tracks = [t for t in geom["tracks"] if soft(t)]
+    soft_vias = [v for v in geom["vias"] if soft(v)]
     fixed = dict(geom)
-    fixed["tracks"] = [t for t in geom["tracks"] if t.get("locked", True)]
-    fixed["vias"] = [v for v in geom["vias"] if v.get("locked", True) or v["net"] == "<npth>"]
+    fixed["tracks"] = [t for t in geom["tracks"] if not soft(t)]
+    fixed["vias"] = [v for v in geom["vias"] if not soft(v)]
     soft_drills = {(round(v["at"][0], 3), round(v["at"][1], 3)) for v in soft_vias}
     fixed["drills"] = [d_ for d_ in geom["drills"] if (round(d_[0], 3), round(d_[1], 3)) not in soft_drills]
     R = Router(fixed)
@@ -1127,48 +1131,90 @@ def eco():
                 ls = ("F",)
             ends.append((p, ls))
         (a, la), (b, lb) = ends
-        res = None
+
+        def crossings(segs, vias):
+            """The earlier routing's pieces the path crosses, per net, and their rip items."""
+            body = [LineString([p, q]).buffer(w__ / 2 + 0.25) for _, p, q, w__ in segs] + \
+                   [Point(c).buffer(VIA_R + 0.25) for c in vias]
+            hit, rips_k = [], []
+            for n2, rid in rid_of.items():
+                if n2 == net or rid not in R.routes:
+                    continue
+                s2, v2 = R.routes[rid][1], R.routes[rid][2]
+                items = [("t", l2, p, q, w2, LineString([p, q]).buffer(w2 / 2)) for l2, p, q, w2 in s2] + \
+                        [("v", None, c, c, 2 * VIA_R, Point(c).buffer(VIA_R)) for c in v2]
+                crossing = [it for it in items if any(it[5].intersects(g1) for g1 in body)]
+                if crossing:
+                    hit.append((n2, crossing))
+                    # only the crossed pieces are deleted; KiCad then reports just those broken links
+                    rips_k += [{"net": n2, "kind": it[0], "layer": it[1], "a": list(it[2]), "b": list(it[3])}
+                               for it in crossing]
+            return body, hit, rips_k
+
+        def cut(hit):
+            """Delete the crossed pieces from the router's copper; returns the routes as they were."""
+            saved = {}
+            for n2, crossing in hit:
+                # set 8 run 1: the router keeps the pieces the board keeps. Removing the whole net here let a later pair
+                # of the same pass lay copper across n2's uncrossed tracks unseen: no rip item, a short on the board
+                # (PERMIT_RB across RTD_SDI, UI_MOSI, rtd_sense_p_ext).
+                gone_t = {(it[1], it[2], it[3]) for it in crossing if it[0] == "t"}
+                gone_v = {it[2] for it in crossing if it[0] == "v"}
+                _, s2, v2 = R.routes[rid_of[n2]]
+                saved[n2] = (s2, v2)
+                keep_s = [s for s in s2 if (s[0], s[1], s[2]) not in gone_t]
+                keep_v = [c for c in v2 if c not in gone_v]
+                R.remove_route(rid_of[n2])
+                if keep_s or keep_v:
+                    R.add_copper(n2, keep_s, keep_v, rid=rid_of[n2])
+            return saved
+
+        def uncut(saved):
+            for n2, (s2, v2) in saved.items():
+                if rid_of[n2] in R.routes:
+                    R.remove_route(rid_of[n2])
+                R.add_copper(n2, s2, v2, rid=rid_of[n2])
+
+        # set 9 run 3: an ECO path of a CLUSTER net gets its companion vias here, as attempt() gives them in the rounds
+        # (V_BLOWER's ECO route kept one barrel at 2.7 A). They are placed with the crossed pieces deleted, in the room
+        # the path frees; a via left short is barred and the pair re-routed, CLUSTER_TRIES times per width and margin,
+        # and if every route is short the one with the fewest short vias is kept (power_vias.py and the gate see it).
+        best, why_f = None, ""
         for w_, m_, nk_ in [(POWER.get(net, SIG_W), m, None) for m in (3.0, 10.0, 30.0)] + \
                 [(POWER[net], m, NARROW[net]) for m in (10.0, 30.0) if net in NARROW]:
-            res, why = R.route(net, a, b, la, lb, w_, m_, soft=True, neck=nk_)
-            if res:
-                break
-        if not res:
-            out["failed"].append({"net": net, "a": a, "b": b})
+            bar, found = [], False
+            for _ in range(CLUSTER_TRIES if net in CLUSTER else 1):
+                res, why = R.route(net, a, b, la, lb, w_, m_, soft=True, neck=nk_, via_bar=tuple(bar))
+                if not res:
+                    break
+                found = True
+                segs, vias = res
+                body, hit, rips_k = crossings(segs, vias)
+                # set 8 run 1: a path may not cross another net's ECO path of this pass. Those are not on the board yet,
+                # so nothing could delete them, and the soft route treats them as a cost only. Left to the rounds.
+                if any(n_ != net and any(g0.intersects(g1) for g1 in body) for n_, g0 in eco_geo):
+                    why_f = "crosses an ECO path of this pass"
+                    break
+                if net not in CLUSTER:
+                    best = (0, segs, vias, hit, rips_k)
+                    break
+                saved = cut(hit)
+                segs_c, vias_c, short = R.cluster(net, segs, vias, w_)
+                uncut(saved)
+                if best is None or len(short) < best[0]:
+                    best = (len(short), segs_c, vias_c, hit, rips_k)
+                if not short:
+                    break
+                bar += short
+            if (found and net not in CLUSTER) or (best is not None and best[0] == 0):
+                break                   # the first width/margin that routes, as before; a CLUSTER net tries on if short
+        if best is None:
+            out["failed"].append({"net": net, "a": a, "b": b, **({"why": why_f} if why_f else {})})
             continue
-        segs, vias = res
-        body = [LineString([p, q]).buffer(w__ / 2 + 0.25) for _, p, q, w__ in segs] + \
-               [Point(c).buffer(VIA_R + 0.25) for c in vias]
-        # set 8 run 1: a path may not cross another net's ECO path of this pass. Those are not on the board yet, so
-        # nothing could delete them, and the soft route treats them as a cost only. The pair is left to the rounds.
-        if any(n_ != net and any(g0.intersects(g1) for g1 in body) for n_, g0 in eco_geo):
-            out["failed"].append({"net": net, "a": a, "b": b, "why": "crosses an ECO path of this pass"})
-            continue
-        hit, rips_k = [], []
-        for n2, rid in rid_of.items():
-            if n2 == net or rid not in R.routes:
-                continue
-            s2, v2 = R.routes[rid][1], R.routes[rid][2]
-            items = [("t", l2, p, q, w2, LineString([p, q]).buffer(w2 / 2)) for l2, p, q, w2 in s2] + \
-                    [("v", None, c, c, 2 * VIA_R, Point(c).buffer(VIA_R)) for c in v2]
-            crossing = [it for it in items if any(it[5].intersects(g1) for g1 in body)]
-            if crossing:
-                hit.append((n2, crossing))
-                # only the crossed pieces are deleted; KiCad then reports just those broken links
-                rips_k += [{"net": n2, "kind": it[0], "layer": it[1], "a": list(it[2]), "b": list(it[3])}
-                           for it in crossing]
-        for n2, crossing in hit:
-            # set 8 run 1: the router keeps the pieces the board keeps. Removing the whole net here let a later pair of
-            # the same pass lay copper across n2's uncrossed tracks unseen: no rip item, a short on the board (PERMIT_RB
-            # across RTD_SDI, UI_MOSI, rtd_sense_p_ext).
-            gone_t = {(it[1], it[2], it[3]) for it in crossing if it[0] == "t"}
-            gone_v = {it[2] for it in crossing if it[0] == "v"}
-            _, s2, v2 = R.routes[rid_of[n2]]
-            keep_s = [s for s in s2 if (s[0], s[1], s[2]) not in gone_t]
-            keep_v = [c for c in v2 if c not in gone_v]
-            R.remove_route(rid_of[n2])
-            if keep_s or keep_v:
-                R.add_copper(n2, keep_s, keep_v, rid=rid_of[n2])
+        n_short, segs, vias, hit, rips_k = best
+        if n_short:
+            print(f"eco {net}: {n_short} vias short of companions", flush=True)
+        cut(hit)
         hit = [n2 for n2, _ in hit]
         eco_geo += [(net, LineString([p, q]).buffer(w__ / 2)) for _, p, q, w__ in segs] + \
                    [(net, Point(c).buffer(VIA_R)) for c in vias]

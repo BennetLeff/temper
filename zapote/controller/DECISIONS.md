@@ -1193,3 +1193,27 @@ CR-2 gate 1b to ±0.45 K ... and apply the four zero-risk C51 stock swaps".
         plus 15 and 6 conflicts on run 3, including ECO-to-ECO crossings.
       - New code: 0 in all four. The guard, applied to the old outputs, flags exactly the shorted nets.
     - Run 2 is not counted: set 9 runs 3 fresh runs on this code.
+  - **Set 9 (812df8e40): 1/3.**
+    - Run 2: ALL GATES PASS in 106 min (one ECO pass).
+    - Runs 1 and 3: DRC 0 errors and 0 unconnected, but the power_vias gate failed. Each had one V_BLOWER layer change
+      with a single barrel at 2.7 A. Archive: build/conv/failed-review-fix-set9/.
+    - Two different paths left a CLUSTER net's via without companions.
+      - Run 1, via at (166.7, 33.2) by U52/Q2. Repair 1.0's rip_around deleted V_BLOWER's copper, companions included,
+        within 3 mm of the stuck nets' ends. In round 15 the stuck nets route first (GRIDROUTE_FIRST ranks ahead of
+        CLUSTER) and took the room. V_BLOWER came back through attempt()'s fallback ("ok, companions short"), and
+        power_vias.py found every spot round it taken by FAN2_TACH, FAN2_PWM and I2C_SCL_BOOT.
+      - Run 3, via at (180, 27). V_BLOWER was itself an open pair, and ECO pass 0 routed it. eco() never called
+        cluster(), so its three vias went in bare. power_vias.py added one companion to two of them, none to the third.
+    - Fix.
+      - rip_around leaves the CLUSTER nets' copper, as pass 2 does (a signal path does not displace a CLUSTER route).
+      - eco() treats CLUSTER copper as fixed for the same reason.
+      - eco() gives a CLUSTER net's ECO path companion vias the way attempt() does, placed with the crossed pieces
+        already deleted. A short via is barred and the pair re-routed, CLUSTER_TRIES times per width and margin.
+      - route.CLUSTER mirrors gridroute.CLUSTER (KiCad's Python has no shapely), and main() asserts that they match.
+    - Checks (archive replay/).
+      - rip_around on run 1's routed board, with an open end at that via: the old code rips 10 V_BLOWER pieces, the new
+        code none.
+      - Run 3's board with its ECO V_BLOWER route deleted, replayed through eco(). Old code: 3 vias, all single. New
+        code: 3 sites of 3 barrels, the same 32 rip items, 0 clearance violations in the independent checker
+        (e8/check.py).
+    - Run 2 is not counted: set 10 runs 3 fresh runs on this code.
