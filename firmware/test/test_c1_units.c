@@ -247,6 +247,181 @@ static void test_rtd_convert_zero_code_is_not_a_temperature(void)
     TEST_ASSERT_TRUE(isnan(rtd_convert_code_to_c(&p, 0u)));
 }
 
+/* ---- CR-2 single-point gain calibration (rtd_convert_gain_cal) ------------- */
+
+/* The conversion before gain_cal existed, restated: the default (gain_cal = 1.0f) must match it bit for bit. */
+static float pre_cr2_code_to_ohm(const rtd_convert_params_t *p, uint16_t code)
+{
+    const double r_meas = (double)code / 32768.0 * (double)p->r_ref_ohm;
+    if (!p->loading_correction) return (float)r_meas;
+    return (float)(r_meas - ((double)p->loading_k1 * r_meas + (double)p->loading_k0_ohm));
+}
+
+static void test_gain_cal_default_is_byte_identical_to_uncalibrated(void)
+{
+    rtd_convert_params_t p;
+    rtd_convert_default_params(&p);
+    TEST_ASSERT_TRUE(p.gain_cal == 1.0f);
+    for (int lc = 0; lc <= 1; lc++) {
+        p.loading_correction = lc != 0;
+        for (uint32_t c = 0; c <= 32767u; c++) {
+            const float a = rtd_convert_code_to_ohm(&p, (uint16_t)c);
+            const float b = pre_cr2_code_to_ohm(&p, (uint16_t)c);
+            TEST_ASSERT_EQUAL_MEMORY(&b, &a, sizeof a);
+            const float ta = rtd_convert_code_to_c(&p, (uint16_t)c);
+            const float tb = rtd_convert_ohm_to_c(b, p.r0_ohm) - p.self_heating_k;
+            TEST_ASSERT_EQUAL_MEMORY(&tb, &ta, sizeof ta);
+        }
+    }
+}
+
+static double cvd_r(double t_c) { return 100.0 * (1.0 + RTD_CVD_A * t_c + RTD_CVD_B * t_c * t_c); } /* T >= 0 */
+
+/* Simulated board: R39 at +0.1 % and 253 mOhm of copper inside the reference measurement, so the
+ * effective reference is 430 * 1.001 + 0.253 ohm. code_exact(R) is the unrounded code; the
+ * loading model (when on) is the one rtd_convert inverts. */
+#define BOARD_RREF_OHM (430.0 * 1.001 + 0.253)
+static double board_code_exact(const rtd_convert_params_t *p, double r_true)
+{
+    double r_meas = r_true;
+    if (p->loading_correction) r_meas = (r_true + (double)p->loading_k0_ohm) / (1.0 - (double)p->loading_k1);
+    return r_meas / BOARD_RREF_OHM * 32768.0;
+}
+/* The temperature the board shows for integer code c with a perfect reference: the truth for that code. */
+static double board_truth_c(const rtd_convert_params_t *p, uint16_t c)
+{
+    double r_meas = (double)c / 32768.0 * BOARD_RREF_OHM;
+    double r_true = p->loading_correction
+                        ? r_meas - ((double)p->loading_k1 * r_meas + (double)p->loading_k0_ohm)
+                        : r_meas;
+    return (double)rtd_convert_ohm_to_c((float)r_true, 100.0f) - (double)p->self_heating_k;
+}
+/* Largest |reading - truth| over every code the board produces for 200..250 degC. */
+static double board_max_err(const rtd_convert_params_t *p)
+{
+    const uint16_t lo = (uint16_t)floor(board_code_exact(p, cvd_r(200.0)));
+    const uint16_t hi = (uint16_t)ceil(board_code_exact(p, cvd_r(250.0)));
+    double worst = 0.0;
+    for (uint16_t c = lo; c <= hi; c++) {
+        const double e = fabs((double)rtd_convert_code_to_c(p, c) - board_truth_c(p, c));
+        if (e > worst) worst = e;
+    }
+    return worst;
+}
+
+/* Positive: calibrated at R(200 degC) with a mean code fine enough to resolve the factor (an ideally
+ * dithered mean, here the unrounded code), the board reads within 0.01 K of truth from 200 to 250 degC.
+ * Without calibration the same board is ~0.85 K off at 250 degC. Both loading-correction settings. */
+static void test_gain_cal_cancels_rref_tolerance_and_copper(void)
+{
+    for (int lc = 0; lc <= 1; lc++) {
+        rtd_convert_params_t p;
+        rtd_convert_default_params(&p);
+        p.loading_correction = lc != 0;
+        TEST_ASSERT_TRUE(board_max_err(&p) > 0.8);
+        const float r_cal = (float)cvd_r(200.0);
+        float g = 0.0f;
+        TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_OK,
+                              rtd_convert_gain_cal(&p, (float)board_code_exact(&p, r_cal), r_cal, &g));
+        TEST_ASSERT_FLOAT_WITHIN(2e-6f, (float)(BOARD_RREF_OHM / 430.0), g);
+        p.gain_cal = g;
+        TEST_ASSERT_TRUE(board_max_err(&p) < 0.01);
+    }
+}
+
+/* Honest residual of a single integer code: the factor is quantised to 0.5 LSB at the calibration code,
+ * which bounds the 200..250 degC error at 0.5/code * max R/(dR/dT) (= 0.020 K at 250 degC), above the
+ * 0.01 K target. Checked at the worst rounding (exact code +/- 0.5) as well as this board's rounding. */
+static void test_gain_cal_integer_code_residual_is_bounded_by_half_an_lsb(void)
+{
+    rtd_convert_params_t p;
+    rtd_convert_default_params(&p);
+    const float r_cal = (float)cvd_r(200.0);
+    const double exact = board_code_exact(&p, r_cal);
+    const double r250 = cvd_r(250.0), slope250 = 100.0 * (RTD_CVD_A + 2.0 * RTD_CVD_B * 250.0);
+    const double bound = 0.5 / exact * (r250 / slope250);
+    TEST_ASSERT_TRUE(bound > 0.0195 && bound < 0.0205);
+    /* The true integer code, and the two extremes an integer code can be from the exact one (+/- 0.5 LSB,
+     * as on a board whose exact code falls half-way). */
+    const double codes[] = {round(exact), exact - 0.499, exact + 0.499};
+    for (unsigned i = 0; i < 3; i++) {
+        float g = 0.0f;
+        TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_OK, rtd_convert_gain_cal(&p, (float)codes[i], r_cal, &g));
+        p.gain_cal = g;
+        const double e = board_max_err(&p);
+        TEST_ASSERT_TRUE(e <= bound * 1.01 + 1e-4);
+        if (i > 0) TEST_ASSERT_TRUE(e > 0.01); /* half-LSB rounding misses 0.01 K: why the mean is a float */
+    }
+}
+
+static void test_gain_cal_rejects_bad_inputs(void)
+{
+    rtd_convert_params_t p;
+    rtd_convert_default_params(&p);
+    const float r_cal = (float)cvd_r(200.0);
+    const float code = (float)(r_cal / 430.0 * 32768.0);
+    float g = 1.25f;
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_INPUT, rtd_convert_gain_cal(&p, NAN, r_cal, &g));
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_INPUT, rtd_convert_gain_cal(&p, INFINITY, r_cal, &g));
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_INPUT, rtd_convert_gain_cal(&p, code, NAN, &g));
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_INPUT, rtd_convert_gain_cal(&p, code, INFINITY, &g));
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_INPUT, rtd_convert_gain_cal(&p, code, -INFINITY, &g));
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_INPUT, rtd_convert_gain_cal(&p, code, 0.0f, &g));
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_INPUT, rtd_convert_gain_cal(&p, code, -175.86f, &g));
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_INPUT, rtd_convert_gain_cal(NULL, code, r_cal, &g));
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_INPUT, rtd_convert_gain_cal(&p, code, r_cal, NULL));
+    rtd_convert_params_t q = p;
+    q.r_ref_ohm = 0.0f;
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_INPUT, rtd_convert_gain_cal(&q, code, r_cal, &g));
+    q.r_ref_ohm = NAN;
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_INPUT, rtd_convert_gain_cal(&q, code, r_cal, &g));
+    TEST_ASSERT_TRUE(g == 1.25f); /* never written on a rejection */
+}
+
+static void test_gain_cal_rejects_fault_and_rail_codes(void)
+{
+    rtd_convert_params_t p;
+    rtd_convert_default_params(&p);
+    float g = 1.25f;
+    /* r_cal chosen so the factor itself would be 1: only the code decides. */
+    const float codes[] = {0.0f, -1.0f, 1.0f, (float)RTD_C1_FAIL_LOW_CODE, (float)RTD_C1_FAIL_HIGH_CODE,
+                           32767.0f, 32768.0f};
+    for (unsigned i = 0; i < sizeof codes / sizeof codes[0]; i++) {
+        const float r_cal = codes[i] / 32768.0f * 430.0f;
+        TEST_ASSERT_NOT_EQUAL(RTD_GAIN_CAL_OK, rtd_convert_gain_cal(&p, codes[i], r_cal > 0.0f ? r_cal : 1.0f, &g));
+    }
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_CODE, rtd_convert_gain_cal(&p, 0.0f, 1.0f, &g));
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_CODE, rtd_convert_gain_cal(&p, (float)RTD_C1_FAIL_LOW_CODE, 18.5f, &g));
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_CODE, rtd_convert_gain_cal(&p, 32767.0f, 430.0f, &g));
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_BAD_CODE, rtd_convert_gain_cal(&p, (float)RTD_C1_FAIL_HIGH_CODE, 390.5f, &g));
+    /* Just inside the window, with a matching resistor: accepted. */
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_OK, rtd_convert_gain_cal(&p, (float)(RTD_C1_FAIL_LOW_CODE + 1u),
+                                                                (float)(RTD_C1_FAIL_LOW_CODE + 1u) / 32768.0f * 430.0f, &g));
+    TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f, g);
+}
+
+static void test_gain_cal_rejects_factors_outside_the_physical_bound(void)
+{
+    rtd_convert_params_t p;
+    rtd_convert_default_params(&p);
+    const float r_cal = (float)cvd_r(200.0);
+    const float code = (float)((double)r_cal / 430.0 * 32768.0); /* factor exactly 1 */
+    float g = 1.25f;
+    const double inside[] = {1.0 + 0.0049, 1.0 - 0.0049, 1.0 + 0.0035, 1.0 - 0.0035};
+    for (unsigned i = 0; i < 4; i++) {
+        TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_OK, rtd_convert_gain_cal(&p, code, (float)(r_cal * inside[i]), &g));
+        TEST_ASSERT_FLOAT_WITHIN(1e-5f, (float)inside[i], g);
+    }
+    g = 1.25f;
+    const double outside[] = {1.0 + 0.0051, 1.0 - 0.0051, 1.01, 0.99, 100.0 / 175.86, 2.0};
+    for (unsigned i = 0; i < 6; i++)
+        TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_OUT_OF_BOUND,
+                              rtd_convert_gain_cal(&p, code, (float)(r_cal * outside[i]), &g));
+    /* A non-4-wire fixture: 1 ohm of leads in series. */
+    TEST_ASSERT_EQUAL_INT(RTD_GAIN_CAL_OUT_OF_BOUND, rtd_convert_gain_cal(&p, (float)((r_cal + 1.0) / 430.0 * 32768.0), r_cal, &g));
+    TEST_ASSERT_TRUE(g == 1.25f);
+}
+
 /* ---- D-OPEN: sensor-failure classification -------------------------------- */
 
 static void test_sensor_failure_open_starts_at_r_850c(void)
@@ -1046,6 +1221,12 @@ void run_c1_units_tests(void)
     RUN_TEST(test_rtd_convert_cvd_points_within_half_an_lsb);
     RUN_TEST(test_rtd_convert_loading_correction_cr7);
     RUN_TEST(test_rtd_convert_zero_code_is_not_a_temperature);
+    RUN_TEST(test_gain_cal_default_is_byte_identical_to_uncalibrated);
+    RUN_TEST(test_gain_cal_cancels_rref_tolerance_and_copper);
+    RUN_TEST(test_gain_cal_integer_code_residual_is_bounded_by_half_an_lsb);
+    RUN_TEST(test_gain_cal_rejects_bad_inputs);
+    RUN_TEST(test_gain_cal_rejects_fault_and_rail_codes);
+    RUN_TEST(test_gain_cal_rejects_factors_outside_the_physical_bound);
     RUN_TEST(test_sensor_failure_open_starts_at_r_850c);
     RUN_TEST(test_sensor_failure_short_ends_at_r_minus_200c);
     RUN_TEST(test_flagged_plausible_over_temperature_is_a_temperature);

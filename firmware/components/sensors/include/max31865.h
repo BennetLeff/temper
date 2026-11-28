@@ -62,7 +62,8 @@ extern "C" {
 #define MAX31865_FAULT_REFIN_LOW      0x10u /* D4: REFIN- < 0.85 VBIAS, FORCE- open */
 #define MAX31865_FAULT_RTDIN_LOW      0x08u /* D3: RTDIN- < 0.85 VBIAS, FORCE- open */
 
-/* Reference resistor of the pan RTD channel: RTDSensing.r_ref = 430 ohm +/- 0.05 %
+/* Reference resistor of the pan RTD channel: RTDSensing.r_ref = 430 ohm, R39 = RESI PTFR0805B430RN9
+ * (430 ohm, 0.1 %, 10 ppm/K; DECISIONS C52)
  * (zapote/controller/elec/src/modules.ato:1823 on branch controller-layout, 4-wire network,
  * datasheet Figure 4). The same value derives MAX31865_{LOW,HIGH}_THRESHOLD_WORD in config.yaml
  * (firmware/tools/board_derivations.yaml), so the conversion below and the hardware thresholds
